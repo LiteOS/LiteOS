@@ -1,6 +1,0 @@
---c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\kernel\base\include -I..\..\kernel\include -I..\..\platform\include\keil -I..\..\platform\bsp\sample\config -I..\..\platform\cpu\arm\cortex-m4 -I..\..\api_example\include
--I E:\opensource\LiteOS\projects\stm32f429_keil\RTE
--I C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.10.0
--I C:\Keil_v5\ARM\CMSIS\Include
--D__UVISION_VERSION="514" -DSTM32F429xx
--o .\objects\los_task.o --omf_browse .\objects\los_task.crf --depend .\objects\los_task.d --feedback ".\Objects\HuaweiLiteOS.fed" "..\..\kernel\base\core\los_task.c"
