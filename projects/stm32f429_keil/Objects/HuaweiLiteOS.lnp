@@ -1,0 +1,28 @@
+--cpu Cortex-M4.fp
+".\objects\los_priqueue.o"
+".\objects\los_swtmr.o"
+".\objects\los_sys.o"
+".\objects\los_task.o"
+".\objects\los_tick.o"
+".\objects\los_timeslice.o"
+".\objects\los_event.o"
+".\objects\los_mux.o"
+".\objects\los_queue.o"
+".\objects\los_sem.o"
+".\objects\los_membox.o"
+".\objects\los_memory.o"
+".\objects\los_memstat.o"
+".\objects\los_multipledlinkhead.o"
+".\objects\los_misc.o"
+".\objects\los_config.o"
+".\objects\los_hw.o"
+".\objects\los_hw_tick.o"
+".\objects\los_hwi.o"
+".\objects\los_dispatch.o"
+".\objects\los_vendor.o"
+--library_type=microlib
+--feedback ".\Objects\HuaweiLiteOS.fed" --feedback_image=none
+--strict --scatter ".\startup\STM32F429I-LiteOS.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\HuaweiLiteOS.map" -o .\Objects\HuaweiLiteOS.axf
