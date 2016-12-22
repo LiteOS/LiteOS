@@ -38,11 +38,6 @@
 #include "los_config.h"
 #include "los_compiler.h"
 
-#if 1
-#include <stdio.h>
-#include <string.h>
-#endif
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
