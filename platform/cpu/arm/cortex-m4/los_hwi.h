@@ -81,7 +81,7 @@ typedef VOID (* HWI_PROC_FUNC)(void);
  * @ingroup  los_hwi
  * Define the type of a hardware interrupt vector table function.
  */
-typedef VOID (**HWI_VECTOR_FUNC)();
+typedef VOID (**HWI_VECTOR_FUNC)(void);
 
 
 /**
