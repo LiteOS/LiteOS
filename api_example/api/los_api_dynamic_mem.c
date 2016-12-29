@@ -65,7 +65,7 @@ VOID Example_Dyn_Mem(VOID)
         dprintf("mempool init failed!\n");
         return;
     }
-    /*·ÖÅäÄÚ´æ*/
+    /*åˆ†é…å†…å­˜*/
     p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
     if (NULL == p_num) 
     {
@@ -73,10 +73,10 @@ VOID Example_Dyn_Mem(VOID)
         return;
     }
     dprintf("mem alloc ok\n");
-    /*¸³Öµ*/
+    /*èµ‹å€¼*/
     *p_num = 828;
     dprintf("*p_num = %d\n", *p_num);
-    /*ÊÍ·ÅÄÚ´æ*/
+    /*é‡Šæ”¾å†…å­˜*/
     uwRet = LOS_MemFree(m_aucSysMem0, p_num);
     if (LOS_OK == uwRet) 
     {

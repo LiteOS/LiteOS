@@ -48,7 +48,7 @@ extern "C" {
 
 void Timer1_Callback  (UINT32 arg);  // callback fuction 
                   
-void Timer2_Callback	(UINT32 arg);//»Øµ÷º¯Êý
+void Timer2_Callback	(UINT32 arg);//å›žè°ƒå‡½æ•°
 
 
 UINT32 g_timercount1 = 0;  
