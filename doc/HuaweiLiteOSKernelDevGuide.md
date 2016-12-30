@@ -46,6 +46,13 @@
 ###符号约定###
 在本文中可能出现下列标志，它们所代表的含义如下。
 
+![](./meta/kernelapi/danger.png)
+
+![](./meta/kernelapi/warning.png)
+
+![](./meta/kernelapi/careful.png)
+
+![](./meta/kernelapi/notice.png)
 <table>
     <tr>
         <td width="30%">符 号 </td>
@@ -53,31 +60,25 @@
     </tr>
     <tr>
         <td>
-![](./meta/kernelapi/danger.png)
+
 		</td>
 		<td>用于警示紧急的危险情形，若不避免，将会导致人员死亡或严重的人身伤害</td>
     </tr>
     <tr>
         <td>
 		
-![](./meta/kernelapi/warning.png)
-
 		</td>
 		<td> 用于警示潜在的危险情形，若不避免，可能会导致人员死亡或严重的人身伤害</td>
     </tr>
     <tr>
         <td>
 		
-![](./meta/kernelapi/careful.png)
-
 		</td>
 		<td>用于警示潜在的危险情形，若不避免，可能会导致中度或轻微的人身伤害</td>
     </tr>
     <tr>
         <td>
 		
-![](./meta/kernelapi/notice.png)
-
 		</td>
 		<td>用于传递设备或环境安全警示信息，若不避免，可能会导致设备损坏、数据丢失、设备性能降低或其它不可预知的结果
 		“注意”不涉及人身伤害</td>
