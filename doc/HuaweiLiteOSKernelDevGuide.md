@@ -52,19 +52,35 @@
 		<td>说明</td>
     </tr>
     <tr>
-        <td>![](./meta/kernelapi/danger.png)</td>
+        <td>
+		
+![](./meta/kernelapi/danger.png)
+
+		</td>
 		<td>用于警示紧急的危险情形，若不避免，将会导致人员死亡或严重的人身伤害</td>
     </tr>
     <tr>
-        <td>![](./meta/kernelapi/warning.png)</td>
+        <td>
+		
+![](./meta/kernelapi/warning.png)
+
+		</td>
 		<td> 用于警示潜在的危险情形，若不避免，可能会导致人员死亡或严重的人身伤害</td>
     </tr>
     <tr>
-        <td>![](./meta/kernelapi/careful.png)</td>
+        <td>
+		
+![](./meta/kernelapi/careful.png)
+
+		</td>
 		<td>用于警示潜在的危险情形，若不避免，可能会导致中度或轻微的人身伤害</td>
     </tr>
     <tr>
-        <td>![](./meta/kernelapi/notice.png)</td>
+        <td>
+		
+![](./meta/kernelapi/notice.png)
+
+		</td>
 		<td>用于传递设备或环境安全警示信息，若不避免，可能会导致设备损坏、数据丢失、设备性能降低或其它不可预知的结果
 		“注意”不涉及人身伤害</td>
     </tr>
@@ -99,7 +115,9 @@
 Huawei LiteOS Kernel是轻量级的实时操作系统，是华为IOT OS的内核。
 
 图1 Huawei LiteOS的基本框架图
+
 ![](./meta/kernelapi/liteosframe.png)
+
 Huawei LiteOS基础内核是最精简的Huawei LiteOS操作系统代码，包括任务管理、内存管理、时间管理、通信机制、中断管理、队列管理、事件管理、定时器、异常管理等操作系统基础组件，可以单独运行。
 
 **Huawei LiteOS Kernel的优势**
@@ -268,7 +286,9 @@ Huawei LiteOS系统中的每一任务都有多种运行状态。系统初始化�
 - 阻塞（Blocked）：该任务不在就绪列表中。包含任务被挂起、任务被延时、任务正在等待信号量、读写队列或者等待读写事件等。
 
 图1 任务状态示意图
+
 ![](./meta/kernelapi/runstate.png)
+
 任务状态迁移说明：
 
 - 就绪态→运行态：
@@ -940,6 +960,7 @@ Huawei LiteOS的内存管理分为静态内存管理和动态内存管理，提�
 首先简单介绍下系统的动态内存结构如图所示：
 
 图1
+
 ![](./meta/kernelapi/mem_1.png)
 
 第一部分：堆内存（也称内存池）的起始地址及堆区域总大小
@@ -959,6 +980,7 @@ LOS_MEM_DYN_NODE节点结构体申明以及简单介绍：
 	}LOS_MEM_DYN_NODE;
 
 图2 
+
 ![](./meta/kernelapi/mem_2.png)
 
 
@@ -969,6 +991,7 @@ LOS_MEM_DYN_NODE节点结构体申明以及简单介绍：
 静态内存池由一个控制块和若干相同大小的内存块构成。控制块位于内存池头部，用于内存块管理。内存块的申请和释放以块大小为粒度。
 
 图3 静态内存示意图
+
 ![](./meta/kernelapi/mem_3.png)
 
 **父主题：** 
@@ -1045,6 +1068,7 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 	初始一个内存池后如图，生成一个 EndNode，并且剩余的内存全部被标记为
 
 	FreeNode节点。注：EndNode作为内存池末尾的节点，size为0。
+
 	![](./meta/kernelapi/mem_dyn_1.png)
 
 1. 申请任意大小的动态内存LOS_MemAlloc。
@@ -1052,7 +1076,8 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 	判断动态内存池中是否存在申请量大小的空间，若存在，则划出一块内存块，以指针形式返回，若不存在，返回NULL。
 
 	调用三次LOS_MemAlloc函数可以创建三个节点,假设名称分别为UsedA，UsedB，UsedC，大小分别为sizeA，sizeB，sizeC。因为刚初始化内存池的时候只有一个大的FreeNode，所以这些内存块是从这个FreeNode中切割出来的。
-![](./meta/kernelapi/mem_dyn_2.png)
+
+	![](./meta/kernelapi/mem_dyn_2.png)
 
 	当内存池中存在多个FreeNode的时候进行malloc，将会适配最合适大小的FreeNode用来新建内存块，减少内存碎片。若新建的内存块不等于被使用的FreeNode的大小，则在新建内存块后，多余的内存又会被标记为一个新的FreeNode。
 
@@ -1061,6 +1086,7 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 	回收内存块，供下一次使用。
 
 	假设调用LOS_MemFree释放内存块UsedB，则会回收内存块UsedB，并且将其标记为FreeNode
+
 ![](./meta/kernelapi/mem_dyn_3.png)	
 	
 
@@ -1572,6 +1598,7 @@ Huawei LiteOS中使用队列数据结构实现任务异步通信工作，具有�
 删除队列时，根据传入的队列ID寻找到对应的队列，把队列状态置为未使用，释放原队列所占的空间，对应的队列控制头置为初始状态。
 
 图1 队列读写数据操作示意图
+
 ![](./meta/kernelapi/queue.png)
 
 ##开发指导##
@@ -1854,6 +1881,7 @@ Huawei LiteOS提供的事件具有如下特点：
 清除事件时，根据入参事件和待清除的事件类型，对事件对应位进行清0操作。
 
 图1 事件唤醒任务示意图
+
 ![](./meta/kernelapi/event.png)
 
 
@@ -2083,6 +2111,7 @@ Huawei LiteOS提供的互斥锁具有如下特点：
 当一个任务访问某个非共享公共资源时，互斥锁为加锁状态。此时其他任务如果想访问这个公共资源则会被阻塞，直到互斥锁被该任务释放后，才能重新访问公共资源，此时互斥锁再次上锁，如此确保同一时刻只有一个任务正在访问这个公共资源，保证了共享数据操作的完整性。
 
 互斥锁运作示意图
+
 ![](./meta/kernelapi/mutex.png)
 
 ##开发指导##
@@ -2390,6 +2419,7 @@ Huawei LiteOS 系统中的互斥锁模块为用户提供下面几种功能。
 信号量允许多个任务在同一时刻访问统一资源，但会限制同一时刻访问此资源的最大任务数目。达到最大数目时不允许其他任务的进入，其他需要进入的任务必须等待直到任何一个任务释放信号量。
 
 信号量运作示意图
+
 ![](./meta/kernelapi/signal.png)
 
 ##开发指导##
