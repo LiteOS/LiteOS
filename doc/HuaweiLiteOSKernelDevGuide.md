@@ -48,14 +48,12 @@
 
 <table>
     <tr>
-        <td width="15%">符 号 </td>
+        <td width="30%">符 号 </td>
 		<td>说明</td>
     </tr>
     <tr>
         <td>
-		
 ![](./meta/kernelapi/danger.png)
-
 		</td>
 		<td>用于警示紧急的危险情形，若不避免，将会导致人员死亡或严重的人身伤害</td>
     </tr>
