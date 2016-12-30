@@ -46,33 +46,16 @@
 ###符号约定###
 在本文中可能出现下列标志，它们所代表的含义如下。
 
-<table>
-    <tr>
-        <td width="15%">符 号 </td>
-		<td>说明</td>
-    </tr>
-    <tr>
-        <td>危险</td>
-		<td>用于警示紧急的危险情形，若不避免，将会导致人员死亡或严重的人身伤害</td>
-    </tr>
-    <tr>
-        <td>警告</td>
-		<td> 用于警示潜在的危险情形，若不避免，可能会导致人员死亡或严重的人身伤害</td>
-    </tr>
-    <tr>
-        <td>小心</td>
-		<td>用于警示潜在的危险情形，若不避免，可能会导致中度或轻微的人身伤害</td>
-    </tr>
-    <tr>
-        <td>注意</td>
-		<td>用于传递设备或环境安全警示信息，若不避免，可能会导致设备损坏、数据丢失、设备性能降低或其它不可预知的结果
-		“注意”不涉及人身伤害</td>
-    </tr>
-    <tr>
-        <td>说明</td>
-		<td>“说明”不是安全警示信息，不涉及人身、设备及环境伤害信息</td>
-    </tr>
-</table>
+![](./meta/kernelapi/danger.png)     用于警示紧急的危险情形，若不避免，将会导致人员死亡或严重的人身伤害
+
+![](./meta/kernelapi/warning.png)    用于警示潜在的危险情形，若不避免，可能会导致人员死亡或严重的人身伤害
+
+![](./meta/kernelapi/careful.png)    用于警示潜在的危险情形，若不避免，可能会导致中度或轻微的人身伤害
+
+![](./meta/kernelapi/notice.png)     用于传递设备或环境安全警示信息，若不避免，可能会导致设备损坏、数据丢失、设备性能降低或其它不可预知的结果“注意”不涉及人身伤害
+
+| 说明	|		“说明”不是安全警示信息，不涉及人身、设备及环境伤害信息	|				
+
 
 ###修订记录###
 修改记录累积了每次文档更新的说明。最新版本的文档包含以前所有文档版本的更新内容。
@@ -99,6 +82,8 @@
 Huawei LiteOS Kernel是轻量级的实时操作系统，是华为IOT OS的内核。
 
 图1 Huawei LiteOS的基本框架图
+
+![](./meta/kernelapi/liteosframe.png)
 
 Huawei LiteOS基础内核是最精简的Huawei LiteOS操作系统代码，包括任务管理、内存管理、时间管理、通信机制、中断管理、队列管理、事件管理、定时器、异常管理等操作系统基础组件，可以单独运行。
 
@@ -205,6 +190,32 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
 
 父主题： 概述
 
+## 如何使用本文档的测试用例
+本文档中的测试用例都是在api_example\api目录下，入口是los_demo_entry.c中的LOS_Demo_Entry()这个接口，使用方法los_config.c的main中调用
+
+示例如下：
+
+	extern void LOS_Demo_Entry(void)；
+	int main(void)
+	{
+		UINT32 uwRet;
+		uwRet = osMain();
+		if (uwRet != LOS_OK) {
+			return LOS_NOK;
+		}
+		LOS_Demo_Entry()；
+		LOS_Start();
+
+		for (;;);
+		/* Replace the dots (...) with your own code.  */
+	}
+
+**如何选择测试的功能：**
+
+在api_example\include\los_demo_entry.h 打开要测试的功能的宏开关
+LOS_KERNEL_TEST_xxx，比如测试task调度打开 LOS_KERNEL_TEST_TASK 即可（//#define LOS_KERNEL_TEST_TASK 修改为 #define LOS_KERNEL_TEST_TASK）
+
+
 
 --------------------------------------------------------------------------------
 
@@ -242,6 +253,8 @@ Huawei LiteOS系统中的每一任务都有多种运行状态。系统初始化�
 - 阻塞（Blocked）：该任务不在就绪列表中。包含任务被挂起、任务被延时、任务正在等待信号量、读写队列或者等待读写事件等。
 
 图1 任务状态示意图
+
+![](./meta/kernelapi/runstate.png)
 
 任务状态迁移说明：
 
@@ -420,19 +433,255 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 - 恢复挂起的任务LOS_TaskResume。
 
 **TASK错误码**
+<table>
+	<tr>
+	<td width = "10%">序号</td>
+	<td width = "25%">定义</td>
+	<td>实际数值</td>
+	<td>描述</td>
+	<td>参考解决方案</td>
+	</tr>
+	<tr>
+	<td >1</td>
+	<td>LOS_ERRNO_TSK_NO_MEMORY</td>
+	<td>0x03000200</td>
+	<td>内存空间不足</td>
+	<td>分配更大的内存分区</td>
+	</tr>
+
+	<tr>
+	<td >2</td>
+	<td>LOS_ERRNO_TSK_PTR_NULL</td>
+	<td>0x02000201</td>
+	<td>任务参数为空</td>
+	<td>检查任务参数</td>
+	</tr>
+	
+	<tr>
+	<td >3</td>
+	<td>LOS_ERRNO_TSK_STKSZ_NOT_ALIGN</td>
+	<td>0x02000202</td>
+	<td>任务栈大小未对齐</td>
+	<td>对齐任务栈</td>
+	</tr>
+	<tr>
+	<td >4</td>
+	<td>LOS_ERRNO_TSK_PRIOR_ERROR</td>
+	<td>0x02000203</td>
+	<td>不正确的任务优先级</td>
+	<td>检查任务优先级</td>
+	</tr>
+	<tr>
+	<td >5</td>
+	<td>LOS_ERRNO_TSK_ENTRY_NULL</td>
+	<td>0x02000204</td>
+	<td>任务入口函数为空</td>
+	<td>定义任务入口函数</td>
+	</tr>
+	<tr>
+	<td >6</td>
+	<td>LOS_ERRNO_TSK_NAME_EMPTY</td>
+	<td>0x02000205</td>
+	<td>任务名为空</td>
+	<td>设置任务名</td>
+	</tr>
+	<tr>
+	<td >7</td>
+	<td>LOS_ERRNO_TSK_STKSZ_TOO_SMALL</td>
+	<td>0x02000206</td>
+	<td>任务栈太小</td>
+	<td>扩大任务栈</td>
+	</tr>
+	<tr>
+	<td >8</td>
+	<td>LOS_ERRNO_TSK_ID_INVALID</td>
+	<td>0x02000207</td>
+	<td>无效的任务ID</td>
+	<td>检查任务ID</td>
+	</tr>
+	<tr>
+	<td >9</td>
+	<td>LOS_ERRNO_TSK_ALREADY_SUSPENDED</td>
+	<td>0x02000208</td>
+	<td>任务已经被挂起</td>
+	<td>等待这个任务被恢复后，再去尝试挂起这个任务</td>
+	</tr>
+	<tr>
+	<td >10</td>
+	<td>LOS_ERRNO_TSK_NOT_SUSPENDED</td>
+	<td>0x02000209</td>
+	<td>任务未被挂起</td>
+	<td>挂起这个任务</td>
+	</tr>
+	<tr>
+	<td >11</td>
+	<td>LOS_ERRNO_TSK_NOT_CREATED</td>
+	<td>0x0200020a</td>
+	<td>任务未被创建</td>
+	<td>创建这个任务</td>
+	</tr>
+	<tr>
+	<td >12</td>
+	<td>LOS_ERRNO_TSK_DELETE_LOCKED</td>
+	<td>0x0300020b</td>
+	<td>删除任务时，任务处于被锁状态</td>
+	<td>等待解锁任务之后再进行删除操作</td>
+	</tr>
+	<tr>
+	<td >13</td>
+	<td>LOS_ERRNO_TSK_MSG_NONZERO</td>
+	<td>0x0200020c</td>
+	<td>任务信息非零</td>
+	<td>暂不使用该错误码</td>
+	</tr>
+	<tr>
+	<td >14</td>
+	<td>LOS_ERRNO_TSK_DELAY_IN_INT</td>
+	<td>0x0300020d</td>
+	<td>中断期间，进行任务延时</td>
+	<td>等待退出中断后再进行延时操作</td>
+	</tr>
+	<tr>
+	<td >15</td>
+	<td>LOS_ERRNO_TSK_DELAY_IN_LOCK</td>
+	<td>0x0200020e</td>
+	<td>任务被锁的状态下，进行延时</td>
+	<td>等待解锁任务之后再进行延时操作</td>
+	</tr>
+	<tr>
+	<td >16</td>
+	<td>LOS_ERRNO_TSK_YIELD_INVALID_TASK</td>
+	<td>0x0200020f</td>
+	<td>将被排入行程的任务是无效的</td>
+	<td>检查这个任务</td>
+	</tr>
+	<tr>
+	<td >17</td>
+	<td>LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK</td>
+	<td>0x02000210</td>
+	<td>没有或者仅有一个可用任务能进行行程安排</td>
+	<td>增加任务数</td>
+	</tr>
+	<tr>
+	<td >18</td>
+	<td>LOS_ERRNO_TSK_TCB_UNAVAILABLE</td>
+	<td>0x02000211</td>
+	<td>没有空闲的任务控制块可用</td>
+	<td>增加任务控制块数量</td>
+	</tr>
+	<tr>
+	<td >19</td>
+	<td>LOS_ERRNO_TSK_HOOK_NOT_MATCH</td>
+	<td>0x02000212</td>
+	<td>任务的钩子函数不匹配</td>
+	<td>暂不使用该错误码</td>
+	</tr>
+	<tr>
+	<td >20</td>
+	<td>LOS_ERRNO_TSK_HOOK_IS_FULL</td>
+	<td>0x02000213</td>
+	<td>任务的钩子函数数量超过界限</td>
+	<td>暂不使用该错误码</td>
+	</tr>
+	<tr>
+	<td >21</td>
+	<td>LOS_ERRNO_TSK_OPERATE_IDLE</td>
+	<td>0x02000214</td>
+	<td>这是个IDLE任务</td>
+	<td>检查任务ID，不要试图操作IDLE任务</td>
+	</tr>
+	<tr>
+	<td >22</td>
+	<td>LOS_ERRNO_TSK_SUSPEND_LOCKED</td>
+	<td>0x03000215</td>
+	<td>将被挂起的任务处于被锁状态</td>
+	<td>等待任务解锁后再尝试挂起任务</td>
+	</tr>
+	<tr>
+	<td >23</td>
+	<td>LOS_ERRNO_TSK_FREE_STACK_FAILED</td>
+	<td>0x02000217</td>
+	<td>任务栈free失败</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >24</td>
+	<td>LOS_ERRNO_TSK_STKAREA_TOO_SMALL</td>
+	<td>0x02000218</td>
+	<td>任务栈区域太小</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >25</td>
+	<td>LOS_ERRNO_TSK_ACTIVE_FAILED</td>
+	<td>0x03000219</td>
+	<td>任务触发失败</td>
+	<td>创建一个IDLE任务后执行任务转换</td>
+	</tr>	
+	<tr>
+	<td >26</td>
+	<td>LOS_ERRNO_TSK_CONFIG_TOO_MANY</td>
+	<td>0x0200021a</td>
+	<td>过多的任务配置项</td>
+	<td>该错误码暂不使用</td>
+	</tr>	
+	<tr>
+	<td >27</td>
+	<td>LOS_ERRNO_TSK_CP_SAVE_AREA_NOT_ALIGN</td>
+	<td>0x0200021b</td>
+	<td>暂无</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >28</td>
+	<td>LOS_ERRNO_TSK_MSG_Q_TOO_MANY</td>
+	<td>0x0200021d</td>
+	<td>暂无</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >29</td>
+	<td>LOS_ERRNO_TSK_CP_SAVE_AREA_NULL</td>
+	<td>0x0200021e</td>
+	<td>暂无</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >30</td>
+	<td>LOS_ERRNO_TSK_SELF_DELETE_ERR</td>
+	<td>0x0200021f</td>
+	<td>暂无</td>
+	<td>该错误码暂不使用</td>
+	</tr>
+	<tr>
+	<td >31</td>
+	<td>LOS_ERRNO_TSK_STKSZ_TOO_LARGE</td>
+	<td>0x02000220</td>
+	<td>任务栈大小设置过大</td>
+	<td>减小任务栈大小</td>
+	</tr>
+	<tr>
+	<td >32</td>
+	<td>LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED</td>
+	<td>0x02000221</td>
+	<td>不允许挂起软件定时器任务</td>
+	<td>检查任务ID, 不要试图挂起软件定时器任务</td>
+	</tr>
+</table>
+
 
 对任务存在失败可能性的操作，包括创建任务、删除任务、挂起任务、恢复任务、延时任务等等，均需要返回对应的错误码，以便快速定位错误原因。
 
 错误码定义：错误码是一个32位的存储单元，31~24位表示错误等级，23~16位表示错误码标志，15~8位代表错误码所属模块，7~0位表示错误码序号，如下
 
-\#define LOS_ERRNO_OS_NORMAL(MID,ERRNO)
-(LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
-LOS_ERRTYPE_NORMAL ：Define the error level as critical
-LOS_ERRNO_OS_ID ：OS error code flag.
-MID：OS_MOUDLE_ID
-ERRNO：error ID number例如：
-
-LOS_ERRNO_TSK_NO_MEMORY  LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x00)
+	#define LOS_ERRNO_OS_NORMAL(MID,ERRNO)
+	(LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
+	LOS_ERRTYPE_NORMAL ：Define the error level as critical
+	LOS_ERRNO_OS_ID ：OS error code flag.
+	MID：OS_MOUDLE_ID
+	ERRNO：error ID number
+例如：
+	LOS_ERRNO_TSK_NO_MEMORY  LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x00)
  
 注意： 
 错误码序号 0x16、0x1c，未被定义，不可用。
@@ -491,29 +740,165 @@ LOS_ERRNO_TSK_NO_MEMORY  LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x00)
 **编程示例**
 
 请参考示例代码
-los_api_task.c
+	los_api_task.c
+
+	#include "math.h"
+	#include "time.h"
+	#include "los_task.h"
+	#include "los_api_task.h"
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	UINT32 g_uwTskHiID;
+	UINT32 g_uwTskLoID;
+
+
+	#define TSK_PRIOR_HI 4
+	#define TSK_PRIOR_LO 5
+
+	UINT32 Example_TaskHi(VOID)
+	{
+		UINT32 uwRet;
+		//UINT32 uwCurrentID;
+		//TSK_INFO_S stTaskInfo;
+
+		 printf("Enter TaskHi Handler.\r\n");
+
+		/*延时2个Tick，延时后该任务会挂起，执行剩余任务中就高优先级的任务(g_uwTskLoID任务)*/
+		uwRet = LOS_TaskDelay(2);
+		if (uwRet != LOS_OK)
+		{
+			printf("Delay Task Failed.\r\n");
+			return LOS_NOK;
+		}
+
+		/*2个tick时间到了后，该任务恢复，继续执行*/
+		printf("TaskHi LOS_TaskDelay Done.\r\n");
+
+		/*挂起自身任务*/
+		uwRet = LOS_TaskSuspend(g_uwTskHiID);
+		if (uwRet != LOS_OK)
+		{
+			printf("Suspend TaskHi Failed.\r\n");
+			return LOS_NOK;
+		}
+		printf("TaskHi LOS_TaskResume Success.\r\n");
+
+		return LOS_OK;
+	}
+
+	/*低优先级任务入口函数*/
+	UINT32 Example_TaskLo(VOID)
+	{
+		UINT32 uwRet;
+		//UINT32 uwCurrentID;
+		//TSK_INFO_S stTaskInfo;
+
+		printf("Enter TaskLo Handler.\r\n");
+
+		/*延时2个Tick，延时后该任务会挂起，执行剩余任务中就高优先级的任务(背景任务)*/
+		uwRet = LOS_TaskDelay(2);
+		if (uwRet != LOS_OK)
+		{
+			printf("Delay TaskLo Failed.\r\n");
+			return LOS_NOK;
+		}
+
+		printf("TaskHi LOS_TaskSuspend Success.\r\n");
+
+		/*恢复被挂起的任务g_uwTskHiID*/
+		uwRet = LOS_TaskResume(g_uwTskHiID);
+		if (uwRet != LOS_OK)
+		{
+			printf("Resume TaskHi Failed.\r\n");
+			return LOS_NOK;
+		}
+
+		printf("TaskHi LOS_TaskDelete Success.\r\n");
+
+		return LOS_OK;
+	}
+
+	/*任务测试入口函数，在里面创建优先级不一样的两个任务*/
+	UINT32 Example_TskCaseEntry(VOID)
+	{
+		UINT32 uwRet;
+		TSK_INIT_PARAM_S stInitParam;
+
+		/*锁任务调度*/
+		LOS_TaskLock();
+
+		printf("LOS_TaskLock() Success!\r\n");
+
+		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
+		stInitParam.usTaskPrio = TSK_PRIOR_HI;
+		stInitParam.pcName = "HIGH_NAME";
+		stInitParam.uwStackSize = 0x400;
+		stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
+		/*创建高优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
+		uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
+		if (uwRet != LOS_OK)
+		{
+			LOS_TaskUnlock();
+
+			printf("Example_TaskHi create Failed!\r\n");
+			return LOS_NOK;
+		}
+
+		printf("Example_TaskHi create Success!\r\n");
+
+		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
+		stInitParam.usTaskPrio = TSK_PRIOR_LO;
+		stInitParam.pcName = "LOW_NAME";
+		stInitParam.uwStackSize = 0x400;
+		stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
+		/*创建低优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
+		uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
+		if (uwRet != LOS_OK)
+		{
+			LOS_TaskUnlock();
+
+			printf("Example_TaskLo create Failed!\r\n");
+			return LOS_NOK;
+		}
+
+		printf("Example_TaskLo create Success!\r\n");
+
+		/*解锁任务调度，此时会发生任务调度，执行就绪列表中最高优先级任务*/
+		LOS_TaskUnlock();
+
+		//while(1){};
+
+		return LOS_OK;
+
+	}
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
 
 **结果验证**
 
 编译运行得到的结果为：
-LOS_TaskLock() Success!
-
-Example_TaskHi create Success!
-
-Example_TaskLo create Success!
-
-Enter TaskHi Handler.
-
-Enter TaskLo Handler.
-
-TaskHi LOS_TaskDelay Done.
-
-TaskHi LOS_TaskSuspend Success.
-
-TaskHi LOS_TaskResume Success.
-
-TaskHi LOS_TaskDelete Success.
-
+	LOS_TaskLock() Success!
+	Example_TaskHi create Success!
+	Example_TaskLo create Success!
+	Enter TaskHi Handler.
+	Enter TaskLo Handler.
+	TaskHi LOS_TaskDelay Done.
+	TaskHi LOS_TaskSuspend Success.
+	TaskHi LOS_TaskResume Success.
+	TaskHi LOS_TaskDelete Success.
 
 
 #内存#
@@ -541,6 +926,9 @@ Huawei LiteOS的内存管理分为静态内存管理和动态内存管理，提�
 
 首先简单介绍下系统的动态内存结构如图所示：
 
+图1
+
+![](./meta/kernelapi/mem_1.png)
 
 第一部分：堆内存（也称内存池）的起始地址及堆区域总大小
 
@@ -551,21 +939,16 @@ Huawei LiteOS的内存管理分为静态内存管理和动态内存管理，提�
 第三部分：占用内存池极大部分的空间，是用于存放各节点的实际区域。以下是
 
 LOS_MEM_DYN_NODE节点结构体申明以及简单介绍：
-
-typedef struct tagLOS_MEM_DYN_NODE
-
-{
-
-LOS_DL_LIST stFreeNodeInfo;
-
-struct tagLOS_MEM_DYN_NODE *pstPreNode;
-
-UINT32 uwSizeAndFlag;
-
-}LOS_MEM_DYN_NODE;
+	typedef struct tagLOS_MEM_DYN_NODE
+	{
+		LOS_DL_LIST stFreeNodeInfo;
+		struct tagLOS_MEM_DYN_NODE *pstPreNode;
+		UINT32 uwSizeAndFlag;
+	}LOS_MEM_DYN_NODE;
 
 图2 
 
+![](./meta/kernelapi/mem_2.png)
 
 
 **静态内存运作机制**
@@ -575,6 +958,8 @@ UINT32 uwSizeAndFlag;
 静态内存池由一个控制块和若干相同大小的内存块构成。控制块位于内存池头部，用于内存块管理。内存块的申请和释放以块大小为粒度。
 
 图3 静态内存示意图
+
+![](./meta/kernelapi/mem_3.png)
 
 **父主题：** 
 
@@ -651,11 +1036,15 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 
 	FreeNode节点。注：EndNode作为内存池末尾的节点，size为0。
 
+	![](./meta/kernelapi/mem_dyn_1.png)
+
 1. 申请任意大小的动态内存LOS_MemAlloc。
 
 	判断动态内存池中是否存在申请量大小的空间，若存在，则划出一块内存块，以指针形式返回，若不存在，返回NULL。
 
 	调用三次LOS_MemAlloc函数可以创建三个节点,假设名称分别为UsedA，UsedB，UsedC，大小分别为sizeA，sizeB，sizeC。因为刚初始化内存池的时候只有一个大的FreeNode，所以这些内存块是从这个FreeNode中切割出来的。
+
+	![](./meta/kernelapi/mem_dyn_2.png)
 
 	当内存池中存在多个FreeNode的时候进行malloc，将会适配最合适大小的FreeNode用来新建内存块，减少内存碎片。若新建的内存块不等于被使用的FreeNode的大小，则在新建内存块后，多余的内存又会被标记为一个新的FreeNode。
 
@@ -664,6 +1053,9 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 	回收内存块，供下一次使用。
 
 	假设调用LOS_MemFree释放内存块UsedB，则会回收内存块UsedB，并且将其标记为FreeNode
+
+![](./meta/kernelapi/mem_dyn_3.png)	
+	
 
 **平台差异性**
 
@@ -715,28 +1107,87 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 1. 释放掉这块内存。
 
 参考los_api_dynamic_mem.c
+	#include <stdlib.h>
+	#include "los_config.h"
+	#include "los_memory.h"
+	#include "los_api_dynamic_mem.h"
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	#define TEST_POOL_SIZE (20*1024*1024)  
+
+	UINT8 m_aucTstPool[TEST_POOL_SIZE];
+
+	void * pool_ = &m_aucTstPool[0];
+
+	VOID Example_Dyn_Mem(VOID) 
+	{
+		UINT32 *p_num = NULL;
+		UINT32 uwRet;
+		uwRet = LOS_MemInit(m_aucSysMem0, OS_SYS_MEM_SIZE);
+		if (LOS_OK == uwRet) 
+		{
+			dprintf("mempool init ok!\n");
+		}
+		else 
+		{
+			dprintf("mempool init failed!\n");
+			return;
+		}
+		/*分配内存*/
+		p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
+		if (NULL == p_num) 
+		{
+			dprintf("mem alloc failed!\n");
+			return;
+		}
+		dprintf("mem alloc ok\n");
+		/*赋值*/
+		*p_num = 828;
+		dprintf("*p_num = %d\n", *p_num);
+		/*释放内存*/
+		uwRet = LOS_MemFree(m_aucSysMem0, p_num);
+		if (LOS_OK == uwRet) 
+		{
+			dprintf("mem free ok!\n");
+		}
+		else 
+		{
+			dprintf("mem free failed!\n");
+		}
+		return;
+	}
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
 
 
 **结果验证**
 
 图1 结果显示
 
-mempool init ok!
-
-mem alloc ok
-
-*p_num = 828
-
-mem free ok!
-
+	mempool init ok!
+	mem alloc ok
+		*p_num = 828
+	mem free ok!
 
 **父主题：** 
 
 内存
 
 
-##静态内存##
-###开发指导###
+## 静态内存 
+### 开发指导 
 **使用场景**
 
 当用户需要使用固定长度的内存时，可以使用静态内存分配的方式获取内存，一旦使用完毕，通过静态内存释放函数归还所占用内存，使之可以重复使用。
@@ -794,12 +1245,15 @@ Huawei LiteOS的静态内存管理主要为用户提供以下功能。
 
 无。
 
-###注意事项###
+### 注意事项 
+
 静态内存池区域，可以通过定义全局数组或调用动态内存分配接口方式获取。如果使用动态内存分配方式，在不需要静态内存池时，注意要释放该段内存，避免内存泄露。
 
 
-###编程实例###
+### 编程实例 
+
 **实例描述**
+
 Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存资源有限，必须确保将有限的内存资源分配给急需的程序，同时释放不用的内存。
 
 通过内存管理模块可以保证正确且高效的申请释放内存。
@@ -816,11 +1270,84 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 **编程实例**
 
 参考los_api_static_mem.c
+	#include <stdio.h>
+	#include "los_membox.h"
+	#include "los_api_static_mem.h"
 
-#中断机制#
-##概述##
 
-###基本概念
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	VOID Example_StaticMem(VOID) 
+	{
+		UINT32 *p_num = NULL;
+		UINT32 uwBlkSize = 10, uwBoxSize = 100;
+		UINT32 uwRet;
+		UINT32 pBoxMem[1000];
+		uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
+		if(uwRet != LOS_OK)
+		{
+			dprintf("Mem box init failed\n");
+			return;
+		}
+		else
+		{
+			dprintf("Mem box init ok!\n");
+		}
+
+		/*申请内存块*/
+		p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
+		if (NULL == p_num) 
+		{
+			dprintf("Mem box alloc failed!\n");
+			return;
+		}
+		dprintf("Mem box alloc ok\n");
+		/*赋值*/
+		*p_num = 828;
+		dprintf("*p_num = %d\n", *p_num);
+		 /*清除内存内容*/
+		 LOS_MemboxClr(pBoxMem, p_num);
+		 dprintf("clear data ok\n *p_num = %d\n", *p_num);
+		/*释放内存*/
+		uwRet = LOS_MemboxFree(pBoxMem, p_num);
+		if (LOS_OK == uwRet) 
+		{
+			dprintf("Mem box free ok!\n");
+		}
+		else
+		{
+			dprintf("Mem box free failed!\n");
+		}
+		return;
+	}
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+**结果验证**
+
+结果显示
+
+	Mem box init ok!
+	Mem box alloc ok
+	*p_num = 828
+	clear data ok
+	*p_num = 0
+	Mem box free ok!
+
+
+## 中断机制
+### 概述
+#### 基本概念
+
 中断是指出现需要时，CPU暂停执行当前程序，转而执行新程序的过程。即在程序运行过程中，系统出现了一个必须由CPU立即处理的事务，此时，CPU暂时中止当前程序的执行转而处理这个事务，这个过程就叫做中断。
 
 众多周知，CPU的处理速度比外设的运行速度快很多，外设可以在没有CPU介入的情况下完成一定的工作，但某些情况下需要CPU为其做一定的工作。
@@ -835,9 +1362,10 @@ Huawei LiteOS的中断支持：
 1. 恢复中断。
 1. 中断使能。
 1. 中断屏蔽。
+
 Huawei LiteOS的中断机制支持中断共享。
 
-###中断的介绍###
+### 中断的介绍
 
 与中断相关的硬件可以划分为三类：设备、中断控制器、CPU本身。
 
@@ -871,7 +1399,8 @@ CPU：CPU会响应中断源的请求，中断当前正在执行的任务，转�
 
 顶半部完成尽可能少的比较紧急的任务，它往往只是简单地读取寄存器中的中断状态并清除中断标志位即进行“登记工作”，将耗时的底半部处理程序挂到系统的底半部执行队列中去。
 
-###运作机制###
+### 运作机制
+
 Huawei LiteOS的中断机制支持中断共享：
 
 中断共享的实现依赖于链表，对应每一个中断号创建一个链表，链表节点中包含注册的中断处理函数和函数入参。当对同一中断号多次创建中断时，将中断处理函数和函数入参添加到中断号对应的链表中，因此当硬件产生中断时，通过中断号查找到其对应的结构体链表，遍历执行链表中的中断处理函数。
@@ -884,7 +1413,8 @@ Huawei LiteOS的中断机制支持中断底半部：
 
 中断机制
 
-##开发指导##
+### 开发指导
+
 **使用场景**
 
 当有中断请求产生时，CPU暂停当前的任务，转而去响应外设请求。根据需要，用户通过中断申请，注册中断处理程序，可以指定CPU响应中断请求时所执行的具体操作。
@@ -918,7 +1448,8 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 		<td>注销中断处理函数</td>
 	</tr>
 </table>
-###开发流程###
+
+### 开发流程 
 
 1. 修改配置项
 
@@ -929,7 +1460,7 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 1. 调用中断初始化Los_HwiInit接口。
 1. 调用中断创建接口LOS_HwiCreate创建中断
 
-###注意事项###
+### 注意事项 
 - 根据具体硬件，配置支持的最大中断数及中断初始化操作的寄存器地址。
 - 中断共享机制，支持同一中断处理程序的重复挂载，但中断处理程序的入参dev必须唯一，即同一中断号，同一dev只能挂载一次；但同一中断号，同一中断处理程序，dev不同则可以重复挂载。
 - 中断处理程序耗时不能过长，影响CPU对中断的及时响应。
@@ -942,8 +1473,9 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 
 中断机制
 
-##编程实例
-###实例描述
+## 编程实例
+
+### 实例描述
 本实例实现如下功能。
 
 1. 关中断
@@ -952,21 +1484,30 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 1. 中断恢复
 1. 中断屏蔽
 
-###编程示例###
+### 编程示例 
 前提条件：
 
 在los_config.h中，将OS_INCLUDE_HWI定义为YES。
 
 在los_config.h中，设置最大硬中断个数OS_HWI_MAX_USED_NUM。
 
+**说明**
+	中断的实现与具体的芯片的寄存器配置存在关系，目前给的测试代码只适合于stm32f429I-DISCO开发
+	板的USER按钮，其他的芯片请参考给出的示例代码自行就行修改。
+
 **代码实现如下：**
+	参考los_api_interrupt.c
+	说明: 由于代码比较多不便在此展示，请直接查看源文件进行阅读
+	
+**结果验证**
 
-目前尚未实现测试代码
+结果显示
+int the func user_irqhandle
 
+# 队列 #
+## 概述 ##
+### 基本概念 
 
-#队列#
-##概述##
-###基本概念###
 队列又称消息队列，是一种常用于任务间通信的数据结构，实现了接收来自任务或中断的不固定长度的消息，并根据不同的接口选择传递消息是否存放在自己空间。任务能够从队列里面读取消息，当队列中的消息是空时，挂起读取任务；当队列中有新消息时，挂起的读取任务被唤醒并处理新消息。
 
 用户在处理业务时，消息队列提供了异步处理机制，允许将一个消息放入队列，但并不立即处理它，同时队列还能起到缓冲消息作用。
@@ -980,34 +1521,31 @@ Huawei LiteOS中使用队列数据结构实现任务异步通信工作，具有�
 1. 多个任务能够从同一个消息队列接受和发送消息。
 1. 当队列使用结束后，如果是动态申请的内存，需要通过释放内存函数回收。
 
-###运作机制###
+### 运作机制
 
 **队列控制块**
 
-typedef struct tagQueueCB
-
+	/**
+	  * @ingroup los_queue
+	  * Queue information block structure
+	  */
+	typedef struct tagQueueCB
 	{
-
-    UINT8       *pucQueue;      /**< 队列指针 */
-
-    UINT16      usQueueState;   /**< 队列状态 */
-
-    UINT16      usQueueLen;     /**< 队列中消息个数 */
-
-    UINT16      usQueueSize;    /**< 消息节点大小 */
-
-    UINT16      usQueueHead;    /**< 消息头节点位置（数组下标）*/
-
-    UINT16      usQueueTail;    /**< 消息尾节点位置（数组下标）*/
-
-    UINT16      usWritableCnt;  /**< 队列中可写消息数*/
-
-    UINT16      usReadableCnt;  /**< 队列中可读消息数*/
-    UINT16      usReserved;     /**< 保留字段 */
-    LOS_DL_LIST stWriteList;    /**< 写入消息任务等待链表*/
-    LOS_DL_LIST stReadList;     /**< 读取消息任务等待链表*/
-    LOS_DL_LIST stMemList;      /**< MailBox模块使用 */
+	    UINT8       *pucQueue;      /**< 队列指针 */
+	    UINT16      usQueueState;   /**< 队列状态 */
+	    UINT16      usQueueLen;     /**< 队列中消息个数 */
+	    UINT16      usQueueSize;    /**< 消息节点大小 */
+	    UINT16      usQueueHead;    /**< 消息头节点位置（数组下标）*/
+	    UINT16      usQueueTail;    /**< 消息尾节点位置（数组下标）*/
+	    UINT16      usWritableCnt;  /**< 队列中可写消息数*/
+	    UINT16      usReadableCnt;  /**< 队列中可读消息数*/
+	    UINT16      usReserved;     /**< 保留字段 */
+	    LOS_DL_LIST stWriteList;    /**< 写入消息任务等待链表*/
+	    LOS_DL_LIST stReadList;     /**< 读取消息任务等待链表*/
+	    LOS_DL_LIST stMemList;      /**< MailBox模块使用 */
 	} QUEUE_CB_S;
+
+
 
 每个队列控制块中都含有队列状态，表示该队列的使用情况：
 
@@ -1028,6 +1566,7 @@ typedef struct tagQueueCB
 
 图1 队列读写数据操作示意图
 
+![](./meta/kernelapi/queue.png)
 
 ##开发指导##
 ###功能###
@@ -1056,17 +1595,17 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 	<tr>
 		<td>读队列（带拷贝）</td>
 		<td>LOS_QueueReadCopy</td>
-		<td>读取指定队列中的数据。（buff里存放的是队列节点中的数据）</td>
+		<td>暂未实现接口，读取指定队列中的数据。（buff里存放的是队列节点中的数据）</td>
 	</tr>
 	<tr>
 		<td>写队列（带拷贝）</td>
 		<td>LOS_QueueWriteCopy</td>
-		<td>向指定队列写数据。（写入队列节点中的是buff中的数据）。</td>
+		<td>暂未实现接口，向指定队列写数据。（写入队列节点中的是buff中的数据）。</td>
 	</tr>
 	<tr>
 		<td>写队列（头部）</td>
 		<td>LOS_QueueWriteHead</td>
-		<td>向指定队列的头部写数据</td>
+		<td>暂未实现接口，向指定队列的头部写数据</td>
 	</tr>
 	<tr>
 		<td>删除队列</td>
@@ -1076,9 +1615,10 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 	<tr>
 		<td>获取队列信息</td>
 		<td>LOS_QueueInfoGet</td>
-		<td>获取指定队列信息。</td>
+		<td>暂未实现接口，获取指定队列信息。</td>
 	</tr>
 </table>
+
 ###开发流程###
 
 使用队列模块的典型流程如下：
@@ -1088,7 +1628,7 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 	创建成功后，可以得到消息队列的ID值。
 1. 写队列操作函数LOS_QueueWrite。
 1. 读队列操作函数LOS_QueueRead。
-1. 获取队列信息函数LOS_QueueInfoGet。
+1. 获取队列信息函数LOS_QueueInfoGet。（目前此操作无意义）
 1. 删除队列LOS_QueueDelete。
 
 **平台差异性**
@@ -1115,23 +1655,147 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 
 参考los_api_msgqueue.c
 
+
+	#include "los_base.h"
+	#include "los_task.h"
+	#include "los_swtmr.h"
+	#include "los_hwi.h"
+	#include "los_queue.h"
+	#include "los_event.h"
+	#include "los_typedef.h"
+	#include "los_api_msgqueue.h"
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	static UINT32 g_uwQueue;
+
+	CHAR abuf[] = "test is message x";
+
+	/*任务1发送数据*/
+	void *send_Entry(UINT32 uwParam1,
+					UINT32 uwParam2,
+					UINT32 uwParam3,
+					UINT32 uwParam4)
+	{
+		UINT32 i = 0,uwRet = 0;
+		UINT32 uwlen = sizeof(abuf);
+
+		while (i <5)
+		{
+			abuf[uwlen -2] = '0' + i;
+			i++;
+
+			/*将abuf里的数据写入队列*/
+			uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
+			if(uwRet != LOS_OK)
+			{
+				dprintf("send message failure,error:%x\n",uwRet);
+			}
+
+			LOS_TaskDelay(5);
+		}
+		return NULL;
+	}
+
+	/*任务2接收数据*/
+	void *recv_Entry(UINT32 uwParam1,
+					UINT32 uwParam2,
+					UINT32 uwParam3,
+					UINT32 uwParam4)
+	{
+		UINT32 uwReadbuf;
+		UINT32 uwRet = 0;
+
+		while (1)
+		{
+
+			/*读取队列里的数据存入uwReadbuf里*/
+			uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 50, 0);
+			if(uwRet != LOS_OK)
+			{
+				dprintf("recv message failure,error:%x\n",uwRet);
+				break;
+			}
+
+			dprintf("recv message:%s\n", (char *)uwReadbuf);
+			LOS_TaskDelay(5);
+		}
+		/*删除队列*/
+		while (LOS_OK != LOS_QueueDelete(g_uwQueue))
+		{
+			LOS_TaskDelay(1);
+		}
+
+		dprintf("delete the queue success!\n");
+		return NULL;
+	}
+
+	int Example_MsgQueue(void)
+	{
+		UINT32 uwRet = 0;
+		UINT32 uwTask1, uwTask2;
+		TSK_INIT_PARAM_S stInitParam1;
+
+		/*创建任务1*/
+		stInitParam1.pfnTaskEntry = send_Entry;
+		stInitParam1.usTaskPrio = 9;
+		stInitParam1.uwStackSize = 0x400;
+		stInitParam1.pcName = "sendQueue";
+		stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED;
+		LOS_TaskLock();//锁住任务，防止新创建的任务比本任务高而发生调度
+		uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
+		if(uwRet != LOS_OK)
+		{
+			dprintf("create task1 failed!,error:%x\n",uwRet);
+			return uwRet;
+		}
+
+		/*创建任务2*/
+		stInitParam1.pfnTaskEntry = recv_Entry;
+		uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
+		if(uwRet != LOS_OK)
+		{
+			dprintf("create task2 failed!,error:%x\n",uwRet);
+			return uwRet;
+		}
+
+		/*创建队列*/
+		uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
+		if(uwRet != LOS_OK)
+		{
+			dprintf("create queue failure!,error:%x\n",uwRet);
+		}
+
+		dprintf("create the queue success!\n");
+		LOS_TaskUnlock();//解锁任务，只有队列创建后才开始任务调度
+
+		return LOS_OK;
+	}
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
 ###结果验证
 
-create the queue success!
-
-recv message:test is message 0
-
-recv message:test is message 1
-
-recv message:test is message 2
-
-recv message:test is message 3
-
-recv message:test is message 4
-
-recv message failure,error:200061d
-
-delete the queue success!
+	create the queue success!
+	recv message:test is message 0
+	recv message:test is message 1
+	recv message:test is message 2
+	recv message:test is message 3
+	recv message:test is message 4
+	recv message failure,error:200061d
+	delete the queue success!
 
 #事件#
 ##概述##
@@ -1153,24 +1817,16 @@ Huawei LiteOS提供的事件具有如下特点：
 
 **事件控制块**
 
-/**
-
- \* @ingroup los_event
-
- \* Event control structure
-
- \*/
-
-	typedef struct tagEvent
-
-	{
-
-    UINT32 uwEventID;            /**标识发生的事件类型位*/
-
-    LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
-
-	} EVENT_CB_S, *PEVENT_CB_S;uwEventID：
-
+	/**
+	 \* @ingroup los_event
+	 \* Event control structure
+	 \*/
+		typedef struct tagEvent
+		{
+		UINT32 uwEventID;            /**标识发生的事件类型位*/
+		LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
+		} EVENT_CB_S, *PEVENT_CB_S;uwEventID;
+	
 用于标识该任务发生的事件类型，其中每一位表示一种事件类型（0表示该事件类型未发生、1表示该事件类型已经发生），一共31种事件类型，第25位系统保留。
 
 **事件读取模式**
@@ -1192,6 +1848,8 @@ Huawei LiteOS提供的事件具有如下特点：
 清除事件时，根据入参事件和待清除的事件类型，对事件对应位进行清0操作。
 
 图1 事件唤醒任务示意图
+
+![](./meta/kernelapi/event.png)
 
 
 ##开发指导
@@ -1234,7 +1892,7 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 	<tr>
 		<td>销毁事件</td>
 		<td>LOS_EventDestroy</td>
-		<td>销毁指定的事件控制块</td>
+		<td>暂未实现接口，销毁指定的事件控制块</td>
 	</tr>
 </table>
 
@@ -1259,13 +1917,13 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 
 ##编程实例
 ###实例描述
-示例中，任务Example_TaskEntry创建一个任务Example_Event，Example_Event读事件阻塞，Example_TaskEntry向该任务写事件。
+示例中，任务Example_SndRcvEvent创建一个任务Example_Event，Example_Event读事件阻塞，Example_SndRcvEvent向该任务写事件。
 
-1. 在任务Example_TaskEntry创建任务Example_Event，其中任务Example_Event优先级高于Example_TaskEntry。
+1. 在任务Example_SndRcvEvent创建任务Example_Event，其中任务Example_Event优先级高于Example_SndRcvEvent()所在的task的优先级。
 1. 在任务Example_Event中读事件0x00000001，阻塞，发生任务切换，执行任务Example_TaskEntry。
-1. 在任务Example_TaskEntry向任务Example_Event写事件0x00000001，发生任务切换，执行任务Example_Event。
+1. 在任务Example_SndRcvEvent向任务Example_Event写事件0x00000001，发生任务切换，执行任务Example_Event。
 1. Example_Event得以执行，直到任务结束。
-1. Example_TaskEntry得以执行，直到任务结束。
+1. Example_SndRcvEvent得以执行，直到任务结束。
 
 ###编程示例
 前提条件：
@@ -1274,6 +1932,116 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 
 代码实现如下：
 参考los_api_event.c
+
+	#include "los_event.h"
+	#include "los_task.h"
+	#include "los_api_event.h"
+
+
+	#ifdef LOSCFG_LIB_LIBC
+	#include "string.h"
+	#endif
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	/*任务PID*/
+	UINT32 g_TestTaskID;
+	LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
+	/*事件控制结构体*/
+	EVENT_CB_S  example_event;
+
+	/*等待的事件类型*/
+	#define event_wait 0x00000001
+
+	/*用例任务入口函数*/
+	VOID Example_Event(VOID)
+	{
+		//UINT32 uwRet;
+		UINT32 uwEvent;
+
+	   /*超时 等待方式读事件,超时时间为100 Tick
+	   若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
+		printf("Example_Event wait event 0x%x \n",event_wait);
+
+		uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
+		if(uwEvent == event_wait)
+		{
+			printf("Example_Event,read event :0x%x\n",uwEvent);
+		}
+		else
+		{
+			printf("Example_Event,read event timeout\n");
+		}
+		return;
+	}
+
+	UINT32 Example_SndRcvEvent(VOID)
+	{
+		UINT32 uwRet;
+		TSK_INIT_PARAM_S stTask1;
+
+		/*事件初始化*/
+		uwRet = LOS_EventInit(&example_event);
+		if(uwRet != LOS_OK)
+		{
+			printf("init event failed .\n");
+			return LOS_NOK;
+		}
+
+		/*创建任务*/
+		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;
+		stTask1.pcName       = "EventTsk1";
+		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+		stTask1.usTaskPrio   = 5;
+		uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
+		if(uwRet != LOS_OK)
+		{
+			printf("task create failed .\n");
+			return LOS_NOK;
+		}
+
+		/*写用例任务等待的事件类型*/
+		printf("Example_TaskEntry_Event write event .\n");
+
+		uwRet = LOS_EventWrite(&example_event, event_wait);
+		if(uwRet != LOS_OK)
+		{
+			printf("event write failed .\n");
+			return LOS_NOK;
+		}
+
+		/*清标志位*/
+		printf("EventMask:%d\n",example_event.uwEventID);
+		LOS_EventClear(&example_event, ~example_event.uwEventID);
+		printf("EventMask:%d\n",example_event.uwEventID);
+
+		/*删除任务*/
+		uwRet = LOS_TaskDelete(g_TestTaskID);
+		if(uwRet != LOS_OK)
+		{
+			printf("task delete failed .\n");
+			return LOS_NOK;
+		}
+
+
+		return LOS_OK;
+	}
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+
 
 ###结果验证
 编译运行得到的结果为
@@ -1309,7 +2077,9 @@ Huawei LiteOS提供的互斥锁具有如下特点：
 
 当一个任务访问某个非共享公共资源时，互斥锁为加锁状态。此时其他任务如果想访问这个公共资源则会被阻塞，直到互斥锁被该任务释放后，才能重新访问公共资源，此时互斥锁再次上锁，如此确保同一时刻只有一个任务正在访问这个公共资源，保证了共享数据操作的完整性。
 
+互斥锁运作示意图
 
+![](./meta/kernelapi/mutex.png)
 
 ##开发指导##
 
@@ -1391,11 +2161,11 @@ Huawei LiteOS 系统中的互斥锁模块为用户提供下面几种功能。
 
 本实例实现如下流程。
 
-1. 任务Example_TaskEntry创建一个互斥锁，锁任务调度，创建两个任务Example_MutexTask1、Example_MutexTask2,Example_MutexTask2优先级高于Example_MutexTask1，解锁任务调度。
+1. 任务Example_MutexLock创建一个互斥锁，锁任务调度，创建两个任务Example_MutexTask1、Example_MutexTask2,Example_MutexTask2优先级高于Example_MutexTask1，解锁任务调度。
 1. Example_MutexTask2被调度，永久申请互斥锁，然后任务休眠100Tick，Example_MutexTask2挂起，Example_MutexTask1被唤醒。
 1. Example_MutexTask1申请互斥锁，等待时间为10Tick，因互斥锁仍被Example_MutexTask2持有，Example_MutexTask1挂起，10Tick后未拿到互斥锁，Example_MutexTask1被唤醒，试图以永久等待申请互斥锁，Example_MutexTask1挂起。
 1. 100Tick后Example_MutexTask2唤醒， 释放互斥锁后，Example_MutexTask1被调度运行，最后释放互斥锁。
-1. Example_MutexTask1执行完，300Tick后任务Example_TaskEntry被调度运行，删除互斥锁。
+1. Example_MutexTask1执行完，300Tick后任务Example_MutexLock被调度运行，删除互斥锁。
 
 
 **编程示例**
@@ -1407,22 +2177,164 @@ Huawei LiteOS 系统中的互斥锁模块为用户提供下面几种功能。
 
 代码参考los_api_mutex.c
 
+	#include "los_mux.h"
+	#include "los_task.h"
+	#include "los_api_mutex.h"
+
+	#ifdef LOSCFG_LIB_LIBC
+	#include "string.h"
+	#endif
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+	/*互斥锁句柄ID*/
+	//MUX_HANDLE_T  g_Testmux01;
+	UINT32 g_Testmux01;
+
+	/*任务PID*/
+	UINT32 g_TestTaskID01;
+	UINT32 g_TestTaskID02;
+	
+	VOID Example_MutexTask1()
+	{
+		UINT32 uwRet;
+
+		printf("task1 try to get mutex, wait 10 Tick.\n");
+		/*申请互斥锁*/
+		uwRet=LOS_MuxPend(g_Testmux01, 10);
+
+		if(uwRet == LOS_OK)
+		{
+			printf("task1 get mutex g_Testmux01.\n");
+			/*释放互斥锁*/
+			LOS_MuxPost(g_Testmux01);
+			return;
+		}
+		else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
+		{
+			printf("task1 timeout and try to get  mutex, wait forever.\n");
+			/*申请互斥锁*/
+			uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+			if(uwRet == LOS_OK)
+			{
+				printf("task1 wait forever,get mutex g_Testmux01.\n");
+				/*释放互斥锁*/
+				LOS_MuxPost(g_Testmux01);
+				return;
+			}
+		}
+		return;
+	}
+
+	VOID Example_MutexTask2()
+	{
+		UINT32 uwRet;
+
+		printf("task2 try to get mutex, wait forever.\n");
+		/*申请互斥锁*/
+		uwRet=LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+		if(uwRet != LOS_OK)
+		{
+			printf("task2 LOS_MuxPend failed .\n");
+			return;
+		}
+
+		printf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
+
+		/*任务休眠100 Tick*/
+		LOS_TaskDelay(100);
+
+		printf("task2 resumed and post the g_Testmux01\n");
+		/*释放互斥锁*/
+		LOS_MuxPost(g_Testmux01);
+		return;
+
+	}
+
+	UINT32 Example_MutexLock(VOID)
+	{
+		UINT32 uwRet;
+		TSK_INIT_PARAM_S stTask1;
+		TSK_INIT_PARAM_S stTask2;
+
+		/*创建互斥锁*/
+		LOS_MuxCreate(&g_Testmux01);
+
+		/*锁任务调度*/
+		LOS_TaskLock();
+
+		/*创建任务1*/
+		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;
+		stTask1.pcName       = "MutexTsk1";
+		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+		stTask1.usTaskPrio   = 5;
+		uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+		if(uwRet != LOS_OK)
+		{
+			printf("task1 create failed .\n");
+			return LOS_NOK;
+		}
+
+		/*创建任务2*/
+		memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+		stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;
+		stTask2.pcName       = "MutexTsk2";
+		stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+		stTask2.usTaskPrio   = 4;
+		uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+		if(uwRet != LOS_OK)
+		{
+			printf("task2 create failed .\n");
+			return LOS_NOK;
+		}
+
+		/*解锁任务调度*/
+		LOS_TaskUnlock();
+		/*任务休眠300 Tick*/
+		LOS_TaskDelay(300);
+
+		/*删除互斥锁*/
+		LOS_MuxDelete(g_Testmux01);
+
+		/*删除任务1*/
+		uwRet = LOS_TaskDelete(g_TestTaskID01);
+		if(uwRet != LOS_OK)
+		{
+			printf("task1 delete failed .\n");
+			return LOS_NOK;
+		}
+		/*删除任务2*/
+		uwRet = LOS_TaskDelete(g_TestTaskID02);
+		if(uwRet != LOS_OK)
+		{
+			printf("task2 delete failed .\n");
+			return LOS_NOK;
+		}
+
+		return LOS_OK;
+	}
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
 **结果验证**
 
-task2 try to get mutex, wait forever.
-
-task2 get mutex g_Testmux01 and suspend 100 Tick.
-
-task1 try to get mutex, wait 10 Tick.
-
-task1 timeout and try to get  mutex, wait forever.
-
-task2 resumed and post the g_Testmux01
-
-task1 wait forever,get mutex g_Testmux01.
-
-
-
+	task2 try to get mutex, wait forever.
+	task2 get mutex g_Testmux01 and suspend 100 Tick.
+	task1 try to get mutex, wait 10 Tick.
+	task1 timeout and try to get  mutex, wait forever.
+	task2 resumed and post the g_Testmux01
+	task1 wait forever,get mutex g_Testmux01.
 
 
 #信号量#
@@ -1447,24 +2359,17 @@ task1 wait forever,get mutex g_Testmux01.
 
 **信号量控制块**
 
-/**
-
-  \* @ingroup los_sem
-
- \* Semaphore control structure.
-
- */
-
-typedef struct
-
-{
-
-    UINT8           usSemStat;          /**是否使用标志位*/
-    UINT16          uwSemCount;         /**信号量索引号*/
-    UINT32          usSemID;            /**信号量计数*/
-    LOS_DL_LIST     stSemList;          /**挂接阻塞于该信号量的任务*/
-
-}SEM_CB_S;
+	/**
+	  \* @ingroup los_sem
+	 \* Semaphore control structure.
+	 */
+	typedef struct
+	{
+		UINT8           usSemStat;          /**是否使用标志位*/
+		UINT16          uwSemCount;         /**信号量索引号*/
+		UINT32          usSemID;            /**信号量计数*/
+		LOS_DL_LIST     stSemList;          /**挂接阻塞于该信号量的任务*/
+	}SEM_CB_S;
 
 **信号量运作原理**
 
@@ -1479,6 +2384,10 @@ typedef struct
 信号量删除，将正在使用的信号量置为未使用信号量，并挂回到未使用链表。
 
 信号量允许多个任务在同一时刻访问统一资源，但会限制同一时刻访问此资源的最大任务数目。达到最大数目时不允许其他任务的进入，其他需要进入的任务必须等待直到任何一个任务释放信号量。
+
+信号量运作示意图
+
+![](./meta/kernelapi/signal.png)
 
 ##开发指导##
 **使用场景**
@@ -1549,11 +2458,11 @@ Huawei LiteOS 系统中的信号量模块为用户提供下面几种功能。
 
 本实例实现如下功能:
 
-- 测试任务Example_TaskEntry创建一个信号量，锁任务调度，创建两个任务Example_SemTask1、Example_SemTask2,Example_SemTask2优先级高于Example_SemTask1，两个任务中申请同一信号量，解锁任务调度后两任务阻塞，测试任务Example_TaskEntry释放信号量。
+- 测试任务Example_Semphore创建一个信号量，锁任务调度，创建两个任务Example_SemTask1、Example_SemTask2,Example_SemTask2优先级高于Example_SemTask1，两个任务中申请同一信号量，解锁任务调度后两任务阻塞，测试任务Example_Semphore释放信号量。
 - Example_SemTask2得到信号量，被调度，然后任务休眠20Tick，Example_SemTask2延迟，Example_SemTask1被唤醒。
 - Example_SemTask1定时阻塞模式申请信号量，等待时间为10Tick，因信号量仍被Example_SemTask2持有，Example_SemTask1挂起，10Tick后仍未得到信号量，Example_SemTask1被唤醒，试图以永久阻塞模式申请信号量，Example_SemTask1挂起。
 - 20Tick后Example_SemTask2唤醒， 释放信号量后，Example_SemTask1得到信号量被调度运行，最后释放信号量。
-- Example_SemTask1执行完，40Tick后任务Example_TaskEntry被唤醒，执行删除信号量，删除两个任务。
+- Example_SemTask1执行完，40Tick后任务Example_Semphore被唤醒，执行删除信号量，删除两个任务。
 
 **编程示例**
 
@@ -1565,25 +2474,164 @@ Huawei LiteOS 系统中的信号量模块为用户提供下面几种功能。
 
 代码参考los_api_sem.c
 
+	#include "los_sem.h"
+	#include "los_base.ph"
+	#include "los_hwi.h"
+	#include "los_api_sem.h"
+	#ifdef LOSCFG_LIB_LIBC
+	#include "string.h"
+	#endif
+	
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	/*测试任务优先级*/
+	#define TASK_PRIO_TEST  5
+
+	/*任务PID*/
+	static UINT32 g_TestTaskID01,g_TestTaskID02;
+	/*信号量结构体ID*/
+	//static SEM_HANDLE_T g_usSemID;
+	static UINT32 g_usSemID;
+	
+	VOID Example_SemTask1(void)
+	{
+		UINT32 uwRet;
+
+		printf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
+		/*定时阻塞模式申请信号量，定时时间为10Tick*/
+		uwRet = LOS_SemPend(g_usSemID, 10);
+
+		/*申请到信号量*/
+		if(LOS_OK == uwRet)
+		{
+			 LOS_SemPost(g_usSemID);
+			 return;
+		}
+		/*定时时间到，未申请到信号量*/
+		if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
+		{
+			printf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
+			/*永久阻塞模式申请信号量*/
+			uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+			printf("Example_SemTask1 wait_forever and get sem g_usSemID .\n");
+			if(LOS_OK == uwRet)
+			{
+				LOS_SemPost(g_usSemID);
+				return;
+			}
+		}
+		return;
+
+	}
+
+	VOID   Example_SemTask2(void)
+	{
+		UINT32 uwRet;
+		printf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
+		/*永久阻塞模式申请信号量*/
+		uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+
+		if(LOS_OK == uwRet)
+		printf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+
+		/*任务休眠20 Tick*/
+		LOS_TaskDelay(20);
+
+		printf("Example_SemTask2 post sem g_usSemID .\n");
+		/*释放信号量*/
+		LOS_SemPost(g_usSemID);
+
+		return;
+
+	}
+
+	UINT32 Example_Semphore(VOID)
+	{
+		UINT32 uwRet;
+		TSK_INIT_PARAM_S stTask1;
+		TSK_INIT_PARAM_S stTask2;
+
+	   /*创建信号量*/
+		LOS_SemCreate(0,&g_usSemID);
+
+		/*锁任务调度*/
+		LOS_TaskLock();
+
+		/*创建任务1*/
+		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
+		stTask1.pcName       = "MutexTsk1";
+		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+		stTask1.usTaskPrio   = TASK_PRIO_TEST;
+		uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+		if(uwRet != LOS_OK)
+		{
+			printf("task1 create failed .\n");
+			return LOS_NOK;
+		}
+
+		/*创建任务2*/
+		memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+		stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
+		stTask2.pcName       = "MutexTsk2";
+		stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+		stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
+		uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+		if(uwRet != LOS_OK)
+		{
+			printf("task2 create failed .\n");
+			return LOS_NOK;
+		}
+
+		/*解锁任务调度*/
+		LOS_TaskUnlock();
+
+		uwRet = LOS_SemPost(g_usSemID);
+
+		/*任务休眠40 Tick*/
+		LOS_TaskDelay(40);
+
+		/*删除信号量*/
+		LOS_SemDelete(g_usSemID);
+
+		/*删除任务1*/
+		uwRet = LOS_TaskDelete(g_TestTaskID01);
+		if(uwRet != LOS_OK)
+		{
+			printf("task1 delete failed .\n");
+			return LOS_NOK;
+		}
+		/*删除任务2*/
+		uwRet = LOS_TaskDelete(g_TestTaskID02);
+		if(uwRet != LOS_OK)
+		{
+			printf("task2 delete failed .\n");
+			return LOS_NOK;
+		}
+
+		return LOS_OK;
+	}
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
 **结果验证**
 
-Example_SemTask2 try get sem g_usSemID wait forever.
-
-Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.
-
-Example_SemTask2 get sem g_usSemID and then delay 20ticks .
-
-Example_SemTask1 timeout and try get sem g_usSemID wait forever.
-
-Example_SemTask2 post sem g_usSemID .
-
-Example_SemTask1 wait_forever and get sem g_usSemID .
-
-
-
-
-
-
+	Example_SemTask2 try get sem g_usSemID wait forever.
+	Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.
+	Example_SemTask2 get sem g_usSemID and then delay 20ticks .
+	Example_SemTask1 timeout and try get sem g_usSemID wait forever.
+	Example_SemTask2 post sem g_usSemID .
+	Example_SemTask1 wait_forever and get sem g_usSemID .
 
 
 
@@ -1651,6 +2699,7 @@ Huawei LiteOS系统中的时间管理主要提供以下两种功能：
       <td>获取当前的Tick数</td>
     </tr>
 </table>
+
 **开发流程**
 
 时间管理的典型开发流程：
@@ -1669,9 +2718,7 @@ Huawei LiteOS系统中的时间管理主要提供以下两种功能：
 ##注意事项##
 
 - 获取系统Tick数需要在系统时钟使能之后。
-
 - 时间管理不是单独的功能模块，依赖于sys模块中的OS_SYS_CLOCK和Tick模块中的OS_TICK_PER_SECOND两个配置项。
-
 - 系统的Tick数在关中断的情况下不进行计数，故系统Tick数不能作为准确时间计算。
 
 
@@ -1684,25 +2731,75 @@ Huawei LiteOS系统中的时间管理主要提供以下两种功能：
 1. 时间统计和时间延迟：统计每秒的Cycle数、Tick数和延迟后的Tick数。
 
 **编程示例**
+
 前提条件：
-
-- 在los_config.h中，将OS_TICK_HW_TIME1配置项打开。
-
+在los_config.h中，将OS_TICK_HW_TIME1配置项打开。
 - 配好OS_TICK_PER_SECOND每秒的Tick数。
- 
-- 配好OS_SYS_CLOCK 系统时钟，单位: Hz。
+- 配好OS_SYS_CLOCK 系统时钟，单位: Hz（比如默认的是16000000）。
 
 
-代码参考los\_api\_systick.c
+代码参考 los_api_systick.c
+
+	#include "los_sys.h"
+	#include "los_task.h"
+	#include "los_api_systick.h"
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+	VOID Example_TransformTime(VOID)
+	{
+		UINT32 uwMs;
+		UINT32 uwTick;
+		uwTick = LOS_MS2Tick(10000);// 10000 ms数转换为tick数
+		dprintf("uwTick = %d \n",uwTick);
+		uwMs = LOS_Tick2MS(100);// 100 tick数转换为ms数
+		dprintf("uwMs = %d \n",uwMs);
+	}
+
+
+	VOID Example_GetTick(VOID)
+	{
+		UINT32 uwcyclePerTick;
+		UINT64 uwTickCount;
+
+		uwcyclePerTick  = LOS_CyclePerTickGet();
+		if(0 != uwcyclePerTick)
+		{
+			dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
+		}
+
+		uwTickCount = LOS_TickCountGet();
+		if(0 != uwTickCount)
+		{
+			dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount);
+		}
+		LOS_TaskDelay(200);
+		uwTickCount = LOS_TickCountGet();
+		if(0 != uwTickCount)
+		{
+			dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount);
+		}
+
+	}
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
 
 **结果验证**
 
-LOS_CyclePerTickGet = 180000 
-
-LOS_TickCountGet after delay = 200
-
-
-
+	LOS_CyclePerTickGet = 16000 
+	LOS_TickCountGet after delay = 200
 
 #软件定时器#
 
@@ -1766,22 +2863,23 @@ Huawei LiteOS的软件定时器提供二类定时器机制：
 Huawei LiteOS系统中的软件定时器模块为用户提供下面几种功能，下面具体的API详见软件定时器对外接口手册。
 
 表1  
+
 <table>
-	<tr>
-    <td width = "25%">功能分类</td>
-    <td width = "25%">接口名</td>
-    <td width = "25%">描述</td>
+    <tr>
+    	<td width = "25%">功能分类</td>
+    	<td width = "25%">接口名</td>
+    	<td width = "25%">描述</td>
     </tr>
     <tr>
-       <td> 创建、删除定时器</td>
-       <td>LOS_SwtmrCreate</td>
-       <td>创建定时器</td>
+	<td> 创建、删除定时器</td>
+	<td>LOS_SwtmrCreate</td>
+	<td>创建定时器</td>
     </tr>
     <tr>
-     <td>     </td>
-     <td>LOS_SwtmrDelete</td>
-     <td>删除定时器</td>
-	</tr>
+	<td>     </td>
+	<td>LOS_SwtmrDelete</td>
+	<td>删除定时器</td>
+    </tr>
     <tr>
      <td>启动、停止定时器</td>
      <td> LOS_SwtmrStart</td>
@@ -1789,126 +2887,178 @@ Huawei LiteOS系统中的软件定时器模块为用户提供下面几种功能�
     </tr>
     <tr>
 	<td>     </td>
-    <td>LOS_SwtmrStop</td>
-    <td> 停止定时器</td>
+	<td>LOS_SwtmrStop</td>
+	<td> 停止定时器</td>
     </tr>
     <tr>
-    <td>获得软件定时器剩余Tick数</td>
-    <td> LOS_SwtmrTimeGet</td>
-    <td> 获得软件定时器剩余Tick数</td>
+	<td>获得软件定时器剩余Tick数</td>
+	<td> LOS_SwtmrTimeGet</td>
+	<td> 暂未实现的接口，获得软件定时器剩余Tick数</td>
     </tr>
- </table>
+</table>
+
 
 **开发流程**
 
+
 软件定时器的典型开发流程：
 
-1. 配置软件定时器。
-1. 确认配置项OS_INCLUDE_SWTMR和OS_INCLUDE_QUEUE为YES打开状态；
-1. 配置OS_SWTMR_MAX_SUPPORT_NUM最大支持的软件定时器数；
-1. 配置OS_SWTMR_HANDLE_QUEUE_SIZE软件定时器队列最大长度；
-1. 创建定时器LOS_SwtmrCreate。
-1. 创建一个指定计时时长、指定超时处理函数、指定触发模式的软件定时器；
-1. 返回创建成功后的软件定时器句柄；
-1. 启动定时器LOS_SwtmrStart。
-1. 获得软件定时器剩余Tick数LOS_SwtmrTimeGet。
-1. 停止定时器LOS_SwtmrStop。
-1. 删除定时器LOS_SwtmrDelete。
+- 配置软件定时器。
+- 确认配置项OS_INCLUDE_SWTMR和OS_INCLUDE_QUEUE为YES打开状态；
+- 配置OS_SWTMR_MAX_SUPPORT_NUM最大支持的软件定时器数；
+- 配置OS_SWTMR_HANDLE_QUEUE_SIZE软件定时器队列最大长度；
+- 创建定时器LOS_SwtmrCreate。
+- 创建一个指定计时时长、指定超时处理函数、指定触发模式的软件定时器；
+- 返回创建成功后的软件定时器句柄；
+- 启动定时器LOS_SwtmrStart。
+- 获得软件定时器剩余Tick数LOS_SwtmrTimeGet。
+- 停止定时器LOS_SwtmrStop。
+- 删除定时器LOS_SwtmrDelete。
 
 ##注意事项##
 
 - 不要在软件定时器的回调函数中使用可能引起任务挂起或者阻塞的接口或操作。回调函数中不要做过多操作。
-
 - 软件定时器使用了系统的一个队列和任务资源，软件定时器任务的优先级设定为0，且不允许修改 。
-
-
 - 一次性软件定时器超时后会自删除，因此定时器任务中调用该回调函数时不能删除定时器，如果进行删除，则会删除失败
-
-
 - 软件定时器创建成功后，需要启动后才能开始计时。
-
-
 - 系统可配置的软件定时器资源个数是指：整个系统可使用的软件定时器总资源个数，而并非是用户可使用的软件定时器资源个数；例如：系统软件定时器占用一个软件定时器资源数，那么用户能使用的软件定时器资源就会减少一个。
-
 - 创建一次性软件定时器，该定时器超时执行完回调函数后，系统会自动删除该软件定时器，并回收资源，一次性定时器不需要手动删除。
 
 ##编程实例##
 
+
 **实例描述**
+
 
 使用软件定时器功能，先要创建一个基于Tick时钟源的软件定时器组，之后可基于该定时器组进行软件定时器的创建、删除、启动、暂停、重启操作。
 
 步骤如下：
 
-1. 编写回调函数，实现获取并且打印当前Tick数的功能。
-1. 创建单次和周期性软件定时器。
-1. 启动单次软件定时器。
-1. 延时200Tick数。
-1. 获取当前单次软件定时器剩余Tick数。
-1. 停止并且重启单次软件定时器。
-1. 延时1000Tick数后删除单次软件定时器。
-1. 启动周期性软件定时器。
-1. 延时1000Tick数后停止周期性软件定时器。
-1. 删除周期性软件定时器。
+- 编写回调函数，实现获取并且打印当前Tick数的功能。
+- 创建单次和周期性软件定时器。
+- 启动单次软件定时器。
+- 延时200Tick数。
+- 获取当前单次软件定时器剩余Tick数。
+- 停止并且重启单次软件定时器。
+- 延时1000Tick数后删除单次软件定时器。
+- 启动周期性软件定时器。
+- 延时1000Tick数后停止周期性软件定时器。
+- 删除周期性软件定时器。
+
+代码参考los_api_timer.c
 
 
-代码参考los\_api\_timer.c
+	#include <stdio.h>
+	//#include "osTest.h"
+	#include "los_swtmr.h"
+	#include "time.h"
+	#include "los_sys.h"
+	#include "los_api_timer.h"
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	void Timer1_Callback  (UINT32 arg);  // callback fuction 
+
+	void Timer2_Callback	(UINT32 arg);//回调函数
+
+
+	UINT32 g_timercount1 = 0;  
+	UINT32 g_timercount2 = 0; 
+
+
+	void Timer1_Callback(UINT32 arg)
+	{
+
+		unsigned long tick_last1;   
+		g_timercount1 ++;
+		tick_last1=(UINT32)LOS_TickCountGet();
+		dprintf("g_timercount1=%d\n",g_timercount1);
+		dprintf("tick_last1=%d\n",tick_last1);
+
+	}
+
+	void Timer2_Callback(UINT32 arg)
+	{
+		unsigned long tick_last2;  
+		tick_last2=(UINT32)LOS_TickCountGet();
+		g_timercount2 ++;
+		dprintf("g_timercount2=%d\n",g_timercount2);
+		dprintf("tick_last2=%d\n",tick_last2);
+	}
+
+	void Example_swTimer(void)  
+	{                                                         
+		UINT16 id1;  
+		UINT16 id2;// timer id
+		//UINT32 uwTick;
+		// uint32_t  timerDelay;   // timer value
+
+		LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE,Timer1_Callback,&id1,1);
+		LOS_SwtmrCreate(100,LOS_SWTMR_MODE_PERIOD,Timer2_Callback,&id2,1);
+		dprintf("create Timer1 success\n");
+		// timerDelay = 100;  
+		LOS_SwtmrStart(id1); 
+		dprintf("start Timer1 sucess\n");
+		LOS_TaskDelay(200);
+		//LOS_SwtmrTimeGet(id1,&uwTick);
+		//dprintf("uwTick =%d\n",uwTick);
+		LOS_SwtmrStop(id1);
+		dprintf("stop Timer1 sucess\n");
+		LOS_SwtmrStart(id1);
+		LOS_TaskDelay(1000);
+		LOS_SwtmrDelete(id1);
+		dprintf("delete Timer1 sucess\n");
+		LOS_SwtmrStart(id2);
+		dprintf("start Timer2\n");
+		LOS_TaskDelay(1000);
+		LOS_SwtmrStop(id2);
+		LOS_SwtmrDelete(id2); 
+		return ;
+	}
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
 
 **结果验证**
 
-create Timer1 success
-
-start Timer1 sucess
-
-stop Timer1 sucess
-
-g_timercount1=1
-
-tick_last1=1200
-
-delete Timer1 sucess
-
-start Timer2
-
-g_timercount2=1
-
-tick_last2=1300
-
-g_timercount2=2
-
-tick_last2=1400
-
-g_timercount2=3
-
-tick_last2=1500
-
-g_timercount2=4
-
-tick_last2=1600
-
-g_timercount2=5
-
-tick_last2=1700
-
-g_timercount2=6
-
-tick_last2=1800
-
-g_timercount2=7
-
-tick_last2=1900
-
-g_timercount2=8
-
-tick_last2=2000
-
-g_timercount2=9
-
-tick_last2=2100
-
-g_timercount2=10
-
-tick_last2=2200
+	create Timer1 success
+	start Timer1 sucess
+	stop Timer1 sucess
+	g_timercount1=1
+	tick_last1=1200
+	delete Timer1 sucess
+	start Timer2
+	g_timercount2=1
+	tick_last2=1300
+	g_timercount2=2
+	tick_last2=1400
+	g_timercount2=3
+	tick_last2=1500
+	g_timercount2=4
+	tick_last2=1600
+	g_timercount2=5
+	tick_last2=1700
+	g_timercount2=6
+	tick_last2=1800
+	g_timercount2=7
+	tick_last2=1900
+	g_timercount2=8
+	tick_last2=2000
+	g_timercount2=9
+	tick_last2=2100
+	g_timercount2=10
+	tick_last2=2200
 
 
 
@@ -1931,6 +3081,7 @@ tick_last2=2200
 **功能**
 
 Huawei LiteOS系统中的事件模块为用户提供下面几个接口。
+
 <table>
 	<tr>
     <td width = "25%"> 功能分类 </td>
@@ -1991,20 +3142,89 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口。
 1. 删除节点。
 1. 测试操作是否成功。
 
-代码参考los\_api\_list.c
+代码参考los_api_list.c
+
+	#include "los_list.h"
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include "los_api_list.h"
+
+	#ifdef LOSCFG_LIB_LIBC
+	#include "string.h"
+	#endif
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
+
+	VOID Example_list(VOID)
+	{
+		 /*初始化，判断是否为空*/
+		printf("initial......\n");
+		LOS_DL_LIST* head;
+		head = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+
+		LOS_ListInit(head);
+		if (!LOS_ListEmpty(head))
+		{
+			printf("initial failed\n");
+			return;
+		}
+
+		/*增加一个节点，在尾端插入一个节点*/
+		printf("node add and tail add......\n");
+		LOS_DL_LIST* node1 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+		LOS_DL_LIST* node2 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+		LOS_DL_LIST* tail = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+
+		LOS_ListAdd(head,node1);
+		LOS_ListAdd(node1,node2);
+		if((node1->pstPrev == head) || (node2->pstPrev == node1))
+		{
+			printf("add node success\n");
+		}
+
+		LOS_ListTailInsert(head,tail);
+		if(tail->pstPrev == node2)
+		{
+			printf("add tail success\n");
+		}
+
+
+		/*删除双向链表节点*/
+		printf("delete node......\n");
+		LOS_ListDelete(node1);
+		free(node1);
+		if(head->pstNext == node2)
+		{
+			printf("delete node success\n");
+		}
+
+	}
+
+
+
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+
 
 **结果验证**
-initial......
 
-node add and tail add......
-
-add node success
-
-add tail success
-
-delete node......
-
-delete node success
+	initial......
+	node add and tail add......
+	add node success
+	add tail success
+	delete node......
+	delete node success
 
 
 
