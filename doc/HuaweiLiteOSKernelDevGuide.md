@@ -2951,6 +2951,8 @@ Huawei LiteOS系统中的软件定时器模块为用户提供下面几种功能�
 
 
 代码参考los_api_timer.c
+
+
 	#include <stdio.h>
 	//#include "osTest.h"
 	#include "los_swtmr.h"
@@ -3084,6 +3086,7 @@ Huawei LiteOS系统中的软件定时器模块为用户提供下面几种功能�
 **功能**
 
 Huawei LiteOS系统中的事件模块为用户提供下面几个接口。
+
 <table>
 	<tr>
     <td width = "25%"> 功能分类 </td>
@@ -3145,6 +3148,7 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口。
 1. 测试操作是否成功。
 
 代码参考los_api_list.c
+
 	#include "los_list.h"
 	#include <stdio.h>
 	#include <stdlib.h>
