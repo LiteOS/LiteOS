@@ -14,7 +14,7 @@ LR_IROM1 0x08000000 0x00200000  {    ; load region size_region
   ARM_LIB_STACKHEAP 0x20000400 EMPTY 0x200 {
 	
   }
-  RW_IRAM1 0x20000600 0x0003FA00  {  ; RW data
+  RW_IRAM1 0x20000600 0x0002FA00  {  ; RW data
    .ANY (+RW +ZI)
    * (.data, .bss)
   }
