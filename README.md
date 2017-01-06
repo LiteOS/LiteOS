@@ -1,12 +1,18 @@
 ![](http://developer.huawei.com/ict/sites/default/files/ueditor/26/upload/image/20160827/1472287221569855.png)
 ##Huawei LiteOS基础内核
-华为物联网操作系统Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的轻量级操作系统。本项目属于华为物联网操作系统[Huawei LiteOS](http://developer.huawei.com/ict/cn/site-iot/product/liteos)基础内核源码(图示Basic Kernel)，目前仅适配STM32F411开发板，后续会支持其他类型开发板。现有代码支持任务调度，内存管理，中断机制，队列管理，事件管理，IPC机制，时间管理，软定时器以及双向链表等常用数据结构。开发指南可访问[华为开发者社区](http://developer.huawei.com/ict/cn/site-iot/product/liteos)下载。
+华为物联网操作系统Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的轻量级操作系统。本项目属于华为物联网操作系统[Huawei LiteOS](http://developer.huawei.com/ict/cn/site-iot/product/liteos)基础内核源码(图示Basic Kernel)，目前仅适配STM32F411开发板，后续会支持其他类型开发板。现有代码支持任务调度，内存管理，中断机制，队列管理，事件管理，IPC机制，时间管理，软定时器以及双向链表等常用数据结构。
+
+##获取LiteOS最新代码和文档    
+* 代码地址：https://github.com/LITEOS/LiteOS_Kernel
+* 文档地址：https://github.com/LITEOS/LiteOS_Kernel/tree/master/doc
 
 ##项目更新
 * 2016.9.6 - 支持IAR工程构建 
+* 2016.12.23 - 支持keil工程构建 
 
 ##开发板支持
 * STM32F411
+* STM32F429
 
 ##主要特征
 * 实时操作系统内核
@@ -104,7 +110,8 @@
     }
 
 ##代码贡献
-* 目前为只读
+* 可提交issue发起讨论
+* 可提交PR参与代码贡献
 
 ##开源协议
 * 遵循BSD-3开源许可协议

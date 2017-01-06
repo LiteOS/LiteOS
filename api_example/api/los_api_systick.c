@@ -49,9 +49,9 @@ VOID Example_TransformTime(VOID)
 {
     UINT32 uwMs;
     UINT32 uwTick;
-    uwTick = LOS_MS2Tick(10000);// 10000 msÊı×ª»»ÎªtickÊı
+    uwTick = LOS_MS2Tick(10000);// 10000 msæ•°è½¬æ¢ä¸ºtickæ•°
     dprintf("uwTick = %d \n",uwTick);
-    uwMs = LOS_Tick2MS(100);// 100 tickÊı×ª»»ÎªmsÊı
+    uwMs = LOS_Tick2MS(100);// 100 tickæ•°è½¬æ¢ä¸ºmsæ•°
     dprintf("uwMs = %d \n",uwMs);
 }
 
@@ -88,4 +88,5 @@ VOID Example_GetTick(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 

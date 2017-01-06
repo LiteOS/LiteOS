@@ -54,7 +54,7 @@ static UINT32 g_uwQueue;
 
 CHAR abuf[] = "test is message x";
 
-/*ÈÎÎñ1·¢ËÍÊı¾İ*/
+/*ä»»åŠ¡1å‘é€æ•°æ®*/
 void *send_Entry(UINT32 uwParam1,
                 UINT32 uwParam2,
                 UINT32 uwParam3,
@@ -68,7 +68,7 @@ void *send_Entry(UINT32 uwParam1,
         abuf[uwlen -2] = '0' + i;
         i++;
 
-        /*½«abufÀïµÄÊı¾İĞ´Èë¶ÓÁĞ*/
+        /*å°†abufé‡Œçš„æ•°æ®å†™å…¥é˜Ÿåˆ—*/
         uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
         if(uwRet != LOS_OK)
         {
@@ -80,7 +80,7 @@ void *send_Entry(UINT32 uwParam1,
     return NULL;
 }
 
-/*ÈÎÎñ2½ÓÊÕÊı¾İ*/
+/*ä»»åŠ¡2æ¥æ”¶æ•°æ®*/
 void *recv_Entry(UINT32 uwParam1,
                 UINT32 uwParam2,
                 UINT32 uwParam3,
@@ -92,7 +92,7 @@ void *recv_Entry(UINT32 uwParam1,
     while (1)
     {
 
-        /*¶ÁÈ¡¶ÓÁĞÀïµÄÊı¾İ´æÈëuwReadbufÀï*/
+        /*è¯»å–é˜Ÿåˆ—é‡Œçš„æ•°æ®å­˜å…¥uwReadbufé‡Œ*/
         uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 50, 0);
         if(uwRet != LOS_OK)
         {
@@ -103,7 +103,7 @@ void *recv_Entry(UINT32 uwParam1,
         dprintf("recv message:%s\n", (char *)uwReadbuf);
         LOS_TaskDelay(5);
     }
-    /*É¾³ı¶ÓÁĞ*/
+    /*åˆ é™¤é˜Ÿåˆ—*/
     while (LOS_OK != LOS_QueueDelete(g_uwQueue))
     {
         LOS_TaskDelay(1);
@@ -119,13 +119,13 @@ int Example_MsgQueue(void)
     UINT32 uwTask1, uwTask2;
     TSK_INIT_PARAM_S stInitParam1;
 
-    /*´´½¨ÈÎÎñ1*/
+    /*åˆ›å»ºä»»åŠ¡1*/
     stInitParam1.pfnTaskEntry = send_Entry;
     stInitParam1.usTaskPrio = 9;
     stInitParam1.uwStackSize = 0x400;
     stInitParam1.pcName = "sendQueue";
     stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED;
-    LOS_TaskLock();//Ëø×¡ÈÎÎñ£¬·ÀÖ¹ĞÂ´´½¨µÄÈÎÎñ±È±¾ÈÎÎñ¸ß¶ø·¢Éúµ÷¶È
+    LOS_TaskLock();//é”ä½ä»»åŠ¡ï¼Œé˜²æ­¢æ–°åˆ›å»ºçš„ä»»åŠ¡æ¯”æœ¬ä»»åŠ¡é«˜è€Œå‘ç”Ÿè°ƒåº¦
     uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
     if(uwRet != LOS_OK)
     {
@@ -133,7 +133,7 @@ int Example_MsgQueue(void)
         return uwRet;
     }
 
-    /*´´½¨ÈÎÎñ2*/
+    /*åˆ›å»ºä»»åŠ¡2*/
     stInitParam1.pfnTaskEntry = recv_Entry;
     uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
     if(uwRet != LOS_OK)
@@ -142,7 +142,7 @@ int Example_MsgQueue(void)
         return uwRet;
     }
 
-    /*´´½¨¶ÓÁĞ*/
+    /*åˆ›å»ºé˜Ÿåˆ—*/
     uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
     if(uwRet != LOS_OK)
     {
@@ -150,7 +150,7 @@ int Example_MsgQueue(void)
     }
 
     dprintf("create the queue success!\n");
-    LOS_TaskUnlock();//½âËøÈÎÎñ£¬Ö»ÓĞ¶ÓÁĞ´´½¨ºó²Å¿ªÊ¼ÈÎÎñµ÷¶È
+    LOS_TaskUnlock();//è§£é”ä»»åŠ¡ï¼Œåªæœ‰é˜Ÿåˆ—åˆ›å»ºåæ‰å¼€å§‹ä»»åŠ¡è°ƒåº¦
     
     return LOS_OK;
 }
@@ -162,4 +162,5 @@ int Example_MsgQueue(void)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 

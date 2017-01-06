@@ -52,7 +52,7 @@ extern "C" {
 
 VOID Example_list(VOID)
 {
-	 /*³õÊ¼»¯£¬ÅĞ¶ÏÊÇ·ñÎª¿Õ*/
+	 /*åˆå§‹åŒ–ï¼Œåˆ¤æ–­æ˜¯å¦ä¸ºç©º*/
     dprintf("initial......\n");
     LOS_DL_LIST* head;
     head = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
@@ -64,7 +64,7 @@ VOID Example_list(VOID)
         return;
     }
 	 
-    /*Ôö¼ÓÒ»¸ö½Úµã£¬ÔÚÎ²¶Ë²åÈëÒ»¸ö½Úµã*/
+    /*å¢åŠ ä¸€ä¸ªèŠ‚ç‚¹ï¼Œåœ¨å°¾ç«¯æ’å…¥ä¸€ä¸ªèŠ‚ç‚¹*/
     printf("node add and tail add......\n");
     LOS_DL_LIST* node1 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
     LOS_DL_LIST* node2 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
@@ -85,7 +85,7 @@ VOID Example_list(VOID)
     }
 
 
-    /*É¾³ıË«ÏòÁ´±í½Úµã*/
+    /*åˆ é™¤åŒå‘é“¾è¡¨èŠ‚ç‚¹*/
     dprintf("delete node......\n");
     LOS_ListDelete(node1);
     free(node1);
@@ -104,4 +104,5 @@ VOID Example_list(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 
