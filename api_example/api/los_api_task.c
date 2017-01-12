@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+О╩©/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -60,7 +60,7 @@ UINT32 Example_TaskHi(VOID)
 
      dprintf("Enter TaskHi Handler.\r\n");
 
-    /*ясй╠2╦ЖTickё╛ясй╠╨С╦цхннЯ╩А╧рфПё╛ж╢ппйёсЮхннЯжп╬м╦ъсеох╪╤╣дхннЯ(g_uwTskLoIDхннЯ)*/
+    /*Е╩╤Ф≈╤2Д╦╙TickО╪▄Е╩╤Ф≈╤Е░▌Х╞╔Д╩╩Е┼║Д╪ Ф▄┌Х╣╥О╪▄Ф┴╖Х║▄Е┴╘Д╫≥Д╩╩Е┼║Д╦╜Е╟╠И╚≤Д╪≤Е┘┬Г╨╖Г └Д╩╩Е┼║(g_uwTskLoIDД╩╩Е┼║)*/
     uwRet = LOS_TaskDelay(2);
     if (uwRet != LOS_OK)
     {
@@ -68,10 +68,10 @@ UINT32 Example_TaskHi(VOID)
         return LOS_NOK;
     }
 
-    /*2╦Жtickй╠╪Д╣╫ак╨Сё╛╦цхннЯ╩ж╦╢ё╛╪лпЬж╢пп*/
+    /*2Д╦╙tickФ≈╤И≈╢Е┬╟Д╨├Е░▌О╪▄Х╞╔Д╩╩Е┼║Ф│╒Е╓█О╪▄Г╩╖Г╩╜Ф┴╖Х║▄*/
     dprintf("TaskHi LOS_TaskDelay Done.\r\n");
 
-    /*╧рфПвтиМхннЯ*/
+    /*Ф▄┌Х╣╥Х┤╙Х╨╚Д╩╩Е┼║*/
     uwRet = LOS_TaskSuspend(g_uwTskHiID);
     if (uwRet != LOS_OK)
     {
@@ -83,7 +83,7 @@ UINT32 Example_TaskHi(VOID)
     return LOS_OK;
 }
 
-/*╣мсеох╪╤хннЯхК©з╨╞йЩ*/
+/*Д╫▌Д╪≤Е┘┬Г╨╖Д╩╩Е┼║Е┘╔Е▐ёЕ┤╫Ф∙╟*/
 UINT32 Example_TaskLo(VOID)
 {
     UINT32 uwRet;
@@ -92,7 +92,7 @@ UINT32 Example_TaskLo(VOID)
 
     dprintf("Enter TaskLo Handler.\r\n");
 
-    /*ясй╠2╦ЖTickё╛ясй╠╨С╦цхннЯ╩А╧рфПё╛ж╢ппйёсЮхннЯжп╬м╦ъсеох╪╤╣дхннЯ(╠Ё╬╟хннЯ)*/
+    /*Е╩╤Ф≈╤2Д╦╙TickО╪▄Е╩╤Ф≈╤Е░▌Х╞╔Д╩╩Е┼║Д╪ Ф▄┌Х╣╥О╪▄Ф┴╖Х║▄Е┴╘Д╫≥Д╩╩Е┼║Д╦╜Е╟╠И╚≤Д╪≤Е┘┬Г╨╖Г └Д╩╩Е┼║(Х┐▄Ф≥╞Д╩╩Е┼║)*/
     uwRet = LOS_TaskDelay(2);
     if (uwRet != LOS_OK)
     {
@@ -102,7 +102,7 @@ UINT32 Example_TaskLo(VOID)
 
     dprintf("TaskHi LOS_TaskSuspend Success.\r\n");
 
-    /*╩ж╦╢╠╩╧рфП╣дхннЯg_uwTskHiID*/
+    /*Ф│╒Е╓█Х╒╚Ф▄┌Х╣╥Г └Д╩╩Е┼║g_uwTskHiID*/
     uwRet = LOS_TaskResume(g_uwTskHiID);
     if (uwRet != LOS_OK)
     {
@@ -115,13 +115,13 @@ UINT32 Example_TaskLo(VOID)
     return LOS_OK;
 }
 
-/*хннЯ╡БйтхК©з╨╞йЩё╛тзюОцФ╢╢╫╗сеох╪╤╡╩р╩яЫ╣да╫╦ЖхннЯ*/
+/*Д╩╩Е┼║Ф╣▀Х╞∙Е┘╔Е▐ёЕ┤╫Ф∙╟О╪▄Е°╗И┤▄И²╒Е┬⌡Е╩╨Д╪≤Е┘┬Г╨╖Д╦█Д╦─Ф═╥Г └Д╦╓Д╦╙Д╩╩Е┼║*/
 UINT32 Example_TskCaseEntry(VOID)
 {
     UINT32 uwRet;
     TSK_INIT_PARAM_S stInitParam;
 
-    /*кЬхннЯ╣В╤х*/
+    /*И■│Д╩╩Е┼║Х╟┐Е╨╕*/
     LOS_TaskLock();
 
     dprintf("LOS_TaskLock() Success!\r\n");
@@ -131,7 +131,7 @@ UINT32 Example_TskCaseEntry(VOID)
     stInitParam.pcName = "HIGH_NAME";
     stInitParam.uwStackSize = 0x400;
     stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-    /*╢╢╫╗╦ъсеох╪╤хннЯё╛сисзкЬхннЯ╣В╤хё╛хннЯ╢╢╫╗Ёи╧╕╨С╡╩╩АбМиож╢пп*/
+    /*Е┬⌡Е╩╨И╚≤Д╪≤Е┘┬Г╨╖Д╩╩Е┼║О╪▄Г■╠Д╨▌И■│Д╩╩Е┼║Х╟┐Е╨╕О╪▄Д╩╩Е┼║Е┬⌡Е╩╨Ф┬░Е┼÷Е░▌Д╦█Д╪ И╘╛Д╦┼Ф┴╖Х║▄*/
     uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
     if (uwRet != LOS_OK)
     {
@@ -148,7 +148,7 @@ UINT32 Example_TskCaseEntry(VOID)
     stInitParam.pcName = "LOW_NAME";
     stInitParam.uwStackSize = 0x400;
     stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-    /*╢╢╫╗╣мсеох╪╤хннЯё╛сисзкЬхннЯ╣В╤хё╛хннЯ╢╢╫╗Ёи╧╕╨С╡╩╩АбМиож╢пп*/
+    /*Е┬⌡Е╩╨Д╫▌Д╪≤Е┘┬Г╨╖Д╩╩Е┼║О╪▄Г■╠Д╨▌И■│Д╩╩Е┼║Х╟┐Е╨╕О╪▄Д╩╩Е┼║Е┬⌡Е╩╨Ф┬░Е┼÷Е░▌Д╦█Д╪ И╘╛Д╦┼Ф┴╖Х║▄*/
     uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
     if (uwRet != LOS_OK)
     {
@@ -160,7 +160,7 @@ UINT32 Example_TskCaseEntry(VOID)
 
     dprintf("Example_TaskLo create Success!\r\n");
 
-    /*╫БкЬхннЯ╣В╤хё╛╢кй╠╩А╥╒иЗхннЯ╣В╤хё╛ж╢пп╬мпВап╠МжпвН╦ъсеох╪╤хннЯ*/
+    /*Х╖ёИ■│Д╩╩Е┼║Х╟┐Е╨╕О╪▄Ф╜╓Ф≈╤Д╪ Е▐▒Г■÷Д╩╩Е┼║Х╟┐Е╨╕О╪▄Ф┴╖Х║▄Е╟╠Г╩╙Е┬≈Х║╗Д╦╜Ф°─И╚≤Д╪≤Е┘┬Г╨╖Д╩╩Е┼║*/
     LOS_TaskUnlock();
 
     //while(1){};
@@ -176,4 +176,5 @@ UINT32 Example_TskCaseEntry(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 
