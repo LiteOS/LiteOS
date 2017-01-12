@@ -6,7 +6,7 @@
 * 代码地址：https://github.com/LITEOS/LiteOS_Kernel
 * 文档地址：https://github.com/LITEOS/LiteOS_Kernel/tree/master/doc
 
-##官方地址：访问[华为开发者社区](http://developer.huawei.com/ict/cn/site-iot/product/liteos）查看详情。
+##官方地址：访问![华为开发者社区](http://developer.huawei.com/ict/cn/site-iot/product/liteos）查看详情。
 
 ##项目更新
 * 2016.9.6 - 支持IAR工程构建 
