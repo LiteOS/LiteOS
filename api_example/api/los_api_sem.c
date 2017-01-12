@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -50,12 +50,12 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-/*²âÊÔÈÎÎñÓÅÏÈ¼¶*/
+/*æµ‹è¯•ä»»åŠ¡ä¼˜å…ˆçº§*/
 #define TASK_PRIO_TEST  5
 
-/*ÈÎÎñPID*/
+/*ä»»åŠ¡PID*/
 static UINT32 g_TestTaskID01,g_TestTaskID02;
-/*ĞÅºÅÁ¿½á¹¹ÌåID*/
+/*ä¿¡å·é‡ç»“æ„ä½“ID*/
 //static SEM_HANDLE_T g_usSemID;
 static UINT32 g_usSemID;
 
@@ -66,20 +66,20 @@ VOID Example_SemTask1(void)
     UINT32 uwRet;
 
     dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
-    /*¶¨Ê±×èÈûÄ£Ê½ÉêÇëĞÅºÅÁ¿£¬¶¨Ê±Ê±¼äÎª10Tick*/
+    /*å®šæ—¶é˜»å¡æ¨¡å¼ç”³è¯·ä¿¡å·é‡ï¼Œå®šæ—¶æ—¶é—´ä¸º10Tick*/
     uwRet = LOS_SemPend(g_usSemID, 10);
 
-    /*ÉêÇëµ½ĞÅºÅÁ¿*/
+    /*ç”³è¯·åˆ°ä¿¡å·é‡*/
     if(LOS_OK == uwRet)
     {
          LOS_SemPost(g_usSemID);
          return;
     }
-    /*¶¨Ê±Ê±¼äµ½£¬Î´ÉêÇëµ½ĞÅºÅÁ¿*/
+    /*å®šæ—¶æ—¶é—´åˆ°ï¼Œæœªç”³è¯·åˆ°ä¿¡å·é‡*/
     if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
     {
         dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
-        /*ÓÀ¾Ã×èÈûÄ£Ê½ÉêÇëĞÅºÅÁ¿*/
+        /*æ°¸ä¹…é˜»å¡æ¨¡å¼ç”³è¯·ä¿¡å·é‡*/
         uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
         dprintf("Example_SemTask1 wait_forever and get sem g_usSemID .\n");
         if(LOS_OK == uwRet)
@@ -96,17 +96,17 @@ VOID   Example_SemTask2(void)
 {
     UINT32 uwRet;
     dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
-    /*ÓÀ¾Ã×èÈûÄ£Ê½ÉêÇëĞÅºÅÁ¿*/
+    /*æ°¸ä¹…é˜»å¡æ¨¡å¼ç”³è¯·ä¿¡å·é‡*/
     uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
 
     if(LOS_OK == uwRet)
     dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
 
-    /*ÈÎÎñĞİÃß20 Tick*/
+    /*ä»»åŠ¡ä¼‘çœ 20 Tick*/
     LOS_TaskDelay(20);
 
     dprintf("Example_SemTask2 post sem g_usSemID .\n");
-    /*ÊÍ·ÅĞÅºÅÁ¿*/
+    /*é‡Šæ”¾ä¿¡å·é‡*/
     LOS_SemPost(g_usSemID);
 
     return;
@@ -119,13 +119,13 @@ UINT32 Example_Semphore(VOID)
     TSK_INIT_PARAM_S stTask1;
     TSK_INIT_PARAM_S stTask2;
 
-   /*´´½¨ĞÅºÅÁ¿*/
+   /*åˆ›å»ºä¿¡å·é‡*/
     LOS_SemCreate(0,&g_usSemID);
 
-    /*ËøÈÎÎñµ÷¶È*/
+    /*é”ä»»åŠ¡è°ƒåº¦*/
     LOS_TaskLock();
 
-    /*´´½¨ÈÎÎñ1*/
+    /*åˆ›å»ºä»»åŠ¡1*/
     memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
     stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
     stTask1.pcName       = "MutexTsk1";
@@ -138,7 +138,7 @@ UINT32 Example_Semphore(VOID)
         return LOS_NOK;
     }
 
-    /*´´½¨ÈÎÎñ2*/
+    /*åˆ›å»ºä»»åŠ¡2*/
     memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
     stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
     stTask2.pcName       = "MutexTsk2";
@@ -151,25 +151,25 @@ UINT32 Example_Semphore(VOID)
         return LOS_NOK;
     }
 
-    /*½âËøÈÎÎñµ÷¶È*/
+    /*è§£é”ä»»åŠ¡è°ƒåº¦*/
     LOS_TaskUnlock();
 
     uwRet = LOS_SemPost(g_usSemID);
 
-    /*ÈÎÎñĞİÃß40 Tick*/
+    /*ä»»åŠ¡ä¼‘çœ 40 Tick*/
     LOS_TaskDelay(40);
 
-    /*É¾³ıĞÅºÅÁ¿*/
+    /*åˆ é™¤ä¿¡å·é‡*/
     LOS_SemDelete(g_usSemID);
 
-    /*É¾³ıÈÎÎñ1*/
+    /*åˆ é™¤ä»»åŠ¡1*/
     uwRet = LOS_TaskDelete(g_TestTaskID01);
     if(uwRet != LOS_OK)
     {
         dprintf("task1 delete failed .\n");
         return LOS_NOK;
     }
-    /*É¾³ıÈÎÎñ2*/
+    /*åˆ é™¤ä»»åŠ¡2*/
     uwRet = LOS_TaskDelete(g_TestTaskID02);
     if(uwRet != LOS_OK)
     {

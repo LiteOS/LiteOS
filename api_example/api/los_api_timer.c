@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -48,7 +48,7 @@ extern "C" {
 
 void Timer1_Callback  (UINT32 arg);  // callback fuction 
                   
-void Timer2_Callback	(UINT32 arg);//»Øµ÷º¯Êý
+void Timer2_Callback	(UINT32 arg);//å›žè°ƒå‡½æ•°
 
 
 UINT32 g_timercount1 = 0;  
@@ -112,4 +112,5 @@ void Example_swTimer(void)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 

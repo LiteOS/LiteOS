@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -50,12 +50,12 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-/*»¥³âËø¾ä±úID*/
+/*äº’æ–¥é”å¥æŸ„ID*/
 //MUX_HANDLE_T  g_Testmux01;
 UINT32 g_Testmux01;
 
 
-/*ÈÎÎñPID*/
+/*ä»»åŠ¡PID*/
 UINT32 g_TestTaskID01;
 UINT32 g_TestTaskID02;
 
@@ -65,25 +65,25 @@ VOID Example_MutexTask1()
     UINT32 uwRet;
 
     dprintf("task1 try to get mutex, wait 10 Tick.\n");
-    /*ÉêÇë»¥³âËø*/
+    /*ç”³è¯·äº’æ–¥é”*/
     uwRet=LOS_MuxPend(g_Testmux01, 10);
 
     if(uwRet == LOS_OK)
     {
         dprintf("task1 get mutex g_Testmux01.\n");
-        /*ÊÍ·Å»¥³âËø*/
+        /*é‡Šæ”¾äº’æ–¥é”*/
         LOS_MuxPost(g_Testmux01);
         return;
     }
     else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
     {
         dprintf("task1 timeout and try to get  mutex, wait forever.\n");
-        /*ÉêÇë»¥³âËø*/
+        /*ç”³è¯·äº’æ–¥é”*/
         uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
         if(uwRet == LOS_OK)
         {
             dprintf("task1 wait forever,get mutex g_Testmux01.\n");
-            /*ÊÍ·Å»¥³âËø*/
+            /*é‡Šæ”¾äº’æ–¥é”*/
             LOS_MuxPost(g_Testmux01);
             return;
         }
@@ -96,7 +96,7 @@ VOID Example_MutexTask2()
     UINT32 uwRet;
 
     dprintf("task2 try to get mutex, wait forever.\n");
-    /*ÉêÇë»¥³âËø*/
+    /*ç”³è¯·äº’æ–¥é”*/
     uwRet=LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
     if(uwRet != LOS_OK)
     {
@@ -106,11 +106,11 @@ VOID Example_MutexTask2()
 
     dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
 
-    /*ÈÎÎñĞİÃß100 Tick*/
+    /*ä»»åŠ¡ä¼‘çœ 100 Tick*/
     LOS_TaskDelay(100);
 
     dprintf("task2 resumed and post the g_Testmux01\n");
-    /*ÊÍ·Å»¥³âËø*/
+    /*é‡Šæ”¾äº’æ–¥é”*/
     LOS_MuxPost(g_Testmux01);
     return;
 
@@ -122,13 +122,13 @@ UINT32 Example_MutexLock(VOID)
     TSK_INIT_PARAM_S stTask1;
     TSK_INIT_PARAM_S stTask2;
 
-    /*´´½¨»¥³âËø*/
+    /*åˆ›å»ºäº’æ–¥é”*/
     LOS_MuxCreate(&g_Testmux01);
 
-    /*ËøÈÎÎñµ÷¶È*/
+    /*é”ä»»åŠ¡è°ƒåº¦*/
     LOS_TaskLock();
 
-    /*´´½¨ÈÎÎñ1*/
+    /*åˆ›å»ºä»»åŠ¡1*/
     memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
     stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;
     stTask1.pcName       = "MutexTsk1";
@@ -141,7 +141,7 @@ UINT32 Example_MutexLock(VOID)
         return LOS_NOK;
     }
 
-    /*´´½¨ÈÎÎñ2*/
+    /*åˆ›å»ºä»»åŠ¡2*/
     memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
     stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;
     stTask2.pcName       = "MutexTsk2";
@@ -154,22 +154,22 @@ UINT32 Example_MutexLock(VOID)
         return LOS_NOK;
     }
 
-    /*½âËøÈÎÎñµ÷¶È*/
+    /*è§£é”ä»»åŠ¡è°ƒåº¦*/
     LOS_TaskUnlock();
-    /*ÈÎÎñĞİÃß300 Tick*/
+    /*ä»»åŠ¡ä¼‘çœ 300 Tick*/
     LOS_TaskDelay(300);
 
-    /*É¾³ı»¥³âËø*/
+    /*åˆ é™¤äº’æ–¥é”*/
     LOS_MuxDelete(g_Testmux01);
 
-    /*É¾³ıÈÎÎñ1*/
+    /*åˆ é™¤ä»»åŠ¡1*/
     uwRet = LOS_TaskDelete(g_TestTaskID01);
     if(uwRet != LOS_OK)
     {
         dprintf("task1 delete failed .\n");
         return LOS_NOK;
     }
-    /*É¾³ıÈÎÎñ2*/
+    /*åˆ é™¤ä»»åŠ¡2*/
     uwRet = LOS_TaskDelete(g_TestTaskID02);
     if(uwRet != LOS_OK)
     {
@@ -186,4 +186,5 @@ UINT32 Example_MutexLock(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 

@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -61,7 +61,7 @@ VOID Example_StaticMem(VOID)
         dprintf("Mem box init ok!\n");
     }
     
-    /*ÉêÇëÄÚ´æ¿é*/
+    /*ç”³è¯·å†…å­˜å—*/
     p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
     if (NULL == p_num) 
     {
@@ -69,13 +69,13 @@ VOID Example_StaticMem(VOID)
         return;
     }
     dprintf("Mem box alloc ok\n");
-    /*¸³Öµ*/
+    /*èµ‹å€¼*/
     *p_num = 828;
     dprintf("*p_num = %d\n", *p_num);
-     /*Çå³ıÄÚ´æÄÚÈİ*/
+     /*æ¸…é™¤å†…å­˜å†…å®¹*/
      LOS_MemboxClr(pBoxMem, p_num);
      dprintf("clear data ok\n *p_num = %d\n", *p_num);
-    /*ÊÍ·ÅÄÚ´æ*/
+    /*é‡Šæ”¾å†…å­˜*/
     uwRet = LOS_MemboxFree(pBoxMem, p_num);
     if (LOS_OK == uwRet) 
     {
@@ -95,4 +95,5 @@ VOID Example_StaticMem(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 

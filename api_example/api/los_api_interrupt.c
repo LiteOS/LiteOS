@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -673,7 +673,7 @@ VOID Example_Interrupt(VOID)
     
     Example_Exti0_Init();
     
-    LOS_HwiCreate(6, 0,0,user_irqhandle,0);//´´½¨ÖÐ¶Ï
+    LOS_HwiCreate(6, 0,0,user_irqhandle,0);//åˆ›å»ºä¸­æ–­
     //hal_interrupt_unmask(HWI_NUM_INT50);
     LOS_IntRestore(uvIntSave);
     //hal_interrupt_mask(HWI_NUM_INT50);
@@ -686,4 +686,5 @@ VOID Example_Interrupt(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 
