@@ -55,6 +55,8 @@ extern UINT8 g_ucMemStart[];
 extern UINT32 osTickInit(UINT32 uwSystemClock, UINT32 uwTickPerSecond);
 extern UINT32   g_uwTskMaxNum;
 
+extern const unsigned char g_use_ram_vect;
+	
 void osEnableFPU(void)
 {
     *(volatile UINT32 *)0xE000ED88 |= ((3UL << 10*2)|(3UL << 11*2));
@@ -124,7 +126,10 @@ LITE_OS_SEC_TEXT_INIT int osMain(void)
 
 #if (LOSCFG_PLATFORM_HWI == YES)
     {
-        osHwiInit();
+        if (g_use_ram_vect)
+        {
+            osHwiInit();
+        }
     }
 #endif
 
