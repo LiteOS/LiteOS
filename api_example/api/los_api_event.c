@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+ï»¿/*----------------------------------------------------------------------------
  * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
@@ -49,23 +49,23 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-/*ÈÎÎñPID*/
+/*ä»»åŠ¡PID*/
 UINT32 g_TestTaskID;
 LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
-/*ÊÂ¼ş¿ØÖÆ½á¹¹Ìå*/
+/*äº‹ä»¶æ§åˆ¶ç»“æ„ä½“*/
 EVENT_CB_S  example_event;
 
-/*µÈ´ıµÄÊÂ¼şÀàĞÍ*/
+/*ç­‰å¾…çš„äº‹ä»¶ç±»å‹*/
 #define event_wait 0x00000001
 
-/*ÓÃÀıÈÎÎñÈë¿Úº¯Êı*/
+/*ç”¨ä¾‹ä»»åŠ¡å…¥å£å‡½æ•°*/
 VOID Example_Event(VOID)
 {
     //UINT32 uwRet;
     UINT32 uwEvent;
 
-   /*³¬Ê± µÈ´ı·½Ê½¶ÁÊÂ¼ş,³¬Ê±Ê±¼äÎª100 Tick
-   Èô100 Tick ºóÎ´¶ÁÈ¡µ½Ö¸¶¨ÊÂ¼ş£¬¶ÁÊÂ¼ş³¬Ê±£¬ÈÎÎñÖ±½Ó»½ĞÑ*/
+   /*è¶…æ—¶ ç­‰å¾…æ–¹å¼è¯»äº‹ä»¶,è¶…æ—¶æ—¶é—´ä¸º100 Tick
+   è‹¥100 Tick åæœªè¯»å–åˆ°æŒ‡å®šäº‹ä»¶ï¼Œè¯»äº‹ä»¶è¶…æ—¶ï¼Œä»»åŠ¡ç›´æ¥å”¤é†’*/
     dprintf("Example_Event wait event 0x%x \n",event_wait);
 
     uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
@@ -85,7 +85,7 @@ UINT32 Example_SndRcvEvent(VOID)
     UINT32 uwRet;
     TSK_INIT_PARAM_S stTask1;
 
-    /*ÊÂ¼ş³õÊ¼»¯*/
+    /*äº‹ä»¶åˆå§‹åŒ–*/
     uwRet = LOS_EventInit(&example_event);
     if(uwRet != LOS_OK)
     {
@@ -93,7 +93,7 @@ UINT32 Example_SndRcvEvent(VOID)
         return LOS_NOK;
     }
 
-    /*´´½¨ÈÎÎñ*/
+    /*åˆ›å»ºä»»åŠ¡*/
     memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
     stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;
     stTask1.pcName       = "EventTsk1";
@@ -106,7 +106,7 @@ UINT32 Example_SndRcvEvent(VOID)
         return LOS_NOK;
     }
 
-    /*Ğ´ÓÃÀıÈÎÎñµÈ´ıµÄÊÂ¼şÀàĞÍ*/
+    /*å†™ç”¨ä¾‹ä»»åŠ¡ç­‰å¾…çš„äº‹ä»¶ç±»å‹*/
     dprintf("Example_TaskEntry_Event write event .\n");
 
     uwRet = LOS_EventWrite(&example_event, event_wait);
@@ -116,12 +116,12 @@ UINT32 Example_SndRcvEvent(VOID)
         return LOS_NOK;
     }
 
-    /*Çå±êÖ¾Î»*/
+    /*æ¸…æ ‡å¿—ä½*/
     dprintf("EventMask:%d\n",example_event.uwEventID);
     LOS_EventClear(&example_event, ~example_event.uwEventID);
     dprintf("EventMask:%d\n",example_event.uwEventID);
 
-    /*É¾³ıÈÎÎñ*/
+    /*åˆ é™¤ä»»åŠ¡*/
     uwRet = LOS_TaskDelete(g_TestTaskID);
     if(uwRet != LOS_OK)
     {
@@ -138,4 +138,5 @@ UINT32 Example_SndRcvEvent(VOID)
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
 
