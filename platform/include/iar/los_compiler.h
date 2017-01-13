@@ -47,7 +47,7 @@
 #define LOS_GET_INT_NUM __asm ("mrs %0, ipsr" : "=r" (uwIntNum))
  
 #define LOS_DISABLE_IRQ __asm ("cpsid i" : : : "memory")
- 
+
 #endif
  
  

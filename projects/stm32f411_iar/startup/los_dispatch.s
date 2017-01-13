@@ -39,7 +39,7 @@
         EXPORT  LOS_IntRestore
         EXPORT  LOS_StartToRun
         EXPORT  osTaskSchedule
-        EXPORT  osPendSV
+        EXPORT  PendSV_Handler
 
         IMPORT  g_stLosTask
         IMPORT  g_pfnTskSwitchHook
@@ -116,7 +116,7 @@ osTaskSchedule
     STR     R1, [R0]
     BX      LR
 
-osPendSV
+PendSV_Handler
     MRS     R12, PRIMASK
     CPSID   I
 

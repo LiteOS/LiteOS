@@ -77,7 +77,7 @@
 //#define LOS_KERNEL_TEST_MEM_STATIC
 
 /* test interrupt */
-#define LOS_KERNEL_TEST_INTRRUPT
+//#define LOS_KERNEL_TEST_INTRRUPT
 
 /* test Queue */
 //#define LOS_KERNEL_TEST_QUEUE
@@ -98,7 +98,7 @@
 //#define LOS_KERNEL_TEST_SWTIMER
 
 /* test list */
-//#define LOS_KERNEL_TEST_LIST
+#define LOS_KERNEL_TEST_LIST
 
 /* test ALL */
 //#define LOS_KERNEL_TEST_ALL

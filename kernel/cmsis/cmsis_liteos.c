@@ -55,6 +55,21 @@ extern "C" {
 #endif /* __cplusplus */
 
 
+struct os_pool_cb
+{
+	UINT32 poolid;
+};
+
+struct os_messageQ_cb
+{
+	UINT32 msgid;
+};
+
+struct os_mailQ_cb
+{
+	UINT32 mailid;
+};
+
 #define PRIORITY_WIN 4u
 extern LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(void);
 /// Start the RTOS Kernel with executing the specified thread

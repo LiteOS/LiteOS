@@ -43,6 +43,10 @@ extern "C" {
 
 /*lint -save -e40 -e522 -e533*/
 
+extern void LOS_TickHandler(void);
+extern void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior);
+extern void LosAdapIrqDisable(unsigned int irqnum);
+extern void LosAdapIntInit(void);
 /*lint -restore*/
 UINT32  g_vuwIntCount = 0;
 #ifdef LOS_LOCATION_VECTOR_IAR
@@ -64,8 +68,8 @@ LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
   osHwiDefaultHandler,  // [11] SVCall Handler
   osHwiDefaultHandler,  // [12] Debug Monitor Handler
   0,                    // [13] Reserved
-  osPendSV,             // [14] PendSV Handler
-  osHwiDefaultHandler,  // [15] SysTick Handler
+  PendSV_Handler,             // [14] PendSV Handler
+  LOS_TickHandler,  // [15] SysTick Handler
 };
 HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
 
@@ -132,6 +136,18 @@ LITE_OS_SEC_TEXT VOID  osInterrupt(VOID)
  Output      : None
  Return      : OS_SUCCESS
  *****************************************************************************/
+LITE_OS_SEC_TEXT_INIT unsigned int osGetVectorAddr(void)
+{
+	return (UINT32)m_pstHwiForm;
+}
+
+/*****************************************************************************
+ Function    : osHwiInit
+ Description : initialization of the hardware interrupt
+ Input       : None
+ Output      : None
+ Return      : OS_SUCCESS
+ *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT VOID osHwiInit()
 {
     UINT32 uwIndex;
@@ -139,11 +155,8 @@ LITE_OS_SEC_TEXT_INIT VOID osHwiInit()
     {
         m_pstHwiForm[uwIndex] = osHwiDefaultHandler;
     }
+    LosAdapIntInit();
 
-    /* Interrupt vector table location */
-     *(volatile UINT32 *)OS_NVIC_VTOR =  (UINT32)m_pstHwiForm;
-
-     *(volatile UINT32 *)OS_NVIC_AIRCR = (0x05FA0000 | OS_NVIC_AIRCR_PRIGROUP << 8);
 }
 
 /*****************************************************************************
@@ -186,9 +199,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiCreate( HWI_HANDLE_T  uwHwiNum,
 
     osSetVector(uwHwiNum, pfnHandler);
 
-    nvicSetIRQ(uwHwiNum);
-
-    nvicSetIrqPRI(uwHwiNum, usHwiPrio << 4);
+	LosAdapIrpEnable(uwHwiNum, usHwiPrio);
 
     LOS_IntRestore(uvIntSave);
 
@@ -212,7 +223,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiDelete(HWI_HANDLE_T uwHwiNum)
         return OS_ERRNO_HWI_NUM_INVALID;
     }
 
-    nvicClrIRQ(uwHwiNum);
+	LosAdapIrqDisable(uwHwiNum);
 
     uwIntSave = LOS_IntLock();
 
