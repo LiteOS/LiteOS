@@ -49,40 +49,33 @@ LITE_OS_SEC_BSS UINT32  g_uwCyclesPerTick;
 
 /*lint -save -e40 -e10 -e26 -e1013*/
 /*****************************************************************************
-Function   : LOS_TickHandler
-Description: los system tick handler 
+Function   : osTickStart
+Description: Configure Tick Interrupt Start
 Input   : none
 output  : none
-return  : none
+return  : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
 *****************************************************************************/
-void LOS_TickHandler(void)
+LITE_OS_SEC_TEXT_INIT UINT32 osTickStart(VOID)
 {
-    UINT32 uwIntSave;
+    if ((0 == OS_SYS_CLOCK)
+        || (0 == LOSCFG_BASE_CORE_TICK_PER_SECOND)
+        || (LOSCFG_BASE_CORE_TICK_PER_SECOND > OS_SYS_CLOCK))
+    {
+        return LOS_ERRNO_TICK_CFG_INVALID;
+    }
 
-    uwIntSave = LOS_IntLock();
-    g_vuwIntCount++;
-    LOS_IntRestore(uwIntSave);
+    m_pstHwiForm[OS_EXC_SYS_TICK] = (HWI_PROC_FUNC)osInterrupt;
+    m_pstHwiSlaveForm[OS_EXC_SYS_TICK] = osTickHandler;
 
-		osTickHandler();
-	
-    uwIntSave = LOS_IntLock();
-    g_vuwIntCount--;
-    LOS_IntRestore(uwIntSave);
-	
-    return ;
-}
+    g_uwCyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    g_ullTickCount = 0;
 
-/*****************************************************************************
-Function   : LOS_SetTickSycle
-Description: set g_uwCyclesPerTick value
-Input   : ticks, the cpu Sycles per tick
-output  : none
-return  : none
-*****************************************************************************/
-void LOS_SetTickSycle(UINT32 ticks)
-{
-	g_uwCyclesPerTick = ticks;
-	return ;
+    *(volatile UINT32 *)OS_SYSTICK_RELOAD_REG = OS_SYS_CLOCK/LOSCFG_BASE_CORE_TICK_PER_SECOND - 1;
+    *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
+    *(volatile UINT32 *)OS_SYSTICK_CURRENT_REG = 0;
+    *(volatile UINT32 *)OS_SYSTICK_CONTROL_REG = (1 << 2) | (1 << 1) | (1 << 0);
+
+    return LOS_OK;
 }
 
 /*****************************************************************************

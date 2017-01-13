@@ -579,7 +579,7 @@ extern VOID  osHwiDefaultHandler(VOID);
  * @see None.
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID  PendSV_Handler(VOID);
+extern VOID  osPendSV(VOID);
 
  /**
  *@ingroup los_hwi
