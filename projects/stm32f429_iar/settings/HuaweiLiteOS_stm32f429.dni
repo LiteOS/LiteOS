@@ -20,7 +20,7 @@ Stop=1
 Freq=10000000
 MultiCoreRunAll=1
 [DebugChecksum]
-Checksum=749200229
+Checksum=-896036741
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -45,6 +45,14 @@ ITMportsEnable=0
 ITMportsTermIO=0
 ITMportsLogFile=0
 ITMlogFile=$PROJ_DIR$\ITM.log
+[stlink]
+stlinkserialNo=6AA92FF2
+stlinkfoundProbes=
+[CodeCoverage]
+Enabled=_ 0
+[Trace2]
+Enabled=0
+ShowSource=0
 [SWOTraceWindow]
 PcSampling=0
 InterruptLogs=0
@@ -86,7 +94,7 @@ Exclusions=
 mode=0
 [Breakpoints2]
 Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\api_example\api\los_api_static_mem.c}.65.5" 0 0 1 "" 0 "" 0
-Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c}.97.5" 0 0 1 "" 0 "" 0
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c}.100.22" 0 0 1 "" 0 "" 0
 Count=2
 [Aliases]
 Count=0

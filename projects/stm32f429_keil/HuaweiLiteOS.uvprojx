@@ -123,7 +123,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>0</UseSimulator>
+            <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -135,7 +135,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
-            <UseTarget>1</UseTarget>
+            <UseTarget>0</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -147,7 +147,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>11</TargetSelection>
+          <TargetSelection>8</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -230,7 +230,7 @@
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
-            <OptFeed>1</OptFeed>
+            <OptFeed>0</OptFeed>
             <NoZi1>0</NoZi1>
             <NoZi2>0</NoZi2>
             <NoZi3>0</NoZi3>
@@ -347,7 +347,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\platform\include\keil;..\..\platform\bsp\sample\config;..\..\platform\cpu\arm\cortex-m4;..\..\api_example\include</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\platform\include\keil;..\..\platform\bsp\config;..\..\platform\cpu\arm\cortex-m4;..\..\example\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -486,13 +486,103 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>platform</GroupName>
+          <GroupName>cmsis</GroupName>
           <Files>
             <File>
-              <FileName>los_config.c</FileName>
+              <FileName>cmsis_liteos.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\bsp\sample\config\los_config.c</FilePath>
+              <FilePath>..\..\kernel\cmsis\cmsis_liteos.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>example</GroupName>
+          <Files>
+            <File>
+              <FileName>los_api_dynamic_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_dynamic_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_event.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_event.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_interrupt.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_list.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_msgqueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_msgqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_mutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_mutex.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_sem.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_static_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_static_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_api_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_demo_entry.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_demo_entry.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_cmsis_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_cmsis_main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>startup</GroupName>
+          <Files>
+            <File>
+              <FileName>los_dispatch.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup\los_dispatch.s</FilePath>
+            </File>
+            <File>
+              <FileName>los_vendor.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup\los_vendor.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>platform/m4</GroupName>
+          <Files>
             <File>
               <FileName>los_hw.c</FileName>
               <FileType>1</FileType>
@@ -511,17 +601,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>startup</GroupName>
+          <GroupName>platform/bsp</GroupName>
           <Files>
             <File>
-              <FileName>los_dispatch.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup\los_dispatch.s</FilePath>
+              <FileName>los_bsp_adapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\bsp\config\los_bsp_adapter.c</FilePath>
             </File>
             <File>
-              <FileName>los_vendor.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup\los_vendor.s</FilePath>
+              <FileName>los_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\bsp\config\los_config.c</FilePath>
             </File>
           </Files>
         </Group>

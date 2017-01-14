@@ -29,7 +29,7 @@
         </option>
         <option>
           <name>Variant</name>
-          <version>20</version>
+          <version>21</version>
           <state>40</state>
         </option>
         <option>
@@ -60,7 +60,7 @@
         </option>
         <option>
           <name>FPU</name>
-          <version>2</version>
+          <version>3</version>
           <state>5</state>
         </option>
         <option>
@@ -87,7 +87,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.10.1.6733</state>
+          <state>7.30.4.8186</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -137,12 +137,12 @@
         </option>
         <option>
           <name>GFPUCoreSlave</name>
-          <version>20</version>
+          <version>21</version>
           <state>40</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
-          <version>20</version>
+          <version>21</version>
           <state>40</state>
         </option>
         <option>
@@ -163,7 +163,7 @@
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>30</version>
+        <version>31</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -300,9 +300,10 @@
           <state>$PROJ_DIR$\..\..\kernel\include</state>
           <state>$PROJ_DIR$\..\..\kernel\base\include</state>
           <state>$PROJ_DIR$\..\..\platform\include\iar</state>
-          <state>$PROJ_DIR$\..\..\platform\bsp\sample\config</state>
+          <state>$PROJ_DIR$\..\..\platform\bsp\config</state>
           <state>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4</state>
-          <state>$PROJ_DIR$\..\..\api_example\include</state>
+          <state>$PROJ_DIR$\..\..\example\include</state>
+          <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -407,6 +408,10 @@
           <name>CCOptStrategySlave</name>
           <version>0</version>
           <state>0</state>
+        </option>
+        <option>
+          <name>CCGuardCalls</name>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -612,6 +617,7 @@
       <data>
         <extensions></extensions>
         <cmdline></cmdline>
+        <hasPrio>0</hasPrio>
       </data>
     </settings>
     <settings>
@@ -971,7 +977,7 @@
         </option>
         <option>
           <name>Variant</name>
-          <version>20</version>
+          <version>21</version>
           <state>0</state>
         </option>
         <option>
@@ -1002,7 +1008,7 @@
         </option>
         <option>
           <name>FPU</name>
-          <version>2</version>
+          <version>3</version>
           <state>0</state>
         </option>
         <option>
@@ -1079,12 +1085,12 @@
         </option>
         <option>
           <name>GFPUCoreSlave</name>
-          <version>20</version>
+          <version>21</version>
           <state>1</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
-          <version>20</version>
+          <version>21</version>
           <state>1</state>
         </option>
         <option>
@@ -1105,7 +1111,7 @@
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>30</version>
+        <version>31</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
@@ -1345,6 +1351,10 @@
           <version>0</version>
           <state>0</state>
         </option>
+        <option>
+          <name>CCGuardCalls</name>
+          <state>1</state>
+        </option>
       </data>
     </settings>
     <settings>
@@ -1549,6 +1559,7 @@
       <data>
         <extensions></extensions>
         <cmdline></cmdline>
+        <hasPrio>0</hasPrio>
       </data>
     </settings>
     <settings>
@@ -1884,42 +1895,45 @@
   <group>
     <name>Huawei_LiteOS</name>
     <group>
-      <name>apitest</name>
+      <name>example</name>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_dynamic_mem.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_dynamic_mem.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_event.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_event.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_interrupt.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_interrupt.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_list.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_list.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_msgqueue.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_msgqueue.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_mutex.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_mutex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_sem.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_sem.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_static_mem.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_static_mem.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_systick.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_systick.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_task.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_task.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_api_timer.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_api_timer.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\api_example\api\los_demo_entry.c</name>
+        <name>$PROJ_DIR$\..\..\example\api\los_cmsis_main.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\example\api\los_demo_entry.c</name>
       </file>
     </group>
     <group>
@@ -1978,7 +1992,10 @@
       <group>
         <name>bsp</name>
         <file>
-          <name>$PROJ_DIR$\..\..\platform\bsp\sample\config\los_config.c</name>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</name>
         </file>
       </group>
       <group>
