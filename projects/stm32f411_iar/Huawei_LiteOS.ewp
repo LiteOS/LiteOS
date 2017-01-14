@@ -300,8 +300,9 @@
           <state>$PROJ_DIR$\..\..\kernel\include</state>
           <state>$PROJ_DIR$\..\..\kernel\base\include</state>
           <state>$PROJ_DIR$\..\..\platform\include\iar</state>
-          <state>$PROJ_DIR$\..\..\platform\bsp\sample\config</state>
+          <state>$PROJ_DIR$\..\..\platform\bsp\config</state>
           <state>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4</state>
+          <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1948,7 +1949,10 @@
       <group>
         <name>bsp</name>
         <file>
-          <name>$PROJ_DIR$\..\..\platform\bsp\sample\config\los_config.c</name>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</name>
         </file>
       </group>
       <group>

@@ -177,49 +177,49 @@
       <group>
         <name>base</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\ipc\los_event.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\mem\los_membox.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\mem\los_memory.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\mem\los_memstat.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\misc\los_misc.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\misc\los_misc.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\mem\los_multipledlinkhead.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\ipc\los_mux.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_priqueue.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\ipc\los_queue.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\ipc\los_sem.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_swtmr.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_sys.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_task.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_tick.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\kernel\base\core\los_timeslice.c</name>
+          <name>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</name>
         </file>
       </group>
     </group>
@@ -228,27 +228,33 @@
       <group>
         <name>bsp</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\bsp\sample\config\los_config.c</name>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</name>
         </file>
       </group>
       <group>
         <name>cpu</name>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\cpu\arm\cortex-m4\los_dispatch.s</name>
+          <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\cpu\arm\cortex-m4\los_hw.c</name>
+          <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw_tick.c</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\cpu\arm\cortex-m4\los_hw_tick.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\cpu\arm\cortex-m4\los_hwi.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\..\..\..\platform\cpu\arm\cortex-m4\los_vendor.s</name>
+          <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c</name>
         </file>
       </group>
+    </group>
+    <group>
+      <name>startup</name>
+      <file>
+        <name>$PROJ_DIR$\startup\los_dispatch.s</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\startup\los_vendor.s</name>
+      </file>
     </group>
   </group>
 </project>
