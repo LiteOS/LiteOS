@@ -1,8 +1,0 @@
-1: Huawei_LiteOS_Migration_Guide_IAR.pdf  This guide is based on the first LiteOS folder structrue.
-
-The newest LiteOS Folder Structrue Discription:
-  doc:		all the docs (kernel api and migration guide doc) 
-  example:	kernel api test examples source code
-  kernel:	LiteOS kernel source code
-  platform:	hardware platform source code
-  projects:	keil&IAR project about LiteOS
