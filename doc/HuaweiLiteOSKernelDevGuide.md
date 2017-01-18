@@ -83,7 +83,7 @@ Huawei LiteOS Kernel是轻量级的实时操作系统，是华为IOT OS的内核
 
 图1 Huawei LiteOS的基本框架图
 
-![](./meta/kernelapi/liteosframe.png)
+![](./meta/kernelapi/basicframe.png)
 
 Huawei LiteOS基础内核是最精简的Huawei LiteOS操作系统代码，包括任务管理、内存管理、时间管理、通信机制、中断管理、队列管理、事件管理、定时器、异常管理等操作系统基础组件，可以单独运行。
 
