@@ -235,17 +235,43 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 
 ![](./meta/keil/save_project.png)
 
-保存后会立即出现芯片型号选择的窗口，根据实际的开发板的芯片进行选择，比如stm32f429zi是目前demo使用的芯片
+- 保存后会立即弹出芯片型号选择的窗口，根据实际的开发板的芯片进行选择，比如stm32f429zi是目前demo使用的芯片。
 
 ![](./meta/keil/select_device.png)
 
-- 然后选择要包含的开发基础库，比如CMSIS、DEVICE两个选项可以选择平台提供的支持包和启动汇编文件，不过目前LiteOS有自己的启动文件，并且不需要额外的驱动，所以可以直接点击OK跳过
+- 然后选择要包含的开发基础库，比如CMSIS、DEVICE两个选项可以选择平台提供的支持包和启动汇编文件，不过目前LiteOS有自己的启动文件，并且不需要额外的驱动，所以可以直接点击OK跳过。
 
 ![](./meta/keil/time_environment.png)
 
-- 完成上面的芯片和支持包选择之后，可以配置相关编译选项。
+至此，我们的工程已经创建完成，如下图所示：
 
 ![](./meta/keil/create_finish.png)
+
+
+完成上面的芯片和支持包选择之后，可以将源代码添加到工程中。
+
+
+### 添加kernel代码到工程
+
+- 创建LiteOS的相关目录层级
+
+![](./meta/keil/add_catal.png)
+
+创建完成目录树之后我们添加源代码到目录树中，最终添加完成的内容如下：
+
+- 将kernel/base目录下的所有C代码添加到工程中的kernel下
+- 将kernel/cmsis目录下的所有C代码添加到工程中的cmsis下。
+- 将platform/bsp/config目录下的所有C代码添加到工程中的Platform/bsp下
+- 将platform/cpu/arm/cortex-m4目录下的所有C代码添加到工程中的Platform/cortexm4下
+
+![](./meta/keil/add_file.png)
+
+说明：
+los_dispatch.s、los_vendor.s这两个文件在Keil工程中放在projects\stm32f429_keil\startup目录下，iar工程中放在projects\stm32f429_iar\startup目录下。因为编译工具不同，汇编文件语法不一样，所以有各自不同的汇编文件。
+
+
+### 配置工程属性
+
 
 - 配置target，如果需要调试log输出（printf）到IDE，可以选择Use MicroLib。
 
@@ -266,26 +292,14 @@ stm32f429的配置文件内容如下：
 
 说明：分散配置文件中增加的是vector（中断向量表）的内容，LiteOS的中断向量表在stm32f429ZI这个芯片中定义的是0x400大小。如果不了解分散加载文件可以参考IDE的help中有关sct文件的说明。或者baidu、google分散加载文件相关内容。
 
-- 配置debug使用的驱动
+- 配置debug使用的驱动，选择ST-Link。
 
 ![](./meta/keil/conf_debug.png)
 
-如上图所示，使用ST-Link
 
-- 如果需要使用printf输出调试log，可以使用软件仿真的方式
+- 如果需要使用printf输出调试log，可以使用软件仿真的方式。
 ![](./meta/keil/conf_debug_sim.png)
 
-### 添加代码到工程目录
-
-- 创建LiteOS的相关目录层级
-
-![](./meta/keil/add_catal.png)
-
-- 添加源代码到相关目录下，最终添加完成的内容如下：
-![](./meta/keil/add_file.png)
-
-说明：
-los_dispatch.s、los_vendor.s这两个文件在Keil工程中放在projects\stm32f429_keil\startup目录下，iar工程中放在projects\stm32f429_iar\startup目录下。因为编译工具不同，汇编文件语法不一样，所以有各自不同的汇编文件。
 
 ### kernel API测试代码
 
@@ -344,35 +358,34 @@ los_dispatch.s、los_vendor.s这两个文件在Keil工程中放在projects\stm32
 
 ## 8如何使用LiteOS 开发
 
-LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同步（信号量、互斥锁）、动态中断注册机制 等等内容，更详细的内容可以参考“HuaweiLiteOSKernelDevGuide”中描述的相关内容。下面章节将对任务和中断进行说明
+LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同步（信号量、互斥锁）、动态中断注册机制 等等内容，更详细的内容可以参考“HuaweiLiteOSKernelDevGuide”中描述的相关内容。下面章节将对任务和中断进行说明。
 
 
 ### 8.1 创建任务
 
-- 对于嵌入式系统来说，内存都是比较宝贵的资源，因此在一般的程序都会严格管理内存使用。LiteOS也是一样。在LiteOS中系统资源使用了g_ucMemStart[OS_SYS_MEM_SIZE]作为内存池，来管理任务、信号量等等资源的创建，总共是32K。而给用户创建的task的的个数则是LOSCFG_BASE_CORE_TSK_LIMIT（15）.
+- 对于嵌入式系统来说，内存都是比较宝贵的资源，因此一般的程序都会严格管理内存使用，LiteOS也一样。在LiteOS中系统资源使用g_ucMemStart[OS_SYS_MEM_SIZE]作为内存池，来管理任务、信号量等等资源的创建，总共是32K。而留给用户创建的task的的个数则是LOSCFG_BASE_CORE_TSK_LIMIT（15）.
 
 - 用户使用LOS_TaskCreate(...)等接口来进行任务的创建。具体可以参考example/api/los_api_task.c中的使用方法来创建管理任务。
 
 ### 8.2 中断处理
 #### Huawei LiteOS 的中断使用
-在驱动开发的过程中我们可能会使用到中断，因此我们需要注册自己的中断处理程
-序。在Huawei LiteOS中有一套自己的中断的逻辑。
+在驱动开发的过程中我们通常会使用到中断，Huawei LiteOS有一套自己的中断的逻辑，在使用每个中断前需要为其注册相关的中断处理程序。
 
-- 在OS启动后，ram的起始地址0x20000000到0x20000400是用来存放中断向量表的，并且系统启动的汇编代码中只讲reset功能写入到了对应的区域。并且用了一个全局的m_pstHwiForm[ ] 来管理中断。
+- OS启动后，RAM起始地址是0x20000000到0x20000400，用来存放中断向量表，系统启动的汇编代码中只将reset功能写入到了对应的区域，系统使用一个全局的m_pstHwiForm[ ]来管理中断。
 
-- 开发者需要使用某些中断时，可以通过LOS_HwiCreate (…)接口来添加自己的中断处理函数。如果驱动卸载还可以通过LOS_HwiDelete(….)来删除自己的中断处理函数。系统还提供了LOS_IntLock()关中断LOS_IntRestore()恢复到中断前状态等接口。详细的使用方法可以参考LiteOS中已经使用的地方。
+- 开发者需要使用某些中断时，可以通过LOS_HwiCreate (…)接口来注册自己的中断处理函数。如果驱动卸载还可以通过LOS_HwiDelete(….)来删除已注册的中断处理函数。系统还提供了LOS_IntLock()关中断及LOS_IntRestore()恢复到中断前状态等接口。详细的使用方法可以参考LiteOS中已经使用的地方。
 
-- LiteOS的中断机制会额外地使用2K的RAM，并且跟大部分开发板的bsp代码包中的的机制也不是一个工作方式。用户可以选择不使用该中断机制。简单的办法在los_bsp_adapter.c中将g_use_ram_vect变量设置为0，并且在配置工程的时候不配置分散加载文件。这样就可以使用demo板的bsp包提供的中断使用的方式了。
+- LiteOS中断机制会额外地使用2K的RAM，跟大部分开发板bsp代码包中的机制不一样。如果没有动态修改中断处理函数的需要，用户可以选择不使用该中断机制，简单的方法是在los_bsp_adapter.c中将g_use_ram_vect变量设置为0，并且在配置工程时不配置分散加载文件。这样就可以使用demo板bsp包中提供的中断方式。
 
 ### 8.3 其他功能接口
 
 LiteOS中提供的所有接口的使用示例都可以在“HuaweiLiteOSKernelDevGuide”文档中找到。
-根据文档中描述的内容就可以开发出逻辑复杂的应用程序了。
+根据文档中描述的内容就可以开发出逻辑更复杂的应用程序。
 
 
 
 ## 9如何移植LiteOS到已有工程
-本章节将讲述如何在已有平台的基础上使用LiteOS提供的功能。
+本章节将讲述如何在已有平台基础上使用LiteOS提供的功能。
 ### 修改sct配置文件
 sct分散加载文件的修改需要参考芯片说明手册，主要修改片上rom及ram的大小。由于LiteOS使用了自己的中断向量管理机制，在配置文件中需要加入LiteOS所使用的中断向量区域的定义。详细修改方法可以参考第6章进行配置。
 
@@ -402,6 +415,7 @@ sct中定义了分散加载的相关内容，LiteOS主要是在其中加入了�
 ### 添加LiteOS到已有的平台示例
 本章节描述的内容是以STM32F429I中的GPIO示例程序为基础添加LiteOS。
 - 首先将LiteOS的代码添加到已有工程中如下图所示：
+
 ![](./meta/keil/add_files.png)
 
 - 之后我们需要配置好增加liteos后需要的头文件路径以及分散加载文件等内容。
@@ -530,6 +544,7 @@ los_bsp_adapter.c中修改后的osTickStart()函数：
 	    return uwRet;
 	
 	}
+
 los_hwi.c中修改后的m_pstHwiForm表格：
 
 	LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
