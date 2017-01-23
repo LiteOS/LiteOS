@@ -22,7 +22,13 @@
 	global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
+#if defined (GD32F190R8)
+const unsigned int sys_clk_freq = 8000000;
+#elif defined (GD32F450IKH6)
+const unsigned int sys_clk_freq = 25000000;
+#else
 const unsigned int sys_clk_freq = 16000000;
+#endif
 /* tick count per second , don't change this */
 const unsigned int tick_per_second = 1000;
 static unsigned int g_ucycle_per_tick = 0;
@@ -32,8 +38,11 @@ static unsigned int g_ucycle_per_tick = 0;
     and we can use LOS_HwiCreate(), LOS_HwiDelete() dynamically regist a irq func
     if g_use_ram_vect == 0, we use default vector table in rom start at address 0x00000000
 */
+#if defined (GD32F190R8)
+const unsigned char g_use_ram_vect = 0;/* GD32F190R8 only 8k ram, so don't use liteos ram vector table */
+#else
 const unsigned char g_use_ram_vect = 1;
-
+#endif
 /*****************************************************************************
 	LOS function extern 
  *****************************************************************************/

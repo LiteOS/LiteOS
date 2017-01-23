@@ -35,6 +35,8 @@
 #include "los_list.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "los_config.h"
+#include "los_memory.h"
 #include "los_api_list.h"
 
 #ifdef LOSCFG_LIB_LIBC
@@ -49,13 +51,12 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-
 VOID Example_list(VOID)
 {
 	 /*初始化，判断是否为空*/
     dprintf("initial......\n");
     LOS_DL_LIST* head;
-    head = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+	head = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
 
     LOS_ListInit(head);
     if (!LOS_ListEmpty(head))
@@ -65,10 +66,13 @@ VOID Example_list(VOID)
     }
 	 
     /*增加一个节点，在尾端插入一个节点*/
-    printf("node add and tail add......\n");
-    LOS_DL_LIST* node1 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-    LOS_DL_LIST* node2 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-    LOS_DL_LIST* tail = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
+    dprintf("node add and tail add......\n");
+
+		LOS_DL_LIST* node1 = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    LOS_DL_LIST* node2 = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    LOS_DL_LIST* tail = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+		
+
     //LOS_ListAdd(node1,head);
     //LOS_ListAdd(node2,node1);
     LOS_ListAdd(head,node1);

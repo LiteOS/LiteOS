@@ -43,13 +43,13 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-
+UINT32 pBoxMem[1000];
 VOID Example_StaticMem(VOID) 
 {
     UINT32 *p_num = NULL;
     UINT32 uwBlkSize = 10, uwBoxSize = 100;
     UINT32 uwRet;
-    UINT32 pBoxMem[1000];
+    
     uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
     if(uwRet != LOS_OK)
     {

@@ -98,7 +98,7 @@
 //#define LOS_KERNEL_TEST_SWTIMER
 
 /* test list */
-#define LOS_KERNEL_TEST_LIST
+//#define LOS_KERNEL_TEST_LIST
 
 /* test ALL */
 //#define LOS_KERNEL_TEST_ALL

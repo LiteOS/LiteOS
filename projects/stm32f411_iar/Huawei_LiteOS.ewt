@@ -173,6 +173,12 @@
   <group>
     <name>Huawei_LiteOS</name>
     <group>
+      <name>app</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\App\main.c</name>
+      </file>
+    </group>
+    <group>
       <name>kernel</name>
       <group>
         <name>base</name>

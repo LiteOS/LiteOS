@@ -45,12 +45,6 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-#define TEST_POOL_SIZE (20*1024*1024)  
-
-UINT8 m_aucTstPool[TEST_POOL_SIZE];
-	
-void * pool_ = &m_aucTstPool[0];
-
 VOID Example_Dyn_Mem(VOID) 
 {
     UINT32 *p_num = NULL;
