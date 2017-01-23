@@ -122,7 +122,7 @@ int Example_MsgQueue(void)
     /*创建任务1*/
     stInitParam1.pfnTaskEntry = send_Entry;
     stInitParam1.usTaskPrio = 9;
-    stInitParam1.uwStackSize = 0x400;
+    stInitParam1.uwStackSize = 0x200;
     stInitParam1.pcName = "sendQueue";
     stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED;
     LOS_TaskLock();//锁住任务，防止新创建的任务比本任务高而发生调度

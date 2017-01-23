@@ -1895,6 +1895,12 @@
   <group>
     <name>Huawei_LiteOS</name>
     <group>
+      <name>app</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\App\main.c</name>
+      </file>
+    </group>
+    <group>
       <name>example</name>
       <file>
         <name>$PROJ_DIR$\..\..\example\api\los_api_dynamic_mem.c</name>

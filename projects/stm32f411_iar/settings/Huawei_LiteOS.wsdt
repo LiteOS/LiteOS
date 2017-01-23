@@ -24,7 +24,7 @@
     <Windows>
       
       
-    <Wnd3>
+    <Wnd2>
         <Tabs>
           <Tab>
             <Identity>TabID-9963-2718</Identity>
@@ -32,11 +32,11 @@
             <Factory>Workspace</Factory>
             <Session>
               
-            <NodeDict><ExpandedNode>Huawei_LiteOS</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS/platform</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS/platform/bsp</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS/platform/cpu</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS/test</ExpandedNode><ExpandedNode>Huawei_LiteOS/Output</ExpandedNode></NodeDict></Session>
+            <NodeDict><ExpandedNode>Huawei_LiteOS</ExpandedNode><ExpandedNode>Huawei_LiteOS/Huawei_LiteOS</ExpandedNode><ExpandedNode>Huawei_LiteOS/Output</ExpandedNode></NodeDict></Session>
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd3><Wnd4>
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
         <Tabs>
           <Tab>
             <Identity>TabID-30-2904</Identity>
@@ -46,20 +46,20 @@
           </Tab>
         <Tab><Identity>TabID-3022-11932</Identity><TabName>Debug Log</TabName><Factory>Debug-Log</Factory><Session/></Tab><Tab><Identity>TabID-11881-1458</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd4></Windows>
+      <SelectedTab>0</SelectedTab></Wnd3></Windows>
     <Editor>
       
       
       
       
-    <Pane/><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\App\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>557</SelStart2><SelEnd2>557</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-01B836A8><key>iaridepm.enu1</key></Toolbar-01B836A8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>650</Bottom><Right>342</Right><x>-2</x><y>-2</y><xscreen>113</xscreen><yscreen>135</yscreen><sizeHorzCX>88281</sizeHorzCX><sizeHorzCY>143312</sizeHorzCY><sizeVertCX>268750</sizeVertCX><sizeVertCY>692144</sizeVertCY></Rect></Wnd3></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>247</Bottom><Right>1282</Right><x>-2</x><y>-2</y><xscreen>1284</xscreen><yscreen>249</yscreen><sizeHorzCX>1003125</sizeHorzCX><sizeHorzCY>264331</sizeHorzCY><sizeVertCX>88281</sizeVertCX><sizeVertCY>143312</sizeVertCY></Rect></Wnd4></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-00EB75A8><key>iaridepm.enu1</key></Toolbar-00EB75A8></Sizes></Row0></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>563</Bottom><Right>342</Right><x>-2</x><y>-2</y><xscreen>113</xscreen><yscreen>135</yscreen><sizeHorzCX>88281</sizeHorzCX><sizeHorzCY>143312</sizeHorzCY><sizeVertCX>268750</sizeVertCX><sizeVertCY>599788</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>334</Bottom><Right>1282</Right><x>-2</x><y>-2</y><xscreen>1284</xscreen><yscreen>336</yscreen><sizeHorzCX>1003125</sizeHorzCX><sizeHorzCY>356688</sizeHorzCY><sizeVertCX>88281</sizeVertCX><sizeVertCY>143312</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 

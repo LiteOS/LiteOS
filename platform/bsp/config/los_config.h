@@ -64,6 +64,12 @@ extern char __bss_start;
 #define OS_SYS_FUNC_ADDR_START                          &__bss_start
 #define OS_SYS_FUNC_ADDR_END                            &__data_end
 
+/* default LiteOS ram size level 
+	RAM_SIZE_LEVEL_0 means kernel ram < 8k  , 
+	RAM_SIZE_LEVEL_1 means kernel ram < 16k, 
+	RAM_SIZE_LEVEL_2 means means kernel ram>=32k 
+*/
+
 /**
  * @ingroup los_config
  * Number of Ticks in one second
@@ -81,7 +87,15 @@ extern char __bss_start;
  * @ingroup los_config
  * Configuration item for hardware interrupt tailoring
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_PLATFORM_HWI                             NO
+#elif defined(RAM_SIZE_LEVEL_1)
 #define LOSCFG_PLATFORM_HWI                             YES
+#elif defined(RAM_SIZE_LEVEL_2)
+#define LOSCFG_PLATFORM_HWI                             YES
+#else
+#define LOSCFG_PLATFORM_HWI                             YES
+#endif
 
 /**
  * @ingroup los_config
@@ -100,20 +114,42 @@ extern char __bss_start;
  * @ingroup los_config
  * Maximum supported number of tasks except the idle task rather than the number of usable tasks
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      4              // max num task
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      7              // max num task
+#elif defined (RAM_SIZE_LEVEL_2)
 #define LOSCFG_BASE_CORE_TSK_LIMIT                      15              // max num task
+#else
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      15              // max num task
+#endif
 
 /**
  * @ingroup los_config
  * Size of the idle task stack
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x2D0)     // IDLE task stack
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x300)     // IDLE task stack
+#elif defined (RAM_SIZE_LEVEL_2)
 #define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x500)     // IDLE task stack
-
+#else
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x500)     // IDLE task stack
+#endif
 /**
  * @ingroup los_config
  * Default task stack size
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x200)     // default stack
+#elif defined (RAM_SIZE_LEVEL_1)
 #define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
-
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
+#else
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
+#endif
 /**
  * @ingroup los_config
  * Minimum stack size.
@@ -167,8 +203,11 @@ extern char __bss_start;
  * @ingroup los_config
  * Maximum supported number of semaphores
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_SEM_LIMIT                       5              // the max sem-numb
+#else
 #define LOSCFG_BASE_IPC_SEM_LIMIT                       10              // the max sem-numb
-
+#endif
 /****************************** mutex module configuration ******************************/
 /**
  * @ingroup los_config
@@ -180,8 +219,11 @@ extern char __bss_start;
  * @ingroup los_config
  * Maximum supported number of mutexes
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_MUX_LIMIT                       5              // the max mutex-num
+#else
 #define LOSCFG_BASE_IPC_MUX_LIMIT                       10              // the max mutex-num
-
+#endif
 /****************************** Queue module configuration ********************************/
 /**
  * @ingroup los_config
@@ -193,8 +235,15 @@ extern char __bss_start;
  * @ingroup los_config
  * Maximum supported number of queues rather than the number of usable queues
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     5              //the max queue-numb
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     7              //the max queue-numb
+#elif defined (RAM_SIZE_LEVEL_2)
 #define LOSCFG_BASE_IPC_QUEUE_LIMIT                     10              //the max queue-numb
-
+#else
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     10              //the max queue-numb
+#endif
 /****************************** Software timer module configuration **************************/
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
 /**
@@ -207,8 +256,15 @@ extern char __bss_start;
  * @ingroup los_config
  * Maximum supported number of software timers rather than the number of usable software timers
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    4					// the max SWTMR numb
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    7					// the max SWTMR numb
+#elif defined (RAM_SIZE_LEVEL_2)
 #define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16					// the max SWTMR numb
-
+#else
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16					// the max SWTMR numb
+#endif
 /**
  * @ingroup los_config
  * Max number of software timers ID
@@ -247,8 +303,15 @@ extern char _PT0_END;
  * @ingroup los_config
  * Memory size
  */
+#if defined (RAM_SIZE_LEVEL_0)
+#define OS_SYS_MEM_SIZE                                     0x00001800          // 1A00
+#elif defined (RAM_SIZE_LEVEL_1)
+#define OS_SYS_MEM_SIZE                                     0x00002800          // size
+#elif defined (RAM_SIZE_LEVEL_2)
 #define OS_SYS_MEM_SIZE                                     0x00008000          // size
-
+#else
+#define OS_SYS_MEM_SIZE                                     0x00008000          // size
+#endif
 /**
  * @ingroup los_config
  * Configuration module tailoring of mem node integrity checking
@@ -585,7 +648,28 @@ extern VOID osRegister(VOID);
  */
 extern int osMain(void);
 
-
+/**
+ *@ingroup los_config
+ *@brief System kernel start function.
+ *
+ *@par Description:
+ *This API is used to Start tick and run kernel .
+ *
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param: None.
+ *
+ *@retval #LOS_OK                                  0:System kernel initialization success.
+ *
+ *@par Dependency:
+ *<ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ *@see
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_Start(void);
 
 /**
  *@ingroup los_config
