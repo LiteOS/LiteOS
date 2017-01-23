@@ -31,7 +31,13 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "los_demo_entry.h"
+
+#include "los_tick.ph"
+
+#include "los_base.h"
+#include "los_task.ph"
+#include "los_swtmr.h"
+#include "los_hwi.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -39,115 +45,86 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-#include "los_demo_entry.h"
-#include "los_task.h"
-#include <string.h>
+LITE_OS_SEC_BSS UINT32  g_uwCyclesPerTick;
 
-
-static UINT32 g_uwDemoTaskID;
-int dprintf_1(const char *format,...)
+/*lint -save -e40 -e10 -e26 -e1013*/
+/*****************************************************************************
+Function   : LOS_TickHandler
+Description: los system tick handler 
+Input   : none
+output  : none
+return  : none
+*****************************************************************************/
+void LOS_TickHandler(void)
 {
-	return 0;
-}
-#ifdef LOS_KERNEL_TEST_KEIL_SWSIMU
+    UINT32 uwIntSave;
 
-#define ITM_Port8(n)    (*((volatile unsigned char *)(0xE0000000+4*n)))
-#define ITM_Port16(n)   (*((volatile unsigned short*)(0xE0000000+4*n)))
-#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n))) 
-#define DEMCR           (*((volatile unsigned long *)(0xE000EDFC))) 
-#define TRCENA          0x01000000
+    uwIntSave = LOS_IntLock();
+    g_vuwIntCount++;
+    LOS_IntRestore(uwIntSave);
 
-struct __FILE 
-{
-	int handle; /* Add whatever needed */ 
-}; 
-
-FILE __stdout;
-FILE __stdin; 
-
-int fputc(int ch, FILE *f) 
-{ 
-	if (DEMCR & TRCENA) 
-	{      
-		while (ITM_Port32(0) == 0);
-		ITM_Port8(0) = ch; 
-	}
-	return(ch);
-}
-
-#endif	
+		osTickHandler();
 	
+    uwIntSave = LOS_IntLock();
+    g_vuwIntCount--;
+    LOS_IntRestore(uwIntSave);
 	
-LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
-{
-#ifdef LOS_KERNEL_TEST_ALL
-#else /* LOS_KERNEL_TEST_ALL */
-
-/* only test some function */
-#ifdef LOS_KERNEL_TEST_TASK
-    Example_TskCaseEntry();
-#endif
-#ifdef LOS_KERNEL_TEST_MEM_DYNAMIC
-     Example_Dyn_Mem();
-#endif
-#ifdef LOS_KERNEL_TEST_MEM_STATIC
-    Example_StaticMem();
-#endif
-#ifdef LOS_KERNEL_TEST_INTRRUPT
-    Example_Interrupt();
-#endif
-#ifdef LOS_KERNEL_TEST_QUEUE
-    Example_MsgQueue();
-#endif
-#ifdef LOS_KERNEL_TEST_EVENT
-    Example_SndRcvEvent();
-#endif 
-#ifdef LOS_KERNEL_TEST_MUTEX
-    Example_MutexLock();
-#endif
-#ifdef LOS_KERNEL_TEST_SEMPHORE
-    Example_Semphore();
-#endif
-#ifdef LOS_KERNEL_TEST_SYSTICK
-    Example_GetTick();
-#endif
-#ifdef LOS_KERNEL_TEST_SWTIMER
-    Example_swTimer();
-#endif
-#ifdef LOS_KERNEL_TEST_LIST
-    Example_list();
-#endif
-#endif/* LOS_KERNEL_TEST_ALL */
-
-    while (1)
-    {
-        LOS_TaskDelay(100);
-    }
-}
-
-void LOS_Demo_Entry(void)
-{
-    UINT32 uwRet;
-    TSK_INIT_PARAM_S stTaskInitParam;
-
-    (VOID)memset((void *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
-    stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_Demo_Tskfunc;
-    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
-    stTaskInitParam.pcName = "ApiDemo";
-    stTaskInitParam.usTaskPrio = 30;
-    uwRet = LOS_TaskCreate(&g_uwDemoTaskID, &stTaskInitParam);
-
-    if (uwRet != LOS_OK)
-    {
-        dprintf("Api demo test task create failed\n");
-        return ;
-    }
     return ;
 }
 
+/*****************************************************************************
+Function   : LOS_SetTickSycle
+Description: set g_uwCyclesPerTick value
+Input   : ticks, the cpu Sycles per tick
+output  : none
+return  : none
+*****************************************************************************/
+void LOS_SetTickSycle(UINT32 ticks)
+{
+	g_uwCyclesPerTick = ticks;
+	return ;
+}
+
+/*****************************************************************************
+Function   : LOS_GetCpuCycle
+Description: Get System cycle count
+Input   : none
+output  : puwCntHi  --- CpuTick High 4 byte
+          puwCntLo  --- CpuTick Low 4 byte
+return  : none
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo)
+{
+    UINT64 ullSwTick;
+    UINT64 ullCycle;
+    UINT32 uwIntSta;
+    UINT32 uwHwCycle;
+    UINTPTR uwIntSave;
+
+    uwIntSave = LOS_IntLock();
+
+    ullSwTick = g_ullTickCount;
+
+    uwHwCycle = *(volatile UINT32*)OS_SYSTICK_CURRENT_REG;
+    uwIntSta  = *(volatile UINT32*)OS_NVIC_INT_CTRL;
+
+    /*tick has come, but may interrupt environment, not counting the Tick interrupt response, to do +1 */
+    if (((uwIntSta & 0x4000000) != 0))
+    {
+        uwHwCycle = *(volatile UINT32*)OS_SYSTICK_CURRENT_REG;
+        ullSwTick++;
+    }
+
+    ullCycle = (((ullSwTick) * g_uwCyclesPerTick) + (g_uwCyclesPerTick - uwHwCycle));
+    *puwCntHi = ullCycle >> 32;
+    *puwCntLo = ullCycle & 0xFFFFFFFFU;
+
+    LOS_IntRestore(uwIntSave);
+
+    return;
+}
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
-

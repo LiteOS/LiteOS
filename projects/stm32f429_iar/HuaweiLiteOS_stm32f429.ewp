@@ -302,8 +302,8 @@
           <state>$PROJ_DIR$\..\..\platform\include\iar</state>
           <state>$PROJ_DIR$\..\..\platform\bsp\config</state>
           <state>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4</state>
-          <state>$PROJ_DIR$\..\..\example\include</state>
           <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
+          <state>$PROJ_DIR$\..\..\example\include</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1894,6 +1894,12 @@
   </configuration>
   <group>
     <name>Huawei_LiteOS</name>
+    <group>
+      <name>app</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\App\main.c</name>
+      </file>
+    </group>
     <group>
       <name>example</name>
       <file>

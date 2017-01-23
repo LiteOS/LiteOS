@@ -83,7 +83,7 @@ LITE_OS_SEC_TEXT_INIT VOID osRegister(VOID)
  Output      : None
  Return      : LOS_OK
  *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start()
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(void)
 {
     UINT32 uwRet;
 #if (LOSCFG_BASE_CORE_TICK_HW_TIME == NO)
@@ -101,8 +101,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start()
 
     return uwRet;
 }
-
-extern void SystemInit(void);
 
 /*****************************************************************************
  Function    : osMain
@@ -194,26 +192,6 @@ LITE_OS_SEC_TEXT_INIT int osMain(void)
     return LOS_OK;
 }
 
-/*****************************************************************************
- Function    : main
- Description : Main function entry
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT
-int main(void)
-{
-    UINT32 uwRet;
-    uwRet = osMain();
-    if (uwRet != LOS_OK) {
-        return LOS_NOK;
-    }
-		
-    LOS_Start();
-    for (;;);
-    /* Replace the dots (...) with your own code.  */
-}
 
 void osBackTrace(VOID){}
 

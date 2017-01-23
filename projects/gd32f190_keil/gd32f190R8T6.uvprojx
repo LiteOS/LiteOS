@@ -7,22 +7,22 @@
 
   <Targets>
     <Target>
-      <TargetName>LiteOS</TargetName>
+      <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32F429ZITx</Device>
-          <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.7.0</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
-          <Cpu>IROM(0x08000000,0x200000) IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
+          <Device>GD32F190R8</Device>
+          <Vendor>GigaDevice</Vendor>
+          <PackID>GigaDevice.GD32F1x0_DFP.2.0.0</PackID>
+          <PackURL>http://gd32mcu.com/pack/</PackURL>
+          <Cpu>IRAM(0x20000000-0x20001FFF) IROM(0x08000000-0x0800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
-          <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_2048 -FS08000000 -FL0200000 -FP0($$Device:STM32F429ZITx$CMSIS/Flash/STM32F4xx_2048.FLM))</FlashDriverDll>
+          <StartupFile>"Startup\GD\GD32F1x0\startup_gd32f1x0.s" ("GD32F1x0 Startup Code")</StartupFile>
+          <FlashDriverDll>UL2CM3(-O207 -S0 -C0 -FO7 -FD20000000 -FC800 -FN1 -FF0GD32F1x0_64 -FS08000000 -FL010000)</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:STM32F429ZITx$Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h</RegisterFile>
+          <RegisterFile>gd32f1x0.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,14 +32,14 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:STM32F429ZITx$CMSIS/SVD/STM32F429x.svd</SFDFile>
+          <SFDFile>SFD\GD\GD32F1x0\GD32F1x0.SFR</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
           <LibPath></LibPath>
-          <RegisterFilePath></RegisterFilePath>
-          <DBRegisterFilePath></DBRegisterFilePath>
+          <RegisterFilePath>GD\GD32F1x0\</RegisterFilePath>
+          <DBRegisterFilePath>GD\GD32F1x0\</DBRegisterFilePath>
           <TargetStatus>
             <Error>0</Error>
             <ExitCodeStop>0</ExitCodeStop>
@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>HuaweiLiteOS</OutputName>
+          <OutputName>gd32f190R8T6</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -109,13 +109,13 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments> -REMAP -MPU</SimDllArguments>
+          <SimDllArguments> -REMAP</SimDllArguments>
           <SimDlgDll>DCM.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pCM4</SimDlgDllArguments>
+          <SimDlgDllArguments>-pCM3</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
-          <TargetDllArguments> -MPU</TargetDllArguments>
+          <TargetDllArguments></TargetDllArguments>
           <TargetDlgDll>TCM.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pCM4</TargetDlgDllArguments>
+          <TargetDlgDllArguments>-pCM3</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -137,7 +137,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -173,7 +173,7 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M4"</AdsCpuType>
+            <AdsCpuType>"Cortex-M3"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
             <uocRom>0</uocRom>
@@ -182,8 +182,8 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>2</RvdsVP>
-            <hadIRAM2>1</hadIRAM2>
+            <RvdsVP>0</RvdsVP>
+            <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>1</useUlib>
@@ -243,12 +243,12 @@
               <IRAM>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x30000</Size>
+                <Size>0x2000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x200000</Size>
+                <Size>0x10000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -273,7 +273,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x200000</Size>
+                <Size>0x10000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -298,12 +298,12 @@
               <OCR_RVCT9>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x30000</Size>
+                <Size>0x2000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
-                <Size>0x10000</Size>
+                <StartAddress>0x0</StartAddress>
+                <Size>0x0</Size>
               </OCR_RVCT10>
             </OnChipMemories>
             <RvctStartVector></RvctStartVector>
@@ -330,9 +330,9 @@
             <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>RAM_SIZE_LEVEL_0,GD32F190R8</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\platform\include\keil;..\..\platform\bsp\config;..\..\platform\cpu\arm\cortex-m4;..\..\example\include</IncludePath>
+              <IncludePath>..\..\kernel\include;..\..\kernel\base\include;..\..\kernel\cmsis;..\..\platform\include\keil;..\..\platform\bsp\config;..\..\platform\cpu\arm\cortex-m3;..\..\example\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -353,7 +353,7 @@
             </VariousControls>
           </Aads>
           <LDads>
-            <umfTarg>0</umfTarg>
+            <umfTarg>1</umfTarg>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
@@ -521,49 +521,14 @@
               <FilePath>..\..\example\api\los_api_timer.c</FilePath>
             </File>
             <File>
-              <FileName>los_demo_entry.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\example\api\los_demo_entry.c</FilePath>
-            </File>
-            <File>
               <FileName>los_cmsis_main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\example\api\los_cmsis_main.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>startup</GroupName>
-          <Files>
             <File>
-              <FileName>los_dispatch.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup\los_dispatch.s</FilePath>
-            </File>
-            <File>
-              <FileName>los_vendor.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup\los_vendor.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>platform/m4</GroupName>
-          <Files>
-            <File>
-              <FileName>los_hw.c</FileName>
+              <FileName>los_demo_entry.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\cpu\arm\cortex-m4\los_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hw_tick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\cpu\arm\cortex-m4\los_hw_tick.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hwi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\cpu\arm\cortex-m4\los_hwi.c</FilePath>
+              <FilePath>..\..\example\api\los_demo_entry.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -579,6 +544,41 @@
               <FileName>los_config.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\bsp\config\los_config.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>platform/cpu</GroupName>
+          <Files>
+            <File>
+              <FileName>los_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\cpu\arm\cortex-m3\los_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hw_tick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\cpu\arm\cortex-m3\los_hw_tick.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hwi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\cpu\arm\cortex-m3\los_hwi.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>startup</GroupName>
+          <Files>
+            <File>
+              <FileName>los_dispatch.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup\los_dispatch.s</FilePath>
+            </File>
+            <File>
+              <FileName>los_vendor.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup\los_vendor.s</FilePath>
             </File>
           </Files>
         </Group>

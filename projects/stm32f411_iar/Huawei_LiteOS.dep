@@ -2,10 +2,24 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3279805637</fileChecksum>
+  <fileChecksum>3616404530</fileChecksum>
   <configuration>
     <name>Debug</name>
     <outputs>
+      <file>$PROJ_DIR$\Application\Obj\los_bsp_adapter.o</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_memory.ph</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_multipledlinkhead.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_memory.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_memstat.ph</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_multipledlinkhead.ph</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.inc</file>
+      <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.inc</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.inc</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_typedef.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_printf.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_membox.ph</file>
+      <file>$PROJ_DIR$\..\..\App\main.c</file>
       <file>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</file>
       <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.c</file>
       <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.c</file>
@@ -21,58 +35,36 @@
       <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</file>
       <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</file>
       <file>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_sem.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_memory.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_sem.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_sys.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_multipledlinkhead.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_mux.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_memory.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_mux.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_multipledlinkhead.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_typedef.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_memstat.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_timeslice.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.inc</file>
-      <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_typedef.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_printf.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_event.h</file>
-      <file>$PROJ_DIR$\..\..\platform\include\iar\los_builddef.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_event.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\core\los_sys.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_base.h</file>
+      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</file>
+      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</file>
       <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw.c</file>
       <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw_tick.c</file>
       <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c</file>
-      <file>$PROJ_DIR$\startup\los_vendor.s</file>
       <file>$PROJ_DIR$\startup\los_dispatch.s</file>
-      <file>$PROJ_DIR$\Application\Obj\los_queue.o</file>
+      <file>$PROJ_DIR$\startup\los_vendor.s</file>
+      <file>$PROJ_DIR$\..\..\platform\include\iar\los_builddef.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_event.h</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_event.ph</file>
+      <file>$PROJ_DIR$\..\..\kernel\include\los_base.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
       <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_config.pbi</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_errno.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_vendor.o</file>
+      <file>$PROJ_DIR$\Application\Obj\los_queue.o</file>
+      <file>$PROJ_DIR$\Application\Obj\los_config.pbi</file>
       <file>$PROJ_DIR$\Application\Exe\Huawei_LiteOS.bin</file>
       <file>$PROJ_DIR$\Application\Obj\los_hwi.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
+      <file>$PROJ_DIR$\Application\Obj\los_vendor.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_sem.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_priqueue.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_hwi.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_priqueue.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_misc.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_hw.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\Application\Obj\los_hwi.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_hw_tick.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_membox.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$PROJ_DIR$\Application\Obj\los_hw.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_memory.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_timeslice.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_membox.o</file>
@@ -82,30 +74,21 @@
       <file>$PROJ_DIR$\Application\Obj\los_multipledlinkhead.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_task.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_swtmr.pbi</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_tick.ph</file>
       <file>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.h</file>
       <file>$PROJ_DIR$\..\..\kernel\base\include\los_base.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_swtmr.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_swtmr.ph</file>
       <file>$PROJ_DIR$\..\..\platform\include\iar\los_compiler.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_queue.ph</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_membox.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_membox.ph</file>
-      <file>$PROJ_DIR$\..\..\kernel\include\los_queue.h</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.inc</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.inc</file>
       <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.inc</file>
       <file>$PROJ_DIR$\Application\Exe\Huawei_LiteOS.out</file>
+      <file>$PROJ_DIR$\Application\Obj\los_hw.pbi</file>
+      <file>$PROJ_DIR$\Application\Obj\los_memstat.pbi</file>
       <file>$TOOLKIT_DIR$\inc\c\string.h</file>
       <file>$PROJ_DIR$\Application\Obj\los_config.o</file>
-      <file>$PROJ_DIR$\Application\Obj\los_hw.pbi</file>
+      <file>$PROJ_DIR$\..\..\kernel\base\include\los_priqueue.ph</file>
       <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_priqueue.h</file>
       <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
       <file>$PROJ_DIR$\Application\Obj\los_sys.o</file>
-      <file>$PROJ_DIR$\Application\Obj\los_memstat.pbi</file>
-      <file>$PROJ_DIR$\..\..\kernel\base\include\los_priqueue.ph</file>
       <file>$PROJ_DIR$\Application\Obj\los_sys.pbi</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_task.h</file>
       <file>$PROJ_DIR$\Application\Obj\Huawei_LiteOS.pbd</file>
@@ -116,44 +99,61 @@
       <file>$PROJ_DIR$\Application\Obj\los_tick.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_tick.o</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_list.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_memory.o</file>
       <file>$PROJ_DIR$\..\..\kernel\include\los_tick.h</file>
       <file>$PROJ_DIR$\Application\Obj\los_event.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+      <file>$PROJ_DIR$\Application\Obj\los_memory.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_hw_tick.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_multipledlinkhead.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$PROJ_DIR$\Application\Obj\los_task.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_mux.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_mux.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\Application\Obj\los_task.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_dispatch.o</file>
       <file>$PROJ_DIR$\..\..\kernel\base\include\los_task.ph</file>
       <file>$PROJ_DIR$\Application\Obj\los_sem.pbi</file>
       <file>$PROJ_DIR$\Application\Obj\los_swtmr.o</file>
       <file>$PROJ_DIR$\Application\Obj\los_memstat.o</file>
-      <file>$PROJ_DIR$\..\..\kernel\cmsis\cmsis_liteos.c</file>
-      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</file>
-      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</file>
-      <file>$PROJ_DIR$\Application\Obj\los_bsp_adapter.o</file>
-      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_config.h</file>
       <file>$PROJ_DIR$\Application\Obj\los_bsp_adapter.pbi</file>
+      <file>$PROJ_DIR$\..\..\platform\bsp\config\los_config.h</file>
+      <file>$PROJ_DIR$\Application\Obj\main.pbi</file>
+      <file>$PROJ_DIR$\Application\Obj\main.o</file>
     </outputs>
     <file>
-      <name>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</name>
+      <name>$PROJ_DIR$\..\..\App\main.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 66</file>
+          <name>ICCARM</name>
+          <file> 111</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 69</file>
+          <name>BICOMP</name>
+          <file> 110</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 91 84 37 59 39 77 129 110 42 109 78 83 94 105 36 33 96 104 50 116 53 49 52 70 63</file>
+          <file> 93 36 10 109 95 104 68 92 11 53 39 42 81 79 88 62 87 41 101 47 40 84 37 70</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 61</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 56</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 76 12 11 53 36 68 109 95 39 92 69 71 10 79 88 8 81 87 41 101 47 40 42 62 57</file>
         </tool>
       </inputs>
     </file>
@@ -161,18 +161,18 @@
       <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 106</file>
+          <name>ICCARM</name>
+          <file> 94</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 113</file>
+          <name>BICOMP</name>
+          <file> 89</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 96 42 99 94 129 59 32 109 39 36 38 52 35 121 77 40 37 50 110 95 112 104 105 116 53 49 101 70</file>
+          <file> 39 78 79 109 53 7 92 36 10 37 42 9 104 68 38 11 41 95 80 93 81 87 88 101 47 40 84 62</file>
         </tool>
       </inputs>
     </file>
@@ -180,18 +180,18 @@
       <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 67</file>
+          <name>ICCARM</name>
+          <file> 96</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 111</file>
+          <name>BICOMP</name>
+          <file> 59</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 42 36 110 116 37 53 59 109 23 52 96 104 50 49 101 112 121 91 16 25 21 39 129 94 105 19 38 28 70 77 63</file>
+          <file> 39 95 101 11 10 47 53 92 5 42 81 87 41 40 84 93 104 76 1 4 3 36 109 79 88 2 37 6 62 68 57</file>
         </tool>
       </inputs>
     </file>
@@ -199,18 +199,18 @@
       <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 98</file>
+          <name>ICCARM</name>
+          <file> 107</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 124</file>
+          <name>BICOMP</name>
+          <file> 75</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 105 52 38 96 94 36 129 116 25 39 101 42 112 109 59 50 53 110 121 70 37 104 49 89 77</file>
+          <file> 88 42 37 53 41 10 109 101 4 36 84 39 93 92 79 47 95 104 62 11 81 87 40 72 68</file>
         </tool>
       </inputs>
     </file>
@@ -218,274 +218,207 @@
       <name>$PROJ_DIR$\..\..\kernel\base\misc\los_misc.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 72</file>
+          <name>ICCARM</name>
+          <file> 52</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 62</file>
+          <name>BICOMP</name>
+          <file> 64</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 37 39 59 42 109 53 121 129 110 116 78 112 18 36 52 96 104 50 49 77 94 105 70 101 38</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 115</file>
+          <name>ICCARM</name>
+          <file> 65</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 73</file>
+          <name>BICOMP</name>
+          <file> 98</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 36 19 37 23 42 52 96 94 105 110 109 39 129 59 30 104 50 116 53 49</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 118</file>
+          <name>ICCARM</name>
+          <file> 100</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 119</file>
+          <name>BICOMP</name>
+          <file> 99</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 49 31 70 42 32 20 101 36 39 110 21 99 22 109 52 16 121 37 104 105 116 53 59 95 112 38 129 96 94 50 77</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 61</file>
+          <name>ICCARM</name>
+          <file> 50</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 58</file>
+          <name>BICOMP</name>
+          <file> 51</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 42 110 77 109 96 94 105 39 116 121 129 36 59 53 78 21 99 95 37 52 104 49 70 88 50 101 112 38</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 103</file>
+          <name>ICCARM</name>
+          <file> 43</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 48</file>
+          <name>BICOMP</name>
+          <file> 86</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 109 101 52 36 84 129 59 70 121 39 110 49 42 77 91 37 104 105 116 53 83 26 16 99 32 82 85 96 94 50 21 95 112 38 63</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 122</file>
+          <name>ICCARM</name>
+          <file> 49</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 57</file>
+          <name>BICOMP</name>
+          <file> 105</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 78 32 18 17 52 36 16 121 15 109 39 110 49 112 95 27 99 37 104 105 116 53 59 42 38 21 70 101 129 96 94 50 77</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 75</file>
+          <name>ICCARM</name>
+          <file> 106</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 123</file>
+          <name>BICOMP</name>
+          <file> 67</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 91 79 39 42 109 82 129 94 105 110 59 84 77 80 37 70 78 16 121 101 36 52 96 104 50 116 53 49 112 21 87 38 83 85 63</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 100</file>
+          <name>ICCARM</name>
+          <file> 82</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 97</file>
+          <name>BICOMP</name>
+          <file> 83</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 110 70 37 104 50 36 52 39 76 18 78 42 129 109 96 59 94 77 41 105 116 53 49 112</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 74</file>
+          <name>ICCARM</name>
+          <file> 102</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 117</file>
+          <name>BICOMP</name>
+          <file> 66</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 101 36 91 39 110 42 17 70 49 78 32 109 52 59 77 86 99 20 37 104 105 116 53 15 16 121 112 38 129 96 94 50 21 95 22 63</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 107</file>
+          <name>ICCARM</name>
+          <file> 91</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 108</file>
+          <name>BICOMP</name>
+          <file> 90</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 36 101 112 80 37 94 105 110 42 109 78 121 76 52 39 129 59 79 38 34 29 96 104 50 116 53 49 70 77</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 71</file>
+          <name>ICCARM</name>
+          <file> 60</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 68</file>
+          <name>BICOMP</name>
+          <file> 63</file>
         </tool>
       </outputs>
-      <inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 0</file>
+        </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 53 39 36 70 129 59 42 109 37 110 116 101 121 78 52 96 104 50 49 77 38 18 76 94 105 112 24</file>
+          <file> 108</file>
         </tool>
-      </inputs>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 77</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 44</file>
+        </tool>
+      </outputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 93</file>
+          <name>ICCARM</name>
+          <file> 58</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 64</file>
+          <name>BICOMP</name>
+          <file> 74</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 129 50 59 36 42 99 110 32 70 121 18 81 39 109 96 94 101 77 95 37 52 104 105 116 53 49 112 38 78</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hw_tick.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 114</file>
+          <name>ICCARM</name>
+          <file> 55</file>
         </tool>
         <tool>
-          <name>ICCARM</name>
-          <file> 65</file>
+          <name>BICOMP</name>
+          <file> 97</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 42 52 50 70 121 36 96 104 49 59 79 112 39 37 110 116 53 109 77 101 76 129 94 105 38</file>
-        </tool>
-      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 56</file>
-        </tool>
-        <tool>
           <name>ICCARM</name>
-          <file> 60</file>
+          <file> 54</file>
         </tool>
-      </outputs>
-      <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 37 36 39 53 109 59 129 110 116 42 81 70 52 96 104 50 49 77 94 105</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\startup\los_vendor.s</name>
-      <outputs>
-        <tool>
-          <name>AARM</name>
-          <file> 54</file>
+          <file> 46</file>
         </tool>
       </outputs>
     </file>
@@ -494,16 +427,7 @@
       <outputs>
         <tool>
           <name>AARM</name>
-          <file> 120</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Application\Exe\Huawei_LiteOS.out</name>
-      <outputs>
-        <tool>
-          <name>OBJCOPY</name>
-          <file> 55</file>
+          <file> 103</file>
         </tool>
       </outputs>
     </file>
@@ -512,47 +436,27 @@
       <outputs>
         <tool>
           <name>ILINK</name>
-          <file> 90</file>
+          <file> 73</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\platform\bsp\config\los_config.c</name>
+      <name>$PROJ_DIR$\startup\los_vendor.s</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 51</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 92</file>
+          <name>AARM</name>
+          <file> 48</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 36 39 81 52 121 77 37 110 49 112 109 129 42 96 104 105 116 53 59 38 70 94 50 101</file>
-        </tool>
-      </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\platform\bsp\config\los_bsp_adapter.c</name>
+      <name>$PROJ_DIR$\Application\Exe\Huawei_LiteOS.out</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 130</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 128</file>
+          <name>OBJCOPY</name>
+          <file> 45</file>
         </tool>
       </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 49 110 70 101 37 76 94 39 42 121 59 50 36 109 91 104 116 53 129 38 77 96 79 105 63 112 52</file>
-        </tool>
-      </inputs>
     </file>
     <forcedrebuild>
       <name>[REBUILD_ALL]</name>
