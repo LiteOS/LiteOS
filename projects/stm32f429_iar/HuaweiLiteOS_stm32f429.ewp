@@ -302,8 +302,8 @@
           <state>$PROJ_DIR$\..\..\platform\include\iar</state>
           <state>$PROJ_DIR$\..\..\platform\bsp\config</state>
           <state>$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4</state>
-          <state>$PROJ_DIR$\..\..\example\include</state>
           <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
+          <state>$PROJ_DIR$\..\..\example\include</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
