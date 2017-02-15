@@ -1,20 +1,34 @@
-![](http://developer.huawei.com/ict/sites/default/files/ueditor/26/upload/image/20160827/1472287221569855.png)
+![](./doc/meta/kernelapi/basicframe.png)
 ##Huawei LiteOS基础内核
-华为物联网操作系统Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的轻量级操作系统。本项目属于华为物联网操作系统[Huawei LiteOS](http://developer.huawei.com/ict/cn/site-iot/product/liteos)基础内核源码(图示Basic Kernel)，目前仅适配STM32F411开发板，后续会支持其他类型开发板。现有代码支持任务调度，内存管理，中断机制，队列管理，事件管理，IPC机制，时间管理，软定时器以及双向链表等常用数据结构。
+华为物联网操作系统Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的轻量级操作系统。本项目属于华为物联网操作系统[Huawei LiteOS](http://developer.huawei.com/ict/cn/site-iot/product/liteos)基础内核源码(图示Basic Kernel)，目前仅开源基础内核，同时适配了STM32F412/F429/L476及GD32F190/F450开发板，后续会开放其他特性同时支持其他类型开发板。现有代码支持任务调度，内存管理，中断机制，队列管理，事件管理，IPC机制，时间管理，软定时器以及双向链表等常用数据结构。
+
+##加入我们
+* 欢迎提交issue对关心的问题发起讨论
+* 欢迎提交PR参与特性建设
+
+##代码导读
+* doc - Kernel标准API测试文档以及IAR/Keil的第三方移植指导文档
+* example - Kernel标准API测试套
+* platform - Kernel支持的平台相关代码
+* kernel - Huawei_LiteOS操作系统的基础内核源码
+* Projects - IAR或Keil等IDE的kernel移植示例工程
 
 ##获取LiteOS最新代码和文档    
 * 代码地址：https://github.com/LITEOS/LiteOS_Kernel
 * 文档地址：https://github.com/LITEOS/LiteOS_Kernel/tree/master/doc
 
-##官方地址：访问[华为开发者社区](http://developer.huawei.com/ict/cn/site-iot/product/liteos）查看详情。
-
 ##项目更新
 * 2016.9.6 - 支持IAR工程构建 
-* 2016.12.23 - 支持keil工程构建 
+* 2016.12.23 - 支持keil工程构建
+* 02017.1.24 - 支持GD32开发板
+* 02017.2.15 - 内核代码结构调整
 
 ##开发板支持
-* STM32F411
+* STM32F412
 * STM32F429
+* STM32L476
+* GD32F190
+* GD32F450
 
 ##主要特征
 * 实时操作系统内核
@@ -26,94 +40,10 @@
 
 ##内核模块
 * core
-* include
+* cmsis
 * ipc
 * mem
 * misc
-
-##代码导读
-* Huawei\_LiteOS - 包含Huawei_LiteOS操作系统的基础内核源码以及支持平台所需移植文件。
-* Projects - 包含IAR或Keil等IDE的工程构建文件，目前只支持IAR的工程构建文件。
-
-##新手入门
-以下代码为创建不同优先级任务示例代码：
-
-    TSK_HANDLE_T  g_uwTskLoID;
-    TSK_HANDLE_T g_uwTskHiID;
-    #define TSK_PRIOR_HI 4
-    #define TSK_PRIOR_LO 5
-
-    /*高优先级任务入口函数*/
-    UINT32 Example_TaskHi()
-    {
-        ...
-    }
-
-    /*低优先级任务入口函数*/
-    UINT32 Example_TaskLo()
-    {
-        ...
-    }
-
-    /*任务测试入口函数，在里面创建优先级不一样的两个任务*/
-    UINT32 Example_TskCaseEntry(VOID)
-    {
-        UINT32 uwRet;
-        /*任务初始化结构体*/
-        TSK_INIT_PARAM_S stInitParam;
-    
-        /*锁任务调度，可以在Lock与UnLock区间内创建具体任务*/
-        LOS_TaskLock();
-    
-        printf("LOS_TaskLock() Success!\r\n");
-    
-        /*高优先级任务创建参数*/
-        stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
-        stInitParam.usTaskPrio = TSK_PRIOR_HI;
-        stInitParam.pcName = "HIGH_NAME";
-        stInitParam.uwStackSize = 0x400;
-        stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-        /*创建高优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
-        uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
-        if (uwRet != LOS_OK)
-        {
-            LOS_TaskUnlock();
-     
-            printf("Example_TaskHi create Failed!\r\n");
-            return LOS_NOK;
-        }
-    
-        printf("Example_TaskHi create Success!\r\n");
-    
-        /*低优先级任务创建参数*/
-        stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
-        stInitParam.usTaskPrio = TSK_PRIOR_LO;
-        stInitParam.pcName = "LOW_NAME";
-        stInitParam.uwStackSize = 0x400;
-        stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-        /*创建低优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
-        uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
-        if (uwRet != LOS_OK)
-        {
-            LOS_TaskUnlock();
-    
-            printf("Example_TaskLo create Failed!\r\n");
-            return LOS_NOK;
-        }
-    
-        printf("Example_TaskLo create Success!\r\n");
-    
-        /*解锁任务调度，此时会发生任务调度，执行就绪列表中最高优先级任务*/
-        LOS_TaskUnlock();
-    
-        while(1){};
-    
-        return LOS_OK;
-    }
-
-##代码贡献
-* 可提交issue发起讨论
-* 可提交PR参与代码贡献
 
 ##开源协议
 * 遵循BSD-3开源许可协议

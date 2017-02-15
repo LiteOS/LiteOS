@@ -1,17 +1,17 @@
-##开源协议说明##
+##关于本文档的开源协议说明##
 ###您可以自由地：###
-**分享** — 在任何媒介以任何形式复制、发行本作品
+**分享** — 在任何媒介以任何形式复制、发行本文档
 
-**演绎** — 修改、转换或以本作品为基础进行创作
+**演绎** — 修改、转换或以本文档为基础进行创作
 在任何用途下，甚至商业目的。
 只要你遵守许可协议条款，许可人就无法收回你的这些权利。
 
 **惟须遵守下列条件：**
 **署名** — 您必须提供适当的证书，提供一个链接到许可证，并指示是否作出更改。您可以以任何合理的方式这样做，但不是以任何方式表明，许可方赞同您或您的使用。
 
-**非商业性使用** — 您不得将本作品用于商业目的。
+**非商业性使用** — 您不得将本文档用于商业目的。
 
-**相同方式共享** — 如果您的修改、转换，或以本作品为基础进行创作，仅得依本素材的授权条款来散布您的贡献作品。
+**相同方式共享** — 如果您的修改、转换，或以本文档为基础进行创作，仅得依本素材的授权条款来散布您的贡献文档。
 
 **没有附加限制** — 您不能增设法律条款或科技措施，来限制别人依授权条款本已许可的作为。
 
@@ -27,8 +27,6 @@
 
 
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
 版权所有 © 华为技术有限公司
 
 
@@ -42,7 +40,9 @@
 本文档主要适用于以下对象：
 
 物联网端侧软件开发工程师
-*物联网架构设计师
+
+物联网架构设计师
+
 ###符号约定###
 在本文中可能出现下列标志，它们所代表的含义如下。
 
@@ -70,12 +70,14 @@
 		<td>1.0</td>
 		<td>第一个发行版本</td>
     </tr>
+    <tr>
+        <td>2017年02月15日</td>
+		<td>1.1</td>
+		<td>修改中断测试代码以及相关说明</td>
+    </tr>
 </table>
 
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
-
+--------------------------------------------------------------------------------
 
 #概述#
 ##背景介绍##
@@ -83,7 +85,7 @@ Huawei LiteOS Kernel是轻量级的实时操作系统，是华为IOT OS的内核
 
 图1 Huawei LiteOS的基本框架图
 
-![](./meta/kernelapi/liteosframe.png)
+![](./meta/kernelapi/basicframe.png)
 
 Huawei LiteOS基础内核是最精简的Huawei LiteOS操作系统代码，包括任务管理、内存管理、时间管理、通信机制、中断管理、队列管理、事件管理、定时器、异常管理等操作系统基础组件，可以单独运行。
 
@@ -137,13 +139,7 @@ Huawei LiteOS基础内核是最精简的Huawei LiteOS操作系统代码，包括
 
 Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号、栈大小，以及LR、PC等寄存器信息。
 
-父主题： 概述
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
 
 ##支持的核##
 表1 Huawei LiteOS支持的核
@@ -174,21 +170,12 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
     </tr>
 </table>
 
-父主题： 概述
-
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
 
 ##使用约束##
 
 - Huawei LiteOS提供一套Huawei LiteOS接口，同时支持POSIX接口，它们功能一致，但混用POSIX和Huawei LiteOS接口（譬如用POSIX接口申请，但用Huawei LiteOS接口释放）可能会导致不可预知的错误。
 - 开发驱动程序只能用Huawei LiteOS的接口。上层APP建议用POSIX接口。
-
-父主题： 概述
 
 ## 如何使用本文档的测试用例
 本文档中的测试用例都是在api_example\api目录下，入口是los_demo_entry.c中的LOS_Demo_Entry()这个接口，使用方法los_config.c的main中调用
@@ -198,16 +185,35 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
 	extern void LOS_Demo_Entry(void)；
 	int main(void)
 	{
-		UINT32 uwRet;
-		uwRet = osMain();
-		if (uwRet != LOS_OK) {
-			return LOS_NOK;
-		}
-		LOS_Demo_Entry()；
-		LOS_Start();
-
-		for (;;);
-		/* Replace the dots (...) with your own code.  */
+	    UINT32 uwRet;
+	    /*
+				add you hardware init code here
+				for example flash, i2c , system clock ....
+	    */
+			//HAL_init();....
+		
+			/*Init LiteOS kernel */
+	    uwRet = LOS_KernelInit();
+	    if (uwRet != LOS_OK) {
+	        return LOS_NOK;
+	    }
+			/* Enable LiteOS system tick interrupt */
+	    LOS_EnableTick();
+			
+			
+	    /* 
+	        Notice: add your code here
+	        here you can create task for your function 
+	        do some hw init that need after systemtick init
+	    */
+	    //LOS_EvbSetup();
+	    //LOS_BoadExampleEntry();
+		
+		LOS_Demo_Entry()；	
+	    /* Kernel start to run */
+	    LOS_Start();
+	    for (;;);
+	    /* Replace the dots (...) with your own code.  */
 	}
 
 **如何选择测试的功能：**
@@ -218,11 +224,6 @@ LOS_KERNEL_TEST_xxx，比如测试task调度打开 LOS_KERNEL_TEST_TASK 即可�
 
 
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
-
 
 #任务#
 ##概述##
@@ -326,13 +327,7 @@ Huawei LiteOS任务管理模块提供任务创建、任务延时、任务挂起�
 
 用户创建任务时，系统会将任务栈进行初始化，预置上下文。此外，系统还会将“任务入口函数”地址放在相应位置。这样在任务第一次启动进入运行态时，将会执行“任务入口函数”。
 
-父主题： 任务
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-版权所有 © 华为技术有限公司
-
 
 ##开发指导##
 
@@ -691,15 +686,7 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 
 无。
 
-**父主题：**
-
-任务
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
 
 ##注意事项##
 
@@ -718,15 +705,7 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 - LOS_TaskPriGet接口传入的task ID对应的任务未创建或者超过最大任务数，统一返回0xffff。
 - 在删除任务时要保证任务申请的资源（如互斥锁、信号量等）已被释放。
 
-**父主题：**
-
-任务
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
 
 ##编程实例##
 **实例描述**
@@ -961,15 +940,7 @@ LOS_MEM_DYN_NODE节点结构体申明以及简单介绍：
 
 ![](./meta/kernelapi/mem_3.png)
 
-**父主题：** 
-
-内存
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
 
 ##动态内存##
 
@@ -1061,16 +1032,7 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 
 无。
 
-**父主题：** 
-
-动态内存
-
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
-
 
 ###注意事项###
 
@@ -1079,16 +1041,8 @@ Huawei LiteOS系统中的动态内存管理模块为用户提供下面几种功�
 - 系统中重新分配内存LOS_MemRealloc函数如果分配成功，系统会自己判定是否需要释放原来申请的空间，返回重新分配的空间。用户不需要手动释放原来的空间。
 - 系统中多次调用LOS_MemFree时，第一次会返回成功，但对同一块内存进行多次重复释放会导致非法指针操作，导致结果不可预知。
 
-**父主题： **
-
-动态内存
 
 --------------------------------------------------------------------------------
-
-华为专有和保密信息
-
-版权所有 © 华为技术有限公司
-
 
 ###编程实例###
 
@@ -1180,10 +1134,6 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 	mem alloc ok
 		*p_num = 828
 	mem free ok!
-
-**父主题：** 
-
-内存
 
 
 ## 静态内存 
@@ -1409,9 +1359,6 @@ Huawei LiteOS的中断机制支持中断底半部：
 
 中断底半部的实现基于workqueue，在中断处理程序中将工作分为顶半部和底半部，底半部处理程序与work关联，并挂载到合法workqueue上。系统空闲时执行workqueue中的work上的底半部程序。
 
-**父主题：** 
-
-中断机制
 
 ### 开发指导
 
@@ -1469,9 +1416,6 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 - Cortex-A7中0-31中断为内部使用，因此不建议用户去申请和创建。
 - 一般不直接调用LOS_HwiCreate()创建中断，除非中断处理程序入参为NULL。
 
-**父主题：** 
-
-中断机制
 
 ## 编程实例
 
@@ -1492,17 +1436,60 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 在los_config.h中，设置最大硬中断个数OS_HWI_MAX_USED_NUM。
 
 **说明**
-	中断的实现与具体的芯片的寄存器配置存在关系，目前给的测试代码只适合于stm32f429I-DISCO开发
-	板的USER按钮，其他的芯片请参考给出的示例代码自行就行修改。
+	目前的中断测试代码提供了基本框架，中断硬件初始化代码请用户根据开发板硬件情况在Example_Exti0_Init()函数中自行实现。
 
 **代码实现如下：**
 	参考los_api_interrupt.c
-	说明: 由于代码比较多不便在此展示，请直接查看源文件进行阅读
+		
+	#include "los_hwi.h"
+	#include "los_typedef.h"
+	#include "los_api_interrupt.h"
+	
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+	
+	
+	static void Example_Exti0_Init()
+	{
+	    /*add your IRQ init code here*/
+		
+		return;
+	}
+	
+	static VOID User_IRQHandler(void)
+	{
+	    dprintf("\n User IRQ test\n");
+		
+		return;
+	}
+	
+	VOID Example_Interrupt(VOID)
+	{
+	    UINTPTR uvIntSave;
+	    uvIntSave = LOS_IntLock();
+	    
+	    Example_Exti0_Init();
+	    
+	    LOS_HwiCreate(6, 0,0,User_IRQHandler,0);//创建中断
+	    
+	    LOS_IntRestore(uvIntSave);
+		
+	 	return;
+	}
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
 	
 **结果验证**
 
 结果显示
-int the func user_irqhandle
+User IRQ test
 
 # 队列 #
 ## 概述 ##
@@ -1823,8 +1810,8 @@ Huawei LiteOS提供的事件具有如下特点：
 	 \*/
 		typedef struct tagEvent
 		{
-		UINT32 uwEventID;            /**标识发生的事件类型位*/
-		LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
+			UINT32 uwEventID;            /**标识发生的事件类型位*/
+			LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
 		} EVENT_CB_S, *PEVENT_CB_S;uwEventID;
 	
 用于标识该任务发生的事件类型，其中每一位表示一种事件类型（0表示该事件类型未发生、1表示该事件类型已经发生），一共31种事件类型，第25位系统保留。
@@ -2029,7 +2016,6 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 			printf("task delete failed .\n");
 			return LOS_NOK;
 		}
-
 
 		return LOS_OK;
 	}
