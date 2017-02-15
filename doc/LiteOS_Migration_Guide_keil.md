@@ -41,11 +41,16 @@
 
 ## 2前言
 ### 目的
+
 本文档介绍基于Huawei LiteOS如何移植到第三方开发板，并成功运行基础示例。
+
 ### 读者对象
+
 本文档主要适用于Huawei LiteOS Kernel的开发者。
 本文档主要适用于以下对象：
+
 - 物联网端软件开发工程师
+
 - 物联网架构设计师
 
 ### 符号约定
@@ -81,8 +86,7 @@
 
 ## 3概述
 
-目前在github上已开源的Huawei LiteOS内核源码已适配好STM32F411、STM32F429芯片，本手册将
-以STM32F429ZI芯片为例，介绍基于Cortex M4核芯片的移植过程。
+目前在github上已开源的Huawei LiteOS内核源码已适配好STM32F412、STM32F429、STM32L476、GD32F450、GD32F190芯片，本手册将介绍LiteOS如何从零创建可以运行的工程的移植过程以及如何修改LiteOS的各种配置等内容。本文档使用的demo板是STM32F4291-DISCO单板。
 
 ## 4环境准备
 基于Huawei LiteOS Kernel开发前，我们首先需要准备好单板运行的环境，包括软件环
@@ -121,9 +125,9 @@
 	<td>安装Keil和st-link的操作系统</td>
 	</tr>
 	<tr>
-	<td>Keil(5.21以上版本)</td>
+	<td>Keil(5.18以上版本)</td>
 	<td>用于编译、链接、调试程序代码
-	uVision V5.21.1.0 MDK-Lite uVersion:5.21a</td>
+	uVision V5.18.0.0 MDK-Lite</td>
 	</tr>
 	<tr>
 	<td>st-link_v2_usbdriver</td>
@@ -152,7 +156,6 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 ![](./meta/keil/catal.png)
 
 
-
 关于代码树中各个目录存放的源代码的相关内容简介如下：
 
 <table>
@@ -162,29 +165,9 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 	<td>说明</td>
 </tr>
 <tr>
-	<td>kernel</td>
-	<td>base</td>
-	<td>此目录存放的是与平台无关的内核代码，包含核心提供给外部调用的接口的头文件以及内核中进程调度、进程通信、内存管理等等功能的核心代码。用户一般不需要修改此目录下的相关内容。</td>
-</tr>
-<tr>
+	<td>doc</td>
 	<td></td>
-	<td>include</td>
-	<td>内核的相关头文件存放目录</td>
-</tr>
-<tr>
-	<td></td>
-	<td>cmsis</td>
-	<td>LiteOS提供的cmsis接口</td>
-</tr>
-<tr>
-	<td>platform</td>
-	<td>bsp</td>
-	<td>目录下则是内核入口相关示例代码。用户自己实现的相关应用程序源代码都可以放到此文件夹下的子目录或者拷贝sample目录更名为其他名称再添加新的源代码。(注：总入口函数是main函数)</td>
-</tr>
-<tr>
-	<td></td>
-	<td>cpu</td>
-	<td>该目录以及以下目录存放的是与体系架构紧密相关的硬件初始化的代码。此目录最好按照芯片的体系结构以及芯片型号进行命名方便区分。比如目前我们实现了arm/cortex-m4这个芯片对应的硬件初始化内容。用户最好按照这样的划分进行新的芯片型号的添加</td>
+	<td>此目录存放的是LiteOS的使用文档和API说明文档</td>
 </tr>
 <tr>
 	<td>example</td>
@@ -194,27 +177,97 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 <tr>
 	<td></td>
 	<td>include</td>
-	<td>内核功能测试的用例相关头文件</td>
+	<td>aip功能头文件存放目录</td>
 </tr>
 <tr>
-	<td>projects</td>
-	<td>stm32f411_iar</td>
-	<td>stm32f411开发板的iar工程目录</td>
+	<td>kernel</td>
+	<td>base</td>
+	<td>此目录存放的是与平台无关的内核代码，包含核心提供给外部调用的接口的头文件以及内核中进程调度、进程通信、内存管理等等功能的核心代码。用户一般不需要修改此目录下的相关内容。</td>
 </tr>
 <tr>
 	<td></td>
-	<td>stm32f429_iar</td>
+	<td>cmsis</td>
+	<td>LiteOS提供的cmsis接口</td>
+</tr>
+<tr>
+	<td></td>
+	<td>config</td>
+	<td>此目录下是内核资源配置相关的代码，在头文件中配置了LiteOS所提供的各种资源所占用的内存池的总大小以及各种资源的数量，例如task的最大个数、信号量的最大个数等等</td>
+</tr>
+<tr>
+	<td></td>
+	<td>cpu</td>
+	<td>此目录以及以下目录存放的是与体系架构紧密相关的适配LiteOS的代码。比如目前我们适配了arm/cortex-m4及arm/cortex-m3系列对应的初始化内容。</td>
+</tr>
+<tr>
+	<td></td>
+	<td>include</td>
+	<td>内核的相关头文件存放目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>link</td>
+	<td>与IDE相关的编译链接相关宏定义</td>
+</tr>
+<tr>
+	<td>platform</td>
+	<td>GD32190R-EVAL</td>
+	<td>GD190开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>GD32450i-EVAL</td>
+	<td>GD450开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>STM32F412ZG-NUCLEO</td>
+	<td>STM32F412开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>STM32F429I_DISCO</td>
+	<td>STM32F429开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>STM32L476RG_NUCLEO</td>
+	<td>STM32L476开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td>projects</td>
+	<td>STM32F412ZG-NUCLEO-KEIL</td>
+	<td>stm32f412开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>STM32F429I_DISCO_IAR</td>
 	<td>stm32f429开发板的iar工程目录</td>
 </tr>
 <tr>
 	<td></td>
-	<td>stm32f429_keil</td>
+	<td>STM32F429I_DISCO_KEIL</td>
 	<td>stm32f429开发板的keil工程目录</td>
 </tr>
 <tr>
-	<td>doc</td>
 	<td></td>
-	<td>此目录存放的是LiteOS的使用文档和API说明文档</td>
+	<td>STM32L476R-Nucleo</td>
+	<td>stm32f476开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>GD32190R-EVAL-KEIL</td>
+	<td>gd32f190开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>GD32450i-EVAL-KEIL</td>
+	<td>gd32f450开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td>user</td>
+	<td></td>
+	<td>此目录存放用户测试代码，LiteOS的初始化和使用示例在main.c中</td>
 </tr>
 </table>
 
@@ -261,17 +314,17 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 
 - 将kernel/base目录下的所有C代码添加到工程中的kernel下
 - 将kernel/cmsis目录下的所有C代码添加到工程中的cmsis下。
-- 将platform/bsp/config目录下的所有C代码添加到工程中的Platform/bsp下
-- 将platform/cpu/arm/cortex-m4目录下的所有C代码添加到工程中的Platform/cortexm4下
+- 将platform\STM32F429I_DISCO目录下的所有C代码添加到工程中的platform/stm32f429i下
+- 将kernel\cpu\arm\cortex-m4目录下的所有C代码以及汇编代码添加到工程中的cpu/m4下
+- 将kernel\config目录下的所有C代码添加到工程中的config下
+- 将user目录下的所有C代码添加到工程中的user下
+- 将platform\STM32F429I_DISCO目录下keil版本的startup汇编代码添加到工程中的startup下
 
 ![](./meta/keil/add_file.png)
 
-说明：
-los_dispatch.s、los_vendor.s这两个文件在Keil工程中放在projects\stm32f429_keil\startup目录下，iar工程中放在projects\stm32f429_iar\startup目录下。因为编译工具不同，汇编文件语法不一样，所以有各自不同的汇编文件。
-
+说明：已经创建好的工程中还增加了example的添加，example下的内容是用来测试kernel api接口的。
 
 ### 配置工程属性
-
 
 - 配置target，如果需要调试log输出（printf）到IDE，可以选择Use MicroLib。
 
@@ -281,14 +334,17 @@ los_dispatch.s、los_vendor.s这两个文件在Keil工程中放在projects\stm32
 
 ![](./meta/keil/select_c99.png)
 
-- 配置头文件搜索路径，需要kernel/include kernel/base/include platform/include platform/include/keil .....等等，详细参考图片所示内容。
+- 配置头文件搜索路径，需要..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m4;..\..\example\include;..\..\platform\STM32F429I_DISCO等等，详细参考图片所示内容。
 
 ![](./meta/keil/folder_setup.png)
 
+说明： platform\STM32F429I_DISCO以及kernel\cpu\arm\cortex-m4则需要根据实际使用的cpu和开发板目录来添加。
 
 - 配置分散加载文件
 
 ![](./meta/keil/conf_sct.png)
+
+说明：分散加载文件在每个开发板目录下，比如stm32f429的是\platform\STM32F429I_DISCO\STM32F429I-LiteOS.sct
 
 stm32f429的配置文件内容如下：
 
@@ -302,6 +358,7 @@ stm32f429的配置文件内容如下：
 
 
 - 如果需要使用printf输出调试log，可以使用软件仿真的方式。
+
 ![](./meta/keil/conf_debug_sim.png)
 
 
@@ -318,27 +375,45 @@ stm32f429的配置文件内容如下：
 	extern void LOS_Demo_Entry(void)；
 	int main(void)
 	{
-		UINT32 uwRet;
-		uwRet = osMain();
-		if (uwRet != LOS_OK) {
-			return LOS_NOK;
-		}
-		LOS_Demo_Entry()；
-		LOS_Start();
-
-		for (;;);
-		/* Replace the dots (...) with your own code.  */
+	    UINT32 uwRet;
+	    /*
+				add you hardware init code here
+				for example flash, i2c , system clock ....
+	    */
+		//HAL_init();....
+		
+		/*Init LiteOS kernel */
+	    uwRet = LOS_KernelInit();
+	    if (uwRet != LOS_OK) {
+	        return LOS_NOK;
+	    }
+			/* Enable LiteOS system tick interrupt */
+	    LOS_EnableTick();
+			
+			
+	    /* 
+	        Notice: add your code here
+	        here you can create task for your function 
+	        do some hw init that need after systemtick init
+	    */
+	    //LOS_EvbSetup();
+	    //LOS_BoadExampleEntry();
+		
+		LOS_Demo_Entry()；	
+	    /* Kernel start to run */
+	    LOS_Start();
+	    for (;;);
+	    /* Replace the dots (...) with your own code.  */
 	}
+
 
 **如何选择测试的功能：**
 
-在example\include\los_demo_entry.h 打开要测试的功能的宏开关
-
-- LOS_KERNEL_TEST_xxx，比如测试task调度打开 LOS_KERNEL_TEST_TASK 即可（//#define LOS_KERNEL_TEST_TASK 修改为 #define LOS_KERNEL_TEST_TASK）
+- 在example\include\los_demo_entry.h 打开要测试的功能的宏开关LOS_KERNEL_TEST_xxx，比如测试task调度打开 LOS_KERNEL_TEST_TASK 即可（//#define LOS_KERNEL_TEST_TASK 修改为 #define LOS_KERNEL_TEST_TASK）
 
 - 如果需要printf，则将los_demo_debug.h中的LOS_KERNEL_DEBUG_OUTLOS_KERNEL_TEST_KEIL_SWSIMU打开。如果是在IAR工程中则不需要打开LOS_KERNEL_TEST_KEIL_SWSIMU
 
-- 中断测试无法在软件仿真的情况下测试。
+- 中断测试无法在软件仿真的情况下测试, 中断测试请自行添加中断的初始化相关内容。
 
 **在keil中需要使用printf打印可以有几种方法**
 
@@ -360,14 +435,11 @@ stm32f429的配置文件内容如下：
 目前在LiteOS的源代码中已经存在了一些已经创建好的工程，用户可以直接使用，它们都在projects目录下。建议用户使用projects下已经建立好的工程作为LiteOS运行是否正常的参考工程使用。
 
 
-## 8如何使用LiteOS 开发
+## 8 如何使用LiteOS 开发
 
 LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同步（信号量、互斥锁）、动态中断注册机制 等等内容，更详细的内容可以参考“HuaweiLiteOSKernelDevGuide”中描述的相关内容。下面章节将对任务和中断进行说明。
 
-
 ### 8.1 创建任务
-
-- 对于嵌入式系统来说，内存都是比较宝贵的资源，因此一般的程序都会严格管理内存使用，LiteOS也一样。在LiteOS中系统资源使用g_ucMemStart[OS_SYS_MEM_SIZE]作为内存池，来管理任务、信号量等等资源的创建，总共是32K。而留给用户创建的task的的个数则是LOSCFG_BASE_CORE_TSK_LIMIT（15）.
 
 - 用户使用LOS_TaskCreate(...)等接口来进行任务的创建。具体可以参考example/api/los_api_task.c中的使用方法来创建管理任务。
 
@@ -375,243 +447,35 @@ LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同�
 #### Huawei LiteOS 的中断使用
 在驱动开发的过程中我们通常会使用到中断，Huawei LiteOS有一套自己的中断的逻辑，在使用每个中断前需要为其注册相关的中断处理程序。
 
-- OS启动后，RAM起始地址是0x20000000到0x20000400，用来存放中断向量表，系统启动的汇编代码中只将reset功能写入到了对应的区域，系统使用一个全局的m_pstHwiForm[ ]来管理中断。
+- OS启动后，RAM起始地址是0x20000000到0x20000400，用来存放中断向量表，系统启动的汇编代码中只将reset功能写入到了对应的区域，系统使用一个全局的m_pstHwiForm[ ]来管理中断。m3以及m4核的前16个异常处理程序都是直接写入m_pstHwiForm[]这个数组的。
 
-- 开发者需要使用某些中断时，可以通过LOS_HwiCreate (…)接口来注册自己的中断处理函数。如果驱动卸载还可以通过LOS_HwiDelete(….)来删除已注册的中断处理函数。系统还提供了LOS_IntLock()关中断及LOS_IntRestore()恢复到中断前状态等接口。详细的使用方法可以参考LiteOS中已经使用的地方。
+- 开发者需要使用某些中断(m3以及m4中非前16个异常)时，可以通过LOS_HwiCreate (…)接口来注册自己的中断处理函数。如果驱动卸载还可以通过LOS_HwiDelete(….)来删除已注册的中断处理函数。系统还提供了LOS_IntLock()关中断及LOS_IntRestore()恢复到中断前状态等接口。详细的使用方法可以参考LiteOS中已经使用的地方。
 
 - LiteOS中断机制会额外地使用2K的RAM，跟大部分开发板bsp代码包中的机制不一样。如果没有动态修改中断处理函数的需要，用户可以选择不使用该中断机制，简单的方法是在los_bsp_adapter.c中将g_use_ram_vect变量设置为0，并且在配置工程时不配置分散加载文件。这样就可以使用demo板bsp包中提供的中断方式。
 
-### 8.3 其他功能接口
+- 如果使用LiteOS的中断机制，那么在启动LiteOS之前，请先将所有用到的中断都用LOS_HwiCreate()完成注册，否则在完成中断注册前就初始化了相关的硬件以及中断会直接进入osHwiDefaultHandler()导致程序无法正常运行。
+- los_bsp_adapter.c中LosAdapIntInit() LosAdapIrpEnable() LosAdapIrqDisable（）等接口都可以调用BSP包中的接口实现。
 
-LiteOS中提供的所有接口的使用示例都可以在“HuaweiLiteOSKernelDevGuide”文档中找到。
-根据文档中描述的内容就可以开发出逻辑更复杂的应用程序。
+###  8.3 系统tick中断配置修改
 
+- los_bsp_adapter.c中修改后的osTickStart()函数，比如在该函数中直接调用BSP包中的接口配置system tick，在stm32中可以调用SysTick_Config(g_ucycle_per_tick);
+- 根据实际配置的system clock 修改sys_clk_freq的值，工程中给出的值都是默认时钟频率。比如stm32f429的默认时钟是16M HZ。
 
+### 8.4 LiteOS资源配置
 
-## 9如何移植LiteOS到已有工程
-本章节将讲述如何在已有平台基础上使用LiteOS提供的功能。
-### 修改sct配置文件
-sct分散加载文件的修改需要参考芯片说明手册，主要修改片上rom及ram的大小。由于LiteOS使用了自己的中断向量管理机制，在配置文件中需要加入LiteOS所使用的中断向量区域的定义。详细修改方法可以参考第6章进行配置。
+- 对于嵌入式系统来说，内存都是比较宝贵的资源，因此一般的程序都会严格管理内存使用，LiteOS也一样。在LiteOS中系统资源使用g_ucMemStart[OS_SYS_MEM_SIZE]作为内存池，来管理任务、信号量等等资源的创建，总共是32K。而留给用户创建的task的的个数则是LOSCFG_BASE_CORE_TSK_LIMIT（15）.
 
-**说明**
+- LiteOS中的内存使用都是在los_config.h中进行配置的，需要使用多大的内存，可以根据实际的task个数、信号量、互斥锁、timer、消息队列、链表等内容的个数来决定的（根据各自的结构体大小以及个数计算），总的内存池的大小是OS_SYS_MEM_SIZE来定义的。
 
-sct中定义了分散加载的相关内容，LiteOS主要是在其中加入了中断向量所需要的地址范围。中断向量表的大小可根据芯片实际支持的中断数目进行修改。如果需要加入其它内容，开发者可以自己定义。
+- LiteOS的中断机制，目前使用了2K的内存。
 
-### 修改startup_xxx.s文件
+###  8.4 移植到不同的芯片
 
-- 此文件是系统启动文件，该文件中主要定义Reset相关的内容。LiteOS开源代码中与之对应的文件名为los_vendor.s，不同工程目录下有各自的los_vendor.s文件，例如Keil工程中的路径：LiteOS_Kernel\projects\stm32f429_keil\startup\los_vendor.s。
-- stm32f429的演示工程中，直接使用工程中的startup_stm32f429xx.s文件，不做修改，也可以使用LiteOS提供的los_vendor.s文件替换。
-- 使用中断注册是必须配套使用分散加载文件机制，且将g_use_ram_vect的值改为1。
-
-### 修改los_dispatch.s文件
-- 此文件中是与锁以及进程调度相关的一些内容的实现，不同的芯片类型汇编代码以及寄存器都不一样这样需要根据实际的芯片来进行相关的修改。但是功能必须保证跟LiteOS中提供的汇编代码功能一致。当然用户也可以增加其他需要的功能。
-- 目前LiteOS的los_dispatch.s中定义的PendSV_Handler()这个函数是比较重要的与进程调度相关。由于不同芯片的汇编指令不一样，需要特别注意。
-
-### 移植系统中断和外部中断
-- Huawei LiteOS定义了自己的中断向量表，OS_M4_SYS_VECTOR_CNT后的其他中断处理函数都默认注册成了osHwiDefaultHandler处理函数，用户使用前需要使用LOS_HwiCreate进行注册。
-
-- 系统tick的相关中断。osTickStart()使能了系统时钟中断。LiteOS调度相关的内容都会在每个tick中断到来时被执行。如果平台底层驱动有需要在tick中断中处理的事物，使用LiteOS的中断机制的情况下，请在LOS_TickHandler()中增加相关内容。
-
-**说明：**
-
-在OS_M4_SYS_VECTOR_CNT之前的中断(系统异常和fault)都在m_pstHwiForm[]静态地添加。
-
-### 添加LiteOS到已有的平台示例
-本章节描述的内容是以STM32F429I中的GPIO示例程序为基础添加LiteOS。
-- 首先将LiteOS的代码添加到已有工程中如下图所示：
-
-![](./meta/keil/add_files.png)
-
-- 之后我们需要配置好增加liteos后需要的头文件路径以及分散加载文件等相关内容。
-
-**编译C/C++设置中添加头文件搜索路径**
-
-![](./meta/keil/folder_setup_exp.png)
-
-**编译C/C++设置中勾选C99选**
-![](./meta/keil/select_c99_exp.png)
-
-**Linker设置中添加分散加载文件**
-
-![](./meta/keil/conf_sct.png)
-
-- 将los_config.c文件中main函数改为mian_1,将其中的代码复制到main.c的main函数中，并注释掉其中的SystemClock_Config()。
- 
-- 新建GPIO相关的任务，并实现任务处理函数LOS_Demo_Tskfunc()，将原有的main函数代移动到GPIO任务处理函数中。
- 
-- 在LOS_Demo_Tskfunc()函数中注册GPIO外部中断到LiteOS的中断向量管理表。
- 
-- los_bsp_adapter.c文件中osTickStart()函数需调用SystemClock_Config()及SysTick_Config()函数，进行系统时钟及tick配置，sys_clk_freq修改为系统时钟总频率180000000。
- 
-- 将m_pstHwiForm表格中的LOS_TickHandler()函数修改为SysTick_Handler()函数，并在SysTick_Handler()函数中添加HAL_IncTick()函数.
-
-- 在main()函数中调用GPIO任务创建函数LOS_Test_Gpio_Entry()。
-
-修改后的main函数内容如下：
-	
-	int main(void)
-	{
-		UINT32 uwRet;
-		
-		uwRet = osMain();
-		if (uwRet != LOS_OK) {
-				return LOS_NOK;
-		}
-		
-		LOS_Test_Gpio_Entry();
-		
-		LOS_Start();
-	  
-	  /* Infinite loop */
-	  while (1)
-	  {
-	  }
-	}
-
-main.c中添加GPIO任务创建函数：
-	
-	void LOS_Test_Gpio_Entry(void)
-	{
-	    UINT32 uwRet;
-	    TSK_INIT_PARAM_S stTaskInitParam;
-	
-	    (VOID)memset((void *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
-	    stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_Demo_Tskfunc;
-	    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
-	    stTaskInitParam.pcName = "UartDemo";
-	    stTaskInitParam.usTaskPrio = 10;
-	    uwRet = LOS_TaskCreate(&g_uwDemoTaskID, &stTaskInitParam);
-	
-	    if (uwRet != LOS_OK)
-	    {
-	        return ;
-	    }
-	    return ;
-	}
-
-main.c中添加GPIO任务处理函数LOS_Demo_Tskfunc()内容如下：
-
-	LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
-	{
-		LOS_HwiCreate(6, 0,0,Gpio_Demo_IRQHandler,0);
-		
-		/* This sample code shows how to use STM32F4xx GPIO HAL API to toggle PG13 
-	     IOs (connected to LED3 on STM32F429i-Discovery board) 
-	    in an infinite loop.
-	    To proceed, 3 steps are required: */
-	
-	  /* STM32F4xx HAL library initialization:
-	       - Configure the Flash prefetch, instruction and Data caches
-	       - Configure the Systick to generate an interrupt each 1 msec
-	       - Set NVIC Group Priority to 4
-	       - Global MSP (MCU Support Package) initialization
-	     */
-	  HAL_Init();
-	
-	  /* Configure LED3 and LED4 */
-	  BSP_LED_Init(LED3);
-	  BSP_LED_Init(LED4);
-	  
-	  /* Configure the system clock to 180 MHz */
-	  //SystemClock_Config();
-	  
-	  /* Configure EXTI Line0 (connected to PA0 pin) in interrupt mode */
-	  EXTILine0_Config();
-	}
-
-los_bsp_adapter.c中修改后的osTickStart()函数：
-		
-	unsigned int osTickStart(void)
-	{
-	    unsigned int uwRet = 0;
-		
-	    /* This code section LOS need, so don't change it */
-	    g_ucycle_per_tick = sys_clk_freq / tick_per_second;
-	    LOS_SetTickSycle(g_ucycle_per_tick);
-	  
-	#if 0  
-	    /* 
-	      Set system tick relaod register valude, current register valude and start
-	      system tick exception.
-	      Note: here can be replaced by some function , for example in Stm32 bsp
-	      you can just call SysTick_Config(sys_clk_freq/tick_per_second);
-	    */
-	    *(volatile UINT32 *)OS_SYSTICK_RELOAD_REG = g_ucycle_per_tick - 1;
-	    *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
-	    *(volatile UINT32 *)OS_SYSTICK_CURRENT_REG = 0;
-	    *(volatile UINT32 *)OS_SYSTICK_CONTROL_REG = (1 << 2) | (1 << 1) | (1 << 0);
-	#endif
-	
-	    SystemClock_Config();	
-		   
-			SysTick_Config(g_ucycle_per_tick);
-		
-	    return uwRet;
-	
-	}
-
-los_hwi.c中修改后的m_pstHwiForm表格：
-
-	LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
-	{
-	  0,                    // [0] Top of Stack
-	  Reset_Handler,        // [1] reset
-	  osHwiDefaultHandler,  // [2] NMI Handler
-	  osHwiDefaultHandler,  // [3] Hard Fault Handler
-	  osHwiDefaultHandler,  // [4] MPU Fault Handler
-	  osHwiDefaultHandler,  // [5] Bus Fault Handler
-	  osHwiDefaultHandler,  // [6] Usage Fault Handler
-	  0,                    // [7] Reserved
-	  0,                    // [8] Reserved
-	  0,                    // [9] Reserved
-	  0,                    // [10] Reserved
-	  osHwiDefaultHandler,  // [11] SVCall Handler
-	  osHwiDefaultHandler,  // [12] Debug Monitor Handler
-	  0,                    // [13] Reserved
-	  PendSV_Handler,             // [14] PendSV Handler
-	  SysTick_Handler,  // [15] SysTick Handler
-	};
-
-
-修改los_config.h中的systick配置：
-
-	#define OS_SYS_CLOCK 16000000修改为#define OS_SYS_CLOCK 180000000
-
-经过以上步骤，完成了代码的初步移植，然后可以编译调试运行，按demo板上的user按键，可以看到LED3指示灯亮、灭。
-
-
-**移植需要注意的地方**
-
-汇编启动文件必须保证正常运行，可以使用平台已经有的启动文件再加上los_dispatch.s或者直接使用liteos提供的汇编文件而不使用原工程中的汇编文件。
-系统时钟必须根据配置的内容进行修改。
-如果涉及到芯片跟文档中使用的型号不一样，那么还需要熟悉汇编的人员修改los_dispatch.s来达到在新平台上能够正常运行。
-分散加载文件必须保证正确的配置，如需修改请根据liteOS中提供的分散加载文件进行不同平台的适配
-
-	; *************************************************************
-	; *** Scatter-Loading Description File generated by uVision ***
-	; *************************************************************
-
-	LR_IROM1 0x08000000 0x00200000  {    ; load region size_region
-	  ER_IROM1 0x08000000 0x00200000  {  ; load address = execution address
-	   *.o (RESET, +First)
-	   *(InRoot$$Sections)
-	   .ANY (+RO)
-	  }
-	  VECTOR 0x20000000 0x400 { ;vector
-		* (.vector.bss)
-	  }
-
-	  RW_IRAM1 0x20000400 0x0002Fc00  {  ; RW data
-	   .ANY (+RW +ZI)
-	   * (.data, .bss)
-	  }
-	}
-
-主要增加了VECTOR 及内存中加载* (.data, .bss)这个段的内容。
+- 移植LiteOS到不同的芯片时，需要在kernel\cpu下去添加一个芯片系列的目录，并且在该新增加的目录下添加los_dispatch，los_hw.c、los_hw_tick、los_hwi这些内容。dispatch主要实现task调度相关的处理以及开关中断获取中断号等内容，los_hw.c中实现的task调度时需要保存的寄存器等内容，los_hwi则是中断的相关内容，los_hw_tick则是系统tick中断处理以及获取tick等的实现
 
 
 ## 其他说明
-目前git上提供的代码中直接提供了IAR和Keil的示例工程，可以直接用来进行参考。
+目前git上提供的代码中直接提供了IAR和Keil的示例工程，可以直接用来进行参考；将用户自己的代码适配到LiteOS内核工程进行开发的过程，可参考各自开发板移植指导文档。
 
 
 
