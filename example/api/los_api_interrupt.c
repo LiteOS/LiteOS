@@ -49,14 +49,14 @@ static void Example_Exti0_Init()
 {
   /*add your IRQ init code here*/
 	
-	return;
+  return;
 }
 
 static VOID User_IRQHandler(void)
 {
     dprintf("\n User IRQ test\n");
 	
-	  return;
+    return;
 }
 
 VOID Example_Interrupt(VOID)
@@ -70,7 +70,7 @@ VOID Example_Interrupt(VOID)
     
     LOS_IntRestore(uvIntSave);
 	
-	  return;
+    return;
 }
 
 
