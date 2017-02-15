@@ -40,7 +40,9 @@
 本文档主要适用于以下对象：
 
 物联网端侧软件开发工程师
-*物联网架构设计师
+
+物联网架构设计师
+
 ###符号约定###
 在本文中可能出现下列标志，它们所代表的含义如下。
 
@@ -67,6 +69,11 @@
         <td>2016年08月05日</td>
 		<td>1.0</td>
 		<td>第一个发行版本</td>
+    </tr>
+    <tr>
+        <td>2017年02月15日</td>
+		<td>1.1</td>
+		<td>修改中断测试代码以及相关说明</td>
     </tr>
 </table>
 
@@ -178,16 +185,35 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
 	extern void LOS_Demo_Entry(void)；
 	int main(void)
 	{
-		UINT32 uwRet;
-		uwRet = osMain();
-		if (uwRet != LOS_OK) {
-			return LOS_NOK;
-		}
-		LOS_Demo_Entry()；
-		LOS_Start();
-
-		for (;;);
-		/* Replace the dots (...) with your own code.  */
+	    UINT32 uwRet;
+	    /*
+				add you hardware init code here
+				for example flash, i2c , system clock ....
+	    */
+			//HAL_init();....
+		
+			/*Init LiteOS kernel */
+	    uwRet = LOS_KernelInit();
+	    if (uwRet != LOS_OK) {
+	        return LOS_NOK;
+	    }
+			/* Enable LiteOS system tick interrupt */
+	    LOS_EnableTick();
+			
+			
+	    /* 
+	        Notice: add your code here
+	        here you can create task for your function 
+	        do some hw init that need after systemtick init
+	    */
+	    //LOS_EvbSetup();
+	    //LOS_BoadExampleEntry();
+		
+		LOS_Demo_Entry()；	
+	    /* Kernel start to run */
+	    LOS_Start();
+	    for (;;);
+	    /* Replace the dots (...) with your own code.  */
 	}
 
 **如何选择测试的功能：**
@@ -1410,17 +1436,60 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 在los_config.h中，设置最大硬中断个数OS_HWI_MAX_USED_NUM。
 
 **说明**
-	中断的实现与具体的芯片的寄存器配置存在关系，目前给的测试代码只适合于stm32f429I-DISCO开发
-	板的USER按钮，其他的芯片请参考给出的示例代码自行就行修改。
+	目前的中断测试代码提供了基本框架，中断硬件初始化代码请用户根据开发板硬件情况在Example_Exti0_Init()函数中自行实现。
 
 **代码实现如下：**
 	参考los_api_interrupt.c
-	说明: 由于代码比较多不便在此展示，请直接查看源文件进行阅读
+		
+	#include "los_hwi.h"
+	#include "los_typedef.h"
+	#include "los_api_interrupt.h"
+	
+	#ifdef __cplusplus
+	#if __cplusplus
+	extern "C" {
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
+	
+	
+	static void Example_Exti0_Init()
+	{
+	    /*add your IRQ init code here*/
+		
+		return;
+	}
+	
+	static VOID User_IRQHandler(void)
+	{
+	    dprintf("\n User IRQ test\n");
+		
+		return;
+	}
+	
+	VOID Example_Interrupt(VOID)
+	{
+	    UINTPTR uvIntSave;
+	    uvIntSave = LOS_IntLock();
+	    
+	    Example_Exti0_Init();
+	    
+	    LOS_HwiCreate(6, 0,0,User_IRQHandler,0);//创建中断
+	    
+	    LOS_IntRestore(uvIntSave);
+		
+	 	return;
+	}
+
+	#ifdef __cplusplus
+	#if __cplusplus
+	}
+	#endif /* __cpluscplus */
+	#endif /* __cpluscplus */
 	
 **结果验证**
 
 结果显示
-int the func user_irqhandle
+User IRQ test
 
 # 队列 #
 ## 概述 ##
@@ -1741,8 +1810,8 @@ Huawei LiteOS提供的事件具有如下特点：
 	 \*/
 		typedef struct tagEvent
 		{
-		UINT32 uwEventID;            /**标识发生的事件类型位*/
-		LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
+			UINT32 uwEventID;            /**标识发生的事件类型位*/
+			LOS_DL_LIST    stEventList;  /**读取事件任务链表*/
 		} EVENT_CB_S, *PEVENT_CB_S;uwEventID;
 	
 用于标识该任务发生的事件类型，其中每一位表示一种事件类型（0表示该事件类型未发生、1表示该事件类型已经发生），一共31种事件类型，第25位系统保留。
@@ -1947,7 +2016,6 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 			printf("task delete failed .\n");
 			return LOS_NOK;
 		}
-
 
 		return LOS_OK;
 	}
