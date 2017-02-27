@@ -96,7 +96,8 @@ osStatus osKernelInitialize (void)
     {
         return osErrorOS;
     }
-
+		
+    LOS_EnableTick();
     return osOK;
 }
 
