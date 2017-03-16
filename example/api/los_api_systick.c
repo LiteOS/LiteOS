@@ -35,6 +35,7 @@
 #include "los_sys.h"
 #include "los_task.h"
 #include "los_api_systick.h"
+#include "los_inspect_entry.h"
 
 
 #ifdef __cplusplus
@@ -42,7 +43,6 @@
 extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
-
 
 
 VOID Example_TransformTime(VOID)
@@ -56,10 +56,10 @@ VOID Example_TransformTime(VOID)
 }
 
 
-VOID Example_GetTick(VOID)
+UINT32 Example_GetTick(VOID)
 {
     UINT32 uwcyclePerTick;
-    UINT64 uwTickCount;
+    UINT64 uwTickCount1,uwTickCount2;
 
     uwcyclePerTick  = LOS_CyclePerTickGet();
     if(0 != uwcyclePerTick)
@@ -67,18 +67,28 @@ VOID Example_GetTick(VOID)
         dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
     }
 
-    uwTickCount = LOS_TickCountGet();
-    if(0 != uwTickCount)
+    uwTickCount1 = LOS_TickCountGet();
+    if(0 != uwTickCount1)
     {
-        dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount);
+        dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount1);
     }
     LOS_TaskDelay(200);
-    uwTickCount = LOS_TickCountGet();
-    if(0 != uwTickCount)
+    uwTickCount2 = LOS_TickCountGet();
+    if(0 != uwTickCount2)
     {
-        dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount);
+        dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount2);
     }
-    
+		
+		if((uwTickCount2 - uwTickCount1) >= 200)
+		{
+			 LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
+			 return LOS_OK;   
+		}
+		else
+		{
+			 LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
+		   return LOS_NOK; 
+		}
 }
 
 

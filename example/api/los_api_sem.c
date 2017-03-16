@@ -36,11 +36,10 @@
 #include "los_base.ph"
 #include "los_hwi.h"
 #include "los_api_sem.h"
+#include "los_inspect_entry.h"
 #ifdef LOSCFG_LIB_LIBC
 #include "string.h"
 #endif
-
-
 
 
 #ifdef __cplusplus
@@ -56,9 +55,7 @@ extern "C" {
 /*任务PID*/
 static UINT32 g_TestTaskID01,g_TestTaskID02;
 /*信号量结构体ID*/
-//static SEM_HANDLE_T g_usSemID;
 static UINT32 g_usSemID;
-
 
 
 VOID Example_SemTask1(void)
@@ -79,17 +76,17 @@ VOID Example_SemTask1(void)
     if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
     {
         dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
-        /*永久阻塞模式申请信号量*/
+			/*永久阻塞模式申请信号量,获取不到时程序阻塞，不会返回*/
         uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-        dprintf("Example_SemTask1 wait_forever and get sem g_usSemID .\n");
         if(LOS_OK == uwRet)
         {
+					  dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
             LOS_SemPost(g_usSemID);
+					  LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
             return;
         }
     }
     return;
-
 }
 
 VOID   Example_SemTask2(void)
@@ -100,7 +97,9 @@ VOID   Example_SemTask2(void)
     uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
 
     if(LOS_OK == uwRet)
-    dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+		{
+			dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+		}
 
     /*任务休眠20 Tick*/
     LOS_TaskDelay(20);
@@ -110,12 +109,11 @@ VOID   Example_SemTask2(void)
     LOS_SemPost(g_usSemID);
 
     return;
-
 }
 
 UINT32 Example_Semphore(VOID)
 {
-    UINT32 uwRet;
+    UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S stTask1;
     TSK_INIT_PARAM_S stTask2;
 
@@ -148,6 +146,13 @@ UINT32 Example_Semphore(VOID)
     if(uwRet != LOS_OK)
     {
         dprintf("task2 create failed .\n");
+			   
+			  /*删除任务1*/
+				if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
+				{
+						dprintf("task1 delete failed .\n"); 
+				}
+			
         return LOS_NOK;
     }
 
@@ -163,21 +168,19 @@ UINT32 Example_Semphore(VOID)
     LOS_SemDelete(g_usSemID);
 
     /*删除任务1*/
-    uwRet = LOS_TaskDelete(g_TestTaskID01);
-    if(uwRet != LOS_OK)
+    if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
     {
-        dprintf("task1 delete failed .\n");
-        return LOS_NOK;
+        dprintf("task1 delete failed .\n"); 
+			  uwRet = LOS_NOK;
     }
     /*删除任务2*/
-    uwRet = LOS_TaskDelete(g_TestTaskID02);
-    if(uwRet != LOS_OK)
+    if(LOS_OK != LOS_TaskDelete(g_TestTaskID02))
     {
-        dprintf("task2 delete failed .\n");
-        return LOS_NOK;
+        dprintf("task2 delete failed .\n");			  
+			  uwRet = LOS_NOK;
     }
 
-    return LOS_OK;
+    return uwRet;
 }
 
 

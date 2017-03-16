@@ -31,8 +31,6 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "los_demo_entry.h"
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
