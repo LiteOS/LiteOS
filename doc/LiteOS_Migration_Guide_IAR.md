@@ -42,7 +42,7 @@
 ## 2前言
 ### 目的
 
-本文档介绍基于Huawei LiteOS如何移植到第三方开发板，并成功运行基础示例。
+本文档介如何移植Huawei LiteOS到第三方开发板，并成功运行基础示例。
 
 ### 读者对象
 
@@ -82,11 +82,15 @@
 	<td>1.0</td>
 	<td>完成初稿</td>
 	</tr>
+    <td>2017年03月10日</td>
+	<td>1.1</td>
+	<td>更新为通用移植指南，并增加移植相关注意事项及说明</td>
+	</tr>
 </table>
 
 ## 3概述
 
-目前在github上已开源的Huawei LiteOS内核源码已适配好STM32F429芯片，本手册将以STM32F429ZI芯片为例，介绍基于Cortex M4核芯片的移植过程。
+目前在github上已开源的Huawei LiteOS_Kernel源码已适配好STM32F429芯片的iar示例工程，如果您使用的芯片(开发板)未在其中，可以参照本文档从零开始创建自己的发开工程，并验证移植的结果。
 
 ## 4环境准备
 基于Huawei LiteOS Kernel开发前，我们首先需要准备好单板运行的环境，包括软件环
@@ -98,16 +102,16 @@
 	<td>描述</td>
 	</tr>
 	<tr>
-	<td>STM32F4291-DISCO单板</td>
-	<td>STM32开发板(芯片型号STM32F429ZIT6)</td>
+	<td>开发板</td>
+	<td>基于Cortex-M3或Cortex-M4内核的芯片开发板</td>
 	</tr>
 	<tr>
 	<td>PC机</td>
 	<td>用于编译、加载并调试镜像</td>
 	</tr>
 	<tr>
-	<td>电源（5v）</td>
-	<td>开发板供电(使用Mini USB连接线)</td>
+	<td>电源</td>
+	<td>开发板供电</td>
 	</tr>
 </table>
 
@@ -120,32 +124,33 @@
 	</tr>
 	<tr>
 	<td>Window 7 操作系</td>
-	<td>安装IAR和st-link的操作系统</td>
+	<td>安装IAR和相关调试驱动的操作系统</td>
 	</tr>
 	<tr>
 	<td>IAR(7.30以上版本)</td>
 	<td>用于编译、链接、调试程序代码</td>
 	</tr>
 	<tr>
-	<td>st-link_v2_usbdriver</td>
+	<td>Link驱动</td>
 	<td>开发板与pc连接的驱动程序，用户加载及调试程序代码</td>
 	</tr>
 </table>
 
 **说明**
 
-IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的相关网站获取，采用J-Link还
-是ST-Link需要根据具体使用的开发板来确定。这里以STM32F429为例，使用ST-Link。
-
+IAR工具需要开发者自行购买，Link驱动程序需根据具体使用的开发板芯片来确定，开发板配套的资料中会提供，或者在使用的芯片官网下载。
 
 ## 5获取Huawei LiteOS 源码
 
-首先我们需要通过网络下载获取Huawei LiteOS开发包。目前Huawei LiteOS的代码已经
-开源，可以直接从网络上获取，步骤如下：
+首先下载Huawei LiteOS开发包，步骤如下：
 
-- 直接到github上面clone。仓库地址是https://github.com/LITEOS/LiteOS_Kernel.git
+- 仓库地址：https://github.com/LITEOS/LiteOS_Kernel.git 
+![](./meta/iar/git_down.png)
 
-- 从github上获取的代码，则目录结构如下：
+- 点击”clone or download”按钮,下载源代码
+
+
+- 目录结构如下：
 ![](./meta/iar/folderstructure.png)
 
 
@@ -228,6 +233,11 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 	<td>STM32L476开发板systick以及led、uart、key驱动bsp适配代码</td>
 </tr>
 <tr>
+	<td></td>
+	<td>LOS_EXPAND_XXX</td>
+	<td>用于新扩展的开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
 	<td>projects</td>
 	<td>STM32F412ZG-NUCLEO-KEIL</td>
 	<td>stm32f412开发板的keil工程目录</td>
@@ -244,8 +254,8 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 </tr>
 <tr>
 	<td></td>
-	<td>STM32L476R-Nucleo</td>
-	<td>stm32f476开发板的keil工程目录</td>
+	<td>STM32L476R-NUCLEO-KEIL</td>
+	<td>stm32l476开发板的keil工程目录</td>
 </tr>
 <tr>
 	<td></td>
@@ -260,18 +270,23 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 <tr>
 	<td>user</td>
 	<td></td>
-	<td>此目录存放用户测试代码，LiteOS的初始化和使用示例在main.c中</td>
+	<td>此目录存放用户测试代码，LiteOS的初始化和使用示例在main.c文件中</td>
 </tr>
 </table>
 
+获取Huawei LiteOS源代码之后，我们就可以开始创建自己的project开发工程了，详细内容请参考后续各章节。
 
-获取Huawei LiteOS源代码之后，我们就可以创建project然后编译调试我们的程序了，
-详细可以参考后续的各个章节。详细的编程应用编程API请参考《HuaweiLiteOSKernelDevGuide》
 
 ## 6创建Huawei LiteOS 工程
 
-在获取完成Huawei LiteOS的源代码和安装好IAR等相关的开发工具后，我们需要用IAR
-集成开发环境创建编译Huawei LiteOS的工程，步骤如下：
+### 6.1 创建工程
+
+获取到LiteOS内核代码后，如果您本地有开发板相关的驱动代码，可以先将您本地的驱动代码库拷贝到platform\LOS_EXPAND_XXX目录下，以便添加到工程中。
+
+![](./meta/keil/expand/copy_file.png)
+
+
+在安装好IAR等开发工具后，我们使用IAR集成开发环境创建Huawei LiteOS工程，步骤如下：
 
 - 打开IAR， 然后点击File->New->Workspace创建一个新的工作空间
 
@@ -280,13 +295,16 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 - 然后点击Project->Create New Project...创建一个新的project
 
 ![](./meta/iar/newproject.png)
-![](./meta/iar/newproject_2.png)
 
-    创建一个空的工程
+- 创建一个空的工程
+
+![](./meta/iar/newproject_2.png)
 
 - 保存工程名，比如HuaweiLiteOS
 
 ![](./meta/iar/newproject_3.png)
+
+### 6.2 添加kernel代码到工程
 
 - 创建工程中的目录结构
 
@@ -296,16 +314,22 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 
 ![](./meta/iar/add_group_2.png)
 
-- 将kernel/base目录下的所有C代码添加到工程中的kernel下
-- 将kernel/cmsis目录下的所有C代码添加到工程中的cmsis下。
-- 将platform\STM32F429I_DISCO目录下的所有C代码添加到工程中的platform/stm32f429i下
-- 将kernel\cpu\arm\cortex-m4目录下的所有C代码以及汇编代码添加到工程中的cpu/m4下
-- 将kernel\config目录下的所有C代码添加到工程中的config下
-- 将user目录下的所有C代码添加到工程中的user下
-- 将platform\STM32F429I_DISCO目录下keil版本的startup汇编代码添加到工程中的startup下
+创建完成目录树之后我们添加源代码到目录树中，最终添加完成的内容如下：
 
+- 将kernel/base目录下的所有C文件添加到工程中的kernel下
+- 将kernel/cmsis目录下的所有C文件添加到工程中的cmsis下。
+- 将platform\LOS_EXPAND_XXX目录下的所有C文件添加到工程中的platform/expand_xxx下(expand_xxx文件夹名字可自行修改)
+- 根据芯片内核型号，将kernel\cpu\arm\cortex-m4（或者cortex-m3）目录下的所有C文件以及汇编代码添加到工程中的cpu/m4（cpu/m3）下
+- 将kernel\config目录下的所有C文件添加到工程中的config下
+- 将user目录下的所有C文件添加到工程中的user下
+- 如果需要使用中断动态注册功能或者本地没有可用的启动文件，可以将platform\LOS_EXPAND_XXX目录下的los_startup_keil.s汇编文件添加到工程中的startup目录下，或者添加芯片官方提供的启动文件，比如您使用的是stm32f429zi芯片，可添加startup_stm32f429xx.s文件
+- 将\platform\LOS_EXPAND_XXX\Library目录下的驱动文件添加到工程的library目录下
+- 添加example/api目录下的所有C文件到工程的example目录下
 
 ![](./meta/iar/add_files.png)
+
+完成代码添加后的工程目录如下图
+
 ![](./meta/iar/add_files_1.png)
 
 
@@ -314,11 +338,13 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 ![](./meta/iar/save_workspace.png)
 ![](./meta/iar/save_workspace_2.png)
 
+### 6.3 配置工程属性
+
 - 完成添加文件之后，需要对工程进行详细的配置，配置内容步骤如下所示：
 
 ![](./meta/iar/config_1.png)
 
-- 配置芯片型号
+- 配置芯片型号,假如您使用的是STM32F249ZI芯片
 
 ![](./meta/iar/config_2.png)
 
@@ -335,96 +361,132 @@ IAR工具需要开发者自行购买，ST-Link的驱动程序可以从st link的
 
 ![](./meta/iar/config_6.png)
 
+如果您需要使用中断动态注册功能，则需要配套使用分散机制。本示例中未使用分散加载机制，可参考源码中其他工程的分散加载文件自己编写。
+
+其他适配工程中的分散加载文件存放在platform目录下每个开发板自己的文件夹中，比如：\platform\STM32F429I_DISCO\STM32F429I-LiteOS.sct
+
+stm32f429的配置文件内容如下：
+
+![](./meta/iar/sct_file.png)
+
 说明：分散配置文件中增加的是vector（中断向量表）的内容，LiteOS的中断向量表在stm32f429ZI这个芯片中定义的是0x400大小。如果不了解分散加载文件可以参考IDE的help中sct文件的说明。或者baidu、google分散加载文件相关内容。
 
-- 配置debug相关选项，是stm32f429开发板中使用ST-Link
+- 配置debug相关选项，比如您使用的是stm32f429zi芯片，则使用选择ST-Link。
 
 ![](./meta/iar/config_7.png)
 ![](./meta/iar/config_8.png)
 
-说明：los_dispatch.s、los_vendor.s这个文件在git上的代码时放在projects/stm32f429_keil/startup目录下的，如果是iar工程则是在projects/stm32f429_iar/startup目录下。他们因为工具不同所以汇编文件语法有些不一样。
+## 7适配驱动代码
 
+如果您不需要适配驱动代码到工程，可忽略此章。
 
-### kernel API测试代码
+- 内核代码中提供了bsp适配的框架代码，存放在LOS_EXPAND_XXX文件夹下
 
-如果需要测试LiteOS是否正常运行，可以将example/api添加到工程目录中。
+![](./meta/iar/add_src_Expand.png)
 
-### 测试代码使用
+- 前面已经完成了驱动适配代码及驱动代码的添加(驱动代码可根据您需要使用的具体功能来添加)，祥见下图
 
-测试代码入口是los_demo_entry.c中的LOS_Demo_Entry()这个接口，使用方法los_config.c的main中调用
+![](./meta/iar/add_src_platform.png)
 
-示例如下：
+- 根据本地Library代码提供的接口函数，来实现LiteOS中相关的bsp接口函数
 
-	extern void LOS_Demo_Entry(void)；
-	int main(void)
-	{
-	    UINT32 uwRet;
-	    /*
-				add you hardware init code here
-				for example flash, i2c , system clock ....
-	    */
-		//HAL_init();....
-		
-		/*Init LiteOS kernel */
-	    uwRet = LOS_KernelInit();
-	    if (uwRet != LOS_OK) {
-	        return LOS_NOK;
-	    }
-			/* Enable LiteOS system tick interrupt */
-	    LOS_EnableTick();
-			
-			
-	    /* 
-	        Notice: add your code here
-	        here you can create task for your function 
-	        do some hw init that need after systemtick init
-	    */
-	    //LOS_EvbSetup();
-	    //LOS_BoadExampleEntry();
-		
-		LOS_Demo_Entry()；	
-	    /* Kernel start to run */
-	    LOS_Start();
-	    for (;;);
-	    /* Replace the dots (...) with your own code.  */
-	}
+（1）修改los_bsp_adapter.c文件，配置系统时钟及SysTick，适配sysTick_Handler函数；
+
+（2）实现los_bsp_led.c、los_bsp_key.c、los_bsp_uart.c等文件中提供的空函数。
+
+- 空函数的具体实现可参考源码中已适配的其他工程中同名的文件，如有其他需要增加的驱动功能，可以在同级目录下添加相关文件。
+  
+- 将驱动代码添加到内核工程更详细的过程可参考源码doc目录下其他开发板的移植指南文档。
+
+## 8如何验证移植后的工程
+
+如果您需要验证移植后的LiteOS内核功能，可以参考本章内容。
+
+### 8.1 API测试代码使用
+
+- 目前LiteOS提供了单独测试每个功能的api代码，可在main()函数中调用los_demo_entry.c文件中的LOS_Demo_Entry()函数，并放开相应的宏定义。
+
+- 如果需要一次测试内核所有的功能，则可调用los_inspect_entry.c文件中的LOS_Inspect_Entry()函数。
+
+- LiteOS最小需要占用8K的RAM,使用Inspect巡检功能需要再增加1k RAM，不满足此要求的芯片请使用API单项测试功能。
+
+![](./meta/iar/add_src_example.png) 
+
+示例代码如下：
+
+    extern void LOS_Demo_Entry(void)；
+    int main(void)
+    {
+        UINT32 uwRet;
+        /*
+        	add you hardware init code here
+        	for example flash, i2c , system clock ....
+        */
+    	//HAL_init();....
+    	
+    	/*Init LiteOS kernel */
+        uwRet = LOS_KernelInit();
+        if (uwRet != LOS_OK) {
+            return LOS_NOK;
+        }
+        /* Enable LiteOS system tick interrupt */
+        LOS_EnableTick();
+    		
+    		
+        /* 
+            Notice: add your code here
+            here you can create task for your function 
+            do some hw init that need after systemtick init
+        */
+        LOS_EvbSetup(); 
+    
+        LOS_Demo_Entry();	
+        
+        //LOS_Inspect_Entry();
+        
+    	//LOS_BoadExampleEntry();	
+    		
+        /* Kernel start to run */
+        LOS_Start();
+        for (;;);
+        /* Replace the dots (...) with your own code.  */
+    }
 
 **如何选择测试的功能：**
 
 - 在example/include/los_demo_entry.h 打开要测试的功能的宏开关LOS_KERNEL_TEST_xxx，比如测试task调度打开 LOS_KERNEL_TEST_TASK 即可（//#define LOS_KERNEL_TEST_TASK 修改为 #define LOS_KERNEL_TEST_TASK）。
 
-- 如果需要printf，并且是Keil工程，则将los_demo_debug.h中的LOS_KERNEL_DEBUG_OUT、LOS_KERNEL_TEST_KEIL_SWSIMU打开。目前文档描述的是在IAR工程中，所以不需要打开LOS_KERNEL_TEST_KEIL_SWSIMU。
+- 中断测试无法在软件仿真的情况下测试, 如需进行中断功能测试，请自行添加中断初始化相关内容到Example_Exti0_Init函数。
 
-- 中断测试无法在软件仿真的情况下测试。
+**使用printf打印的方法**
 
-**使用printf打印可以有几种方法**
+- 将printf重定向到uart输出，需要uart驱动支持，如果没有适配串口驱动代码，则不建议使用该方法。
 
-- 将printf重定位到uart输出，这个需要uart驱动支持，如果只有liteOS而没有相关驱动加入工程则不建议使用该方法。
-- 在IAR中直接可以在调试窗口看到printf的log输出。
+- 将los_demo_debug.h中的LOS_KERNEL_DEBUG_OUT宏定义打开（IAR工程不需要打开LOS_KERNEL_TEST_KEIL_SWSIMU宏），在IAR IDE的Terminal I/O窗口中直接可以在看到printf的log输出。
 
-## 7编译调试
-打开工程后，菜单栏Project→Clean 、Rebuild All，可clean和build 文件。这里点
+### 8.2编译调试
+- 打开工程后，菜单栏Project→Clean 、Rebuild All，可clean和build 文件。这里点
 击Rebuild All，编译全部文件
 
 ![](./meta/iar/build_1.png)
 
-**关于中断向量位置选择**
+- 调试运行代码，查看测试结果输出：
 
-- 在los_bsp_adapter.c中，g_use_ram_vect变量控制了LiteOS中是否使用vector向量表（中断向量表）重定向功能。如果g_use_ram_vect设置为 1 ，则需要在配置分散加载文件，如果配置为0，则不配置分散加载文件（即在上面的配置步骤中可以不进行分散加载文件配置），系统启动后默认中断向量表在Rom的0x00000000地址。
+(1)如果调用LOS_Demo_Entry()函数进行测试，可根据《HuaweiLiteOSKernelDevGuide》文档中列出每项API功能测试结果来进行对比判断。
 
-**关于工程创建**
+(2)如果调用LOS_Inspect_Entry()函数进行功能巡检，gInspectErrCnt值为0则代表移植成功。
 
-目前在LiteOS的源代码中已经存在了一些已经创建好的工程，用户可以直接使用，它们都在projects目录下。建议用户使用projects下已经建立好的工程作为LiteOS运行是否正常的参考工程使用。
+![](./meta/iar/inspect_result.png)
 
-## 8 如何使用LiteOS 开发
+## 9 如何使用LiteOS 开发
 
 LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同步（信号量、互斥锁）、动态中断注册机制 等等内容，更详细的内容可以参考“HuaweiLiteOSKernelDevGuide”中描述的相关内容。下面章节将对任务和中断进行说明。
 
-### 8.1 创建任务
+### 9.1 创建任务
 
 - 用户使用LOS_TaskCreate(...)等接口来进行任务的创建。具体可以参考example/api/los_api_task.c中的使用方法来创建管理任务。
 
-### 8.2 中断处理
+### 9.2 中断处理
 #### Huawei LiteOS 的中断使用
 在驱动开发的过程中我们通常会使用到中断，Huawei LiteOS有一套自己的中断的逻辑，在使用每个中断前需要为其注册相关的中断处理程序。
 
@@ -437,12 +499,17 @@ LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同�
 - 如果使用LiteOS的中断机制，那么在启动LiteOS之前，请先将所有用到的中断都用LOS_HwiCreate()完成注册，否则在完成中断注册前就初始化了相关的硬件以及中断会直接进入osHwiDefaultHandler()导致程序无法正常运行。
 - los_bsp_adapter.c中LosAdapIntInit() LosAdapIrpEnable() LosAdapIrqDisable（）等接口都可以调用BSP包中的接口实现。
 
-###  8.3 系统tick中断配置修改
+
+**关于中断向量位置选择**
+
+- 在los_bsp_adapter.c中，g_use_ram_vect变量控制了LiteOS中是否使用vector向量表（中断向量表）重定向功能。如果g_use_ram_vect设置为 1 ，则需要在配置分散加载文件，如果配置为0，则不配置分散加载文件（即在上面的配置步骤中可以不进行分散加载文件配置），系统启动后默认中断向量表在Rom的0x00000000地址。
+
+###  9.3 系统tick中断配置修改
 
 - los_bsp_adapter.c中修改后的osTickStart()函数，比如在该函数中直接调用BSP包中的接口配置system tick，在stm32中可以调用SysTick_Config(g_ucycle_per_tick);
 - 根据实际配置的system clock 修改sys_clk_freq的值，工程中给出的值都是默认时钟频率。比如stm32f429的默认时钟是16M HZ。
 
-### 8.4 LiteOS资源配置
+### 9.4 LiteOS资源配置
 
 - 对于嵌入式系统来说，内存都是比较宝贵的资源，因此一般的程序都会严格管理内存使用，LiteOS也一样。在LiteOS中系统资源使用g_ucMemStart[OS_SYS_MEM_SIZE]作为内存池，来管理任务、信号量等等资源的创建，总共是32K。而留给用户创建的task的的个数则是LOSCFG_BASE_CORE_TSK_LIMIT（15）.
 
@@ -450,21 +517,23 @@ LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同�
 
 - LiteOS的中断机制，目前使用了2K的内存。
 
-###  8.4 移植到不同的芯片
+###  9.5 移植cortex-m3/m4以外其他内核的芯片
 
-- 移植LiteOS到不同的芯片时，需要在kernel\cpu下去添加一个芯片系列的目录，并且在该新增加的目录下添加los_dispatch，los_hw.c、los_hw_tick、los_hwi这些内容。dispatch主要实现task调度相关的处理以及开关中断获取中断号等内容，los_hw.c中实现的task调度时需要保存的寄存器等内容，los_hwi则是中断的相关内容，los_hw_tick则是系统tick中断处理以及获取tick等的实现
+- 移植LiteOS到其他内核的芯片时，需要在kernel\cpu下去添加一个芯片所属系列的目录，并且在该新增加的目录下添加los_dispatch，los_hw.c、los_hw_tick、los_hwi这些文件。dispatch文件主要实现task调度相关的处理以及开关中断获取中断号等内容，los_hw.c中实现的task调度时需要保存的寄存器等内容，los_hwi则是中断的相关内容，los_hw_tick则是系统tick中断处理以及获取tick等的实现。
 
 
 ## 其他说明
-目前git上提供的代码中直接提供了IAR和Keil的示例工程，可以直接用来进行参考；将用户自己的代码适配到LiteOS内核工程进行开发的过程，可参考各自开发板移植指导文档。
 
+- 对于RAM较小的芯片，请参照los_config.h文件中的注释，在工程中定义相关的编译宏，否则会出现编译失败（RAM大于32k可不定义）。
 
+		/* default LiteOS ram size level 
+			RAM_SIZE_LEVEL_0 means kernel ram < 8k  , 
+			RAM_SIZE_LEVEL_1 means kernel ram < 16k, 
+			RAM_SIZE_LEVEL_2 means means kernel ram>=32k 
+		*/
 
+- 目前在LiteOS的源代码中有一些已经创建好了的工程，移植到新的开发板(芯片)时可参考源码中的这些工程。
 
+- 详细的应用编程API请参考《HuaweiLiteOSKernelDevGuide》。
 
-
-
-
-
-
-
+- FatFs文件系统移植请参考《LiteOS_Migration_Guide_FatFs_Keil.md》。

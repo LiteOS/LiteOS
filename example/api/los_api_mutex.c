@@ -35,12 +35,11 @@
 #include "los_mux.h"
 #include "los_task.h"
 #include "los_api_mutex.h"
+#include "los_inspect_entry.h"
 
 #ifdef LOSCFG_LIB_LIBC
 #include "string.h"
 #endif
-
-
 
 
 #ifdef __cplusplus
@@ -51,7 +50,6 @@ extern "C" {
 
 
 /*互斥锁句柄ID*/
-//MUX_HANDLE_T  g_Testmux01;
 UINT32 g_Testmux01;
 
 
@@ -78,13 +76,14 @@ VOID Example_MutexTask1()
     else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
     {
         dprintf("task1 timeout and try to get  mutex, wait forever.\n");
-        /*申请互斥锁*/
+			 /*LOS_WAIT_FOREVER方式申请互斥锁,获取不到时程序阻塞，不会返回*/
         uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
         if(uwRet == LOS_OK)
         {
-            dprintf("task1 wait forever,get mutex g_Testmux01.\n");
+            dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
             /*释放互斥锁*/
             LOS_MuxPost(g_Testmux01);
+					  LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
             return;
         }
     }
@@ -113,7 +112,6 @@ VOID Example_MutexTask2()
     /*释放互斥锁*/
     LOS_MuxPost(g_Testmux01);
     return;
-
 }
 
 UINT32 Example_MutexLock(VOID)

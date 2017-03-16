@@ -102,8 +102,9 @@ void SysTick_Handler(void)
     LOS_TickHandler();
 	
     /*add your code here */
-	
-
+#ifdef LOS_STM32F412Zx
+	  HAL_IncTick();
+#endif
     return ;
 }
 

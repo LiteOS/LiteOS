@@ -590,6 +590,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\example\api\los_cmsis_main.c</FilePath>
             </File>
+            <File>
+              <FileName>los_inspect_entry.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_inspect_entry.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -32,5 +32,21 @@ void EXTI4_15_IRQHandler(void)
     exti_interrupt_flag_clear(EXTI_13);
 }
 
+
 #endif
 
+/*****************************************************************************
+ Function    : LOS_EvbGetKeyVal
+ Description : Get GIOP Key value
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+unsigned int LOS_EvbGetKeyVal(int KeyNum)
+{
+	unsigned int KeyVal = LOS_GPIO_ERR; 
+	
+	//add you code here.
+	
+	return KeyVal;
+}

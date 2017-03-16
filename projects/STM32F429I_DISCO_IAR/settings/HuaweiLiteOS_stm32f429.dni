@@ -8,19 +8,8 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
-[Interrupts]
-Enabled=1
-[MemConfig]
-Base=1
-Manual=0
-Ddf=1
-TypeViol=0
-Stop=1
-[Simulator]
-Freq=10000000
-MultiCoreRunAll=1
 [DebugChecksum]
-Checksum=-215436894
+Checksum=-1297593479
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -50,6 +39,20 @@ stlinkserialNo=6AA92FF2
 stlinkfoundProbes=
 [CodeCoverage]
 Enabled=_ 0
+[Interrupts]
+Enabled=1
+[MemConfig]
+Base=1
+Manual=0
+Ddf=1
+TypeViol=0
+Stop=1
+[Trace1]
+Enabled=0
+ShowSource=1
+[Simulator]
+Freq=10000000
+MultiCoreRunAll=1
 [Trace2]
 Enabled=0
 ShowSource=0
@@ -93,9 +96,8 @@ Exclusions=
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\..\..\api_example\api\los_api_static_mem.c}.65.5" 0 0 1 "" 0 "" 0
-Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\platform\cpu\arm\cortex-m4\los_hwi.c}.101.22" 0 0 1 "" 0 "" 0
-Count=2
-[Aliases]
 Count=0
+[Aliases]
+A0=_ "E:\Git\LiteOS\LiteOS_Kernel\user\main.c" ""
+Count=1
 SuppressDialog=0

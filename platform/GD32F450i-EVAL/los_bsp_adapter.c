@@ -115,8 +115,8 @@ void SysTick_Handler(void)
     */
     LOS_TickHandler();
 	
-#ifdef GD32F4XX	
     /*add your code here */
+#ifdef GD32F4XX	
 	  delay_decrement();
 #endif
 	

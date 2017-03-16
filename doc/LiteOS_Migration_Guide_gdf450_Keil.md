@@ -78,6 +78,11 @@
 	<td>1.0</td>
 	<td>完成初稿</td>
 	</tr>
+    <tr>
+	<td>2017年3月9日</td>
+	<td>1.1</td>
+	<td>根据新增代码及修改代码同步更新</td>
+	</tr>
 </table>
 
 ## 3概述
@@ -230,6 +235,11 @@ Keil工具需要开发者自行购买,GD32F190R-EVAL开发板的调试器是GD-L
 	<td>STM32L476开发板systick及驱动相关代码</td>
 </tr>
 <tr>
+	<td></td>
+	<td>LOS_EXPAND_XXX</td>
+	<td>用于新扩展的开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
 	<td>projects</td>
 	<td>STM32F412ZG-NUCLEO-KEIL</td>
 	<td>stm32f412开发板的keil工程目录</td>
@@ -246,8 +256,8 @@ Keil工具需要开发者自行购买,GD32F190R-EVAL开发板的调试器是GD-L
 </tr>
 <tr>
 	<td></td>
-	<td>STM32L476R-Nucleo</td>
-	<td>stm32f476开发板的keil工程目录</td>
+	<td>STM32L476R-NUCLEO-KEIL</td>
+	<td>stm32l476开发板的keil工程目录</td>
 </tr>
 <tr>
 	<td></td>
@@ -331,7 +341,11 @@ LiteOS可直接使用GD示例工程中的启动文件，这样工程中要使用
 
 - GD工程中SYStemSystemInit函数会调用system_clock_config()函数配置系统时钟，我们需要修改los_bsp_adapter.c文件中的sys_clk_freq变量值与实际配置的系统时钟一致。
 
-	const unsigned int sys_clk_freq = 200000000;
+	    const unsigned int sys_clk_freq = 200000000;
+
+- 将注释掉的SysTick_Handler()函数中的代码添加到los_bsp_adapter.c文件中的SysTick_Handler()函数。
+  
+ ![](./meta/keil/gd32f450/add_code.png)
 
 经过以上步骤的修改，完成了代码的初步移植，然后可以编译代码,连接串口线（事先安装相关驱动）并在串口调试工具中打开相应串口，调试运行时可看到串口打印输出，按demo板上的Tamper键，可以调试按键中断及LED。
 

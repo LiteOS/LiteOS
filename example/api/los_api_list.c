@@ -38,11 +38,11 @@
 #include "los_config.h"
 #include "los_memory.h"
 #include "los_api_list.h"
+#include "los_inspect_entry.h"
 
 #ifdef LOSCFG_LIB_LIBC
 #include "string.h"
 #endif
-
 
 
 #ifdef __cplusplus
@@ -51,18 +51,19 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-VOID Example_list(VOID)
+	
+UINT32 Example_list(VOID)
 {
 	 /*初始化，判断是否为空*/
     dprintf("initial......\n");
     LOS_DL_LIST* head;
-	head = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+		head = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
 
     LOS_ListInit(head);
     if (!LOS_ListEmpty(head))
     {
         dprintf("initial failed\n");
-        return;
+        return LOS_NOK;
     }
 	 
     /*增加一个节点，在尾端插入一个节点*/
@@ -72,22 +73,18 @@ VOID Example_list(VOID)
     LOS_DL_LIST* node2 = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
     LOS_DL_LIST* tail = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
 		
-
-    //LOS_ListAdd(node1,head);
-    //LOS_ListAdd(node2,node1);
     LOS_ListAdd(head,node1);
     LOS_ListAdd(node1,node2);
     if((node1->pstPrev == head) || (node2->pstPrev == node1))
     {
         dprintf("add node success\n");
     }
-    //LOS_ListTailInsert(tail,head);
+ 
     LOS_ListTailInsert(head,tail);
     if(tail->pstPrev == node2)
     {
         dprintf("add tail success\n");
     }
-
 
     /*删除双向链表节点*/
     dprintf("delete node......\n");
@@ -96,10 +93,16 @@ VOID Example_list(VOID)
     if(head->pstNext == node2)
     {
         dprintf("delete node success\n");
+			  LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_SUCCESS);	
     }
-
+		else
+		{
+				dprintf("delete node error\n");
+			  LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_ERROR);	
+		}
+    
+		return LOS_OK;
 }
-
 
 
 
