@@ -1,0 +1,50 @@
+{
+  "title": "Huawei LiteOS移植指南（基于STM32示例）",
+  "description": "Huawei LiteOS是华为主导的开源物联网操作系统，本书以STM32芯片为例讲解其移植到第三方芯片的过程。",
+  "author": "Huawei LiteOS",
+  "language": "zh-hans",
+
+  "plugins": [
+	"toggle-chapters",
+    "editlink",
+	"search-pro",
+	"github",
+	"tbfed-pagefooter",
+	"autocover",
+    "-sharing",
+	"-search"
+    ],
+	
+  "pluginsConfig": {
+    "editlink": {
+      "base": "https://github.com/buruifeng/LiteOS_Kernel/tree/master/doc/LiteOS_Migration_Guide_keil",
+      "label": "编辑本页"
+    },
+    "search-pro": {
+        "cutWordLib": "nodejieba",
+        "defineWord" : ["Gitbook Use"]
+    },
+	"github": {
+        "url": "https://github.com/buruifeng/LiteOS_Kernel"
+    },
+	"tbfed-pagefooter": {
+        "copyright":"Copyright @ Huawei LiteOS, 2017",
+        "modify_label": "修订时间：",
+        "modify_format": "YYYY-MM-DD HH:mm:ss"
+    },
+	"autocover": {
+		"font": {
+			"size": null,
+			"family": "Impact",
+			"color": "#FFF"
+		},
+		"size": {
+			"w": 1800,
+			"h": 2360
+		},
+		"background": {
+			"color": "#09F"
+		}
+	}
+  }
+}
