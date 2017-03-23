@@ -10,11 +10,11 @@
 
     - 将kernel/base目录下的所有C代码添加到工程中的kernel下
     - 将kernel/cmsis目录下的所有C代码添加到工程中的cmsis下。
-    - 将platform\STM32F429I_DISCO目录下的所有C代码添加到工程中的platform/stm32f429i下
-    - 将kernel\cpu\arm\cortex-m4目录下的所有C代码以及汇编代码添加到工程中的cpu/m4下
-    - 将kernel\config目录下的所有C代码添加到工程中的config下
+    - 将platform/STM32F429I_DISCO目录下的所有C代码添加到工程中的platform/stm32f429i下
+    - 将kernel/cpu/arm/cortex-m4目录下的所有C代码以及汇编代码添加到工程中的cpu/m4下
+    - 将kernel/config目录下的所有C代码添加到工程中的config下
     - 将user目录下的所有C代码添加到工程中的user下
-    - 将platform\STM32F429I_DISCO目录下keil版本的startup汇编代码添加到工程中的startup下
+    - 将platform/STM32F429I_DISCO目录下keil版本的startup汇编代码添加到工程中的startup下
 
 ![](./meta//keil/add_file.png)
 
