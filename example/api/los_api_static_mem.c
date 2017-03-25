@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include "los_membox.h"
 #include "los_api_static_mem.h"
-
+#include "los_inspect_entry.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,18 +43,18 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-UINT32 pBoxMem[1000];
-VOID Example_StaticMem(VOID) 
+UINT32 pBoxMem[150];
+UINT32 Example_StaticMem(VOID) 
 {
     UINT32 *p_num = NULL;
-    UINT32 uwBlkSize = 10, uwBoxSize = 100;
+    UINT32 uwBlkSize = 3, uwBoxSize = 50;
     UINT32 uwRet;
     
     uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
     if(uwRet != LOS_OK)
     {
         dprintf("Mem box init failed\n");
-        return;
+        return LOS_NOK;
     }
     else
     {
@@ -66,7 +66,7 @@ VOID Example_StaticMem(VOID)
     if (NULL == p_num) 
     {
         dprintf("Mem box alloc failed!\n");
-        return;
+        return LOS_NOK;
     }
     dprintf("Mem box alloc ok\n");
     /*赋值*/
@@ -80,12 +80,15 @@ VOID Example_StaticMem(VOID)
     if (LOS_OK == uwRet) 
     {
         dprintf("Mem box free ok!\n");
+		LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
     }
     else
     {
         dprintf("Mem box free failed!\n");
+		LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
     }
-    return;
+		
+    return LOS_OK;
 }
 
 

@@ -51,7 +51,7 @@ extern "C" {
 
 extern VOID Example_TransformTime(VOID);
 
-extern VOID Example_GetTick(VOID);
+extern UINT32 Example_GetTick(VOID);
 
 
 
