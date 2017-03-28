@@ -47,7 +47,7 @@ extern "C" {
 
 #include "los_demo_debug.h"
 
-extern  VOID Example_StaticMem(VOID) ;
+extern  UINT32 Example_StaticMem(VOID) ;
 
 
 

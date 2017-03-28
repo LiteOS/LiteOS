@@ -35,6 +35,7 @@
 #include "los_event.h"
 #include "los_task.h"
 #include "los_api_event.h"
+#include "los_inspect_entry.h"
 
 
 #ifdef LOSCFG_LIB_LIBC
@@ -61,7 +62,6 @@ EVENT_CB_S  example_event;
 /*用例任务入口函数*/
 VOID Example_Event(VOID)
 {
-    //UINT32 uwRet;
     UINT32 uwEvent;
 
    /*超时 等待方式读事件,超时时间为100 Tick
@@ -72,10 +72,12 @@ VOID Example_Event(VOID)
     if(uwEvent == event_wait)
     {
         dprintf("Example_Event,read event :0x%x\n",uwEvent);
+		LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
     }
     else
     {
         dprintf("Example_Event,read event timeout\n");
+		LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
     }
     return;
 }

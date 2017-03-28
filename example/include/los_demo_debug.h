@@ -42,13 +42,11 @@
 #include "los_typedef.h"
 #include <string.h>
 
-
 extern int dprintf_1(const char *format,...);
-
-#define LOS_KERNEL_DEBUG_OUT
 
 //#define LOS_KERNEL_TEST_KEIL_SWSIMU
 
+#define LOS_KERNEL_DEBUG_OUT
 #ifdef LOS_KERNEL_DEBUG_OUT
 	#define dprintf printf
 #else

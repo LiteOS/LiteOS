@@ -48,7 +48,7 @@ extern "C" {
 
 #include "los_demo_debug.h"
 
-extern VOID Example_Interrupt(VOID);
+extern UINT32 Example_Interrupt(VOID);
 
 
 

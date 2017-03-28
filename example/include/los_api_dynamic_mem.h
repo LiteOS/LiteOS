@@ -49,7 +49,7 @@ extern "C" {
 
 #include "los_demo_debug.h"
 
-extern VOID Example_Dyn_Mem(VOID);
+extern UINT32 Example_Dyn_Mem(VOID);
 
 
 

@@ -77,22 +77,22 @@
         <tvExpOptDlg>0</tvExpOptDlg>
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
-      <CpuCode>18</CpuCode>
+      <CpuCode>8</CpuCode>
       <Books>
         <Book>
           <Number>0</Number>
-          <Title>User Manual (STM32L476G-EVAL)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\DM00155732.pdf</Path>
+          <Title>LPCXpresso54114 Schematics (LPCXpresso54114)</Title>
+          <Path>d:\Keil_v5\ARM\PACK\Keil\LPC54000_DFP\2.2.0\Boards\NXP\LPCXpresso54114\Documents\LPCX5411x_Schematic_Rev_A1.pdf</Path>
         </Book>
         <Book>
           <Number>1</Number>
-          <Title>Schematics (STM32L476G-EVAL)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\MB1144B.pdf</Path>
+          <Title>LPCXpresso54114 User Manual (LPCXpresso54114)</Title>
+          <Path>d:\Keil_v5\ARM\PACK\Keil\LPC54000_DFP\2.2.0\Boards\NXP\LPCXpresso54114\Documents\UM10973.pdf</Path>
         </Book>
         <Book>
           <Number>2</Number>
-          <Title>Web Page (STM32L476G-EVAL)</Title>
-          <Path>http://www.st.com/web/en/catalog/tools/PF261634</Path>
+          <Title>LPCXpresso Board for the LPC54110 family of MCUs (LPCXpresso54114)</Title>
+          <Path>http://www.nxp.com/demoboard/OM13089.html</Path>
         </Book>
       </Books>
       <DebugOpt>
@@ -117,7 +117,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>11</nTsel>
+        <nTsel>12</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -128,7 +128,7 @@
         <tDlgDll></tDlgDll>
         <tDlgPa></tDlgPa>
         <tIfile></tIfile>
-        <pMon>STLink\ST-LINKIII-KEIL_SWO.dll</pMon>
+        <pMon>BIN\CMSIS_AGDI.dll</pMon>
       </DebugOpt>
       <TargetDriverDllRegistry>
         <SetRegEntry>
@@ -148,36 +148,36 @@
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-          <Name>(105=-1,-1,-1,-1,0)</Name>
+          <Key>CMSIS_AGDI</Key>
+          <Name>-X"" -O206 -S9 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN1 -FF0LPC5411x_256.FLM -FS00 -FL040000 -FP0($$Device:LPC54114J256BD64$Flash\LPC5411x_256.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>ST-LINKIII-KEIL_SWO</Key>
-          <Name>-U066EFF535550755187053708 -O206 -S0 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN1 -FF0STM32L4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32L476RGTx$Flash\STM32L4xx_1024.FLM)</Name>
+          <Key>DLGUARM</Key>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>UL2CM3</Key>
-          <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32L4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32L476RGTx$Flash\STM32L4xx_1024.FLM))</Name>
+          <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0LPC5411x_256 -FS00 -FL040000 -FP0($$Device:LPC54114J256BD64$Flash\LPC5411x_256.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
       <Breakpoint>
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>0</LineNumber>
+          <LineNumber>22</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134221918</Address>
+          <Address>1114</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename></Filename>
+          <Filename>..\..\user\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>0x0800105E</Expression>
+          <Expression>\\HuaweiLiteOS\../../user/main.c\22</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -185,6 +185,11 @@
           <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>g_ullTickCount</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>SystemCoreClock</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -222,6 +227,12 @@
       <Lin2Executable></Lin2Executable>
       <Lin2ConfigFile></Lin2ConfigFile>
       <bLin2Auto>0</bLin2Auto>
+      <DebugDescription>
+        <Enable>1</Enable>
+        <EnableLog>0</EnableLog>
+        <Protocol>2</Protocol>
+        <DbgClock>5000000</DbgClock>
+      </DebugDescription>
     </TargetOption>
   </Target>
 
@@ -414,8 +425,8 @@
   </Group>
 
   <Group>
-    <GroupName>cpu/m4</GroupName>
-    <tvExp>1</tvExp>
+    <GroupName>cpu/cm4</GroupName>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -471,7 +482,7 @@
 
   <Group>
     <GroupName>config</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -490,8 +501,8 @@
   </Group>
 
   <Group>
-    <GroupName>cmisis</GroupName>
-    <tvExp>1</tvExp>
+    <GroupName>cmsis</GroupName>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -510,7 +521,7 @@
   </Group>
 
   <Group>
-    <GroupName>platform/STM32L476RG</GroupName>
+    <GroupName>platform/LPC54114J256</GroupName>
     <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -522,7 +533,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\platform\STM32L476RG_NUCLEO\los_bsp_adapter.c</PathWithFileName>
+      <PathWithFileName>..\..\platform\LPC54110_BOARD\los_bsp_adapter.c</PathWithFileName>
       <FilenameWithoutPath>los_bsp_adapter.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -534,7 +545,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\platform\STM32L476RG_NUCLEO\los_bsp_key.c</PathWithFileName>
+      <PathWithFileName>..\..\platform\LPC54110_BOARD\los_bsp_key.c</PathWithFileName>
       <FilenameWithoutPath>los_bsp_key.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -546,7 +557,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\platform\STM32L476RG_NUCLEO\los_bsp_led.c</PathWithFileName>
+      <PathWithFileName>..\..\platform\LPC54110_BOARD\los_bsp_led.c</PathWithFileName>
       <FilenameWithoutPath>los_bsp_led.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -558,7 +569,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\platform\STM32L476RG_NUCLEO\los_bsp_uart.c</PathWithFileName>
+      <PathWithFileName>..\..\platform\LPC54110_BOARD\los_bsp_uart.c</PathWithFileName>
       <FilenameWithoutPath>los_bsp_uart.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -727,6 +738,18 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+    <File>
+      <GroupNumber>6</GroupNumber>
+      <FileNumber>39</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\example\api\los_inspect_entry.c</PathWithFileName>
+      <FilenameWithoutPath>los_inspect_entry.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
   <Group>
@@ -737,12 +760,12 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>7</GroupNumber>
-      <FileNumber>39</FileNumber>
+      <FileNumber>40</FileNumber>
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\platform\STM32L476RG_NUCLEO\los_startup_keil.s</PathWithFileName>
+      <PathWithFileName>..\..\platform\LPC54110_BOARD\los_startup_keil.s</PathWithFileName>
       <FilenameWithoutPath>los_startup_keil.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -757,7 +780,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>40</FileNumber>
+      <FileNumber>41</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
