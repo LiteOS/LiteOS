@@ -1957,6 +1957,9 @@
       <file>
         <name>$PROJ_DIR$\..\..\example\api\los_demo_entry.c</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\example\api\los_inspect_entry.c</name>
+      </file>
     </group>
     <group>
       <name>kernel</name>

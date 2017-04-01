@@ -76,9 +76,14 @@
 	<td>描述</td>
 	</tr>
 	<tr>
-	<td>2017年2月14日</td>
+	<td>2017年02月14日</td>
 	<td>1.0</td>
 	<td>完成初稿</td>
+	</tr>
+    <tr>
+	<td>2017年03月09日</td>
+	<td>1.1</td>
+	<td>根据新增代码及修改代码同步更新</td>
 	</tr>
 </table>
 
@@ -227,6 +232,11 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 	<td>STM32L476开发板systick及驱动相关代码</td>
 </tr>
 <tr>
+	<td></td>
+	<td>LOS_EXPAND_XXX</td>
+	<td>用于新扩展的开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
 	<td>projects</td>
 	<td>STM32F412ZG-NUCLEO-KEIL</td>
 	<td>stm32f412开发板的keil工程目录</td>
@@ -243,8 +253,8 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 </tr>
 <tr>
 	<td></td>
-	<td>STM32L476R-Nucleo</td>
-	<td>stm32f476开发板的keil工程目录</td>
+	<td>STM32L476R-NUCLEO-KEIL</td>
+	<td>stm32l476开发板的keil工程目录</td>
 </tr>
 <tr>
 	<td></td>
@@ -329,7 +339,12 @@ LiteOS可直接使用STM32示例工程中的启动文件，这样工程中要使
 
 - 修改los_bsp_adapter.c文件中的sys_clk_freq变量值，使之与SystemClock_Config()函数中实际配置的系统时钟频率保持一致。
 
-	const unsigned int sys_clk_freq = 80000000;
+	    const unsigned int sys_clk_freq = 80000000;
+
+- 将注释掉的SysTick_Handler()函数中的代码添加到los_bsp_adapter.c文件中的SysTick_Handler()函数。
+  
+ ![](./meta/keil/stm32l476/add_code.png)
+
 
 经过以上步骤的修改，完成了代码的初步移植，然后可以编译代码,连接串口线（事先安装相关驱动）并在串口调试工具中打开相应串口，调试运行时可看到串口打印输出，按demo板上的User键，可以调试按键中断及LED灯。
 

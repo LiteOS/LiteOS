@@ -77,7 +77,7 @@ LITE_OS_SEC_TEXT_INIT VOID osRegister(VOID)
 }
 
 /*****************************************************************************
- Function    : LOS_Start
+ Function    : LOS_EnableTick
  Description : enable system  start function
  Input       : None
  Output      : None
@@ -106,7 +106,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EnableTick(void)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(void)
 {
-    UINT32 uwRet;
+    UINT32 uwRet = LOS_OK;
 
     LOS_StartToRun();
 

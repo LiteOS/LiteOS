@@ -13,6 +13,9 @@
 #include "los_bsp_key.h"
 #include "los_bsp_uart.h"
 
+#ifdef LOS_STM32F429ZI
+#include "stm32f4xx_hal.h"
+#endif
 
 /* while use bsp code to start system tick, don't use LOS header */
 #define INCLUDE_LOS_HEADER
@@ -101,8 +104,9 @@ void SysTick_Handler(void)
     LOS_TickHandler();
 	
     /*add your code here */
-	
-
+#ifdef LOS_STM32F429ZI
+	  HAL_IncTick();
+#endif
     return ;
 }
 

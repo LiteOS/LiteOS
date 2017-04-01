@@ -46,3 +46,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 #endif
 
 
+/*****************************************************************************
+ Function    : LOS_EvbGetKeyVal
+ Description : Get GIOP Key value
+ Input       : int KeyNum
+ Output      : None
+ Return      : KeyVal
+ *****************************************************************************/
+unsigned int LOS_EvbGetKeyVal(int KeyNum)
+{
+	unsigned int KeyVal = LOS_GPIO_ERR; 
+	
+	//add you code here.
+	
+	return KeyVal;
+}
+

@@ -35,6 +35,7 @@
 #include "los_hwi.h"
 #include "los_typedef.h"
 #include "los_api_interrupt.h"
+#include "los_inspect_entry.h"
 
 
 #ifdef __cplusplus
@@ -54,12 +55,12 @@ static void Example_Exti0_Init()
 
 static VOID User_IRQHandler(void)
 {
-    dprintf("\n User IRQ test\n");
-	
+    dprintf("\n User IRQ test\n"); 
+	  //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
 	  return;
 }
 
-VOID Example_Interrupt(VOID)
+UINT32 Example_Interrupt(VOID)
 {
     UINTPTR uvIntSave;
     uvIntSave = LOS_IntLock();
@@ -70,7 +71,7 @@ VOID Example_Interrupt(VOID)
     
     LOS_IntRestore(uvIntSave);
 	
-	  return;
+	return LOS_OK;
 }
 
 

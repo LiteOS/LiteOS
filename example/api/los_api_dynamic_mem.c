@@ -36,6 +36,7 @@
 #include "los_config.h"
 #include "los_memory.h"
 #include "los_api_dynamic_mem.h"
+#include "los_inspect_entry.h"
 
 
 #ifdef __cplusplus
@@ -45,7 +46,7 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-VOID Example_Dyn_Mem(VOID) 
+UINT32 Example_Dyn_Mem(VOID) 
 {
     UINT32 *p_num = NULL;
     UINT32 uwRet;
@@ -57,14 +58,14 @@ VOID Example_Dyn_Mem(VOID)
     else 
     {
         dprintf("mempool init failed!\n");
-        return;
+        return LOS_NOK;
     }
     /*分配内存*/
     p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
     if (NULL == p_num) 
     {
         dprintf("mem alloc failed!\n");
-        return;
+        return LOS_NOK;
     }
     dprintf("mem alloc ok\n");
     /*赋值*/
@@ -75,12 +76,15 @@ VOID Example_Dyn_Mem(VOID)
     if (LOS_OK == uwRet) 
     {
         dprintf("mem free ok!\n");
+		LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
     }
     else 
     {
         dprintf("mem free failed!\n");
+		LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+		return LOS_NOK;
     }
-    return;
+    return LOS_OK;
 }
 
 

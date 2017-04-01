@@ -76,6 +76,11 @@
 		<td>1.1</td>
 		<td>修改中断测试代码以及相关说明</td>
     </tr>
+    <tr>
+        <td>2017年03月09日</td>
+		<td>1.2</td>
+		<td>修改、新增API测试代码及相关说明</td>
+    </tr>
 </table>
 
 --------------------------------------------------------------------------------
@@ -156,11 +161,11 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
     </tr>
     <tr>
         <td>M3</td>
-		<td>K3V3，K3V3+</td>
+		<td>K3V3，K3V3+，GDF190</td>
     </tr>
     <tr>
         <td>M4</td>
-		<td>STMF411，STMF429</td>
+		<td>STMF411，STMF412，STMF429，STML476，GDF450</td>
     </tr>
     <tr>
         <td>M7</td>
@@ -187,35 +192,38 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
 	extern void LOS_Demo_Entry(void)；
 	int main(void)
 	{
-	    UINT32 uwRet;
-	    /*
-				add you hardware init code here
-				for example flash, i2c , system clock ....
-	    */
-			//HAL_init();....
+		UINT32 uwRet;
+		/*
+			add you hardware init code here
+			for example flash, i2c , system clock ....
+		*/
+		//HAL_init();....
 		
-			/*Init LiteOS kernel */
-	    uwRet = LOS_KernelInit();
-	    if (uwRet != LOS_OK) {
-	        return LOS_NOK;
-	    }
-			/* Enable LiteOS system tick interrupt */
-	    LOS_EnableTick();
-			
-			
-	    /* 
-	        Notice: add your code here
-	        here you can create task for your function 
-	        do some hw init that need after systemtick init
-	    */
-	    //LOS_EvbSetup();
-	    //LOS_BoadExampleEntry();
+		/*Init LiteOS kernel */
+		uwRet = LOS_KernelInit();
+		if (uwRet != LOS_OK) {
+			return LOS_NOK;
+		}
+		/* Enable LiteOS system tick interrupt */
+		LOS_EnableTick();
 		
-		LOS_Demo_Entry()；	
-	    /* Kernel start to run */
-	    LOS_Start();
-	    for (;;);
-	    /* Replace the dots (...) with your own code.  */
+		/* 
+		    Notice: add your code here
+		    here you can create task for your function 
+		    do some hw init that need after systemtick init
+		*/
+		LOS_EvbSetup(); 
+		
+		LOS_Demo_Entry();
+		    
+		//LOS_Inspect_Entry();
+		
+		//LOS_BoadExampleEntry();	
+			
+		/* Kernel start to run */
+		LOS_Start();
+		for (;;);
+		/* Replace the dots (...) with your own code.  */
 	}
 
 **如何选择测试的功能：**
@@ -719,166 +727,184 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 **编程示例**
 
 请参考示例代码
-	los_api_task.c
+los_api_task.c
 
-	#include "math.h"
-	#include "time.h"
-	#include "los_task.h"
-	#include "los_api_task.h"
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	UINT32 g_uwTskHiID;
-	UINT32 g_uwTskLoID;
-
-
-	#define TSK_PRIOR_HI 4
-	#define TSK_PRIOR_LO 5
-
-	UINT32 Example_TaskHi(VOID)
-	{
-		UINT32 uwRet;
-		//UINT32 uwCurrentID;
-		//TSK_INFO_S stTaskInfo;
-
-		 printf("Enter TaskHi Handler.\r\n");
-
-		/*延时2个Tick，延时后该任务会挂起，执行剩余任务中就高优先级的任务(g_uwTskLoID任务)*/
-		uwRet = LOS_TaskDelay(2);
-		if (uwRet != LOS_OK)
-		{
-			printf("Delay Task Failed.\r\n");
-			return LOS_NOK;
-		}
-
-		/*2个tick时间到了后，该任务恢复，继续执行*/
-		printf("TaskHi LOS_TaskDelay Done.\r\n");
-
-		/*挂起自身任务*/
-		uwRet = LOS_TaskSuspend(g_uwTskHiID);
-		if (uwRet != LOS_OK)
-		{
-			printf("Suspend TaskHi Failed.\r\n");
-			return LOS_NOK;
-		}
-		printf("TaskHi LOS_TaskResume Success.\r\n");
-
-		return LOS_OK;
-	}
-
-	/*低优先级任务入口函数*/
-	UINT32 Example_TaskLo(VOID)
-	{
-		UINT32 uwRet;
-		//UINT32 uwCurrentID;
-		//TSK_INFO_S stTaskInfo;
-
-		printf("Enter TaskLo Handler.\r\n");
-
-		/*延时2个Tick，延时后该任务会挂起，执行剩余任务中最高优先级的任务(背景任务)*/
-		uwRet = LOS_TaskDelay(2);
-		if (uwRet != LOS_OK)
-		{
-			printf("Delay TaskLo Failed.\r\n");
-			return LOS_NOK;
-		}
-
-		printf("TaskHi LOS_TaskSuspend Success.\r\n");
-
-		/*恢复被挂起的任务g_uwTskHiID*/
-		uwRet = LOS_TaskResume(g_uwTskHiID);
-		if (uwRet != LOS_OK)
-		{
-			printf("Resume TaskHi Failed.\r\n");
-			return LOS_NOK;
-		}
-
-		printf("TaskHi LOS_TaskDelete Success.\r\n");
-
-		return LOS_OK;
-	}
-
-	/*任务测试入口函数，在里面创建优先级不一样的两个任务*/
-	UINT32 Example_TskCaseEntry(VOID)
-	{
-		UINT32 uwRet;
-		TSK_INIT_PARAM_S stInitParam;
-
-		/*锁任务调度*/
-		LOS_TaskLock();
-
-		printf("LOS_TaskLock() Success!\r\n");
-
-		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
-		stInitParam.usTaskPrio = TSK_PRIOR_HI;
-		stInitParam.pcName = "HIGH_NAME";
-		stInitParam.uwStackSize = 0x400;
-		stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-		/*创建高优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
-		uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
-		if (uwRet != LOS_OK)
-		{
-			LOS_TaskUnlock();
-
-			printf("Example_TaskHi create Failed!\r\n");
-			return LOS_NOK;
-		}
-
-		printf("Example_TaskHi create Success!\r\n");
-
-		stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
-		stInitParam.usTaskPrio = TSK_PRIOR_LO;
-		stInitParam.pcName = "LOW_NAME";
-		stInitParam.uwStackSize = 0x400;
-		stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
-		/*创建低优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
-		uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
-		if (uwRet != LOS_OK)
-		{
-			LOS_TaskUnlock();
-
-			printf("Example_TaskLo create Failed!\r\n");
-			return LOS_NOK;
-		}
-
-		printf("Example_TaskLo create Success!\r\n");
-
-		/*解锁任务调度，此时会发生任务调度，执行就绪列表中最高优先级任务*/
-		LOS_TaskUnlock();
-
-		//while(1){};
-
-		return LOS_OK;
-
-	}
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    
+    #include "math.h"
+    #include "time.h"
+    #include "los_task.h"
+    #include "los_api_task.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    UINT32 g_uwTskHiID;
+    UINT32 g_uwTskLoID;
+    
+    
+    #define TSK_PRIOR_HI 4
+    #define TSK_PRIOR_LO 5
+    
+    UINT32 Example_TaskHi(VOID)
+    {
+    	UINT32 uwRet;
+    	
+    	 dprintf("Enter TaskHi Handler.\r\n");
+    	
+    	/*延时2个Tick，延时后该任务会挂起，执行剩余任务中就高优先级的任务(g_uwTskLoID任务)*/
+    	uwRet = LOS_TaskDelay(2);
+    	if (uwRet != LOS_OK)
+    	{
+    	    dprintf("Delay Task Failed.\r\n");
+    	    return LOS_NOK;
+    	}
+    	
+    	/*2个tick时间到了后，该任务恢复，继续执行*/
+    	dprintf("TaskHi LOS_TaskDelay Done.\r\n");
+    	
+    	/*挂起自身任务*/
+    	uwRet = LOS_TaskSuspend(g_uwTskHiID);
+    	if (uwRet != LOS_OK)
+    	{
+    	    dprintf("Suspend TaskHi Failed.\r\n");
+    		LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+    	    return LOS_NOK;
+    	}
+    		
+    	dprintf("TaskHi LOS_TaskResume Success.\r\n");
+    		
+    	LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_SUCCESS);
+    		
+    	/*删除任务*/
+    	if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))
+    	{
+    		dprintf("TaskHi delete failed .\n");
+    		return LOS_NOK;
+    	}
+    		 
+    	return LOS_OK;
+    }
+    
+    /*低优先级任务入口函数*/
+    UINT32 Example_TaskLo(VOID)
+    {
+    	UINT32 uwRet;
+    	
+    	dprintf("Enter TaskLo Handler.\r\n");
+    	
+    	/*延时2个Tick，延时后该任务会挂起，执行剩余任务中最高优先级的任务(背景任务)*/
+    	uwRet = LOS_TaskDelay(2);
+    	if (uwRet != LOS_OK)
+    	{
+    		dprintf("Delay TaskLo Failed.\r\n");
+    		return LOS_NOK;
+    	}
+    	
+    	dprintf("TaskHi LOS_TaskSuspend Success.\r\n");
+    	
+    	/*恢复被挂起的任务g_uwTskHiID*/
+    	uwRet = LOS_TaskResume(g_uwTskHiID);
+    	if (uwRet != LOS_OK)
+    	{
+    		dprintf("Resume TaskHi Failed.\r\n");
+    		LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+    		return LOS_NOK;
+    	}	
+    		
+    	/*删除任务*/
+    	if(LOS_OK != LOS_TaskDelete(g_uwTskLoID))
+    	{
+    		dprintf("TaskLo delete failed .\n");
+    			  
+    		return LOS_NOK;
+    	}
+    		
+    	return LOS_OK;
+    }
+    
+    /*任务测试入口函数，在里面创建优先级不一样的两个任务*/
+    UINT32 Example_TskCaseEntry(VOID)
+    {
+        UINT32 uwRet;
+        TSK_INIT_PARAM_S stInitParam;
+    
+        /*锁任务调度*/
+        LOS_TaskLock();
+    
+        dprintf("LOS_TaskLock() Success!\r\n");
+    
+        stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
+        stInitParam.usTaskPrio = TSK_PRIOR_HI;
+        stInitParam.pcName = "HIGH_NAME";
+        stInitParam.uwStackSize = 0x400;
+        stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
+        /*创建高优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
+        uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
+        if (uwRet != LOS_OK)
+        {
+            LOS_TaskUnlock();
+    
+            dprintf("Example_TaskHi create Failed!\r\n");
+            return LOS_NOK;
+        }
+    
+        dprintf("Example_TaskHi create Success!\r\n");
+    
+        stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
+        stInitParam.usTaskPrio = TSK_PRIOR_LO;
+        stInitParam.pcName = "LOW_NAME";
+        stInitParam.uwStackSize = 0x400;
+        stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
+        /*创建低优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
+        uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
+        if (uwRet != LOS_OK)
+        {
+            /*删除任务*/
+            if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))
+            {
+            	dprintf("TaskHi delete failed .\n");
+            }
+            	
+            LOS_TaskUnlock();
+            
+            dprintf("Example_TaskLo create Failed!\r\n");
+            	
+            return LOS_NOK;
+        }
+    
+        dprintf("Example_TaskLo create Success!\r\n");
+    
+        /*解锁任务调度，此时会发生任务调度，执行就绪列表中最高优先级任务*/
+        LOS_TaskUnlock();
+    		
+        return uwRet;
+    
+    }
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 **结果验证**
 
 编译运行得到的结果为：
-
-        LOS_TaskLock() Success!    
-	Example_TaskHi create Success!    
-	Example_TaskLo create Success!    
-	Enter TaskHi Handler.    
-	Enter TaskLo Handler.    
-	TaskHi LOS_TaskDelay Done.    
-	TaskHi LOS_TaskSuspend Success.    
-	TaskHi LOS_TaskResume Success.    
-	TaskHi LOS_TaskDelete Success.    
+    
+	LOS_TaskLock() Success!
+	Example_TaskHi create Success!
+	Example_TaskLo create Success!
+	Enter TaskHi Handler.
+	Enter TaskLo Handler.
+	TaskHi LOS_TaskDelay Done.
+	TaskHi LOS_TaskSuspend Success.
+	TaskHi LOS_TaskResume Success.
 
 
 # 内存 #
@@ -1062,69 +1088,68 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 1. 释放掉这块内存。
 
 参考los_api_dynamic_mem.c
-	#include <stdlib.h>
-	#include "los_config.h"
-	#include "los_memory.h"
-	#include "los_api_dynamic_mem.h"
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	#define TEST_POOL_SIZE (20*1024*1024)  
-
-	UINT8 m_aucTstPool[TEST_POOL_SIZE];
-
-	void * pool_ = &m_aucTstPool[0];
-
-	VOID Example_Dyn_Mem(VOID) 
-	{
-		UINT32 *p_num = NULL;
-		UINT32 uwRet;
-		uwRet = LOS_MemInit(m_aucSysMem0, OS_SYS_MEM_SIZE);
-		if (LOS_OK == uwRet) 
-		{
-			dprintf("mempool init ok!\n");
-		}
-		else 
-		{
-			dprintf("mempool init failed!\n");
-			return;
-		}
-		/*分配内存*/
-		p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
-		if (NULL == p_num) 
-		{
-			dprintf("mem alloc failed!\n");
-			return;
-		}
-		dprintf("mem alloc ok\n");
-		/*赋值*/
-		*p_num = 828;
-		dprintf("*p_num = %d\n", *p_num);
-		/*释放内存*/
-		uwRet = LOS_MemFree(m_aucSysMem0, p_num);
-		if (LOS_OK == uwRet) 
-		{
-			dprintf("mem free ok!\n");
-		}
-		else 
-		{
-			dprintf("mem free failed!\n");
-		}
-		return;
-	}
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    	
+    #include <stdlib.h>
+    #include "los_config.h"
+    #include "los_memory.h"
+    #include "los_api_dynamic_mem.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    UINT32 Example_Dyn_Mem(VOID) 
+    {
+        UINT32 *p_num = NULL;
+        UINT32 uwRet;
+        uwRet = LOS_MemInit(m_aucSysMem0, OS_SYS_MEM_SIZE);
+        if (LOS_OK == uwRet) 
+        {
+            dprintf("mempool init ok!\n");
+        }
+        else 
+        {
+            dprintf("mempool init failed!\n");
+            return LOS_NOK;
+        }
+        /*分配内存*/
+        p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
+        if (NULL == p_num) 
+        {
+            dprintf("mem alloc failed!\n");
+            return LOS_NOK;
+        }
+        dprintf("mem alloc ok\n");
+        /*赋值*/
+        *p_num = 828;
+        dprintf("*p_num = %d\n", *p_num);
+        /*释放内存*/
+        uwRet = LOS_MemFree(m_aucSysMem0, p_num);
+        if (LOS_OK == uwRet) 
+        {
+            dprintf("mem free ok!\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
+        }
+        else 
+        {
+            dprintf("mem free failed!\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+            return LOS_NOK;
+        }
+        return LOS_OK;
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**
@@ -1133,7 +1158,7 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 
 	mempool init ok!
 	mem alloc ok
-		*p_num = 828
+	 *p_num = 828
 	mem free ok!
 
 
@@ -1221,67 +1246,72 @@ Huawei LiteOS运行期间，用户需要频繁的使用内存资源，而内存�
 **编程实例**
 
 参考los_api_static_mem.c
-	#include <stdio.h>
-	#include "los_membox.h"
-	#include "los_api_static_mem.h"
 
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	VOID Example_StaticMem(VOID) 
-	{
-		UINT32 *p_num = NULL;
-		UINT32 uwBlkSize = 10, uwBoxSize = 100;
-		UINT32 uwRet;
-		UINT32 pBoxMem[1000];
-		uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
-		if(uwRet != LOS_OK)
-		{
-			dprintf("Mem box init failed\n");
-			return;
-		}
-		else
-		{
-			dprintf("Mem box init ok!\n");
-		}
-
-		/*申请内存块*/
-		p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
-		if (NULL == p_num) 
-		{
-			dprintf("Mem box alloc failed!\n");
-			return;
-		}
-		dprintf("Mem box alloc ok\n");
-		/*赋值*/
-		*p_num = 828;
-		dprintf("*p_num = %d\n", *p_num);
-		 /*清除内存内容*/
-		 LOS_MemboxClr(pBoxMem, p_num);
-		 dprintf("clear data ok\n *p_num = %d\n", *p_num);
-		/*释放内存*/
-		uwRet = LOS_MemboxFree(pBoxMem, p_num);
-		if (LOS_OK == uwRet) 
-		{
-			dprintf("Mem box free ok!\n");
-		}
-		else
-		{
-			dprintf("Mem box free failed!\n");
-		}
-		return;
-	}
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    #include <stdio.h>
+    #include "los_membox.h"
+    #include "los_api_static_mem.h"
+    #include "los_inspect_entry.h"
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    UINT32 pBoxMem[1000];
+    UINT32 Example_StaticMem(VOID) 
+    {
+        UINT32 *p_num = NULL;
+        UINT32 uwBlkSize = 10, uwBoxSize = 100;
+        UINT32 uwRet;
+        
+        uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("Mem box init failed\n");
+            return LOS_NOK;
+        }
+        else
+        {
+            dprintf("Mem box init ok!\n");
+        }
+        
+        /*申请内存块*/
+        p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
+        if (NULL == p_num) 
+        {
+            dprintf("Mem box alloc failed!\n");
+            return LOS_NOK;
+        }
+        dprintf("Mem box alloc ok\n");
+        /*赋值*/
+        *p_num = 828;
+        dprintf("*p_num = %d\n", *p_num);
+         /*清除内存内容*/
+         LOS_MemboxClr(pBoxMem, p_num);
+         dprintf("clear data ok\n *p_num = %d\n", *p_num);
+        /*释放内存*/
+        uwRet = LOS_MemboxFree(pBoxMem, p_num);
+        if (LOS_OK == uwRet) 
+        {
+            dprintf("Mem box free ok!\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
+        }
+        else
+        {
+            dprintf("Mem box free failed!\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
+        }
+    		
+        return LOS_OK;
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 **结果验证**
 
@@ -1440,52 +1470,54 @@ Huawei LiteOS 系统中的中断模块为用户提供下面几种功能。
 	目前的中断测试代码提供了基本框架，中断硬件初始化代码请用户根据开发板硬件情况在Example_Exti0_Init()函数中自行实现。
 
 **代码实现如下：**
-	参考los_api_interrupt.c
+    参考los_api_interrupt.c
 		
-	#include "los_hwi.h"
-	#include "los_typedef.h"
-	#include "los_api_interrupt.h"
-	
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-	
-	
-	static void Example_Exti0_Init()
-	{
-	    /*add your IRQ init code here*/
-		
-		return;
-	}
-	
-	static VOID User_IRQHandler(void)
-	{
-	    dprintf("\n User IRQ test\n");
-		
-		return;
-	}
-	
-	VOID Example_Interrupt(VOID)
-	{
-	    UINTPTR uvIntSave;
-	    uvIntSave = LOS_IntLock();
-	    
-	    Example_Exti0_Init();
-	    
-	    LOS_HwiCreate(6, 0,0,User_IRQHandler,0);//创建中断
-	    
-	    LOS_IntRestore(uvIntSave);
-		
-	 	return;
-	}
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    #include "los_hwi.h"
+    #include "los_typedef.h"
+    #include "los_api_interrupt.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    static void Example_Exti0_Init()
+    {
+    	/*add your IRQ init code here*/
+    	
+    	return;
+    }
+    
+    static VOID User_IRQHandler(void)
+    {
+    	dprintf("\n User IRQ test\n"); 
+    	//LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
+    	return;
+    }
+    
+    UINT32 Example_Interrupt(VOID)
+    {
+    	UINTPTR uvIntSave;
+    	uvIntSave = LOS_IntLock();
+    	
+    	Example_Exti0_Init();
+    	
+    	LOS_HwiCreate(6, 0,0,User_IRQHandler,0);//创建中断
+    	
+    	LOS_IntRestore(uvIntSave);
+    	
+    	return LOS_OK;
+    }
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 	
 **结果验证**
 
@@ -1643,135 +1675,151 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 
 参考los_api_msgqueue.c
 
-
-	#include "los_base.h"
-	#include "los_task.h"
-	#include "los_swtmr.h"
-	#include "los_hwi.h"
-	#include "los_queue.h"
-	#include "los_event.h"
-	#include "los_typedef.h"
-	#include "los_api_msgqueue.h"
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	static UINT32 g_uwQueue;
-
-	CHAR abuf[] = "test is message x";
-
-	/*任务1发送数据*/
-	void *send_Entry(UINT32 uwParam1,
-					UINT32 uwParam2,
-					UINT32 uwParam3,
-					UINT32 uwParam4)
-	{
-		UINT32 i = 0,uwRet = 0;
-		UINT32 uwlen = sizeof(abuf);
-
-		while (i <5)
-		{
-			abuf[uwlen -2] = '0' + i;
-			i++;
-
-			/*将abuf里的数据写入队列*/
-			uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
-			if(uwRet != LOS_OK)
-			{
-				dprintf("send message failure,error:%x\n",uwRet);
-			}
-
-			LOS_TaskDelay(5);
-		}
-		return NULL;
-	}
-
-	/*任务2接收数据*/
-	void *recv_Entry(UINT32 uwParam1,
-					UINT32 uwParam2,
-					UINT32 uwParam3,
-					UINT32 uwParam4)
-	{
-		UINT32 uwReadbuf;
-		UINT32 uwRet = 0;
-
-		while (1)
-		{
-
-			/*读取队列里的数据存入uwReadbuf里*/
-			uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 50, 0);
-			if(uwRet != LOS_OK)
-			{
-				dprintf("recv message failure,error:%x\n",uwRet);
-				break;
-			}
-
-			dprintf("recv message:%s\n", (char *)uwReadbuf);
-			LOS_TaskDelay(5);
-		}
-		/*删除队列*/
-		while (LOS_OK != LOS_QueueDelete(g_uwQueue))
-		{
-			LOS_TaskDelay(1);
-		}
-
-		dprintf("delete the queue success!\n");
-		return NULL;
-	}
-
-	int Example_MsgQueue(void)
-	{
-		UINT32 uwRet = 0;
-		UINT32 uwTask1, uwTask2;
-		TSK_INIT_PARAM_S stInitParam1;
-
-		/*创建任务1*/
-		stInitParam1.pfnTaskEntry = send_Entry;
-		stInitParam1.usTaskPrio = 9;
-		stInitParam1.uwStackSize = 0x400;
-		stInitParam1.pcName = "sendQueue";
-		stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED;
-		LOS_TaskLock();//锁住任务，防止新创建的任务比本任务高而发生调度
-		uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
-		if(uwRet != LOS_OK)
-		{
-			dprintf("create task1 failed!,error:%x\n",uwRet);
-			return uwRet;
-		}
-
-		/*创建任务2*/
-		stInitParam1.pfnTaskEntry = recv_Entry;
-		uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
-		if(uwRet != LOS_OK)
-		{
-			dprintf("create task2 failed!,error:%x\n",uwRet);
-			return uwRet;
-		}
-
-		/*创建队列*/
-		uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
-		if(uwRet != LOS_OK)
-		{
-			dprintf("create queue failure!,error:%x\n",uwRet);
-		}
-
-		dprintf("create the queue success!\n");
-		LOS_TaskUnlock();//解锁任务，只有队列创建后才开始任务调度
-
-		return LOS_OK;
-	}
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+	
+    #include "los_base.h"
+    #include "los_task.h"
+    #include "los_swtmr.h"
+    #include "los_hwi.h"
+    #include "los_queue.h"
+    #include "los_event.h"
+    #include "los_typedef.h"
+    #include "los_api_msgqueue.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    	
+    static UINT32 g_uwQueue;
+    
+    CHAR abuf[] = "test is message x";
+    
+    /*任务1发送数据*/
+    void *send_Entry(UINT32 uwParam1,
+                    UINT32 uwParam2,
+                    UINT32 uwParam3,
+                    UINT32 uwParam4)
+    {
+        UINT32 i = 0,uwRet = 0;
+        UINT32 uwlen = sizeof(abuf);
+    
+        while (i < API_MSG_NUM)
+        {
+            abuf[uwlen -2] = '0' + i;
+            i++;
+    
+            /*将abuf里的数据写入队列*/
+            uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
+            if(uwRet != LOS_OK)
+            {
+                dprintf("send message failure,error:%x\n",uwRet);
+            }
+    
+            LOS_TaskDelay(5);
+        }
+        return NULL;
+    }
+    
+    /*任务2接收数据*/
+    void *recv_Entry(UINT32 uwParam1,
+                    UINT32 uwParam2,
+                    UINT32 uwParam3,
+                    UINT32 uwParam4)
+    {
+    	UINT32 uwReadbuf;
+    	UINT32 uwRet = 0;
+    	UINT32 uwMsgCount = 0;
+    
+    	while (1)
+    	{
+    	
+            /*读取队列里的数据存入uwReadbuf里*/
+            uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 50, 0);
+            if(uwRet != LOS_OK)
+            {
+                dprintf("recv message failure,error:%x\n",uwRet);
+                break;
+            }
+            else
+            {
+            	dprintf("recv message:%s\n", (char *)uwReadbuf);
+            	uwMsgCount++;
+            }
+            
+            LOS_TaskDelay(5);
+    	}
+    	/*删除队列*/
+    	while (LOS_OK != LOS_QueueDelete(g_uwQueue))
+    	{
+    	    LOS_TaskDelay(1);
+    	}
+    		
+    	dprintf("delete the queue success!\n");
+    		
+    	if(API_MSG_NUM == uwMsgCount)
+    	{
+            LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_SUCCESS);	 
+    	}
+    	else
+    	{
+            LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_ERROR);
+    	}
+    			
+    	return NULL;
+    }
+    
+    UINT32 Example_MsgQueue(void)
+    {
+        UINT32 uwRet = 0;
+        UINT32 uwTask1, uwTask2;
+        TSK_INIT_PARAM_S stInitParam1;
+    
+        /*创建任务1*/
+        stInitParam1.pfnTaskEntry = send_Entry;
+        stInitParam1.usTaskPrio = 9;
+        stInitParam1.uwStackSize = 0x200;
+        stInitParam1.pcName = "sendQueue";
+        stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED;
+        LOS_TaskLock();//锁住任务，防止新创建的任务比本任务高而发生调度
+        uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("create task1 failed!,error:%x\n",uwRet);
+            return uwRet;
+        }
+    
+        /*创建任务2*/
+        stInitParam1.pfnTaskEntry = recv_Entry;
+        uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("create task2 failed!,error:%x\n",uwRet);
+            return uwRet;
+        }
+    
+        /*创建队列*/
+        uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("create queue failure!,error:%x\n",uwRet);
+        }
+    
+        dprintf("create the queue success!\n");
+        LOS_TaskUnlock();//解锁任务，只有队列创建后才开始任务调度
+        
+        return LOS_OK;
+    }
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 ### 结果验证
@@ -1920,112 +1968,115 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口
 
 代码实现如下：
 参考los_api_event.c
+	
+    #include "los_event.h"
+    #include "los_task.h"
+    #include "los_api_event.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef LOSCFG_LIB_LIBC
+    #include "string.h"
+    #endif
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    /*任务PID*/
+    UINT32 g_TestTaskID;
+    LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
+    /*事件控制结构体*/
+    EVENT_CB_S  example_event;
+    
+    /*等待的事件类型*/
+    #define event_wait 0x00000001
+    
+    /*用例任务入口函数*/
+    VOID Example_Event(VOID)
+    {
+        //UINT32 uwRet;
+        UINT32 uwEvent;
+    
+       /*超时 等待方式读事件,超时时间为100 Tick
+       若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
+        dprintf("Example_Event wait event 0x%x \n",event_wait);
+    
+        uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
+        if(uwEvent == event_wait)
+        {
+            dprintf("Example_Event,read event :0x%x\n",uwEvent);
+            LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
+        }
+        else
+        {
+            dprintf("Example_Event,read event timeout\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
+        }
+        return;
+    }
+	
+    UINT32 Example_SndRcvEvent(VOID)
+    {
+        UINT32 uwRet;
+        TSK_INIT_PARAM_S stTask1;
+        
+        /*事件初始化*/
+        uwRet = LOS_EventInit(&example_event);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("init event failed .\n");
+            return LOS_NOK;
+        }
+        
+        /*创建任务*/
+        memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+        stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;
+        stTask1.pcName       = "EventTsk1";
+        stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+        stTask1.usTaskPrio   = 5;
+        uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task create failed .\n");
+            return LOS_NOK;
+        }
+        
+        /*写用例任务等待的事件类型*/
+        dprintf("Example_TaskEntry_Event write event .\n");
+        
+        uwRet = LOS_EventWrite(&example_event, event_wait);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("event write failed .\n");
+            return LOS_NOK;
+        }
+        
+        /*清标志位*/
+        dprintf("EventMask:%d\n",example_event.uwEventID);
+        LOS_EventClear(&example_event, ~example_event.uwEventID);
+        dprintf("EventMask:%d\n",example_event.uwEventID);
+        
+        /*删除任务*/
+        uwRet = LOS_TaskDelete(g_TestTaskID);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task delete failed .\n");
+            return LOS_NOK;
+        }
+        
+        return LOS_OK;
+    }
 
-	#include "los_event.h"
-	#include "los_task.h"
-	#include "los_api_event.h"
-
-
-	#ifdef LOSCFG_LIB_LIBC
-	#include "string.h"
-	#endif
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	/*任务PID*/
-	UINT32 g_TestTaskID;
-	LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
-	/*事件控制结构体*/
-	EVENT_CB_S  example_event;
-
-	/*等待的事件类型*/
-	#define event_wait 0x00000001
-
-	/*用例任务入口函数*/
-	VOID Example_Event(VOID)
-	{
-		//UINT32 uwRet;
-		UINT32 uwEvent;
-
-	   /*超时 等待方式读事件,超时时间为100 Tick
-	   若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
-		printf("Example_Event wait event 0x%x \n",event_wait);
-
-		uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
-		if(uwEvent == event_wait)
-		{
-			printf("Example_Event,read event :0x%x\n",uwEvent);
-		}
-		else
-		{
-			printf("Example_Event,read event timeout\n");
-		}
-		return;
-	}
-
-	UINT32 Example_SndRcvEvent(VOID)
-	{
-		UINT32 uwRet;
-		TSK_INIT_PARAM_S stTask1;
-
-		/*事件初始化*/
-		uwRet = LOS_EventInit(&example_event);
-		if(uwRet != LOS_OK)
-		{
-			printf("init event failed .\n");
-			return LOS_NOK;
-		}
-
-		/*创建任务*/
-		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
-		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;
-		stTask1.pcName       = "EventTsk1";
-		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-		stTask1.usTaskPrio   = 5;
-		uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
-		if(uwRet != LOS_OK)
-		{
-			printf("task create failed .\n");
-			return LOS_NOK;
-		}
-
-		/*写用例任务等待的事件类型*/
-		printf("Example_TaskEntry_Event write event .\n");
-
-		uwRet = LOS_EventWrite(&example_event, event_wait);
-		if(uwRet != LOS_OK)
-		{
-			printf("event write failed .\n");
-			return LOS_NOK;
-		}
-
-		/*清标志位*/
-		printf("EventMask:%d\n",example_event.uwEventID);
-		LOS_EventClear(&example_event, ~example_event.uwEventID);
-		printf("EventMask:%d\n",example_event.uwEventID);
-
-		/*删除任务*/
-		uwRet = LOS_TaskDelete(g_TestTaskID);
-		if(uwRet != LOS_OK)
-		{
-			printf("task delete failed .\n");
-			return LOS_NOK;
-		}
-
-		return LOS_OK;
-	}
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 
@@ -2164,154 +2215,159 @@ Huawei LiteOS 系统中的互斥锁模块为用户提供下面几种功能。
 
 代码参考los_api_mutex.c
 
-	#include "los_mux.h"
-	#include "los_task.h"
-	#include "los_api_mutex.h"
-
-	#ifdef LOSCFG_LIB_LIBC
-	#include "string.h"
-	#endif
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-	/*互斥锁句柄ID*/
-	//MUX_HANDLE_T  g_Testmux01;
-	UINT32 g_Testmux01;
-
-	/*任务PID*/
-	UINT32 g_TestTaskID01;
-	UINT32 g_TestTaskID02;
-	
-	VOID Example_MutexTask1()
-	{
-		UINT32 uwRet;
-
-		printf("task1 try to get mutex, wait 10 Tick.\n");
-		/*申请互斥锁*/
-		uwRet=LOS_MuxPend(g_Testmux01, 10);
-
-		if(uwRet == LOS_OK)
-		{
-			printf("task1 get mutex g_Testmux01.\n");
-			/*释放互斥锁*/
-			LOS_MuxPost(g_Testmux01);
-			return;
-		}
-		else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
-		{
-			printf("task1 timeout and try to get  mutex, wait forever.\n");
-			/*申请互斥锁*/
-			uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
-			if(uwRet == LOS_OK)
-			{
-				printf("task1 wait forever,get mutex g_Testmux01.\n");
-				/*释放互斥锁*/
-				LOS_MuxPost(g_Testmux01);
-				return;
-			}
-		}
-		return;
-	}
-
-	VOID Example_MutexTask2()
-	{
-		UINT32 uwRet;
-
-		printf("task2 try to get mutex, wait forever.\n");
-		/*申请互斥锁*/
-		uwRet=LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
-		if(uwRet != LOS_OK)
-		{
-			printf("task2 LOS_MuxPend failed .\n");
-			return;
-		}
-
-		printf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
-
-		/*任务休眠100 Tick*/
-		LOS_TaskDelay(100);
-
-		printf("task2 resumed and post the g_Testmux01\n");
-		/*释放互斥锁*/
-		LOS_MuxPost(g_Testmux01);
-		return;
-
-	}
-
-	UINT32 Example_MutexLock(VOID)
-	{
-		UINT32 uwRet;
-		TSK_INIT_PARAM_S stTask1;
-		TSK_INIT_PARAM_S stTask2;
-
-		/*创建互斥锁*/
-		LOS_MuxCreate(&g_Testmux01);
-
-		/*锁任务调度*/
-		LOS_TaskLock();
-
-		/*创建任务1*/
-		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
-		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;
-		stTask1.pcName       = "MutexTsk1";
-		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-		stTask1.usTaskPrio   = 5;
-		uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
-		if(uwRet != LOS_OK)
-		{
-			printf("task1 create failed .\n");
-			return LOS_NOK;
-		}
-
-		/*创建任务2*/
-		memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
-		stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;
-		stTask2.pcName       = "MutexTsk2";
-		stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-		stTask2.usTaskPrio   = 4;
-		uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
-		if(uwRet != LOS_OK)
-		{
-			printf("task2 create failed .\n");
-			return LOS_NOK;
-		}
-
-		/*解锁任务调度*/
-		LOS_TaskUnlock();
-		/*任务休眠300 Tick*/
-		LOS_TaskDelay(300);
-
-		/*删除互斥锁*/
-		LOS_MuxDelete(g_Testmux01);
-
-		/*删除任务1*/
-		uwRet = LOS_TaskDelete(g_TestTaskID01);
-		if(uwRet != LOS_OK)
-		{
-			printf("task1 delete failed .\n");
-			return LOS_NOK;
-		}
-		/*删除任务2*/
-		uwRet = LOS_TaskDelete(g_TestTaskID02);
-		if(uwRet != LOS_OK)
-		{
-			printf("task2 delete failed .\n");
-			return LOS_NOK;
-		}
-
-		return LOS_OK;
-	}
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    	
+    #include "los_mux.h"
+    #include "los_task.h"
+    #include "los_api_mutex.h"
+    #include "los_inspect_entry.h"
+    
+    #ifdef LOSCFG_LIB_LIBC
+    #include "string.h"
+    #endif
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    /*互斥锁句柄ID*/
+    UINT32 g_Testmux01;
+    
+    
+    /*任务PID*/
+    UINT32 g_TestTaskID01;
+    UINT32 g_TestTaskID02;
+    
+    
+    VOID Example_MutexTask1()
+    {
+        UINT32 uwRet;
+    
+        dprintf("task1 try to get mutex, wait 10 Tick.\n");
+        /*申请互斥锁*/
+        uwRet=LOS_MuxPend(g_Testmux01, 10);
+    
+        if(uwRet == LOS_OK)
+        {
+            dprintf("task1 get mutex g_Testmux01.\n");
+            /*释放互斥锁*/
+            LOS_MuxPost(g_Testmux01);
+            return;
+        }
+        else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
+        {
+            dprintf("task1 timeout and try to get  mutex, wait forever.\n");
+            /*LOS_WAIT_FOREVER方式申请互斥锁,获取不到时程序阻塞，不会返回*/
+            uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+            if(uwRet == LOS_OK)
+            {
+                dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
+                /*释放互斥锁*/
+                LOS_MuxPost(g_Testmux01);
+                LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
+                return;
+            }
+        }
+        return;
+    }
+    
+    VOID Example_MutexTask2()
+    {
+        UINT32 uwRet;
+    
+        dprintf("task2 try to get mutex, wait forever.\n");
+        /*申请互斥锁*/
+        uwRet=LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task2 LOS_MuxPend failed .\n");
+            return;
+        }
+    
+        dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
+    
+        /*任务休眠100 Tick*/
+        LOS_TaskDelay(100);
+    
+        dprintf("task2 resumed and post the g_Testmux01\n");
+        /*释放互斥锁*/
+        LOS_MuxPost(g_Testmux01);
+        return;
+    }
+    
+    UINT32 Example_MutexLock(VOID)
+    {
+        UINT32 uwRet;
+        TSK_INIT_PARAM_S stTask1;
+        TSK_INIT_PARAM_S stTask2;
+    
+        /*创建互斥锁*/
+        LOS_MuxCreate(&g_Testmux01);
+    
+        /*锁任务调度*/
+        LOS_TaskLock();
+    
+        /*创建任务1*/
+        memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+        stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;
+        stTask1.pcName       = "MutexTsk1";
+        stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+        stTask1.usTaskPrio   = 5;
+        uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task1 create failed .\n");
+            return LOS_NOK;
+        }
+    
+        /*创建任务2*/
+        memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+        stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;
+        stTask2.pcName       = "MutexTsk2";
+        stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+        stTask2.usTaskPrio   = 4;
+        uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task2 create failed .\n");
+            return LOS_NOK;
+        }
+    
+        /*解锁任务调度*/
+        LOS_TaskUnlock();
+        /*任务休眠300 Tick*/
+        LOS_TaskDelay(300);
+    
+        /*删除互斥锁*/
+        LOS_MuxDelete(g_Testmux01);
+    
+        /*删除任务1*/
+        uwRet = LOS_TaskDelete(g_TestTaskID01);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task1 delete failed .\n");
+            return LOS_NOK;
+        }
+        /*删除任务2*/
+        uwRet = LOS_TaskDelete(g_TestTaskID02);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task2 delete failed .\n");
+            return LOS_NOK;
+        }
+    
+        return LOS_OK;
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**
@@ -2460,155 +2516,163 @@ Huawei LiteOS 系统中的信号量模块为用户提供下面几种功能。
 
 
 代码参考los_api_sem.c
-
-	#include "los_sem.h"
-	#include "los_base.ph"
-	#include "los_hwi.h"
-	#include "los_api_sem.h"
-	#ifdef LOSCFG_LIB_LIBC
-	#include "string.h"
-	#endif
-	
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	/*测试任务优先级*/
-	#define TASK_PRIO_TEST  5
-
-	/*任务PID*/
-	static UINT32 g_TestTaskID01,g_TestTaskID02;
-	/*信号量结构体ID*/
-	//static SEM_HANDLE_T g_usSemID;
-	static UINT32 g_usSemID;
-	
-	VOID Example_SemTask1(void)
-	{
-		UINT32 uwRet;
-
-		printf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
-		/*定时阻塞模式申请信号量，定时时间为10Tick*/
-		uwRet = LOS_SemPend(g_usSemID, 10);
-
-		/*申请到信号量*/
-		if(LOS_OK == uwRet)
-		{
-			 LOS_SemPost(g_usSemID);
-			 return;
-		}
-		/*定时时间到，未申请到信号量*/
-		if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
-		{
-			printf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
-			/*永久阻塞模式申请信号量*/
-			uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-			printf("Example_SemTask1 wait_forever and get sem g_usSemID .\n");
-			if(LOS_OK == uwRet)
-			{
-				LOS_SemPost(g_usSemID);
-				return;
-			}
-		}
-		return;
-
-	}
-
-	VOID   Example_SemTask2(void)
-	{
-		UINT32 uwRet;
-		printf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
-		/*永久阻塞模式申请信号量*/
-		uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-
-		if(LOS_OK == uwRet)
-		printf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
-
-		/*任务休眠20 Tick*/
-		LOS_TaskDelay(20);
-
-		printf("Example_SemTask2 post sem g_usSemID .\n");
-		/*释放信号量*/
-		LOS_SemPost(g_usSemID);
-
-		return;
-
-	}
-
-	UINT32 Example_Semphore(VOID)
-	{
-		UINT32 uwRet;
-		TSK_INIT_PARAM_S stTask1;
-		TSK_INIT_PARAM_S stTask2;
-
-	   /*创建信号量*/
-		LOS_SemCreate(0,&g_usSemID);
-
-		/*锁任务调度*/
-		LOS_TaskLock();
-
-		/*创建任务1*/
-		memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
-		stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
-		stTask1.pcName       = "MutexTsk1";
-		stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
-		stTask1.usTaskPrio   = TASK_PRIO_TEST;
-		uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
-		if(uwRet != LOS_OK)
-		{
-			printf("task1 create failed .\n");
-			return LOS_NOK;
-		}
-
-		/*创建任务2*/
-		memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
-		stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
-		stTask2.pcName       = "MutexTsk2";
-		stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
-		stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
-		uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
-		if(uwRet != LOS_OK)
-		{
-			printf("task2 create failed .\n");
-			return LOS_NOK;
-		}
-
-		/*解锁任务调度*/
-		LOS_TaskUnlock();
-
-		uwRet = LOS_SemPost(g_usSemID);
-
-		/*任务休眠40 Tick*/
-		LOS_TaskDelay(40);
-
-		/*删除信号量*/
-		LOS_SemDelete(g_usSemID);
-
-		/*删除任务1*/
-		uwRet = LOS_TaskDelete(g_TestTaskID01);
-		if(uwRet != LOS_OK)
-		{
-			printf("task1 delete failed .\n");
-			return LOS_NOK;
-		}
-		/*删除任务2*/
-		uwRet = LOS_TaskDelete(g_TestTaskID02);
-		if(uwRet != LOS_OK)
-		{
-			printf("task2 delete failed .\n");
-			return LOS_NOK;
-		}
-
-		return LOS_OK;
-	}
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    		
+    #include "los_sem.h"
+    #include "los_base.ph"
+    #include "los_hwi.h"
+    #include "los_api_sem.h"
+    #include "los_inspect_entry.h"
+    #ifdef LOSCFG_LIB_LIBC
+    #include "string.h"
+    #endif
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    /*测试任务优先级*/
+    #define TASK_PRIO_TEST  5
+    
+    /*任务PID*/
+    static UINT32 g_TestTaskID01,g_TestTaskID02;
+    /*信号量结构体ID*/
+    static UINT32 g_usSemID;
+    
+    
+    VOID Example_SemTask1(void)
+    {
+        UINT32 uwRet;
+        
+        dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
+        /*定时阻塞模式申请信号量，定时时间为10Tick*/
+        uwRet = LOS_SemPend(g_usSemID, 10);
+        
+        /*申请到信号量*/
+        if(LOS_OK == uwRet)
+        {
+            LOS_SemPost(g_usSemID);
+            return;
+        }
+        /*定时时间到，未申请到信号量*/
+        if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
+        {
+            dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
+        	/*永久阻塞模式申请信号量,获取不到时程序阻塞，不会返回*/
+            uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+            if(LOS_OK == uwRet)
+            {
+                dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
+                LOS_SemPost(g_usSemID);
+                LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
+                return;
+            }
+        }
+        return;
+    }
+    
+    VOID   Example_SemTask2(void)
+    {
+        UINT32 uwRet;
+        dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
+        /*永久阻塞模式申请信号量*/
+        uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+    
+        if(LOS_OK == uwRet)
+    	{
+            dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+    	}
+    
+        /*任务休眠20 Tick*/
+        LOS_TaskDelay(20);
+    
+        dprintf("Example_SemTask2 post sem g_usSemID .\n");
+        /*释放信号量*/
+        LOS_SemPost(g_usSemID);
+    
+        return;
+    }
+    
+    UINT32 Example_Semphore(VOID)
+    {
+        UINT32 uwRet = LOS_OK;
+        TSK_INIT_PARAM_S stTask1;
+        TSK_INIT_PARAM_S stTask2;
+    
+       /*创建信号量*/
+        LOS_SemCreate(0,&g_usSemID);
+    
+        /*锁任务调度*/
+        LOS_TaskLock();
+    
+        /*创建任务1*/
+        memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+        stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
+        stTask1.pcName       = "MutexTsk1";
+        stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+        stTask1.usTaskPrio   = TASK_PRIO_TEST;
+        uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task1 create failed .\n");
+            return LOS_NOK;
+        }
+    
+        /*创建任务2*/
+        memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+        stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
+        stTask2.pcName       = "MutexTsk2";
+        stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+        stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
+        uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("task2 create failed .\n");
+            	   
+            /*删除任务1*/
+            if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
+            {
+            	dprintf("task1 delete failed .\n"); 
+            }
+            	
+            return LOS_NOK;
+        }
+    
+        /*解锁任务调度*/
+        LOS_TaskUnlock();
+    
+        uwRet = LOS_SemPost(g_usSemID);
+    
+        /*任务休眠40 Tick*/
+        LOS_TaskDelay(40);
+    
+        /*删除信号量*/
+        LOS_SemDelete(g_usSemID);
+    
+        /*删除任务1*/
+        if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
+        {
+            dprintf("task1 delete failed .\n"); 
+            uwRet = LOS_NOK;
+        }
+        /*删除任务2*/
+        if(LOS_OK != LOS_TaskDelete(g_TestTaskID02))
+        {
+            dprintf("task2 delete failed .\n");			  
+            uwRet = LOS_NOK;
+        }
+    
+        return uwRet;
+    }
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**
@@ -2618,8 +2682,7 @@ Huawei LiteOS 系统中的信号量模块为用户提供下面几种功能。
 	Example_SemTask2 get sem g_usSemID and then delay 20ticks .
 	Example_SemTask1 timeout and try get sem g_usSemID wait forever.
 	Example_SemTask2 post sem g_usSemID .
-	Example_SemTask1 wait_forever and get sem g_usSemID .
-
+	Example_SemTask1 wait_forever and got sem g_usSemID success.
 
 
 # 时间管理 #
@@ -2727,66 +2790,80 @@ Huawei LiteOS系统中的时间管理主要提供以下两种功能：
 
 代码参考 los_api_systick.c
 
-	#include "los_sys.h"
-	#include "los_task.h"
-	#include "los_api_systick.h"
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-	VOID Example_TransformTime(VOID)
-	{
-		UINT32 uwMs;
-		UINT32 uwTick;
-		uwTick = LOS_MS2Tick(10000);// 10000 ms数转换为tick数
-		dprintf("uwTick = %d \n",uwTick);
-		uwMs = LOS_Tick2MS(100);// 100 tick数转换为ms数
-		dprintf("uwMs = %d \n",uwMs);
-	}
-
-
-	VOID Example_GetTick(VOID)
-	{
-		UINT32 uwcyclePerTick;
-		UINT64 uwTickCount;
-
-		uwcyclePerTick  = LOS_CyclePerTickGet();
-		if(0 != uwcyclePerTick)
-		{
-			dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
-		}
-
-		uwTickCount = LOS_TickCountGet();
-		if(0 != uwTickCount)
-		{
-			dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount);
-		}
-		LOS_TaskDelay(200);
-		uwTickCount = LOS_TickCountGet();
-		if(0 != uwTickCount)
-		{
-			dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount);
-		}
-
-	}
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+    #include "los_sys.h"
+    #include "los_task.h"
+    #include "los_api_systick.h"
+    #include "los_inspect_entry.h"
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    VOID Example_TransformTime(VOID)
+    {
+        UINT32 uwMs;
+        UINT32 uwTick;
+        uwTick = LOS_MS2Tick(10000);// 10000 ms数转换为tick数
+        dprintf("uwTick = %d \n",uwTick);
+        uwMs = LOS_Tick2MS(100);// 100 tick数转换为ms数
+        dprintf("uwMs = %d \n",uwMs);
+    }
+    
+    
+    UINT32 Example_GetTick(VOID)
+    {
+        UINT32 uwcyclePerTick;
+        UINT64 uwTickCount1,uwTickCount2;
+    
+        uwcyclePerTick  = LOS_CyclePerTickGet();
+        if(0 != uwcyclePerTick)
+        {
+            dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
+        }
+    
+        uwTickCount1 = LOS_TickCountGet();
+        if(0 != uwTickCount1)
+        {
+            dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount1);
+        }
+        LOS_TaskDelay(200);
+        uwTickCount2 = LOS_TickCountGet();
+        if(0 != uwTickCount2)
+        {
+            dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount2);
+        }
+    		
+    	if((uwTickCount2 - uwTickCount1) >= 200)
+    	{
+            LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
+            return LOS_OK;   
+    	}
+    	else
+    	{
+            LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
+            return LOS_NOK; 
+    	}
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**
 
 	LOS_CyclePerTickGet = 16000 
-	LOS_TickCountGet after delay = 200
+	LOS_TickCountGet = 1 
+	LOS_TickCountGet after delay = 201 
+
+
 
 # 软件定时器 #
 
@@ -2933,88 +3010,82 @@ Huawei LiteOS系统中的软件定时器模块为用户提供下面几种功能�
 - 删除周期性软件定时器。
 
 代码参考los_api_timer.c
-
-
-	#include <stdio.h>
-	//#include "osTest.h"
-	#include "los_swtmr.h"
-	#include "time.h"
-	#include "los_sys.h"
-	#include "los_api_timer.h"
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	void Timer1_Callback  (UINT32 arg);  // callback fuction 
-
-	void Timer2_Callback	(UINT32 arg);//回调函数
-
-
-	UINT32 g_timercount1 = 0;  
-	UINT32 g_timercount2 = 0; 
-
-
-	void Timer1_Callback(UINT32 arg)
-	{
-
-		unsigned long tick_last1;   
-		g_timercount1 ++;
-		tick_last1=(UINT32)LOS_TickCountGet();
-		dprintf("g_timercount1=%d\n",g_timercount1);
-		dprintf("tick_last1=%d\n",tick_last1);
-
-	}
-
-	void Timer2_Callback(UINT32 arg)
-	{
-		unsigned long tick_last2;  
-		tick_last2=(UINT32)LOS_TickCountGet();
-		g_timercount2 ++;
-		dprintf("g_timercount2=%d\n",g_timercount2);
-		dprintf("tick_last2=%d\n",tick_last2);
-	}
-
-	void Example_swTimer(void)  
-	{                                                         
-		UINT16 id1;  
-		UINT16 id2;// timer id
-		//UINT32 uwTick;
-		// uint32_t  timerDelay;   // timer value
-
-		LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE,Timer1_Callback,&id1,1);
-		LOS_SwtmrCreate(100,LOS_SWTMR_MODE_PERIOD,Timer2_Callback,&id2,1);
-		dprintf("create Timer1 success\n");
-		// timerDelay = 100;  
-		LOS_SwtmrStart(id1); 
-		dprintf("start Timer1 sucess\n");
-		LOS_TaskDelay(200);
-		//LOS_SwtmrTimeGet(id1,&uwTick);
-		//dprintf("uwTick =%d\n",uwTick);
-		LOS_SwtmrStop(id1);
-		dprintf("stop Timer1 sucess\n");
-		LOS_SwtmrStart(id1);
-		LOS_TaskDelay(1000);
-		LOS_SwtmrDelete(id1);
-		dprintf("delete Timer1 sucess\n");
-		LOS_SwtmrStart(id2);
-		dprintf("start Timer2\n");
-		LOS_TaskDelay(1000);
-		LOS_SwtmrStop(id2);
-		LOS_SwtmrDelete(id2); 
-		return ;
-	}
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+	
+    #include <stdio.h>
+    #include "los_swtmr.h"
+    #include "time.h"
+    #include "los_sys.h"
+    #include "los_api_timer.h"
+    #include "los_inspect_entry.h"
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    
+    void Timer1_Callback  (UINT32 arg);  // callback fuction                   
+    void Timer2_Callback	(UINT32 arg);  // callback fuction 
+    
+    UINT32 g_timercount1 = 0;  
+    UINT32 g_timercount2 = 0; 
+    
+    
+    void Timer1_Callback(UINT32 arg)
+    {    
+        unsigned long tick_last1;   
+        g_timercount1 ++;
+        tick_last1=(UINT32)LOS_TickCountGet();
+        dprintf("g_timercount1=%d\n",g_timercount1);
+        dprintf("tick_last1=%lu\n",tick_last1);
+    }
+    
+    void Timer2_Callback(UINT32 arg)
+    {
+        unsigned long tick_last2;  
+        tick_last2=(UINT32)LOS_TickCountGet();
+        g_timercount2 ++;
+        dprintf("g_timercount2=%d\n",g_timercount2);
+        dprintf("tick_last2=%lu\n",tick_last2);
+        LOS_InspectStatusSetByID(LOS_INSPECT_TIMER,LOS_INSPECT_STU_SUCCESS);
+    }
+    
+    UINT32 Example_swTimer(void)  
+    {                                                         
+        UINT16 id1;  
+        UINT16 id2;// timer id
+      
+        LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE,Timer1_Callback,&id1,1);
+        LOS_SwtmrCreate(100,LOS_SWTMR_MODE_PERIOD,Timer2_Callback,&id2,1);
+        dprintf("create Timer1 success\n");
+    	
+        LOS_SwtmrStart(id1); 
+        dprintf("start Timer1 sucess\n");
+        LOS_TaskDelay(200);
+        LOS_SwtmrStop(id1);
+        dprintf("stop Timer1 sucess\n");
+    	
+        LOS_SwtmrStart(id1);
+        LOS_TaskDelay(1000);
+        LOS_SwtmrDelete(id1);
+        dprintf("delete Timer1 sucess\n");
+    	
+        LOS_SwtmrStart(id2);
+        dprintf("start Timer2\n");
+        LOS_TaskDelay(1000);
+        LOS_SwtmrStop(id2);
+        LOS_SwtmrDelete(id2); 
+    		
+        return LOS_OK;
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**
@@ -3130,78 +3201,85 @@ Huawei LiteOS系统中的事件模块为用户提供下面几个接口。
 1. 测试操作是否成功。
 
 代码参考los_api_list.c
-
-	#include "los_list.h"
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include "los_api_list.h"
-
-	#ifdef LOSCFG_LIB_LIBC
-	#include "string.h"
-	#endif
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	extern "C" {
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
-
-
-	VOID Example_list(VOID)
-	{
-		 /*初始化，判断是否为空*/
-		printf("initial......\n");
-		LOS_DL_LIST* head;
-		head = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-
-		LOS_ListInit(head);
-		if (!LOS_ListEmpty(head))
-		{
-			printf("initial failed\n");
-			return;
-		}
-
-		/*增加一个节点，在尾端插入一个节点*/
-		printf("node add and tail add......\n");
-		LOS_DL_LIST* node1 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-		LOS_DL_LIST* node2 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-		LOS_DL_LIST* tail = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST));
-
-		LOS_ListAdd(head,node1);
-		LOS_ListAdd(node1,node2);
-		if((node1->pstPrev == head) || (node2->pstPrev == node1))
-		{
-			printf("add node success\n");
-		}
-
-		LOS_ListTailInsert(head,tail);
-		if(tail->pstPrev == node2)
-		{
-			printf("add tail success\n");
-		}
-
-
-		/*删除双向链表节点*/
-		printf("delete node......\n");
-		LOS_ListDelete(node1);
-		free(node1);
-		if(head->pstNext == node2)
-		{
-			printf("delete node success\n");
-		}
-
-	}
-
-
-
-
-	#ifdef __cplusplus
-	#if __cplusplus
-	}
-	#endif /* __cpluscplus */
-	#endif /* __cpluscplus */
+		
+    #include "los_list.h"
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include "los_config.h"
+    #include "los_memory.h"
+    #include "los_api_list.h"
+    #include "los_inspect_entry.h"
+    
+    #ifdef LOSCFG_LIB_LIBC
+    #include "string.h"
+    #endif
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    extern "C" {
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
+    
+    	
+    UINT32 Example_list(VOID)
+    {
+    	 /*初始化，判断是否为空*/
+        dprintf("initial......\n");
+        LOS_DL_LIST* head;
+    	head = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    
+        LOS_ListInit(head);
+        if (!LOS_ListEmpty(head))
+        {
+            dprintf("initial failed\n");
+            return LOS_NOK;
+        }
+    	 
+        /*增加一个节点，在尾端插入一个节点*/
+        dprintf("node add and tail add......\n");
+    
+    	LOS_DL_LIST* node1 = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+        LOS_DL_LIST* node2 = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+        LOS_DL_LIST* tail = (LOS_DL_LIST*)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    		
+        LOS_ListAdd(head,node1);
+        LOS_ListAdd(node1,node2);
+        if((node1->pstPrev == head) || (node2->pstPrev == node1))
+        {
+            dprintf("add node success\n");
+        }
+     
+        LOS_ListTailInsert(head,tail);
+        if(tail->pstPrev == node2)
+        {
+            dprintf("add tail success\n");
+        }
+    
+        /*删除双向链表节点*/
+        dprintf("delete node......\n");
+        LOS_ListDelete(node1);
+        free(node1);
+        if(head->pstNext == node2)
+        {
+            dprintf("delete node success\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_SUCCESS);	
+        }
+    	else
+    	{
+            dprintf("delete node error\n");
+            LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_ERROR);	
+    	}
+        
+    	return LOS_OK;
+    }
+    
+    
+    #ifdef __cplusplus
+    #if __cplusplus
+    }
+    #endif /* __cpluscplus */
+    #endif /* __cpluscplus */
 
 
 **结果验证**

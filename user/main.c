@@ -6,6 +6,8 @@
 #include "los_bsp_led.h"
 #include "los_bsp_key.h"
 #include "los_bsp_uart.h"
+#include "los_inspect_entry.h"
+#include "los_demo_entry.h"
 
 #include <string.h>
 
@@ -72,8 +74,13 @@ int main(void)
         here you can create task for your function 
         do some hw init that need after systemtick init
     */
-    LOS_EvbSetup();
-    LOS_BoadExampleEntry();
+    LOS_EvbSetup(); //init the device on the dev baord
+   
+    //LOS_Demo_Entry();	
+		
+    //LOS_Inspect_Entry();
+    
+    LOS_BoadExampleEntry();	
 		
     /* Kernel start to run */
     LOS_Start();

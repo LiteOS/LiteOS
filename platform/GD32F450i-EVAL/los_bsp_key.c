@@ -35,3 +35,16 @@ void EXTI10_15_IRQHandler(void)
 #endif
 
 
+uint8_t LOS_EvbGetKeyVal(int KeyNum)
+{
+#ifdef GD32F4XX
+	  if(KeyNum > KEY_TAMPER)
+		{
+				return LOS_GPIO_ERR;
+		}
+		return gd_eval_key_state_get(KeyNum);
+#else
+		return LOS_GPIO_ERR;
+#endif
+}
+
