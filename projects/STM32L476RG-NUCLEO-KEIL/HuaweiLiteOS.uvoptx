@@ -82,12 +82,12 @@
         <Book>
           <Number>0</Number>
           <Title>User Manual (STM32L476G-EVAL)</Title>
-          <Path>d:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\DM00155732.pdf</Path>
+          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\DM00155732.pdf</Path>
         </Book>
         <Book>
           <Number>1</Number>
           <Title>Schematics (STM32L476G-EVAL)</Title>
-          <Path>d:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\MB1144B.pdf</Path>
+          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\1.3.0\Boards\ST\STM32L476G-EVAL\Documentation\MB1144B.pdf</Path>
         </Book>
         <Book>
           <Number>2</Number>
@@ -167,24 +167,7 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32L4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32L476RGTx$Flash\STM32L4xx_1024.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>0</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134221918</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename></Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>0x0800105E</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -215,7 +198,7 @@
         <aLa>0</aLa>
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
-        <aSer4>1</aSer4>
+        <aSer4>0</aSer4>
         <StkLoc>0</StkLoc>
         <TrcWin>0</TrcWin>
         <newCpu>0</newCpu>

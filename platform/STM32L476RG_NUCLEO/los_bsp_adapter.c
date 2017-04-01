@@ -14,7 +14,7 @@
 #include "los_bsp_uart.h"
 
 
-#ifdef STM32L476xx
+#ifdef LOS_STM32L476xx
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_nucleo.h"
 #endif
@@ -107,7 +107,7 @@ void SysTick_Handler(void)
     LOS_TickHandler();
 	
     /*add your code here */
-#ifdef STM32L476xx
+#ifdef LOS_STM32L476xx
 	  HAL_IncTick();
 #endif
     return ;
