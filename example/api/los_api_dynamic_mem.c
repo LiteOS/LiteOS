@@ -46,23 +46,23 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-UINT32 Example_Dyn_Mem(VOID) 
+UINT32 Example_Dyn_Mem(VOID)
 {
     UINT32 *p_num = NULL;
     UINT32 uwRet;
     uwRet = LOS_MemInit(m_aucSysMem0, OS_SYS_MEM_SIZE);
-    if (LOS_OK == uwRet) 
+    if (LOS_OK == uwRet)
     {
         dprintf("mempool init ok!\n");
     }
-    else 
+    else
     {
         dprintf("mempool init failed!\n");
         return LOS_NOK;
     }
     /*分配内存*/
     p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
-    if (NULL == p_num) 
+    if (NULL == p_num)
     {
         dprintf("mem alloc failed!\n");
         return LOS_NOK;
@@ -73,16 +73,16 @@ UINT32 Example_Dyn_Mem(VOID)
     dprintf("*p_num = %d\n", *p_num);
     /*释放内存*/
     uwRet = LOS_MemFree(m_aucSysMem0, p_num);
-    if (LOS_OK == uwRet) 
+    if (LOS_OK == uwRet)
     {
         dprintf("mem free ok!\n");
-		LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
+        LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
     }
-    else 
+    else
     {
         dprintf("mem free failed!\n");
-		LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
-		return LOS_NOK;
+        LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+        return LOS_NOK;
     }
     return LOS_OK;
 }

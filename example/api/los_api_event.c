@@ -64,20 +64,20 @@ VOID Example_Event(VOID)
 {
     UINT32 uwEvent;
 
-   /*超时 等待方式读事件,超时时间为100 Tick
-   若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
+    /*超时 等待方式读事件,超时时间为100 Tick
+    若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
     dprintf("Example_Event wait event 0x%x \n",event_wait);
 
     uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
     if(uwEvent == event_wait)
     {
         dprintf("Example_Event,read event :0x%x\n",uwEvent);
-		LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
+        LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
     }
     else
     {
         dprintf("Example_Event,read event timeout\n");
-		LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
+        LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
     }
     return;
 }

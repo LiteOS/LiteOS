@@ -76,14 +76,14 @@ VOID Example_MutexTask1()
     else if(uwRet == LOS_ERRNO_MUX_TIMEOUT )
     {
         dprintf("task1 timeout and try to get  mutex, wait forever.\n");
-		/*LOS_WAIT_FOREVER方式申请互斥锁,获取不到时程序阻塞，不会返回*/
+        /*LOS_WAIT_FOREVER方式申请互斥锁,获取不到时程序阻塞，不会返回*/
         uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
         if(uwRet == LOS_OK)
         {
             dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
             /*释放互斥锁*/
             LOS_MuxPost(g_Testmux01);
-			LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
+            LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
             return;
         }
     }

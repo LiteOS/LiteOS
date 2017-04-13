@@ -8,13 +8,13 @@
 void LOS_EvbKeyInit(void)
 {
 #ifdef GD32F190R8
-	/* configure User key */
-  gd_eval_keyinit(KEY_TAMPER, KEY_MODE_EXTI);  
-	
-	gd_eval_ledinit(LED2);
+    /* configure User key */
+    gd_eval_keyinit(KEY_TAMPER, KEY_MODE_EXTI);
+    
+    gd_eval_ledinit(LED2);
 #endif
 
-	return ;
+    return;
 }
 
 #ifdef GD32F190R8
@@ -44,9 +44,9 @@ void EXTI4_15_IRQHandler(void)
  *****************************************************************************/
 unsigned int LOS_EvbGetKeyVal(int KeyNum)
 {
-	unsigned int KeyVal = LOS_GPIO_ERR; 
-	
-	//add you code here.
-	
-	return KeyVal;
+    unsigned int KeyVal = LOS_GPIO_ERR;
+    
+    //add you code here.
+    
+    return KeyVal;
 }

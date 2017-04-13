@@ -24,6 +24,7 @@ void led_init(void)
     //gd_eval_ledinit(LED1);
     //gd_eval_ledinit(LED2);
     gd_eval_ledinit(LED3);
+    return;
 }
 
 /*!
@@ -51,6 +52,7 @@ void led_flash(int times)
         //gd_eval_led_off(LED2);
         gd_eval_ledoff(LED3);
     }
+    return;
 }
 #endif
 
@@ -63,8 +65,8 @@ void led_flash(int times)
  *****************************************************************************/
 void LOS_EvbUartInit(void)
 {
-#ifdef GD32F190R8	
-	  /* initialize the LEDs */
+#ifdef GD32F190R8   
+    /* initialize the LEDs */
     led_init();
     
     /* configure systick */
@@ -78,9 +80,9 @@ void LOS_EvbUartInit(void)
     
     /* configure TAMPER key */
     gd_eval_keyinit(KEY_WAKEUP, KEY_MODE_GPIO);  
-	
+    
 #endif
-		return;
+    return;
 }
 
 #ifdef GD32F190R8
@@ -95,6 +97,7 @@ void LOS_EvbUartWriteByte(char c)
 {
     usart_data_transmit(EVAL_COM2, c);
     while (RESET == usart_flag_get(EVAL_COM2, USART_STAT_TBE));
+    return;
 }
 
 /*****************************************************************************
@@ -108,6 +111,7 @@ void LOS_EvbUartReadByte(char* c)
 {
     while (RESET == usart_flag_get(EVAL_COM2,USART_STAT_RBNE));
     *c = (usart_data_receive(EVAL_COM2));
+    return;
 }
 
 /*****************************************************************************
@@ -129,9 +133,10 @@ void LOS_EvbUart1Printf(char* fmt, ...)
     {
         LOS_EvbUartWriteByte(_buffer[i]);
     }
-		
-		while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
-		}
+        
+    while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
+    }
+    return;
 }
 #endif
 
@@ -150,9 +155,10 @@ void LOS_EvbUartWriteStr(const char* str)
         usart_data_transmit(EVAL_COM2, * str++);
         while (RESET == usart_flag_get(EVAL_COM2,USART_STAT_TBE));
     }
-		
-		while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
-		}
+    
+    while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
+    }
 #endif
+    return;
 }
 

@@ -13,11 +13,11 @@
  *****************************************************************************/
 void LOS_EvbKeyInit(void)
 {
-#ifdef LOS_LPC824	
-	Chip_GPIO_Init(LPC_GPIO_PORT);
-	Board_Key_Init();
+#ifdef LOS_LPC824   
+    Chip_GPIO_Init(LPC_GPIO_PORT);
+    Board_Key_Init();
 #endif
-	return ;
+    return;
 }
 
 /*****************************************************************************
@@ -30,9 +30,9 @@ void LOS_EvbKeyInit(void)
 uint8_t LOS_EvbGetKeyVal(int KeyNum)
 {
 #ifdef LOS_LPC824
-	  return Board_Key_GetKeyDown(KeyNum);
+    return Board_Key_GetKeyDown(KeyNum);
 #else
-		return LOS_GPIO_ERR;
+    return LOS_GPIO_ERR;
 #endif
 }
 

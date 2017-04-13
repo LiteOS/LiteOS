@@ -1,15 +1,15 @@
         PRESERVE8
 
-Stack_Size	EQU     0x00000400
-Heap_Size	EQU     0x00000200
+Stack_Size  EQU     0x00000400
+Heap_Size   EQU     0x00000200
 
-	AREA	STACK, NOINIT, READWRITE, ALIGN=3
+    AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem SPACE   Stack_Size
 __initial_sp
 
-	AREA	HEAP, NOINIT, READWRITE, ALIGN=3
+    AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base
-Heap_Mem	SPACE   Heap_Size
+Heap_Mem    SPACE   Heap_Size
 __heap_limit
 
     AREA    RESET, CODE, READONLY
@@ -41,12 +41,12 @@ _BootVectors
     DCD     SysTick_Handler;SysTick_Handler            ; SysTick Handler
 
 Reset_Handler
-	LDR.W	R0, =0xE000ED88
-	LDR		R1, [R0]
-	ORR		R1, R1, #(0xF << 20)
-	STR		R1, [R0]
+    LDR.W   R0, =0xE000ED88
+    LDR     R1, [R0]
+    ORR     R1, R1, #(0xF << 20)
+    STR     R1, [R0]
     CPSID   I
-	
+    
     IMPORT  __main
     LDR     R0, =__main
     BX      R0

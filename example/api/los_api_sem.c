@@ -69,20 +69,20 @@ VOID Example_SemTask1(void)
     /*申请到信号量*/
     if(LOS_OK == uwRet)
     {
-         LOS_SemPost(g_usSemID);
-         return;
+        LOS_SemPost(g_usSemID);
+        return;
     }
     /*定时时间到，未申请到信号量*/
     if(LOS_ERRNO_SEM_TIMEOUT == uwRet)
     {
         dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
-		/*永久阻塞模式申请信号量,获取不到时程序阻塞，不会返回*/
+        /*永久阻塞模式申请信号量,获取不到时程序阻塞，不会返回*/
         uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
         if(LOS_OK == uwRet)
         {
-			dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
+            dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
             LOS_SemPost(g_usSemID);
-			LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
+            LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
             return;
         }
     }
@@ -97,9 +97,9 @@ VOID   Example_SemTask2(void)
     uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
 
     if(LOS_OK == uwRet)
-		{
-			dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
-		}
+    {
+        dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+    }
 
     /*任务休眠20 Tick*/
     LOS_TaskDelay(20);
@@ -146,13 +146,13 @@ UINT32 Example_Semphore(VOID)
     if(uwRet != LOS_OK)
     {
         dprintf("task2 create failed .\n");
-			   
-			  /*删除任务1*/
-				if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
-				{
-					dprintf("task1 delete failed .\n"); 
-				}
-			
+        
+        /*删除任务1*/
+        if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
+        {
+            dprintf("task1 delete failed .\n");
+        }
+        
         return LOS_NOK;
     }
 
@@ -171,15 +171,15 @@ UINT32 Example_Semphore(VOID)
     if(LOS_OK != LOS_TaskDelete(g_TestTaskID01))
     {
         dprintf("task1 delete failed .\n"); 
-		uwRet = LOS_NOK;
+        uwRet = LOS_NOK;
     }
     /*删除任务2*/
     if(LOS_OK != LOS_TaskDelete(g_TestTaskID02))
     {
-        dprintf("task2 delete failed .\n");			  
-		uwRet = LOS_NOK;
+        dprintf("task2 delete failed .\n");
+        uwRet = LOS_NOK;
     }
-
+    
     return uwRet;
 }
 

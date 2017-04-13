@@ -11,10 +11,10 @@ void LOS_EvbLedInit(void)
 {
 
 #ifdef LOS_STM32L476xx
-	BSP_LED_Init(LED2);
+    BSP_LED_Init(LED2);
 #endif
 
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -33,11 +33,11 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
-                BSP_LED_On(LED2); /*led1 on */
+                BSP_LED_On(LED2); /*led2 on */
             }
             else
             {
-                BSP_LED_Off(LED2); /*led1 off */
+                BSP_LED_Off(LED2); /*led2 off */
             }
             break;
         }
@@ -47,7 +47,7 @@ void LOS_EvbLedControl(int index, int cmd)
         }
     }
 #endif
-	return ;
+    return;
 }
 
 

@@ -89,7 +89,7 @@ void *recv_Entry(UINT32 uwParam1,
 {
     UINT32 uwReadbuf;
     UINT32 uwRet = 0;
-	  UINT32 uwMsgCount = 0;
+    UINT32 uwMsgCount = 0;
 
     while (1)
     {
@@ -101,11 +101,11 @@ void *recv_Entry(UINT32 uwParam1,
             dprintf("recv message failure,error:%x\n",uwRet);
             break;
         }
-				else
-				{
-					dprintf("recv message:%s\n", (char *)uwReadbuf);
-					uwMsgCount++;
-				}
+        else
+        {
+            dprintf("recv message:%s\n", (char *)uwReadbuf);
+            uwMsgCount++;
+        }
         
         LOS_TaskDelay(5);
     }
@@ -114,18 +114,18 @@ void *recv_Entry(UINT32 uwParam1,
     {
         LOS_TaskDelay(1);
     }
-		
+        
     dprintf("delete the queue success!\n");
-		
-		if(API_MSG_NUM == uwMsgCount)
-		{
-			 LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_SUCCESS);	 
-		}
-		else
-		{
-			 LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_ERROR);
-		}
-			
+        
+    if(API_MSG_NUM == uwMsgCount)
+    {
+        LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_SUCCESS);  
+    }
+    else
+    {
+        LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_ERROR);
+    }
+        
     return NULL;
 }
 

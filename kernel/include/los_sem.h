@@ -224,7 +224,7 @@ extern UINT32 LOS_SemDelete(UINT32 uwSemHandle);
  *@retval #LOS_ERRNO_SEM_UNAVAILABLE     0x02000704: The passed-in value of the parameter that specifies the timeout interval is invalid.
  *@retval #LOS_ERRNO_SEM_PEND_INTERR     0x02000706: The API is called during an interrupt, which is forbidden.
  *@retval #LOS_ERRNO_SEM_PEND_IN_LOCK    0x02000706: The task is unable to request a semaphore because task scheduling is locked.
- *@retval #LOS_ERRNO_SEM_TIMEOUT	0x02000707: The request for the semaphore times out.
+ *@retval #LOS_ERRNO_SEM_TIMEOUT         0x02000707: The request for the semaphore times out.
  *@retval #LOS_OK   0: The semaphore request succeeds.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
@@ -248,7 +248,7 @@ extern UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout);
  *
  *@retval #LOS_ERRNO_SEM_INVALID     0x02000701: The passed-in puwSemHandle value is invalid.
  *@retval #LOS_ERRNO_SEM_OVERFLOW    0x02000708: The times of semaphore release exceed the maximum times permitted.
- *@retval #LOS_OK                   0: The semaphore is successfully released.
+ *@retval #LOS_OK                    0: The semaphore is successfully released.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
  *@see LOS_SemPend

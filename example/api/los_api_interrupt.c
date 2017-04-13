@@ -48,16 +48,16 @@ extern "C" {
 
 static void Example_Exti0_Init()
 {
-  /*add your IRQ init code here*/
-	
-	return;
+    /*add your IRQ init code here*/
+    
+    return;
 }
 
 static VOID User_IRQHandler(void)
 {
-    dprintf("\n User IRQ test\n"); 
-	  //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
-	  return;
+    dprintf("\n User IRQ test\n");
+    //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
+    return;
 }
 
 UINT32 Example_Interrupt(VOID)
@@ -70,8 +70,8 @@ UINT32 Example_Interrupt(VOID)
     LOS_HwiCreate(6, 0,0,User_IRQHandler,0);//创建中断
     
     LOS_IntRestore(uvIntSave);
-	
-	return LOS_OK;
+    
+    return LOS_OK;
 }
 
 

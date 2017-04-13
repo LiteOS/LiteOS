@@ -61,8 +61,8 @@ enum enSwTmrState
  */
 typedef struct tagSwTmrHandlerItem
 {
-    SWTMR_PROC_FUNC     pfnHandler;     /**< Callback function that handles software timer timeout          */
-    UINT32              uwArg;          /**< Parameter passed in when the callback function that handles software timer timeout is called     */
+    SWTMR_PROC_FUNC     pfnHandler;     /**< Callback function that handles software timer timeout      */
+    UINT32              uwArg;          /**< Parameter passed in when the callback function that handles software timer timeout is called       */
 } SWTMR_HANDLER_ITEM_S;
 
 /**

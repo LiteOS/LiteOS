@@ -8,36 +8,36 @@
 UART_HandleTypeDef UartHandle;
 static void Error_Handler(void)
 {
-  /* Turn LED2 off */
-  BSP_LED_Off(LED2);
-  while(1)
-  {
-  }
+    /* Turn LED2 off */
+    BSP_LED_Off(LED2);
+    while(1)
+    {
+    }
 }
 #endif
 
 void LOS_EvbUartInit(void)
 {
 #ifdef LOS_STM32L476xx
-  UartHandle.Instance          = USARTx;
-  
-  UartHandle.Init.BaudRate     = 9600;
-  UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
-  UartHandle.Init.StopBits     = UART_STOPBITS_1;
-  UartHandle.Init.Parity       = UART_PARITY_NONE;
-  UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-  UartHandle.Init.Mode         = UART_MODE_TX_RX;
-  UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-    
-  if(HAL_UART_Init(&UartHandle) != HAL_OK)
-  {
-    Error_Handler();
-  }
-	
-	 BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
+    UartHandle.Instance          = USARTx;
+
+    UartHandle.Init.BaudRate     = 9600;
+    UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandle.Init.StopBits     = UART_STOPBITS_1;
+    UartHandle.Init.Parity       = UART_PARITY_NONE;
+    UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+
+    if(HAL_UART_Init(&UartHandle) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
 #endif
-	
-	return ;
+    
+    return;
 }
 
 
@@ -50,12 +50,12 @@ void LOS_EvbUartInit(void)
 void LOS_EvbUartWriteByte(char c)
 {
 #ifdef LOS_STM32L476xx
-	if(HAL_UART_Transmit(&UartHandle, (uint8_t*)&c, 1, 5000)!= HAL_OK)
-	{
-		Error_Handler();   
-	}
+    if(HAL_UART_Transmit(&UartHandle, (uint8_t*)&c, 1, 5000)!= HAL_OK)
+    {
+        Error_Handler();
+    }
 #endif
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -69,14 +69,14 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef LOS_STM32L476xx
     while (*str)
     {
-			if(HAL_UART_Transmit(&UartHandle, (uint8_t*)str, 1, 5000)!= HAL_OK)
-			{
-				Error_Handler();   
-			}
-			str++;
+        if(HAL_UART_Transmit(&UartHandle, (uint8_t*)str, 1, 5000)!= HAL_OK)
+        {
+            Error_Handler();
+        }
+        str++;
     }
 #endif
-	return ;
+    return;
 }
 
 
@@ -89,12 +89,12 @@ void LOS_EvbUartWriteStr(const char* str)
 void LOS_EvbUartReadByte(char* c)
 {
 #ifdef LOS_STM32L476xx
-	if(HAL_UART_Receive(&UartHandle, (uint8_t *)c, 1, 5000) != HAL_OK)
-	{
-		Error_Handler();  
-	}
+    if(HAL_UART_Receive(&UartHandle, (uint8_t *)c, 1, 5000) != HAL_OK)
+    {
+        Error_Handler();
+    }
 #endif
-	return ;
+    return;
 }
 
 #ifdef LOS_STM32L476xx
@@ -114,5 +114,5 @@ void LOS_EvbUartPrintf(char* fmt, ...)
         LOS_EvbUartWriteByte(_buffer[i]);
     }
 #endif
-	return ;
+    return;
 }

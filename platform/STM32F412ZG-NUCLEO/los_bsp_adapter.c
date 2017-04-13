@@ -1,10 +1,10 @@
 /*
-	here we can include some standard header file
+    here we can include some standard header file
 */
 #include <stdio.h>
 #include <string.h>
 /*
-	here include some special hearder file you need
+    here include some special hearder file you need
 */
 //#include "cmsis_os.h"
 
@@ -25,7 +25,7 @@
 
 
 /*****************************************************************************
-	global var
+    global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
 const unsigned int sys_clk_freq = 16000000;
@@ -42,7 +42,7 @@ static unsigned int g_ucycle_per_tick = 0;
 const unsigned char g_use_ram_vect = 0;
 
 /*****************************************************************************
-	LOS function extern 
+    LOS function extern
  *****************************************************************************/
 extern void LOS_SetTickSycle(unsigned int);
 extern void LOS_TickHandler(void);
@@ -63,7 +63,7 @@ extern unsigned int osGetVectorAddr(void);
 unsigned int osTickStart(void)
 {
     unsigned int uwRet = 0;
-	
+    
     /* This code section LOS need, so don't change it */
     g_ucycle_per_tick = sys_clk_freq / tick_per_second;
     LOS_SetTickSycle(g_ucycle_per_tick);
@@ -81,7 +81,7 @@ unsigned int osTickStart(void)
     *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
     *(volatile UINT32 *)OS_SYSTICK_CURRENT_REG = 0;
     *(volatile UINT32 *)OS_SYSTICK_CONTROL_REG = (1 << 2) | (1 << 1) | (1 << 0);
-#endif    
+#endif
     return uwRet;
 
 }
@@ -95,17 +95,17 @@ unsigned int osTickStart(void)
  *****************************************************************************/
 void SysTick_Handler(void)
 {
-    /* 
+    /*
         LOS need call LOS_TickHandler() in SysTick_Handler, don't change it,
         otherwise, LiteOS will not work.
     */
     LOS_TickHandler();
-	
+    
     /*add your code here */
 #ifdef LOS_STM32F412Zx
-	  HAL_IncTick();
+    HAL_IncTick();
 #endif
-    return ;
+    return;
 }
 
 /*****************************************************************************
@@ -118,7 +118,7 @@ void SysTick_Handler(void)
  *****************************************************************************/
 void LosAdapIntInit(void)
 {
-    /* 
+    /*
         1:ReLoad vector table address at ram . if do nothing , vector table is
         located in rom 0x00000000
         2:set nvic irq priority group
@@ -133,14 +133,14 @@ void LosAdapIntInit(void)
         *(volatile UINT32 *)OS_NVIC_AIRCR = (0x05FA0000 | OS_NVIC_AIRCR_PRIGROUP << 8);
     }
 
-    return ;
+    return;
 }
 
 /*****************************************************************************
  Function    : LosAdapIrpEnable
- Description : external interrupt enable, and set priority 
-               this function is called by LOS_HwiCreate(), 
-               so here can use bsp func to inplemente it 
+ Description : external interrupt enable, and set priority
+               this function is called by LOS_HwiCreate(),
+               so here can use bsp func to inplemente it
                Note : if don't use LOS_HwiCreate(), leave it empty
  Input       : irqnum: external interrupt number
                prior: priority of this interrupt
@@ -150,22 +150,22 @@ void LosAdapIntInit(void)
 void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
 {
     /*
-        enable irq , for example in stm32 bsp you can use 
+        enable irq , for example in stm32 bsp you can use
         NVIC_EnableIRQ((IRQn_Type)irqnum);
     */
     nvicSetIRQ(irqnum);
     /*
-        set irq priority , for example in stm32 bsp you can use 
+        set irq priority , for example in stm32 bsp you can use
         NVIC_SetPriority((IRQn_Type)irqnum, prior);
     */
     nvicSetIrqPRI(irqnum, prior << 4);
-    return ;
+    return;
 }
 
 /*****************************************************************************
  Function    : LosAdapIrqDisable
  Description : external interrupt disable
-               this function is called by LOS_HwiDelete(), so use bsp func 
+               this function is called by LOS_HwiDelete(), so use bsp func
                to inplemente it
                Note : if don't use LOS_HwiDelete(), leave it empty
  Input       : irqnum: external interrupt number
@@ -174,12 +174,12 @@ void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
  *****************************************************************************/
 void LosAdapIrqDisable(unsigned int irqnum)
 {
-    /* 
-        disable irq, for example in stm32 bsp you can use 
+    /*
+        disable irq, for example in stm32 bsp you can use
         NVIC_DisableIRQ((IRQn_Type)irqnum);
     */
     nvicClrIRQ(irqnum);
-    return ;
+    return;
 }
 
 /*****************************************************************************
@@ -191,22 +191,22 @@ void LosAdapIrqDisable(unsigned int irqnum)
  *****************************************************************************/
 void LOS_EvbSetup(void)
 {
-	LOS_EvbUartInit();
-	LOS_EvbLedInit();
-	LOS_EvbKeyInit();
-	return ;
+    LOS_EvbUartInit();
+    LOS_EvbLedInit();
+    LOS_EvbKeyInit();
+    return;
 }
 
 /*****************************************************************************
  Function    : LOS_EvbTrace
  Description : Bsp printf function
- Input       : None
+ Input       : const char *str
  Output      : None
  Return      : None
  *****************************************************************************/
 void LOS_EvbTrace(const char *str)
 {
-	LOS_EvbUartWriteStr(str);
-	return ;
+    LOS_EvbUartWriteStr(str);
+    return;
 }
 
