@@ -33,6 +33,9 @@
  *---------------------------------------------------------------------------*/
 
 #include "cmsis_os.h"
+#ifdef LOS_GCC_COMPILE
+#include "cmsis_gcc.h"
+#endif
 #include "los_event.h"
 #include "los_membox.h"
 #include "los_hwi.h"
