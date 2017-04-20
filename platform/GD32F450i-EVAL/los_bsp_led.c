@@ -8,12 +8,12 @@
 void LOS_EvbLedInit(void)
 {
 #ifdef GD32F4XX
-	gd_eval_led_init(LED1);
-	gd_eval_led_init(LED2);
-	gd_eval_led_init(LED3);
+    gd_eval_led_init(LED1);
+    gd_eval_led_init(LED2);
+    gd_eval_led_init(LED3);
 #endif
 
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -70,7 +70,7 @@ void LOS_EvbLedControl(int index, int cmd)
         }
     }
 #endif
-	return ;
+    return ;
 }
 
 

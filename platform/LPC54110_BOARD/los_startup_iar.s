@@ -48,26 +48,26 @@
     DATA
 __vector_table
     DCD     sfe(CSTACK)
-    DCD     Reset_Handler             ; Reset Handler
-    DCD     0                ; NMI Handler
-    DCD     0          ; Hard Fault Handler
-    DCD     0          ; MPU Fault Handler
-    DCD     0           ; Bus Fault Handler
-    DCD     0         ; Usage Fault Handler
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                ; SVCall Handler
-    DCD     0           ; Debug Monitor Handler
-    DCD     0                          ; Reserved
-    DCD     PendSV_Handler            ; PendSV Handler
-    DCD     SysTick_Handler;SysTick_Handler            ; SysTick Handler
+    DCD     Reset_Handler   ; Reset Handler
+    DCD     0               ; NMI Handler
+    DCD     0               ; Hard Fault Handler
+    DCD     0               ; MPU Fault Handler
+    DCD     0               ; Bus Fault Handler
+    DCD     0               ; Usage Fault Handler
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; SVCall Handler
+    DCD     0               ; Debug Monitor Handler
+    DCD     0               ; Reserved
+    DCD     PendSV_Handler  ; PendSV Handler
+    DCD     SysTick_Handler ; SysTick_Handler            
 
 Reset_Handler
-         LDR     R0, =osEnableFPU
-         BLX     R0
-         LDR     R0, =__iar_program_start
-         BX      R0
+    LDR     R0, =osEnableFPU
+    BLX     R0
+    LDR     R0, =__iar_program_start
+    BX      R0
     END
 

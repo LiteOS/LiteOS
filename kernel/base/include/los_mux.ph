@@ -53,11 +53,11 @@ extern "C"{
 typedef struct
 {
     UINT8           ucMuxStat;       /**< State OS_MUX_UNUSED,OS_MUX_USED  */
-    UINT16          usMuxCount;      /**< Times of locking a mutex */
-    UINT32          ucMuxID;         /**< Handle ID*/
-    LOS_DL_LIST     stMuxList;       /**< Mutex linked list*/
-    LOS_TASK_CB     *pstOwner;       /**< The current thread that is locking a mutex*/
-    UINT16          usPriority;      /**< Priority of the thread that is locking a mutex */
+    UINT16          usMuxCount;      /**< Times of locking a mutex  */
+    UINT32          ucMuxID;         /**< Handle ID  */
+    LOS_DL_LIST     stMuxList;       /**< Mutex linked list  */
+    LOS_TASK_CB     *pstOwner;       /**< The current thread that is locking a mutex  */
+    UINT16          usPriority;      /**< Priority of the thread that is locking a mutex  */
 } MUX_CB_S;
 
 /**

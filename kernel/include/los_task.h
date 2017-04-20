@@ -449,7 +449,7 @@ typedef struct tagTskInitParam
 typedef struct tagTskInfo
 {
     CHAR                acName[LOS_TASK_NAMELEN];   /**< Task entrance function               */
-    UINT32              uwTaskID;                      /**< Task ID                     */
+    UINT32              uwTaskID;                   /**< Task ID                     */
     UINT16              usTaskStatus;               /**< Task status                   */
     UINT16              usTaskPrio;                 /**< Task priority                 */
     VOID                *pTaskSem;                  /**< Semaphore pointer             */

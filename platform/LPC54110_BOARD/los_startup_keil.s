@@ -1,15 +1,15 @@
         PRESERVE8
 
-Stack_Size	EQU     0x00000400
-Heap_Size	EQU     0x00000200
+Stack_Size  EQU     0x00000400
+Heap_Size   EQU     0x00000200
 
-	AREA	STACK, NOINIT, READWRITE, ALIGN=3
+    AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem SPACE   Stack_Size
 __initial_sp
 
-	AREA	HEAP, NOINIT, READWRITE, ALIGN=3
+    AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base
-Heap_Mem	SPACE   Heap_Size
+Heap_Mem    SPACE   Heap_Size
 __heap_limit
 
     AREA    RESET, CODE, READONLY
@@ -25,64 +25,64 @@ __heap_limit
 __Vectors
     DCD     __initial_sp
     DCD     Reset_Handler
-    DCD     0                ; NMI Handler
-    DCD     0          ; Hard Fault Handler
-    DCD     0          ; MPU Fault Handler
-    DCD     0           ; Bus Fault Handler
-    DCD     0         ; Usage Fault Handler
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                          ; Reserved
-    DCD     0                ; SVCall Handler
-    DCD     0           ; Debug Monitor Handler
-    DCD     0                          ; Reserved
-    DCD     PendSV_Handler             ; PendSV Handler
-    DCD     SysTick_Handler;SysTick_Handler            ; SysTick Handler
+    DCD     0               ; NMI Handler
+    DCD     0               ; Hard Fault Handler
+    DCD     0               ; MPU Fault Handler
+    DCD     0               ; Bus Fault Handler
+    DCD     0               ; Usage Fault Handler
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; Reserved
+    DCD     0               ; SVCall Handler
+    DCD     0               ; Debug Monitor Handler
+    DCD     0               ; Reserved
+    DCD     PendSV_Handler  ; PendSV Handler
+    DCD     SysTick_Handler ; SysTick_Handler
 
-	; External Interrupts
-	DCD     WDT_BOD_IRQHandler  ; Windowed watchdog timer, Brownout detect
-	DCD     DMA0_IRQHandler  ; DMA controller
-	DCD     GINT0_IRQHandler  ; GPIO group 0
-	DCD     GINT1_IRQHandler  ; GPIO group 1
-	DCD     PIN_INT0_IRQHandler  ; Pin interrupt 0 or pattern match engine slice 0
-	DCD     PIN_INT1_IRQHandler  ; Pin interrupt 1or pattern match engine slice 1
-	DCD     PIN_INT2_IRQHandler  ; Pin interrupt 2 or pattern match engine slice 2
-	DCD     PIN_INT3_IRQHandler  ; Pin interrupt 3 or pattern match engine slice 3
-	DCD     UTICK0_IRQHandler  ; Micro-tick Timer
-	DCD     MRT0_IRQHandler  ; Multi-rate timer
-	DCD     CTIMER0_IRQHandler  ; Standard counter/timer CTIMER0
-	DCD     CTIMER1_IRQHandler  ; Standard counter/timer CTIMER1
-	DCD     SCT0_IRQHandler  ; SCTimer/PWM
-	DCD     CTIMER3_IRQHandler  ; Standard counter/timer CTIMER3
-	DCD     FLEXCOMM0_IRQHandler  ; Flexcomm Interface 0 (USART, SPI, I2C)
-	DCD     FLEXCOMM1_IRQHandler  ; Flexcomm Interface 1 (USART, SPI, I2C)
-	DCD     FLEXCOMM2_IRQHandler  ; Flexcomm Interface 2 (USART, SPI, I2C)
-	DCD     FLEXCOMM3_IRQHandler  ; Flexcomm Interface 3 (USART, SPI, I2C)
-	DCD     FLEXCOMM4_IRQHandler  ; Flexcomm Interface 4 (USART, SPI, I2C)
-	DCD     FLEXCOMM5_IRQHandler  ; Flexcomm Interface 5 (USART, SPI, I2C)
-	DCD     FLEXCOMM6_IRQHandler  ; Flexcomm Interface 6 (USART, SPI, I2C, I2S)
-	DCD     FLEXCOMM7_IRQHandler  ; Flexcomm Interface 7 (USART, SPI, I2C, I2S)
-	DCD     ADC0_SEQA_IRQHandler  ; ADC0 sequence A completion.
-	DCD     ADC0_SEQB_IRQHandler  ; ADC0 sequence B completion.
-	DCD     ADC0_THCMP_IRQHandler  ; ADC0 threshold compare and error.
-	DCD     DMIC0_IRQHandler  ; Digital microphone and DMIC subsystem
-	DCD     HWVAD0_IRQHandler  ; Hardware Voice Activity Detector
-	DCD     USB0_NEEDCLK_IRQHandler  ; USB Activity Wake-up Interrupt
-	DCD     USB0_IRQHandler  ; USB device
-	DCD     RTC_IRQHandler  ; RTC alarm and wake-up interrupts
-	DCD     IOH_IRQHandler  ; IOH
-	DCD     MAILBOX_IRQHandler  ; Mailbox interrupt (present on selected devices)
-	DCD     PIN_INT4_IRQHandler  ; Pin interrupt 4 or pattern match engine slice 4 int
-	DCD     PIN_INT5_IRQHandler  ; Pin interrupt 5 or pattern match engine slice 5 int
-	DCD     PIN_INT6_IRQHandler  ; Pin interrupt 6 or pattern match engine slice 6 int
-	DCD     PIN_INT7_IRQHandler  ; Pin interrupt 7 or pattern match engine slice 7 int
-	DCD     CTIMER2_IRQHandler  ; Standard counter/timer CTIMER2
-	DCD     CTIMER4_IRQHandler  ; Standard counter/timer CTIMER4
-	DCD     Reserved54_IRQHandler  ; Reserved interrupt
-	DCD     SPIFI0_IRQHandler  ; SPI flash interface
-	
-	
+    ; External Interrupts
+    DCD     WDT_BOD_IRQHandler  ; Windowed watchdog timer, Brownout detect
+    DCD     DMA0_IRQHandler  ; DMA controller
+    DCD     GINT0_IRQHandler  ; GPIO group 0
+    DCD     GINT1_IRQHandler  ; GPIO group 1
+    DCD     PIN_INT0_IRQHandler  ; Pin interrupt 0 or pattern match engine slice 0
+    DCD     PIN_INT1_IRQHandler  ; Pin interrupt 1or pattern match engine slice 1
+    DCD     PIN_INT2_IRQHandler  ; Pin interrupt 2 or pattern match engine slice 2
+    DCD     PIN_INT3_IRQHandler  ; Pin interrupt 3 or pattern match engine slice 3
+    DCD     UTICK0_IRQHandler  ; Micro-tick Timer
+    DCD     MRT0_IRQHandler  ; Multi-rate timer
+    DCD     CTIMER0_IRQHandler  ; Standard counter/timer CTIMER0
+    DCD     CTIMER1_IRQHandler  ; Standard counter/timer CTIMER1
+    DCD     SCT0_IRQHandler  ; SCTimer/PWM
+    DCD     CTIMER3_IRQHandler  ; Standard counter/timer CTIMER3
+    DCD     FLEXCOMM0_IRQHandler  ; Flexcomm Interface 0 (USART, SPI, I2C)
+    DCD     FLEXCOMM1_IRQHandler  ; Flexcomm Interface 1 (USART, SPI, I2C)
+    DCD     FLEXCOMM2_IRQHandler  ; Flexcomm Interface 2 (USART, SPI, I2C)
+    DCD     FLEXCOMM3_IRQHandler  ; Flexcomm Interface 3 (USART, SPI, I2C)
+    DCD     FLEXCOMM4_IRQHandler  ; Flexcomm Interface 4 (USART, SPI, I2C)
+    DCD     FLEXCOMM5_IRQHandler  ; Flexcomm Interface 5 (USART, SPI, I2C)
+    DCD     FLEXCOMM6_IRQHandler  ; Flexcomm Interface 6 (USART, SPI, I2C, I2S)
+    DCD     FLEXCOMM7_IRQHandler  ; Flexcomm Interface 7 (USART, SPI, I2C, I2S)
+    DCD     ADC0_SEQA_IRQHandler  ; ADC0 sequence A completion.
+    DCD     ADC0_SEQB_IRQHandler  ; ADC0 sequence B completion.
+    DCD     ADC0_THCMP_IRQHandler  ; ADC0 threshold compare and error.
+    DCD     DMIC0_IRQHandler  ; Digital microphone and DMIC subsystem
+    DCD     HWVAD0_IRQHandler  ; Hardware Voice Activity Detector
+    DCD     USB0_NEEDCLK_IRQHandler  ; USB Activity Wake-up Interrupt
+    DCD     USB0_IRQHandler  ; USB device
+    DCD     RTC_IRQHandler  ; RTC alarm and wake-up interrupts
+    DCD     IOH_IRQHandler  ; IOH
+    DCD     MAILBOX_IRQHandler  ; Mailbox interrupt (present on selected devices)
+    DCD     PIN_INT4_IRQHandler  ; Pin interrupt 4 or pattern match engine slice 4 int
+    DCD     PIN_INT5_IRQHandler  ; Pin interrupt 5 or pattern match engine slice 5 int
+    DCD     PIN_INT6_IRQHandler  ; Pin interrupt 6 or pattern match engine slice 6 int
+    DCD     PIN_INT7_IRQHandler  ; Pin interrupt 7 or pattern match engine slice 7 int
+    DCD     CTIMER2_IRQHandler  ; Standard counter/timer CTIMER2
+    DCD     CTIMER4_IRQHandler  ; Standard counter/timer CTIMER4
+    DCD     Reserved54_IRQHandler  ; Reserved interrupt
+    DCD     SPIFI0_IRQHandler  ; SPI flash interface
+    
+    
 ; Dummy Exception Handlers (infinite loops which can be modified)
 NMI_Handler     PROC
                 EXPORT  NMI_Handler               [WEAK]
@@ -492,18 +492,18 @@ CTIMER2_DriverIRQHandler
 CTIMER4_DriverIRQHandler
 Reserved54_DriverIRQHandler
 SPIFI0_DriverIRQHandler
-	
-				B       .
+    
+                B       .
 
                 ENDP
 
 Reset_Handler
-	LDR.W	R0, =0xE000ED88
-	LDR		R1, [R0]
-	ORR		R1, R1, #(0xF << 20)
-	STR		R1, [R0]
+    LDR.W   R0, =0xE000ED88
+    LDR     R1, [R0]
+    ORR     R1, R1, #(0xF << 20)
+    STR     R1, [R0]
     CPSID   I
-	
+    
     IMPORT  __main
     LDR     R0, =__main
     BX      R0

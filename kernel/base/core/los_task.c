@@ -52,10 +52,10 @@ extern "C" {
 extern int sys_suspend(void);
 LITE_OS_SEC_BSS  LOS_TASK_CB                         *g_pstTaskCBArray;
 LITE_OS_SEC_BSS  ST_LOS_TASK                         g_stLosTask;
-LITE_OS_SEC_BSS  UINT16                                  g_usLosTaskLock;
-LITE_OS_SEC_BSS  UINT32                                  g_uwTskMaxNum;
-LITE_OS_SEC_BSS  UINT32                                  g_uwIdleTaskID;
-LITE_OS_SEC_BSS  UINT32                                  g_uwSwtmrTaskID;
+LITE_OS_SEC_BSS  UINT16                              g_usLosTaskLock;
+LITE_OS_SEC_BSS  UINT32                              g_uwTskMaxNum;
+LITE_OS_SEC_BSS  UINT32                              g_uwIdleTaskID;
+LITE_OS_SEC_BSS  UINT32                              g_uwSwtmrTaskID;
 LITE_OS_SEC_DATA LOS_DL_LIST                         g_stTaskTimerList;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_stLosFreeTask;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_stTskRecyleList;

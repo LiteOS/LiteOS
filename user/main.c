@@ -39,51 +39,51 @@ void LOS_BoadExampleEntry(void)
 
     if (uwRet != LOS_OK)
     {
-        return ;
+        return;
     }
-    return ;
+    return;
 }
 
 /*****************************************************************************
- Function    : main
- Description : Main function entry
- Input       : None
- Output      : None
- Return      : None
+Function    : main
+Description : Main function entry
+Input       : None
+Output      : None
+Return      : None
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT
 int main(void)
 {
     UINT32 uwRet;
     /*
-		add you hardware init code here
-		for example flash, i2c , system clock ....
-    */
-	//HAL_init();....
-	
-	/*Init LiteOS kernel */
+        add you hardware init code here
+        for example flash, i2c , system clock ....
+     */
+    //HAL_init();....
+
+    /*Init LiteOS kernel */
     uwRet = LOS_KernelInit();
     if (uwRet != LOS_OK) {
         return LOS_NOK;
     }
-	/* Enable LiteOS system tick interrupt */
+    /* Enable LiteOS system tick interrupt */
     LOS_EnableTick();
-	
-    /* 
+
+    /*
         Notice: add your code here
         here you can create task for your function 
         do some hw init that need after systemtick init
-    */
-    LOS_EvbSetup(); //init the device on the dev baord
-   
-    //LOS_Demo_Entry();	
-		
+     */
+    LOS_EvbSetup();//init the device on the dev baord
+
+    //LOS_Demo_Entry();
+
     //LOS_Inspect_Entry();
-    
-    LOS_BoadExampleEntry();	
-		
+
+    LOS_BoadExampleEntry();
+
     /* Kernel start to run */
     LOS_Start();
     for (;;);
-    /* Replace the dots (...) with your own code.  */
+    /* Replace the dots (...) with your own code. */
 }

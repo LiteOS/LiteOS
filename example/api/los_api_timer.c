@@ -46,18 +46,18 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-void Timer1_Callback  (UINT32 arg);  // callback fuction                   
-void Timer2_Callback	(UINT32 arg);  // callback fuction 
+void Timer1_Callback    (UINT32 arg);   // callback fuction
+void Timer2_Callback    (UINT32 arg);   // callback fuction
 
 
-UINT32 g_timercount1 = 0;  
-UINT32 g_timercount2 = 0; 
+UINT32 g_timercount1 = 0;
+UINT32 g_timercount2 = 0;
 
 
 void Timer1_Callback(UINT32 arg)
 {
     
-    unsigned long tick_last1;   
+    unsigned long tick_last1;
     g_timercount1 ++;
     tick_last1=(UINT32)LOS_TickCountGet();
     dprintf("g_timercount1=%d\n",g_timercount1);
@@ -66,40 +66,40 @@ void Timer1_Callback(UINT32 arg)
 
 void Timer2_Callback(UINT32 arg)
 {
-    unsigned long tick_last2;  
+    unsigned long tick_last2;
     tick_last2=(UINT32)LOS_TickCountGet();
     g_timercount2 ++;
     dprintf("g_timercount2=%d\n",g_timercount2);
     dprintf("tick_last2=%lu\n",tick_last2);
-	LOS_InspectStatusSetByID(LOS_INSPECT_TIMER,LOS_INSPECT_STU_SUCCESS);
+    LOS_InspectStatusSetByID(LOS_INSPECT_TIMER,LOS_INSPECT_STU_SUCCESS);
 }
 
-UINT32 Example_swTimer(void)  
-{                                                         
-    UINT16 id1;  
+UINT32 Example_swTimer(void)
+{
+    UINT16 id1;
     UINT16 id2;// timer id
   
     LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE,Timer1_Callback,&id1,1);
     LOS_SwtmrCreate(100,LOS_SWTMR_MODE_PERIOD,Timer2_Callback,&id2,1);
     dprintf("create Timer1 success\n");
-	
-    LOS_SwtmrStart(id1); 
+    
+    LOS_SwtmrStart(id1);
     dprintf("start Timer1 sucess\n");
     LOS_TaskDelay(200);
     LOS_SwtmrStop(id1);
     dprintf("stop Timer1 sucess\n");
-	
+    
     LOS_SwtmrStart(id1);
     LOS_TaskDelay(1000);
     LOS_SwtmrDelete(id1);
     dprintf("delete Timer1 sucess\n");
-	
+    
     LOS_SwtmrStart(id2);
     dprintf("start Timer2\n");
     LOS_TaskDelay(1000);
     LOS_SwtmrStop(id2);
-    LOS_SwtmrDelete(id2); 
-		
+    LOS_SwtmrDelete(id2);
+    
     return LOS_OK;
 }
 

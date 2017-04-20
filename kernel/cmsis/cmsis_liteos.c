@@ -57,17 +57,17 @@ extern "C" {
 
 struct os_pool_cb
 {
-	UINT32 poolid;
+    UINT32 poolid;
 };
 
 struct os_messageQ_cb
 {
-	UINT32 msgid;
+    UINT32 msgid;
 };
 
 struct os_mailQ_cb
 {
-	UINT32 mailid;
+    UINT32 mailid;
 };
 
 #define PRIORITY_WIN 4u
@@ -96,7 +96,7 @@ osStatus osKernelInitialize (void)
     {
         return osErrorOS;
     }
-		
+    
     LOS_EnableTick();
     return osOK;
 }

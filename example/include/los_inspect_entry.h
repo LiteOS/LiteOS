@@ -43,34 +43,32 @@
 
 ///LiteOS Inspect status.
 typedef enum  {
-	
-	LOS_INSPECT_STU_START         =  0xFF,       
-	LOS_INSPECT_STU_ERROR         =  0x01,       
-  	LOS_INSPECT_STU_SUCCESS    	  =  0x00,       
+    LOS_INSPECT_STU_START         =  0xFF,
+    LOS_INSPECT_STU_ERROR         =  0x01,
+    LOS_INSPECT_STU_SUCCESS       =  0x00,
 } enInspectStu;
 
-///LiteOS Inspect result.
-typedef enum  {    
-  LOS_INSPECT_TASK = 0,     	 
-  LOS_INSPECT_EVENT,      
-	LOS_INSPECT_MSG, 
-  LOS_INSPECT_SEM,  	
-  LOS_INSPECT_MUTEX,	
-  LOS_INSPECT_SYSTIC, 
-  LOS_INSPECT_TIMER,
-	 
-	LOS_INSPECT_LIST, 
-	LOS_INSPECT_SMEM, 
-	LOS_INSPECT_DMEM,  
-	//LOS_INSPECT_INTERRUPT,  
-	LOS_INSPECT_BUFF
+//LiteOS Inspect result.
+typedef enum {
+    LOS_INSPECT_TASK = 0,
+    LOS_INSPECT_EVENT,
+    LOS_INSPECT_MSG,
+    LOS_INSPECT_SEM,
+    LOS_INSPECT_MUTEX,
+    LOS_INSPECT_SYSTIC,
+    LOS_INSPECT_TIMER,
+    LOS_INSPECT_LIST,
+    LOS_INSPECT_SMEM,
+    LOS_INSPECT_DMEM,
+    //LOS_INSPECT_INTERRUPT,
+    LOS_INSPECT_BUFF
 } enInspectID;
 
-typedef struct os_Inspect_def  {
-  enInspectID     InspectID;   
-  enInspectStu    Status;    
-  UINT32    (*Inspectfunc) (void); 
-  char      name[6]; 
+typedef struct os_Inspect_def {
+    enInspectID   InspectID;
+    enInspectStu    Status;
+    UINT32    (*Inspectfunc) (void);
+    char    name[6];
 } osInspect_Def;
 
 

@@ -9,25 +9,25 @@ void LOS_EvbKeyInit(void)
 {
 
 #ifdef LOS_STM32F429ZI
-	GPIO_InitTypeDef   GPIO_InitStructure;
+    GPIO_InitTypeDef   GPIO_InitStructure;
 
-	BSP_LED_Init(LED3);
+    BSP_LED_Init(LED3);
 
-  /* Enable GPIOA clock */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  
-  /* Configure PA0 pin as input floating */
-  GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStructure.Pull = GPIO_NOPULL;
-  GPIO_InitStructure.Pin = GPIO_PIN_0;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    /* Enable GPIOA clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
-  /* Enable and set EXTI Line0 Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+    /* Configure PA0 pin as input floating */
+    GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    GPIO_InitStructure.Pin = GPIO_PIN_0;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    /* Enable and set EXTI Line0 Interrupt to the lowest priority */
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 #endif
 
-	return ;
+    return;
 }
 
 #ifdef LOS_STM32F429ZI
@@ -38,10 +38,10 @@ void LOS_EvbKeyInit(void)
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == KEY_BUTTON_PIN)
-  {
-      BSP_LED_Toggle(LED3);
-  }
+    if(GPIO_Pin == KEY_BUTTON_PIN)
+    {
+        BSP_LED_Toggle(LED3);
+    }
 }
 #endif
 
@@ -54,10 +54,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  *****************************************************************************/
 unsigned int LOS_EvbGetKeyVal(int KeyNum)
 {
-	unsigned int KeyVal = LOS_GPIO_ERR; 
-	
-	//add you code here.
-	
-	return KeyVal;
+    unsigned int KeyVal = LOS_GPIO_ERR; 
+
+    //add you code here.
+
+    return KeyVal;
 }
 

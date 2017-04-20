@@ -7,17 +7,17 @@
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
 
 typedef struct fw_MailQ_def{
-	uint32_t	event_begin_time;   /* Last time when the queue was successfully read. */
+    uint32_t    event_begin_time;   /* Last time when the queue was successfully read. */
     uint32_t    timeout_cnt;        /* Number of times the processing of messages in the queue times out. */
-	fw_event_t	last_event;         /* null indicates that no event is being processed or the previous event has been processed. */
+    fw_event_t  last_event;         /* null indicates that no event is being processed or the previous event has been processed. */
     struct fw_MailQ_def *next;
-	osMailQDef_t *queue_id;
+    osMailQDef_t *queue_id;
 }fwMailQDef_t;
 
 typedef struct fwMailQDef_t *fwMailQId;
 extern fwMailQId g_fwMailQList;
 
-extern uint32_t	g_maxEventTime; /* Default maximum time for processing a single event. */
+extern uint32_t g_maxEventTime; /* Default maximum time for processing a single event. */
 
 #define fwMailQDef(name, queue_sz, type)  \
     osMailQDef(name, queue_sz, type);    \

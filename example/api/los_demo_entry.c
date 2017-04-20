@@ -45,7 +45,7 @@ extern "C" {
 static UINT32 g_uwDemoTaskID;
 int dprintf_1(const char *format,...)
 {
-	return 0;
+    return 0;
 }
 #ifdef LOS_KERNEL_TEST_KEIL_SWSIMU
 
@@ -57,7 +57,7 @@ int dprintf_1(const char *format,...)
 
 struct __FILE 
 {
-	int handle; /* Add whatever needed */ 
+    int handle; /* Add whatever needed */ 
 }; 
 
 FILE __stdout;
@@ -65,17 +65,17 @@ FILE __stdin;
 
 int fputc(int ch, FILE *f) 
 { 
-	if (DEMCR & TRCENA) 
-	{      
-		while (ITM_Port32(0) == 0);
-		ITM_Port8(0) = ch; 
-	}
-	return(ch);
+    if (DEMCR & TRCENA) 
+    {      
+        while (ITM_Port32(0) == 0);
+        ITM_Port8(0) = ch; 
+    }
+    return(ch);
 }
 
-#endif	
-	
-	
+#endif  
+    
+    
 LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
 {
 #ifdef LOS_KERNEL_TEST_ALL
@@ -138,9 +138,9 @@ void LOS_Demo_Entry(void)
     if (uwRet != LOS_OK)
     {
         dprintf("Api demo test task create failed\n");
-        return ;
+        return;
     }
-    return ;
+    return;
 }
 
 #ifdef __cplusplus

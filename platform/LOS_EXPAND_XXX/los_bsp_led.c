@@ -1,7 +1,7 @@
 #include "los_bsp_led.h"
 
 /******************************************************************************
-	here include some special hearder file you need
+    here include some special hearder file you need
 ******************************************************************************/
 
 
@@ -15,9 +15,9 @@
  *****************************************************************************/
 void LOS_EvbLedInit(void)
 {
-	//add you code here.
-	
-	return ;
+    //add you code here.
+    
+    return ;
 }
 
 /*************************************************************************************************
@@ -37,13 +37,13 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
-							 //add you code here.   
-                       /*led1 on */
+                //add you code here.
+                        /*led1 on */
             }
             else
             {
-							//add you code here.
-										 /*led1 off */
+                //add you code here.
+                        /*led1 off */
             }
             break;
         }
@@ -51,13 +51,13 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
-							//add you code here.
-                      /*led2 on */
+                //add you code here.
+                        /*led2 on */
             }
             else
             {
-							//add you code here.
-                     /*led2 off */
+                //add you code here.
+                        /*led2 off */
             }
             break;
         }
@@ -65,13 +65,13 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
-						  //add you code here.
-                      /*led3 on */
+                //add you code here.
+                        /*led3 on */
             }
             else
             {
-							//add you code here.
-                     /*led3 off */
+                //add you code here.
+                        /*led3 off */
             }
             break;
         }
@@ -80,7 +80,7 @@ void LOS_EvbLedControl(int index, int cmd)
             break;
         }
     }
-	return ;
+    return;
 }
 
 

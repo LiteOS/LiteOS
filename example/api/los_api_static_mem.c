@@ -77,17 +77,17 @@ UINT32 Example_StaticMem(VOID)
      dprintf("clear data ok\n *p_num = %d\n", *p_num);
     /*释放内存*/
     uwRet = LOS_MemboxFree(pBoxMem, p_num);
-    if (LOS_OK == uwRet) 
+    if (LOS_OK == uwRet)
     {
         dprintf("Mem box free ok!\n");
-		LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
+        LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
     }
     else
     {
         dprintf("Mem box free failed!\n");
-		LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
+        LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
     }
-		
+    
     return LOS_OK;
 }
 

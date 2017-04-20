@@ -1,7 +1,7 @@
 #include "los_bsp_key.h"
 
 #ifdef LOS_LPC54114
-	#include "app_key.h"
+    #include "app_key.h"
 #endif
 
 /*****************************************************************************
@@ -13,10 +13,10 @@
  *****************************************************************************/
 void LOS_EvbKeyInit(void)
 {
-#ifdef LOS_LPC54114	
-	key_init();
+#ifdef LOS_LPC54114
+    key_init();
 #endif
-	return ;
+    return;
 }
 
 /*****************************************************************************
@@ -29,13 +29,13 @@ void LOS_EvbKeyInit(void)
 uint8_t LOS_EvbGetKeyVal(int KeyNum)
 {
 #ifdef LOS_LPC54114
-	  if(KeyNum > KEY_NUM)
-		{
-				return LOS_GPIO_ERR;
-		}
-		return key_value(KeyNum);
+    if(KeyNum > KEY_NUM)
+    {
+        return LOS_GPIO_ERR;
+    }
+    return key_value(KeyNum);
 #else
-		return LOS_GPIO_ERR;
+    return LOS_GPIO_ERR;
 #endif
 }
 

@@ -78,17 +78,17 @@ UINT32 Example_GetTick(VOID)
     {
         dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount2);
     }
-		
-		if((uwTickCount2 - uwTickCount1) >= 200)
-		{
-			LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
-			return LOS_OK;   
-		}
-		else
-		{
-			LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
-			return LOS_NOK; 
-		}
+        
+    if((uwTickCount2 - uwTickCount1) >= 200)
+    {
+        LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
+        return LOS_OK;   
+    }
+    else
+    {
+        LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
+        return LOS_NOK; 
+    }
 }
 
 

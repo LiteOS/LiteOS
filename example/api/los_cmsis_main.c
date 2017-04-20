@@ -17,10 +17,10 @@ int32_t Create_Cmsis_Task(void)
 {
     osThreadId id;
     id = osThreadCreate (osThread (Cmsis_Task_Test), NULL);
-		if (NULL == id)
-		{
-			return -1;
-		}
+    if (NULL == id)
+    {
+        return -1;
+    }
     return 0;
 }
 
@@ -28,21 +28,21 @@ int32_t Create_Cmsis_Task(void)
 #if 0
 int main()
 {
-	int32_t uwRet = 0;
-	
-	/* Init LiteOS kernel */
-	osKernelInitialize();
-	
-	/* create a test task */
-	uwRet = Create_Cmsis_Task();
-	if (uwRet)
-	{
-		return -1;
-	}
-	
-	/* start to run LiteOS kernel */
-	osKernelStart();
-	
-	return 0;
+    int32_t uwRet = 0;
+    
+    /* Init LiteOS kernel */
+    osKernelInitialize();
+    
+    /* create a test task */
+    uwRet = Create_Cmsis_Task();
+    if (uwRet)
+    {
+        return -1;
+    }
+    
+    /* start to run LiteOS kernel */
+    osKernelStart();
+    
+    return 0;
 }
 #endif

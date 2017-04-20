@@ -20,41 +20,41 @@ static void Error_Handler(void);
   */
 static void Error_Handler(void)
 {
-  /* Turn LED_RED on */
-  BSP_LED_On(LED_RED);
+    /* Turn LED_RED on */
+    BSP_LED_On(LED_RED);
 
-  while(1)
-  {
-  }
+    while(1)
+    {
+    }
 }
 #endif
 
 void LOS_EvbUartInit(void)
 {
 #ifdef LOS_STM32F412Zx
-	UartHandle.Instance        = USARTx;
+    UartHandle.Instance          = USARTx;
 
-	UartHandle.Init.BaudRate     = 115200;
-	UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
-	UartHandle.Init.StopBits     = UART_STOPBITS_1;
-	UartHandle.Init.Parity       = UART_PARITY_NONE;
-	UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-	UartHandle.Init.Mode         = UART_MODE_TX_RX;
-	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+    UartHandle.Init.BaudRate     = 115200;
+    UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandle.Init.StopBits     = UART_STOPBITS_1;
+    UartHandle.Init.Parity       = UART_PARITY_NONE;
+    UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
 
-	if(HAL_UART_DeInit(&UartHandle) != HAL_OK)
-	{
-		Error_Handler();
-	}  
-	if(HAL_UART_Init(&UartHandle) != HAL_OK)
-	{
-		Error_Handler();
-	}
-	
-	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+    if(HAL_UART_DeInit(&UartHandle) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if(HAL_UART_Init(&UartHandle) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    
+    BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 #endif
-	
-	return ;
+    
+    return;
 }
 
 
@@ -67,12 +67,12 @@ void LOS_EvbUartInit(void)
 void LOS_EvbUartWriteByte(char c)
 {
 #ifdef LOS_STM32F412Zx
-	if(HAL_UART_Transmit(&UartHandle, (uint8_t*)&c, 1, 5000)!= HAL_OK)
-	{
-		Error_Handler();   
-	}
+    if(HAL_UART_Transmit(&UartHandle, (uint8_t*)&c, 1, 5000)!= HAL_OK)
+    {
+        Error_Handler();
+    }
 #endif
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -86,14 +86,14 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef LOS_STM32F412Zx
     while (*str)
     {
-			if(HAL_UART_Transmit(&UartHandle, (uint8_t*)str, 1, 5000)!= HAL_OK)
-			{
-				Error_Handler();   
-			}
-			str++;
+        if(HAL_UART_Transmit(&UartHandle, (uint8_t*)str, 1, 5000)!= HAL_OK)
+        {
+            Error_Handler();
+        }
+        str++;
     }
 #endif
-	return ;
+    return;
 }
 
 
@@ -106,12 +106,12 @@ void LOS_EvbUartWriteStr(const char* str)
 void LOS_EvbUartReadByte(char* c)
 {
 #ifdef LOS_STM32F412Zx
-	if(HAL_UART_Receive(&UartHandle, (uint8_t *)c, 1, 5000) != HAL_OK)
-	{
-		Error_Handler();  
-	}
+    if(HAL_UART_Receive(&UartHandle, (uint8_t *)c, 1, 5000) != HAL_OK)
+    {
+        Error_Handler();
+    }
 #endif
-	return ;
+    return;
 }
 
 #ifdef LOS_STM32F412Zx
@@ -131,5 +131,6 @@ void LOS_EvbUartPrintf(char* fmt, ...)
         LOS_EvbUartWriteByte(_buffer[i]);
     }
 #endif
-	return ;
+    return;
 }
+

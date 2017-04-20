@@ -53,7 +53,7 @@ LITE_OS_SEC_DATA_INIT LOS_DL_LIST    g_stUnusedMuxList;
 
 
 /*****************************************************************************
- Funtion	     : osMuxInit,
+ Funtion      : osMuxInit,
  Description  : Initializes the mutex,
  Input        : None
  Output       : None
@@ -161,7 +161,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxDelete(UINT32 uwMuxHandle)
  Function     : LOS_MuxPend
  Description  : Specify the mutex P operation,
  Input        : uwMuxHandle ------ Mutex operation handleone,
- 		       uwTimeOut  ------- waiting time,
+                uwTimeOut  ------- waiting time,
  Output       : None
  Return       : LOS_OK on success ,or error code on failure
  *****************************************************************************/
@@ -290,7 +290,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 uwMuxHandle)
     }
 
     pstRunTsk = (LOS_TASK_CB *)g_stLosTask.pstRunTask;
-    if (pstMuxPosted->usMuxCount == 0||pstMuxPosted->pstOwner != pstRunTsk)
+    if (pstMuxPosted->usMuxCount == 0 || pstMuxPosted->pstOwner != pstRunTsk)
     {
         LOS_IntRestore(uwIntSave);
         return LOS_ERRNO_MUX_INVALID;

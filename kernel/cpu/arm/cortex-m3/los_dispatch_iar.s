@@ -40,8 +40,8 @@
         EXPORT  LOS_StartToRun
         EXPORT  osTaskSchedule
         EXPORT  PendSV_Handler
-		EXPORT  LOS_IntNumGet
-		EXPORT  osDisableIRQ
+        EXPORT  LOS_IntNumGet
+        EXPORT  osDisableIRQ
         
         IMPORT  g_stLosTask
         IMPORT  g_pfnTskSwitchHook
@@ -53,7 +53,7 @@ OS_NVIC_PENDSV_PRI          EQU     0xF0F00000
 OS_NVIC_PENDSVSET           EQU     0x10000000
 OS_TASK_STATUS_RUNNING      EQU     0x0010
 
-	SECTION    .text:CODE(2)
+    SECTION    .text:CODE(2)
     THUMB
     REQUIRE8
 
@@ -96,12 +96,12 @@ LOS_StartToRun
 
     CPSIE   I
     BX      R6
-	NOP
-	ALIGN
-	
-	AREA KERNEL, CODE, READONLY
-	THUMB
-	
+    NOP
+    ALIGN
+    
+    AREA KERNEL, CODE, READONLY
+    THUMB
+    
 LOS_IntNumGet
     MRS     R0, IPSR
     BX      LR
@@ -175,7 +175,7 @@ TaskSwitch
 
     MSR     PRIMASK, R12
     BX      LR
-	
-	NOP
-	ALIGN
+    
+    NOP
+    ALIGN
     END
