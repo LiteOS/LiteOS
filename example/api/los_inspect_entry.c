@@ -237,11 +237,11 @@ UINT32 LOS_InspectByID(enInspectID InspectID)
 void LOS_Inspect_KeyAndLed(UINT32 KeyID,UINT32 LedID)
 {
      /* check if the user key is pressed */
-    if(RESET == LOS_EvbGetKeyVal(KeyID)){
+    if(LOS_KEY_PRESS == LOS_EvbGetKeyVal(KeyID)){
                  
         LOS_TaskDelay(50);
             
-        if(RESET == LOS_EvbGetKeyVal(KeyID)){
+        if(LOS_KEY_PRESS == LOS_EvbGetKeyVal(KeyID)){
                     
             /* turn on LED1 */
             LOS_EvbLedControl(LedID,LED_ON);

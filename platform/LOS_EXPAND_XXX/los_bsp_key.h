@@ -1,9 +1,9 @@
 #ifndef _LOS_BSP_KEY_H
 #define _LOS_BSP_KEY_H
 
-#define RESET 0
+#define LOS_KEY_PRESS   0
 
-#define USER_KEY 1
+#define USER_KEY    1
 
 extern void LOS_EvbKeyInit(void);
 
