@@ -49,6 +49,9 @@ extern "C" {
 #ifdef LOS_PACK_ALIGN_8_KEIL
 #pragma pack(8)
 #endif
+#ifdef LOS_PACK_ALIGN_8_GCC
+__attribute__ ((aligned (8)))
+#endif
 UINT8 *m_aucSysMem0;
 UINT32 g_sys_mem_addr_end = 0;
 extern UINT8 g_ucMemStart[];
