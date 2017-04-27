@@ -2,6 +2,7 @@
 #ifndef __LOS_BSP_FLASH_H
 #define __LOS_BSP_FLASH_H
 
+#ifdef LOS_FLASH
 
 /* Includes ------------------------------------------------------------------*/
 #include "stdint.h"
@@ -85,6 +86,7 @@ uint32_t GetSectorSize(uint32_t Sector);
 
 void Fill_Buffer(u8 *pBuffer, u16 BufferLenght, u32 Offset);
 
+#endif
 
 #endif /* __LOS_BSP_FLASH_H */
 

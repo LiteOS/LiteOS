@@ -6,8 +6,11 @@
 #include "los_bsp_key.h"
 #include "los_bsp_uart.h"
 
+#ifdef LOS_FLASH
+
 #include "los_fs.h"
 #include "los_api_fs.h"
+
 
 
 /* Private value-----------------------------------------------*/
@@ -125,4 +128,5 @@ UINT32 Example_FsEntry(void)
     return LOS_OK;
 }
 
+#endif
 

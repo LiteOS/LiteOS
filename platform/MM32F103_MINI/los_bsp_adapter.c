@@ -31,7 +31,7 @@
     global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
-const unsigned int sys_clk_freq = 48000000;
+const unsigned int sys_clk_freq = 8000000;
 
 /* tick count per second , don't change this */
 const unsigned int tick_per_second = 1000;

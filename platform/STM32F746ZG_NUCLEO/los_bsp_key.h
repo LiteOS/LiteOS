@@ -1,8 +1,8 @@
 #ifndef _LOS_BSP_KEY_H
 #define _LOS_BSP_KEY_H
 
-#ifndef RESET
-#define RESET 0
+#ifndef LOS_KEY_PRESS
+#define LOS_KEY_PRESS 0
 #endif
 
 #define USER_KEY 1
