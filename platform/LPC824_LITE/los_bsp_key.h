@@ -3,11 +3,11 @@
 
 #include "stdint.h"
 
-#define LOS_GPIO_ERR 0xFF
+#define LOS_GPIO_ERR    0xFF
 
-#define RESET 0
+#define LOS_KEY_PRESS   0
 
-#define USER_KEY 1
+#define USER_KEY        1
 
 extern void LOS_EvbKeyInit(void);
 
