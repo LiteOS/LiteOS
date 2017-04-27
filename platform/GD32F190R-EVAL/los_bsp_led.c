@@ -8,12 +8,12 @@
 void LOS_EvbLedInit(void)
 {
 #ifdef GD32F190R8
-	gd_eval_ledinit(LED1);
-	gd_eval_ledinit(LED2);
-	gd_eval_ledinit(LED3);
+    gd_eval_ledinit(LED1);
+    gd_eval_ledinit(LED2);
+    gd_eval_ledinit(LED3);
 #endif
 
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -70,7 +70,7 @@ void LOS_EvbLedControl(int index, int cmd)
         }
     }
 #endif
-	return ;
+    return;
 }
 
 

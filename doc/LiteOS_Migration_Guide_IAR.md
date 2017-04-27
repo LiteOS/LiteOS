@@ -234,6 +234,21 @@ IAR工具需要开发者自行购买，Link驱动程序需根据具体使用的�
 </tr>
 <tr>
 	<td></td>
+	<td>LPC824_LITE</td>
+	<td>LPC824Lite开发板systick及驱动相关代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>LPC54110_BOARD</td>
+	<td>LPC54110开发板systick及驱动相关代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td>MM32F103_MINI</td>
+	<td>MM32F103开发板systick及驱动相关代码</td>
+</tr>
+<tr>
+	<td></td>
 	<td>LOS_EXPAND_XXX</td>
 	<td>用于新扩展的开发板systick以及led、uart、key驱动bsp适配代码</td>
 </tr>
@@ -266,6 +281,21 @@ IAR工具需要开发者自行购买，Link驱动程序需根据具体使用的�
 	<td></td>
 	<td>GD32F450i-EVAL-KEIL</td>
 	<td>gd32f450开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>LPC824_LITE_KEIL</td>
+	<td>lpc824Lite开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>LPC54110_BOARD_KEIL</td>
+	<td>lpc54110开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>MM32F103_MINI_KEIL</td>
+	<td>MindMotion MM32 MiniBoard开发板的keil工程目录</td>
 </tr>
 <tr>
 	<td>user</td>

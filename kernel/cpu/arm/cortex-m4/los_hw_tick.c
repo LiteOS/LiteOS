@@ -64,11 +64,11 @@ void LOS_TickHandler(void)
     LOS_IntRestore(uwIntSave);
 
     osTickHandler();
-	
+    
     uwIntSave = LOS_IntLock();
     g_vuwIntCount--;
     LOS_IntRestore(uwIntSave);
-	
+    
     return ;
 }
 
@@ -81,8 +81,8 @@ return  : none
 *****************************************************************************/
 void LOS_SetTickSycle(UINT32 ticks)
 {
-	g_uwCyclesPerTick = ticks;
-	return ;
+    g_uwCyclesPerTick = ticks;
+    return ;
 }
 
 /*****************************************************************************

@@ -70,8 +70,8 @@ typedef struct tagMEMBOX_NODE
  */
 typedef struct
 {
-   UINT32           uwBlkSize;                            /**<Block size*/
-   UINT32           uwBlkNum;                             /**<Block number*/
+   UINT32           uwBlkSize;                  /**<Block size*/
+   UINT32           uwBlkNum;                   /**<Block number*/
    LOS_MEMBOX_NODE  stFreeList;                 /**<Free list*/
 } LOS_MEMBOX_INFO;
 

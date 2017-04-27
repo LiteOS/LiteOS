@@ -48,9 +48,9 @@ extern int dprintf_1(const char *format,...);
 
 #define LOS_KERNEL_DEBUG_OUT
 #ifdef LOS_KERNEL_DEBUG_OUT
-	#define dprintf printf
+    #define dprintf printf
 #else
-	#define dprintf dprintf_1
+    #define dprintf dprintf_1
 #endif
 
 #endif

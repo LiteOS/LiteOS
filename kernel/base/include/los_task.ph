@@ -278,7 +278,7 @@ typedef struct tagTaskCB
     UINT16                      usPriority;
     UINT32                      uwStackSize;                /**< Task stack size                 */
     UINT32                      uwTopOfStack;               /**< Task stack top               */
-    UINT32                      uwTaskID;                  /**< Task ID                     */
+    UINT32                      uwTaskID;                   /**< Task ID                     */
     TSK_ENTRY_FUNC              pfnTaskEntry;               /**< Task entrance function               */
     VOID                        *pTaskSem;                  /**< Task-held semaphore           */
     VOID                        *pThreadJoin;               /**< pthread adaption            */

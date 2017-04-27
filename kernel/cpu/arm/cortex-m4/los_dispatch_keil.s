@@ -40,8 +40,8 @@
         EXPORT  LOS_StartToRun
         EXPORT  osTaskSchedule
         EXPORT  PendSV_Handler
-		EXPORT  LOS_IntNumGet
-		EXPORT  osDisableIRQ
+        EXPORT  LOS_IntNumGet
+        EXPORT  osDisableIRQ
         
         IMPORT  g_stLosTask
         IMPORT  g_pfnTskSwitchHook
@@ -53,7 +53,7 @@ OS_NVIC_PENDSV_PRI          EQU     0xF0F00000
 OS_NVIC_PENDSVSET           EQU     0x10000000
 OS_TASK_STATUS_RUNNING      EQU     0x0010
 
-	AREA	|.text|, CODE, READONLY
+    AREA    |.text|, CODE, READONLY
     THUMB
     REQUIRE8
 

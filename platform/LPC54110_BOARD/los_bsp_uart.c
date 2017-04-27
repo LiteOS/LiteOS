@@ -18,10 +18,10 @@
  *****************************************************************************/
 void LOS_EvbUartInit(void)
 {
-#ifdef LOS_LPC54114	
-	  BOARD_InitDebugConsole();
+#ifdef LOS_LPC54114 
+    BOARD_InitDebugConsole();
 #endif
-		return;
+    return;
 }
 
 /*****************************************************************************
@@ -34,9 +34,9 @@ void LOS_EvbUartInit(void)
 void LOS_EvbUartWriteByte(char c)
 {
 #ifdef LOS_LPC54114
-	  DbgConsole_Putchar(c);
+    DbgConsole_Putchar(c);
 #endif
-		return;
+    return;
 }
 
 /*****************************************************************************
@@ -51,7 +51,7 @@ void LOS_EvbUartReadByte(char* c)
 #ifdef LOS_LPC54114
     *c = DbgConsole_Getchar();
 #endif
-		return;
+    return;
 }
 
 /*****************************************************************************
@@ -66,9 +66,9 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef LOS_LPC54114
     while (*str)
     {
-			  DbgConsole_Putchar(* str++);
+        DbgConsole_Putchar(* str++);
     }
 #endif
-	  return;
+    return;
 }
 

@@ -11,12 +11,12 @@ void LOS_EvbLedInit(void)
 {
 
 #ifdef LOS_STM32F412Zx
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
+    BSP_LED_Init(LED1);
+    BSP_LED_Init(LED2);
+    BSP_LED_Init(LED3);
 #endif
 
-	return ;
+    return;
 }
 
 /*************************************************************************************************
@@ -73,7 +73,7 @@ void LOS_EvbLedControl(int index, int cmd)
         }
     }
 #endif
-	return ;
+    return;
 }
 
 

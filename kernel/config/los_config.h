@@ -65,9 +65,9 @@ extern char __bss_start;
 #define OS_SYS_FUNC_ADDR_END                            &__data_end
 
 /* default LiteOS ram size level 
-	RAM_SIZE_LEVEL_0 means kernel ram < 8k  , 
-	RAM_SIZE_LEVEL_1 means kernel ram < 16k, 
-	RAM_SIZE_LEVEL_2 means means kernel ram>=32k 
+    RAM_SIZE_LEVEL_0 means kernel ram < 8k  , 
+    RAM_SIZE_LEVEL_1 means kernel ram < 16k, 
+    RAM_SIZE_LEVEL_2 means means kernel ram>=32k 
 */
 
 /**
@@ -252,13 +252,13 @@ extern char __bss_start;
  * Maximum supported number of software timers rather than the number of usable software timers
  */
 #if defined (RAM_SIZE_LEVEL_0)
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    4					// the max SWTMR numb
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    4                   // the max SWTMR numb
 #elif defined (RAM_SIZE_LEVEL_1)
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    7					// the max SWTMR numb
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    7                   // the max SWTMR numb
 #elif defined (RAM_SIZE_LEVEL_2)
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16					// the max SWTMR numb
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16                  // the max SWTMR numb
 #else
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16					// the max SWTMR numb
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16                  // the max SWTMR numb
 #endif
 /**
  * @ingroup los_config

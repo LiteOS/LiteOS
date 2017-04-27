@@ -1,7 +1,7 @@
 #include "los_bsp_key.h"
 
 /******************************************************************************
-	here include some special hearder file you need
+    here include some special hearder file you need
 ******************************************************************************/
 
 
@@ -15,10 +15,10 @@
  Return      : None
  *****************************************************************************/
 void LOS_EvbKeyInit(void)
-{	
-	//add you code here.
-	
-	return ;
+{
+    //add you code here.
+    
+    return ;
 }
 
 /*****************************************************************************
@@ -30,11 +30,11 @@ void LOS_EvbKeyInit(void)
  *****************************************************************************/
 unsigned int LOS_EvbGetKeyVal(int KeyNum)
 {
-	unsigned int KeyVal = 0xFFFFFFFF; 
-	
-	//add you code here.
-	
-	return KeyVal;
+    unsigned int KeyVal = 0xFFFFFFFF;
+    
+    //add you code here.
+    
+    return KeyVal;
 }
 
 /*****************************************************************************
@@ -46,9 +46,9 @@ unsigned int LOS_EvbGetKeyVal(int KeyNum)
  *****************************************************************************/
 void EXTIxxx_IRQHandler(void)
 {
-	//add you code here.
-	
-	return;
+    //add you code here.
+    
+    return;
 }
 
 

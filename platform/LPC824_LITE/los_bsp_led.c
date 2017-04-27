@@ -13,26 +13,26 @@
  *****************************************************************************/
 void LOS_EvbLedInit(void)
 {
-#ifdef LOS_LPC824	
-	Chip_GPIO_Init(LPC_GPIO_PORT);
-	Board_LED_Init();	
+#ifdef LOS_LPC824
+    Chip_GPIO_Init(LPC_GPIO_PORT);
+    Board_LED_Init();
 #endif
-	return ;
+    return;
 }
 
 /******************************************************************************
- Function   £ºLOS_EvbLedControl  
- Discription: Control led on or off                                                        
- Input      : index Led's index                                                                  
-              cmd   Led on or off                                                                
- Return     : None                                                                                                                                                        *
+ Function   : LOS_EvbLedControl
+ Discription: Control led on or off
+ Input      : index Led's index
+              cmd   Led on or off
+ Return     : None
 *******************************************************************************/
 void LOS_EvbLedControl(int index, int cmd)
 {
 #ifdef LOS_LPC824
     Board_LED_Set(index,cmd);
 #endif
-	return ;
+    return;
 }
 
 

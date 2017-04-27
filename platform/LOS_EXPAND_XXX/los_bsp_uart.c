@@ -5,7 +5,7 @@
 #include "los_demo_debug.h"
 
 /******************************************************************************
-	here include some special hearder file you need
+    here include some special hearder file you need
 ******************************************************************************/
 
 
@@ -19,9 +19,9 @@
  *****************************************************************************/
 void LOS_EvbUartInit(void)
 {
-	//add you code here.
+    //add you code here.
 
-	return;
+    return;
 }
 
 /*****************************************************************************
@@ -33,9 +33,9 @@ void LOS_EvbUartInit(void)
  *****************************************************************************/
 void LOS_EvbUartWriteByte(const char c)
 {
-	//add you code here.
-  
-	return;
+    //add you code here.
+    
+    return;
 }
 
 /*****************************************************************************
@@ -47,9 +47,9 @@ void LOS_EvbUartWriteByte(const char c)
  *****************************************************************************/
 void LOS_EvbUartReadByte(char* c)
 {
-	//add you code here.
-  
-	return;
+    //add you code here.
+    
+    return;
 }
 
 /*****************************************************************************
@@ -61,9 +61,9 @@ void LOS_EvbUartReadByte(char* c)
  *****************************************************************************/
 void LOS_EvbUartPrintf(char* fmt, ...)
 {
-	//add you code here.
-  
-	return;
+    //add you code here.
+    
+    return;
 }
 
 /*****************************************************************************
@@ -75,18 +75,18 @@ void LOS_EvbUartPrintf(char* fmt, ...)
  *****************************************************************************/
 void LOS_EvbUartWriteStr(const char* str)
 {
-	//add you code here.
-	
-	return;
+    //add you code here.
+    
+    return;
 }
 
 #ifndef LOS_KERNEL_TEST_KEIL_SWSIMU
 ///重定向c库函数printf到串口，重定向后可使用printf函数
 int fputc(int ch, FILE *f)
 {
-		/* 发送一个字节数据到串口USART */
-		LOS_EvbUartWriteByte((char)ch);	
-	
-		return (ch);
+    /* 发送一个字节数据到串口USART */
+    LOS_EvbUartWriteByte((char)ch);
+
+    return (ch);
 }
 #endif

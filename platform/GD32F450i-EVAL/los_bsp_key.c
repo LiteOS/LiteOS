@@ -7,14 +7,14 @@
 
 void LOS_EvbKeyInit(void)
 {
-#ifdef GD32F4XX	
-	/* configure User key */
-  gd_eval_key_init(KEY_TAMPER, KEY_MODE_EXTI);  
-	
-	gd_eval_led_init(LED2);
+#ifdef GD32F4XX 
+    /* configure User key */
+    gd_eval_key_init(KEY_TAMPER, KEY_MODE_EXTI);
+    
+    gd_eval_led_init(LED2);
 #endif
 
-	return ;
+    return;
 }
 
 #ifdef GD32F4XX
@@ -38,13 +38,13 @@ void EXTI10_15_IRQHandler(void)
 uint8_t LOS_EvbGetKeyVal(int KeyNum)
 {
 #ifdef GD32F4XX
-	  if(KeyNum > KEY_TAMPER)
-		{
-				return LOS_GPIO_ERR;
-		}
-		return gd_eval_key_state_get(KeyNum);
+    if(KeyNum > KEY_TAMPER)
+    {
+        return LOS_GPIO_ERR;
+    }
+    return gd_eval_key_state_get(KeyNum);
 #else
-		return LOS_GPIO_ERR;
+    return LOS_GPIO_ERR;
 #endif
 }
 

@@ -1,5 +1,5 @@
 /*
-	here we can include some standard header file
+    here we can include some standard header file
 */
 #include <stdio.h>
 #include <string.h>
@@ -19,14 +19,14 @@
 #endif
 
 /******************************************************************************
-	here include some special hearder file you need
+    here include some special hearder file you need
 ******************************************************************************/
 
 
 
 
 /*****************************************************************************
-	global var
+    global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
 const unsigned int sys_clk_freq = 16000000;
@@ -43,7 +43,7 @@ static unsigned int g_ucycle_per_tick = 0;
 const unsigned char g_use_ram_vect = 0;
 
 /*****************************************************************************
-	LOS function extern 
+    LOS function extern
  *****************************************************************************/
 extern void LOS_SetTickSycle(unsigned int);
 extern void LOS_TickHandler(void);
@@ -64,7 +64,7 @@ extern unsigned int osGetVectorAddr(void);
 unsigned int osTickStart(void)
 {
     unsigned int uwRet = 0;
-	
+    
     /* This code section LOS need, so don't change it */
     g_ucycle_per_tick = sys_clk_freq / tick_per_second;
     LOS_SetTickSycle(g_ucycle_per_tick);
@@ -76,14 +76,14 @@ unsigned int osTickStart(void)
       you can just call SysTick_Config(sys_clk_freq/tick_per_second);
     */
 #ifndef INCLUDE_LOS_HEADER
-	SysTick_Config(g_ucycle_per_tick);
+    SysTick_Config(g_ucycle_per_tick);
 #else
     *(volatile UINT32 *)OS_SYSTICK_RELOAD_REG = g_ucycle_per_tick - 1;
     *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
     *(volatile UINT32 *)OS_SYSTICK_CURRENT_REG = 0;
     *(volatile UINT32 *)OS_SYSTICK_CONTROL_REG = (1 << 2) | (1 << 1) | (1 << 0);
 #endif
-	
+    
     return uwRet;
 
 }
@@ -97,16 +97,16 @@ unsigned int osTickStart(void)
  *****************************************************************************/
 void SysTick_Handler(void)
 {
-    /* 
+    /*
         LOS need call LOS_TickHandler() in SysTick_Handler, don't change it,
         otherwise, LiteOS will not work.
     */
     LOS_TickHandler();
-	
+    
     /*add your systick handler code here */
-	  
-	
-    return ;
+      
+    
+    return;
 }
 
 /*****************************************************************************
@@ -119,7 +119,7 @@ void SysTick_Handler(void)
  *****************************************************************************/
 void LosAdapIntInit(void)
 {
-    /* 
+    /*
         1:ReLoad vector table address at ram . if do nothing , vector table is
         located in rom 0x00000000
         2:set nvic irq priority group
@@ -134,7 +134,7 @@ void LosAdapIntInit(void)
         *(volatile UINT32 *)OS_NVIC_AIRCR = (0x05FA0000 | OS_NVIC_AIRCR_PRIGROUP << 8);
     }
 
-    return ;
+    return;
 }
 
 /*****************************************************************************
@@ -160,7 +160,7 @@ void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
         NVIC_SetPriority((IRQn_Type)irqnum, prior);
     */
     nvicSetIrqPRI(irqnum, prior << 4);
-    return ;
+    return;
 }
 
 /*****************************************************************************
@@ -175,12 +175,12 @@ void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
  *****************************************************************************/
 void LosAdapIrqDisable(unsigned int irqnum)
 {
-    /* 
+    /*
         disable irq, for example in stm32 bsp you can use 
         NVIC_DisableIRQ((IRQn_Type)irqnum);
     */
     nvicClrIRQ(irqnum);
-    return ;
+    return;
 }
 
  
@@ -193,18 +193,24 @@ void LosAdapIrqDisable(unsigned int irqnum)
  *****************************************************************************/
 void LOS_EvbSetup(void)
 {
-	LOS_EvbUartInit();
-	LOS_EvbLedInit();
-	LOS_EvbKeyInit();
-	return ;
+    LOS_EvbUartInit();
+    LOS_EvbLedInit();
+    LOS_EvbKeyInit();
+    return;
 }
 
-
+/*****************************************************************************
+ Function    : LOS_EvbTrace
+ Description : trace printf
+ Input       : const char *str
+ Output      : None
+ Return      : None
+ *****************************************************************************/
 void LOS_EvbTrace(const char *str)
 {
-	LOS_EvbUartWriteStr(str);
-		
-	return ;
+    LOS_EvbUartWriteStr(str);
+    
+    return;
 }
 
 

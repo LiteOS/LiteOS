@@ -40,8 +40,8 @@
         EXPORT  LOS_StartToRun
         EXPORT  osTaskSchedule
         EXPORT  PendSV_Handler
-		EXPORT  LOS_IntNumGet
-		EXPORT  osDisableIRQ
+        EXPORT  LOS_IntNumGet
+        EXPORT  osDisableIRQ
         
         IMPORT  g_stLosTask
         IMPORT  g_pfnTskSwitchHook

@@ -5,7 +5,7 @@
 #include <string.h>
 
 #ifdef LOS_LPC54114
-	#define LOS_EvbUartPrintf DbgConsole_Printf
+    #define LOS_EvbUartPrintf DbgConsole_Printf
 #endif
 
 extern void LOS_EvbUartInit(void);

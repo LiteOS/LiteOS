@@ -19,10 +19,10 @@ static char _buffer[128];
  *****************************************************************************/
 void LOS_EvbUartInit(void)
 {
-#ifdef LOS_LPC824	
-	  Board_UART_Init();
+#ifdef LOS_LPC824
+    Board_UART_Init();
 #endif
-		return;
+    return;
 }
 
 /*****************************************************************************
@@ -34,10 +34,10 @@ void LOS_EvbUartInit(void)
  *****************************************************************************/
 void LOS_EvbUartWriteByte(char c)
 {
-#ifdef LOS_LPC824	
+#ifdef LOS_LPC824
     Board_UARTPutTextChar(c);
 #endif
-	return;
+    return;
 }
 
 /*****************************************************************************
@@ -49,10 +49,10 @@ void LOS_EvbUartWriteByte(char c)
  *****************************************************************************/
 void LOS_EvbUartReadByte(char* c)
 {
-#ifdef LOS_LPC824	
+#ifdef LOS_LPC824
     *c = Board_UARTGetChar();
 #endif
-	 return;
+    return;
 }
 
 /*****************************************************************************
@@ -64,7 +64,7 @@ void LOS_EvbUartReadByte(char* c)
  *****************************************************************************/
 void LOS_EvbUartPrintf(char* fmt, ...)
 {
-#ifdef LOS_LPC824	
+#ifdef LOS_LPC824
     int i;
     va_list ap;
     va_start(ap, fmt);
@@ -76,7 +76,7 @@ void LOS_EvbUartPrintf(char* fmt, ...)
         LOS_EvbUartWriteByte(_buffer[i]);
     }
 #endif
-		return;
+    return;
 }
 
 /*****************************************************************************
@@ -91,9 +91,9 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef LOS_LPC824
     while (*str)
     {
-			  Board_UARTPutTextChar(* str++);
+        Board_UARTPutTextChar(* str++);
     }
 #endif
-		return;
+    return;
 }
 
