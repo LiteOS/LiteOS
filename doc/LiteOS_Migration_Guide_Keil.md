@@ -254,6 +254,11 @@ Keil工具需要开发者自行购买，Link驱动程序需根据具体使用的
 </tr>
 <tr>
 	<td></td>
+	<td>STM32F746ZG_NUCLEO</td>
+	<td>STM32F746ZG开发板systick以及led、uart、key驱动bsp适配代码</td>
+</tr>
+<tr>
+	<td></td>
 	<td>LOS_EXPAND_XXX</td>
 	<td>用于新扩展的开发板systick以及led、uart、key驱动bsp适配代码</td>
 </tr>
@@ -301,6 +306,11 @@ Keil工具需要开发者自行购买，Link驱动程序需根据具体使用的
 	<td></td>
 	<td>MM32F103_MINI_KEIL</td>
 	<td>MindMotion MM32 MiniBoard开发板的keil工程目录</td>
+</tr>
+<tr>
+	<td></td>
+	<td>STM32F746ZG-NUCLEO-KEIL</td>
+	<td>NUCLEO-F746ZG 开发板的keil工程目录</td>
 </tr>
 <tr>
 	<td>user</td>

@@ -55,22 +55,22 @@ UINT32  g_vuwIntCount = 0;
 #endif
 LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
 {
-  0,                    // [0] Top of Stack
-  Reset_Handler,        // [1] reset
-  osHwiDefaultHandler,  // [2] NMI Handler
-  osHwiDefaultHandler,  // [3] Hard Fault Handler
-  osHwiDefaultHandler,  // [4] MPU Fault Handler
-  osHwiDefaultHandler,  // [5] Bus Fault Handler
-  osHwiDefaultHandler,  // [6] Usage Fault Handler
-  0,                    // [7] Reserved
-  0,                    // [8] Reserved
-  0,                    // [9] Reserved
-  0,                    // [10] Reserved
-  osHwiDefaultHandler,  // [11] SVCall Handler
-  osHwiDefaultHandler,  // [12] Debug Monitor Handler
-  0,                    // [13] Reserved
-  PendSV_Handler,             // [14] PendSV Handler
-  SysTick_Handler,  // [15] SysTick Handler
+    0,                    // [0] Top of Stack
+    Reset_Handler,        // [1] reset
+    osHwiDefaultHandler,  // [2] NMI Handler
+    osHwiDefaultHandler,  // [3] Hard Fault Handler
+    osHwiDefaultHandler,  // [4] MPU Fault Handler
+    osHwiDefaultHandler,  // [5] Bus Fault Handler
+    osHwiDefaultHandler,  // [6] Usage Fault Handler
+    0,                    // [7] Reserved
+    0,                    // [8] Reserved
+    0,                    // [9] Reserved
+    0,                    // [10] Reserved
+    osHwiDefaultHandler,  // [11] SVCall Handler
+    osHwiDefaultHandler,  // [12] Debug Monitor Handler
+    0,                    // [13] Reserved
+    PendSV_Handler,             // [14] PendSV Handler
+    SysTick_Handler,  // [15] SysTick Handler
 };
 HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
 
@@ -83,10 +83,10 @@ HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 osIntNumGet(VOID)
 {
-   UINT32 uwIntNum;
+    UINT32 uwIntNum;
 
-  uwIntNum = LOS_IntNumGet();
-  return uwIntNum;
+    uwIntNum = LOS_IntNumGet();
+    return uwIntNum;
 }
 
 /*****************************************************************************
@@ -139,7 +139,7 @@ LITE_OS_SEC_TEXT VOID  osInterrupt(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT unsigned int osGetVectorAddr(void)
 {
-	return (UINT32)m_pstHwiForm;
+    return (UINT32)m_pstHwiForm;
 }
 
 /*****************************************************************************

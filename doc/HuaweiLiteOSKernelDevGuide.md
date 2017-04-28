@@ -169,7 +169,7 @@ Huawei LiteOS的异常接管，会在异常后打印发生异常的任务ID号�
     </tr>
     <tr>
         <td>M7</td>
-		<td>K3V5</td>
+		<td>STM32F746</td>
     </tr>
     <tr>
         <td>ARM9</td>
