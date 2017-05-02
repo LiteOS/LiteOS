@@ -120,7 +120,7 @@
 	<td>安装arm-none-eabi-gcc的操作系统</td>
 	</tr>
 	<tr>
-	<td>arm-none-eabi-gcc(gcc version 6.2.1以上版本)</td>
+	<td>arm-none-eabi-gcc(gcc version 5.4以上版本)</td>
 	<td>用于编译、链接、调试程序代码</td>
 	</tr>
 	<tr>
