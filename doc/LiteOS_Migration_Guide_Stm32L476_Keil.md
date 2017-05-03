@@ -132,7 +132,7 @@
 	<td>用于编译、链接、调试程序代码
 	uVision V5.18.0.0 </td>
 	</tr>
-    <td>st-link_v2_usbdriver</td>
+    <td>STSW-LINK009</td>
 	<td>开发板与pc连接的驱动程序，用户加载及调试程序代码</td>
 	</tr>
 </table>
@@ -279,19 +279,23 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 本章节描述的内容以stm32cubel4开发包中的UART_TwoBoards_ComPolling示例工程为基础，适配到LiteOS的STM32L476RG-NUCLEO-KEIL工程中，演示串口输出、按键中断及LED点亮功能。
 
 ### STM32的开发资料获取
-- 从ST官网搜索“stm32cubel4”，获取相应的开发包资料，网址为：http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubel4.html
 
-- 下载STSW-LINK009驱动，网址为：http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link009.html
+- 从ST官网搜索“stm32cubel4”，获取相应的开发包资料，网址为：http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubel4.html
 
 - 从keil官网下载PACK包，网址为：http://www.keil.com/dd2/stmicroelectronics/stm32l476rgtx/
 
-### STM32的开发包安装
+- 下载STSW-LINK009驱动，网址为：http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link009.html
 
-  安装Keil.STM32L4xx_DFP.1.3.0.pack或者更高版本的pack文件到keil安装目录
+
+### STM32的开发包及驱动安装
+
+- 安装Keil.STM32L4xx_DFP.1.3.0.pack或者更高版本的pack文件到keil安装目录
+
+- 解压en.stsw-link009.zip文件，点击stlink_winusb_install.bat，安装st-link驱动 
 
 **添加代码到LiteOS工程**
 
-在LiteOS内核代码目录中新建STM32L4xx_Drivers文件夹，将GD示例工程中使用到的代码拷贝到其中。
+在LiteOS内核代码目录中新建STM32L4xx_Drivers文件夹，将示stm32例工程中使用到的代码拷贝到其中。
 ![](./meta/keil/stm32l476/add_file_0.png)
 
 拷贝stm32示例工程Drivers文件夹下的子文件夹到STM32L4xx_Drivers文件夹中。
@@ -310,7 +314,7 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 
 ![](./meta/keil/stm32l476/add_file_4.png)
 
-在LiteOS工程添加stm32L4xx_driver目录，并将stm32示例工程中的如下文件
+在LiteOS工程新建stm32L4xx_driver目录，并添加stm32示例工程中的如下文件
 
 ![](./meta/keil/stm32l476/add_file_5.png)
 
@@ -318,6 +322,11 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 
 ![](./meta/keil/stm32l476/add_file_6.png)
 
+用拷贝过来的启动文件替换startup目录下的los_startup_keil.s文件
+
+![](./meta/keil/stm32l476/add_file_7.png)
+
+LiteOS可直接使用STM32示例工程中的启动文件，这样工程中要使用的中断及中断服务函数就注册好了，不需再使用LiteOS接口进行动态注册
 
 **添加头文件搜索路径**
 
@@ -327,7 +336,9 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st link�
 
 ![](./meta/keil/stm32l476/add_macro.png)
 
-LiteOS可直接使用STM32示例工程中的启动文件，这样工程中要使用的中断及中断服务函数就注册好了，不需再使用LiteOS接口进行动态注册。在完成了代码添加及工程配置后，开始修改代码，步骤如下：
+**代码修改适配**
+
+在完成了代码添加及工程配置后，开始修改代码，步骤如下：
 
 - 注释掉stm32l4xx_it.c中的PendSV_Handler()及SysTick_Handler()函数，以免重复定义。
 
