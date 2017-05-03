@@ -44,7 +44,7 @@ extern "C" {
 /*lint -save -e40 -e522 -e533*/
 
 extern void LOS_TickHandler(void);
-extern void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior);
+extern void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior);
 extern void LosAdapIrqDisable(unsigned int irqnum);
 extern void LosAdapIntInit(void);
 extern void SysTick_Handler(void);
@@ -200,7 +200,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiCreate( HWI_HANDLE_T  uwHwiNum,
 
     osSetVector(uwHwiNum, pfnHandler);
 
-    LosAdapIrpEnable(uwHwiNum, usHwiPrio);
+    LosAdapIrqEnable(uwHwiNum, usHwiPrio);
 
     LOS_IntRestore(uvIntSave);
 

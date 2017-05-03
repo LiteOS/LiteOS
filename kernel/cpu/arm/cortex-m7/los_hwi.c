@@ -44,7 +44,7 @@ extern "C" {
 /*lint -save -e40 -e522 -e533*/
 
 extern void LOS_TickHandler(void);
-extern void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior);
+extern void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior);
 extern void LosAdapIrqDisable(unsigned int irqnum);
 extern void LosAdapIntInit(void);
 extern void SysTick_Handler(void);
@@ -69,8 +69,8 @@ LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
   osHwiDefaultHandler,  // [11] SVCall Handler
   osHwiDefaultHandler,  // [12] Debug Monitor Handler
   0,                    // [13] Reserved
-  PendSV_Handler,             // [14] PendSV Handler
-  SysTick_Handler,  // [15] SysTick Handler
+  PendSV_Handler,       // [14] PendSV Handler
+  SysTick_Handler,      // [15] SysTick Handler
 };
 HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
 
@@ -83,10 +83,10 @@ HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 osIntNumGet(VOID)
 {
-   UINT32 uwIntNum;
+    UINT32 uwIntNum;
 
-  uwIntNum = LOS_IntNumGet();
-  return uwIntNum;
+    uwIntNum = LOS_IntNumGet();
+    return uwIntNum;
 }
 
 /*****************************************************************************
@@ -139,7 +139,7 @@ LITE_OS_SEC_TEXT VOID  osInterrupt(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT unsigned int osGetVectorAddr(void)
 {
-	return (UINT32)m_pstHwiForm;
+    return (UINT32)m_pstHwiForm;
 }
 
 /*****************************************************************************
@@ -200,7 +200,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiCreate( HWI_HANDLE_T  uwHwiNum,
 
     osSetVector(uwHwiNum, pfnHandler);
 
-    LosAdapIrpEnable(uwHwiNum, usHwiPrio);
+    LosAdapIrqEnable(uwHwiNum, usHwiPrio);
 
     LOS_IntRestore(uvIntSave);
 
