@@ -159,6 +159,12 @@ extern "C" {
 #endif /* __cplusplus */
 typedef unsigned int uint32_t;
 typedef int int32_t;
+#ifndef _INT32_T_DECLARED
+#define _INT32_T_DECLARED
+#endif
+#ifndef _UINT32_T_DECLARED
+#define _UINT32_T_DECLARED
+#endif
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 

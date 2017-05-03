@@ -1,3 +1,6 @@
+
+#ifdef LOS_FLASH
+
 #include "los_bsp_flash.h"
 #include "los_bsp_led.h"
 #include "stm32f4xx_hal.h"
@@ -534,4 +537,4 @@ static void Error_Handler(void)
     LOS_EvbLedControl(LOS_LED2, LED_ON);
 }
 
-
+#endif
