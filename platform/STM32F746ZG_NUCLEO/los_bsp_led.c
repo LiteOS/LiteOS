@@ -12,16 +12,16 @@ void LOS_EvbLedInit(void)
 {
 
 #ifdef LOS_STM32F746ZG
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
+    BSP_LED_Init(LED1);
+    BSP_LED_Init(LED2);
+    BSP_LED_Init(LED3);
 #endif
 
-	return ;
+    return ;
 }
 
 /*************************************************************************************************
- *  function£ºcontrol led on off                                                                 *
+ *  functionï¼šcontrol led on off                                                                 *
  *  param (1) index Led's index                                                                  *
  *        (2) cmd   Led on or off                                                                *
  *  return : None                                                                                *
@@ -74,6 +74,6 @@ void LOS_EvbLedControl(int index, int cmd)
         }
     }
 #endif
-	return ;
+    return ;
 }
 
