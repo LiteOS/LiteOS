@@ -1,0 +1,895 @@
+###############################################################################
+#
+# IAR ELF Linker V8.11.1.13263/W32 for ARM                12/May/2017  14:53:50
+# Copyright 2007-2017 IAR Systems AB.
+#
+#    Output file  =  
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Exe\HuaweiLiteOS_slstk3401a.out
+#    Map file     =  
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\List\HuaweiLiteOS_slstk3401a.map
+#    Command line =  
+#        -f C:\Users\ADMINI~1\AppData\Local\Temp\EW8A9C.tmp
+#        (C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\cmsis_liteos.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_dynamic_mem.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_event.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_interrupt.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_list.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_msgqueue.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_mutex.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_sem.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_static_mem.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_systick.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_task.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_api_timer.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_bsp_adapter.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_bsp_key.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_bsp_lcd.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_bsp_led.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_bsp_uart.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_cmsis_main.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_config.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_demo_entry.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_dispatch_iar.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_event.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_hw.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_hw_tick.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_hwi.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_inspect_entry.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_membox.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_memory.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_memstat.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_misc.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_multipledlinkhead.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_mux.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_priqueue.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_queue.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_sem.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_swtmr.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_sys.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_task.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_tick.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\los_timeslice.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\main.o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj\startup_efm32pg1b.o
+#        --redirect _Printf=_PrintfFullNoMb --redirect _Scanf=_ScanfFullNoMb -o
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Exe\HuaweiLiteOS_slstk3401a.out
+#        --map
+#        C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\List\HuaweiLiteOS_slstk3401a.map
+#        --config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\arm\config\linker\SiliconLaboratories\EFM32PG1B200F256.icf"
+#        --semihosting --entry __iar_program_start --vfe --text_out locale)
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__Heap_Handler  = Basic
+__SystemLibrary = DLib
+__dlib_version  = 6
+
+
+*******************************************************************************
+*** HEAP SELECTION
+***
+
+The basic heap was selected because no calls to memory allocation
+functions were found in the application outside of system library
+functions, and there are calls to deallocation functions in the
+application.
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A0":  place at 0x00000000 { ro section .intvec };
+"P1":  place in [from 0x00000000 to 0x0003ffff] { ro };
+"P2":  place in [from 0x20000000 to 0x20007fff] { rw, block CSTACK, block HEAP };
+initialize by copy { rw };
+keep { section .intvec };
+
+  Section            Kind        Address    Size  Object
+  -------            ----        -------    ----  ------
+"A0":                                       0xc8
+  .intvec            ro code  0x00000000    0xc8  startup_efm32pg1b.o [1]
+                            - 0x000000c8    0xc8
+
+"P1":                                     0x6a16
+  .text              ro code  0x000000c8   0xdda  xprintffull_nomb.o [3]
+  .rodata            const    0x00000ea2     0x1  los_bsp_adapter.o [1]
+  .text              ro code  0x00000ea4    0x16  strchr.o [5]
+  .text              ro code  0x00000ebc    0x44  xfail_s.o [3]
+  .text              ro code  0x00000f00    0x36  strlen.o [5]
+  .text              ro code  0x00000f38    0x58  memchr.o [5]
+  .text              ro code  0x00000f90    0xee  I64DivMod.o [5]
+  .text              ro code  0x00001080   0x192  DblMul.o [4]
+  .text              ro code  0x00001214    0xa6  ABImemcpy.o [5]
+  .text              ro code  0x000012bc    0x70  frexp.o [4]
+  .text              ro code  0x0000132c    0x2e  DblCmpLe.o [4]
+  .text              ro code  0x0000135c    0x2e  DblCmpGe.o [4]
+  .text              ro code  0x0000138c   0x13a  ldexp.o [4]
+  .text              ro code  0x000014c8    0x3a  DblToS32.o [4]
+  .text              ro code  0x00001504    0x22  S32ToDbl.o [4]
+  .text              ro code  0x00001528    0xe2  DblSub.o [4]
+  .text              ro code  0x0000160c   0x246  DblDiv.o [4]
+  .text              ro code  0x00001854    0x28  DblToU32.o [4]
+  .text              ro code  0x0000187c    0x1a  U32ToDbl.o [4]
+  .text              ro code  0x00001896     0x6  abort.o [3]
+  .text              ro code  0x0000189c     0x2  I64DivZer.o [5]
+  .text              ro code  0x000018a0   0x168  DblAdd.o [4]
+  .text              ro code  0x00001a08    0x14  exit.o [6]
+  .text              ro code  0x00001a1c    0x68  iarttio.o [6]
+  .text              ro code  0x00001a84     0x8  XShttio.o [3]
+  .text              ro code  0x00001a8c   0xc74  los_task.o [1]
+  .text              ro code  0x00002700   0x108  los_priqueue.o [1]
+  .text              ro code  0x00002808   0x20c  los_hw.o [1]
+  .text              ro code  0x00002a14   0x50a  los_memory.o [1]
+  .text              ro code  0x00002f20    0x66  ABImemset.o [5]
+  .text              ro code  0x00002f88    0xf0  los_dispatch_iar.o [1]
+  .text              ro code  0x00003078   0x354  los_sem.o [1]
+  .text              ro code  0x000033cc    0x18  los_misc.o [1]
+  .text              ro code  0x000033e4   0x16e  los_multipledlinkhead.o [1]
+  .text              ro code  0x00003554    0x5c  los_memstat.o [1]
+  .text              ro code  0x000035b0   0x630  los_queue.o [1]
+  .text              ro code  0x00003be0   0x534  los_swtmr.o [1]
+  .text              ro code  0x00004114   0x192  los_membox.o [1]
+  .text              ro code  0x000042a8   0x3f8  los_mux.o [1]
+  .text              ro code  0x000046a0   0x330  los_event.o [1]
+  .text              ro code  0x000049d0   0x23c  los_inspect_entry.o [1]
+  .text              ro code  0x00004c0c    0x28  printf.o [3]
+  .text              ro code  0x00004c34     0x8  los_bsp_key.o [1]
+  .text              ro code  0x00004c3c     0x4  los_bsp_led.o [1]
+  .text              ro code  0x00004c40   0x1c4  los_api_sem.o [1]
+  .text              ro code  0x00004e04   0x1c0  los_api_mutex.o [1]
+  .text              ro code  0x00004fc4   0x1c0  los_api_task.o [1]
+  .text              ro code  0x00005184   0x194  los_api_msgqueue.o [1]
+  .text              ro code  0x00005318   0x138  los_api_list.o [1]
+  .text              ro code  0x00005450     0x4  heaptramp0.o [3]
+  .text              ro code  0x00005454    0x94  heap0.o [3]
+  .text              ro code  0x000054e8   0x124  los_api_event.o [1]
+  .text              ro code  0x0000560c   0x124  los_api_timer.o [1]
+  .text              ro code  0x00005730    0x14  los_sys.o [1]
+  .text              ro code  0x00005744    0xd0  los_config.o [1]
+  .text              ro code  0x00005814    0xa0  los_bsp_adapter.o [1]
+  .text              ro code  0x000058b4    0x40  los_hwi.o [1]
+  .text              ro code  0x000058f4    0x60  los_timeslice.o [1]
+  .text              ro code  0x00005954    0x44  los_hw_tick.o [1]
+  .text              ro code  0x00005998     0x2  los_bsp_uart.o [1]
+  .text              ro code  0x0000599a     0x2  los_bsp_lcd.o [1]
+  .text              ro code  0x0000599c    0x28  los_tick.o [1]
+  .text              ro code  0x000059c4    0xb8  los_api_static_mem.o [1]
+  .text              ro code  0x00005a7c    0xac  los_api_dynamic_mem.o [1]
+  .text              ro code  0x00005b28    0x90  los_api_systick.o [1]
+  .rodata            const    0x00005bb8    0x44  los_api_sem.o [1]
+  .rodata            const    0x00005bfc    0x40  los_api_sem.o [1]
+  .rodata            const    0x00005c3c    0x40  los_api_sem.o [1]
+  .text              ro code  0x00005c7c    0x40  zero_init3.o [5]
+  .rodata            const    0x00005cbc    0x3c  los_api_sem.o [1]
+  .rodata            const    0x00005cf8    0x38  los_api_sem.o [1]
+  .text              ro code  0x00005d30    0x38  packbits_init_single.o [5]
+  .rodata            const    0x00005d68    0x34  los_api_mutex.o [1]
+  .rodata            const    0x00005d9c    0x34  los_api_mutex.o [1]
+  .rodata            const    0x00005dd0    0x34  los_api_mutex.o [1]
+  .rodata            const    0x00005e04    0x34  los_inspect_entry.o [1]
+  .rodata            const    0x00005e38    0x30  los_inspect_entry.o [1]
+  .rodata            const    0x00005e68    0x2c  los_inspect_entry.o [1]
+  .rodata            const    0x00005e94    0x2c  los_inspect_entry.o [1]
+  .rodata            const    0x00005ec0    0x28  los_api_event.o [1]
+  .rodata            const    0x00005ee8    0x28  los_api_mutex.o [1]
+  .rodata            const    0x00005f10    0x28  los_api_mutex.o [1]
+  .rodata            const    0x00005f38    0x28  los_api_mutex.o [1]
+  .rodata            const    0x00005f60    0x28  los_api_sem.o [1]
+  .text              ro code  0x00005f88    0x28  putchar.o [3]
+  .text              ro code  0x00005fb0    0x10  write.o [6]
+  .text              ro code  0x00005fc0    0x1e  dwrite.o [6]
+  .text              ro code  0x00005fde    0x20  iarwstd.o [6]
+  .text              ro code  0x00005ffe    0x22  iarwrite.o [6]
+  .text              ro code  0x00006020    0x28  data_init.o [5]
+  .rodata            const    0x00006048    0x24  los_api_event.o [1]
+  .rodata            const    0x0000606c    0x24  los_api_systick.o [1]
+  .rodata            const    0x00006090    0x24  los_api_task.o [1]
+  .rodata            const    0x000060b4    0x24  los_api_task.o [1]
+  .rodata            const    0x000060d8    0x24  los_api_task.o [1]
+  .rodata            const    0x000060fc    0x24  los_api_task.o [1]
+  .text              ro code  0x00006120    0x24  main.o [1]
+  .text              ro code  0x00006144    0x22  fpinit_M.o [4]
+  .iar.init_table    const    0x00006168    0x20  - Linker created -
+  .rodata            const    0x00006188    0x20  los_api_event.o [1]
+  .rodata            const    0x000061a8    0x20  los_api_event.o [1]
+  .rodata            const    0x000061c8    0x20  los_api_list.o [1]
+  .rodata            const    0x000061e8    0x20  los_api_msgqueue.o [1]
+  .rodata            const    0x00006208    0x20  los_api_msgqueue.o [1]
+  .rodata            const    0x00006228    0x20  los_api_msgqueue.o [1]
+  .rodata            const    0x00006248    0x20  los_api_msgqueue.o [1]
+  .rodata            const    0x00006268    0x20  los_api_msgqueue.o [1]
+  .rodata            const    0x00006288    0x20  los_api_mutex.o [1]
+  .rodata            const    0x000062a8    0x20  los_api_task.o [1]
+  .rodata            const    0x000062c8    0x20  los_api_task.o [1]
+  .rodata            const    0x000062e8    0x20  los_api_task.o [1]
+  .rodata            const    0x00006308    0x1c  los_api_msgqueue.o [1]
+  .rodata            const    0x00006324    0x1c  los_api_msgqueue.o [1]
+  .rodata            const    0x00006340    0x1c  los_api_mutex.o [1]
+  .rodata            const    0x0000635c    0x1c  los_api_static_mem.o [1]
+  .rodata            const    0x00006378    0x1c  los_api_systick.o [1]
+  .rodata            const    0x00006394    0x1c  los_api_task.o [1]
+  .rodata            const    0x000063b0    0x1c  los_api_task.o [1]
+  .rodata            const    0x000063cc    0x1c  los_inspect_entry.o [1]
+  .text              ro code  0x000063e8    0x1a  cmain.o [5]
+  .text              ro code  0x00006402     0x4  low_level_init.o [3]
+  .text              ro code  0x00006406     0x4  exit.o [3]
+  .text              ro code  0x0000640c     0xa  cexit.o [5]
+  .rodata            const    0x00006418    0x18  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006430    0x18  los_api_event.o [1]
+  .rodata            const    0x00006448    0x18  los_api_event.o [1]
+  .rodata            const    0x00006460    0x18  los_api_event.o [1]
+  .rodata            const    0x00006478    0x18  los_api_event.o [1]
+  .rodata            const    0x00006490    0x18  los_api_list.o [1]
+  .rodata            const    0x000064a8    0x18  los_api_mutex.o [1]
+  .rodata            const    0x000064c0    0x18  los_api_mutex.o [1]
+  .rodata            const    0x000064d8    0x18  los_api_mutex.o [1]
+  .rodata            const    0x000064f0    0x18  los_api_mutex.o [1]
+  .rodata            const    0x00006508    0x18  los_api_sem.o [1]
+  .rodata            const    0x00006520    0x18  los_api_sem.o [1]
+  .rodata            const    0x00006538    0x18  los_api_sem.o [1]
+  .rodata            const    0x00006550    0x18  los_api_sem.o [1]
+  .rodata            const    0x00006568    0x18  los_api_static_mem.o [1]
+  .rodata            const    0x00006580    0x18  los_api_static_mem.o [1]
+  .rodata            const    0x00006598    0x18  los_api_static_mem.o [1]
+  .rodata            const    0x000065b0    0x18  los_api_systick.o [1]
+  .rodata            const    0x000065c8    0x18  los_api_task.o [1]
+  .rodata            const    0x000065e0    0x18  los_api_task.o [1]
+  .rodata            const    0x000065f8    0x18  los_api_task.o [1]
+  .rodata            const    0x00006610    0x18  los_api_task.o [1]
+  .rodata            const    0x00006628    0x18  los_api_task.o [1]
+  .rodata            const    0x00006640    0x18  los_api_task.o [1]
+  .rodata            const    0x00006658    0x18  los_api_task.o [1]
+  .rodata            const    0x00006670    0x18  los_api_timer.o [1]
+  .rodata            const    0x00006688    0x18  los_api_timer.o [1]
+  .rodata            const    0x000066a0    0x18  los_api_timer.o [1]
+  .rodata            const    0x000066b8    0x18  los_inspect_entry.o [1]
+  .rodata            const    0x000066d0    0x18  los_inspect_entry.o [1]
+  .rodata            const    0x000066e8    0x18  los_inspect_entry.o [1]
+  .text              ro code  0x00006700    0x16  xprout.o [3]
+  .rodata            const    0x00006718    0x14  los_api_dynamic_mem.o [1]
+  .rodata            const    0x0000672c    0x14  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006740    0x14  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006754    0x14  los_api_list.o [1]
+  .rodata            const    0x00006768    0x14  los_api_list.o [1]
+  .rodata            const    0x0000677c    0x14  los_api_list.o [1]
+  .rodata            const    0x00006790    0x14  los_api_list.o [1]
+  .rodata            const    0x000067a4    0x14  los_api_msgqueue.o [1]
+  .rodata            const    0x000067b8    0x14  los_api_static_mem.o [1]
+  .rodata            const    0x000067cc    0x14  los_api_static_mem.o [1]
+  .rodata            const    0x000067e0    0x14  los_api_static_mem.o [1]
+  .rodata            const    0x000067f4    0x14  los_api_timer.o [1]
+  .rodata            const    0x00006808    0x14  los_api_timer.o [1]
+  .rodata            const    0x0000681c    0x14  los_api_timer.o [1]
+  .rodata            const    0x00006830    0x10  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006840    0x10  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006850    0x10  los_api_dynamic_mem.o [1]
+  .rodata            const    0x00006860    0x10  los_api_event.o [1]
+  .rodata            const    0x00006870    0x10  los_api_list.o [1]
+  .rodata            const    0x00006880    0x10  los_api_list.o [1]
+  .rodata            const    0x00006890    0x10  los_api_static_mem.o [1]
+  .rodata            const    0x000068a0    0x10  los_api_timer.o [1]
+  .rodata            const    0x000068b0    0x10  los_api_timer.o [1]
+  .rodata            const    0x000068c0    0x10  los_api_timer.o [1]
+  .rodata            const    0x000068d0     0xc  los_api_event.o [1]
+  .rodata            const    0x000068dc     0xc  los_api_msgqueue.o [1]
+  .rodata            const    0x000068e8     0xc  los_api_mutex.o [1]
+  .rodata            const    0x000068f4     0xc  los_api_mutex.o [1]
+  .rodata            const    0x00006900     0xc  los_api_sem.o [1]
+  .rodata            const    0x0000690c     0xc  los_api_sem.o [1]
+  .rodata            const    0x00006918     0xc  los_api_task.o [1]
+  .rodata            const    0x00006924     0xc  los_api_task.o [1]
+  .rodata            const    0x00006930     0xc  los_inspect_entry.o [1]
+  .rodata            const    0x0000693c     0xc  los_swtmr.o [1]
+  .rodata            const    0x00006948     0xc  los_task.o [1]
+  .text              ro code  0x00006954     0xc  cstartup_M.o [5]
+  .rodata            const    0x00006960     0x8  los_api_msgqueue.o [1]
+  .text              ro code  0x00006968     0x8  startup_efm32pg1b.o [1]
+  .rodata            const    0x00006970     0x4  los_bsp_adapter.o [1]
+  .rodata            const    0x00006974     0x4  los_bsp_adapter.o [1]
+  .text              ro code  0x00006978     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x0000697c     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006980     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006984     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006988     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x0000698c     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006990     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006994     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x00006998     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x0000699c     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069a0     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069a4     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069a8     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069ac     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069b0     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069b4     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069b8     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069bc     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069c0     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069c4     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069c8     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069cc     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069d0     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069d4     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069d8     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069dc     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069e0     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069e4     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069e8     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069ec     0x4  startup_efm32pg1b.o [1]
+  .text              ro code  0x000069f0     0x4  startup_efm32pg1b.o [1]
+  .rodata            const    0x000069f4     0x0  zero_init3.o [5]
+  .rodata            const    0x000069f4     0x0  packbits_init_single.o [5]
+  Initializer bytes  const    0x000069f4    0xea  <for P2-1>
+                            - 0x00006ade  0x6a16
+
+"P2", part 1 of 3:                         0x4bc
+  P2-1                        0x20000000   0x4bc  <Init block>
+    .data            inited   0x20000000    0x14  los_api_msgqueue.o [1]
+    .data            inited   0x20000014    0xa0  los_inspect_entry.o [1]
+    .data            inited   0x200000b4     0x8  XShttio.o [3]
+    .vector          inited   0x200000bc   0x400  los_hwi.o [1]
+                            - 0x200004bc   0x4bc
+
+"P2", part 2 of 3:                         0x400
+  CSTACK                      0x200004c0   0x400  <Block>
+    CSTACK           uninit   0x200004c0   0x400  <Block tail>
+                            - 0x200008c0   0x400
+
+"P2", part 3 of 3:                        0x1a14
+  .bss               zero     0x200008c0  0x1650  los_memory.o [1]
+  .bss               zero     0x20001f10   0x258  los_api_static_mem.o [1]
+  .bss               zero     0x20002168    0x64  los_swtmr.o [1]
+  .bss               zero     0x200021cc    0x20  los_memstat.o [1]
+  .bss               zero     0x200021ec     0xc  los_api_event.o [1]
+  .bss               zero     0x200021f8     0x8  los_mux.o [1]
+  .bss               zero     0x20002200     0x8  los_sem.o [1]
+  .bss               zero     0x20002208     0x8  los_task.o [1]
+  .bss               zero     0x20002210     0x8  los_task.o [1]
+  .bss               zero     0x20002218     0x8  los_task.o [1]
+  .bss               zero     0x20002220     0x8  los_task.o [1]
+  .bss               zero     0x20002228     0x8  los_task.o [1]
+  .bss               zero     0x20002230     0x8  los_tick.o [1]
+  .bss               zero     0x20002238     0x8  los_timeslice.o [1]
+  .bss               zero     0x20002240     0x8  heap0.o [3]
+  .bss               zero     0x20002248     0x4  los_api_event.o [1]
+  .bss               zero     0x2000224c     0x4  los_api_msgqueue.o [1]
+  .bss               zero     0x20002250     0x4  los_api_mutex.o [1]
+  .bss               zero     0x20002254     0x4  los_api_mutex.o [1]
+  .bss               zero     0x20002258     0x4  los_api_mutex.o [1]
+  .bss               zero     0x2000225c     0x4  los_api_sem.o [1]
+  .bss               zero     0x20002260     0x4  los_api_sem.o [1]
+  .bss               zero     0x20002264     0x4  los_api_sem.o [1]
+  .bss               zero     0x20002268     0x4  los_api_task.o [1]
+  .bss               zero     0x2000226c     0x4  los_api_task.o [1]
+  .bss               zero     0x20002270     0x4  los_api_timer.o [1]
+  .bss               zero     0x20002274     0x4  los_api_timer.o [1]
+  .bss               zero     0x20002278     0x4  los_bsp_adapter.o [1]
+  .bss               zero     0x2000227c     0x4  los_config.o [1]
+  .bss               zero     0x20002280     0x4  los_config.o [1]
+  .bss               zero     0x20002284     0x4  los_hw_tick.o [1]
+  .bss               zero     0x20002288     0x4  los_hwi.o [1]
+  .bss               zero     0x2000228c     0x4  los_inspect_entry.o [1]
+  .bss               zero     0x20002290     0x4  los_inspect_entry.o [1]
+  .bss               zero     0x20002294     0x4  los_mux.o [1]
+  .bss               zero     0x20002298     0x4  los_priqueue.o [1]
+  .bss               zero     0x2000229c     0x4  los_queue.o [1]
+  .bss               zero     0x200022a0     0x4  los_sem.o [1]
+  .bss               zero     0x200022a4     0x4  los_swtmr.o [1]
+  .bss               zero     0x200022a8     0x4  los_swtmr.o [1]
+  .bss               zero     0x200022ac     0x4  los_swtmr.o [1]
+  .bss               zero     0x200022b0     0x4  los_swtmr.o [1]
+  .bss               zero     0x200022b4     0x4  los_task.o [1]
+  .bss               zero     0x200022b8     0x4  los_task.o [1]
+  .bss               zero     0x200022bc     0x4  los_task.o [1]
+  .bss               zero     0x200022c0     0x4  los_task.o [1]
+  .bss               zero     0x200022c4     0x4  los_task.o [1]
+  .bss               zero     0x200022c8     0x4  los_task.o [1]
+  .bss               zero     0x200022cc     0x4  xfail_s.o [3]
+  .bss               zero     0x200022d0     0x2  los_task.o [1]
+                            - 0x200022d2  0x1a12
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address     Size
+          -------     ----
+Zero (__iar_zero_init3)
+    1 destination range, total size 0x1a12:
+          0x200008c0  0x1a12
+
+Copy/packbits (__iar_packbits_init_single3)
+    1 source range, total size 0xea (19% of destination):
+          0x000069f4    0xea
+    1 destination range, total size 0x4bc:
+          0x20000000   0x4bc
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module                   ro code  ro data  rw data
+    ------                   -------  -------  -------
+C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj: [1]
+    los_api_dynamic_mem.o        172      132
+    los_api_event.o              292      264       16
+    los_api_list.o               312      168
+    los_api_msgqueue.o           404      259       24
+    los_api_mutex.o              448      456       12
+    los_api_sem.o                452      472       12
+    los_api_static_mem.o         184      176      600
+    los_api_systick.o            144       88
+    los_api_task.o               448      488        8
+    los_api_timer.o              292      180        8
+    los_bsp_adapter.o            160        9        4
+    los_bsp_key.o                  8
+    los_bsp_lcd.o                  2
+    los_bsp_led.o                  4
+    los_bsp_uart.o                 2
+    los_config.o                 208                 8
+    los_dispatch_iar.o           240
+    los_event.o                  816
+    los_hw.o                     524
+    los_hw_tick.o                 68                 4
+    los_hwi.o                     64      198    1 028
+    los_inspect_entry.o          572      331      168
+    los_membox.o                 402
+    los_memory.o               1 290             5 712
+    los_memstat.o                 92                32
+    los_misc.o                    24
+    los_multipledlinkhead.o      366
+    los_mux.o                  1 016                12
+    los_priqueue.o               264                 4
+    los_queue.o                1 584                 4
+    los_sem.o                    852                12
+    los_swtmr.o                1 332       12      116
+    los_sys.o                     20
+    los_task.o                 3 188       12       66
+    los_tick.o                    40                 8
+    los_timeslice.o               96                 8
+    main.o                        36
+    startup_efm32pg1b.o          332
+    --------------------------------------------------
+    Total:                    16 750    3 245    7 866
+
+command line: [2]
+    --------------------------------------------------
+    Total:
+
+dl7M_tln.a: [3]
+    XShttio.o                      8        2        8
+    abort.o                        6
+    exit.o                         4
+    heap0.o                      148                 8
+    heaptramp0.o                   4
+    low_level_init.o               4
+    printf.o                      40
+    putchar.o                     40
+    xfail_s.o                     68                 4
+    xprintffull_nomb.o         3 546
+    xprout.o                      22
+    --------------------------------------------------
+    Total:                     3 890        2       20
+
+m7M_tls.a: [4]
+    DblAdd.o                     360
+    DblCmpGe.o                    46
+    DblCmpLe.o                    46
+    DblDiv.o                     582
+    DblMul.o                     402
+    DblSub.o                     226
+    DblToS32.o                    58
+    DblToU32.o                    40
+    S32ToDbl.o                    34
+    U32ToDbl.o                    26
+    fpinit_M.o                    34
+    frexp.o                      112
+    ldexp.o                      314
+    --------------------------------------------------
+    Total:                     2 280
+
+rt7M_tl.a: [5]
+    ABImemcpy.o                  166
+    ABImemset.o                  102
+    I64DivMod.o                  238
+    I64DivZer.o                    2
+    cexit.o                       10
+    cmain.o                       26
+    cstartup_M.o                  12
+    data_init.o                   40
+    memchr.o                      88
+    packbits_init_single.o        56
+    strchr.o                      22
+    strlen.o                      54
+    zero_init3.o                  64
+    --------------------------------------------------
+    Total:                       880
+
+shb_l.a: [6]
+    dwrite.o                      30
+    exit.o                        20
+    iarttio.o                    104
+    iarwrite.o                    34
+    iarwstd.o                     32
+    write.o                       16
+    --------------------------------------------------
+    Total:                       236
+
+    Gaps                          37        6
+    Linker created                         32    1 024
+------------------------------------------------------
+    Grand Total:              24 073    3 285    8 910
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                      Address    Size  Type      Object
+-----                      -------    ----  ----      ------
+.iar.init_table$$Base   0x00006168           --   Gb  - Linker created -
+.iar.init_table$$Limit  0x00006188           --   Gb  - Linker created -
+?main                   0x000063e9          Code  Gb  cmain.o [5]
+Aldata                  0x20002240     0x8  Data  Lc  heap0.o [3]
+CSTACK$$Base            0x200004c0           --   Gb  - Linker created -
+CSTACK$$Limit           0x200008c0           --   Gb  - Linker created -
+Example_Dyn_Mem         0x00005a7d    0xac  Code  Gb  los_api_dynamic_mem.o [1]
+Example_Event           0x000054e9    0x3e  Code  Gb  los_api_event.o [1]
+Example_GetTick         0x00005b29    0x80  Code  Gb  los_api_systick.o [1]
+Example_MsgQueue        0x00005257    0x88  Code  Gb  los_api_msgqueue.o [1]
+Example_MutexLock       0x00004ea3    0xd0  Code  Gb  los_api_mutex.o [1]
+Example_MutexTask1      0x00004e05    0x60  Code  Gb  los_api_mutex.o [1]
+Example_MutexTask2      0x00004e65    0x3e  Code  Gb  los_api_mutex.o [1]
+Example_SemTask1        0x00004c41    0x5a  Code  Gb  los_api_sem.o [1]
+Example_SemTask2        0x00004c9b    0x36  Code  Gb  los_api_sem.o [1]
+Example_Semphore        0x00004cd1    0xea  Code  Gb  los_api_sem.o [1]
+Example_SndRcvEvent     0x00005527    0xb2  Code  Gb  los_api_event.o [1]
+Example_StaticMem       0x000059c5    0xb8  Code  Gb  los_api_static_mem.o [1]
+Example_TaskHi          0x00004fc5    0x6c  Code  Gb  los_api_task.o [1]
+Example_TaskLo          0x00005031    0x5e  Code  Gb  los_api_task.o [1]
+Example_TskCaseEntry    0x0000508f    0x9e  Code  Gb  los_api_task.o [1]
+Example_list            0x00005363    0xc8  Code  Gb  los_api_list.o [1]
+Example_swTimer         0x00005665    0x98  Code  Gb  los_api_timer.o [1]
+LOS_Align               0x000033cd    0x18  Code  Gb  los_misc.o [1]
+LOS_CyclePerTickGet     0x00005739     0x6  Code  Gb  los_sys.o [1]
+LOS_DLnkInitMultiHead   0x0000350d    0x1e  Code  Gb  los_multipledlinkhead.o [1]
+LOS_DLnkMultiHead       0x0000352b    0x28  Code  Gb  los_multipledlinkhead.o [1]
+LOS_DLnkNextMultiHead   0x00002a49    0x12  Code  Lc  los_memory.o [1]
+LOS_EnableTick          0x00005753    0x14  Code  Gb  los_config.o [1]
+LOS_EvbGetKeyVal        0x00004c37     0x6  Code  Gb  los_bsp_key.o [1]
+LOS_EvbKeyInit          0x00004c35     0x2  Code  Gb  los_bsp_key.o [1]
+LOS_EvbLcdInit          0x0000599b     0x2  Code  Gb  los_bsp_lcd.o [1]
+LOS_EvbLedControl       0x00004c3f     0x2  Code  Gb  los_bsp_led.o [1]
+LOS_EvbLedInit          0x00004c3d     0x2  Code  Gb  los_bsp_led.o [1]
+LOS_EvbSetup            0x000058a1    0x14  Code  Gb  los_bsp_adapter.o [1]
+LOS_EvbUartInit         0x00005999     0x2  Code  Gb  los_bsp_uart.o [1]
+LOS_EventClear          0x00004983    0x24  Code  Gb  los_event.o [1]
+LOS_EventInit           0x000046eb    0x1a  Code  Gb  los_event.o [1]
+LOS_EventPoll           0x00004705    0x50  Code  Gb  los_event.o [1]
+LOS_EventRead           0x00004755   0x150  Code  Gb  los_event.o [1]
+LOS_EventWrite          0x000048a5    0xde  Code  Gb  los_event.o [1]
+LOS_InspectByID         0x00004a1b    0xe0  Code  Gb  los_inspect_entry.o [1]
+LOS_InspectStatusSetByID
+                        0x000049d1    0x4a  Code  Gb  los_inspect_entry.o [1]
+LOS_Inspect_Entry       0x00004b9d    0x3a  Code  Gb  los_inspect_entry.o [1]
+LOS_Inspect_KeyAndLed   0x00004afb    0x4e  Code  Lc  los_inspect_entry.o [1]
+LOS_Inspect_TskDeal     0x00004b49    0x54  Code  Gb  los_inspect_entry.o [1]
+LOS_IntLock             0x00002fe3          Code  Gb  los_dispatch_iar.o [1]
+LOS_IntNumGet           0x00002fd9          Code  Gb  los_dispatch_iar.o [1]
+LOS_IntRestore          0x00002ff3          Code  Gb  los_dispatch_iar.o [1]
+LOS_IntUnLock           0x00002feb          Code  Gb  los_dispatch_iar.o [1]
+LOS_KernelInit          0x00005801    0x14  Code  Gb  los_config.o [1]
+LOS_ListAdd             0x0000531f     0xe  Code  Lc  los_api_list.o [1]
+LOS_ListAdd             0x000046a7     0xe  Code  Lc  los_event.o [1]
+LOS_ListAdd             0x00002a15     0xe  Code  Lc  los_memory.o [1]
+LOS_ListAdd             0x000042af     0xe  Code  Lc  los_mux.o [1]
+LOS_ListAdd             0x00002707     0xe  Code  Lc  los_priqueue.o [1]
+LOS_ListAdd             0x000035b7     0xe  Code  Lc  los_queue.o [1]
+LOS_ListAdd             0x0000307f     0xe  Code  Lc  los_sem.o [1]
+LOS_ListAdd             0x00001a93     0xe  Code  Lc  los_task.o [1]
+LOS_ListDelete          0x0000533d    0x16  Code  Lc  los_api_list.o [1]
+LOS_ListDelete          0x000046c5    0x16  Code  Lc  los_event.o [1]
+LOS_ListDelete          0x00002a33    0x16  Code  Lc  los_memory.o [1]
+LOS_ListDelete          0x000042cd    0x16  Code  Lc  los_mux.o [1]
+LOS_ListDelete          0x00002725    0x16  Code  Lc  los_priqueue.o [1]
+LOS_ListDelete          0x000035d5    0x16  Code  Lc  los_queue.o [1]
+LOS_ListDelete          0x0000309d    0x16  Code  Lc  los_sem.o [1]
+LOS_ListDelete          0x00001ab1    0x16  Code  Lc  los_task.o [1]
+LOS_ListEmpty           0x00005353    0x10  Code  Lc  los_api_list.o [1]
+LOS_ListEmpty           0x000046db    0x10  Code  Lc  los_event.o [1]
+LOS_ListEmpty           0x000042e3    0x10  Code  Lc  los_mux.o [1]
+LOS_ListEmpty           0x0000273b    0x10  Code  Lc  los_priqueue.o [1]
+LOS_ListEmpty           0x000035eb    0x10  Code  Lc  los_queue.o [1]
+LOS_ListEmpty           0x000030b3    0x10  Code  Lc  los_sem.o [1]
+LOS_ListEmpty           0x00001ac7    0x10  Code  Lc  los_task.o [1]
+LOS_ListInit            0x00005319     0x6  Code  Lc  los_api_list.o [1]
+LOS_ListInit            0x000046a1     0x6  Code  Lc  los_event.o [1]
+LOS_ListInit            0x000033e5     0x6  Code  Lc  los_multipledlinkhead.o [1]
+LOS_ListInit            0x000042a9     0x6  Code  Lc  los_mux.o [1]
+LOS_ListInit            0x00002701     0x6  Code  Lc  los_priqueue.o [1]
+LOS_ListInit            0x000035b1     0x6  Code  Lc  los_queue.o [1]
+LOS_ListInit            0x00003079     0x6  Code  Lc  los_sem.o [1]
+LOS_ListInit            0x00001a8d     0x6  Code  Lc  los_task.o [1]
+LOS_ListTailInsert      0x0000532d    0x10  Code  Lc  los_api_list.o [1]
+LOS_ListTailInsert      0x000046b5    0x10  Code  Lc  los_event.o [1]
+LOS_ListTailInsert      0x00002a23    0x10  Code  Lc  los_memory.o [1]
+LOS_ListTailInsert      0x000042bd    0x10  Code  Lc  los_mux.o [1]
+LOS_ListTailInsert      0x00002715    0x10  Code  Lc  los_priqueue.o [1]
+LOS_ListTailInsert      0x000035c5    0x10  Code  Lc  los_queue.o [1]
+LOS_ListTailInsert      0x0000308d    0x10  Code  Lc  los_sem.o [1]
+LOS_ListTailInsert      0x00001aa1    0x10  Code  Lc  los_task.o [1]
+LOS_Log2                0x000033eb   0x11c  Code  Lc  los_multipledlinkhead.o [1]
+LOS_MemAlloc            0x00002e2b    0x30  Code  Gb  los_memory.o [1]
+LOS_MemAllocAlign       0x00002e5b    0x6c  Code  Gb  los_memory.o [1]
+LOS_MemFree             0x00002ec7    0x58  Code  Gb  los_memory.o [1]
+LOS_MemInit             0x00002d75    0xb6  Code  Gb  los_memory.o [1]
+LOS_MemboxAlloc         0x000041eb    0x46  Code  Gb  los_membox.o [1]
+LOS_MemboxClr           0x0000427d    0x2a  Code  Gb  los_membox.o [1]
+LOS_MemboxFree          0x00004235    0x48  Code  Gb  los_membox.o [1]
+LOS_MemboxInit          0x0000415f    0x8c  Code  Gb  los_membox.o [1]
+LOS_MuxCreate           0x0000434f    0x5e  Code  Gb  los_mux.o [1]
+LOS_MuxDelete           0x000043ad    0x60  Code  Gb  los_mux.o [1]
+LOS_MuxPend             0x0000440d   0x15c  Code  Gb  los_mux.o [1]
+LOS_MuxPost             0x00004569    0xfa  Code  Gb  los_mux.o [1]
+LOS_PriqueueDequeue     0x0000279d     0xc  Code  Gb  los_priqueue.o [1]
+LOS_PriqueueEnqueue     0x00002787    0x16  Code  Gb  los_priqueue.o [1]
+LOS_PriqueueSize        0x000027d9    0x26  Code  Gb  los_priqueue.o [1]
+LOS_PriqueueTop         0x000027a9    0x30  Code  Gb  los_priqueue.o [1]
+LOS_QueueCreate         0x000037a1    0x8a  Code  Gb  los_queue.o [1]
+LOS_QueueDelete         0x00003acb    0x9c  Code  Gb  los_queue.o [1]
+LOS_QueueRead           0x0000382b   0x152  Code  Gb  los_queue.o [1]
+LOS_QueueWrite          0x0000397d   0x14e  Code  Gb  los_queue.o [1]
+LOS_Schedule            0x00002811    0x3a  Code  Gb  los_hw.o [1]
+LOS_SemCreate           0x0000310f    0x68  Code  Gb  los_sem.o [1]
+LOS_SemDelete           0x00003177    0x56  Code  Gb  los_sem.o [1]
+LOS_SemPend             0x000031cd   0x110  Code  Gb  los_sem.o [1]
+LOS_SemPost             0x000032dd    0xb0  Code  Gb  los_sem.o [1]
+LOS_SetTickSycle        0x00005989     0x6  Code  Gb  los_hw_tick.o [1]
+LOS_Start               0x00005767     0xc  Code  Gb  los_config.o [1]
+LOS_StartToRun          0x00002f89          Code  Gb  los_dispatch_iar.o [1]
+LOS_SwtmrCreate         0x00003e9f    0x9c  Code  Gb  los_swtmr.o [1]
+LOS_SwtmrDelete         0x0000403b    0x80  Code  Gb  los_swtmr.o [1]
+LOS_SwtmrStart          0x00003f3b    0x80  Code  Gb  los_swtmr.o [1]
+LOS_SwtmrStop           0x00003fbb    0x80  Code  Gb  los_swtmr.o [1]
+LOS_TaskCreate          0x000021df    0xae  Code  Gb  los_task.o [1]
+LOS_TaskCreateOnly      0x00002021   0x1be  Code  Gb  los_task.o [1]
+LOS_TaskDelay           0x00002549    0x70  Code  Gb  los_task.o [1]
+LOS_TaskDelete          0x00002403   0x146  Code  Gb  los_task.o [1]
+LOS_TaskLock            0x00002627    0x1a  Code  Gb  los_task.o [1]
+LOS_TaskResume          0x0000228d    0xa6  Code  Gb  los_task.o [1]
+LOS_TaskSuspend         0x00002333    0xd0  Code  Gb  los_task.o [1]
+LOS_TaskUnlock          0x00002645    0x36  Code  Gb  los_task.o [1]
+LOS_TaskYield           0x000025b9    0x6e  Code  Gb  los_task.o [1]
+LOS_TickCountGet        0x00005731     0x8  Code  Gb  los_sys.o [1]
+LOS_TickHandler         0x00005955    0x34  Code  Gb  los_hw_tick.o [1]
+LoadInt                 0x00000267    0x7a  Code  Lc  xprintffull_nomb.o [3]
+LosAdapIntInit          0x00005859    0x1a  Code  Gb  los_bsp_adapter.o [1]
+PendSV_Handler          0x00003001          Code  Gb  los_dispatch_iar.o [1]
+Region$$Table$$Base     0x00006168           --   Gb  - Linker created -
+Region$$Table$$Limit    0x00006188           --   Gb  - Linker created -
+Reset_Handler           0x00006969          Code  Wk  startup_efm32pg1b.o [1]
+SysTick_Handler         0x00005851     0x8  Code  Gb  los_bsp_adapter.o [1]
+Timer1_Callback         0x0000560d    0x28  Code  Gb  los_api_timer.o [1]
+Timer2_Callback         0x00005635    0x30  Code  Gb  los_api_timer.o [1]
+_GenldFullNoMb          0x00000bcb   0x24c  Code  Lc  xprintffull_nomb.o [3]
+_LdtobFullNoMb          0x000007a3   0x3fe  Code  Lc  xprintffull_nomb.o [3]
+_LitobFullNoMb          0x00000653   0x10a  Code  Lc  xprintffull_nomb.o [3]
+_PrintfFullNoMb         0x000000c9   0x190  Code  Gb  xprintffull_nomb.o [3]
+_Prout                  0x00006701    0x16  Code  Gb  xprout.o [3]
+_PutcharsFullNoMb       0x00000e17    0x2e  Code  Lc  xprintffull_nomb.o [3]
+_PutfldFullNoMb         0x000002e1   0x264  Code  Lc  xprintffull_nomb.o [3]
+_PuttxtFullNoMb         0x00000545   0x10e  Code  Lc  xprintffull_nomb.o [3]
+__Vectors               0x00000000           --   Gb  startup_efm32pg1b.o [1]
+__Vectors_End           0x000000c8          Data  Gb  startup_efm32pg1b.o [1]
+__Vectors_Size {Abs}    0x000000c8           --   Gb  startup_efm32pg1b.o [1]
+__aeabi_cdcmple         0x0000132d          Code  Gb  DblCmpLe.o [4]
+__aeabi_cdrcmple        0x0000135d          Code  Gb  DblCmpGe.o [4]
+__aeabi_d2iz            0x000014c9          Code  Gb  DblToS32.o [4]
+__aeabi_d2uiz           0x00001855          Code  Gb  DblToU32.o [4]
+__aeabi_ddiv            0x0000160d          Code  Gb  DblDiv.o [4]
+__aeabi_dmul            0x00001081          Code  Gb  DblMul.o [4]
+__aeabi_dsub            0x00001529          Code  Gb  DblSub.o [4]
+__aeabi_i2d             0x00001505          Code  Gb  S32ToDbl.o [4]
+__aeabi_ldiv0           0x0000189d          Code  Gb  I64DivZer.o [5]
+__aeabi_memcpy          0x00001215          Code  Gb  ABImemcpy.o [5]
+__aeabi_memcpy4         0x00001235          Code  Gb  ABImemcpy.o [5]
+__aeabi_memcpy8         0x00001235          Code  Gb  ABImemcpy.o [5]
+__aeabi_memset          0x00002f21          Code  Gb  ABImemset.o [5]
+__aeabi_ui2d            0x0000187d          Code  Gb  U32ToDbl.o [4]
+__aeabi_uldivmod        0x00000f91          Code  Gb  I64DivMod.o [5]
+__basic_free            0x00005455    0x16  Code  Gb  heap0.o [3]
+__basic_free_intern     0x0000546b    0x78  Code  Lc  heap0.o [3]
+__cmain                 0x000063e9          Code  Gb  cmain.o [5]
+__dwrite                0x00005fc1    0x1e  Code  Gb  dwrite.o [6]
+__exit                  0x00001a09    0x14  Code  Gb  exit.o [6]
+__iar_Fail_s            0x00000ebd    0x1e  Code  Gb  xfail_s.o [3]
+__iar_Memchr            0x00000f39          Code  Gb  memchr.o [5]
+__iar_Memset            0x00002f21          Code  Gb  ABImemset.o [5]
+__iar_Memset_word       0x00002f29          Code  Gb  ABImemset.o [5]
+__iar_Strchr            0x00000ea5          Code  Gb  strchr.o [5]
+__iar_close_ttio        0x00001a1d    0x2c  Code  Gb  iarttio.o [6]
+__iar_dadd              0x00001539          Code  Gb  DblSub.o [4]
+__iar_data_init3        0x00006021    0x28  Code  Gb  data_init.o [5]
+__iar_dsub              0x000018a1          Code  Gb  DblAdd.o [4]
+__iar_dsubStart         0x000018b3          Code  Gb  DblAdd.o [4]
+__iar_frexp             0x000012c9          Code  Gb  frexp.o [4]
+__iar_frexpl            0x000012c9          Code  Gb  frexp.o [4]
+__iar_get_ttio          0x00001a49    0x38  Code  Gb  iarttio.o [6]
+__iar_init_vfp          0x00006145          Code  Gb  fpinit_M.o [4]
+__iar_ldexp64           0x0000138d          Code  Gb  ldexp.o [4]
+__iar_lookup_ttioh      0x00001a85     0x8  Code  Gb  XShttio.o [3]
+__iar_packbits_init_single3
+                        0x00005d31    0x38  Code  Gb  packbits_init_single.o [5]
+__iar_program_start     0x00006955          Code  Gb  cstartup_M.o [5]
+__iar_scalbln64         0x0000138d          Code  Gb  ldexp.o [4]
+__iar_scalbn64          0x0000138d          Code  Gb  ldexp.o [4]
+__iar_sh_stdout         0x00005fdf    0x20  Code  Gb  iarwstd.o [6]
+__iar_sh_write          0x00005fff    0x22  Code  Gb  iarwrite.o [6]
+__iar_softfp___iar_frexp64
+                        0x000012bd          Code  Gb  frexp.o [4]
+__iar_softfp_frexp      0x000012bd          Code  Gb  frexp.o [4]
+__iar_softfp_frexpl     0x000012bd          Code  Gb  frexp.o [4]
+__iar_systems$$module {Abs}
+                        0x00000001          Data  Gb  command line/config [2]
+__iar_ttio_handles      0x200000b4     0x8  Data  Lc  XShttio.o [3]
+__iar_zero_init3        0x00005c7d    0x40  Code  Gb  zero_init3.o [5]
+__low_level_init        0x00006403     0x4  Code  Gb  low_level_init.o [3]
+__vector_table          0x00000000          Data  Gb  startup_efm32pg1b.o [1]
+__vector_table_0x1c     0x0000001c          Data  Gb  startup_efm32pg1b.o [1]
+__write                 0x00005fb1    0x10  Code  Gb  write.o [6]
+_call_main              0x000063f5          Code  Gb  cmain.o [5]
+_exit                   0x0000640d          Code  Gb  cexit.o [5]
+_main                   0x000063ff          Code  Gb  cmain.o [5]
+abort                   0x00001897     0x6  Code  Gb  abort.o [3]
+abuf                    0x20000000    0x14  Data  Gb  los_api_msgqueue.o [1]
+example_event           0x200021ec     0xc  Data  Gb  los_api_event.o [1]
+exit                    0x00006407     0x4  Code  Gb  exit.o [3]
+free                    0x00005451     0x4  Code  Gb  heaptramp0.o [3]
+gInspect                0x20000014    0xa0  Data  Lc  los_inspect_entry.o [1]
+gInspectErrCnt          0x2000228c     0x4  Data  Lc  los_inspect_entry.o [1]
+g_TestTaskID            0x20002248     0x4  Data  Gb  los_api_event.o [1]
+g_TestTaskID01          0x20002254     0x4  Data  Gb  los_api_mutex.o [1]
+g_TestTaskID01          0x2000225c     0x4  Data  Lc  los_api_sem.o [1]
+g_TestTaskID02          0x20002258     0x4  Data  Gb  los_api_mutex.o [1]
+g_TestTaskID02          0x20002260     0x4  Data  Lc  los_api_sem.o [1]
+g_Testmux01             0x20002250     0x4  Data  Gb  los_api_mutex.o [1]
+g_TskMemUsedInfo        0x200021cc    0x20  Data  Gb  los_memstat.o [1]
+g_bTaskScheduled        0x200022c4     0x4  Data  Gb  los_task.o [1]
+g_pfnTskSwitchHook      0x200022c8     0x4  Data  Gb  los_task.o [1]
+g_pstAllMux             0x20002294     0x4  Data  Gb  los_mux.o [1]
+g_pstAllQueue           0x2000229c     0x4  Data  Gb  los_queue.o [1]
+g_pstAllSem             0x200022a0     0x4  Data  Gb  los_sem.o [1]
+g_pstLosPriorityQueueList
+                        0x20002298     0x4  Data  Gb  los_priqueue.o [1]
+g_pstTaskCBArray        0x200022b4     0x4  Data  Gb  los_task.o [1]
+g_stLosFreeTask         0x20002218     0x8  Data  Gb  los_task.o [1]
+g_stLosTask             0x20002208     0x8  Data  Gb  los_task.o [1]
+g_stTaskTimeSlice       0x20002238     0x8  Data  Gb  los_timeslice.o [1]
+g_stTaskTimerList       0x20002210     0x8  Data  Gb  los_task.o [1]
+g_stTskRecyleList       0x20002220     0x8  Data  Gb  los_task.o [1]
+g_stTskSortLink         0x20002228     0x8  Data  Gb  los_task.o [1]
+g_stUnusedMuxList       0x200021f8     0x8  Data  Gb  los_mux.o [1]
+g_stUnusedSemList       0x20002200     0x8  Data  Gb  los_sem.o [1]
+g_sys_mem_addr_end      0x2000227c     0x4  Data  Gb  los_config.o [1]
+g_timercount1           0x20002270     0x4  Data  Gb  los_api_timer.o [1]
+g_timercount2           0x20002274     0x4  Data  Gb  los_api_timer.o [1]
+g_ucMemStart            0x200008c0  0x1650  Data  Gb  los_memory.o [1]
+g_ucycle_per_tick       0x20002278     0x4  Data  Lc  los_bsp_adapter.o [1]
+g_ullTickCount          0x20002230     0x8  Data  Gb  los_tick.o [1]
+g_usLosTaskLock         0x200022d0     0x2  Data  Gb  los_task.o [1]
+g_usSemID               0x20002264     0x4  Data  Lc  los_api_sem.o [1]
+g_use_ram_vect          0x00000ea2     0x1  Data  Gb  los_bsp_adapter.o [1]
+g_uwCyclesPerTick       0x20002284     0x4  Data  Gb  los_hw_tick.o [1]
+g_uwDemoTaskID          0x20002290     0x4  Data  Lc  los_inspect_entry.o [1]
+g_uwIdleTaskID          0x200022bc     0x4  Data  Gb  los_task.o [1]
+g_uwQueue               0x2000224c     0x4  Data  Lc  los_api_msgqueue.o [1]
+g_uwSwtmrTaskID         0x200022c0     0x4  Data  Gb  los_task.o [1]
+g_uwTskHiID             0x20002268     0x4  Data  Gb  los_api_task.o [1]
+g_uwTskLoID             0x2000226c     0x4  Data  Gb  los_api_task.o [1]
+g_uwTskMaxNum           0x200022b8     0x4  Data  Gb  los_task.o [1]
+g_vuwIntCount           0x20002288     0x4  Data  Gb  los_hwi.o [1]
+ldexp                   0x0000138d          Code  Gb  ldexp.o [4]
+ldexpl                  0x0000138d          Code  Gb  ldexp.o [4]
+m_aucSwTmrHandlerPool   0x20002168    0x64  Data  Gb  los_swtmr.o [1]
+m_aucSysMem0            0x20002280     0x4  Data  Gb  los_config.o [1]
+m_pstHwiForm            0x200000bc   0x400  Data  Gb  los_hwi.o [1]
+m_pstSwtmrCBArray       0x200022a8     0x4  Data  Gb  los_swtmr.o [1]
+m_pstSwtmrFreeList      0x200022ac     0x4  Data  Gb  los_swtmr.o [1]
+m_pstSwtmrSortList      0x200022b0     0x4  Data  Gb  los_swtmr.o [1]
+m_uwSwTmrHandlerQueue   0x200022a4     0x4  Data  Gb  los_swtmr.o [1]
+main                    0x00006121    0x24  Code  Gb  main.o [1]
+memchr                  0x00000f39          Code  Gb  memchr.o [5]
+osCheckBoxMem           0x00004115    0x4a  Code  Lc  los_membox.o [1]
+osDisableIRQ            0x00002fdf          Code  Gb  los_dispatch_iar.o [1]
+osGetVectorAddr         0x000058c9     0x4  Code  Gb  los_hwi.o [1]
+osHwiDefaultHandler     0x000058c1     0x8  Code  Gb  los_hwi.o [1]
+osHwiInit               0x000058cd    0x1e  Code  Gb  los_hwi.o [1]
+osIdleTask              0x00001ad7     0x2  Code  Gb  los_task.o [1]
+osIdleTaskCreate        0x00001e41    0x46  Code  Gb  los_task.o [1]
+osIntNumGet             0x000058b5     0xc  Code  Gb  los_hwi.o [1]
+osMain                  0x00005773    0x7c  Code  Gb  los_config.o [1]
+osMemAllocWithCheck     0x00002d19    0x5c  Code  Lc  los_memory.o [1]
+osMemCheckUsedNode      0x00002c3d    0xac  Code  Lc  los_memory.o [1]
+osMemClearNode          0x00002ab3     0xe  Code  Lc  los_memory.o [1]
+osMemFindSuitableFreeBlock
+                        0x00002a75    0x3e  Code  Lc  los_memory.o [1]
+osMemFreeNode           0x00002b4f    0xae  Code  Lc  los_memory.o [1]
+osMemIsNodeValid        0x00002bfd    0x40  Code  Lc  los_memory.o [1]
+osMemMergeNode          0x00002ac1    0x24  Code  Lc  los_memory.o [1]
+osMemSetMagicNumAndTaskid
+                        0x00002ce9    0x22  Code  Lc  los_memory.o [1]
+osMemSpitNode           0x00002ae5    0x6a  Code  Lc  los_memory.o [1]
+osMemSystemInit         0x00002a5b    0x1a  Code  Gb  los_memory.o [1]
+osMuxInit               0x000042f3    0x5c  Code  Gb  los_mux.o [1]
+osPriqueueInit          0x0000274b    0x3c  Code  Gb  los_priqueue.o [1]
+osQueueCreate           0x0000363b    0x92  Code  Gb  los_queue.o [1]
+osQueueInit             0x000035fb    0x40  Code  Gb  los_queue.o [1]
+osQueuePend             0x000036cd    0x8a  Code  Lc  los_queue.o [1]
+osQueueWakeUp           0x00003757    0x4a  Code  Lc  los_queue.o [1]
+osRegister              0x00005745     0xe  Code  Gb  los_config.o [1]
+osSchedule              0x00002809     0x8  Code  Gb  los_hw.o [1]
+osSemInit               0x000030c3    0x4c  Code  Gb  los_sem.o [1]
+osSwTmrInit             0x00003c6d    0xae  Code  Gb  los_swtmr.o [1]
+osSwTmrStart            0x00003d1b    0x6a  Code  Gb  los_swtmr.o [1]
+osSwTmrTask             0x00003be1    0x4a  Code  Gb  los_swtmr.o [1]
+osSwTmrTaskCreate       0x00003c2b    0x42  Code  Gb  los_swtmr.o [1]
+osSwTmrTimeoutHandle    0x00003d99    0x94  Code  Lc  los_swtmr.o [1]
+osSwtmrDelete           0x00003d85    0x14  Code  Lc  los_swtmr.o [1]
+osSwtmrScan             0x00003e2d    0x2a  Code  Gb  los_swtmr.o [1]
+osSwtmrStop             0x00003e57    0x48  Code  Gb  los_swtmr.o [1]
+osTaskAdd2TimerList     0x00001b11    0xca  Code  Gb  los_task.o [1]
+osTaskEntry             0x00001f81    0xa0  Code  Gb  los_task.o [1]
+osTaskExit              0x0000284b     0x8  Code  Gb  los_hw.o [1]
+osTaskInit              0x00001cf9   0x148  Code  Gb  los_task.o [1]
+osTaskMemUsedDec        0x00003581    0x24  Code  Gb  los_memstat.o [1]
+osTaskMemUsedInc        0x00003555    0x2c  Code  Gb  los_memstat.o [1]
+osTaskPriModify         0x00001ad9    0x38  Code  Gb  los_task.o [1]
+osTaskScan              0x00001c1f    0xda  Code  Gb  los_task.o [1]
+osTaskSchedule          0x00002ff9          Code  Gb  los_dispatch_iar.o [1]
+osTaskSelfDelete        0x00001e87    0xfa  Code  Gb  los_task.o [1]
+osTickHandler           0x0000599d    0x28  Code  Gb  los_tick.o [1]
+osTickStart             0x00005815    0x3c  Code  Gb  los_bsp_adapter.o [1]
+osTimerListDelete       0x00001bdb    0x44  Code  Gb  los_task.o [1]
+osTimesliceCheck        0x00005903    0x44  Code  Gb  los_timeslice.o [1]
+osTimesliceInit         0x000058f5     0xe  Code  Gb  los_timeslice.o [1]
+osTskStackInit          0x00002853   0x136  Code  Gb  los_hw.o [1]
+pBoxMem                 0x20001f10   0x258  Data  Gb  los_api_static_mem.o [1]
+printf                  0x00004c0d    0x28  Code  Gb  printf.o [3]
+putchar                 0x00005f89    0x28  Code  Gb  putchar.o [3]
+recv_Entry              0x000051db    0x7c  Code  Gb  los_api_msgqueue.o [1]
+scalbln                 0x0000138d          Code  Gb  ldexp.o [4]
+scalblnl                0x0000138d          Code  Gb  ldexp.o [4]
+scalbn                  0x0000138d          Code  Gb  ldexp.o [4]
+scalbnl                 0x0000138d          Code  Gb  ldexp.o [4]
+scale                   0x0000075d    0x46  Code  Lc  xprintffull_nomb.o [3]
+sec_hand                0x200022cc     0x4  Data  Lc  xfail_s.o [3]
+send_Entry              0x00005185    0x56  Code  Gb  los_api_msgqueue.o [1]
+strchr                  0x00000ea5          Code  Gb  strchr.o [5]
+strlen                  0x00000f01          Code  Gb  strlen.o [5]
+sys_clk_freq            0x00006970     0x4  Data  Gb  los_bsp_adapter.o [1]
+tick_per_second         0x00006974     0x4  Data  Gb  los_bsp_adapter.o [1]
+
+
+[1] = C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\EFM32-SLSTK3401A-IAR\Debug\Obj
+[2] = command line
+[3] = dl7M_tln.a
+[4] = m7M_tls.a
+[5] = rt7M_tl.a
+[6] = shb_l.a
+
+  24 073 bytes of readonly  code memory
+   3 285 bytes of readonly  data memory
+   8 910 bytes of readwrite data memory
+
+Errors: none
+Warnings: none
