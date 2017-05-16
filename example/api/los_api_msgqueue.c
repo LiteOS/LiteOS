@@ -95,7 +95,7 @@ void *recv_Entry(UINT32 uwParam1,
     {
 
         /*读取队列里的数据存入uwReadbuf里*/
-        uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 48, 0);
+        uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 24, 0);
         if(uwRet != LOS_OK)
         {
             dprintf("recv message failure,error:%x\n",uwRet);
@@ -159,7 +159,7 @@ UINT32 Example_MsgQueue(void)
     }
 
     /*创建队列*/
-    uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
+    uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 24);
     if(uwRet != LOS_OK)
     {
         dprintf("create queue failure!,error:%x\n",uwRet);

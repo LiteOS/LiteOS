@@ -299,11 +299,11 @@ extern char _PT0_END;
  * Memory size
  */
 #if defined (RAM_SIZE_LEVEL_0)
-#define OS_SYS_MEM_SIZE                                     0x00001800          // 1A00
+#define OS_SYS_MEM_SIZE                                     0x00001650          // 1A00
 #elif defined (RAM_SIZE_LEVEL_1)
 #define OS_SYS_MEM_SIZE                                     0x00002800          // size
 #elif defined (RAM_SIZE_LEVEL_2)
-#define OS_SYS_MEM_SIZE                                     0x00008000          // size
+#define OS_SYS_MEM_SIZE                                     0x00007400          // size
 #else
 #define OS_SYS_MEM_SIZE                                     0x00008000          // size
 #endif

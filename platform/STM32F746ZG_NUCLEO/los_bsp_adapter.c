@@ -1,10 +1,10 @@
 /*
-	here we can include some standard header file
+    here we can include some standard header file
 */
 #include <stdio.h>
 #include <string.h>
 /*
-	here include some special hearder file you need
+    here include some special hearder file you need
 */
 //#include "cmsis_os.h"
 
@@ -29,7 +29,7 @@
 #endif
 
 /*****************************************************************************
-	global var
+    global var
  *****************************************************************************/
 /* current system default HZ , should be set according to the microchip */
 const unsigned int sys_clk_freq = 16000000;
@@ -46,7 +46,7 @@ static unsigned int g_ucycle_per_tick = 0;
 const unsigned char g_use_ram_vect = 0;
 
 /*****************************************************************************
-	LOS function extern 
+    LOS function extern 
  *****************************************************************************/
 extern void LOS_SetTickSycle(unsigned int);
 extern void LOS_TickHandler(void);
@@ -65,7 +65,7 @@ extern unsigned int osGetVectorAddr(void);
 unsigned int osTickStart(void)
 {
     unsigned int uwRet = 0;
-	
+    
     /* This code section LOS need, so don't change it */
     g_ucycle_per_tick = sys_clk_freq / tick_per_second;
     LOS_SetTickSycle(g_ucycle_per_tick);
@@ -77,7 +77,7 @@ unsigned int osTickStart(void)
       you can just call SysTick_Config(sys_clk_freq/tick_per_second);
     */
 #ifdef LOS_STM32F746ZG
-		SysTick_Config(g_ucycle_per_tick);
+        SysTick_Config(g_ucycle_per_tick);
 #else
     *(volatile UINT32 *)OS_SYSTICK_RELOAD_REG = g_ucycle_per_tick - 1;
     *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
@@ -103,10 +103,10 @@ void SysTick_Handler(void)
         otherwise, LiteOS will not work.
     */
     LOS_TickHandler();
-	
+    
     /*add your code here */
 #ifdef LOS_STM32F746ZG
-	  HAL_IncTick();
+    HAL_IncTick();
 #endif
     return ;
 }
@@ -140,9 +140,9 @@ void LosAdapIntInit(void)
 }
 
 /*****************************************************************************
- Function    : LosAdapIrpEnable
- Description : external interrupt enable, and set priority 
-               this function is called by LOS_HwiCreate(), 
+ Function    : LosAdapIrqEnable
+ Description : external interrupt enable, and set priority
+               this function is called by LOS_HwiCreate(),
                so here can use bsp func to inplemente it 
                Note : if don't use LOS_HwiCreate(), leave it empty
  Input       : irqnum: external interrupt number
@@ -150,7 +150,7 @@ void LosAdapIntInit(void)
  Output      : None
  Return      : None
  *****************************************************************************/
-void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
+void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
 {
     /*
         enable irq , for example in stm32 bsp you can use 
@@ -194,10 +194,10 @@ void LosAdapIrqDisable(unsigned int irqnum)
  *****************************************************************************/
 void LOS_EvbSetup(void)
 {
-	LOS_EvbUartInit();
-	LOS_EvbLedInit();
-	LOS_EvbKeyInit();
-	return ;
+    LOS_EvbUartInit();
+    LOS_EvbLedInit();
+    LOS_EvbKeyInit();
+    return ;
 }
 
 /*****************************************************************************
@@ -209,7 +209,7 @@ void LOS_EvbSetup(void)
  *****************************************************************************/
 void LOS_EvbTrace(const char *str)
 {
-	LOS_EvbUartWriteStr(str);
-	return ;
+    LOS_EvbUartWriteStr(str);
+    return ;
 }
 

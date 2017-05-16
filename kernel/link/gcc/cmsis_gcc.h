@@ -36,6 +36,12 @@
 #define __CMSIS_GCC_H
 
 
+#if defined ( __GNUC__)
+#if ( __GNUC__ < 5 ) || (__GNUC__ == 5 && __GNUC_MINOR__ < 4)
+#error "Please use arm-none-eabi-gcc version more higher than 5.4"
+#endif
+#endif
+
 #include <sys/_stdint.h>
 /* ignore some GCC warnings */
 #if defined ( __GNUC__ )
