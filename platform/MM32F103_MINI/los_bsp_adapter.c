@@ -140,7 +140,7 @@ void LosAdapIntInit(void)
 }
 
 /*****************************************************************************
- Function    : LosAdapIrpEnable
+ Function    : LosAdapIrqEnable
  Description : external interrupt enable, and set priority
                this function is called by LOS_HwiCreate(),
                so here can use bsp func to inplemente it 
@@ -150,7 +150,7 @@ void LosAdapIntInit(void)
  Output      : None
  Return      : None
  *****************************************************************************/
-void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
+void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
 {
     /*
         enable irq , for example in stm32 bsp you can use

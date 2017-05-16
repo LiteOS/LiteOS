@@ -99,7 +99,7 @@
 	</tr>
 	<tr>
 	<td>STM32F412-Nucleo-144单板</td>
-	<td>STM32开发板(芯片型号STM32F12ZGT6)</td>
+	<td>STM32开发板(芯片型号STM32F412ZGT6)</td>
 	</tr>
 	<tr>
 	<td>PC机</td>

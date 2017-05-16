@@ -59,8 +59,6 @@ LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
 extern void hal_clock_irqclear(void);
 LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
 {
-
-
     g_ullTickCount ++;
 
     #if(LOSCFG_BASE_CORE_TIMESLICE == YES)
