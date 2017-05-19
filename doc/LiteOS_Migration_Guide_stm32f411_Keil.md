@@ -288,7 +288,7 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从st官网�
 
 ### 获取STM32开发资料获取
 
-- 从ST官网搜索“stm32cubel4”，获取相应的开发包资料，网址为：http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubel4.html
+- 从ST官网搜索“stm32cubef4”，获取相应的开发包资料，网址为：http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubef4.html
 
 - 从keil官网下载PACK包，网址为：http://www.keil.com/dd2/stmicroelectronics/stm32f411retx/
 
