@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+	<configuration id="com.arc.cdt.toolchain.arc5.exeDebugConfig.252790338" name="Debug">
+		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
+			<provider copy-of="extension" id="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuildCommandParser"/>
+			<provider class="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuiltinSpecsDetector" console="false" env-hash="1628127953158407754" id="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuiltinSpecsDetector" keep-relative-paths="false" name="MetaWare MCC Built-in Compiler Settings" parameter="mcc ${FLAGS} -Hbatchnotmp -Hnoobj &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="org.eclipse.cdt.core.gcc"/>
+				<language-scope id="org.eclipse.cdt.core.g++"/>
+			</provider>
+			<provider class="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuildCommandParser" id="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuildCommandParser" keep-relative-paths="false" name="MetaWare CCAC Build Output Parser" parameter="ccac" prefer-non-shared="true"/>
+			<provider class="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuiltinSpecsDetector" console="false" env-hash="1697751055312618442" id="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuiltinSpecsDetector" keep-relative-paths="false" name="MetaWare CCAC Built-in Compiler Settings" parameter="ccac ${FLAGS} -v -dM -E &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="org.eclipse.cdt.core.gcc"/>
+				<language-scope id="org.eclipse.cdt.core.g++"/>
+			</provider>
+			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
+		</extension>
+	</configuration>
+	<configuration id="com.arc.cdt.toolchain.arc5.exeReleaseConfig.1605417752" name="Release">
+		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
+			<provider copy-of="extension" id="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuildCommandParser"/>
+			<provider class="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuiltinSpecsDetector" console="false" env-hash="1679983005909118826" id="com.arc.cdt.toolchain.arc.language.settings.providers.MccBuiltinSpecsDetector" keep-relative-paths="false" name="MetaWare MCC Built-in Compiler Settings" parameter="mcc ${FLAGS} -Hbatchnotmp -Hnoobj &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="org.eclipse.cdt.core.gcc"/>
+				<language-scope id="org.eclipse.cdt.core.g++"/>
+			</provider>
+			<provider copy-of="extension" id="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuildCommandParser"/>
+			<provider class="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuiltinSpecsDetector" console="false" env-hash="1652871850153911978" id="com.arc.cdt.toolchain.arc.language.settings.providers.ClangBuiltinSpecsDetector" keep-relative-paths="false" name="MetaWare CCAC Built-in Compiler Settings" parameter="ccac ${FLAGS} -v -dM -E &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="org.eclipse.cdt.core.gcc"/>
+				<language-scope id="org.eclipse.cdt.core.g++"/>
+			</provider>
+			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
+		</extension>
+	</configuration>
+</project>
