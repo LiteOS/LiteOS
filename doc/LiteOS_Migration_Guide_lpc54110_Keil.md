@@ -402,15 +402,15 @@ LiteOS可直接使用csp文件夹的启动文件startup_LPC54114_cm4.s，这样�
 
 ## 7 其他说明
 
-###如何使用LiteOS 开发###
+### 如何使用LiteOS 开发 ###
 
 LiteOS中提供的功能包括如下内容： 任务创建与删除、任务同步（信号量、互斥锁）、动态中断注册机制等等内容，详细内容请参考《HuaweiLiteOSKernelDevGuide》。
 
-###从零开始创建LiteOS工程###
+### 从零开始创建LiteOS工程 ###
 
 目前在LiteOS的源代码的projects目录下已附带一些开发板的内核示例工程，用户可以直接使用，如果您所使用的开发板（芯片型号）与在示例工程中找不到，您可以从零开始创建LiteOS工程，创建流程请参考《LiteOS_Migration_Guide_Keil》。
 
-###关于中断向量位置选择###
+### 关于中断向量位置选择 ###
 
 如果您需要使用LiteOS的中断注册机制，详细内容请参考《LiteOS_Migration_Guide_Keil》。
 

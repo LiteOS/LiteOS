@@ -150,7 +150,7 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从ST官网�
 
 ## 5获取Huawei LiteOS 及适配的 FatFs 源码
 
-###step1:获取Huawei LiteOS源码，方法如下：
+### step1:获取Huawei LiteOS源码，方法如下：
 
 - 仓库地址是https://github.com/LITEOS/LiteOS_Kernel.git 
 
@@ -162,7 +162,7 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从ST官网�
 
 ![](./meta/keil/catal.png)
 
-###step2:下载FatFs源码：
+### step2:下载FatFs源码：
 
 - LiteOS适配的FatFs源码，网址：http://developer.huawei.com/ict/cn/resource/samplecode?ecologyID=171&productID=256&colname=1&key=FatFs&curPage=1&pageNum=10&isOpen=false
 
@@ -174,7 +174,7 @@ Keil工具需要开发者自行购买，ST-Link的驱动程序可以从ST官网�
 
 ![](./meta/fs/FatFs/fatfs_contents.png)
 
-###step3:下载stm32cubef4开发包：
+### step3:下载stm32cubef4开发包：
 
 网址：http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubef4.html
 
