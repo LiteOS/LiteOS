@@ -1,5 +1,6 @@
 	.syntax unified
 	.cpu cortex-m4
+	;.fpu softvfp
 	.thumb
 ;.arch_extension sec
 
@@ -48,24 +49,24 @@ LOS_StartToRun:
     ldr     r0, [r3]
     ldrh    r7, [r0 , #4]
     mov     r8,  #OS_TASK_STATUS_RUNNING
-    orr     r7,  r7,  r8
+    orr     r7,  r8
     strh    r7,  [r0 , #4]
 
     ldr     r12, [r0]
-    add     r12, r12, #100
+    add     r12, r12, #36
 
     ldmfd   r12!, {r0-r7}
-    add     r12, r12, #72
+    ;add     r12, r12, #72
     msr     psp, r12
     push    {r0}
     mov     r0, #3
     msr     CONTROL, r0
     pop     {r0}
-    vpush    {s0}
-    vpop     {s0}
+    ;vpush    {s0}
+    ;vpop     {s0}
 
     mov     lr, r5
-    ;MSR     xPSR, R7
+    msr     xpsr, r7
 
     cpsie   I
     bx      r6
@@ -123,15 +124,15 @@ PendSV_Handler:
     ldr     r2, =g_pfnTskSwitchHook
     ldr     r2, [r2]
     cbz     r2, TaskSwitch
-    push    {r12, lr}
+    push    {lr}
     blx     r2
-    pop     {r12, lr}
+    pop     {lr}
 
 TaskSwitch:
     mrs     r0, psp
 
     stmfd   r0!, {r4-r12}
-    vstmdb  r0!, {d8-d15}
+    ;vstmdb  r0!, {d8-d15}
 
     ldr     r5, =g_stLosTask
     ldr     r6, [r5]
@@ -140,7 +141,7 @@ TaskSwitch:
 
     ldrh    r7, [r6 , #4]
     mov     r8,#OS_TASK_STATUS_RUNNING
-    bic     r7, r7, r8
+    bic     r7, r8
     strh    r7, [r6 , #4]
 
 
@@ -151,11 +152,11 @@ TaskSwitch:
 
     ldrh    r7, [r0 , #4]
     mov     r8,  #OS_TASK_STATUS_RUNNING
-    orr     r7, r7, r8
+    orr     r7, r8
     strh    r7,  [r0 , #4]
 
     ldr     r1,   [r0]
-    vldmia  r1!, {d8-d15}
+    ;vldmia  r1!, {d8-d15}
     ldmfd   r1!, {r4-r12}
     msr     psp,  r1
 
