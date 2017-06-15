@@ -9,6 +9,7 @@
         .global  LOS_IntRestore
         .global  LOS_StartToRun
         .global  osTaskSchedule
+        .global  SVC_Handler
         .global  PendSV_Handler
         .global  real_pendsv
 	.global  LOS_IntNumGet
@@ -58,6 +59,10 @@ LOS_StartToRun:
     ldmfd   r12!, {r0-r7}
     add     r12, r12, #72
     msr     psp, r12
+    push    {r0}
+    mov     r0, #3
+    msr     CONTROL, r0
+    pop     {r0}
     vpush    {s0}
     vpop     {s0}
 
@@ -90,11 +95,28 @@ LOS_IntRestore:
     bx      lr
 
 osTaskSchedule:
+    svc     #0
     ldr     r0, =OS_NVIC_INT_CTRL
     ldr     r1, =OS_NVIC_PENDSVSET
     str     r1, [r0]
     bx      lr
 
+
+    .type SVC_Handler, %function
+SVC_Handler:
+    tst     lr, #(1 << 2)
+    bne     1f
+
+    bx      lr
+1:  mrs     r0, CONTROL
+    bics    r0, r0, #1
+    msr     CONTROL, r0
+    bx     lr
+
+
+
+
+  
     .type PendSV_Handler, %function
 PendSV_Handler:
     mrs     r12, PRIMASK
@@ -140,6 +162,11 @@ TaskSwitch:
     msr     psp,  r1
 
     msr     PRIMASK, r12
+
+    mrs     r0, CONTROL
+    orr     r0, r0, #1
+    msr     CONTROL, r0
+    
     bx      lr
 
 

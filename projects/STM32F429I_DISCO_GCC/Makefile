@@ -105,14 +105,12 @@ all: $(TARGET_BIN)
 
 $(TARGET_BIN):$(TARGET_ELF)
 	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_BIN) -S  $(TARGET_ELF)   $(TARGET_BIN) 
-	#$(OBJDUMP) -sStD $(TARGET_ELF) > map
+	@#$(OBJDUMP) -sStD $(TARGET_ELF) > map
 
 $(TARGET_HEX):$(TARGET_ELF)
 	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_HEX) -S  $(TARGET_ELF)   $(TARGET_HEX) 
 
 $(TARGET_ELF):$(OBJ) $(ASMOBJ) 
-	echo $(PROJECTBASE)
-	echo $(TOP_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^  -o $@  $(JS_CFLAGS)
 
 
@@ -124,10 +122,8 @@ $(TARGET_ELF):$(OBJ) $(ASMOBJ)
 
 
 clean:
-	#$(MAKE) -C $(LIB) clean
-	rm $(OBJ)
-	rm $(ASMOBJ)
-	rm $(TARGET_BIN)
-	rm $(TARGET_ELF)
-	#rm map
-	@echo "clean"
+	@rm -f $(OBJ)
+	@rm -f $(ASMOBJ)
+	rm -f $(TARGET_BIN)
+	rm -f $(TARGET_ELF)
+	@#rm map
