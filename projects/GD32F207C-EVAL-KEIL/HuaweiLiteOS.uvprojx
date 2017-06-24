@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RAM_SIZE_LEVEL_0,GD32F20X_CL,USE_STDPERIPH_DRIVER</Define>
+              <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m3;..\..\kernel\link\keil;..\..\platform\GD32F190R-EVAL;..\..\example\include;..\..\GD32F207_Library;..\..\GD32F207_Library\CORE;..\..\GD32F207_Library\FWLib\inc</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m3;..\..\kernel\link\keil;..\..\platform\GD32F207C-EVAL;..\..\example\include;..\..\GD32F207_Library;..\..\GD32F207_Library\CMSIS;..\..\GD32F207_Library\GD32F20x_standard_peripheral\Include;..\..\GD32F207_Library\CMSIS\GD\GD32F20x\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -625,179 +625,169 @@
           <GroupName>library</GroupName>
           <Files>
             <File>
-              <FileName>gd32f20x_it.c</FileName>
+              <FileName>gd32f20x_cau.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\gd32f20x_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_gd32f20x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\system_gd32f20x.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_adc.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_adc.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_bkp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_bkp.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_bkp.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_can.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_can.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_cau_aes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_aes.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_cau_des.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_des.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_cau_tdes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_tdes.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_crc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_crc.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_cryp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_cryp_aes.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_aes.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_cryp_des.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_des.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_cryp_tdes.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_tdes.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_crc.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_dac.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_dac.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dac.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_dbg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dbg.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_dci.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_dci.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dci.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_dma.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dma.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_eth.c</FileName>
+              <FileName>gd32f20x_enet.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_eth.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_enet.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_exmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_exmc.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_exmc.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_exti.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_exti.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_exti.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_fmc.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_fwdgt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_fwdgt.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_gpio.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_hash.c</FileName>
+              <FileName>gd32f20x_hau.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_hau.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_hash_md5.c</FileName>
+              <FileName>gd32f20x_hau_sha_md5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash_md5.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_hash_sha.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash_sha.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_hau_sha_md5.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_iwdg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_iwdg.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_mcudbg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_mcudbg.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_i2c.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_misc.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_misc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_pwr.c</FileName>
+              <FileName>gd32f20x_pmu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_pwr.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_pmu.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_rcc.c</FileName>
+              <FileName>gd32f20x_rcu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_rcc.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f20x_rng.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_rng.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_rcu.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_rtc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_rtc.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_rtc.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_sdio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_sdio.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_sdio.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_spi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_spi.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_spi.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_timer.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_timer.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_tldi.c</FileName>
+              <FileName>gd32f20x_tli.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_tldi.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_tli.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f20x_trng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_trng.c</FilePath>
             </File>
             <File>
               <FileName>gd32f20x_usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_usart.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_usart.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f20x_wwdg.c</FileName>
+              <FileName>gd32f20x_wwdgt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\GD32F207_Library\FWLib\src\gd32f20x_wwdg.c</FilePath>
+              <FilePath>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_wwdgt.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_gd32f20x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\GD32F207_Library\CMSIS\GD\GD32F20x\Source\system_gd32f20x.c</FilePath>
             </File>
           </Files>
         </Group>

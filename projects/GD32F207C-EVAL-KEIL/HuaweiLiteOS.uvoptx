@@ -463,7 +463,7 @@
 
   <Group>
     <GroupName>config</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -503,7 +503,7 @@
 
   <Group>
     <GroupName>example</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -755,7 +755,7 @@
 
   <Group>
     <GroupName>user</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -775,7 +775,7 @@
 
   <Group>
     <GroupName>library</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -786,8 +786,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\gd32f20x_it.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_it.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_cau.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -798,8 +798,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\system_gd32f20x.c</PathWithFileName>
-      <FilenameWithoutPath>system_gd32f20x.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_adc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_adc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -810,8 +810,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_adc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_adc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_bkp.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_bkp.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -822,8 +822,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_bkp.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_bkp.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_can.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_can.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -834,8 +834,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_can.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_can.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_aes.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_cau_aes.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -846,8 +846,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_crc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_crc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_des.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_cau_des.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -858,8 +858,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_cryp.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_cau_tdes.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_cau_tdes.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -870,8 +870,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_aes.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_cryp_aes.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_crc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_crc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -882,8 +882,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_des.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_cryp_des.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dac.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_dac.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -894,8 +894,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_cryp_tdes.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_cryp_tdes.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dbg.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_dbg.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -906,8 +906,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_dac.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_dac.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dci.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_dci.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -918,8 +918,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_dci.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_dci.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_dma.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_dma.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -930,8 +930,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_dma.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_dma.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_enet.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_enet.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -942,8 +942,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_eth.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_eth.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_exmc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_exmc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -954,8 +954,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_exmc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_exmc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_exti.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_exti.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -966,8 +966,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_exti.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_exti.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_fmc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_fmc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -978,8 +978,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_fmc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_fmc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_fwdgt.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_fwdgt.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -990,7 +990,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_gpio.c</PathWithFileName>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_gpio.c</PathWithFileName>
       <FilenameWithoutPath>gd32f20x_gpio.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -1002,8 +1002,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_hash.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_hau.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_hau.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1014,8 +1014,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash_md5.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_hash_md5.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_hau_sha_md5.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_hau_sha_md5.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1026,8 +1026,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_hash_sha.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_hash_sha.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_i2c.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_i2c.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1038,8 +1038,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_i2c.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_i2c.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_misc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_misc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1050,8 +1050,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_iwdg.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_iwdg.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_pmu.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_pmu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1062,8 +1062,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_mcudbg.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_mcudbg.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_rcu.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_rcu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1074,8 +1074,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_misc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_misc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_rtc.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_rtc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1086,8 +1086,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_pwr.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_pwr.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_sdio.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_sdio.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1098,8 +1098,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_rcc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_rcc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_spi.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_spi.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1110,8 +1110,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_rng.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_rng.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_timer.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_timer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1122,8 +1122,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_rtc.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_rtc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_tli.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_tli.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1134,8 +1134,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_sdio.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_sdio.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_trng.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_trng.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1146,8 +1146,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_spi.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_spi.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_usart.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_usart.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1158,8 +1158,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_timer.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_timer.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\GD32F20x_standard_peripheral\Source\gd32f20x_wwdgt.c</PathWithFileName>
+      <FilenameWithoutPath>gd32f20x_wwdgt.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1170,32 +1170,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_tldi.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_tldi.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>9</GroupNumber>
-      <FileNumber>75</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_usart.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_usart.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>9</GroupNumber>
-      <FileNumber>76</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\..\GD32F207_Library\FWLib\src\gd32f20x_wwdg.c</PathWithFileName>
-      <FilenameWithoutPath>gd32f20x_wwdg.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\GD32F207_Library\CMSIS\GD\GD32F20x\Source\system_gd32f20x.c</PathWithFileName>
+      <FilenameWithoutPath>system_gd32f20x.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
