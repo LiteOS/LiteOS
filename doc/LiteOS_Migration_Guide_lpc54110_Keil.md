@@ -294,12 +294,13 @@ Keil工具需要开发者自行购买，mbedWinSerial_16466.exe驱动程序可�
 
 本章节描述的内容以开发板software资料中的board_test示例工程为基础，适配到LiteOS的LPC54110_BOARD_KEIL工程中，演示串口输出、按键及LED灯点亮功能。
 
-### LPC824-Lite开发资料获取
+### LPC54110_BOARD开发资料获取
+
 - 从开发板官网获取开发包资料lpc54110_package.zip，网址为：http://www.manley.com.cn
 
 - 从keil官网下载PACK包，网址为：http://www.keil.com/dd2/nxp/lpc54114j256bd64/
 
-### LPC824-Lite的开发包安装
+### LPC54110_BOARD开发包安装
 
   安装Keil.LPC54000_DFP.2.2.0.pack或者更高版本的pack文件到keil安装目录。
 
