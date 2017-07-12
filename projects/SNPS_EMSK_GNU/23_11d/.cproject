@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.cross.arc.gnu.emsk.buildArtefactType.application" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.cross.arc.gnu.emsk.buildArtefactType.application,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144" name="Debug" parent="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk">
+					<folderInfo id="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.cross.arc.gnu.linux.emsk.elf.toolchain.debug.260594743" name="GNU Toolchain for ARC EM" superClass="org.eclipse.cdt.cross.arc.gnu.linux.emsk.elf.toolchain.debug">
+							<option id="org.eclipse.cdt.cross.arc.gnu.em.linux.option.debugging.level.622102519" name="Debug level" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.option.debugging.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.debugging.level.max" valueType="enumerated"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.em.linux.option.target.tcf.1412943260" name="TCF" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.option.target.tcf" value="true" valueType="boolean"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.em.linux.option.target.filefortcf.952959060" name="TCF path" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.option.target.filefortcf" value="C:\msys64\home\wren\embARC\repos\LiteOS_Kernel\repo\projects\SNPS_EMSK_GNU\23_11d\arcem11d.tcf" valueType="string"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.processor.2064624772" name="ARC EM (-mcpu)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.processor" value="org.eclipse.cdt.cross.arc.gnu.base.option.mcpu.em4_fpuda" valueType="enumerated"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.mpyem.216662067" name="Multiply instructions (ARC EM)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.mpyem" value="org.eclipse.cdt.cross.arc.gnu.base.option.mpyem.6" valueType="enumerated"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.fpuem.1903315730" name="FPU Type (ARC EM)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.fpuem" value="org.eclipse.cdt.cross.arc.gnu.base.option.fpu.fpuda_all" valueType="enumerated"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.barrelshifter.1597216981" name="Barrel shifter (-mbarrel-shifter)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.barrelshifter" value="true" valueType="boolean"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.codedensity.218594382" name="Code density (-mcode-density)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.codedensity" value="true" valueType="boolean"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.divide.320937306" name="Integer divide instructions (-mdiv-rem)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.divide" value="true" valueType="boolean"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.normalize.345142295" name="Bitscan instruction (-mnorm)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.normalize" value="true" valueType="boolean"/>
+							<option id="org.eclipse.cdt.cross.arc.gnu.linux.option.target.swap.837258425" name="Swap instruction (-mswap)" superClass="org.eclipse.cdt.cross.arc.gnu.linux.option.target.swap" value="true" valueType="boolean"/>
+							<targetPlatform id="org.eclipse.cdt.cross.arc.gnu.linux.elf.platform.debug.emsk.1371076038" isAbstract="false" name="All Platform" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.platform.debug.emsk"/>
+							<builder buildPath="${workspace_loc:/23_11d}/Debug" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.builder.debug.emsk.2131719103" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder for ARC" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.builder.debug.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.debug.emsk.513239810" name="ARC ELF32 GCC Assembler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.debug.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.assembler.option.include.paths.448545420" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arc.gnu.assembler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/SNPS_EMSK/embARC_BSP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.cross.arc.gnu.assembler.option.preprocessor.def.177819019" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arc.gnu.assembler.option.preprocessor.def"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input.92899093" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.debug.emsk.1547944245" name="ARC ELF32 GCC C Compiler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.debug.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.optimization.level.779983591" name="Optimization level" superClass="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.optimization.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.optimization.level.none" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.include.paths.127213492" name="Include paths (-I)" superClass="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/base/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/base/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/base/ipc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/base/mem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/SNPS_EMSK/embARC_BSP}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/SNPS_EMSK}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/link/arc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel/cpu/arc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/include}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.preprocessor.def.1097114275" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.preprocessor.def"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input.161465581" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.debug.emsk.1862690307" name="ARC ELF32 GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.debug.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.cpp.compiler.option.optimization.level.743508842" name="Optimization level" superClass="org.eclipse.cdt.cross.arc.gnu.cpp.compiler.option.optimization.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.optimization.level.none" valueType="enumerated"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input.40009259" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.linker.debug.emsk.1470498500" name="ARC ELF32 GCC C Linker" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.linker.debug.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.link.option.scriptfile.170661725" name="Script file (-T)" superClass="org.eclipse.cdt.cross.arc.gnu.c.link.option.scriptfile" value="../arcem11d.ld" valueType="string"/>
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.link.option.nostart.18684269" name="Do not use standard start files (-nostartfiles)" superClass="org.eclipse.cdt.cross.arc.gnu.c.link.option.nostart" value="true" valueType="boolean"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.c.linker.input.838988932" superClass="org.eclipse.cdt.cross.arc.gnu.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.linker.debug.emsk.299963381" name="ARC ELF32 GCC C++ Linker" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.linker.debug.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.em.linux.archiver.base.1025010612" name="ARC ELF32 GCC Archiver" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.archiver.base"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.createflash.debug.emsk.1210342584" name="ARC ELF32 GNU Create Flash Image" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.createflash.debug.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.createlisting.debug.emsk.202648524" name="ARC ELF32 GNU Create Listing" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.createlisting.debug.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.printsize.base.621191089" name="ARC ELF32 GNU Print Size" superClass="org.eclipse.cdt.cross.arc.gnu.linux.printsize.base"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="example/api/los_cmsis_main.c|kernel/config|kernel/base/fs|kernel/cpu/arm|platform/include/keil|platform/include/iar|platform/cpu/arm|platform/bsp/config|kernel/cmsis" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.cross.arc.gnu.emsk.buildArtefactType.application" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.cross.arc.gnu.emsk.buildArtefactType.application,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993" name="Release" parent="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk">
+					<folderInfo id="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.cross.arc.gnu.linux.emsk.elf.toolchain.release.152901553" name="GNU Toolchain for ARC EM" superClass="org.eclipse.cdt.cross.arc.gnu.linux.emsk.elf.toolchain.release">
+							<option id="org.eclipse.cdt.cross.arc.gnu.em.linux.option.debugging.level.502113047" name="Debug level" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.option.debugging.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.debugging.level.none" valueType="enumerated"/>
+							<targetPlatform id="org.eclipse.cdt.cross.arc.gnu.linux.elf.platform.release.emsk.288168434" isAbstract="false" name="All Platform" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.platform.release.emsk"/>
+							<builder buildPath="${workspace_loc:/23_11d}/Release" id="org.eclipse.cdt.cross.arc.gnu.linux.elf.builder.release.emsk.1237105722" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder for ARC" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.builder.release.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.release.emsk.1961191398" name="ARC ELF32 GCC Assembler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.release.emsk">
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input.2137974" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.release.emsk.1424337822" name="ARC ELF32 GCC C Compiler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.release.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.optimization.level.1497692843" name="Optimization level" superClass="org.eclipse.cdt.cross.arc.gnu.c.compiler.option.optimization.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.optimization.level.size" valueType="enumerated"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input.1652934566" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.release.emsk.769246925" name="ARC ELF32 GCC C++ Compiler" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.release.emsk">
+								<option id="org.eclipse.cdt.cross.arc.gnu.cpp.compiler.option.optimization.level.412740201" name="Optimization level" superClass="org.eclipse.cdt.cross.arc.gnu.cpp.compiler.option.optimization.level" value="org.eclipse.cdt.cross.arc.gnu.base.option.optimization.level.size" valueType="enumerated"/>
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input.1049458823" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input"/>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.linker.release.emsk.756131283" name="ARC ELF32 GCC C Linker" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.c.linker.release.emsk">
+								<inputType id="org.eclipse.cdt.cross.arc.gnu.c.linker.input.824560500" superClass="org.eclipse.cdt.cross.arc.gnu.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.linker.release.emsk.1568827542" name="ARC ELF32 GCC C++ Linker" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.linker.release.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.em.linux.archiver.base.1184441962" name="ARC ELF32 GCC Archiver" superClass="org.eclipse.cdt.cross.arc.gnu.em.linux.archiver.base"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.createflash.release.emsk.812789502" name="ARC ELF32 GNU Create Flash Image" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.createflash.release.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.elf.createlisting.release.emsk.740137239" name="ARC ELF32 GNU Create Listing" superClass="org.eclipse.cdt.cross.arc.gnu.linux.elf.createlisting.release.emsk"/>
+							<tool id="org.eclipse.cdt.cross.arc.gnu.linux.printsize.base.77434314" name="ARC ELF32 GNU Print Size" superClass="org.eclipse.cdt.cross.arc.gnu.linux.printsize.base"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="example/api/los_cmsis_main.c|kernel/config|kernel/base/fs|kernel/cpu/arm|platform/include/keil|platform/include/iar|platform/cpu/arm|platform/bsp/config|kernel/cmsis" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="23_11d.org.eclipse.cdt.cross.arc.gnu.linux.elf.emsk.291995293" name="EM Starter Kit Projects" projectType="org.eclipse.cdt.cross.arc.gnu.linux.elf.emsk"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993;org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993.;org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.release.emsk.1961191398;org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input.2137974">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993;org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993.;org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.release.emsk.769246925;org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input.1049458823">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileCXX"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993;org.eclipse.cdt.cross.arc.gnu.linux.elf.release.emsk.1299561993.;org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.release.emsk.1424337822;org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input.1652934566">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144;org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144.;org.eclipse.cdt.cross.arc.gnu.linux.elf.c.compiler.debug.emsk.1547944245;org.eclipse.cdt.cross.arc.gnu.em.linux.c.compiler.base.input.161465581">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144;org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144.;org.eclipse.cdt.cross.arc.gnu.linux.elf.cpp.compiler.debug.emsk.1862690307;org.eclipse.cdt.cross.arc.gnu.em.linux.cpp.compiler.base.input.40009259">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileCXX"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144;org.eclipse.cdt.cross.arc.gnu.linux.elf.debug.emsk.144203144.;org.eclipse.cdt.cross.arc.gnu.linux.elf.assembler.debug.emsk.513239810;org.eclipse.cdt.cross.arc.gnu.em.linux.assembler.base.input.92899093">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.cross.arc.gnu.ARC_GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/23_11d"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/23_11d"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>
