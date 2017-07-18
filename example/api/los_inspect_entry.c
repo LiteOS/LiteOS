@@ -141,19 +141,19 @@ UINT32 LOS_InspectStatusSetByID(enInspectID InspectID,enInspectStu InspectStu)
         if(InspectID == gInspect[ulIndex].InspectID)
         {
             gInspect[ulIndex].Status = InspectStu;
+            break;
         }
-     
     }
 
     if(LOS_INSPECT_BUFF == ulIndex)
     {
+        dprintf("\r\nInspectID = [%d] not find.\r\n",InspectID);
         return LOS_NOK;
     }
     else
     {
         return LOS_OK;
     }
-
 }
 
 /*****************************************************************************
@@ -189,16 +189,16 @@ UINT32 LOS_InspectByID(enInspectID InspectID)
             do{
                 if((LOS_INSPECT_STU_SUCCESS == gInspect[ulIndex].Status) && (ulRet == LOS_OK))
                 {
-                    printf("Inspect %s success\r\n\r\n",gInspect[ulIndex].name);
+                    dprintf("Inspect %s success\r\n\r\n",gInspect[ulIndex].name);
                     enCurStatus = LOS_INSPECT_STU_SUCCESS;
                 }
                 else if(LOS_INSPECT_STU_ERROR == gInspect[ulIndex].Status)
                 {
                     enCurStatus = LOS_INSPECT_STU_ERROR;
-                    printf("Inspect %s error,gInspectErrCnt = [%d]\r\n\r\n",gInspect[ulIndex].name,gInspectErrCnt);
+                    dprintf("Inspect %s error,gInspectErrCnt = [%d]\r\n\r\n",gInspect[ulIndex].name,gInspectErrCnt);
                 }
                 
-                LOS_TaskDelay(100);
+                (void)LOS_TaskDelay(100);
                     
             }while((LOS_INSPECT_STU_START == gInspect[ulIndex].Status)||(enCurStatus != gInspect[ulIndex].Status));
             
@@ -225,12 +225,12 @@ UINT32 LOS_InspectByID(enInspectID InspectID)
  Output      : None
  Return      : None
  *****************************************************************************/
-void LOS_Inspect_KeyAndLed(UINT32 KeyID,UINT32 LedID)
+static void LOS_Inspect_KeyAndLed(UINT32 KeyID,UINT32 LedID)
 {
     /* check if the user key is pressed */
     if(LOS_KEY_PRESS == LOS_EvbGetKeyVal(KeyID)){
                  
-        LOS_TaskDelay(50);
+        (void)LOS_TaskDelay(50);
             
         if(LOS_KEY_PRESS == LOS_EvbGetKeyVal(KeyID)){
                     
@@ -261,7 +261,7 @@ void LOS_Inspect_KeyAndLed(UINT32 KeyID,UINT32 LedID)
  Output      : None
  Return      : None
  *****************************************************************************/
-void LOS_Inspect_TskDeal(void)
+static void LOS_Inspect_TskDeal(void)
 {
     UINT32 ulRet = LOS_OK;
      
@@ -282,7 +282,7 @@ void LOS_Inspect_TskDeal(void)
         }
     }
      
-    printf("Inspect completed,gInspectErrCnt = [%d]\r\n\r\n",gInspectErrCnt);
+    dprintf("Inspect completed,gInspectErrCnt = [%d]\r\n\r\n",gInspectErrCnt);
      
      /* output a message on hyperterminal using printf function */
     dprintf("\r\nLos Key example: please press the UserKey key \r\n");

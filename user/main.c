@@ -14,17 +14,18 @@
 extern void LOS_EvbSetup(void);
 
 static UINT32 g_uwboadTaskID;
-LITE_OS_SEC_TEXT VOID LOS_BoadExampleTskfunc(VOID)
+static LITE_OS_SEC_TEXT VOID LOS_BoadExampleTskfunc(VOID)
 {
     while (1)
     {
         LOS_EvbLedControl(LOS_LED2, LED_ON);
         LOS_EvbUartWriteStr("Board Test\n");
-        LOS_TaskDelay(500);
+        (void)LOS_TaskDelay(500);
         LOS_EvbLedControl(LOS_LED2, LED_OFF);
-        LOS_TaskDelay(500);
+        (void)LOS_TaskDelay(500);
     }
 }
+
 void LOS_BoadExampleEntry(void)
 {
     UINT32 uwRet;
@@ -67,8 +68,11 @@ int main(void)
         return LOS_NOK;
     }
     /* Enable LiteOS system tick interrupt */
-    LOS_EnableTick();
-
+    uwRet = LOS_EnableTick();
+    if (uwRet != LOS_OK) {
+        return LOS_NOK;
+    }
+   
     /*
         Notice: add your code here
         here you can create task for your function 
@@ -83,7 +87,7 @@ int main(void)
     //LOS_BoadExampleEntry();
 
     /* Kernel start to run */
-    LOS_Start();
+    (void)LOS_Start();
     for (;;);
     /* Replace the dots (...) with your own code. */
 }

@@ -95,7 +95,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EnableTick(void)
     if (uwRet != LOS_OK)
     {
         PRINT_ERR("osTickStart error\n");
-        return uwRet;
     }
 		
     return uwRet;

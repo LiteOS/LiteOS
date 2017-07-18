@@ -2,13 +2,15 @@
 
 #define TASK_CMSIS_STACK_SIZE_TEST 0x200
 
-void Cmsis_Task_Test(void const *argument)
+static void Cmsis_Task_Test(void const *argument)
 {
-    uint32_t count=0;;
+    uint32_t count=0;
     while(1)
     {
         count++;
-        osDelay(200);
+        if(count == 100)
+            count = 0;
+        (void)osDelay(200);
     }
 }
 

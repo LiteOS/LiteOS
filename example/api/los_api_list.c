@@ -54,6 +54,8 @@ extern "C" {
 
 UINT32 Example_list(VOID)
 {
+    UINT32 uwRet = LOS_OK;
+    
     /*初始化，判断是否为空*/
     dprintf("initial......\n");
     LOS_DL_LIST* head;
@@ -93,12 +95,20 @@ UINT32 Example_list(VOID)
     if(head->pstNext == node2)
     {
         dprintf("delete node success\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_SUCCESS);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     else
     {
         dprintf("delete node error\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     
     return LOS_OK;

@@ -58,7 +58,7 @@ static UINT32 g_TestTaskID01,g_TestTaskID02;
 static UINT32 g_usSemID;
 
 
-VOID Example_SemTask1(void)
+static VOID Example_SemTask1(void)
 {
     UINT32 uwRet;
 
@@ -82,14 +82,18 @@ VOID Example_SemTask1(void)
         {
             dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
             LOS_SemPost(g_usSemID);
-            LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
+            uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SEM,LOS_INSPECT_STU_SUCCESS);
+            if (LOS_OK != uwRet)  
+            {
+                dprintf("Set Inspect Status Err\n");
+            }
             return;
         }
     }
     return;
 }
 
-VOID   Example_SemTask2(void)
+static VOID Example_SemTask2(void)
 {
     UINT32 uwRet;
     dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\n");

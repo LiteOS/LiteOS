@@ -50,7 +50,7 @@ extern "C" {
 
 
 /*互斥锁句柄ID*/
-UINT32 g_Testmux01;
+static UINT32 g_Testmux01;
 
 
 /*任务PID*/
@@ -58,7 +58,7 @@ UINT32 g_TestTaskID01;
 UINT32 g_TestTaskID02;
 
 
-VOID Example_MutexTask1()
+static VOID Example_MutexTask1()
 {
     UINT32 uwRet;
 
@@ -83,14 +83,18 @@ VOID Example_MutexTask1()
             dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
             /*释放互斥锁*/
             LOS_MuxPost(g_Testmux01);
-            LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
+            uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX,LOS_INSPECT_STU_SUCCESS);
+            if (LOS_OK != uwRet)  
+            {
+                dprintf("Set Inspect Status Err\n");
+            }
             return;
         }
     }
     return;
 }
 
-VOID Example_MutexTask2()
+static VOID Example_MutexTask2()
 {
     UINT32 uwRet;
 
