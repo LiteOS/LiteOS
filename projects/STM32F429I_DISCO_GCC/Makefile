@@ -30,8 +30,8 @@ LDSCRIPT = $(PROJECTBASE)/../../platform/STM32F429I_DISCO/LiteOS.ld
 CFLAGS      +=   -Wall -mlittle-endian  -mcpu=cortex-m4 -march=armv7e-m -mthumb -mthumb-interwork  -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D LOS_GCC_COMPILE -D _GCC_WRAP_STDINT_H  -ffreestanding   -D ARM_MATH_CM4 -std=gnu99  --specs=rdimon.specs 
 ASFLAGS     +=   -Wall -mlittle-endian  -mcpu=cortex-m4 -march=armv7e-m -mthumb -mthumb-interwork  -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D LOS_GCC_COMPILE -D _GCC_WRAP_STDINT_H  -ffreestanding   -D ARM_MATH_CM4 -std=gnu99 --specs=rdimon.specs 
 
-#CFLAGS		+=	-D LOS_STM32F429ZI  -D STM32F429xx -D USE_STM32F429I_DISCO  -D USE_HAL_DRIVER
-#ASFLAGS	+=	-D LOS_STM32F429ZI  -D STM32F429xx -D USE_STM32F429I_DISCO  -D USE_HAL_DRIVER
+CFLAGS		+=	-D LOS_STM32F429ZI  -D STM32F429xx -D USE_STM32F429I_DISCO  -D USE_HAL_DRIVER
+ASFLAGS	+=	-D LOS_STM32F429ZI  -D STM32F429xx -D USE_STM32F429I_DISCO  -D USE_HAL_DRIVER
 
 LDFLAGS     +=  -T $(LDSCRIPT) 
 
@@ -49,9 +49,9 @@ SRC += ${wildcard $(TOP_DIR)/kernel/cmsis/*.c}
 SRC += ${wildcard $(TOP_DIR)/kernel/cpu/arm/cortex-m4/*.c}
 SRC += ${wildcard $(TOP_DIR)/platform/STM32F429I_DISCO/*.c}
 SRC += ${wildcard $(TOP_DIR)/example/api/*.c}
-#SRC += ${wildcard $(TOP_DIR)/STM32FXX/stm32f429/Src/*.c}
-#SRC += ${wildcard $(TOP_DIR)/STM32FXX/Drivers/STM32F4xx_HAL_Driver/Src/*.c}
-#SRC += ${wildcard $(TOP_DIR)/STM32FXX/Drivers/BSP/STM32F429I-Discovery/*.c}
+SRC += ${wildcard $(TOP_DIR)/STM32FXX/stm32f429/Src/*.c}
+SRC += ${wildcard $(TOP_DIR)/STM32FXX/Drivers/STM32F4xx_HAL_Driver/Src/*.c}
+SRC += ${wildcard $(TOP_DIR)/STM32FXX/Drivers/BSP/STM32F429I-Discovery/*.c}
 ifneq (, $(LITEOSBASE))
 SRC += ${wildcard $(TOP_DIR)/../jerryscript/targets/liteos-stm32f4/source/*.c}
 else
@@ -72,15 +72,16 @@ CFLAGS += -I $(TOP_DIR)/kernel/cmsis
 CFLAGS += -I $(TOP_DIR)/kernel/cpu/arm/cortex-m4
 CFLAGS += -I $(TOP_DIR)/platform/STM32F429I_DISCO
 CFLAGS += -I $(TOP_DIR)/example/include
-#CFLAGS += -I $(TOP_DIR)/STM32FXX/stm32f429/Inc
-#CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/CMSIS/Include
-#CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/CMSIS/Device/ST/STM32F4xx/Include
-#CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/STM32F4xx_HAL_Driver/Inc
-#CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/BSP/STM32F429I-Discovery
+CFLAGS += -I $(TOP_DIR)/STM32FXX/stm32f429/Inc
+CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/CMSIS/Include
+CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/STM32F4xx_HAL_Driver/Inc
+CFLAGS += -I $(TOP_DIR)/STM32FXX/Drivers/BSP/STM32F429I-Discovery
 
 
 ifneq  (, $(LITEOSBASE)) 
 CFLAGS += -I $(TOP_DIR)/../jerryscript/jerry-core
+CFLAGS += -I $(TOP_DIR)/../jerryscript/jerry-core/include
 CFLAGS += -I $(TOP_DIR)/../jerryscript/jerry-core/ecma/base
 CFLAGS += -I $(TOP_DIR)/../jerryscript/jerry-core/jrt
 CFLAGS += -I $(TOP_DIR)/../jerryscript/jerry-core/ecma/operations

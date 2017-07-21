@@ -1,8 +1,7 @@
 	.syntax unified
 	.cpu cortex-m4
-	@.fpu softvfp
 	.thumb
-@.arch_extension sec
+/*.arch_extension sec*/
 
         .global  LOS_IntLock
         .global  LOS_IntUnLock
@@ -11,7 +10,6 @@
         .global  osTaskSchedule
         .global  SVC_Handler
         .global  PendSV_Handler
-        .global  real_pendsv
 	.global  LOS_IntNumGet
 	.global  osDisableIRQ
         
@@ -67,7 +65,7 @@ LOS_StartToRun:
     vpop     {s0}
 
     mov     lr, r5
-  @; MSR     xPSR, R7
+    /*MSR     xPSR, R7*/
 
     cpsie   I
     bx      r6
