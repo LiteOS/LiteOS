@@ -1,0 +1,7 @@
+language: c
+
+os: linux
+dist: trusty
+
+
+compiler: gcc
