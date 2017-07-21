@@ -4,4 +4,4 @@ os: linux
 dist: trusty
 
 
-compiler: gcc
+compiler: arm-none-eabi-gcc
