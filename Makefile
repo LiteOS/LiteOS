@@ -82,7 +82,7 @@ endif
 
 ARCH_LIST:=arm arc
 CPU_LIST:=cortex-m3 cortex-m4 cortex-m7
-PLAT_LIST:=STM32F429I_DISCO STM32F746ZG_NUCLEO
+PLAT_LIST:=STM32F429I_DISCO STM32F746ZG_NUCLEO STM32F103ZE-ISO
 ARMV_LIST:=armv7-m armv7e-m armv7ve
 
 #ARCH:=arm
@@ -91,17 +91,17 @@ ARMV_LIST:=armv7-m armv7e-m armv7ve
 
 # we do need them if we want to build anything else
 $(if $(filter ${ARCH},${ARCH_LIST}),, \
-	$(error ARCH ${ARCH} invalid or undefined, should be one of [${ARCH_LIST}]))
+	$(error ARCH ${ARCH} invalid or undefined, should be one of [ ${ARCH_LIST} ]))
 
 $(if $(filter ${PLAT},${PLAT_LIST}),, \
-	$(error PLAT ${PLAT} invalid or undefined, should be one of [${PLAT_LIST}]))
+	$(error PLAT ${PLAT} invalid or undefined, should be one of [ ${PLAT_LIST} ]))
 
 ifeq (${ARCH}, arm)
 $(if $(filter ${CPU},${CPU_LIST}),, \
-	$(error CPU ${CPU} invalid or undefined, should be one of [${CPU_LIST}]))
+	$(error CPU ${CPU} invalid or undefined, should be one of [ ${CPU_LIST} ]))
 
 $(if $(filter ${ARMV},${ARMV_LIST}),, \
-	$(error ARMV ${ARMV} invalid or undefined, should be one of [${ARMV_LIST}]))
+	$(error ARMV ${ARMV} invalid or undefined, should be one of [ ${ARMV_LIST} ]))
 endif
 
 
@@ -128,9 +128,16 @@ endif
 
 
 ifeq (${ARCH}, arm)
-CFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}
-ASFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}
+CFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}  -ffreestanding -mthumb -mthumb-interwork -std=gnu99 --specs=rdimon.specs
+ASFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}  -ffreestanding -mthumb -mthumb-interwork -std=gnu99 --specs=rdimon.specs
 DEFINES += ARCH_ARM
+ifeq (${CPU}, cortex-m4)
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+else ifeq (${CPU}, cortex-m7)
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+endif
 endif
 
 # If a parent Makefile has passed us DEFINES, assume they will be missing -D.
@@ -143,7 +150,7 @@ INCLUDES += ${INCLUDE_DIRS:%=-I%}
 
 ifndef NDEBUG
 DEFINES += -DDEBUG
-CFLAGS  += -ggdb -g3
+CFLAGS  += -ggdb -g3 -Os
 endif
 
 vpath %.c    ${SOURCE_ROOT}
@@ -165,8 +172,6 @@ INCLUDES += "-I${SOURCE_ROOT}/kernel/cpu/${ARCH}/${CPU}"
 INCLUDES += "-I${SOURCE_ROOT}/kernel/link/gcc"
 INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}"
 
-CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -mthumb -mthumb-interwork -std=gnu99 --specs=rdimon.specs
-ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -mthumb -mthumb-interwork -std=gnu99 --specs=rdimon.specs
 CFLAGS += ${DEFINES}
 CFLAGS += ${INCLUDES}
 
