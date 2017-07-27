@@ -1,8 +1,8 @@
 	.syntax unified
 	.cpu cortex-m4
-	@.fpu softvfp
+	;.fpu softvfp
 	.thumb
-@.arch_extension sec
+;.arch_extension sec
 
         .global  LOS_IntLock
         .global  LOS_IntUnLock
@@ -56,14 +56,14 @@ LOS_StartToRun:
     add     r12, r12, #36
 
     ldmfd   r12!, {r0-r7}
-    @add     r12, r12, #72
+    ;add     r12, r12, #72
     msr     psp, r12
     push    {r0}
     mov     r0, #3
     msr     CONTROL, r0
     pop     {r0}
-    @vpush    {s0}
-    @vpop     {s0}
+    ;vpush    {s0}
+    ;vpop     {s0}
 
     mov     lr, r5
     msr     xpsr, r7
@@ -132,7 +132,7 @@ TaskSwitch:
     mrs     r0, psp
 
     stmfd   r0!, {r4-r12}
-    @vstmdb  r0!, {d8-d15}
+    ;vstmdb  r0!, {d8-d15}
 
     ldr     r5, =g_stLosTask
     ldr     r6, [r5]
@@ -156,7 +156,7 @@ TaskSwitch:
     strh    r7,  [r0 , #4]
 
     ldr     r1,   [r0]
-    @vldmia  r1!, {d8-d15}
+    ;vldmia  r1!, {d8-d15}
     ldmfd   r1!, {r4-r12}
     msr     psp,  r1
 

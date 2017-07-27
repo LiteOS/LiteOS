@@ -92,7 +92,7 @@ LOS_StartToRun
     VPOP    S0;
 
     MOV     LR, R5
-    /*MSR     xPSR, R7*/
+   ;MSR     xPSR, R7
 
     CPSIE   I
     BX      R6
