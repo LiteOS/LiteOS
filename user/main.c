@@ -13,8 +13,8 @@
 
 extern void LOS_EvbSetup(void);
 
-static UINT32 g_uwboadTaskID;
-LITE_OS_SEC_TEXT VOID LOS_BoadExampleTskfunc(VOID)
+static UINT32 g_uwboardTaskID;
+LITE_OS_SEC_TEXT VOID LOS_BoardExampleTskfunc(VOID)
 {
     while (1)
     {
@@ -25,17 +25,17 @@ LITE_OS_SEC_TEXT VOID LOS_BoadExampleTskfunc(VOID)
         LOS_TaskDelay(500);
     }
 }
-void LOS_BoadExampleEntry(void)
+void LOS_BoardExampleEntry(void)
 {
     UINT32 uwRet;
     TSK_INIT_PARAM_S stTaskInitParam;
 
     (VOID)memset((void *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
-    stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_BoadExampleTskfunc;
+    stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_BoardExampleTskfunc;
     stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
     stTaskInitParam.pcName = "BoardDemo";
     stTaskInitParam.usTaskPrio = 10;
-    uwRet = LOS_TaskCreate(&g_uwboadTaskID, &stTaskInitParam);
+    uwRet = LOS_TaskCreate(&g_uwboardTaskID, &stTaskInitParam);
 
     if (uwRet != LOS_OK)
     {
@@ -80,7 +80,7 @@ int main(void)
 
     LOS_Inspect_Entry();
 
-    //LOS_BoadExampleEntry();
+    //LOS_BoardExampleEntry();
 
     /* Kernel start to run */
     LOS_Start();
