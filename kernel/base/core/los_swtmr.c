@@ -51,8 +51,8 @@ extern "C" {
 
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
 
-LITE_OS_SEC_BSS UINT32                  m_uwSwTmrHandlerQueue; /*Software Timer timeout queue ID*/
-LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrCBArray;          /*first address in Timer memory space  */
+static LITE_OS_SEC_BSS UINT32    m_uwSwTmrHandlerQueue;        /*Software Timer timeout queue ID*/
+LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrCBArray;           /*first address in Timer memory space  */
 LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrFreeList;          /*Free list of Softwaer Timer*/
 LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrSortList;          /*The software timer count list*/
 

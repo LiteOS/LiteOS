@@ -46,7 +46,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 extern UINT8 *m_aucSysMem0;
-UINT8 g_ucMemStart[OS_SYS_MEM_SIZE];
+__align(4) UINT8 g_ucMemStart[OS_SYS_MEM_SIZE];
 
 LITE_OS_SEC_TEXT_INIT UINT32 osMemSystemInit()
 {

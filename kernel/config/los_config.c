@@ -62,7 +62,7 @@ extern const unsigned char g_use_ram_vect;
 	
 void osEnableFPU(void)
 {
-    *(volatile UINT32 *)0xE000ED88 |= ((3UL << 10*2)|(3UL << 11*2));
+    *(volatile UINT32 *)0xE000ED88 |= ((3UL << (10*2))|(3UL << (11*2)));
     //SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));
 }
 /*****************************************************************************
@@ -95,7 +95,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EnableTick(void)
     if (uwRet != LOS_OK)
     {
         PRINT_ERR("osTickStart error\n");
-        return uwRet;
     }
 		
     return uwRet;

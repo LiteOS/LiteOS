@@ -53,10 +53,10 @@ extern "C" {
 
 static UINT32 g_uwQueue;
 
-CHAR abuf[] = "test is message x";
+static CHAR abuf[] = "test is message x";
 
 /*任务1发送数据*/
-void *send_Entry(UINT32 uwParam1,
+static void *send_Entry(UINT32 uwParam1,
                 UINT32 uwParam2,
                 UINT32 uwParam3,
                 UINT32 uwParam4)
@@ -82,13 +82,13 @@ void *send_Entry(UINT32 uwParam1,
 }
 
 /*任务2接收数据*/
-void *recv_Entry(UINT32 uwParam1,
+static void *recv_Entry(UINT32 uwParam1,
                 UINT32 uwParam2,
                 UINT32 uwParam3,
                 UINT32 uwParam4)
 {
     UINT32 uwReadbuf;
-    UINT32 uwRet = 0;
+    UINT32 uwRet = LOS_OK;
     UINT32 uwMsgCount = 0;
 
     while (1)
@@ -107,23 +107,31 @@ void *recv_Entry(UINT32 uwParam1,
             uwMsgCount++;
         }
         
-        LOS_TaskDelay(5);
+        (void)LOS_TaskDelay(5);
     }
     /*删除队列*/
     while (LOS_OK != LOS_QueueDelete(g_uwQueue))
     {
-        LOS_TaskDelay(1);
+        (void)LOS_TaskDelay(1);
     }
         
     dprintf("delete the queue success!\n");
         
     if(API_MSG_NUM == uwMsgCount)
     {
-        LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_SUCCESS);  
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     else
     {
-        LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
         
     return NULL;

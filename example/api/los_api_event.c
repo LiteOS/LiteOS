@@ -51,10 +51,10 @@ extern "C" {
 
 
 /*任务PID*/
-UINT32 g_TestTaskID;
-LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
+static UINT32 g_TestTaskID;
+//static LITE_OS_SEC_BSS  UINT32  g_uweventTaskID;
 /*事件控制结构体*/
-EVENT_CB_S  example_event;
+static EVENT_CB_S  example_event;
 
 /*等待的事件类型*/
 #define event_wait 0x00000001
@@ -63,6 +63,7 @@ EVENT_CB_S  example_event;
 VOID Example_Event(VOID)
 {
     UINT32 uwEvent;
+    UINT32 uwRet = LOS_OK;
 
     /*超时 等待方式读事件,超时时间为100 Tick
     若100 Tick 后未读取到指定事件，读事件超时，任务直接唤醒*/
@@ -72,12 +73,20 @@ VOID Example_Event(VOID)
     if(uwEvent == event_wait)
     {
         dprintf("Example_Event,read event :0x%x\n",uwEvent);
-        LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     else
     {
         dprintf("Example_Event,read event timeout\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     return;
 }

@@ -58,6 +58,7 @@ VOID Example_TransformTime(VOID)
 
 UINT32 Example_GetTick(VOID)
 {
+    UINT32 uwRet = LOS_OK;
     UINT32 uwcyclePerTick;
     UINT64 uwTickCount1,uwTickCount2;
 
@@ -81,12 +82,20 @@ UINT32 Example_GetTick(VOID)
         
     if((uwTickCount2 - uwTickCount1) >= 200)
     {
-        LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
         return LOS_OK;   
     }
     else
     {
-        LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
         return LOS_NOK; 
     }
 }

@@ -36,10 +36,10 @@
     global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
-const unsigned int sys_clk_freq = 16000000;
+static const unsigned int sys_clk_freq = 16000000;
 
 /* tick count per second , don't change this */
-const unsigned int tick_per_second = 1000;
+static const unsigned int tick_per_second = 1000;
 static unsigned int g_ucycle_per_tick = 0;
 
 /*
@@ -70,7 +70,7 @@ extern unsigned int osGetVectorAddr(void);
  *****************************************************************************/
 unsigned int osTickStart(void)
 {
-    unsigned int uwRet = 0;
+    unsigned int uwRet = LOS_OK;
     
     /* This code section LOS need, so don't change it */
     g_ucycle_per_tick = sys_clk_freq / tick_per_second;
