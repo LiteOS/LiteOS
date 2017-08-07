@@ -76,7 +76,7 @@ int fputc(int ch, FILE *f)
 #endif  
     
     
-LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
+static LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
 {
 #ifdef LOS_KERNEL_TEST_ALL
 #else /* LOS_KERNEL_TEST_ALL */
@@ -119,7 +119,7 @@ LITE_OS_SEC_TEXT VOID LOS_Demo_Tskfunc(VOID)
 
     while (1)
     {
-        LOS_TaskDelay(100);
+        (void)LOS_TaskDelay(100);
     }
 }
 

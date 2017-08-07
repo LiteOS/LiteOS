@@ -76,12 +76,20 @@ UINT32 Example_Dyn_Mem(VOID)
     if (LOS_OK == uwRet)
     {
         dprintf("mem free ok!\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
+		if (LOS_OK != uwRet)  
+		{
+			dprintf("Set Inspect Status Err\n");
+		}
     }
     else
     {
         dprintf("mem free failed!\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+		if (LOS_OK != uwRet)  
+		{
+			dprintf("Set Inspect Status Err\n");
+		}
         return LOS_NOK;
     }
     return LOS_OK;

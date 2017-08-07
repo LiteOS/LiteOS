@@ -43,11 +43,11 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-UINT32 pBoxMem[150];
+static UINT32 pBoxMem[144];
 UINT32 Example_StaticMem(VOID) 
 {
     UINT32 *p_num = NULL;
-    UINT32 uwBlkSize = 3, uwBoxSize = 50;
+    UINT32 uwBlkSize = 3, uwBoxSize = 48;
     UINT32 uwRet;
     
     uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
@@ -80,12 +80,20 @@ UINT32 Example_StaticMem(VOID)
     if (LOS_OK == uwRet)
     {
         dprintf("Mem box free ok!\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     else
     {
         dprintf("Mem box free failed!\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
     }
     
     return LOS_OK;

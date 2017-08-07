@@ -1,5 +1,5 @@
 /*
-    here we can include some standard header file
+	here we can include some standard header file
 */
 #include <stdio.h>
 #include <string.h>
@@ -8,21 +8,9 @@
 #include "los_bsp_led.h"
 #include "los_bsp_uart.h"
 
-#ifdef GD32F4XX
-
-#include "gd32f4xx.h"
-#include "system_gd32f4xx.h"
-#include "systick.h"
-
-#endif
-
-/*
-    here include some special hearder file you need
-*/
-//#include "cmsis_os.h"
 
 /* while use bsp code to start system tick, don't use LOS header */
-#define INCLUDE_LOS_HEADER
+//#define INCLUDE_LOS_HEADER
 #ifdef INCLUDE_LOS_HEADER
 #include "los_tick.ph"
 #include "los_base.h"
@@ -31,15 +19,24 @@
 #include "los_hwi.h"
 #endif
 
+/******************************************************************************
+	here include some special hearder file you need
+******************************************************************************/
+#ifdef BOARD_NRF51822
+#include "app_timer.h"
+
+const nrf_drv_timer_t TIMER_TICK = NRF_DRV_TIMER_INSTANCE(1);
+#endif
+
 
 /*****************************************************************************
-    global var
+	global var
  *****************************************************************************/
 /* current system Freq , should be set according to the microchip */
-static const unsigned int sys_clk_freq = 16000000;
+const unsigned int sys_clk_freq = 16000000;
 
 /* tick count per second , don't change this */
-static const unsigned int tick_per_second = 1000;
+const unsigned int tick_per_second = 1000;
 static unsigned int g_ucycle_per_tick = 0;
 
 /*
@@ -50,13 +47,59 @@ static unsigned int g_ucycle_per_tick = 0;
 const unsigned char g_use_ram_vect = 0;
 
 /*****************************************************************************
-    LOS function extern 
+	LOS function extern 
  *****************************************************************************/
 extern void LOS_SetTickSycle(unsigned int);
 extern void LOS_TickHandler(void);
 extern unsigned int osGetVectorAddr(void);
 
 
+#ifdef BOARD_NRF51822
+/**
+ * @brief Handler for timer events.
+ */
+void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
+{
+    switch(event_type)
+    {
+        case NRF_TIMER_EVENT_COMPARE1:
+					  LOS_TickHandler();
+				    LOS_AppTickHandler();
+            break;
+        default:
+            //Do nothing.
+            break;
+    }    
+}
+#endif
+
+/**
+ * @brief Function for main application entry.
+ */
+int time1_start(void)
+{
+#ifdef BOARD_NRF51822
+    uint32_t time_ms = 1; //Time(in miliseconds) between consecutive compare events.
+    uint32_t time_ticks;
+    uint32_t err_code = NRF_SUCCESS;
+    
+    //Configure TIMER init.
+    err_code = nrf_drv_timer_init(&TIMER_TICK, NULL, timer_event_handler);
+    APP_ERROR_CHECK(err_code);
+    
+    time_ticks = nrf_drv_timer_ms_to_ticks(&TIMER_TICK, time_ms);
+    
+    nrf_drv_timer_extended_compare(&TIMER_TICK, NRF_TIMER_CC_CHANNEL1, 
+			time_ticks, NRF_TIMER_SHORT_COMPARE1_CLEAR_MASK, true);
+    
+    nrf_drv_timer_enable(&TIMER_TICK);
+	  
+	  return 0;
+#else
+	while(1);
+#endif
+	 
+}
 
 /*****************************************************************************
  Function    : osTickStart
@@ -70,8 +113,8 @@ extern unsigned int osGetVectorAddr(void);
  *****************************************************************************/
 unsigned int osTickStart(void)
 {
-    unsigned int uwRet = LOS_OK;
-    
+    unsigned int uwRet = 0;
+	
     /* This code section LOS need, so don't change it */
     g_ucycle_per_tick = sys_clk_freq / tick_per_second;
     LOS_SetTickSycle(g_ucycle_per_tick);
@@ -82,17 +125,9 @@ unsigned int osTickStart(void)
       Note: here can be replaced by some function , for example in Stm32 bsp
       you can just call SysTick_Config(sys_clk_freq/tick_per_second);
     */
-#ifdef GD32F4XX
-    SysTick_Config(g_ucycle_per_tick);
-#else
-    *(volatile UINT32 *)OS_SYSTICK_RELOAD_REG = g_ucycle_per_tick - 1;
-    *((volatile UINT8 *)OS_NVIC_EXCPRI_BASE + (((UINT32)(-1) & 0xF) - 4)) = ((7 << 4) & 0xff);
-    *(volatile UINT32 *)OS_SYSTICK_CURRENT_REG = 0;
-    *(volatile UINT32 *)OS_SYSTICK_CONTROL_REG = (1 << 2) | (1 << 1) | (1 << 0);
-#endif
-    
+	  time1_start();
+	
     return uwRet;
-
 }
 
 /*****************************************************************************
@@ -104,18 +139,14 @@ unsigned int osTickStart(void)
  *****************************************************************************/
 void SysTick_Handler(void)
 {
-    /*
+    /* 
         LOS need call LOS_TickHandler() in SysTick_Handler, don't change it,
         otherwise, LiteOS will not work.
     */
-    LOS_TickHandler();
-    
-    /*add your code here */
-#ifdef GD32F4XX 
-    delay_decrement();
-#endif
-    
-    return;
+	
+    /*add your systick handler code here */
+	  
+    return ;
 }
 
 /*****************************************************************************
@@ -128,28 +159,26 @@ void SysTick_Handler(void)
  *****************************************************************************/
 void LosAdapIntInit(void)
 {
-    /*
+    /* 
         1:ReLoad vector table address at ram . if do nothing , vector table is
         located in rom 0x00000000
         2:set nvic irq priority group
-        
+  
         Note: here can be replaced by some function , for example in Stm32 bsp
         you can just call SCB->VTOR = osGetVectorAddr(); and
         NVIC_SetPriorityGrouping(OS_NVIC_AIRCR_PRIGROUP);
     */
     if (g_use_ram_vect)
     {
-        *(volatile UINT32 *)OS_NVIC_VTOR = osGetVectorAddr();
-        *(volatile UINT32 *)OS_NVIC_AIRCR = (0x05FA0000 | OS_NVIC_AIRCR_PRIGROUP << 8);
     }
 
-    return;
+    return ;
 }
 
 /*****************************************************************************
- Function    : LosAdapIrqEnable
- Description : external interrupt enable, and set priority
-               this function is called by LOS_HwiCreate(),
+ Function    : LosAdaqIrpEnable
+ Description : external interrupt enable, and set priority 
+               this function is called by LOS_HwiCreate(), 
                so here can use bsp func to inplemente it 
                Note : if don't use LOS_HwiCreate(), leave it empty
  Input       : irqnum: external interrupt number
@@ -163,13 +192,12 @@ void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
         enable irq , for example in stm32 bsp you can use 
         NVIC_EnableIRQ((IRQn_Type)irqnum);
     */
-    nvicSetIRQ(irqnum);
+    //nvicSetIRQ(irqnum);
     /*
         set irq priority , for example in stm32 bsp you can use 
         NVIC_SetPriority((IRQn_Type)irqnum, prior);
     */
-    nvicSetIrqPRI(irqnum, prior << 4);
-    return;
+    return ;
 }
 
 /*****************************************************************************
@@ -184,12 +212,11 @@ void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
  *****************************************************************************/
 void LosAdapIrqDisable(unsigned int irqnum)
 {
-    /*
+    /* 
         disable irq, for example in stm32 bsp you can use 
         NVIC_DisableIRQ((IRQn_Type)irqnum);
     */
-    nvicClrIRQ(irqnum);
-    return;
+    return ;
 }
 
  
@@ -202,23 +229,18 @@ void LosAdapIrqDisable(unsigned int irqnum)
  *****************************************************************************/
 void LOS_EvbSetup(void)
 {
-    LOS_EvbUartInit();
-    LOS_EvbLedInit();
-    LOS_EvbKeyInit();
-    return;
+	LOS_EvbUartInit();
+	LOS_EvbLedInit();
+	LOS_EvbKeyInit();
+	return ;
 }
 
-/*****************************************************************************
- Function    : LOS_EvbTrace
- Description : trace printf
- Input       : const char *str
- Output      : None
- Return      : None
- *****************************************************************************/
+
 void LOS_EvbTrace(const char *str)
 {
-    LOS_EvbUartWriteStr(str);
-    return;
+	LOS_EvbUartWriteStr(str);
+		
+	return ;
 }
 
 

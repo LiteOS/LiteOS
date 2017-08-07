@@ -46,11 +46,11 @@ extern int dprintf_1(const char *format,...);
 
 //#define LOS_KERNEL_TEST_KEIL_SWSIMU
 
-#define LOS_KERNEL_DEBUG_OUT
+//#define LOS_KERNEL_DEBUG_OUT
 #ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf printf
+    #define dprintf (void)printf
 #else
-    #define dprintf dprintf_1
+    #define dprintf (void)dprintf_1
 #endif
 
 #endif
