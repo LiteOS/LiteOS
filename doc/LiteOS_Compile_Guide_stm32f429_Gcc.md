@@ -153,7 +153,7 @@
 
 ## 6如何在Gcc环境下编译和调试LiteOS
 
-- 在编译之前请参考《LiteOS\_Migration\_Guide\_stm32f429\_Keil.md》的步骤六，完成其中几个.c文件的修改。以上步骤完成之后，进入projects/STM32F429I\_DISCO\_GCC目录使用make编译，并用st-flash工具烧录就可以看到效果了。烧录完成后复位开发板。串口我们使用uart1 PB6和PB7作为TX和RX脚。串口会每隔100毫秒打印一次。
+- 在编译之前请参考《LiteOS\_Migration\_Guide\_stm32f429\_Keil.md》的步骤六，完成其中几个.c文件的修改。以上步骤完成之后，还需要在los_start_gcc.s中在调用main之前添加调用SystemInit函数，最后进入projects/STM32F429I\_DISCO\_GCC目录使用make编译，并用st-flash工具烧录就可以看到效果了。烧录完成后复位开发板。串口我们使用uart1 PB6和PB7作为TX和RX脚。串口会每隔100毫秒打印一次。
 
 
 

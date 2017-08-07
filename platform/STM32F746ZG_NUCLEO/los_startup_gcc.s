@@ -1,6 +1,5 @@
-    
   .syntax unified
-  .cpu cortex-m4
+  .cpu cortex-m7
   .thumb
 
 .global  g_pfnVectors
@@ -31,9 +30,9 @@ defined in linker script */
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
-Reset_Handler: 
-  ldr   sp, =_estack       /* set stack pointer */
- 
+Reset_Handler:  
+  ldr   sp, =_estack      /* set stack pointer */
+
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
@@ -62,6 +61,8 @@ LoopFillZerobss:
   cmp  r2, r3
   bcc  FillZerobss
 
+/* Call the clock system initialization function.*/
+  bl  SystemInit   
 /* Call static constructors */
     bl __libc_init_array
 /* Call the application's entry point.*/
@@ -83,7 +84,7 @@ Infinite_Loop:
   .size  Default_Handler, .-Default_Handler
 /******************************************************************************
 *
-* The minimal vector table for a Cortex M3. Note that the proper constructs
+* The minimal vector table for a Cortex M7. Note that the proper constructs
 * must be placed on this to ensure that it ends up at physical address
 * 0x0000.0000.
 * 
@@ -91,6 +92,7 @@ Infinite_Loop:
    .section  .isr_vector,"a",%progbits
   .type  g_pfnVectors, %object
   .size  g_pfnVectors, .-g_pfnVectors
+   
    
 g_pfnVectors:
   .word  _estack
@@ -110,7 +112,6 @@ g_pfnVectors:
   .word  0
   .word  PendSV_Handler
   .word  SysTick_Handler
-  
   
 /*******************************************************************************
 *
@@ -145,9 +146,3 @@ g_pfnVectors:
 
    .weak      SysTick_Handler
    .thumb_set SysTick_Handler,Default_Handler              
-  
-
- 
-   
-   
-

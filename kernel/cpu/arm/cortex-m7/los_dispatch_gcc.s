@@ -1,5 +1,5 @@
 	.syntax unified
-	.cpu cortex-m4
+	.cpu cortex-m7
 	.thumb
 ;.arch_extension sec
 
