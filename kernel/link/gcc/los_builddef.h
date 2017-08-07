@@ -189,6 +189,10 @@ extern "C" {
 #define LITE_OS_SEC_BSS_MINOR
 #endif
 
+#ifndef LOS_PACK_ALIGN_4_GCC
+#define LOS_PACK_ALIGN_4_GCC
+#endif
+
 #ifndef LOS_PACK_ALIGN_8_GCC
 #define LOS_PACK_ALIGN_8_GCC
 #endif
