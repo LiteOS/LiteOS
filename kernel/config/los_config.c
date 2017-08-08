@@ -212,7 +212,7 @@ LITE_OS_SEC_TEXT_INIT int LOS_KernelInit(void)
     if (uwRet != LOS_OK) {
         return LOS_NOK;
     }
-		return LOS_OK;
+    return LOS_OK;
 }
 
 
