@@ -46,7 +46,17 @@ extern "C" {
 #endif /* __cplusplus */
 
 extern UINT8 *m_aucSysMem0;
-__align(4) UINT8 g_ucMemStart[OS_SYS_MEM_SIZE];
+	
+#ifdef LOS_PACK_ALIGN_4_IAR
+#pragma data_alignment=4
+#endif
+#ifdef LOS_PACK_ALIGN_4_KEIL
+__align(4)
+#endif
+#ifdef LOS_PACK_ALIGN_4_GCC
+__attribute__ ((aligned (4)))
+#endif 
+UINT8 g_ucMemStart[OS_SYS_MEM_SIZE];
 
 LITE_OS_SEC_TEXT_INIT UINT32 osMemSystemInit()
 {

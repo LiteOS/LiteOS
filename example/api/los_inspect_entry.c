@@ -84,7 +84,7 @@ static UINT32 gInspectErrCnt = 0;
 static UINT32 g_uwDemoTaskID;
 
 
-/*巡检项目表*/
+
 static osInspect_Def gInspect[LOS_INSPECT_BUFF] = {
 
     {LOS_INSPECT_TASK,LOS_INSPECT_STU_START,Example_TskCaseEntry,"TASK"},
@@ -107,7 +107,7 @@ static osInspect_Def gInspect[LOS_INSPECT_BUFF] = {
     
     {LOS_INSPECT_DMEM,LOS_INSPECT_STU_START,Example_Dyn_Mem,"D_MEM"},
     
-    //{LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_START,Example_Interrupt},//目前中断测试未加入
+    //{LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_START,Example_Interrupt},
     
 };
 
