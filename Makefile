@@ -204,9 +204,6 @@ include ${SOURCE_ROOT}/kernel/Makefile
 include ${APPDIR}/Makefile
 include ${SOURCE_ROOT}/platform/${PLAT}/Makefile
 
-#OBJECTS += ${C_SOURCES:.c=.o}
-#OBJECTS += ${ASM_SOURCES:.s=.o}
-
 OBJECTS += ${patsubst %.c,build/%.o,$(C_SOURCES)}
 OBJECTS += ${patsubst %.s,build/%.o,$(ASM_SOURCES)}
 

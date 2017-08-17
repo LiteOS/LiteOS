@@ -46,16 +46,16 @@ extern "C" {
 #endif /* __cpluscplus */
 
 
-UINT32 g_uwTskHiID;
-UINT32 g_uwTskLoID;
+static UINT32 g_uwTskHiID;
+static UINT32 g_uwTskLoID;
 
 
 #define TSK_PRIOR_HI 4
 #define TSK_PRIOR_LO 5
 
-UINT32 Example_TaskHi(VOID)
+static UINT32 Example_TaskHi(VOID)
 {
-    UINT32 uwRet;
+    UINT32 uwRet = LOS_OK;
 
     dprintf("Enter TaskHi Handler.\r\n");
 
@@ -75,13 +75,21 @@ UINT32 Example_TaskHi(VOID)
     if (uwRet != LOS_OK)
     {
         dprintf("Suspend TaskHi Failed.\r\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
         return LOS_NOK;
     }
     
     dprintf("TaskHi LOS_TaskResume Success.\r\n");
         
-    LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_SUCCESS);
+    uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_SUCCESS);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("Set Inspect Status Err\n");
+    }
     
     /*删除任务*/
     if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))
@@ -94,7 +102,7 @@ UINT32 Example_TaskHi(VOID)
 }
 
 /*低优先级任务入口函数*/
-UINT32 Example_TaskLo(VOID)
+static UINT32 Example_TaskLo(VOID)
 {
     UINT32 uwRet;
 
@@ -115,7 +123,11 @@ UINT32 Example_TaskLo(VOID)
     if (uwRet != LOS_OK)
     {
         dprintf("Resume TaskHi Failed.\r\n");
-        LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK,LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)  
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
         return LOS_NOK;
     }
     
