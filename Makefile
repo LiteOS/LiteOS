@@ -205,7 +205,11 @@ INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/hal"
 INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/riscv_hal"
 endif
 
-
+ifeq (${PLAT},STM32F103ZE-ISO)
+CFLAGS +=-DLOS_STM32F103ZE -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER
+INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/Libraries/FWlib/inc"
+INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/Libraries/CMSIS"
+endif
 
 
 
