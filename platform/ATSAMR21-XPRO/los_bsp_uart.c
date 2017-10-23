@@ -1,9 +1,13 @@
-#include "los_bsp_uart.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdint.h>
+#include "los_bsp_uart.h"
+
+#ifdef LOS_ATSAMR21_XPRO
 #include <samr21.h>
+#endif
 
-
+#ifdef LOS_ATSAMR21_XPRO
 int _sercom_pm_init(void) {
     PM->APBCMASK.bit.SERCOM0_ |= 1;
     
@@ -246,48 +250,66 @@ int usart_write_buffer_wait(
 
     return 0;
 }
-
+#endif
+/*****************************************************************************
+ Function    : LOS_EvbUartInit
+ Description : enable the device on the dev baord
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
 void LOS_EvbUartInit(void)
 {
+#ifdef LOS_ATSAMR21_XPRO
     sercom_uart_init();
+#endif
     return;
 }
 
-/*************************************************************************************************
- *  功能：向串口1发送一个字符                                                                    *
- *  参数：(1) 需要被发送的字符                                                                   *
- *  返回：                                                                                       *
- *  说明：                                                                                       *
- *************************************************************************************************/
+/*****************************************************************************
+ Function    : LOS_EvbUartWriteByte
+ Description : Uart write one byte
+ Input       : const char c
+ Output      : None
+ Return      : None
+ *****************************************************************************/
 void LOS_EvbUartWriteByte(char c)
 {
+#ifdef LOS_ATSAMR21_XPRO
     usart_write_wait((unsigned short)c);
+#endif
     return;
 }
 
-/*************************************************************************************************
- *  功能：向串口1发送一个字符串                                                                  *
- *  参数：(1) 需要被发送的字符串                                                                 *
- *  返回：                                                                                       *
- *  说明：                                                                                       *
- *************************************************************************************************/
+/*****************************************************************************
+ Function    : LOS_EvbUartWriteStr
+ Description : Uart Write String function
+ Input       : const char* str
+ Output      : None
+ Return      : None
+ *****************************************************************************/
 void LOS_EvbUartWriteStr(const char* str)
 {
+#ifdef LOS_ATSAMR21_XPRO
     usart_write_buffer_wait((const unsigned char *)str, sizeof(str));
+#endif
     return;
 }
 
-/*************************************************************************************************
- *  功能：从串口1接收一个字符                                                                    *
- *  参数：(1) 存储接收到的字符                                                                   *
- *  返回：                                                                                       *
- *  说明：                                                                                       *
- *************************************************************************************************/
+/*****************************************************************************
+ Function    : LOS_EvbUartReadByte
+ Description : Uart reaad one byte
+ Input       : char* c
+ Output      : None
+ Return      : None
+ *****************************************************************************/
 void LOS_EvbUartReadByte(char* c)
 {
+#ifdef LOS_ATSAMR21_XPRO
     unsigned short data;
     usart_read_wait(&data);
     *c = (char)data;
+#endif
     return;
 }
 
@@ -301,9 +323,9 @@ int fputc(int ch, FILE *f)
 }
 
 int fgetc(FILE *f) {
-    uint16_t data;
+    uint8_t data;
     
-    usart_read_wait(&data);
+    LOS_EvbUartReadByte((char *)&data);
     
     return (int)data;
 }
