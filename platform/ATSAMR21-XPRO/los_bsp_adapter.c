@@ -85,7 +85,6 @@ unsigned int osTickStart(void)
 #endif
     
     return uwRet;
-
 }
 
 /*****************************************************************************
@@ -158,7 +157,7 @@ void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
         set irq priority , for example in stm32 bsp you can use 
         NVIC_SetPriority((IRQn_Type)irqnum, prior);
     */
-    nvicSetIrqPRI(irqnum, prior << 4);
+    nvicSetIrqPRI(irqnum, (prior << 4));
     return ;
 }
 

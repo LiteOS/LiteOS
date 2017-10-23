@@ -1,15 +1,19 @@
 #include <stdio.h>
-#include "samr21.h"
-
 #include "los_bsp_clock.h"
 
-/*************************************************************************************************
- *  功能：设置OSC8M为系统时钟源，并且设置分频系数为1                                             *
- *  参数：                                                               *
- *  返回：                                                                                       *
- *  说明：系统复位后, 默认内部OSC8M为系统时钟源，但分频系统为8，因此系统默认为1MHz               *
- *************************************************************************************************/
-void _system_clock_source_setting(void) {
+#ifdef LOS_ATSAMR21_XPRO
+#include <samr21.h>
+#endif
+
+#ifdef LOS_ATSAMR21_XPRO
+/*****************************************************************************
+ Function    : system_clock_source_setting
+ Description : set OSC8M to system clock source
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+void system_clock_source_setting(void) {
     uint32_t reg = 0;
     
     reg |= SYSCTRL_OSC8M_PRESC_0;
@@ -19,13 +23,14 @@ void _system_clock_source_setting(void) {
     SYSCTRL->OSC8M.reg = reg;
 }
 
-/*************************************************************************************************
- *  功能：DFLL参数设置                                                                           *
- *  参数：                                                                                       *
- *  返回：                                                                                       *
- *  说明：参数设置，设置倍频参数为6，以产生48M的系统时钟                                         *
- *************************************************************************************************/
-void _system_clock_dfll_setting(void)
+/*****************************************************************************
+ Function    : system_clock_dfll_setting
+ Description : set DELL param
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+void system_clock_dfll_setting(void)
 {
     uint32_t reg = 0;
     
@@ -45,7 +50,7 @@ void _system_clock_dfll_setting(void)
 
     /* step 2: DFLL MUL Setting */
     reg = 0;
-    reg |= SYSCTRL_DFLLMUL_MUL(6);          /* 设置倍频系数为6, 使时钟为48MHz */
+    reg |= SYSCTRL_DFLLMUL_MUL(6); /* éè??±??μ?μêy?a6, ê1ê±?ó?a48MHz */
     SYSCTRL->DFLLMUL.reg = reg;
     
     /* step 3: DFLL VAL Setting */
@@ -74,15 +79,18 @@ void _system_clock_dfll_setting(void)
 
     /* Wait state */
     NVMCTRL->CTRLB.bit.RWS = 3;
+  
+  return;
 }
 
-/*************************************************************************************************
- *  功能：GCLK GEN参数设置                                                                       *
- *  参数：                                                                                       *
- *  返回：                                                                                       *
- *  说明：参数设置                                                                               *
- *************************************************************************************************/
-void _system_clock_gclkgen_setting(void) {
+/*****************************************************************************
+ Function    : system_clock_gclkgen_setting
+ Description : set gclk gen param
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+void system_clock_gclkgen_setting(void) {
     uint32_t reg = 0;
     
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) {
@@ -112,12 +120,24 @@ void _system_clock_gclkgen_setting(void) {
     reg &= ~GCLK_GENCTRL_RUNSTDBY;
     reg |= GCLK_GENCTRL_GENEN;
     GCLK->GENCTRL.reg = reg;
+  
+  return;
 }
+#endif
 
+/*****************************************************************************
+ Function    : SystemClockInit
+ Description : system clock init
+ Input       : None
+ Output      : None
+ Return      : 0
+ *****************************************************************************/
 int SystemClockInit(void) {
-    _system_clock_source_setting();
-    _system_clock_dfll_setting();
-    _system_clock_gclkgen_setting();
-    
+#ifdef LOS_ATSAMR21_XPRO
+    system_clock_source_setting();
+    system_clock_dfll_setting();
+    system_clock_gclkgen_setting();
+#endif
     return 0;
 }
+

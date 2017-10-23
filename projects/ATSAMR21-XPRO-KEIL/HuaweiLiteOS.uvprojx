@@ -330,7 +330,7 @@
             <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RAM_SIZE_LEVEL_2,LOS_ATSAMR21_XPRO</Define>
+              <Define>RAM_SIZE_LEVEL_2</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\kernel\include;..\..\kernel\base\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\platform\ATSAMR21-XPRO;..\..\example\include</IncludePath>
             </VariousControls>
