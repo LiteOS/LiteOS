@@ -82,7 +82,7 @@
         <Book>
           <Number>0</Number>
           <Title>LPCXpresso824-MAX: Blinky Lab (LPC824 LPCXpresso)</Title>
-          <Path>d:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.4.0\Documents\NXP824_Blinky_Lab.pdf</Path>
+          <Path>d:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.5.0\Documents\NXP824_Blinky_Lab.pdf</Path>
         </Book>
       </Books>
       <DebugOpt>
@@ -494,7 +494,7 @@
 
   <Group>
     <GroupName>platform/LPC824M201</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -550,7 +550,7 @@
 
   <Group>
     <GroupName>example</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -726,7 +726,7 @@
 
   <Group>
     <GroupName>startup</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -746,7 +746,7 @@
 
   <Group>
     <GroupName>user</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

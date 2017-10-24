@@ -15,7 +15,7 @@
         <TargetCommonOption>
           <Device>LPC824M201JHI33</Device>
           <Vendor>NXP</Vendor>
-          <PackID>Keil.LPC800_DFP.1.4.0</PackID>
+          <PackID>Keil.LPC800_DFP.1.5.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IROM(0x00000000,0x00008000) IRAM(0x10000000,0x00002000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
