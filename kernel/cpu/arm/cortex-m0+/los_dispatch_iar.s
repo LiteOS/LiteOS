@@ -40,8 +40,8 @@
         EXPORT  LOS_StartToRun
         EXPORT  osTaskSchedule
         EXPORT  PendSV_Handler
-		EXPORT  LOS_IntNumGet
-		EXPORT  osDisableIRQ
+        EXPORT  LOS_IntNumGet
+        EXPORT  osDisableIRQ
         
         IMPORT  g_stLosTask
         IMPORT  g_bTaskScheduled
@@ -84,11 +84,11 @@ LOS_StartToRun
     ADDS    R3, R3, #36
 
     LDMFD   R3!, {R0-R2}
-	ADDS    R3,R3,#4
-	LDMFD   R3!,{R4-R7}
+    ADDS    R3,R3,#4
+    LDMFD   R3!,{R4-R7}
     MSR     PSP, R3
-	SUBS    R3,R3,#20
-	LDR     R3,[R3]
+    SUBS    R3,R3,#20
+    LDR     R3,[R3]
 
     MOV     LR, R5
     MSR     PSR, R7
@@ -96,7 +96,7 @@ LOS_StartToRun
     CPSIE   I
     BX      R6
 
-	
+    
 LOS_IntNumGet
     MRS     R0, IPSR
     BX      LR
@@ -131,17 +131,17 @@ PendSV_Handler
 
     MRS     R0, PSP
 
-	SUBS	R0, #36
-	STMIA 	R0!, {R4-R7}
-	MOV		R3,  R8
-	MOV		R4,	 R9
-	MOV		R5,  R10
-	MOV		R6,	 R11
-	MOV		R7,  R12
-	STMIA   R0!,{R3-R7}
-	
-	SUBS	R0,#36
-	
+    SUBS    R0, #36
+    STMIA   R0!, {R4-R7}
+    MOV     R3,  R8
+    MOV     R4,  R9
+    MOV     R5,  R10
+    MOV     R6,  R11
+    MOV     R7,  R12
+    STMIA   R0!,{R3-R7}
+    
+    SUBS    R0,#36
+    
     LDR     R5, =g_stLosTask
     LDR     R6, [R5]
     STR     R0, [R6]
@@ -163,22 +163,22 @@ PendSV_Handler
     STRH    R7,  [R0 , #4]
 
     LDR     R1,   [R0]
-	ADDS	R1,	  #16
-	LDMFD	R1!,  {R3-R7}
-	MOV		R8,   R3
-	MOV		R9,	  R4
-	MOV		R10,  R5
-	MOV		R11,  R6
-	MOV		R12,  R7
-	SUBS	R1,   #36
+    ADDS    R1,   #16
+    LDMFD   R1!,  {R3-R7}
+    MOV     R8,   R3
+    MOV     R9,   R4
+    MOV     R10,  R5
+    MOV     R11,  R6
+    MOV     R12,  R7
+    SUBS    R1,   #36
     LDMFD   R1!, {R4-R7}
-	
-	ADDS	R1,   #20
+    
+    ADDS    R1,   #20
     MSR     PSP,  R1
 
     MSR     PRIMASK, R12
     BX      LR
-	
-	NOP
+    
+    NOP
 
     END
