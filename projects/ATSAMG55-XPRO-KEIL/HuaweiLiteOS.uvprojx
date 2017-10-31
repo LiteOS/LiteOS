@@ -13,16 +13,16 @@
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>LPC824M201JHI33</Device>
-          <Vendor>NXP</Vendor>
-          <PackID>Keil.LPC800_DFP.1.5.0</PackID>
+          <Device>ATSAMG55J19</Device>
+          <Vendor>Atmel</Vendor>
+          <PackID>Keil.SAMG_DFP.1.1.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IROM(0x00000000,0x00008000) IRAM(0x10000000,0x00002000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
+          <Cpu>IROM(0x00400000,0x80000) IRAM(0x20000000,0x28000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD10000000 -FCFE0 -FN1 -FF0LPC8xx_32 -FS00 -FL08000 -FP0($$Device:LPC824M201JHI33$Flash\LPC8xx_32.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0ATSAMG_512 -FS0400000 -FL080000 -FP0($$Device:ATSAMG55J19$Flash\ATSAMG_512.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:LPC824M201JHI33$Device\Include\LPC8xx.h</RegisterFile>
+          <RegisterFile>$$Device:ATSAMG55J19$Device\Include\SAMG55\samg55.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:LPC824M201JHI33$SVD\LPC82x.svd</SFDFile>
+          <SFDFile>$$Device:ATSAMG55J19$SVD\SAMG55\ATSAMG55J19.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -109,13 +109,13 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments>  </SimDllArguments>
-          <SimDlgDll>DARMCM1.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pCM0+</SimDlgDllArguments>
+          <SimDllArguments> -REMAP -MPU</SimDllArguments>
+          <SimDlgDll>DCM.DLL</SimDlgDll>
+          <SimDlgDllArguments>-pCM4</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
-          <TargetDllArguments> </TargetDllArguments>
-          <TargetDlgDll>TARMCM1.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pCM0+</TargetDlgDllArguments>
+          <TargetDllArguments> -MPU</TargetDllArguments>
+          <TargetDlgDll>TCM.DLL</TargetDlgDll>
+          <TargetDlgDllArguments>-pCM4</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -173,7 +173,7 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M0+"</AdsCpuType>
+            <AdsCpuType>"Cortex-M4"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
             <uocRom>0</uocRom>
@@ -182,7 +182,7 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>0</RvdsVP>
+            <RvdsVP>2</RvdsVP>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -242,13 +242,13 @@
               </Ocm6>
               <IRAM>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
-                <Size>0x2000</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x28000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <StartAddress>0x400000</StartAddress>
+                <Size>0x80000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -272,8 +272,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <StartAddress>0x400000</StartAddress>
+                <Size>0x80000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -297,8 +297,8 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
-                <Size>0x2000</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x28000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -330,9 +330,9 @@
             <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RAM_SIZE_LEVEL_0</Define>
+              <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\example\include;..\..\platform\LPC824_LITE;..\..\platform\LPC824_LITE\common\chip;..\..\platform\LPC824_LITE\common\board;..\..\platform\LPC824_LITE\common\CMSIS;..\..\platform\LPC824_LITE\peri_driver</IncludePath>
+              <IncludePath>..\..\example\include;..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\link\keil;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\cmsis;..\..\user;..\..\platform\ATSAMG55-XPRO</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -359,8 +359,8 @@
             <noStLib>0</noStLib>
             <RepFail>1</RepFail>
             <useFile>0</useFile>
-            <TextAddressRange>0x00000000</TextAddressRange>
-            <DataAddressRange>0x10000000</DataAddressRange>
+            <TextAddressRange>0x00400000</TextAddressRange>
+            <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
             <ScatterFile></ScatterFile>
             <IncludeLibs></IncludeLibs>
@@ -453,27 +453,52 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>cpu/cm0</GroupName>
+          <GroupName>cpu/m4</GroupName>
           <Files>
             <File>
               <FileName>los_hw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw.c</FilePath>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m4\los_hw.c</FilePath>
             </File>
             <File>
               <FileName>los_hw_tick.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw_tick.c</FilePath>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m4\los_hw_tick.c</FilePath>
             </File>
             <File>
               <FileName>los_hwi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hwi.c</FilePath>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m4\los_hwi.c</FilePath>
             </File>
             <File>
               <FileName>los_dispatch_keil.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_dispatch_keil.s</FilePath>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m4\los_dispatch_keil.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>platform/atmsamg55</GroupName>
+          <Files>
+            <File>
+              <FileName>los_bsp_adapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ATSAMG55-XPRO\los_bsp_adapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ATSAMG55-XPRO\los_bsp_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ATSAMG55-XPRO\los_bsp_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\ATSAMG55-XPRO\los_bsp_uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -494,31 +519,6 @@
               <FileName>cmsis_liteos.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\kernel\cmsis\cmsis_liteos.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>platform/LPC824M201</GroupName>
-          <Files>
-            <File>
-              <FileName>los_bsp_adapter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_adapter.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_bsp_key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_key.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_bsp_led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_led.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_bsp_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -598,16 +598,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>startup</GroupName>
-          <Files>
-            <File>
-              <FileName>los_startup_keil.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_startup_keil.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>user</GroupName>
           <Files>
             <File>
@@ -617,8 +607,78 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>::Board Support</GroupName>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
+        </Group>
+        <Group>
+          <GroupName>::Device</GroupName>
+        </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis>
+      <api Capiversion="1.00" Cclass="Board Support" Cgroup="Buttons" exclusive="0">
+        <package name="MDK-Middleware" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="Keil" version="7.0.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </api>
+      <api Capiversion="1.00" Cclass="Board Support" Cgroup="LED" exclusive="0">
+        <package name="MDK-Middleware" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="Keil" version="7.0.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </api>
+    </apis>
+    <components>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="Cortex-M Device">
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </component>
+      <component Cbundle="SAMG55-XPRO" Cclass="Board Support" Cgroup="Buttons" Cvendor="Keil" Cversion="1.0.0" condition="SAMG55 CMSIS">
+        <package name="SAMG_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.1.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </component>
+      <component Cbundle="SAMG55-XPRO" Cclass="Board Support" Cgroup="LED" Cvendor="Keil" Cversion="1.0.0" condition="SAMG55 CMSIS">
+        <package name="SAMG_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.1.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="SAMG55 CMSIS">
+        <package name="SAMG_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.1.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </component>
+    </components>
+    <files>
+      <file attr="config" category="source" condition="Compiler ARMCC" name="Device\Source\ARM\startup_SAMG55.s" version="1.0.0">
+        <instance index="0">RTE\Device\ATSAMG55J19\startup_SAMG55.s</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="SAMG55 CMSIS"/>
+        <package name="SAMG_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.1.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" name="Device\Source\system_samg55.c" version="1.0.0">
+        <instance index="0">RTE\Device\ATSAMG55J19\system_samg55.c</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="SAMG55 CMSIS"/>
+        <package name="SAMG_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.1.0"/>
+        <targetInfos>
+          <targetInfo name="HuaweiLiteOS"/>
+        </targetInfos>
+      </file>
+    </files>
+  </RTE>
 
 </Project>

@@ -7,22 +7,22 @@
 
   <Targets>
     <Target>
-      <TargetName>HuaweiLiteOS</TargetName>
+      <TargetName>LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>LPC824M201JHI33</Device>
-          <Vendor>NXP</Vendor>
-          <PackID>Keil.LPC800_DFP.1.5.0</PackID>
+          <Device>STM32L053R8Tx</Device>
+          <Vendor>STMicroelectronics</Vendor>
+          <PackID>Keil.STM32L0xx_DFP.1.6.1</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IROM(0x00000000,0x00008000) IRAM(0x10000000,0x00002000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
+          <Cpu>IROM(0x08000000,0x00010000) IRAM(0x20000000,0x00002000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD10000000 -FCFE0 -FN1 -FF0LPC8xx_32 -FS00 -FL08000 -FP0($$Device:LPC824M201JHI33$Flash\LPC8xx_32.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32L0xx_64 -FS08000000 -FL010000 -FP0($$Device:STM32L053R8Tx$Flash\STM32L0xx_64.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:LPC824M201JHI33$Device\Include\LPC8xx.h</RegisterFile>
+          <RegisterFile>$$Device:STM32L053R8Tx$Device\Include\stm32l0xx.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:LPC824M201JHI33$SVD\LPC82x.svd</SFDFile>
+          <SFDFile>$$Device:STM32L053R8Tx$SVD\STM32L053x.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -109,7 +109,7 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments>  </SimDllArguments>
+          <SimDllArguments> -REMAP </SimDllArguments>
           <SimDlgDll>DARMCM1.DLL</SimDlgDll>
           <SimDlgDllArguments>-pCM0+</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
@@ -242,13 +242,13 @@
               </Ocm6>
               <IRAM>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
+                <StartAddress>0x20000000</StartAddress>
                 <Size>0x2000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <StartAddress>0x8000000</StartAddress>
+                <Size>0x10000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -272,8 +272,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <StartAddress>0x8000000</StartAddress>
+                <Size>0x10000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -297,7 +297,7 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
+                <StartAddress>0x20000000</StartAddress>
                 <Size>0x2000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
@@ -332,7 +332,7 @@
               <MiscControls></MiscControls>
               <Define>RAM_SIZE_LEVEL_0</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\example\include;..\..\platform\LPC824_LITE;..\..\platform\LPC824_LITE\common\chip;..\..\platform\LPC824_LITE\common\board;..\..\platform\LPC824_LITE\common\CMSIS;..\..\platform\LPC824_LITE\peri_driver</IncludePath>
+              <IncludePath>..\..\kernel\include;..\..\kernel\base\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m0+;..\..\example\include;..\..\platform\STM32L053_Nucleo;..\..\BSP\STM32L053R8Tx\Inc;..\..\BSP\STM32L053R8Tx\Drivers\STM32L0xx_HAL_Driver\Inc;..\..\BSP\STM32L053R8Tx\Drivers\STM32L0xx_HAL_Drive\Inc\Legacy;..\..\BSP\STM32L053R8Tx\Drivers\CMSIS\Device\ST\STM32L0xx\Include;..\..\BSP\STM32L053R8Tx\Drivers\CMSIS\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -359,8 +359,8 @@
             <noStLib>0</noStLib>
             <RepFail>1</RepFail>
             <useFile>0</useFile>
-            <TextAddressRange>0x00000000</TextAddressRange>
-            <DataAddressRange>0x10000000</DataAddressRange>
+            <TextAddressRange>0x08000000</TextAddressRange>
+            <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
             <ScatterFile></ScatterFile>
             <IncludeLibs></IncludeLibs>
@@ -453,37 +453,37 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>cpu/cm0</GroupName>
-          <Files>
-            <File>
-              <FileName>los_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hw_tick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw_tick.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hwi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hwi.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_dispatch_keil.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_dispatch_keil.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>config</GroupName>
           <Files>
             <File>
               <FileName>los_config.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\kernel\config\los_config.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>cpu/m0+</GroupName>
+          <Files>
+            <File>
+              <FileName>los_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hw_tick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hwi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_dispatch_keil.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_keil.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -498,27 +498,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>platform/LPC824M201</GroupName>
+          <GroupName>platform/stm32L053r8</GroupName>
           <Files>
             <File>
               <FileName>los_bsp_adapter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_adapter.c</FilePath>
+              <FilePath>..\..\platform\STM32L053_Nucleo\los_bsp_adapter.c</FilePath>
             </File>
             <File>
               <FileName>los_bsp_key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_key.c</FilePath>
+              <FilePath>..\..\platform\STM32L053_Nucleo\los_bsp_key.c</FilePath>
             </File>
             <File>
               <FileName>los_bsp_led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_led.c</FilePath>
+              <FilePath>..\..\platform\STM32L053_Nucleo\los_bsp_led.c</FilePath>
             </File>
             <File>
               <FileName>los_bsp_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_bsp_uart.c</FilePath>
+              <FilePath>..\..\platform\STM32L053_Nucleo\los_bsp_uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -601,9 +601,9 @@
           <GroupName>startup</GroupName>
           <Files>
             <File>
-              <FileName>los_startup_keil.s</FileName>
+              <FileName>startup_stm32l053xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_startup_keil.s</FilePath>
+              <FilePath>..\..\platform\STM32L053_NUCLEO\startup_stm32l053xx.s</FilePath>
             </File>
           </Files>
         </Group>

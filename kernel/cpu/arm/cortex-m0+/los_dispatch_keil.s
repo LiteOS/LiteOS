@@ -44,17 +44,17 @@
         EXPORT  osDisableIRQ
         
         IMPORT  g_stLosTask
+        IMPORT  g_pfnTskSwitchHook
         IMPORT  g_bTaskScheduled
 
 OS_NVIC_INT_CTRL            EQU     0xE000ED04
 OS_NVIC_SYSPRI2             EQU     0xE000ED20
-OS_NVIC_PENDSV_PRI          EQU     0xC0C00000
+OS_NVIC_PENDSV_PRI          EQU     0xF0F00000
 OS_NVIC_PENDSVSET           EQU     0x10000000
 OS_TASK_STATUS_RUNNING      EQU     0x0010
 
-    SECTION    .text:CODE(2)
+    AREA |.text|, CODE, READONLY
     THUMB
-    REQUIRE8
 
 LOS_StartToRun
     LDR     R4, =OS_NVIC_SYSPRI2
@@ -62,26 +62,27 @@ LOS_StartToRun
     STR     R5, [R4]
 
     LDR     R0, =g_bTaskScheduled
-    MOVS    R1, #1
+    MOVS     R1, #1
     STR     R1, [R0]
 
-    MOVS    R0, #2
+    MOVS     R0, #2
     MSR     CONTROL, R0
 
 
     LDR     R0, =g_stLosTask
     LDR     R2, [R0, #4]
+    LDR     R0, =g_stLosTask
     STR     R2, [R0]
 
     LDR     R3, =g_stLosTask
     LDR     R0, [R3]
     LDRH    R7, [R0 , #4]
-    MOVS    R6,  #OS_TASK_STATUS_RUNNING
-    ORRS    R7,  R7,R6
+    MOVS     R6,  #OS_TASK_STATUS_RUNNING
+    ORRS     R7,  R7,R6
     STRH    R7,  [R0 , #4]
 
     LDR     R3, [R0]
-    ADDS    R3, R3, #36
+    ADDS     R3, R3, #36
 
     LDMFD   R3!, {R0-R2}
     ADDS    R3,R3,#4
@@ -91,11 +92,14 @@ LOS_StartToRun
     LDR     R3,[R3]
 
     MOV     LR, R5
-    MSR     PSR, R7
+    MSR     xPSR, R7
 
     CPSIE   I
     BX      R6
-
+    NOP
+    ALIGN
+    AREA KERNEL, CODE, READONLY
+    THUMB
     
 LOS_IntNumGet
     MRS     R0, IPSR
@@ -129,6 +133,14 @@ PendSV_Handler
     MRS     R12, PRIMASK
     CPSID   I
 
+    ;LDR     R2, =g_pfnTskSwitchHook
+    ;LDR     R2, [R2]
+    ;CBZ     R2, TaskSwitch
+    ;PUSH    {LR}
+    ;BLX     R2
+    ;POP     {LR}
+
+TaskSwitch
     MRS     R0, PSP
 
     SUBS    R0, #36
@@ -147,8 +159,8 @@ PendSV_Handler
     STR     R0, [R6]
 
     LDRH    R7, [R6 , #4]
-    MOVS    R3,#OS_TASK_STATUS_RUNNING
-    BICS    R7, R7, R3
+    MOVS     R3,#OS_TASK_STATUS_RUNNING
+    BICS     R7, R7, R3
     STRH    R7, [R6 , #4]
 
 
@@ -158,8 +170,8 @@ PendSV_Handler
 
 
     LDRH    R7, [R0 , #4]
-    MOVS    R3,  #OS_TASK_STATUS_RUNNING
-    ORRS    R7, R7,R3
+    MOVS     R3,  #OS_TASK_STATUS_RUNNING
+    ORRS     R7, R7,R3
     STRH    R7,  [R0 , #4]
 
     LDR     R1,   [R0]
@@ -180,5 +192,5 @@ PendSV_Handler
     BX      LR
     
     NOP
-
+    ALIGN
     END

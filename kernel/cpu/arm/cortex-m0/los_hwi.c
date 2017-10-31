@@ -53,7 +53,7 @@ UINT32  g_vuwIntCount = 0;
 #ifdef LOS_LOCATION_VECTOR_IAR
 #pragma  location = ".vector"
 #endif
-LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
+LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M0_VECTOR_CNT] =
 {
   0,                    // [0] Top of Stack
   Reset_Handler,        // [1] reset
@@ -72,7 +72,7 @@ LITE_OS_SEC_VEC HWI_PROC_FUNC m_pstHwiForm[OS_M4_VECTOR_CNT] =
   PendSV_Handler,       // [14] PendSV Handler
   SysTick_Handler,      // [15] SysTick Handler
 };
-HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M4_VECTOR_CNT] = {0};
+HWI_PROC_FUNC m_pstHwiSlaveForm[OS_M0_VECTOR_CNT] = {0};
 
 /*****************************************************************************
  Function    : osIntNumGet
@@ -152,7 +152,7 @@ LITE_OS_SEC_TEXT_INIT unsigned int osGetVectorAddr(void)
 LITE_OS_SEC_TEXT_INIT VOID osHwiInit()
 {
     UINT32 uwIndex;
-    for(uwIndex = OS_M4_SYS_VECTOR_CNT; uwIndex < OS_M4_VECTOR_CNT; uwIndex++)
+    for(uwIndex = OS_M0_SYS_VECTOR_CNT; uwIndex < OS_M0_VECTOR_CNT; uwIndex++)
     {
         m_pstHwiForm[uwIndex] = osHwiDefaultHandler;
     }
@@ -183,11 +183,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiCreate( HWI_HANDLE_T  uwHwiNum,
     {
         return OS_ERRNO_HWI_PROC_FUNC_NULL;
     }
-    if (uwHwiNum >= OS_M4_IRQ_VECTOR_CNT)
+    if (uwHwiNum >= OS_M0_IRQ_VECTOR_CNT)
     {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
-    if (m_pstHwiForm[uwHwiNum + OS_M4_SYS_VECTOR_CNT] != osHwiDefaultHandler)
+    if (m_pstHwiForm[uwHwiNum + OS_M0_SYS_VECTOR_CNT] != osHwiDefaultHandler)
     {
         return OS_ERRNO_HWI_ALREADY_CREATED;
     }
@@ -219,7 +219,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiDelete(HWI_HANDLE_T uwHwiNum)
 {
     UINT32 uwIntSave;
 
-    if (uwHwiNum >= OS_M4_IRQ_VECTOR_CNT)
+    if (uwHwiNum >= OS_M0_IRQ_VECTOR_CNT)
     {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
@@ -228,7 +228,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiDelete(HWI_HANDLE_T uwHwiNum)
 
     uwIntSave = LOS_IntLock();
 
-    m_pstHwiForm[uwHwiNum + OS_M4_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)osHwiDefaultHandler;
+    m_pstHwiForm[uwHwiNum + OS_M0_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)osHwiDefaultHandler;
 
     LOS_IntRestore(uwIntSave);
 

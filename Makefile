@@ -48,9 +48,6 @@ OBJCPFLAGS_ELF_TO_LIST  = -S
 ifeq (${ARCH}, arm)
 CROSS_COMPILE := arm-none-eabi-
 endif
-ifeq (${ARCH}, riscv)
-CROSS_COMPILE := riscv64-unknown-elf-
-endif
 
 ifeq ($(USE_CCACHE),1)
 CCACHE := ccache
@@ -80,16 +77,17 @@ ifndef SOURCE_ROOT
     SOURCE_ROOT=.
     export SOURCE_ROOT
 endif
+
+APPDIR ?= ${SOURCE_ROOT}/user
  
 ############################################################
 ### Build parameters
 ############################################################
 
-ARCH_LIST:=arm arc riscv
+ARCH_LIST:=arm
 CPU_LIST:=cortex-m3 cortex-m4 cortex-m7
-PLAT_LIST:=STM32F429I_DISCO STM32F746ZG_NUCLEO STM32F103ZE-ISO M2S150_RV32
+PLAT_LIST:=STM32F429I_DISCO STM32F746ZG_NUCLEO STM32F103ZE-ISO
 ARMV_LIST:=armv7-m armv7e-m armv7ve
-RISCV_LIST:=rv32im
 
 #ARCH:=arm
 #PLAT:=STM32F429I_DISCO
@@ -108,11 +106,6 @@ $(if $(filter ${CPU},${CPU_LIST}),, \
 
 $(if $(filter ${ARMV},${ARMV_LIST}),, \
 	$(error ARMV ${ARMV} invalid or undefined, should be one of [ ${ARMV_LIST} ]))
-endif
-
-ifeq (${ARCH}, riscv)
-$(if $(filter ${CPU},${RISCV_LIST}),, \
-	$(error CPU ${CPU} invalid or undefined, should be one of [ ${RISCV_LIST} ]))
 endif
 
 
@@ -153,11 +146,6 @@ LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
 
-ifeq (${ARCH}, riscv)
-CFLAGS +=  -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im 
-ASFLAGS += -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im -x assembler-with-cpp -Wall
-LDFLAGS +=  -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im 
-endif
 
 # If a parent Makefile has passed us DEFINES, assume they will be missing -D.
 DEFINES := ${DEFINES:%=-D%}
@@ -183,6 +171,8 @@ endif
 vpath %.c    ${SOURCE_ROOT}
 vpath %.h    ${SOURCE_ROOT}
 vpath %.S    ${SOURCE_ROOT}
+vpath %.s    ${SOURCE_ROOT}
+
 
 INCLUDE_DIRS = ${SOURCE_ROOT}/example/include                 \
 	       ${SOURCE_ROOT}/kernel/include                  \
@@ -198,6 +188,7 @@ INCLUDES += "-I${SOURCE_ROOT}/kernel/cpu/${ARCH}/${CPU}"
 INCLUDES += "-I${SOURCE_ROOT}/kernel/link/gcc"
 INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}"
 
+
 ifeq (${PLAT}, M2S150_RV32)
 INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/CoreGPIO"
 INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/CoreUARTapb"
@@ -212,16 +203,11 @@ INCLUDES += "-I${SOURCE_ROOT}/platform/${PLAT}/Libraries/CMSIS"
 endif
 
 
-
-
 CFLAGS += ${DEFINES}
 CFLAGS += ${INCLUDES}
 
-LINKER_SCRIPT = platform/${PLAT}/LiteOS.ld
+LINKER_SCRIPT = ${SOURCE_ROOT}/platform/${PLAT}/LiteOS.ld
 LDFLAGS    +=  -T $(LINKER_SCRIPT) 
-ifeq (${ARCH}, riscv)
-LDFLAGS    += -nostartfiles
-endif
 
 ############################################################
 ### Sub-makefiles
@@ -229,11 +215,12 @@ endif
 
 include ${SOURCE_ROOT}/example/api/Makefile
 include ${SOURCE_ROOT}/kernel/Makefile
-include ${SOURCE_ROOT}/user/Makefile
+include ${APPDIR}/Makefile
 include ${SOURCE_ROOT}/platform/${PLAT}/Makefile
 
-OBJECTS += ${C_SOURCES:.c=.o}
-OBJECTS += ${ASM_SOURCES:.s=.o}
+OBJECTS += ${patsubst %.c,build/%.o,$(C_SOURCES)}
+OBJECTS += ${patsubst %.s,build/%.o,$(ASM_SOURCES)}
+
 
 .PHONY: all default clean 
 
@@ -241,30 +228,28 @@ default: all
 
 
 
-all: $(TARGET_BIN) 
+all:build build/$(TARGET_BIN)
 
-$(BUILD):
-	mkdir -p build
+build:
+	mkdir -p $@
 
-$(TARGET_BIN):$(TARGET_ELF)
-	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_BIN) -S  $(TARGET_ELF)   $(TARGET_BIN) 
+build/$(TARGET_BIN):build/$(TARGET_ELF)
+	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_BIN) -S $^ $@
 	@#$(OBJDUMP) -sStD $(TARGET_ELF) > map
 
-$(TARGET_HEX):$(TARGET_ELF)
-	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_HEX) -S  $(TARGET_ELF)   $(TARGET_HEX) 
+build/$(TARGET_ELF):$(OBJECTS) 
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-$(TARGET_ELF):$(OBJECTS) $(BUILD)
-	$(CC)  $(LDFLAGS) $^  -o $@ 
+build/%.o:%.c 
+	#$(CC) $(CFLAGS) -c  -o  $(addprefix $(dir $^), $(notdir $@))    $^
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $^
 
-
-%.o:%.c  
-	$(CC) $(CFLAGS) -c  -o $@ $^
-
-%.o:%.s 
-	$(CC) $(ASFLAGS) -c  -o $@ $^
-
+build/%.o:%.s 
+	$(CC) $(ASFLAGS) -c -o $@ $^
 
 clean:
+	rm build -rf
 	find $(SOURCE_ROOT) -iname '*.o' -delete
 	find $(SOURCE_ROOT) -iname '*.bin' -delete
 	find $(SOURCE_ROOT) -iname '*.elf' -delete
