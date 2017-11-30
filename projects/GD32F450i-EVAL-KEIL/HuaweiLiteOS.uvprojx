@@ -330,9 +330,9 @@
             <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>GD32F450IKH6</Define>
+              <Define>GD32F450IKH6,GD32F4XX</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\link\keil;..\..\platform\GD32F450i-EVAL;..\..\example\include</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\link\keil;..\..\platform\GD32F450i-EVAL;..\..\example\include;..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Include;..\..\platform\GD32F450i-EVAL\gd32f4\Utilities;..\..\platform\GD32F450i-EVAL\gd32f4</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -519,6 +519,46 @@
               <FileName>los_bsp_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\GD32F450i-EVAL\los_bsp_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>library</GroupName>
+          <Files>
+            <File>
+              <FileName>gd32f4xx_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_rcu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_rcu.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_exti.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_syscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_syscfg.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_misc.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f450i_eval.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Utilities\gd32f450i_eval.c</FilePath>
             </File>
           </Files>
         </Group>

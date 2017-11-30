@@ -112,7 +112,7 @@ void SysTick_Handler(void)
     
     /*add your code here */
 #ifdef GD32F4XX 
-    delay_decrement();
+//    delay_decrement();
 #endif
     
     return;
