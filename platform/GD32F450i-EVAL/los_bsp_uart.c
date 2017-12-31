@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "cmsis_os.h"
 #include "los_bsp_uart.h"
 
 
@@ -38,7 +39,7 @@ void led_flash(int times)
     int i;
     for(i=0; i<times; i++){
         /* delay 400 ms */
-        delay_1ms(400);
+        osDelay(400);
 
         /* turn on LEDs */
         //gd_eval_led_on(LED1);
@@ -46,7 +47,7 @@ void led_flash(int times)
         gd_eval_led_on(LED3);
 
         /* delay 400 ms */
-        delay_1ms(400);
+        osDelay(400);
         /* turn off LEDs */
         //gd_eval_led_off(LED1);
         //gd_eval_led_off(LED2);
