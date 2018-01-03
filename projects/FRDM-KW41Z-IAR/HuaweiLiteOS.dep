@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <fileVersion>2</fileVersion>
-    <fileChecksum>1279220988</fileChecksum>
+    <fileChecksum>2366766743</fileChecksum>
     <configuration>
         <name>Debug</name>
         <outputs>
             <file>$PROJ_DIR$\..\..\kernel\cmsis\cmsis_liteos.c</file>
             <file>$PROJ_DIR$\..\..\kernel\config\los_config.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_dispatch_iar.s</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_iar.s</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</file>
             <file>$PROJ_DIR$\..\..\example\api\los_api_dynamic_mem.c</file>
             <file>$PROJ_DIR$\..\..\example\api\los_api_event.c</file>
             <file>$PROJ_DIR$\..\..\example\api\los_api_interrupt.c</file>
@@ -33,13 +33,41 @@
             <file>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.c</file>
             <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.c</file>
             <file>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_sys.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.inc</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_key.pbi</file>
+            <file>$TOOLKIT_DIR$\inc\c\time32.h</file>
+            <file>$PROJ_DIR$\..\..\example\include\los_api_event.h</file>
+            <file>$PROJ_DIR$\..\..\example\include\los_api_interrupt.h</file>
+            <file>$PROJ_DIR$\..\..\example\include\los_api_list.h</file>
+            <file>$PROJ_DIR$\..\..\example\include\los_api_msgqueue.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_errno.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_typedef.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_mux.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_membox.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\include\los_sem.ph</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\include\los_tick.ph</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_sys.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_queue.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_hwi.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\include\los_sys.ph</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_base.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\config\los_config.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_config.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_config.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\include\los_mux.ph</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_tick.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_api_dynamic_mem.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_api_event.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_multipledlinkhead.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_memstat.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_memstat.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_membox.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_membox.o</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_dispatch_iar.s</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\clock_config.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_adc16.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_clock.c</file>
@@ -87,121 +115,6 @@
             <file>$PROJ_DIR$\Debug\Obj\los_memstat.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\los_api_list.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\los_memory.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_misc.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_api_timer.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_hw.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_misc.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_demo_entry.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_event.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_api_systick.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.__cstat.et</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_adapter.o</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.inc</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_key.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.o</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.inc</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_adapter.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_uart.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_uart.o</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.h</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.h</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.inc</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_mux.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_event.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_event.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_sem.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_queue.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_mux.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_queue.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_sem.pbi</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\include\los_base.ph</file>
-            <file>$PROJ_DIR$\..\..\kernel\link\iar\los_builddef.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_sem.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_swtmr.h</file>
-            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
-            <file>$TOOLKIT_DIR$\lib\rt6M_tl.a</file>
-            <file>$TOOLKIT_DIR$\lib\m6M_tl.a</file>
-            <file>$TOOLKIT_DIR$\lib\dl6M_tln.a</file>
-            <file>$PROJ_DIR$\Debug\List\HuaweiLiteOS.map</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_dispatch_iar.o</file>
-            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_hw_tick.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_hw.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_hwi.pbi</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\include\los_sys.ph</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_base.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\config\los_config.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_config.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_config.pbi</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\include\los_mux.ph</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_tick.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_api_dynamic_mem.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_api_event.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_multipledlinkhead.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_memstat.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_memstat.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_membox.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_membox.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_memory.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_multipledlinkhead.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_memory.pbi</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_memory.h</file>
-            <file>$PROJ_DIR$\Debug\Exe\HuaweiLiteOS.out</file>
-            <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\HuaweiLiteOS.pbd</file>
-            <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\string.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\cmsis\cmsis_os.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_sys.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_priqueue.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_tick.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_swtmr.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_task.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_timeslice.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_priqueue.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_swtmr.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_sys.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_task.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_tick.pbi</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_timeslice.pbi</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.inc</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\board.c</file>
-            <file>$PROJ_DIR$\..\..\PLATFORM\FRDM-KW41Z\SRC\clock_config.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\hello_world.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\pin_mux.c</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_sys.inc</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.inc</file>
-            <file>$PROJ_DIR$\Debug\Obj\los_bsp_key.pbi</file>
-            <file>$TOOLKIT_DIR$\inc\c\time32.h</file>
-            <file>$PROJ_DIR$\..\..\example\include\los_api_event.h</file>
-            <file>$PROJ_DIR$\..\..\example\include\los_api_interrupt.h</file>
-            <file>$PROJ_DIR$\..\..\example\include\los_api_list.h</file>
-            <file>$PROJ_DIR$\..\..\example\include\los_api_msgqueue.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_errno.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_typedef.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_mux.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_membox.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\include\los_sem.ph</file>
-            <file>$PROJ_DIR$\..\..\kernel\base\include\los_tick.ph</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_sys.h</file>
-            <file>$PROJ_DIR$\..\..\kernel\include\los_queue.h</file>
             <file>$PROJ_DIR$\..\..\kernel\include\los_task.h</file>
             <file>$PROJ_DIR$\..\..\kernel\include\los_event.h</file>
             <file>$PROJ_DIR$\..\..\kernel\base\include\los_queue.ph</file>
@@ -354,6 +267,24 @@
             <file>$PROJ_DIR$\Debug\Obj\fsl_sim.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_smc.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_dcdc.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_memory.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_multipledlinkhead.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_memory.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_memory.h</file>
+            <file>$PROJ_DIR$\Debug\Exe\HuaweiLiteOS.out</file>
+            <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\HuaweiLiteOS.pbd</file>
+            <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\cmsis\cmsis_os.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_clock.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_lpuart_edma.__cstat.et</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_cmt.__cstat.et</file>
@@ -422,13 +353,8 @@
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_debug_console.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_notifier.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_sbrk.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.c</file>
-            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\startup_MKW41Z4.s</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\system_MKW41Z4.c</file>
-            <file>$PROJ_DIR$\..\..\user\main.c</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_rcm.pbi</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_rtc.pbi</file>
             <file>$PROJ_DIR$\Debug\Obj\fsl_sim.pbi</file>
@@ -472,14 +398,94 @@
             <file>$PROJ_DIR$\Debug\Obj\fsl_lptmr.pbi</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Product_stdlib.h</file>
             <file>$PROJ_DIR$\Debug\Obj\los_startup_iar.o</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_misc.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_api_timer.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_hw.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_misc.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_demo_entry.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_event.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_api_systick.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.__cstat.et</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_adapter.o</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.inc</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_key.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.o</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.inc</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_adapter.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_led.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_uart.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_bsp_uart.o</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.h</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.h</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.inc</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_mux.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_event.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_event.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_sem.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_queue.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_mux.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_queue.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_sem.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.inc</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\include\los_base.ph</file>
+            <file>$PROJ_DIR$\..\..\kernel\link\iar\los_builddef.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_sem.h</file>
+            <file>$PROJ_DIR$\..\..\kernel\include\los_swtmr.h</file>
+            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
+            <file>$TOOLKIT_DIR$\lib\rt6M_tl.a</file>
+            <file>$TOOLKIT_DIR$\lib\m6M_tl.a</file>
+            <file>$TOOLKIT_DIR$\lib\dl6M_tln.a</file>
+            <file>$PROJ_DIR$\Debug\List\HuaweiLiteOS.map</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_dispatch_iar.o</file>
+            <file>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_hw_tick.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_hw.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.c</file>
             <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_startup_iar.s</file>
+            <file>$PROJ_DIR$\..\..\user\main.c</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_sys.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_priqueue.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_tick.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_swtmr.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_task.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_timeslice.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_priqueue.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_swtmr.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_sys.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_task.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_tick.pbi</file>
+            <file>$PROJ_DIR$\Debug\Obj\los_timeslice.pbi</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.inc</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\board.c</file>
+            <file>$PROJ_DIR$\..\..\PLATFORM\FRDM-KW41Z\SRC\clock_config.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\hello_world.c</file>
+            <file>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\pin_mux.c</file>
+            <file>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.inc</file>
         </outputs>
         <file>
             <name>[ROOT_NODE]</name>
             <outputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 151 125</file>
+                    <file> 268 438</file>
                 </tool>
             </outputs>
         </file>
@@ -487,32 +493,9 @@
             <name>$PROJ_DIR$\..\..\kernel\cmsis\cmsis_liteos.c</name>
             <outputs>
                 <tool>
-                    <name>BICOMP</name>
-                    <file> 222</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 221</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
-                    <file> 68</file>
+                    <file> 96</file>
                 </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 132 137 131 156 189 136 155 190 191 160 192 193 194 159 157 158 90 195 196 197 198 199 200 201 154 152 202 203 117 161 162 250 118 133 119 120</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 161 159 156 157 162 76 250 154 152 198 132 118 190 133 203 158 202 189 192 90 195 136 201 197 137 191 199 196 193 119 200 120 131 117 194 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\config\los_config.c</name>
-            <outputs>
                 <tool>
                     <name>BICOMP</name>
                     <file> 135</file>
@@ -521,19 +504,726 @@
                     <name>ICCARM</name>
                     <file> 134</file>
                 </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 51 45 273 50 272 163 37 38 277 39 40 41 276 279 274 47 275 394 42 43 110 111 112 113 114 271 431 115 36 430 269 278 116 432 433</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 278 276 273 274 279 104 163 271 269 111 46 431 37 47 116 275 115 36 39 394 42 50 114 110 51 38 112 43 40 432 113 433 45 430 41 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\config\los_config.c</name>
+            <outputs>
                 <tool>
                     <name>__cstat</name>
-                    <file> 66</file>
+                    <file> 94</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 49</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 48</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 90 132 156 203 118 190 202 201 189 152 137 133 158 157 162 250 197 195 198</file>
+                    <file> 394 116 275 115 114 37 36 274 279 163 46 51 47 431 273 269 110 42 111</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 195 132 118 190 133 203 158 156 157 162 76 250 152 202 189 90 137 201 197 198</file>
+                    <file> 42 46 431 37 47 116 275 273 274 279 104 163 269 115 36 394 51 114 110 111</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_iar.s</name>
+            <outputs>
+                <tool>
+                    <name>AARM</name>
+                    <file> 439</file>
+                </tool>
+            </outputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 397</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 442</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 165</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 274 37 42 163 132 36 279 393 116 275 394 46 114 45 431 47 115 273 269 111 110 51 430 133</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 46 431 37 47 116 275 273 274 279 104 163 269 115 36 114 110 42 394 51 111 393 45 430 132 133</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 89</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 441</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 164</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 116 269 37 46 394 51 36 114 273 115 433 431 47 275 274 279 163 110 42 41 111</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 41 51 36 37 431 46 47 116 275 273 274 279 104 163 269 115 114 110 42 394 111 433</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 97</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 44</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 166</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 269 116 42 37 36 431 273 46 47 115 275 274 279 163 394</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 394 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_dynamic_mem.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 82</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 151</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 52</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 163 36 46 267 274 279 37 160 47 161 273 269 391 116 431 178 162 275 115 272 277</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 178 273 274 279 104 163 269 391 47 37 431 116 275 267 46 115 36 161 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_event.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 88</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 152</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 53</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 115 431 273 46 32 47 116 269 277 110 162 272 36 275 274 279 163 51 42 111 394 160</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 111 46 431 37 47 116 275 273 274 279 104 163 269 115 36 110 42 394 51 32 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_interrupt.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 91</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 153</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 138</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 273 115 431 46 33 47 116 269 277 162 42 36 275 274 279 163 394 160 272</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 394 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 33 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_list.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 108</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 167</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 139</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 46 267 116 269 178 36 431 273 274 160 275 47 34 115 279 163 162 391 272 277</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 115 46 431 37 47 116 275 273 274 279 104 163 269 36 178 391 267 34 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_msgqueue.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 102</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 168</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 140</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 43 47 275 274 115 160 433 37 431 273 110 394 111 35 116 36 269 51 162 279 163 42 272 277</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 46 431 37 47 116 275 273 274 279 104 163 269 115 36 110 42 394 51 111 433 43 35 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_mutex.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 105</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 169</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 141</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 116 275 110 42 115 273 126 37 36 274 279 46 277 162 272 431 47 269 163 111 38 394 51 160</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 38 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 394 110 51 111 126 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_sem.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 84</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 170</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 142</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 269 116 273 115 37 46 277 394 36 431 430 127 110 47 275 274 51 272 432 162 279 163 42 111 160</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 432 46 431 37 47 116 275 273 274 279 104 163 269 115 36 110 42 394 51 111 430 127 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_static_mem.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 101</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 171</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 143</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 277 273 163 431 128 274 116 39 279 47 272 269 275 162 37 160</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 275 273 274 279 104 163 269 39 47 37 431 116 128 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_systick.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 401</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 172</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 144</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 163 274 36 279 111 273 129 394 116 275 42 46 277 110 162 431 47 115 269 51 160 272</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 42 46 431 37 47 116 275 273 274 279 104 163 269 115 36 394 110 51 111 129 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_task.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 87</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 173</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 146</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 269 46 162 179 273 116 394 110 274 111 42 180 130 37 36 431 277 181 279 163 31 115 51 47 275 160 272</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 181 273 274 279 104 163 179 180 269 31 110 46 431 37 47 116 275 115 36 42 394 51 111 130 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_api_timer.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 396</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 174</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 147</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 160 269 273 131 115 46 180 47 275 37 433 42 274 279 163 431 51 36 31 162 110 116 111 394 272 277</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 275 273 274 279 104 163 269 433 46 431 37 47 116 115 36 110 42 394 51 111 180 31 131 160 272 277 162</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_cmsis_main.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 85</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 175</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 148</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 273 279 271 274 276 269 278 163</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 278 276 273 274 279 104 163 271 269</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_demo_entry.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 399</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 176</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 149</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 160 33 273 47 46 127 37 277 279 161 32 129 269 115 116 110 130 128 35 126 131 34 431 272 274 51 394 42 119 163 111 36 275</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 119 37 431 160 272 273 274 279 104 163 269 277 130 161 128 33 35 32 126 127 131 129 34 110 46 47 116 275 115 36 42 394 51 111</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\example\api\los_inspect_entry.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 95</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 177</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 150</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 274 47 131 269 431 130 160 409 35 37 275 110 414 128 126 34 273 277 163 51 42 36 272 162 415 416 161 33 32 127 129 279 115 46 111 116 394</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 272 273 274 279 104 163 269 277 162 37 431 110 46 47 116 275 115 36 42 394 51 111 160 409 415 414 416 130 161 128 33 35 32 126 127 131 129 34</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 400</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 420</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 419</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 394 36 431 116 273 114 115 269 42 132 393 120 111 46 47 275 274 426 279 163 133 110 51</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 426 120 111 46 431 37 47 116 275 273 274 279 104 163 269 115 36 132 133 114 110 42 394 51 393</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 98</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 57</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 58</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 272 273 431 46 277 394 275 269 279 115 430 121 39 47 116 274 163 266 36 42</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 266 121 39 47 37 431 116 275 273 274 279 104 163 269 430 46 115 36 394 42 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 109</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 264</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 262</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 116 37 42 122 431 273 115 274 36 394 269 46 111 114 272 123 124 267 47 275 279 163 125 110 51 277 265</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 265 123 267 46 431 37 47 116 275 273 274 279 104 163 269 115 36 122 125 124 114 110 42 394 51 111 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 107</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 55</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 56</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 42 36 37 116 269 115 47 124 431 111 273 114 110 51 275 274 279 163 405 394</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 405 124 37 431 114 110 46 47 116 275 273 274 279 104 163 269 115 36 42 394 51 111</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\misc\los_misc.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 398</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 395</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 99</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 273 37 115 431 430 42 114 46 47 116 269 394 45 36 275 274 279 163 111 110 51</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 430 46 431 37 47 116 275 273 274 279 104 163 269 115 36 45 42 394 114 110 51 111</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 86</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 263</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 54</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 115 47 275 274 279 431 37 163 122 125 46 116 36 273 269 408</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 408 122 125 46 431 37 47 116 275 273 274 279 104 163 269 115 36</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 106</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 423</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 418</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 115 46 269 37 393 114 431 273 132 110 51 47 123 50 38 42 111 116 36 133 427 275 274 279 163 394 267</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 427 50 114 110 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 394 51 111 38 123 267 132 133 393</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 83</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 462</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 457</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 115 431 394 46 273 114 47 116 269 42 430 267 132 133 36 275 274 279 163 111 468 110 51</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 468 132 133 115 46 431 37 47 116 275 273 274 279 104 163 269 36 430 114 110 42 394 51 111 267</file>
                 </tool>
             </inputs>
         </file>
@@ -542,7 +1232,7 @@
             <outputs>
                 <tool>
                     <name>AARM</name>
-                    <file> 126</file>
+                    <file> 439</file>
                 </tool>
             </outputs>
         </file>
@@ -550,26 +1240,22 @@
             <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 397</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 129</file>
+                    <file> 442</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 252</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 84</file>
+                    <file> 165</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 203 195 190 152 219 189 132 127 118 156 90 201 131 133 202 158 157 162 250 198 197 137 117 220</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 132 118 190 133 203 158 156 157 162 76 250 152 202 189 201 197 195 90 137 198 127 131 117 219 220</file>
+                    <file> 274 37 42 163 132 36 279 440 116 275 394 46 114 45 431 47 115 273 269 111 110 51 430 133</file>
                 </tool>
             </inputs>
         </file>
@@ -577,26 +1263,22 @@
             <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 89</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 128</file>
+                    <file> 441</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 251</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 61</file>
+                    <file> 164</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 158 190 133 132 90 137 201 118 202 157 162 250 120 189 203 156 152 197 195 194 198</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 194 137 189 190 118 132 133 203 158 156 157 162 76 250 152 202 201 197 195 90 198 120</file>
+                    <file> 116 269 37 394 403 51 36 46 114 273 42 110 433 431 47 115 275 274 279 163 111 41</file>
                 </tool>
             </inputs>
         </file>
@@ -604,809 +1286,22 @@
             <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</name>
             <outputs>
                 <tool>
-                    <name>BICOMP</name>
-                    <file> 130</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 253</file>
-                </tool>
-                <tool>
                     <name>__cstat</name>
-                    <file> 69</file>
+                    <file> 97</file>
                 </tool>
-            </outputs>
-            <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 202 190 195 118 203 156 133 152 132 189 158 157 162 250 90</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 90 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_dynamic_mem.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 238</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 138</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 54</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 250 189 132 150 157 162 158 190 247 133 248 156 152 465 203 265 249 118 202 155 160</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 265 156 157 162 76 250 152 465 133 190 118 203 158 150 132 202 189 248 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_event.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 239</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 139</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 60</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 118 157 190 195 202 162 250 189 156 185 133 158 137 160 197 249 155 132 203 152 198 90 247</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 198 132 118 190 133 203 158 156 157 162 76 250 152 202 189 197 195 90 137 185 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_interrupt.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 240</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 225</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 63</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 162 202 157 118 190 250 156 186 132 133 158 160 249 195 203 189 152 90 247 155</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 90 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 186 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_list.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 254</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 226</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 80</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 190 132 150 203 162 265 189 158 157 247 133 187 118 202 156 152 250 249 465 155 160</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 202 132 118 190 133 203 158 156 157 162 76 250 152 189 265 465 150 187 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_msgqueue.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 255</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 227</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 74</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 132 196 133 152 202 247 120 190 118 203 156 197 90 198 188 189 158 157 137 249 162 250 195 155 160</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 132 118 190 133 203 158 156 157 162 76 250 152 202 189 197 195 90 137 198 120 196 188 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_mutex.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 256</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 228</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 77</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 250 189 195 190 203 152 198 156 213 197 118 157 132 160 249 155 202 133 158 162 191 90 137 247</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 191 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 90 197 137 198 213 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_sem.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 257</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 229</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 56</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 203 156 202 190 132 160 90 189 158 157 117 214 197 118 133 152 137 155 119 249 162 250 195 198 247</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 119 132 118 190 133 203 158 156 157 162 76 250 152 202 189 197 195 90 137 198 117 214 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_static_mem.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 258</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 230</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 73</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 152 158 156 155 215 190 160 192 157 162 250 133 203 118 247 249</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 158 156 157 162 76 250 152 192 133 190 118 203 215 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_systick.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 259</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 231</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 88</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 132 133 158 156 216 118 202 190 157 162 250 195 160 197 249 90 203 189 152 198 137 247 155</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 195 132 118 190 133 203 158 156 157 162 76 250 152 202 189 90 197 137 198 216 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_task.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 260</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 233</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 59</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 250 156 190 157 202 249 266 132 197 118 203 152 267 217 162 184 137 133 90 195 160 268 198 189 158 247 155</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 268 156 157 162 76 250 266 267 152 184 197 132 118 190 133 203 158 202 189 195 90 137 198 217 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_api_timer.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 261</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 234</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 83</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 189 247 152 156 218 202 132 267 190 158 120 195 157 162 197 203 137 184 249 250 118 133 198 90 155 160</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 158 156 157 162 76 250 152 120 132 118 190 133 203 202 189 197 195 90 137 198 267 184 218 247 155 160 249</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_cmsis_main.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 262</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 235</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 57</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 156 162 154 157 159 152 161 250</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 161 159 156 157 162 76 250 154 152</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_demo_entry.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 263</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 236</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 86</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 186 247 132 214 155 133 190 248 185 216 157 202 203 156 197 217 215 188 213 218 187 118 152 160 162 137 90 195 206 250 198 189 158</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 206 190 118 247 155 156 157 162 76 250 152 160 217 248 215 186 188 185 213 214 218 216 187 197 132 133 203 158 202 189 195 90 137 198</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\example\api\los_inspect_entry.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 264</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 237</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 67</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 218 132 217 156 247 96 188 160 202 197 101 215 213 187 152 118 190 157 155 249 102 103 248 186 185 214 216 162 137 133 158 195 189 250 198 203 90</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 155 156 157 162 76 250 152 160 249 190 118 197 132 133 203 158 202 189 195 90 137 198 247 96 102 101 103 217 248 215 186 188 185 213 214 218 216 187</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_event.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 107</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 106</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 87</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 90 189 190 158 201 202 203 156 195 219 127 207 198 132 118 133 152 113 157 162 250 220 197 137</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 113 207 198 132 118 190 133 203 158 156 157 162 76 250 152 202 189 219 220 201 197 195 90 137 127</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_membox.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 143</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 144</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 70</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 190 155 157 118 132 160 90 158 162 202 156 117 208 192 133 203 152 250 149 189 195</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 149 208 192 133 190 118 203 158 156 157 162 76 250 152 117 132 202 189 90 195 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memory.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 147</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 145</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 81</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 158 132 157 190 152 209 162 197 137 189 212 203 250 202 156 160 201 155 210 211 150 118 133 195 198 90 148</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 148 210 150 132 118 190 133 203 158 156 157 162 76 250 152 202 189 209 212 211 201 197 195 90 137 198 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_memstat.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 141</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 142</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 79</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 132 137 190 133 158 202 211 118 197 157 162 201 195 198 203 189 156 152 250 92 90</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 92 211 190 118 201 197 132 133 203 158 156 157 162 76 250 152 202 189 195 90 137 198</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\misc\los_misc.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 82</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 71</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 85</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 162 202 157 118 190 250 117 195 201 132 133 158 90 131 203 189 156 152 198 197 137</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 117 132 118 190 133 203 158 156 157 162 76 250 152 202 189 131 195 90 201 197 137 198</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\mem\los_multipledlinkhead.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 146</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 140</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 58</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 202 133 152 118 203 190 156 209 212 132 189 158 157 162 250 95</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 95 209 212 132 118 190 133 203 158 156 157 162 76 250 152 202 189</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_mux.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 110</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 105</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 78</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 202 132 152 190 127 201 118 156 219 197 137 133 210 136 191 195 198 203 189 220 114 158 157 162 250 90 150</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 114 136 201 197 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 90 137 198 191 210 150 219 220 127</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_priqueue.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 169</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 164</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 55</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 162 202 90 132 118 190 157 201 133 158 195 117 150 219 220 203 189 156 152 250 198 175 197 137</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 175 219 220 202 132 118 190 133 203 158 156 157 162 76 250 152 189 117 201 197 195 90 137 198 150</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 111</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 109</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 65</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 133 190 250 202 155 132 157 201 203 210 127 189 158 162 192 220 197 137 208 219 90 199 196 118 156 152 150 195 198 160 115</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 115 199 196 132 118 190 133 203 158 156 157 162 76 250 152 202 189 208 192 210 150 219 220 201 197 195 90 137 198 127 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 112</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 108</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 53</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 137 203 156 131 193 190 210 127 119 202 189 158 117 219 201 132 197 118 133 152 220 116 157 162 250 195 198 90 150</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 116 193 119 132 118 190 133 203 158 156 157 162 76 250 152 202 189 197 195 90 137 198 117 210 150 219 220 131 201 127</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 170</file>
+                    <file> 44</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
                     <file> 166</file>
                 </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 246</file>
-                </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 132 199 189 196 160 208 155 190 158 157 162 198 192 156 117 210 90 197 203 250 195 133 152 180 201 200 120 118 202 137 150</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 180 200 120 132 118 190 133 203 158 156 157 162 76 250 152 202 189 197 195 90 137 198 117 208 192 210 150 199 196 201 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 171</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 163</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 245</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 156 203 118 190 195 189 152 132 90 194 131 117 133 202 158 157 162 250 181 137</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 181 131 117 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 90 194 137</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 172</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 167</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 244</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 132 157 220 155 203 193 201 198 190 250 202 160 210 127 195 189 158 162 119 156 117 219 136 197 137 118 133 152 182 90 150 191</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 182 201 197 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 90 137 198 117 210 150 219 220 193 119 136 191 127 155 160</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 173</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 165</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 243</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 156 190 158 157 203 120 132 200 189 137 117 201 194 118 133 202 152 104 204 162 250 197 195 198 90</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 104 194 137 189 190 118 117 132 133 203 158 156 157 162 76 250 152 202 200 120 197 195 90 198 201 204</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 174</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 168</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 242</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 203 132 190 152 195 189 194 118 156 198 201 205 117 133 202 158 157 162 250 90 131 197 137</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 131 117 132 118 190 133 203 158 156 157 162 76 250 152 202 189 195 90 201 197 137 198 194 205</file>
+                    <file> 115 431 37 163 46 47 275 274 279 42 116 36 273 269 403 394</file>
                 </tool>
             </inputs>
         </file>
@@ -1414,26 +1309,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\clock_config.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 287</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 293</file>
+                    <file> 206</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 294</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 356</file>
+                    <file> 207</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 157 162 159 250 156 232 434 281 435 455 460 284 433 155 152 160 52 456 458 432 457 459</file>
+                    <file> 274 279 276 163 273 145 360 194 361 381 386 197 359 272 269 277 80 382 384 358 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 284 232</file>
+                    <file> 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 197 145</file>
                 </tool>
             </inputs>
         </file>
@@ -1441,26 +1336,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_adc16.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 256</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 384</file>
+                    <file> 315</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 310</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 343</file>
+                    <file> 223</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 159 250 156 457 162 157 434 281 435 455 460 432 433 155 152 160 52 456 459 382 458</file>
+                    <file> 276 163 273 383 279 274 360 194 361 381 386 358 359 272 269 277 80 382 385 313 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 382 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 313 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1468,26 +1363,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_clock.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 280</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 463</file>
+                    <file> 389</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 311</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 349</file>
+                    <file> 224</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 160 432 52 433 159 156 457 155 157 152 456 459 435 434 281 162 250 455 460 458</file>
+                    <file> 277 358 80 359 276 273 383 272 274 269 382 385 361 360 194 279 163 381 386 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 435 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52</file>
+                    <file> 361 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80</file>
                 </tool>
             </inputs>
         </file>
@@ -1495,26 +1390,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_cmp.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 250</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 462</file>
+                    <file> 388</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 302</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 337</file>
+                    <file> 215</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 456 432 155 157 457 152 433 160 52 159 434 281 435 162 250 455 460 459 443 458</file>
+                    <file> 273 382 358 272 274 383 269 359 277 80 276 360 194 361 279 163 381 386 385 369 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 443 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 369 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1522,26 +1417,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_cmt.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 282</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 392</file>
+                    <file> 323</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 312</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 351</file>
+                    <file> 225</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 455 434 457 281 435 157 460 159 162 250 156 432 433 155 152 160 52 456 459 442 458</file>
+                    <file> 381 360 383 194 361 274 386 276 279 163 273 358 359 272 269 277 80 382 385 368 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 442 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 368 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1549,26 +1444,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_common.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 251</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 391</file>
+                    <file> 322</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 309</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 338</file>
+                    <file> 222</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 152 155 156 157 456 432 433 160 52 159 458 444 434 281 435 162 250 455 460 457 459</file>
+                    <file> 269 272 273 274 382 358 359 277 80 276 384 370 360 194 361 279 163 381 386 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 444</file>
+                    <file> 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 370</file>
                 </tool>
             </inputs>
         </file>
@@ -1576,26 +1471,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_cop.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 258</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 390</file>
+                    <file> 321</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 319</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 345</file>
+                    <file> 232</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 457 433 160 52 155 157 152 456 159 432 434 281 435 162 250 455 460 459 445 458</file>
+                    <file> 273 383 359 277 80 272 274 269 382 276 358 360 194 361 279 163 381 386 385 371 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 445 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 371 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1603,26 +1498,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_dac.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 252</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 389</file>
+                    <file> 320</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 301</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 339</file>
+                    <file> 214</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 162 157 457 159 250 156 434 281 435 455 460 432 433 155 152 160 52 456 459 446 458</file>
+                    <file> 279 274 383 276 163 273 360 194 361 381 386 358 359 272 269 277 80 382 385 372 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 446 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 372 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1630,26 +1525,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_dcdc.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 261</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 388</file>
+                    <file> 319</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 304</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 348</file>
+                    <file> 217</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 155 157 156 456 457 152 433 160 52 159 432 434 281 435 162 250 455 460 459 447 458</file>
+                    <file> 272 274 273 382 383 269 359 277 80 276 358 360 194 361 279 163 381 386 385 373 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 447 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 373 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1657,26 +1552,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_dmamux.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 255</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 387</file>
+                    <file> 318</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 308</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 342</file>
+                    <file> 221</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 155 157 156 456 457 152 433 160 52 159 432 434 281 435 162 250 455 460 459 448 458</file>
+                    <file> 272 274 273 382 383 269 359 277 80 276 358 360 194 361 279 163 381 386 385 374 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 448 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 374 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1684,26 +1579,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_dspi.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 248</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 386</file>
+                    <file> 317</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 318</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 335</file>
+                    <file> 231</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 458 162 157 159 250 156 434 281 435 455 460 432 433 155 152 160 52 456 457 459 449</file>
+                    <file> 384 279 274 276 163 273 360 194 361 381 386 358 359 272 269 277 80 382 383 385 375</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 449 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 375 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1711,26 +1606,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_dspi_edma.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 301</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 385</file>
+                    <file> 316</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 307</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 370</file>
+                    <file> 220</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 305 152 155 156 157 456 459 432 433 160 52 457 159 449 434 281 435 162 250 455 460 458 297</file>
+                    <file> 218 269 272 273 274 382 385 358 359 277 80 383 276 375 360 194 361 279 163 381 386 384 210</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 297 449 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 305</file>
+                    <file> 210 375 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 218</file>
                 </tool>
             </inputs>
         </file>
@@ -1738,26 +1633,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_edma.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 297</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 376</file>
+                    <file> 307</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 316</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 366</file>
+                    <file> 229</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 434 455 281 435 157 460 159 162 250 156 458 432 305 433 155 152 160 52 456 457 459</file>
+                    <file> 360 381 194 361 274 386 276 279 163 273 384 358 218 359 272 269 277 80 382 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 305 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 218 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1765,26 +1660,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_flash.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 294</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 377</file>
+                    <file> 308</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 317</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 363</file>
+                    <file> 230</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 162 432 159 455 434 281 435 157 460 433 155 156 250 458 298 152 160 52 456 457 459</file>
+                    <file> 279 358 276 381 360 194 361 274 386 359 272 273 163 384 211 269 277 80 382 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 298 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 211 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1792,26 +1687,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_gpio.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 293</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 379</file>
+                    <file> 310</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 322</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 362</file>
+                    <file> 235</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 435 460 157 281 434 455 159 162 250 156 432 433 155 152 160 52 456 458 269 457 459</file>
+                    <file> 361 386 274 194 360 381 276 279 163 273 358 359 272 269 277 80 382 384 182 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 269 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 182 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1819,26 +1714,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_i2c.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 291</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 380</file>
+                    <file> 311</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 323</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 360</file>
+                    <file> 236</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 434 455 281 435 157 460 432 159 162 250 156 458 270 433 155 152 160 52 456 457 459</file>
+                    <file> 360 381 194 361 274 386 358 276 279 163 273 384 183 359 272 269 277 80 382 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 270 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 183 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -1846,26 +1741,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_i2c_edma.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 290</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 381</file>
+                    <file> 312</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 300</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 359</file>
+                    <file> 213</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 152 448 155 156 157 456 459 270 305 432 433 160 52 457 159 271 434 281 435 162 250 455 460 458</file>
+                    <file> 269 374 272 273 274 382 385 183 218 358 359 277 80 383 276 184 360 194 361 279 163 381 386 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 271 270 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 448 305</file>
+                    <file> 184 183 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 374 218</file>
                 </tool>
             </inputs>
         </file>
@@ -1873,126 +1768,18 @@
             <name>$PROJ_DIR$\Debug\Exe\HuaweiLiteOS.out</name>
             <outputs>
                 <tool>
+                    <name>ILINK</name>
+                    <file> 438</file>
+                </tool>
+                <tool>
                     <name>OBJCOPY</name>
-                    <file> 450</file>
-                </tool>
-                <tool>
-                    <name>ILINK</name>
-                    <file> 125</file>
+                    <file> 376</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 454 221 138 139 225 226 227 228 229 230 231 233 234 91 93 94 100 235 134 236 126 106 252 251 253 237 144 145 142 71 140 105 164 109 108 466 166 163 167 165 168 223 121 122 123 124</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\board.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 289</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 296</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 352</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 451 157 444 155 156 162 250 433 455 460 459 432 452 434 159 281 435 152 160 52 456 457 458 269</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 159 156 157 162 76 250 432 434 433 155 152 160 281 455 456 457 458 459 460 52 435 451 452 269 444</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\PLATFORM\FRDM-KW41Z\SRC\clock_config.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 293</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 294</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 356</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 162 152 157 159 250 456 451 434 281 435 156 160 52 284 433 155 455 460 458 432 457 459</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 284 451</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\hello_world.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 292</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 290</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 361</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 460 159 160 433 455 452 156 451 432 444 299 52 456 457 162 250 459 434 281 435 157 152 458 155 269</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 281 455 456 159 156 157 162 76 250 457 458 459 460 52 444 432 434 433 155 152 160 435 452 451 269 299</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\pin_mux.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 295</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 291</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 358</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 456 159 250 157 162 152 434 281 435 156 160 52 453 433 155 455 460 458 432 457 459</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 453</file>
+                    <file> 380 134 52 53 138 139 140 141 142 143 144 146 147 404 406 407 413 148 48 149 439 419 165 164 166 150 58 262 56 99 54 418 457 422 421 392 459 456 460 458 461 136 434 435 436 437</file>
                 </tool>
             </inputs>
         </file>
@@ -2000,26 +1787,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_llwu.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 286</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 378</file>
+                    <file> 309</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 320</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 355</file>
+                    <file> 233</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 162 157 457 159 250 156 434 281 435 455 460 432 433 155 152 160 52 456 459 272 458</file>
+                    <file> 279 274 383 276 163 273 360 194 361 381 386 358 359 272 269 277 80 382 385 185 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 272 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 185 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2027,26 +1814,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_lptmr.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 285</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 464</file>
+                    <file> 390</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 313</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 354</file>
+                    <file> 226</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 457 433 160 52 155 157 152 456 159 432 434 281 435 162 250 455 460 459 273 458</file>
+                    <file> 273 383 359 277 80 272 274 269 382 276 358 360 194 361 279 163 381 386 385 186 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 273 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 186 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2054,26 +1841,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_lpuart.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 284</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 393</file>
+                    <file> 324</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 321</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 353</file>
+                    <file> 234</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 434 455 432 281 435 157 460 159 162 250 156 458 274 433 155 152 160 52 456 457 459</file>
+                    <file> 360 381 358 194 361 274 386 276 279 163 273 384 187 359 272 269 277 80 382 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 274 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 187 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2081,26 +1868,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_lpuart_edma.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 281</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 394</file>
+                    <file> 325</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 324</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 350</file>
+                    <file> 237</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 152 156 250 159 448 162 432 434 281 435 157 456 459 274 305 433 155 160 52 457 275 455 460 458</file>
+                    <file> 269 273 163 276 374 279 358 360 194 361 274 382 385 187 218 359 272 277 80 383 188 381 386 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 275 274 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 448 305</file>
+                    <file> 188 187 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 374 218</file>
                 </tool>
             </inputs>
         </file>
@@ -2108,26 +1895,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_ltc.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 249</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 395</file>
+                    <file> 326</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 325</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 336</file>
+                    <file> 238</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 432 433 160 52 155 157 152 456 434 159 281 435 162 250 455 460 458 375 457 459</file>
+                    <file> 273 358 359 277 80 272 274 269 382 360 276 194 361 279 163 381 386 384 306 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 375 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 306 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2135,26 +1922,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_ltc_edma.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 303</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 396</file>
+                    <file> 327</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 306</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 372</file>
+                    <file> 219</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 152 432 155 156 157 456 459 448 433 160 52 457 159 375 305 434 281 435 162 250 455 460 458 334</file>
+                    <file> 269 358 272 273 274 382 385 374 359 277 80 383 276 306 218 360 194 361 279 163 381 386 384 247</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 334 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435 375 448 305</file>
+                    <file> 247 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 306 374 218</file>
                 </tool>
             </inputs>
         </file>
@@ -2162,26 +1949,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_pit.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 302</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 397</file>
+                    <file> 328</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 314</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 371</file>
+                    <file> 227</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 157 162 457 159 250 156 432 434 281 435 455 460 433 155 152 160 52 456 459 333 458</file>
+                    <file> 274 279 383 276 163 273 358 360 194 361 381 386 359 272 269 277 80 382 385 246 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 333 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 246 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2189,26 +1976,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_pmc.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 288</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 461</file>
+                    <file> 387</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 332</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 357</file>
+                    <file> 245</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 456 155 157 457 152 432 433 160 52 159 434 281 435 162 250 455 460 459 276 458</file>
+                    <file> 273 382 272 274 383 269 358 359 277 80 276 360 194 361 279 163 381 386 385 189 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 276 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 189 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2216,26 +2003,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_rcm.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 304</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 424</file>
+                    <file> 350</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 331</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 373</file>
+                    <file> 244</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 455 434 457 281 435 157 460 159 162 250 156 432 433 155 152 160 52 456 459 277 458</file>
+                    <file> 381 360 383 194 361 274 386 276 279 163 273 358 359 272 269 277 80 382 385 190 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 277 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 190 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2243,26 +2030,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_rtc.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 257</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 425</file>
+                    <file> 351</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 330</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 344</file>
+                    <file> 243</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 457 433 160 52 155 157 152 456 159 432 434 281 435 162 250 455 460 459 278 458</file>
+                    <file> 273 383 359 277 80 272 274 269 382 276 358 360 194 361 279 163 381 386 385 191 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 278 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 191 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2270,26 +2057,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_sim.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 259</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 426</file>
+                    <file> 352</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 327</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 346</file>
+                    <file> 240</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 157 162 457 159 250 156 434 281 435 455 460 432 433 155 152 160 52 456 459 283 458</file>
+                    <file> 274 279 383 276 163 273 360 194 361 381 386 358 359 272 269 277 80 382 385 196 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 283 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 196 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2297,26 +2084,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_smc.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 260</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 427</file>
+                    <file> 353</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 326</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 347</file>
+                    <file> 239</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 457 433 160 52 432 155 157 152 456 159 434 281 435 162 250 455 460 459 284 458</file>
+                    <file> 273 383 359 277 80 358 272 274 269 382 276 360 194 361 279 163 381 386 385 197 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 284 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 197 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2324,26 +2111,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_tpm.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 254</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 428</file>
+                    <file> 354</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 315</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 341</file>
+                    <file> 228</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 281 435 157 460 434 455 159 162 250 156 432 433 155 152 160 52 456 458 285 457 459</file>
+                    <file> 194 361 274 386 360 381 276 279 163 273 358 359 272 269 277 80 382 384 198 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 285 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 198 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2351,26 +2138,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_trng.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 253</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 429</file>
+                    <file> 355</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 329</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 340</file>
+                    <file> 242</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 432 156 155 157 152 433 160 52 460 434 159 281 435 162 250 455 458 303 456 457 459</file>
+                    <file> 358 273 272 274 269 359 277 80 386 360 276 194 361 279 163 381 384 216 382 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 303 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 216 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2378,26 +2165,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_tsi_v4.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 305</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 430</file>
+                    <file> 356</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 328</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 374</file>
+                    <file> 241</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 162 157 159 250 156 434 281 435 455 460 432 433 155 152 160 52 456 458 286 457 459</file>
+                    <file> 279 274 276 163 273 360 194 361 381 386 358 359 272 269 277 80 382 384 199 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 286 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 199 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2405,26 +2192,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\drivers\fsl_vref.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 300</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 431</file>
+                    <file> 357</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 383</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 369</file>
+                    <file> 314</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 457 433 160 52 432 155 157 152 456 159 434 281 435 162 250 455 460 459 287 458</file>
+                    <file> 273 383 359 277 80 358 272 274 269 382 276 360 194 361 279 163 381 386 385 200 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 287 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 200 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2432,26 +2219,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_debug_console.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 299</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 441</file>
+                    <file> 367</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 438</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 368</file>
+                    <file> 364</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 432 465 157 52 434 159 281 435 457 268 274 162 250 156 266 456 459 265 444 152 433 155 160 455 460 458 72</file>
+                    <file> 358 391 274 80 360 276 194 361 383 181 187 279 163 273 179 382 385 178 370 269 359 272 277 381 386 384 100</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 265 156 157 162 76 250 152 465 268 266 444 432 434 433 159 155 160 281 455 456 457 458 459 460 52 435 274</file>
+                    <file> 178 273 274 279 104 163 269 391 181 179 370 358 360 359 276 272 277 194 381 382 383 384 385 386 80 361 187</file>
                 </tool>
             </inputs>
         </file>
@@ -2459,26 +2246,26 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_notifier.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 298</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 440</file>
+                    <file> 366</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 439</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 367</file>
+                    <file> 365</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 456 156 155 157 152 433 160 52 432 434 159 281 435 162 250 455 460 458 288 457 459</file>
+                    <file> 382 273 272 274 269 359 277 80 358 360 276 194 361 279 163 381 386 384 201 383 385</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 288 432 434 156 157 162 76 250 433 159 155 152 160 281 455 456 457 458 459 460 52 435</file>
+                    <file> 201 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361</file>
                 </tool>
             </inputs>
         </file>
@@ -2486,133 +2273,25 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\utilities\fsl_sbrk.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 296</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 436</file>
+                    <file> 362</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 437</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 365</file>
+                    <file> 363</file>
                 </tool>
             </outputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 97</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 91</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 241</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 194 132 102 90 202 96 201 157 162 250 158 118 190 155 101 103 120 156 152 137 133 197 195 160 189 203 198</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 158 156 157 162 76 250 152 155 160 96 101 102 103 194 137 189 190 118 132 133 203 202 201 197 195 90 198 120</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 183</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 93</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 64</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 101</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 101</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 98</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 94</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 89</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 102</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 102</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.c</name>
-            <outputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 99</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 100</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 75</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 465 156 152 247 72 158 157 265 103 162 250 155 160 190 118</file>
-                </tool>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 158 156 157 162 76 250 152 265 465 103 155 160 247 190 118</file>
-                </tool>
-            </inputs>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\startup_MKW41Z4.s</name>
             <outputs>
                 <tool>
                     <name>AARM</name>
-                    <file> 280</file>
+                    <file> 193</file>
                 </tool>
             </outputs>
         </file>
@@ -2620,53 +2299,323 @@
             <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\device\system_MKW41Z4.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 295</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 279</file>
+                    <file> 192</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 282</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 364</file>
+                    <file> 195</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 156 455 460 159 457 281 157 162 250 52 456 459 458</file>
+                    <file> 273 381 386 276 383 194 274 279 163 80 382 385 384</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 159 156 157 162 76 250 281 455 456 457 458 459 460 52</file>
+                    <file> 276 273 274 279 104 163 194 381 382 383 384 385 386 80</file>
                 </tool>
             </inputs>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\user\main.c</name>
+            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_queue.c</name>
             <outputs>
                 <tool>
+                    <name>__cstat</name>
+                    <file> 93</file>
+                </tool>
+                <tool>
                     <name>BICOMP</name>
-                    <file> 224</file>
+                    <file> 424</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 223</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 62</file>
+                    <file> 422</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 118 247 206 203 152 248 102 90 202 190 155 216 201 103 133 156 197 137 185 101 249 132 189 158 195 160 186 214 157 162 250 198 217 215 188 213 218 187</file>
+                    <file> 51 112 110 272 39 115 114 47 275 274 279 46 133 36 123 393 43 431 37 163 121 132 394 116 273 269 267 42 111 277 428</file>
                 </tool>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 195 132 118 190 133 203 158 156 157 162 76 250 152 202 189 90 137 201 197 198 102 101 103 155 160 249 206 247 217 248 215 186 188 185 213 214 218 216 187</file>
+                    <file> 428 112 43 46 431 37 47 116 275 273 274 279 104 163 269 115 36 121 39 123 267 132 133 114 110 42 394 51 111 393 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\ipc\los_sem.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 81</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 425</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 421</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 51 116 273 45 40 123 393 432 115 37 36 431 430 132 114 46 110 47 275 269 133 429 274 279 163 42 111 394 267</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 429 40 432 46 431 37 47 116 275 273 274 279 104 163 269 115 36 110 42 394 51 111 430 123 267 132 133 45 114 393</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_swtmr.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 159</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 463</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 459</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 272 433 112 43 277 121 394 47 275 274 279 111 39 273 430 123 114 113 431 115 37 163 42 269 473 110 116 36 51 267</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 473 113 433 46 431 37 47 116 275 273 274 279 104 163 269 115 36 110 42 394 51 111 430 121 39 123 267 112 43 114 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_sys.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 158</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 464</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 456</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 116 275 42 37 36 274 279 163 394 46 41 45 430 431 47 115 273 269 28 51</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 28 45 430 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 394 41 51</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_task.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 157</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 465</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 460</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 46 269 133 272 116 273 40 114 111 115 277 123 393 42 37 36 431 432 430 132 50 110 51 47 275 274 279 163 29 394 267 38</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 29 114 110 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 394 51 111 430 123 267 132 133 40 432 50 38 393 272 277</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_tick.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 156</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 466</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 458</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 273 37 116 47 433 46 113 431 115 269 51 430 114 41 36 275 274 417 117 279 163 110 42 111 394</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 417 41 51 36 37 431 430 46 47 116 275 273 274 279 104 163 269 115 113 433 110 42 394 111 114 117</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\kernel\base\core\los_timeslice.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 155</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 467</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 461</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 37 274 46 163 42 36 279 41 116 275 111 114 118 430 431 47 115 273 269 394 45 110 51</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 45 430 46 431 37 47 116 275 273 274 279 104 163 269 115 36 42 394 114 110 51 111 41 118</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_adapter.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 154</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 410</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 404</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 41 274 115 46 415 394 36 409 114 279 163 272 431 37 414 416 433 273 269 277 47 275 110 51 42 116 111</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 275 273 274 279 104 163 269 272 277 409 414 415 416 41 51 36 37 431 46 47 116 115 114 110 42 394 111 433</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_key.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 92</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 30</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 406</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 414</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 414</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_led.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 402</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 411</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 407</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 415</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 415</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\los_bsp_uart.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 103</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 412</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 413</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 391 273 269 160 100 275 274 178 416 279 163 272 277 37 431</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 275 273 274 279 104 163 269 178 391 416 272 277 160 37 431</file>
                 </tool>
             </inputs>
         </file>
@@ -2675,10 +2624,157 @@
             <outputs>
                 <tool>
                     <name>AARM</name>
-                    <file> 466</file>
+                    <file> 392</file>
                 </tool>
             </outputs>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\user\main.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 90</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 137</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 136</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 119 431 37 46 128 415 394 115 34 160 114 416 47 275 274 279 111 126 51 414 162 116 36 163 42 130 35 131 272 273 269 110 277 161 33 32 127 129</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 42 46 431 37 47 116 275 273 274 279 104 163 269 115 36 394 51 114 110 111 415 414 416 272 277 162 119 160 130 161 128 33 35 32 126 127 131 129 34</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\board.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 283</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 202</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 209</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 377 274 370 272 273 279 163 359 381 386 385 358 378 360 276 194 361 269 277 80 382 383 384 182</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 276 273 274 279 104 163 358 360 359 272 269 277 194 381 382 383 384 385 386 80 361 377 378 182 370</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\PLATFORM\FRDM-KW41Z\SRC\clock_config.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 287</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 206</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 207</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 279 269 274 276 163 382 377 360 194 361 273 277 80 197 359 272 381 386 384 358 383 385</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 197 377</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\hello_world.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 292</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 205</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 203</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 386 276 277 359 381 378 273 377 358 370 212 80 382 383 279 163 385 360 194 361 274 269 384 272 182</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 194 381 382 276 273 274 279 104 163 383 384 385 386 80 370 358 360 359 272 269 277 361 378 377 182 212</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\platform\FRDM-KW41Z\src\pin_mux.c</name>
+            <outputs>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 289</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 208</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 204</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 382 276 163 274 279 269 360 194 361 273 277 80 379 359 272 381 386 384 358 383 385</file>
+                </tool>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 358 360 273 274 279 104 163 359 276 272 269 277 194 381 382 383 384 385 386 80 361 379</file>
+                </tool>
+            </inputs>
+        </file>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</name>
+            <tool>ICCARM</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</name>
+            <tool>ICCARM</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</name>
+            <tool>ICCARM</tool>
+        </forcedrebuild>
     </configuration>
     <configuration>
         <name>Release</name>

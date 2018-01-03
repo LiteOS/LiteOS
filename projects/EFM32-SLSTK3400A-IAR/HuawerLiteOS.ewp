@@ -207,7 +207,7 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
-                    <state></state>
+                    <state>RAM_SIZE_LEVEL_0</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
