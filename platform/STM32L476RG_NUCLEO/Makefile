@@ -3,7 +3,6 @@ DEFINES += -DLOS_STM32L476xx -DSTM32L476xx
 DIRECTORIES += platform/STM32L476RG_NUCLEO
 
 C_SOURCES += platform/STM32L476RG_NUCLEO/los_bsp_adapter.c  \
-			 platform/STM32L476RG_NUCLEO/los_bsp_flash.c  \
 			 platform/STM32L476RG_NUCLEO/los_bsp_key.c  \
 			 platform/STM32L476RG_NUCLEO/los_bsp_led.c  \
 			 platform/STM32L476RG_NUCLEO/los_bsp_uart.c \

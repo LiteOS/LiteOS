@@ -3,7 +3,7 @@ DIRECTORIES += hal/STM32F4xx
 INCLUDES += "-Ihal/STM32F4xx/Include"
 INCLUDES += "-Ithirdparty/FatFS/src"
 
-C_SOURCE += hal/STM32F4xx/CMSIS/system_stm32f4xx.c  \
+C_SOURCES += hal/STM32F4xx/CMSIS/system_stm32f4xx.c  \
 				hal/STM32F4xx/FWlib/stm32f4xx_hal_gpio.c \
 				hal/STM32F4xx/FWlib/stm32f4xx_hal_cortex.c \
 				hal/STM32F4xx/FWlib/stm32f4xx_hal_rcc_ex.c \
