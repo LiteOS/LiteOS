@@ -68,13 +68,17 @@ void LOS_EvbLedInit(void)
     //add you code here.
 #ifdef LOS_NRF52840
     bsp_board_leds_init();
+	  //nrf_gpio_cfg_output(13);
+		//nrf_gpio_cfg_output(14);
+		//nrf_gpio_cfg_output(15);
+		//nrf_gpio_cfg_output(16);
 #endif
     
     return;
 }
 
 /*************************************************************************************************
- *  Function    £ºLOS_EvbLedControl
+ *  Function    ¡êoLOS_EvbLedControl
  *  Discription : Led control function
  *  Input       : (1) index Led's index
  *                (2) cmd   Led on or off

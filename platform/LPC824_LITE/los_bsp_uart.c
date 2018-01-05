@@ -10,6 +10,8 @@
 static char _buffer[128];
 #endif
 
+extern void Board_UART_Init(void);
+
 /*****************************************************************************
  Function    : LOS_EvbUartInit
  Description : enable the device on the dev baord

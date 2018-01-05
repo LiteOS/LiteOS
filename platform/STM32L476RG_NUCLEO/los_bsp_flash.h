@@ -6,6 +6,7 @@
 #include "stdint.h"
 #include "diskio.h"
 #include "ff.h"
+#include "los_typedef.h"
 
 typedef uint32_t  u32;
 typedef uint16_t u16;
@@ -528,8 +529,8 @@ typedef uint8_t  u8;
 #define ADDR_FLASH_PAGE_511   ((uint32_t)0x080ff800) /* Base @ of Page 511, 2 Kbytes */
 
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_156   /* Start @ of user Flash area */
-#define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_255 + FLASH_PAGE_SIZE - 1   /* End @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_384   /* Start @ of user Flash area */
+#define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_511 + FLASH_PAGE_SIZE - 1   /* End @ of user Flash area */
 
 #define FLASH_FLAG_PGERR               ((uint32_t)0x00000004)  /*!< FLASH Program error flag */
 #define FLASH_FLAG_WRPRTERR            ((uint32_t)0x00000010)  /*!< FLASH Write protected error flag */
@@ -555,6 +556,13 @@ typedef uint8_t  u8;
 #define DATA_3rd(DATA)       (u8)(((DATA)& 0x00FF0000) >> 16)   /* 3rd data byte */
 #define DATA_4th(DATA)       (u8)(((DATA)& 0xFF000000) >> 24)   /* 4th data byte */
 
+typedef struct
+{
+    int fs_flag;
+}LOS_CONFIG_TYPE;
+
+extern LOS_CONFIG_TYPE gstConfig;
+
 /* Exported functions ------------------------------------------------------- */
 u32 Flash_WriteSector(u8 *pBuffer, DWORD uwSector, u32 ulNumSectorWrite);
 u32 Flash_ReadSector (u8 *pBuffer, DWORD uwSector, u32 ulNumSectorRead);
@@ -570,6 +578,9 @@ uint32_t GetSectorSize(uint32_t Sector);
 
 void Fill_Buffer(u8 *pBuffer, u16 BufferLenght, u32 Offset);
 
+void Los_FS_FALG_WRITE(LOS_CONFIG_TYPE* pstConfig);
+
+void Los_FS_FALG_READ(void);
 
 #endif /* __LOS_BSP_FLASH_H */
 

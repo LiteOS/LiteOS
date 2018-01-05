@@ -10,12 +10,12 @@
       <TargetName>LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>NUC472HI8AE</Device>
           <Vendor>Nuvoton</Vendor>
-          <PackID>Nuvoton.NuMicro_DFP.1.0.9</PackID>
+          <PackID>Nuvoton.NuMicro_DFP.1.1.0</PackID>
           <PackURL>http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack</PackURL>
           <Cpu>IRAM(0x20000000,0x10000) IROM(0x00000000,0x80000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000)</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -51,7 +51,7 @@
           <OutputName>HuaweiLiteOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>LOS_NUC472H</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m4;..\..\example\include;..\..\platform\NUTINY-NUC472H;..\..\platform\NUTINY-NUC472H\Library;..\..\platform\NUTINY-NUC472H\Library\Include</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m4;..\..\example\include;..\..\platform\NUTINY-NUC472H;..\..\hal\NUC472_442\Include;..\..\hal\NUC472_442\CMSIS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -548,27 +552,27 @@
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NUTINY-NUC472H\Library\clk.c</FilePath>
+              <FilePath>..\..\hal\NUC472_442\FWlib\clk.c</FilePath>
             </File>
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NUTINY-NUC472H\Library\gpio.c</FilePath>
+              <FilePath>..\..\hal\NUC472_442\FWlib\gpio.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NUTINY-NUC472H\Library\sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_NUC472_442.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\NUTINY-NUC472H\Library\system_NUC472_442.c</FilePath>
+              <FilePath>..\..\hal\NUC472_442\FWlib\sys.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NUTINY-NUC472H\Library\uart.c</FilePath>
+              <FilePath>..\..\hal\NUC472_442\FWlib\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_NUC472_442.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\NUC472_442\CMSIS\system_NUC472_442.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -655,5 +659,11 @@
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

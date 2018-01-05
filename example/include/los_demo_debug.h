@@ -44,7 +44,23 @@
 
 extern int dprintf_1(const char *format,...);
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
+#ifdef LOS_GCC_COMPILE
+extern int gcc_printf(const char * p_char,...);
+
+//#define LOS_ITM_MODE
+#define LOS_UART_MODE
+#define LOS_KERNEL_DEBUG_OUT
+#ifdef LOS_KERNEL_DEBUG_OUT
+    #define dprintf (void)gcc_printf
+#else
+    #define dprintf (void)dprintf_1
+#endif
+
+
+#else
+
+
+#define LOS_KERNEL_TEST_KEIL_SWSIMU
 
 //#define LOS_KERNEL_DEBUG_OUT
 #ifdef LOS_KERNEL_DEBUG_OUT
@@ -55,4 +71,5 @@ extern int dprintf_1(const char *format,...);
 
 #endif
 
+#endif
 

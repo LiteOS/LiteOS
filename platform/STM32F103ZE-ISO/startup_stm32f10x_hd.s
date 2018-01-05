@@ -32,34 +32,37 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Stack_Size      EQU     0x00001000
+Stack_Size      EQU     0x00001000		/*定义栈空间的大小为4K*/
 
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
+                AREA    STACK, NOINIT, READWRITE, ALIGN=3	/*伪指令AREA表示,定义栈，名称是STACK，未初始化，可读写，ELF的栈段按8字节对齐*/
+Stack_Mem       SPACE   Stack_Size	/*开辟一段大小为Stack_Size的内存空间作为栈*/
+__initial_sp	/*标号__initial_sp，表示栈空间顶地址*/
                                                   
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000200
+Heap_Size       EQU     0x00000200		/*定义堆空间的大小为512字节*/
 
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
+                AREA    HEAP, NOINIT, READWRITE, ALIGN=3	/*伪指令AREA表示*/
+__heap_base		/*标号__heap_base，表示堆空间起始地址*/
+Heap_Mem        SPACE   Heap_Size	/*开辟一段大小为Heap_Size的内存空间作为堆*/
+__heap_limit	/*标号__heap_limit，表示堆空间结束地址*/
 
-                PRESERVE8
-                THUMB
+                PRESERVE8	/*告诉编译器以8字节对齐*/
+                THUMB		/*告诉编译器使用THUMB指令集*/
 
 
 ; Vector Table Mapped to Address 0 at Reset
-                AREA    RESET, DATA, READONLY
-                EXPORT  __Vectors
-                EXPORT  __Vectors_End
-                EXPORT  __Vectors_Size
+                AREA    RESET, DATA, READONLY	/*定义只读数据段，实际上是在CODE区（假设STM32从FLASH启动，则此中断向量表起始地址即为0x8000000）
+                EXPORT  __Vectors				/*将标号__Vectors声明为全局标号，这样外部文件就可以使用这个标号*/
+                EXPORT  __Vectors_End			/*在程序中声明一个全局的标号__Vectors_End*/ 
+                EXPORT  __Vectors_Size	
 
-__Vectors       DCD     __initial_sp               ; Top of Stack
+				;DCD(DCDU)用于分配一片连续的字存储单元并用指定的数据初始化
+				
+__Vectors     	/*中断向量表入口地址*/  
+				DCD     __initial_sp               ; Top of Stack
                 DCD     Reset_Handler              ; Reset Handler
                 DCD     NMI_Handler                ; NMI Handler
                 DCD     HardFault_Handler          ; Hard Fault Handler
@@ -137,21 +140,21 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     DMA2_Channel2_IRQHandler   ; DMA2 Channel2
                 DCD     DMA2_Channel3_IRQHandler   ; DMA2 Channel3
                 DCD     DMA2_Channel4_5_IRQHandler ; DMA2 Channel4 & Channel5
-__Vectors_End
+__Vectors_End	/*中断向量表结束口地址，304个字节也就是0x130个字节*/ 
 
-__Vectors_Size  EQU  __Vectors_End - __Vectors
+__Vectors_Size  EQU  __Vectors_End - __Vectors	/*定义中断向量表空间的大小为结束-起始字节*/
 
-                AREA    |.text|, CODE, READONLY
+                AREA    |.text|, CODE, READONLY	;定义一个代码段，可读，段名字是.text  
                 
 ; Reset handler
-Reset_Handler   PROC
-                EXPORT  Reset_Handler             [WEAK]
-                IMPORT  __main
-                IMPORT  SystemInit
-                LDR     R0, =SystemInit
-                BLX     R0               
-                LDR     R0, =__main
-                BX      R0
+Reset_Handler   PROC		/*复位中断服务程序，PROC----ENDP结构表示程序的开始和结束
+                EXPORT  Reset_Handler             [WEAK]	/*申明复位中断向量Reset_Handler为全局属性，这样外部文件就可以调用此复位中断复位*/
+                IMPORT  __main			;IMPORT:伪指令用于通知编译器要使用的标号在其他的源文件中
+                IMPORT  SystemInit		/*申明SystemInit标号*/
+                LDR     R0, =SystemInit	/*跳转到SystemInit执行，系统初始化*/
+                BLX     R0                ;带链接的跳转，切换指令集,跳到SystemInit  
+                LDR     R0, =__main		 ;__main为运行时库提供的函数；完成堆栈，堆的初始化等工作，会调用下面定义的__user_initial_stackheap  
+                BX      R0				;切换指令集,main函数不返回跳到__main,进入C的世界 
                 ENDP
                 
 ; Dummy Exception Handlers (infinite loops which can be modified)
@@ -330,29 +333,30 @@ DMA2_Channel4_5_IRQHandler
 ;*******************************************************************************
 ; User Stack and Heap initialization
 ;*******************************************************************************
-                 IF      :DEF:__MICROLIB
+                 IF      :DEF:__MICROLIB	/*若使用DEF:__MICROLIB，则将__initial_sp、__heap_base、__heap_limit亦即栈顶地址，堆始末地址赋予全局属性，使外部程序可以使用*/
                 
                  EXPORT  __initial_sp
                  EXPORT  __heap_base
                  EXPORT  __heap_limit
                 
-                 ELSE
+                 ELSE						;如果没有勾选micro lib  
                 
-                 IMPORT  __use_two_region_memory
-                 EXPORT  __user_initial_stackheap
+                 IMPORT  __use_two_region_memory	/*定义全局标号__use_two_region_memory，;两区堆栈空间，堆和栈有各自的空间地址  */
+                 EXPORT  __user_initial_stackheap	/*标号__user_initial_stackheap表示用户堆栈初始化程序入口*/
                  
-__user_initial_stackheap
+__user_initial_stackheap	/*表示用户堆栈初始化程序入口*/
 
-                 LDR     R0, =  Heap_Mem
-                 LDR     R1, =(Stack_Mem + Stack_Size)
-                 LDR     R2, = (Heap_Mem +  Heap_Size)
-                 LDR     R3, = Stack_Mem
-                 BX      LR
+;此处是初始化两区的堆栈空间，堆是从由低到高的增长，栈是由高向低生长的，两个是互相独立的数据段，并不能交叉使用。  
+                 LDR     R0, =  Heap_Mem			;保存堆起始地址
+                 LDR     R1, =(Stack_Mem + Stack_Size)	;保存栈结束地址
+                 LDR     R2, = (Heap_Mem +  Heap_Size)	;保存堆结束地址
+                 LDR     R3, = Stack_Mem				;保存栈起始地址
+                 BX      LR		/*347--351 分别保存栈顶指针和栈大小*/
 
                  ALIGN
 
                  ENDIF
 
-                 END
+                 END	;END命令指示汇编器,已到达一个源文件的末尾  
 
 ;******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE*****

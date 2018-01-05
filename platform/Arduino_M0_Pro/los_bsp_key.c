@@ -1,6 +1,6 @@
 #include "los_bsp_key.h"
-#include "samd21.h"
 #include <stdio.h>
+#include "samd21.h"
 /******************************************************************************
     here include some special hearder file you need
 ******************************************************************************/

@@ -34,6 +34,7 @@
 
 #ifndef __CMSIS_GCC_H
 #define __CMSIS_GCC_H
+#include "los_typedef.h"
 
 /* ignore some GCC warnings */
 #if defined ( __GNUC__ )

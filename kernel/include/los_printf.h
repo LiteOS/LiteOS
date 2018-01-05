@@ -45,6 +45,7 @@
 #include "libcmini.h"
 #endif
 #include "los_typedef.h"
+#include "los_demo_debug.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -65,7 +66,7 @@ extern "C" {
 
 #define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)
 
-#define PRINT_LEVEL LOS_ERR_LEVEL
+#define PRINT_LEVEL LOS_EMG_LEVEL
 
 //extern void dprintf(const char *fmt, ...);
 
@@ -74,40 +75,40 @@ extern "C" {
 #if PRINT_LEVEL < LOS_DEBUG_LEVEL
 #define PRINT_DEBUG(fmt, args...)
 #else
-#define PRINT_DEBUG(fmt, args...)   //do{(printf("[DEBUG] "), printf(fmt, ##args));}while(0)
+#define PRINT_DEBUG(fmt, args...)   do{(dprintf("[DEBUG] "), dprintf(fmt, ##args),dprintf("\r\n"));}while(0)
 #endif
 
 #if PRINT_LEVEL < LOS_INFO_LEVEL
 #define PRINT_INFO(fmt, args...)
 #else
-#define PRINT_INFO(fmt, args...)    //do{(printf("[INFO] "), printf(fmt, ##args));}while(0)
+#define PRINT_INFO(fmt, args...)    do{(dprintf("[INFO] "), dprintf(fmt, ##args),dprintf("\r\n"));}while(0)
 #endif
 
 #if PRINT_LEVEL < LOS_WARN_LEVEL
 #define PRINT_WARN(fmt, args...)
 #else
-#define PRINT_WARN(fmt, args...)    //do{(printf("[WARN] "), printf(fmt, ##args));}while(0)
+#define PRINT_WARN(fmt, args...)    do{(dprintf("[WARN] "), dprintf(fmt, ##args),dprintf("\r\n"));}while(0)
 #endif
 
 #if PRINT_LEVEL < LOS_ERR_LEVEL
 #define PRINT_ERR(fmt, args...)
 #else
-#define PRINT_ERR(fmt, args...)     //do{(printf("[ERR] "), printf(fmt, ##args));}while(0)
+#define PRINT_ERR(fmt, args...)     do{(dprintf("[ERR] "), dprintf(fmt, ##args),dprintf("\r\n"));}while(0)
 #endif
 
 #if PRINT_LEVEL < LOS_COMMOM_LEVEL
 #define PRINTK(fmt, args...)
 #else
-#define PRINTK(fmt, args...)     //printf(fmt, ##args)
+#define PRINTK(fmt, args...)     //dprintf(fmt, ##args)
 #endif
 
 #if PRINT_LEVEL < LOS_EMG_LEVEL
 #define PRINT_EMG(fmt, args...)
 #else
-#define PRINT_EMG(fmt, args...)     //do{(printf("[EMG] "), printf(fmt, ##args));}while(0)
+#define PRINT_EMG(fmt, args...)     //do{(dprintf("[EMG] "), dprintf(fmt, ##args));}while(0)
 #endif
 
-#define PRINT_RELEASE(fmt, args...)   //printf(fmt, ##args)
+#define PRINT_RELEASE(fmt, args...)   //dprintf(fmt, ##args)
 
 
 #ifdef __cplusplus

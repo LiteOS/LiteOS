@@ -11,6 +11,11 @@
 
 #include <string.h>
 
+#ifdef LOS_CMBACKTRACE_COMPILE
+#define HARDWARE_VERSION               "V1.0.0"
+#define SOFTWARE_VERSION               "V0.1.0"
+#endif
+
 extern void LOS_EvbSetup(void);
 
 static UINT32 g_uwboadTaskID;
@@ -61,6 +66,10 @@ int main(void)
         for example flash, i2c , system clock ....
      */
     //HAL_init();....
+    
+#ifdef LOS_CMBACKTRACE_COMPILE
+    cm_backtrace_init("LOS_CmBacktrace", HARDWARE_VERSION, SOFTWARE_VERSION);
+#endif
 
     /*Init LiteOS kernel */
     uwRet = LOS_KernelInit();

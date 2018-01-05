@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>28</version>
+                <version>29</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.11.1.13270</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -116,7 +116,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>35</state>
                 </option>
                 <option>
@@ -133,7 +133,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>35</state>
                 </option>
                 <option>
@@ -156,7 +156,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>35</state>
                 </option>
                 <option>
@@ -196,6 +196,10 @@
                     <name>GenLocaleDisplayOnly</name>
                     <state></state>
                 </option>
+                <option>
+                    <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -207,7 +211,8 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
-                    <state></state>
+                    <state>RAM_SIZE_LEVEL_0</state>
+                    <state>EFM32HG322F64</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -334,15 +339,15 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$\..\..\example\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\base\include</state>
-                    <state>$PROJ_DIR$\..\..\kernel\base\core</state>
-                    <state>$PROJ_DIR$\..\..\kernel\base\ipc</state>
-                    <state>$PROJ_DIR$\..\..\kernel\base\mem</state>
-                    <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
-                    <state>$PROJ_DIR$\..\..\kernel\config</state>
-                    <state>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+</state>
                     <state>$PROJ_DIR$\..\..\kernel\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\link\iar</state>
+                    <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
+                    <state>$PROJ_DIR$\..\..\kernel\config</state>
+                    <state>$PROJ_DIR$\..\..\\kernel\cpu\arm\cortex-m0plus</state>
                     <state>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A</state>
+                    <state>$PROJ_DIR$\..\..\hal\EMF32\Include</state>
+                    <state>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\include</state>
+                    <state>$PROJ_DIR$\..\..\hal\EMF32\CMSIS</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1031,7 +1036,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>28</version>
+                <version>29</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1136,7 +1141,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>1</state>
                 </option>
                 <option>
@@ -1153,7 +1158,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>0</state>
                 </option>
                 <option>
@@ -1176,7 +1181,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>1</state>
                 </option>
                 <option>
@@ -1215,6 +1220,10 @@
                 <option>
                     <name>GenLocaleDisplayOnly</name>
                     <state></state>
+                </option>
+                <option>
+                    <name>DSPExtension</name>
+                    <state>0</state>
                 </option>
             </data>
         </settings>
@@ -2048,16 +2057,16 @@
         <group>
             <name>cpu/m0+</name>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_iar.s</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0plus\los_dispatch_iar.s</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0plus\los_hw.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0plus\los_hw_tick.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0plus\los_hwi.c</name>
             </file>
         </group>
         <group>
@@ -2157,32 +2166,53 @@
             </group>
         </group>
         <group>
+            <name>library</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_assert.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_cmu.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_ebi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_emu.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_gpio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_system.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_usart.c</name>
+            </file>
+        </group>
+        <group>
             <name>platform</name>
             <group>
                 <name>EFM32-SLSTK3400A</name>
                 <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_adapter.c</name>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\bsp\bsp_stk_leds.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_adapter.h</name>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_adapter.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_key.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_key.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_led.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_led.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_uart.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\los_bsp_uart.h</name>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\bsp\retargetvirtual.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3400A\system_efm32hg.c</name>
                 </file>
             </group>
         </group>

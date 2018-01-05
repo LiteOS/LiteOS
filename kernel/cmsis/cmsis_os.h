@@ -151,6 +151,9 @@ used throughout the whole project.
 
 #include <stdint.h>
 #include <stddef.h>
+#ifdef LOS_GCC_COMPILE
+#include <sys/_stdint.h>
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

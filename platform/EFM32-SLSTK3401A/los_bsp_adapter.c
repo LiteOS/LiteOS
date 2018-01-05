@@ -154,7 +154,7 @@ void LosAdapIntInit(void)
  Output      : None
  Return      : None
  *****************************************************************************/
-void LosAdapIrpEnable(unsigned int irqnum, unsigned short prior)
+void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
 {
     /*
         enable irq , for example in stm32 bsp you can use 
@@ -201,7 +201,7 @@ void LOS_EvbSetup(void)
 	LOS_EvbUartInit();
 	LOS_EvbLedInit();
 	LOS_EvbKeyInit();
-	LOS_EvbLcdInit();
+//	LOS_EvbLcdInit();
 	return ;
 }
 

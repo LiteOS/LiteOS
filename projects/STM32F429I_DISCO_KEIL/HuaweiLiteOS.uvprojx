@@ -10,7 +10,7 @@
       <TargetName>LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429ZITx</Device>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>LOS_STM32F429ZI STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m4;..\..\example\include;..\..\platform\STM32F429I_DISCO</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m4;..\..\example\include;..\..\platform\STM32F429I_DISCO;..\..\hal\STM32F4xx\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -498,12 +502,32 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>platform/stm32f429i</GroupName>
+          <GroupName>platform/stm32f429i-disco</GroupName>
           <Files>
             <File>
               <FileName>los_bsp_adapter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\STM32F429I_DISCO\los_bsp_adapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32F429I_DISCO\los_bsp_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32F429I_DISCO\los_bsp_dac.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32F429I_DISCO\los_bsp_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32F429I_DISCO\los_bsp_i2c.c</FilePath>
             </File>
             <File>
               <FileName>los_bsp_key.c</FileName>
@@ -601,9 +625,9 @@
           <GroupName>startup</GroupName>
           <Files>
             <File>
-              <FileName>los_startup_keil.s</FileName>
+              <FileName>startup_stm32f429xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\platform\STM32F429I_DISCO\los_startup_keil.s</FilePath>
+              <FilePath>..\..\platform\STM32F429I_DISCO\startup_stm32f429xx.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -617,8 +641,124 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>libraries</GroupName>
+          <Files>
+            <File>
+              <FileName>system_stm32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\CMSIS\system_stm32f4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_cortex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_cortex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_flash_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_flash_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_pwr_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_pwr_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_rcc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_rcc_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_adc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_adc_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_dac.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_dac.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_dac_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32F4xx\FWlib\stm32f4xx_hal_dac_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f429i_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32F429I_DISCO\stm32f429i_discovery.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

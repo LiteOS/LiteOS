@@ -246,11 +246,14 @@ int usart_write_buffer_wait(
     return 0;
 }
 
+#if 0
 int fputc(int c, FILE *f) {
     usart_write_wait((uint16_t)c);
     return c;
 }
+#endif
 
+#if 0
 int fgetc(FILE *f) {
     uint16_t data;
     
@@ -258,3 +261,4 @@ int fgetc(FILE *f) {
     
     return (int)data;
 }
+#endif

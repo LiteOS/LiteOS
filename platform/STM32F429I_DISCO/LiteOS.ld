@@ -35,8 +35,8 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = 0x20030000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;;      /* required amount of heap  */
-_Min_Stack_Size = 0x400;; /* required amount of stack */
+_Min_Heap_Size = 0x400;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -56,8 +56,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } > FLASH  
-
+  } >FLASH
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -113,16 +112,6 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
 
-
-  .vector.bss :
-  {
-    . = ALIGN(4);
-    KEEP(*(.vector.bss)) 
-    . = ALIGN(4);
-  } >RAM AT> FLASH
-
-  . = 0x20000000 + 0x400;
-
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -174,7 +163,6 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
   } >RAM
-
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :

@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 #include <stdint.h>
-#include <SAM4S.h>
+#include <sam4s.h>
 
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> ------------------

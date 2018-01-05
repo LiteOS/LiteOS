@@ -40,14 +40,14 @@ extern "C" {
 #include "los_demo_entry.h"
 #include "los_task.h"
 #include <string.h>
-
+#include <stdarg.h> 
 
 static UINT32 g_uwDemoTaskID;
+
 int dprintf_1(const char *format,...)
 {
     return 0;
 }
-#ifdef LOS_KERNEL_TEST_KEIL_SWSIMU
 
 #define ITM_Port8(n)    (*((volatile unsigned char *)(0xE0000000+4*n)))
 #define ITM_Port16(n)   (*((volatile unsigned short*)(0xE0000000+4*n)))
@@ -55,14 +55,20 @@ int dprintf_1(const char *format,...)
 #define DEMCR           (*((volatile unsigned long *)(0xE000EDFC))) 
 #define TRCENA          0x01000000
 
+#ifndef NUTINY_M2351
+
+#ifndef LOS_GCC_COMPILE
 struct __FILE 
 {
     int handle; /* Add whatever needed */ 
 }; 
 
+typedef struct __FILE FILE;
+
 FILE __stdout;
 FILE __stdin; 
 
+#ifdef LOS_KERNEL_TEST_KEIL_SWSIMU
 int fputc(int ch, FILE *f) 
 { 
     if (DEMCR & TRCENA) 
@@ -72,7 +78,49 @@ int fputc(int ch, FILE *f)
     }
     return(ch);
 }
+#else
+int fputc(int ch, FILE *f)
+{
+    LOS_EvbUartWriteByte((char)ch);
 
+    return (ch);
+}
+#endif
+#endif
+#endif
+#ifdef LOS_GCC_COMPILE
+int LOS_EvbItmWriteStr(const char * p_char)
+{
+    int i;
+    int len = strlen(p_char);
+    for(i=0;i<len;i++)
+    {
+        if (DEMCR & TRCENA)
+        {
+            while (ITM_Port32(0) == 0);
+            ITM_Port8(0) = p_char[i];
+        }
+    }
+    return len;
+}
+
+static char str[256];
+extern void LOS_EvbUartWriteStr(const char *str);
+int gcc_printf(const char *format,...)
+{
+    va_list arg;
+    //char str[128];
+    va_start(arg, format);
+    vsprintf(str,format,arg);
+    #ifdef LOS_ITM_MODE
+    LOS_EvbItmWriteStr(str);
+    #endif
+    #ifdef LOS_UART_MODE
+    LOS_EvbUartWriteStr(str);
+    #endif
+    va_end(arg);
+    return 0;
+}
 #endif  
     
     

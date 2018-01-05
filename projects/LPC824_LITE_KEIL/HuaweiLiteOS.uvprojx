@@ -10,7 +10,7 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>LPC824M201JHI33</Device>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RAM_SIZE_LEVEL_0</Define>
+              <Define>RAM_SIZE_LEVEL_0,CORE_M0PLUS,LOS_LPC824</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\example\include;..\..\platform\LPC824_LITE;..\..\platform\LPC824_LITE\common\chip;..\..\platform\LPC824_LITE\common\board;..\..\platform\LPC824_LITE\common\CMSIS;..\..\platform\LPC824_LITE\peri_driver</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\example\include;..\..\platform\LPC824_LITE;..\..\platform\LPC824_LITE\drives;..\..\hal\LPC82x\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -601,9 +605,9 @@
           <GroupName>startup</GroupName>
           <Files>
             <File>
-              <FileName>los_startup_keil.s</FileName>
+              <FileName>keil_startup_lpc82x.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\platform\LPC824_LITE\los_startup_keil.s</FilePath>
+              <FilePath>..\..\platform\LPC824_LITE\keil_startup_lpc82x.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -617,8 +621,59 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>libraries</GroupName>
+          <Files>
+            <File>
+              <FileName>sysinit_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\CMSIS\sysinit_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>clock_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\FWlib\clock_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>gpio_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\FWlib\gpio_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>ioswm_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\FWlib\ioswm_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscon_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\FWlib\syscon_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_8xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\LPC82x\FWlib\uart_8xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\LPC824_LITE\drives\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>ring_buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\LPC824_LITE\drives\ring_buffer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

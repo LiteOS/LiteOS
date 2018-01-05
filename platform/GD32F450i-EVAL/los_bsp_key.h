@@ -3,6 +3,10 @@
 
 #include "stdint.h"
 
+#ifdef LOS_GCC_COMPILE
+#include <sys/_stdint.h>
+#endif
+
 #define LOS_GPIO_ERR    0xFF
 
 #define LOS_KEY_PRESS   0

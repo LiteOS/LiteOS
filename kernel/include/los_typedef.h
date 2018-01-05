@@ -41,6 +41,10 @@
 
 #include "los_builddef.h"
 
+#ifdef LOS_GCC_COMPILE
+#include <sys/_stdint.h>
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -56,10 +60,17 @@ extern "C" {
 /* type definitions */
 typedef unsigned char                                       UINT8;
 typedef unsigned short                                      UINT16;
+
+#ifdef LOS_GCC_COMPILE
+typedef uint32_t                                            UINT32;
+typedef int32_t                                             INT32;
+#else
 typedef unsigned int                                        UINT32;
+typedef signed int                                          INT32;
+#endif
+
 typedef signed char                                         INT8;
 typedef signed short                                        INT16;
-typedef signed int                                          INT32;
 typedef float                                               FLOAT;
 typedef double                                              DOUBLE;
 typedef char                                                CHAR;

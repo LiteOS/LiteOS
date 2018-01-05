@@ -4,8 +4,6 @@
     here include some special hearder file you need
 ******************************************************************************/
 
-
-
 /*****************************************************************************
  Function    : LOS_EvbLedInit
  Description : Init LED device
@@ -17,7 +15,13 @@ void LOS_EvbLedInit(void)
 {
     //add you code here.
     nrf_gpio_cfg_output(17);
-	 
+		nrf_gpio_cfg_output(18);
+		nrf_gpio_cfg_output(19);
+		nrf_gpio_cfg_output(20);
+		nrf_gpio_pin_write(17,1);
+		nrf_gpio_pin_write(18,1);
+		nrf_gpio_pin_write(19,1);
+		nrf_gpio_pin_write(20,1);
     return ;
 }
 
@@ -55,11 +59,13 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
+							nrf_gpio_pin_write(18,0);
                 //add you code here.
                         /*led2 on */
             }
             else
             { 
+							nrf_gpio_pin_write(18,1);
 							//add you code here.
                         /*led2 off */
             }
@@ -69,11 +75,29 @@ void LOS_EvbLedControl(int index, int cmd)
         {
             if (cmd == LED_ON)
             {
+							nrf_gpio_pin_write(19,0);
                 //add you code here.
                         /*led3 on */
             }
             else
-            {  
+            {
+							nrf_gpio_pin_write(19,1);
+							//add you code here.
+                        /*led3 off */
+            }
+            break;
+        }
+				case LOS_LED4:
+        {
+            if (cmd == LED_ON)
+            {
+							nrf_gpio_pin_write(20,0);
+                //add you code here.
+                        /*led3 on */
+            }
+            else
+            {
+							nrf_gpio_pin_write(20,1);
 							//add you code here.
                         /*led3 off */
             }

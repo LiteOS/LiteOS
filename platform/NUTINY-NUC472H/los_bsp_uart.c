@@ -120,13 +120,13 @@ void LOS_EvbUartWriteStr(const char* str)
     return;
 }
 
-#ifndef LOS_KERNEL_TEST_KEIL_SWSIMU
-///重定向c库函数printf到串口，重定向后可使用printf函数
-int fputc(int ch, FILE *f)
-{
-    /* 发送一个字节数据到串口USART */
-    LOS_EvbUartWriteByte((char)ch);
+//#ifndef LOS_KERNEL_TEST_KEIL_SWSIMU
+/////重定向c库函数printf到串口，重定向后可使用printf函数
+//int fputc(int ch, FILE *f)
+//{
+//    /* 发送一个字节数据到串口USART */
+//    LOS_EvbUartWriteByte((char)ch);
 
-    return (ch);
-}
-#endif
+//    return (ch);
+//}
+//#endif
