@@ -207,7 +207,15 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
-                    <state></state>
+                    <state>DEBUG</state>
+                    <state>CPU_MKW41Z512VHT4</state>
+                    <state>PRINTF_FLOAT_ENABLE=0</state>
+                    <state>SCANF_FLOAT_ENABLE=0</state>
+                    <state>PRINTF_ADVANCED_ENABLE=0</state>
+                    <state>SCANF_ADVANCED_ENABLE=0</state>
+                    <state>FRDM_KW41Z</state>
+                    <state>FREEDOM</state>
+                    <state>_RTE_</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -335,7 +343,7 @@
                     <state>$PROJ_DIR$\..\..\kernel\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\base\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\config</state>
-                    <state>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus</state>
+                    <state>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+</state>
                     <state>$PROJ_DIR$\..\..\kernel\cmsis</state>
                     <state>$PROJ_DIR$\..\..\example\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\link\iar</state>
@@ -2045,16 +2053,16 @@
         <group>
             <name>cpu/m0+</name>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_dispatch_iar.s</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_iar.s</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</name>
             </file>
         </group>
         <group>

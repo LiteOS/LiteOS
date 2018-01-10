@@ -23,9 +23,9 @@ param([String]$debugfile = "");
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.general.xcl" --backend -f "C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\git\xuming\LiteOS_Kernel_12_1\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.general.xcl" --backend -f "D:\git\xuming\LiteOS_Kernel_12_1\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\Administrator\Desktop\porting\LiteOS_Kernel\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.driver.xcl" 
+& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "D:\git\xuming\LiteOS_Kernel_12_1\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.general.xcl" --debug_file=$debugfile --backend -f "D:\git\xuming\LiteOS_Kernel_12_1\projects\FRDM-KW41Z-IAR\settings\HuaweiLiteOS.Debug.driver.xcl" 
 }

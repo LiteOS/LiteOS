@@ -6,7 +6,7 @@
 
 "-p" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CONFIG\debugger\SiliconLaboratories\EFM32HG322F64.ddf" 
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CONFIG\debugger\SiliconLaboratories\EFM32HG322F64.ddf" 
 
 "--semihosting" 
 
