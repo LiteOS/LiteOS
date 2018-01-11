@@ -2330,16 +2330,16 @@
         <group>
             <name>cpu/m0+</name>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_dispatch_iar.s</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_dispatch_iar.s</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hw_tick.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hw_tick.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0-plus\los_hwi.c</name>
+                <name>$PROJ_DIR$\..\..\kernel\cpu\arm\cortex-m0+\los_hwi.c</name>
             </file>
         </group>
         <group>
