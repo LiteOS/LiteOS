@@ -79,7 +79,7 @@ LITE_OS_SEC_TEXT VOID osTimesliceCheck(VOID)
         g_stTaskTimeSlice.pstTask = (LOS_TASK_CB *)NULL;
         if (LOS_TaskYield() != LOS_OK)
         {
-            PRINT_INFO("%s, %d\n", __FUNCTION__, __LINE__);
+            //PRINT_INFO("%s, %d\n", __FUNCTION__, __LINE__);
         }
     } /*lint !e548*/
 }

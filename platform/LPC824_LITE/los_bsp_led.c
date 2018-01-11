@@ -3,7 +3,7 @@
 #ifdef LOS_LPC824
 #include "board.h"
 #endif
-
+extern void Board_LED_Init(void);
 /*****************************************************************************
  Function    : LOS_EvbLedInit
  Description : Led init

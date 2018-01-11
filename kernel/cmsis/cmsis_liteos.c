@@ -836,8 +836,9 @@ osStatus osMailClear(osMailQId queue_id)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     osEvent evt;
-
+#if (__CORTEX_M != 2)
     __disable_irq();
+#endif
     while(1)
     {
         evt = osMailGet(queue_id, 0);
@@ -847,12 +848,16 @@ osStatus osMailClear(osMailQId queue_id)
         }
         else if(evt.status == osEventTimeout)
         {
+#if (__CORTEX_M != 2)		
             __enable_irq();
+#endif					
             return osOK;
         }
         else
         {
+#if (__CORTEX_M != 2)						
             __enable_irq();
+#endif					
             return evt.status;
         }
     }

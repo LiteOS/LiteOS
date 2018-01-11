@@ -8,6 +8,7 @@
 #include "stdint.h"
 #include "diskio.h"
 #include "ff.h"
+#include "los_typedef.h"
 
 typedef uint32_t  u32;
 typedef uint16_t u16;

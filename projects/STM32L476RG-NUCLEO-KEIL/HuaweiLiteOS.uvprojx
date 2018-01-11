@@ -10,12 +10,12 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L476RGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32L4xx_DFP.1.3.0</PackID>
+          <PackID>Keil.STM32L4xx_DFP.1.4.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IROM(0x08000000,0x00100000) IRAM(0x20000000,0x00018000) IRAM2(0x10000000,0x00008000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -51,7 +51,7 @@
           <OutputName>HuaweiLiteOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -132,12 +132,12 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <Capability>1</Capability>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>LOS_STM32L476xx,LOS_FLASH</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\platform\STM32L476RG_NUCLEO;..\..\example\include</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\platform\STM32L476RG_NUCLEO;..\..\example\include;..\..\user;..\..\hal\STM32L4xx\Include;..\..\thirdparty\FatFS\src</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -450,6 +454,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\kernel\base\misc\los_misc.c</FilePath>
             </File>
+            <File>
+              <FileName>los_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\base\fs\los_fs.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -519,6 +528,11 @@
               <FileName>los_bsp_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\platform\STM32L476RG_NUCLEO\los_bsp_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_bsp_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32L476RG_NUCLEO\los_bsp_flash.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -595,15 +609,25 @@
               <FileType>1</FileType>
               <FilePath>..\..\example\api\los_inspect_entry.c</FilePath>
             </File>
+            <File>
+              <FileName>los_api_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_api_fs.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_xmodem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\example\api\los_xmodem.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>startup</GroupName>
           <Files>
             <File>
-              <FileName>los_startup_keil.s</FileName>
+              <FileName>startup_stm32l476xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\platform\STM32L476RG_NUCLEO\los_startup_keil.s</FilePath>
+              <FilePath>..\..\platform\STM32L476RG_NUCLEO\startup_stm32l476xx.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -617,8 +641,124 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>libraries</GroupName>
+          <Files>
+            <File>
+              <FileName>system_stm32l4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\CMSIS\system_stm32l4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_cortex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_cortex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_flash_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_flash_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_pwr_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_pwr_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_rcc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_rcc_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_uart_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_uart_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_hal_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\STM32L4xx\FWlib\stm32l4xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_nucleo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\STM32L476RG_NUCLEO\stm32l4xx_nucleo.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>fatfs</GroupName>
+          <Files>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\thirdparty\FatFS\src\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\thirdparty\FatFS\src\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>cc936.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\thirdparty\FatFS\src\option\cc936.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_fs_adapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\thirdparty\FatFS\src\los_fs_adapter.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

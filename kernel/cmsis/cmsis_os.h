@@ -151,22 +151,15 @@ used throughout the whole project.
 
 #include <stdint.h>
 #include <stddef.h>
+#ifdef LOS_GCC_COMPILE
+#include <sys/_stdint.h>
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-typedef unsigned int uint32_t;
-typedef int int32_t;
-#ifndef _INT32_T_DECLARED
-#define _INT32_T_DECLARED
-#endif
-#ifndef _UINT32_T_DECLARED
-#define _UINT32_T_DECLARED
-#endif
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
 
 #ifndef LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK
 #define LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK                YES

@@ -14,6 +14,8 @@ uint32_t FirstPage = 0, NbOfPages = 0, BankNumber = 0;
 uint32_t Address = 0, PAGEError = 0;
 __IO uint32_t data32 = 0 , MemoryProgramStatus = 0;
 
+LOS_CONFIG_TYPE gstConfig;
+
 /*Variable used for Erase procedure*/
 static FLASH_EraseInitTypeDef EraseInitStruct;
 
@@ -110,7 +112,7 @@ u32 Flash_WriteSector(u8 *pBuffer, DWORD uwSector, u32 ulNumSectorWrite)
             uwSector++;
 
             /* Calculate Next Sector Address */
-            if(uwSector >= STM_FLASH_SECTOR_TOTAL)
+            if(uwSector >= STM_FLASH_SECTOR_TOTAL + 4)
                 STMFlashStatus = STM_FLASH_INVALID_ADDRESS;
         }
     }
@@ -142,7 +144,7 @@ u32 Flash_ReadSector(u8 *pBuffer, DWORD uwSector, u32 ulNumSectorRead)
 
     while( (ulNumSectorRead != 0x00) && (STMFlashStatus != STM_FLASH_INVALID_ADDRESS) )
     {
-        Address = FLASH_USER_START_ADDR + + uwSector*STM_FLASH_SECTOR_SIZE;
+        Address = FLASH_USER_START_ADDR + uwSector*STM_FLASH_SECTOR_SIZE;
 
         for(index=0; index < STM_FLASH_SECTOR_SIZE; index++)
         {
@@ -181,7 +183,7 @@ u32 Flash_ReadSector(u8 *pBuffer, DWORD uwSector, u32 ulNumSectorRead)
             uwSector++;
             
             /* Calculate Next Sector Address */
-            if(uwSector >= STM_FLASH_SECTOR_TOTAL)
+            if(uwSector >= STM_FLASH_SECTOR_TOTAL+4)
                 STMFlashStatus = STM_FLASH_INVALID_ADDRESS;
         }
     }
@@ -243,6 +245,21 @@ u32 Flash_EraseBlock(u32 BlockNum)
     
     return STM_FLASH_SUCCESS;
 }
+
+#if 0   
+    u32 Address;
+    /* Unlock the Flash Program Erase controller */
+    HAL_FLASH_Unlock();
+    /* Clear All pending flags */
+    FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+
+    Address = FLASH_USER_START_ADDR + STM32_BLOCK_SIZE * BlockNum;
+
+    FLASH_Erase_Sector(Address,FLASH_TYPEPROGRAM_WORD);
+
+    HAL_FLASH_Lock();
+#endif
+
 
 /*******************************************************************************
 * Function name : Fill_Buffer
@@ -471,4 +488,37 @@ static uint32_t GetBank(uint32_t Addr)
     }
     return bank;
 }
+
+
+void Los_FS_FALG_WRITE(LOS_CONFIG_TYPE* pstConfig)
+{
+    if(RES_OK != TM_FATFS_FLASH_disk_write((BYTE *)(&gstConfig), 400, 1))
+    {
+        while (1)
+        {
+            BSP_LED_On(LED2);
+            HAL_Delay(100);
+            BSP_LED_Off(LED2);
+            HAL_Delay(2000);
+        }
+    }
+    
+    return;
+}
+
+void Los_FS_FALG_READ(void)
+{
+    LOS_CONFIG_TYPE* p;
+
+    p = (LOS_CONFIG_TYPE*)ADDR_FLASH_PAGE_256;
+
+    gstConfig = *p;
+
+    return;
+}
+
+
+
+
+
 

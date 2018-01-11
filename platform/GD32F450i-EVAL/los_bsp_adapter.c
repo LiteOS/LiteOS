@@ -68,7 +68,7 @@ extern unsigned int osGetVectorAddr(void);
  Output      : None
  Return      : LOS_OK
  *****************************************************************************/
-unsigned int osTickStart(void)
+UINT32 osTickStart(void)
 {
     unsigned int uwRet = LOS_OK;
     
@@ -112,7 +112,7 @@ void SysTick_Handler(void)
     
     /*add your code here */
 #ifdef GD32F4XX 
-//    delay_decrement();
+    delay_decrement();
 #endif
     
     return;

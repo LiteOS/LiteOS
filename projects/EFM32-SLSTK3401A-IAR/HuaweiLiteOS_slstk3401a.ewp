@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>28</version>
+                <version>29</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.11.1.13270</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -116,7 +116,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -133,7 +133,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -156,7 +156,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -196,6 +196,10 @@
                     <name>GenLocaleDisplayOnly</name>
                     <state></state>
                 </option>
+                <option>
+                    <name>DSPExtension</name>
+                    <state>1</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -207,7 +211,8 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
-                    <state></state>
+                    <state>RAM_SIZE_LEVEL_1</state>
+                    <state>EFM32PG1B200F256GM48</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -340,6 +345,9 @@
                     <state>$PROJ_DIR$\..\..\example\include</state>
                     <state>$PROJ_DIR$\..\..\kernel\link\iar</state>
                     <state>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A</state>
+                    <state>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\include</state>
+                    <state>$PROJ_DIR$\..\..\hal\EMF32\CMSIS</state>
+                    <state>$PROJ_DIR$\..\..\hal\EMF32\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1028,7 +1036,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>28</version>
+                <version>29</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1133,7 +1141,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>38</state>
                 </option>
                 <option>
@@ -1150,7 +1158,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>38</state>
                 </option>
                 <option>
@@ -1173,7 +1181,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>25</version>
+                    <version>26</version>
                     <state>38</state>
                 </option>
                 <option>
@@ -1212,6 +1220,10 @@
                 <option>
                     <name>GenLocaleDisplayOnly</name>
                     <state></state>
+                </option>
+                <option>
+                    <name>DSPExtension</name>
+                    <state>0</state>
                 </option>
             </data>
         </settings>
@@ -2154,9 +2166,36 @@
             </group>
         </group>
         <group>
+            <name>library</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_assert.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_cmu.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_ebi.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_emu.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_gpio.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_system.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\hal\EMF32\FWlib\em_usart.c</name>
+            </file>
+        </group>
+        <group>
             <name>platform</name>
             <group>
                 <name>slstk3401a</name>
+                <file>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\bsp\bsp_stk_leds.c</name>
+                </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\los_bsp_adapter.c</name>
                 </file>
@@ -2164,20 +2203,23 @@
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\los_bsp_key.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\los_bsp_lcd.c</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\los_bsp_led.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\los_bsp_uart.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\bsp\retargetvirtual.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\system_efm32pg1b.c</name>
                 </file>
             </group>
         </group>
         <group>
             <name>startup</name>
             <file>
-                <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\startup_efm32pg1b.s</name>
+                <name>$PROJ_DIR$\..\..\platform\EFM32-SLSTK3401A\startup_efm32pg1b_iar.s</name>
             </file>
         </group>
         <group>

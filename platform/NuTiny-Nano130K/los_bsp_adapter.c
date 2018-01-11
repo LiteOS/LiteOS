@@ -62,7 +62,7 @@ extern unsigned int osGetVectorAddr(void);
  Output      : None
  Return      : LOS_OK
  *****************************************************************************/
-unsigned int osTickStart(void)
+UINT32 osTickStart(void)
 {
     unsigned int uwRet = 0;
     
@@ -160,7 +160,7 @@ void LosAdapIrqEnable(unsigned int irqnum, unsigned short prior)
         set irq priority , for example in stm32 bsp you can use 
         NVIC_SetPriority((IRQn_Type)irqnum, prior);
     */
-    nvicSetIrqPRI(irqnum, prior << 4);
+    nvicSetIrqPRI(irqnum, (prior << 4));
     return;
 }
 

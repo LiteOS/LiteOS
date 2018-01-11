@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "cmsis_os.h"
 #include "los_bsp_uart.h"
+#include "los_demo_debug.h"
 
 
 #ifdef GD32F4XX
 #include "systick.h"
 #include "gd32f4xx.h"
 #include "gd32f450i_eval.h"
+#include <stdio.h>
+#include "gd32f4xx_usart.h"
 
 static char _buffer[128];
 
@@ -39,7 +41,7 @@ void led_flash(int times)
     int i;
     for(i=0; i<times; i++){
         /* delay 400 ms */
-        osDelay(400);
+        delay_1ms(400);
 
         /* turn on LEDs */
         //gd_eval_led_on(LED1);
@@ -47,7 +49,7 @@ void led_flash(int times)
         gd_eval_led_on(LED3);
 
         /* delay 400 ms */
-        osDelay(400);
+        delay_1ms(400);
         /* turn off LEDs */
         //gd_eval_led_off(LED1);
         //gd_eval_led_off(LED2);
@@ -162,4 +164,15 @@ void LOS_EvbUartWriteStr(const char* str)
 #endif
     return;
 }
+
+#ifndef LOS_KERNEL_TEST_KEIL_SWSIMU
+/* retarget the C library printf function to the USART */
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(EVAL_COM1, (uint8_t)ch);
+    while(RESET == usart_flag_get(EVAL_COM1, USART_FLAG_TBE));
+	
+    return ch;
+}
+#endif
 

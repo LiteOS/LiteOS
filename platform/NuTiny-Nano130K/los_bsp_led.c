@@ -18,8 +18,8 @@ void LOS_EvbLedInit(void)
 {
     //add you code here.
 	
-	  GPIO_SetMode(PA, BIT0, GPIO_PMD_OUTPUT);
-	  PA->DOUT =0;
+    GPIO_SetMode(PE, BIT6, GPIO_PMD_OUTPUT);
+    PE->DOUT =0;
 
     
     return ;
@@ -45,19 +45,16 @@ void LOS_EvbLedControl(int index, int cmd)
                 //add you code here.
                         /*led1 on */
 							//µãµÆ
-						//	printf("light is on ^-^\n");
-								PA->DOUT = 0xFFFF;
-						//	PA->DOUT = 0x0;
+            //printf("light is on ^-^\n");
+                PE->DOUT = 0x0;
 							
             }
             else
             {
                 //add you code here.
                         /*led1 off */
-						//	printf("light is off ^-^\n");
-						
-						PA->DOUT = 0x0;
-					//		PA->DOUT = 0xFFFF;
+            //printf("light is off ^-^\n");
+                PE->DOUT = 0xFFFF;
 							
             }
             break;
@@ -68,10 +65,12 @@ void LOS_EvbLedControl(int index, int cmd)
             {
                 //add you code here.
                         /*led2 on */
+               PE->DOUT = 0x0;
             }
             else
             {
                 //add you code here.
+               PE->DOUT = 0xFFFF;
                         /*led2 off */
             }
             break;

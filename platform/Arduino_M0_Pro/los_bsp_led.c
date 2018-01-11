@@ -1,4 +1,5 @@
 #include "los_bsp_led.h"
+#include <stdio.h>
 #include "samd21.h"
 /******************************************************************************
     here include some special hearder file you need

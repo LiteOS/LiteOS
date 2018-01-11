@@ -102,10 +102,10 @@ void LOS_EvbUartInit(void)
       - Hardware flow control disabled (RTS and CTS signals) */
     UartHandle.Instance        = USARTx;
 
-    UartHandle.Init.BaudRate   = 9600;
+    UartHandle.Init.BaudRate   = 115200;
     UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
     UartHandle.Init.StopBits   = UART_STOPBITS_1;
-    UartHandle.Init.Parity     = UART_PARITY_ODD;
+    UartHandle.Init.Parity     = UART_PARITY_NONE;
     UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
     UartHandle.Init.Mode       = UART_MODE_TX_RX;
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;

@@ -10,12 +10,12 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>GD32F450IK</Device>
           <Vendor>GigaDevice</Vendor>
-          <PackID>GigaDevice.GD32F4xx_DFP.1.0.0</PackID>
+          <PackID>GigaDevice.GD32F4xx_DFP.1.0.1</PackID>
           <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4</PackURL>
           <Cpu>IROM(0x08000000,0x0300000) IRAM(0x20000000,0x030000) IRAM2(0x10000000,0x010000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -51,7 +51,7 @@
           <OutputName>HuaweiLiteOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>GD32F450IKH6,GD32F4XX</Define>
+              <Define>GD32F4XX</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\link\keil;..\..\platform\GD32F450i-EVAL;..\..\example\include;..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Include;..\..\platform\GD32F450i-EVAL\gd32f4\Utilities;..\..\platform\GD32F450i-EVAL\gd32f4</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\cpu\arm\cortex-m4;..\..\kernel\link\keil;..\..\platform\GD32F450i-EVAL;..\..\example\include;..\..\hal\GD32F4xx\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -523,46 +527,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>library</GroupName>
-          <Files>
-            <File>
-              <FileName>gd32f4xx_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_rcu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_rcu.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_exti.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_exti.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_syscfg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_syscfg.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_misc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Firmware\peripheral\Source\gd32f4xx_misc.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f450i_eval.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f4\Utilities\gd32f450i_eval.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>example</GroupName>
           <Files>
             <File>
@@ -641,9 +605,9 @@
           <GroupName>startup</GroupName>
           <Files>
             <File>
-              <FileName>los_startup_keil.s</FileName>
+              <FileName>startup_gd32f4xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\platform\GD32F450i-EVAL\los_startup_keil.s</FilePath>
+              <FilePath>..\..\hal\GD32F4xx\CMSIS\startup_gd32f4xx.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -657,8 +621,64 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>liarbries</GroupName>
+          <Files>
+            <File>
+              <FileName>systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_exti.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f450i_eval.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\platform\GD32F450i-EVAL\gd32f450i_eval.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_gd32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\CMSIS\system_gd32f4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_misc.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_rcu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_rcu.c</FilePath>
+            </File>
+            <File>
+              <FileName>gd32f4xx_syscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\GD32F4xx\FWlib\gd32f4xx_syscfg.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

@@ -89,8 +89,10 @@ void LOS_EvbUartWriteStr(const char* str)
 #endif
 }
 
+#if 0
 int fputc(int ch, FILE *f)
 {
     LOS_EvbUartWriteByte(ch);
     return (ch);
 }
+#endif

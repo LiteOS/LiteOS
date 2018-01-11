@@ -51,7 +51,9 @@ extern UINT8 *m_aucSysMem0;
 #pragma data_alignment=4
 #endif
 #ifdef LOS_PACK_ALIGN_4_KEIL
+#if (__CORTEX_M != 2)
 __align(4)
+#endif
 #endif
 #ifdef LOS_PACK_ALIGN_4_GCC
 __attribute__ ((aligned (4)))

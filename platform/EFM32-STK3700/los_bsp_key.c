@@ -4,7 +4,7 @@
     here include some special hearder file you need
 ******************************************************************************/
 #ifdef LOS_EFM32GG_STK3700
-#include "Board_Buttons.h"
+//#include "Board_Buttons.h"
 #include "bsp.h"
 #endif
 
@@ -19,7 +19,7 @@ void LOS_EvbKeyInit(void)
 {   
     //add you code here.
 #ifdef LOS_EFM32GG_STK3700
-    Buttons_Initialize();
+//    Buttons_Initialize();
 #endif
     return;
 }
@@ -37,7 +37,7 @@ unsigned int LOS_EvbGetKeyVal(int KeyNum)
     
     //add you code here.
 #ifdef LOS_EFM32GG_STK3700
-    KeyVal = Buttons_GetState();
+//    KeyVal = Buttons_GetState();
 #endif
     return KeyVal;
 }

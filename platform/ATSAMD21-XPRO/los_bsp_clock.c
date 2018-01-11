@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include "samd21.h"
+#ifndef LOS_KEIL_COMPILE
+#include "sysctrl.h"
+#endif
 
 #include "los_bsp_clock.h"
 

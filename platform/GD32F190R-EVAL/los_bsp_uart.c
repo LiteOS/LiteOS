@@ -3,7 +3,7 @@
 #include <stdarg.h>
 
 #include "los_bsp_uart.h"
-
+#include "los_demo_debug.h"
 
 #ifdef GD32F190R8
 #include "systick.h"
@@ -75,9 +75,10 @@ void LOS_EvbUartInit(void)
     /* flash the LEDs for 1 time */
     led_flash(1);
     
-    /* configure EVAL_COM2 */
-    gd_eval_COMinit(EVAL_COM2);
-    
+    /* configure EVAL_COM1 */
+    gd_eval_COMinit(EVAL_COM1);
+		nvic_irq_enable(USART0_IRQn, 1, 1);
+    usart_interrupt_enable(EVAL_COM1, USART_INT_RBNEIE);
     /* configure TAMPER key */
     gd_eval_keyinit(KEY_WAKEUP, KEY_MODE_GPIO);  
     
@@ -95,8 +96,8 @@ void LOS_EvbUartInit(void)
  *****************************************************************************/
 void LOS_EvbUartWriteByte(char c)
 {
-    usart_data_transmit(EVAL_COM2, c);
-    while (RESET == usart_flag_get(EVAL_COM2, USART_STAT_TBE));
+    usart_data_transmit(EVAL_COM1, c);
+    while (RESET == usart_flag_get(EVAL_COM1, USART_STAT_TBE));
     return;
 }
 
@@ -109,8 +110,8 @@ void LOS_EvbUartWriteByte(char c)
  *****************************************************************************/
 void LOS_EvbUartReadByte(char* c)
 {
-    while (RESET == usart_flag_get(EVAL_COM2,USART_STAT_RBNE));
-    *c = (usart_data_receive(EVAL_COM2));
+    while (RESET == usart_flag_get(EVAL_COM1,USART_STAT_RBNE));
+    *c = (usart_data_receive(EVAL_COM1));
     return;
 }
 
@@ -134,7 +135,7 @@ void LOS_EvbUart1Printf(char* fmt, ...)
         LOS_EvbUartWriteByte(_buffer[i]);
     }
         
-    while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
+    while(RESET == usart_flag_get(EVAL_COM1, USART_STAT_TC)){
     }
     return;
 }
@@ -152,13 +153,23 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef GD32F190R8
     while (*str)
     {
-        usart_data_transmit(EVAL_COM2, * str++);
-        while (RESET == usart_flag_get(EVAL_COM2,USART_STAT_TBE));
+        usart_data_transmit(EVAL_COM1, * str++);
+        while (RESET == usart_flag_get(EVAL_COM1,USART_STAT_TBE));
     }
     
-    while(RESET == usart_flag_get(EVAL_COM2, USART_STAT_TC)){
+    while(RESET == usart_flag_get(EVAL_COM1, USART_STAT_TC)){
     }
 #endif
     return;
 }
 
+#ifndef LOS_KERNEL_TEST_KEIL_SWSIMU
+/* retarget the C library printf function to the USART */
+int fputc(int ch, FILE *f)
+{
+    usart_data_transmit(EVAL_COM1, (uint8_t)ch);
+    while(RESET == usart_flag_get(EVAL_COM1, USART_STAT_TBE));
+	
+    return ch;
+}
+#endif

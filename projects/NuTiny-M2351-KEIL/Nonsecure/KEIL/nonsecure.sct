@@ -1,0 +1,17 @@
+   
+LR_ROM 0x10010000 0x8000
+{
+
+    EXE_ROM +0
+    {
+        *.o(RESET, +First)
+        *(+RO)
+    }
+    
+    EXE_RAM 0x30008000 0x10000
+    {
+        *(+RW, +ZI)
+    }
+	
+}
+

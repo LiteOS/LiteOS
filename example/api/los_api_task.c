@@ -156,7 +156,7 @@ UINT32 Example_TskCaseEntry(VOID)
     stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
     stInitParam.usTaskPrio = TSK_PRIOR_HI;
     stInitParam.pcName = "HIGH_NAME";
-    stInitParam.uwStackSize = 0x200;
+    stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
     /*创建高优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
     uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
@@ -173,7 +173,7 @@ UINT32 Example_TskCaseEntry(VOID)
     stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
     stInitParam.usTaskPrio = TSK_PRIOR_LO;
     stInitParam.pcName = "LOW_NAME";
-    stInitParam.uwStackSize = 0x200;
+    stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stInitParam.uwResved   = LOS_TASK_STATUS_DETACHED;
     /*创建低优先级任务，由于锁任务调度，任务创建成功后不会马上执行*/
     uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);

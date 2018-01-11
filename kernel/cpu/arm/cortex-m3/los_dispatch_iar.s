@@ -79,7 +79,7 @@ LOS_StartToRun
     LDR     R0, [R3]
     LDRH    R7, [R0 , #4]
     MOV     R8,  #OS_TASK_STATUS_RUNNING
-    ORR     R7,  R8
+    ORR     R7,  R7,  R8
     STRH    R7,  [R0 , #4]
 
     LDR     R12, [R0]
@@ -92,14 +92,11 @@ LOS_StartToRun
     ;VPOP    S0;
 
     MOV     LR, R5
-    MSR     xPSR, R7
 
     CPSIE   I
     BX      R6
     NOP
-    ALIGN
     
-    AREA KERNEL, CODE, READONLY
     THUMB
     
 LOS_IntNumGet
@@ -154,7 +151,7 @@ TaskSwitch
 
     LDRH    R7, [R6 , #4]
     MOV     R8,#OS_TASK_STATUS_RUNNING
-    BIC     R7, R8 ;BIC     R7, R7, R8
+    BIC     R7, R7, R8
     STRH    R7, [R6 , #4]
 
 
@@ -165,7 +162,7 @@ TaskSwitch
 
     LDRH    R7, [R0 , #4]
     MOV     R8,  #OS_TASK_STATUS_RUNNING
-    ORR     R7, R8;ORR     R7, R7, R8
+    ORR     R7, R7, R8
     STRH    R7,  [R0 , #4]
 
     LDR     R1,   [R0]
@@ -177,5 +174,4 @@ TaskSwitch
     BX      LR
     
     NOP
-    ALIGN
     END

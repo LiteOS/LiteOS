@@ -10,7 +10,7 @@
       <TargetName>LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>ATSAMD21J18A</Device>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>RAM_SIZE_LEVEL_2,LOS_ATSAMD21_XPRO</Define>
+              <Define>RAM_SIZE_LEVEL_2,LOS_ATSAMD21_XPRO LOS_KEIL_COMPILE</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\example\include;..\..\kernel\base\include;..\..\kernel\cmsis;..\..\kernel\include;..\..\platform\ATSAMD21-XPRO;..\..\kernel\cpu\arm\cortex-m0;..\..\kernel\link\keil;..\..\kernel\config</IncludePath>
+              <IncludePath>..\..\example\include;..\..\kernel\base\include;..\..\kernel\cmsis;..\..\kernel\include;..\..\platform\ATSAMD21-XPRO;..\..\kernel\cpu\arm\cortex-m0plus;..\..\kernel\link\keil;..\..\kernel\config;..\..\platform\ATSAMD21-XPRO\AMD21</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -449,31 +453,6 @@
               <FileName>los_misc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\kernel\base\misc\los_misc.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>cpu/m0</GroupName>
-          <Files>
-            <File>
-              <FileName>los_hw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hw_tick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hw_tick.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_hwi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_hwi.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_dispatch_keil.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\..\kernel\cpu\arm\cortex-m0\los_dispatch_keil.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -624,6 +603,31 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\user\main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>cpu/m0plus</GroupName>
+          <Files>
+            <File>
+              <FileName>los_hw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0plus\los_hw.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hw_tick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0plus\los_hw_tick.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_hwi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0plus\los_hwi.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_dispatch_keil.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\kernel\cpu\arm\cortex-m0plus\los_dispatch_keil.s</FilePath>
             </File>
           </Files>
         </Group>

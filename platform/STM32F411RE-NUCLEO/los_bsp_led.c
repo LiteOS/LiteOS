@@ -35,7 +35,7 @@ void LOS_EvbLedInit(void)
 **************************************************************************************************/
 void LOS_EvbLedControl(int index, int cmd)
 {
-#ifdef LOS_STM32L476xx
+#ifdef LOS_STM32F411RE
     switch (index)
     {
         case LOS_LED1:

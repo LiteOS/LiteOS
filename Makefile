@@ -48,6 +48,9 @@ OBJCPFLAGS_ELF_TO_LIST  = -S
 ifeq (${ARCH}, arm)
 CROSS_COMPILE := arm-none-eabi-
 endif
+ifeq (${ARCH}, riscv)
+CROSS_COMPILE := riscv64-unknown-elf-
+endif
 
 ifeq ($(USE_CCACHE),1)
 CCACHE := ccache
@@ -77,21 +80,32 @@ ifndef SOURCE_ROOT
     SOURCE_ROOT=.
     export SOURCE_ROOT
 endif
-
-APPDIR ?= ${SOURCE_ROOT}/user
  
 ############################################################
 ### Build parameters
 ############################################################
 
-ARCH_LIST:=arm
-CPU_LIST:=cortex-m3 cortex-m4 cortex-m7
-PLAT_LIST:=STM32F429I_DISCO STM32F746ZG_NUCLEO STM32F103ZE-ISO
-ARMV_LIST:=armv7-m armv7e-m armv7ve
+ARCH_LIST:=arm arc riscv
+CPU_LIST:=cortex-m0 cortex-m0plus cortex-m3 cortex-m4 cortex-m7
+PLAT_LIST:=STM32F429I_DISCO STM32F411RE-NUCLEO STM32F412ZG-NUCLEO STM32F746ZG_NUCLEO STM32L476RG_NUCLEO STM32F103ZE-ISO GD32F450i-EVAL M2S150_RV32 ATSAMD21-XPRO Arduino_M0_Pro ATSAM4S-XPRO NUTINY-NUC472H NuTiny-Nano130K STM32F103RB-NUCLEO NRF52-DK NRF52840-PDK
+ARMV_LIST:=armv7-m armv7e-m armv7ve armv6-m
+RISCV_LIST:=rv32im
 
 #ARCH:=arm
 #PLAT:=STM32F429I_DISCO
-
+ifeq (${ARCH}, arm)
+ifeq (${CPU}, cortex-m0)
+ARMV:=armv6-m
+else ifeq (${CPU}, cortex-m0plus)
+ARMV:=armv6-m
+else ifeq (${CPU}, cortex-m3)
+ARMV:=armv7-m
+else ifeq (${CPU}, cortex-m4)
+ARMV:=armv7e-m
+else ifeq (${CPU}, cortex-m7)
+ARMV:=armv7e-m
+endif
+endif
 
 # we do need them if we want to build anything else
 $(if $(filter ${ARCH},${ARCH_LIST}),, \
@@ -106,6 +120,11 @@ $(if $(filter ${CPU},${CPU_LIST}),, \
 
 $(if $(filter ${ARMV},${ARMV_LIST}),, \
 	$(error ARMV ${ARMV} invalid or undefined, should be one of [ ${ARMV_LIST} ]))
+endif
+
+ifeq (${ARCH}, riscv)
+$(if $(filter ${CPU},${RISCV_LIST}),, \
+	$(error CPU ${CPU} invalid or undefined, should be one of [ ${RISCV_LIST} ]))
 endif
 
 
@@ -136,9 +155,15 @@ ASFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}  -ffreestanding -
 LDFLAGS += -Wall -mlittle-endian  -mcpu=${CPU}  -march=${ARMV}  -ffreestanding -mthumb -mthumb-interwork -std=gnu99 --specs=rdimon.specs
 DEFINES += ARCH_ARM
 ifeq (${CPU}, cortex-m4)
+ifeq (${GCOV}, true)
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -lgcov
+ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -lgcov
+LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -lgcov
+else
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+endif
 else ifeq (${CPU}, cortex-m7)
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 ASFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 
@@ -146,6 +171,11 @@ LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
 
+ifeq (${ARCH}, riscv)
+CFLAGS +=  -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im 
+ASFLAGS += -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im -x assembler-with-cpp -Wall
+LDFLAGS +=  -mabi=ilp32 -g3 -gdwarf-2 -march=rv32im 
+endif
 
 # If a parent Makefile has passed us DEFINES, assume they will be missing -D.
 DEFINES := ${DEFINES:%=-D%}
@@ -155,6 +185,10 @@ DEFINES += -D_GCC_WRAP_STDINT_H
 ifeq (${CPU}, cortex-m4)
 DEFINES += -DARM_MATH_CM4
 endif
+endif
+
+ifeq (${GCOV}, true)
+DEFINES += -DLOS_GCOV_TEST_COMPILE
 endif
 
 ifeq (${PLAT}, M2S150_RV32)
@@ -194,6 +228,9 @@ CFLAGS += ${INCLUDES}
 
 LINKER_SCRIPT = ${SOURCE_ROOT}/platform/${PLAT}/LiteOS.ld
 LDFLAGS    +=  -T $(LINKER_SCRIPT) 
+ifeq (${ARCH}, riscv)
+LDFLAGS    += -nostartfiles
+endif
 
 ############################################################
 ### Sub-makefiles
@@ -201,12 +238,19 @@ LDFLAGS    +=  -T $(LINKER_SCRIPT)
 
 include ${SOURCE_ROOT}/example/api/Makefile
 include ${SOURCE_ROOT}/kernel/Makefile
-include ${APPDIR}/Makefile
+ifeq (${GCOV}, true)
+include ${SOURCE_ROOT}/thirdparty/FatFS/src/Makefile
+include ${SOURCE_ROOT}/example/test_suite/Makefile
+else
+include ${SOURCE_ROOT}/user/Makefile
+endif
 include ${SOURCE_ROOT}/platform/${PLAT}/Makefile
+ifeq (${CMBACKTRACE}, true)
+include ${SOURCE_ROOT}/thirdparty/CmBacktrace/Makefile
+endif
 
-OBJECTS += ${patsubst %.c,build/%.o,$(C_SOURCES)}
-OBJECTS += ${patsubst %.s,build/%.o,$(ASM_SOURCES)}
-
+OBJECTS += ${C_SOURCES:.c=.o}
+OBJECTS += ${ASM_SOURCES:.s=.o}
 
 .PHONY: all default clean 
 
@@ -214,29 +258,56 @@ default: all
 
 
 
-all:build build/$(TARGET_BIN)
+all: $(TARGET_BIN) 
 
-build:
-	mkdir -p $@
+$(BUILD):
+	mkdir -p build
 
-build/$(TARGET_BIN):build/$(TARGET_ELF)
-	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_BIN) -S $^ $@
+$(TARGET_BIN):$(TARGET_ELF)
+	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_BIN) -S  $(TARGET_ELF)   $(TARGET_BIN) 
 	@#$(OBJDUMP) -sStD $(TARGET_ELF) > map
 
-build/$(TARGET_ELF):$(OBJECTS) 
-	$(CC) -o $@ $^ $(LDFLAGS)
+$(TARGET_HEX):$(TARGET_ELF)
+	$(OBJCOPY) $(OBJCPFLAGS_ELF_TO_HEX) -S  $(TARGET_ELF)   $(TARGET_HEX) 
 
-build/%.o:%.c 
-	#$(CC) $(CFLAGS) -c  -o  $(addprefix $(dir $^), $(notdir $@))    $^
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $^
+$(TARGET_ELF):$(OBJECTS) $(BUILD)
+ifeq (${GCOV}, true)
+	$(CC)  $(LDFLAGS) -fprofile-arcs -ftest-coverage $^  -o $@
+else
+	$(CC)  $(LDFLAGS) $^  -o $@ 
+endif
 
-build/%.o:%.s 
-	$(CC) $(ASFLAGS) -c -o $@ $^
+%.o:%.c  
+ifeq (${GCOV}, true)
+	if test $(findstring kernel/base, $*); then \
+		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+#	elif test $(findstring kernel/cmsis, $*); then \
+#		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+	elif test $(findstring kernel/config, $*); then \
+		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+	elif test $(findstring kernel/cpu, $*); then \
+		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+	elif test $(findstring kernel/include, $*); then \
+		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+	elif test $(findstring kernel/link, $*); then \
+		$(CC) $(CFLAGS) -fprofile-arcs -ftest-coverage -c  -o $@ $^; \
+	else \
+		$(CC) $(CFLAGS) -c  -o $@ $^; \
+	fi;
+else
+	$(CC) $(CFLAGS) -c  -o $@ $^
+endif
+%.o:%.s 
+	$(CC) $(ASFLAGS) -c  -o $@ $^
+
 
 clean:
-	rm build -rf
 	find $(SOURCE_ROOT) -iname '*.o' -delete
 	find $(SOURCE_ROOT) -iname '*.bin' -delete
 	find $(SOURCE_ROOT) -iname '*.elf' -delete
 	find $(SOURCE_ROOT) -iname '*.map' -delete
+ifeq (${GCOV}, true)
+	find $(SOURCE_ROOT) -iname '*.gcno' -delete
+	find $(SOURCE_ROOT) -iname '*.gcov' -delete
+	find $(SOURCE_ROOT) -iname '*.gcda' -delete
+endif

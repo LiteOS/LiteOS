@@ -208,7 +208,7 @@ void LOS_EvbSetup(void)
     //CHIP_Init();    
     LOS_EvbUartInit();
     LOS_EvbLedInit();
-    LOS_EvbKeyInit();
+//    LOS_EvbKeyInit();
     return;
 }
 

@@ -4,6 +4,7 @@
 #include "board.h"
 #endif
 
+extern void Board_Key_Init(void);
 /*****************************************************************************
  Function    : LOS_EvbKeyInit
  Description : Key init

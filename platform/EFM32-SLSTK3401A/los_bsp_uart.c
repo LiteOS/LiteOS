@@ -35,7 +35,7 @@ void LOS_EvbUartInit(void)
 void LOS_EvbUartWriteByte(char c)
 {
 #ifdef EFM32PG1B200F256GM48
-	USART_RETARGET_WriteChar(c);
+//	USART_RETARGET_WriteChar(c);
 #endif
 	return ;
 }
@@ -51,7 +51,7 @@ void LOS_EvbUartWriteStr(const char* str)
 #ifdef EFM32PG1B200F256GM48
     while (*str)
     {
-			USART_RETARGET_WriteChar(*str);
+	//		USART_RETARGET_WriteChar(*str);
 			str++;
     }
 #endif
@@ -68,7 +68,7 @@ void LOS_EvbUartWriteStr(const char* str)
 void LOS_EvbUartReadByte(char* c)
 {
 #ifdef EFM32PG1B200F256GM48
-	*c = USART_RETARGET_ReadChar();
+//	*c = USART_RETARGET_ReadChar();
 #endif
 	return ;
 }

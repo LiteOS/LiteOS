@@ -1,10 +1,10 @@
 /*
 *****************************************************************************
 **
-**  File        : STM32F102XB_FLASH.ld
+**  File        : STM32F103XE_FLASH.ld
 **
-**  Abstract    : Linker script for STM32F102xB Device with
-**                128KByte FLASH, 16KByte RAM
+**  Abstract    : Linker script for STM32F103xE Device with
+**                512KByte FLASH, 64KByte RAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -15,7 +15,7 @@
 **
 **  Environment : Atollic TrueSTUDIO(R)
 **
-**  Distribution: The file is distributed “as is,” without any warranty
+**  Distribution: The file is distributed as is, without any warranty
 **                of any kind.
 **
 **  (c)Copyright Atollic AB.
@@ -31,7 +31,7 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20003FFF;    /* end of RAM */
+_estack = 0x20010000;    /* end of RAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x200;      /* required amount of heap  */
@@ -40,8 +40,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K
-RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 16K
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 512K
+RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 64K
 }
 
 /* Define output sections */

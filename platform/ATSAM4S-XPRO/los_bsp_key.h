@@ -2,6 +2,7 @@
 #define _LOS_BSP_KEY_H
 
 #include <stdint.h>
+#include "los_typedef.h"
 
 #define LOS_GPIO_ERR    0xFF
 

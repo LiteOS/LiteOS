@@ -10,12 +10,12 @@
       <TargetName>LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>NANO130KE3BN</Device>
           <Vendor>Nuvoton</Vendor>
-          <PackID>Nuvoton.NuMicro_DFP.1.0.9</PackID>
+          <PackID>Nuvoton.NuMicro_DFP.1.1.2</PackID>
           <PackURL>http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack</PackURL>
           <Cpu>IRAM(0x20000000,0x4000) IROM(0x00000000,0x20000) CPUTYPE("Cortex-M0") CLOCK(12000000)</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -51,7 +51,7 @@
           <OutputName>HuaweiLiteOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
@@ -328,11 +328,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>RAM_SIZE_LEVEL_1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m0;..\..\example\include;..\..\platform\NuTiny-Nano130K;..\..\platform\NuTiny-Nano130K\Library;..\..\platform\NuTiny-Nano130K\Library\StdDriver\inc</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\include;..\..\kernel\config;..\..\kernel\cmsis;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m0;..\..\example\include;..\..\platform\NuTiny-Nano130K;..\..\hal\NANO100BN\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -524,6 +528,13 @@
         </Group>
         <Group>
           <GroupName>startup</GroupName>
+          <Files>
+            <File>
+              <FileName>startup_Nano100Series.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\hal\NANO100BN\CMSIS\startup_Nano100Series.s</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>user</GroupName>
@@ -541,17 +552,17 @@
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NuTiny-Nano130K\Library\StdDriver\src\clk.c</FilePath>
+              <FilePath>..\..\hal\NANO100BN\FWlib\clk.c</FilePath>
             </File>
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NuTiny-Nano130K\Library\StdDriver\src\gpio.c</FilePath>
+              <FilePath>..\..\hal\NANO100BN\FWlib\gpio.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\platform\NuTiny-Nano130K\Library\StdDriver\src\uart.c</FilePath>
+              <FilePath>..\..\hal\NANO100BN\FWlib\uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -636,10 +647,14 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
-          <GroupName>::Device</GroupName>
+          <GroupName>device</GroupName>
+          <Files>
+            <File>
+              <FileName>system_Nano100Series.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\hal\NANO100BN\CMSIS\system_Nano100Series.c</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>
@@ -647,20 +662,7 @@
 
   <RTE>
     <apis/>
-    <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.0.1" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.0.1"/>
-        <targetInfos>
-          <targetInfo name="LiteOS"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="Startup" Cvendor="Nuvoton" Cversion="3.02.000" condition="M0NuMicro NANO100BN Device">
-        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.0.9"/>
-        <targetInfos>
-          <targetInfo name="LiteOS"/>
-        </targetInfos>
-      </component>
-    </components>
+    <components/>
     <files>
       <file attr="config" category="header" name="Config\EventRecorderConf.h" version="1.0.0">
         <instance index="0" removed="1">RTE\Compiler\EventRecorderConf.h</instance>
@@ -669,28 +671,22 @@
         <targetInfos/>
       </file>
       <file attr="config" category="sourceC" name="Device\NANO100BN\Driver\retarget.c" version="3.02.000">
-        <instance index="0">RTE\Device\NANO130KE3BN\retarget.c</instance>
+        <instance index="0" removed="1">RTE\Device\NANO130KE3BN\retarget.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Nuvoton" Cversion="3.02.000" condition="M0NuMicro NANO100BN Device"/>
-        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.0.9"/>
-        <targetInfos>
-          <targetInfo name="LiteOS"/>
-        </targetInfos>
+        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.1.2"/>
+        <targetInfos/>
       </file>
       <file attr="config" category="sourceAsm" condition="Compiler ARM" name="Device\NANO100BN\Source\ARM\startup_Nano100Series.s" version="3.02.000">
-        <instance index="0">RTE\Device\NANO130KE3BN\startup_Nano100Series.s</instance>
+        <instance index="0" removed="1">RTE\Device\NANO130KE3BN\startup_Nano100Series.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Nuvoton" Cversion="3.02.000" condition="M0NuMicro NANO100BN Device"/>
-        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.0.9"/>
-        <targetInfos>
-          <targetInfo name="LiteOS"/>
-        </targetInfos>
+        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.1.2"/>
+        <targetInfos/>
       </file>
       <file attr="config" category="source" name="Device\NANO100BN\Source\system_Nano100Series.c" version="3.02.000">
-        <instance index="0">RTE\Device\NANO130KE3BN\system_Nano100Series.c</instance>
+        <instance index="0" removed="1">RTE\Device\NANO130KE3BN\system_Nano100Series.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Nuvoton" Cversion="3.02.000" condition="M0NuMicro NANO100BN Device"/>
-        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.0.9"/>
-        <targetInfos>
-          <targetInfo name="LiteOS"/>
-        </targetInfos>
+        <package name="NuMicro_DFP" schemaVersion="1.2" url="http://www.nuvoton.com/hq/enu/Documents/KEILSoftwarePack" vendor="Nuvoton" version="1.1.2"/>
+        <targetInfos/>
       </file>
     </files>
   </RTE>
