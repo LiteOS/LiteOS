@@ -196,9 +196,9 @@ void i2c_master_addressing(uint32_t i2c_periph,uint8_t addr,uint32_t trandirecti
 void i2c_dualaddr_enable(uint32_t i2c_periph,i2c_dualaddr_enum dualaddr)
 {
     if(dualaddr){
-       I2C_SADDR1(i2c_periph) |= I2C_SADDR1_DUADEN;  
+//       I2C_SADDR1(i2c_periph) |= I2C_SADDR1_DUADEN;  
     }else{
-       I2C_SADDR1(i2c_periph) &= ~(I2C_SADDR1_DUADEN);  
+//       I2C_SADDR1(i2c_periph) &= ~(I2C_SADDR1_DUADEN);  
     }        
 }
 /*!

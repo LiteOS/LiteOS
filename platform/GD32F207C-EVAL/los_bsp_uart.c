@@ -5,13 +5,6 @@
 #include "los_bsp_uart.h"
 #include "gd32f20x_gpio.h"
 
-int fputc(int ch, FILE *f)
-{
-    usart_data_transmit(USART0, ch);
-    while (usart_flag_get(USART0, USART_FLAG_TC) == RESET);
-    return ch;
-}
-
 /*****************************************************************************
  Function    : LOS_EvbUartInit
  Description : usart init

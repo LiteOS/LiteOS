@@ -10,13 +10,14 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>GD32F150R8</Device>
           <Vendor>GigaDevice</Vendor>
-          <PackID>Keil.GD32F1xx_DFP.1.1.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>GigaDevice.GD32F1x0_DFP.3.0.2</PackID>
+          <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/</PackURL>
           <Cpu>IRAM(0x20000000,0x02000) IROM(0x08000000,0x10000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -328,11 +329,14 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>RAM_SIZE_LEVEL_0,GD32F130_150,GD32F150R8</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\kernel\base\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\include;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m3;..\..\example\include;..\..\platform\GD32F150R-EVAL;..\..\user</IncludePath>
+              <IncludePath>..\..\kernel\base\include;..\..\kernel\cmsis;..\..\kernel\config;..\..\kernel\include;..\..\kernel\link\keil;..\..\kernel\cpu\arm\cortex-m3;..\..\example\include;..\..\platform\GD32F150R-EVAL;..\..\hal\GD32F1x0\Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +349,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
