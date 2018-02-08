@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 #include "los_bsp_uart.h"
+#include "los_demo_debug.h"
 
 
 #ifdef GD32F150R8
