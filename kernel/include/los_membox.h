@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2017>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,69 +31,42 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
-/** @defgroup los_membox Static memory
- * @ingroup mem
- */
-
 #ifndef _LOS_MEMBOX_H
 #define _LOS_MEMBOX_H
 
 #include "los_config.h"
+#if (LOSCFG_PLATFORM_EXC == YES)
+#include "los_memcheck.h"
+#endif
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#define BOX_ALIGN_8                   0x80000000
+/*----------------------------------------------------------------------------
+ *      Global Functions
+ *---------------------------------------------------------------------------*/
 
 /**
  * @ingroup los_membox
  * Define whether to check the address validity
  */
-#if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
+#if (LOSCFG_PLATFORM_EXC == YES)
 #define LOS_MEMBOX_CHECK
+extern UINT8 g_aucMemMang[];
 #endif
 
-/**
- * @ingroup los_membox
- * Structure of a free node in a memory pool
- */
-typedef struct tagMEMBOX_NODE
+typedef struct tagMemBoxCB
 {
-    struct tagMEMBOX_NODE *pstNext;            /**<Free node's pointer to the next node in a memory pool*/
-} LOS_MEMBOX_NODE;
+    UINT32  uwMaxBlk;
+    UINT32  uwBlkCnt;
+    UINT32  uwBlkSize;                  /* Memory block size                       */
+}OS_MEMBOX_S;
 
-/**
- * @ingroup los_membox
- * Memory pool information structure
- */
-typedef struct
-{
-   UINT32           uwBlkSize;                  /**<Block size*/
-   UINT32           uwBlkNum;                   /**<Block number*/
-   LOS_MEMBOX_NODE  stFreeList;                 /**<Free list*/
-} LOS_MEMBOX_INFO;
-
-typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
+typedef OS_MEMBOX_S * OS_MEMBOX_S_P;
 
 #ifdef LOS_MEMBOX_CHECK
 #define LOS_MEMBOX_MAGIC_SIZE    4
 #else
 #define LOS_MEMBOX_MAGIC_SIZE    0
 #endif
-
-/**
- * @ingroup los_membox
- * Memory pool alignment
- */
-#define LOS_MEMBOX_ALLIGNED(memAddr)           (((UINT32)(memAddr) + 3) & 0xfffffffc)
-
-/**
- * @ingroup los_membox
- * Memory pool size
- */
-#define LOS_MEMBOX_SIZE(uwBlkSize, uwBlkNum)   (sizeof(LOS_MEMBOX_INFO) + LOS_MEMBOX_ALLIGNED(uwBlkSize + LOS_MEMBOX_MAGIC_SIZE) * (uwBlkNum))
 
 /**
  *@ingroup los_membox
@@ -105,15 +78,15 @@ typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The uwBoxSize parameter value should match the following two conditions : 1) Be less than or equal to the Memory pool size; 2) Be greater than the size of LOS_MEMBOX_INFO.</li>
  *</ul>
  *
- *@param pPool    [IN] Memory pool address.
+ *@param pBoxMem     [IN] Memory pool address.
  *@param uwBoxSize   [IN] Memory pool size.
  *@param uwBlkSize   [IN] Memory block size.
  *
- *@retval #LOS_NOK  1: The memory pool is successfully initialized.
- *@retval #LOS_OK   0: The memory pool fails to be initialized.
+ *@retval #LOS_NOK   The memory pool fails to be initialized.
+ *@retval #LOS_OK    The memory pool is successfully initialized.
  *@par Dependency:
  *<ul>
  *<li>los_membox.h: the header file that contains the API declaration.</li>
@@ -121,7 +94,7 @@ typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_MemboxInit(VOID *pPool, UINT32 uwBoxSize, UINT32 uwBlkSize);
+extern UINT32    LOS_MemboxInit   (VOID *pBoxMem, UINT32 uwBoxSize, UINT32 uwBlkSize);
 
 /**
  *@ingroup los_membox
@@ -133,13 +106,13 @@ extern UINT32 LOS_MemboxInit(VOID *pPool, UINT32 uwBoxSize, UINT32 uwBlkSize);
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The input pPool parameter must be initialized via func LOS_MemboxInit.</li>
  *</ul>
  *
- *@param pPool    [IN] Memory pool address.
+ *@param pBoxMem     [IN] Memory pool address.
  *
- *@retval Memory block address. The request is accepted.
- *@retval NULL. The request fails.
+ *@retval #VOID*      The request is accepted, and return a memory block address.
+ *@retval #NULL       The request fails.
  *@par Dependency:
  *<ul>
  *<li>los_membox.h: the header file that contains the API declaration.</li>
@@ -147,7 +120,7 @@ extern UINT32 LOS_MemboxInit(VOID *pPool, UINT32 uwBoxSize, UINT32 uwBlkSize);
  *@see LOS_MemboxFree
  *@since Huawei LiteOS V100R001C00
  */
-extern VOID *LOS_MemboxAlloc(VOID *pPool);
+extern VOID *LOS_MemboxAlloc  (VOID *pBoxMem);
 
 /**
  *@ingroup los_membox
@@ -159,14 +132,15 @@ extern VOID *LOS_MemboxAlloc(VOID *pPool);
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The input pPool parameter must be initialized via func LOS_MemboxInit.</li>
+ *<li>The input pBox parameter must be allocated by LOS_MemboxAlloc.</li>
  *</ul>
  *
- *@param pPool     [IN] Memory pool address.
+ *@param pBoxMem     [IN] Memory pool address.
  *@param pBox        [IN] Memory block address.
  *
- *@retval #LOS_NOK  1: This memory block fails to be freed.
- *@retval #LOS_OK   0: This memory block is successfully freed.
+ *@retval #LOS_NOK   This memory block fails to be freed.
+ *@retval #LOS_OK    This memory block is successfully freed.
  *@par Dependency:
  *<ul>
  *<li>los_membox.h: the header file that contains the API declaration.</li>
@@ -174,7 +148,7 @@ extern VOID *LOS_MemboxAlloc(VOID *pPool);
  *@see LOS_MemboxAlloc
  *@since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_MemboxFree(VOID *pPool, VOID *pBox);
+extern UINT32   LOS_MemboxFree   (VOID *pBoxMem, VOID *pBox);
 
 /**
  *@ingroup los_membox
@@ -186,13 +160,14 @@ extern UINT32 LOS_MemboxFree(VOID *pPool, VOID *pBox);
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The input pPool parameter must be initialized via func LOS_MemboxInit.</li>
+ *<li>The input pBox parameter must be allocated by LOS_MemboxAlloc.</li>
  *</ul>
  *
- *@param pPool    [IN] Memory pool address.
+ *@param pBoxMem     [IN] Memory pool address.
  *@param pBox        [IN] Memory block address.
  *
- *@retval None.
+ *@retval VOID
  *@par Dependency:
  *<ul>
  *<li>los_membox.h: the header file that contains the API declaration.</li>
@@ -200,13 +175,34 @@ extern UINT32 LOS_MemboxFree(VOID *pPool, VOID *pBox);
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-extern VOID LOS_MemboxClr(VOID *pPool, VOID *pBox);
+extern VOID LOS_MemboxClr (VOID *pBoxMem, VOID *pBox);
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+/**
+ *@ingroup los_membox
+ *@brief calculate membox information.
+ *
+ *@par Description:
+ *<ul>
+ *<li>This API is used to calculate membox information.</li>
+ *</ul>
+ *@attention
+ *<ul>
+ *<li>One parameter of this interface is a pointer, it should be a correct value, otherwise, the system may be abnormal.</li>
+ *</ul>
+ *
+ *@param  pBoxMem        [IN]  Type  #VOID*   Pointer to the calculate membox.
+ *@param  uwMaxBlk       [OUT] Type  #UINT32* Record membox max block.
+ *@param  uwBlkCnt       [OUT] Type  #UINT32* Record membox block count alreay allocated.
+ *@param  uwBlkSize      [OUT] Type  #UINT32* Record membox block size.
+ *
+ *@retval #LOS_OK        The heap status calculate success.
+ *@retval #LOS_NOK       The membox  status calculate with some error.
+ *@par Dependency:
+ *<ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
+ *@see LOS_MemAlloc | LOS_MemRealloc | LOS_MemFree
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_MemboxStatisticsGet(VOID *pBoxMem, UINT32 *puwMaxBlk, UINT32 *puwBlkCnt, UINT32 *puwBlkSize);
 
-#endif /* _LOS_MEMBOX_H */
+#endif

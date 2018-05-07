@@ -63,7 +63,7 @@ extern "C" {
  *
  *@retval None.
  *@par Dependency:
- *<ul><li>los_timeslice.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_timeslice.ph: the header file that contains the API declaration.</li></ul>
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
@@ -86,7 +86,7 @@ extern VOID osTimesliceInit(VOID);
  *
  *@retval None.
  *@par Dependency:
- *<ul><li>los_timeslice.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_timeslice.ph: the header file that contains the API declaration.</li></ul>
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */

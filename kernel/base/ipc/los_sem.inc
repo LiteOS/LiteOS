@@ -43,9 +43,30 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
 extern SEM_CB_S *g_pstAllSem;
 
+/**
+ *@ingroup los_sem
+ *@brief Create Semaphore.
+ *
+ *@par Description:
+ *This API is used to create Semaphore.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param  usCount      [IN]Type #UINT16 Semaphore count.
+ *@param  usMaxCount   [IN]Type #UINT16 Max semaphore count.
+ *@param  puwSemHandle [OUT]Type #UINT32 * Index of semaphore.
+ *
+ *@retval UINT32   Create result.
+ *@par Dependency:
+ *<ul><li>los_sem.inc: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+UINT32 osSemCreate (UINT16 usCount, UINT16 usMaxCount, UINT32 *puwSemHandle);
 
 #ifdef __cplusplus
 #if __cplusplus
