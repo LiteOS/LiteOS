@@ -35,7 +35,6 @@
 #include "los_base.ph"
 #include "los_sys.ph"
 #include "los_task.ph"
-
 #include "los_hwi.h"
 
 LITE_OS_SEC_TEXT UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary)
@@ -51,15 +50,20 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 uwMsecs)
 {
     UINT32 uwInterval = 0;
 
-    if (OS_INT_ACTIVE) {
+    if (OS_INT_ACTIVE)
+    {
         return;
     }
 
-    if (uwMsecs == 0) {
+    if (uwMsecs == 0)
+    {
         uwInterval = 0;
-    } else {
+    }
+    else
+    {
         uwInterval = LOS_MS2Tick(uwMsecs);
-        if (uwInterval == 0) {
+        if (uwInterval == 0)
+        {
              uwInterval = 1;
         }
     }

@@ -33,11 +33,13 @@
  *---------------------------------------------------------------------------*/
 
 #include "los_tick.inc"
-
 #include "los_base.ph"
 #include "los_swtmr.ph"
 #include "los_task.ph"
 #include "los_timeslice.ph"
+#if (LOSCFG_KERNEL_TICKLESS == YES)
+#include "los_tickless.ph"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -49,6 +51,39 @@ extern "C" {
 LITE_OS_SEC_BSS UINT64      g_ullTickCount;
 LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
 LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
+LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
+LITE_OS_SEC_BSS UINT32      g_uwSysClock ;
+
+#if (LOSCFG_KERNEL_TICKLESS == YES)
+/*****************************************************************************
+ Description : Tick interruption handler
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT VOID osTickHandlerLoop(UINT32 uwElapseTicks)
+{
+    UINT32 uwIndex;
+
+    for (uwIndex = 0; uwIndex < uwElapseTicks; uwIndex++)
+    {
+#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
+        platform_tick_handler();
+#endif
+
+        g_ullTickCount ++;
+
+#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
+        osTimesliceCheck();
+#endif
+        osTaskScan();   //task timeout scan
+#if (LOSCFG_BASE_CORE_SWTMR == YES)
+        (VOID)osSwtmrScan();
+#endif
+    }
+}
+
+#endif
 
 /*****************************************************************************
  Description : Tick interruption handler
@@ -56,24 +91,38 @@ LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
  Output      : None
  Return      : None
  *****************************************************************************/
-extern void hal_clock_irqclear(void);
 LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
 {
+#if (LOSCFG_KERNEL_TICKLESS == YES)
+    if (g_bReloadSysTickFlag)
+    {
+        LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
+        g_bReloadSysTickFlag = 0;
+    }
+    g_bTickIrqFlag = g_bTicklessFlag;
+#endif
+
+#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
+    platform_tick_handler();
+#endif
+
     g_ullTickCount ++;
 
-    #if(LOSCFG_BASE_CORE_TIMESLICE == YES)
+#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
     osTimesliceCheck();
-    #endif
+#endif
 
     osTaskScan();   //task timeout scan
 
-    #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    if (osSwtmrScan() != LOS_OK){
-        PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
-    }
-    #endif
+#if (LOSCFG_BASE_CORE_SWTMR == YES)
+    (VOID)osSwtmrScan();
+#endif
 }
 
+LITE_OS_SEC_TEXT UINT32 LOS_SysClockGet(void)
+{
+    return g_uwSysClock;
+}
 
 #ifdef __cplusplus
 #if __cplusplus

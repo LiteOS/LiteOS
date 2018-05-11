@@ -55,7 +55,7 @@
 LiteOS目前已经适配了18种开发板，其中包括ST、NXP、MIDMOTION、SILICON、ATMEL、GD等主流厂商的开发板
 
 ## 加入我们
-* 欢迎提交issue对关心的问题发起讨论，您也可以发邮箱至liteos@huawei.com
+* 欢迎提交issue对关心的问题发起讨论
 * 欢迎提交PR参与特性建设
 
 ## 开源协议

@@ -44,16 +44,23 @@ extern "C" {
 #endif /* __cplusplus */
 
 
+enum LOS_SEM_MAX_COUNT
+{
+    OS_SEM_COUNTING_MAX_COUNT = 0xFFFF,       /*Max count of counting semaphores*/
+    OS_SEM_BINARY_MAX_COUNT   = 1           /*Max count of binary semaphores*/
+};
+
 /**
  * @ingroup los_sem
  * Semaphore control structure.
  */
 typedef struct
 {
-    UINT8           usSemStat;          /**< Semaphore state*/
-    UINT16          uwSemCount;         /**< Number of available semaphores*/
-    UINT32          usSemID;            /**< Semaphore control structure ID*/
-    LOS_DL_LIST     stSemList;          /**< Queue of tasks that are waiting on a semaphore*/
+    UINT16          usSemStat;             /**< Semaphore state*/
+    UINT16          usSemCount;            /**< Number of available semaphores*/
+    UINT16          usMaxSemCount;         /**< Max number of available semaphores*/
+    UINT16          usSemID;               /**< Semaphore control structure ID*/
+    LOS_DL_LIST     stSemList;             /**< Queue of tasks that are waiting on a semaphore*/
 } SEM_CB_S;
 
 /**
@@ -81,13 +88,27 @@ extern SEM_CB_S    *g_pstAllSem;
  *
  */
 #define GET_SEM(semid)                  (((SEM_CB_S *)g_pstAllSem) + (semid))
-/**
- * @ingroup los_sem
- * Maximum value of task information.
- *
- */
-#define OS_MAX_PENDTASK_INFO            4
 
+/**
+ *@ingroup los_sem
+ *@brief Initialize the  Semaphore doubly linked list.
+ *
+ *@par Description:
+ *This API is used to initialize the  Semaphore doubly linked list.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param None.
+ *
+ *@retval UINT32   Initialization result.
+ *@par Dependency:
+ *<ul><li>los_sem.ph: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osSemInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

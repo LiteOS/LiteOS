@@ -43,6 +43,28 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+typedef enum enQueueReadWrite
+{
+    OS_QUEUE_READ  = 0,
+    OS_QUEUE_WRITE = 1,
+} QUEUE_READ_WRITE;
+
+typedef enum enQueueHeadTail
+{
+    OS_QUEUE_HEAD = 0,
+    OS_QUEUE_TAIL = 1,
+} QUEUE_HEAD_TAIL;
+
+#define OS_QUEUE_OPERATE_TYPE(ReadOrWrite, HeadOrTail)  (((UINT32)(HeadOrTail) << 1) | ReadOrWrite)
+#define OS_QUEUE_READ_WRITE_GET(type)                   ((type) & 0x01)
+#define OS_QUEUE_READ_HEAD                              (OS_QUEUE_READ | (OS_QUEUE_HEAD << 1))
+#define OS_QUEUE_READ_TAIL                              (OS_QUEUE_READ | (OS_QUEUE_TAIL << 1))
+#define OS_QUEUE_WRITE_HEAD                             (OS_QUEUE_WRITE | (OS_QUEUE_HEAD << 1))
+#define OS_QUEUE_WRITE_TAIL                             (OS_QUEUE_WRITE | (OS_QUEUE_TAIL << 1))
+#define OS_QUEUE_OPERATE_GET(type)                      ((type) & 0x03)
+#define OS_QUEUE_IS_READ(type)                          (OS_QUEUE_READ_WRITE_GET(type) == OS_QUEUE_READ)
+#define OS_QUEUE_IS_WRITE(type)                         (OS_QUEUE_READ_WRITE_GET(type) == OS_QUEUE_WRITE)
+
 
 /**
   * @ingroup los_queue
@@ -50,18 +72,16 @@ extern "C" {
   */
 typedef struct tagQueueCB
 {
-    UINT8       *pucQueue;              /**< Pointer to a queue handle */
-    UINT16      usQueueState;           /**< Queue state */
-    UINT16      usQueueLen;             /**< Queue length */
-    UINT16      usQueueSize;            /**< Node size     */
-    UINT16      usQueueHead;            /**< Node head       */
-    UINT16      usQueueTail;            /**< Node tail       */
-    UINT16      usWritableCnt;          /**< Count of writable resources   */
-    UINT16      usReadableCnt;          /**< Count of readable resources   */
-    UINT16      usReserved;             /**< Reserved         */
-    LOS_DL_LIST stWriteList;            /**< Pointer to the linked list to be written   */
-    LOS_DL_LIST stReadList;             /**< Pointer to the linked list to be read   */
-    LOS_DL_LIST stMemList;              /**< Pointer to the memory linked list */
+    UINT8       *pucQueue;                              /**< Pointer to a queue handle */
+    UINT16      usQueueState;                           /**< Queue state */
+    UINT16      usQueueLen;                             /**< Queue length */
+    UINT16      usQueueSize;                            /**< Node size     */
+    UINT16      usQueueID;                              /**< usQueueID         */
+    UINT16      usQueueHead;                            /**< Node head       */
+    UINT16      usQueueTail;                            /**< Node tail       */
+    UINT16      usReadWriteableCnt[2];       /**< Count of readable or writable resources, 0:readable, 1:writable */
+    LOS_DL_LIST stReadWriteList[2];          /**< Pointer to the linked list to be read or written, 0:readlist, 1:writelist  */
+    LOS_DL_LIST stMemList;                              /**< Pointer to the memory linked list */
 } QUEUE_CB_S;
 
 /* queue state */
@@ -103,10 +123,9 @@ extern QUEUE_CB_S *g_pstAllQueue;
 
 /**
   *  @ingroup los_queue
-  *  The function exits and returns error code.
+  * Obtain the head node in a queue doubly linked list.
   */
-#define GOTO_QUEUE_END(uwErrorNum) do { uwRet = uwErrorNum; \
-                                    goto QUEUE_END; } while (0)
+#define GET_QUEUE_LIST(ptr)               LOS_DL_LIST_ENTRY(ptr, QUEUE_CB_S, stReadWriteList[OS_QUEUE_WRITE])
 
 /**
  *@ingroup los_queue
@@ -128,7 +147,7 @@ extern QUEUE_CB_S *g_pstAllQueue;
  *@retval   #NULL                     The memory allocation is failed.
  *@retval   #pMem                     The address of alloc memory.
  *@par Dependency:
- *<ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_queue.ph: the header file that contains the API declaration.</li></ul>
  *@see osQueueMailFree
  *@since Huawei LiteOS V100R001C00
  */
@@ -154,12 +173,32 @@ extern VOID *osQueueMailAlloc(UINT32 uwQueueID, VOID *pMailPool, UINT32 uwTimeOu
  *@retval   #OS_ERRNO_QUEUE_MAIL_PTR_INVALID        0x0200061a: The pointer to the memory to be freed is null.
  *@retval   #OS_ERRNO_QUEUE_MAIL_FREE_ERROR         0x0200061b: The memory for the queue fails to be freed.
  *@par Dependency:
- *<ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_queue.ph: the header file that contains the API declaration.</li></ul>
  *@see osQueueMailAlloc
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 osQueueMailFree(UINT32 uwQueueID, VOID *pMailPool, VOID *pMailMem);
 
+/**
+ *@ingroup los_queue
+ *@brief Initialization queue.
+ *
+ *@par Description:
+ *This API is used to initialization queue.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param None.
+ *
+ *@retval   UINT32  Initialization result.
+ *@par Dependency:
+ *<ul><li>los_queue.ph: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osQueueInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

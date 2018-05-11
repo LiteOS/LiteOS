@@ -73,13 +73,13 @@ extern "C" {
  *
  *@retval Number of milliseconds obtained through the conversion.    Cycles are successfully converted to milliseconds.
  *@par Dependency:
- *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_sys.ph: the header file that contains the API declaration.</li></ul>
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-INLINE UINT64 osCycle2MS(UINT64 udwCycle)
+STATIC_INLINE UINT64 osCycle2MS(UINT64 ullCycle)
 {
-    return (UINT64)((udwCycle / (OS_SYS_CLOCK / OS_SYS_MS_PER_SECOND)));
+    return (UINT64)((ullCycle / (OS_SYS_CLOCK / OS_SYS_MS_PER_SECOND)));
 }
 
 /**
@@ -97,64 +97,15 @@ INLINE UINT64 osCycle2MS(UINT64 udwCycle)
  *
  *@retval Number of microseconds obtained through the conversion. Cycles are successfully converted to microseconds.
  *@par Dependency:
- *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_sys.ph: the header file that contains the API declaration.</li></ul>
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-INLINE UINT64 osCycle2US(UINT64 udwCycle)
+STATIC_INLINE UINT64 osCycle2US(UINT64 ullCycle)
 {
-    UINT64 udwTmp = OS_SYS_CLOCK / OS_SYS_US_PER_SECOND;
-    return (UINT64)(udwCycle / udwTmp);
+    UINT64 ullTmp = OS_SYS_CLOCK / OS_SYS_US_PER_SECOND;
+    return (UINT64)(ullCycle / ullTmp);
 }
-
-/**
- *@ingroup los_sys
- *@brief Convert cycles to milliseconds.
- *
- *@par Description:
- *This API is used to convert cycles to milliseconds.
- *@attention
- *<ul>
- *<li>None.</li>
- *</ul>
- *
- *@param  pstCpuTick  [IN] Number of CPU cycles.
- *@param  puwMsHi     [OUT] Upper 32 bits of the number of milliseconds.
- *@param  puwMsLo     [OUT] Lower 32 bits of the number of milliseconds.
- *
- *@retval #LOS_ERRNO_SYS_PTR_NULL    0x02000011: Invalid parameter.
- *@retval #LOS_OK                   0:  Cycles are successfully converted to microseconds.
- *@par Dependency:
- *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
- *@since Huawei LiteOS V100R001C00
- */
-extern UINT32 osCpuTick2MS(CPU_TICK *pstCpuTick, UINT32 *puwMsHi, UINT32 *puwMsLo);
-
-/**
- *@ingroup los_sys
- *@brief Convert cycles to microseconds.
- *
- *@par Description:
- *This API is used to convert cycles to microseconds.
- *@attention
- *<ul>
- *<li>None.</li>
- *</ul>
- *
- *@param  pstCpuTick  [IN] Number of CPU cycles.
- *@param  puwUsHi     [OUT] Upper 32 bits of the number of microseconds.
- *@param  puwUsLo     [OUT] Lower 32 bits of the number of microseconds.
- *
- *@retval #LOS_ERRNO_SYS_PTR_NULL    0x02000011: Invalid parameter.
- *@retval #LOS_OK                   0: Cycles are successfully converted to microseconds.
- *@par Dependency:
- *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
- *@since Huawei LiteOS V100R001C00
- */
-extern UINT32 osCpuTick2US(CPU_TICK *pstCpuTick, UINT32 *puwUsHi, UINT32 *puwUsLo);
-
 
 #ifdef __cplusplus
 #if __cplusplus

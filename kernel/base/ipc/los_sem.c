@@ -33,13 +33,15 @@
  *---------------------------------------------------------------------------*/
 
 #include "los_sem.inc"
-
 #include "los_base.ph"
+#include "los_err.ph"
 #include "los_memory.ph"
 #include "los_priqueue.ph"
 #include "los_sys.ph"
 #include "los_task.ph"
-#include "los_hw.h"
+#if (LOSCFG_PLATFORM_EXC == YES)
+#include "los_exc.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -50,7 +52,7 @@ extern "C"{
 
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
-LITE_OS_SEC_DATA_INIT LOS_DL_LIST  g_stUnusedSemList;
+LITE_OS_SEC_BSS LOS_DL_LIST  g_stUnusedSemList;
 LITE_OS_SEC_BSS SEM_CB_S    *g_pstAllSem;
 
 /*****************************************************************************
@@ -63,28 +65,79 @@ LITE_OS_SEC_BSS SEM_CB_S    *g_pstAllSem;
 LITE_OS_SEC_TEXT_INIT UINT32 osSemInit(VOID)
 {
     SEM_CB_S    *pstSemNode;
-    UINT32      uwIndex;
+    UINT16      uwIndex;
 
     LOS_ListInit(&g_stUnusedSemList);
-    if (LOSCFG_BASE_IPC_SEM_LIMIT > 0)  /*lint !e506*/
-    {
-        g_pstAllSem = (SEM_CB_S *)LOS_MemAlloc(m_aucSysMem0, (LOSCFG_BASE_IPC_SEM_LIMIT * sizeof(SEM_CB_S)));
-        if (NULL == g_pstAllSem)
-        {
-            return LOS_ERRNO_SEM_NO_MEMORY;
-        }
 
-        /* Connect all the ECBs in a doubly linked list. */
-        for (uwIndex = 0; uwIndex < LOSCFG_BASE_IPC_SEM_LIMIT; uwIndex++)
-        {
-            pstSemNode = ((SEM_CB_S *)g_pstAllSem) + uwIndex;
-            pstSemNode->usSemID = uwIndex;
-            pstSemNode->usSemStat = OS_SEM_UNUSED;
-            LOS_ListTailInsert(&g_stUnusedSemList, &pstSemNode->stSemList);
-        }
+    if (LOSCFG_BASE_IPC_SEM_LIMIT == 0)   /*lint !e506*/
+    {
+        return LOS_ERRNO_SEM_MAXNUM_ZERO;
     }
 
+    g_pstAllSem = (SEM_CB_S *)LOS_MemAlloc(m_aucSysMem0, (LOSCFG_BASE_IPC_SEM_LIMIT * sizeof(SEM_CB_S)));
+    if (NULL == g_pstAllSem)
+    {
+        return LOS_ERRNO_SEM_NO_MEMORY;
+    }
+
+    /* Connect all the ECBs in a doubly linked list. */
+    for (uwIndex = 0; uwIndex < LOSCFG_BASE_IPC_SEM_LIMIT; uwIndex++)
+    {
+        pstSemNode = ((SEM_CB_S *)g_pstAllSem) + uwIndex;
+        pstSemNode->usSemID = uwIndex;
+        pstSemNode->usSemStat = OS_SEM_UNUSED;
+        LOS_ListTailInsert(&g_stUnusedSemList, &pstSemNode->stSemList);
+    }
     return LOS_OK;
+}
+
+
+/*****************************************************************************
+ Function     : osSemCreate
+ Description  : create the  Semaphore
+ Input        : None,
+ Output       : None,
+ Return       : LOS_OK on success ,or error code on failure
+ *****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 osSemCreate (UINT16 usCount, UINT16 usMaxCount, UINT32 *puwSemHandle)
+{
+    UINT32      uwIntSave;
+    SEM_CB_S    *pstSemCreated;
+    LOS_DL_LIST *pstUnusedSem;
+    UINT32      uwErrNo;
+    UINT32      uwErrLine;
+
+    if (NULL == puwSemHandle)
+    {
+        return LOS_ERRNO_SEM_PTR_NULL;
+    }
+
+    if (usCount > usMaxCount)
+    {
+        OS_GOTO_ERR_HANDLER(LOS_ERRNO_SEM_OVERFLOW);
+    }
+
+    uwIntSave = LOS_IntLock();
+
+    if (LOS_ListEmpty(&g_stUnusedSemList))
+    {
+        LOS_IntRestore(uwIntSave);
+        OS_GOTO_ERR_HANDLER(LOS_ERRNO_SEM_ALL_BUSY);
+    }
+
+    pstUnusedSem = LOS_DL_LIST_FIRST(&(g_stUnusedSemList));
+    LOS_ListDelete(pstUnusedSem);
+    pstSemCreated = (GET_SEM_LIST(pstUnusedSem)); /*lint !e413*/
+    pstSemCreated->usSemCount = usCount;
+    pstSemCreated->usSemStat = OS_SEM_USED;
+    pstSemCreated->usMaxSemCount = usMaxCount;
+    LOS_ListInit(&pstSemCreated->stSemList);
+    *puwSemHandle = (UINT32)pstSemCreated->usSemID;
+    LOS_IntRestore(uwIntSave);
+    return LOS_OK;
+
+ErrHandler:
+    OS_RETURN_ERROR_P2(uwErrLine, uwErrNo);
 }
 
 /*****************************************************************************
@@ -96,37 +149,19 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSemInit(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_SemCreate (UINT16 usCount, UINT32 *puwSemHandle)
 {
-    UINT32      uwIntSave;
-    SEM_CB_S    *pstSemCreated;
-    LOS_DL_LIST *pstUnusedSem;
+    return osSemCreate(usCount, OS_SEM_COUNTING_MAX_COUNT, puwSemHandle);
+}
 
-    if (NULL == puwSemHandle)
-    {
-        return LOS_ERRNO_SEM_PTR_NULL;
-    }
-
-    if (usCount > OS_SEM_COUNT_MAX)
-    {
-        return LOS_ERRNO_SEM_OVERFLOW;
-    }
-
-    uwIntSave = LOS_IntLock();
-
-    if (LOS_ListEmpty(&g_stUnusedSemList))
-    {
-        LOS_IntRestore(uwIntSave);
-        return LOS_ERRNO_SEM_ALL_BUSY;
-    }
-
-    pstUnusedSem = LOS_DL_LIST_FIRST(&(g_stUnusedSemList));
-    LOS_ListDelete(pstUnusedSem);
-    pstSemCreated = (GET_SEM_LIST(pstUnusedSem)); /*lint !e413*/
-    pstSemCreated->uwSemCount = usCount;
-    pstSemCreated->usSemStat = OS_SEM_USED;
-    LOS_ListInit(&pstSemCreated->stSemList);
-    *puwSemHandle = (UINT32)pstSemCreated->usSemID;
-    LOS_IntRestore(uwIntSave);
-    return LOS_OK;
+/*****************************************************************************
+ Function     : LOS_BinarySemCreate
+ Description  : Create a binary semaphore,
+ Input        : uwCount--------- semaphore count,
+ Output       : puwSemHandle-----Index of semaphore,
+ Return       : LOS_OK on success ,or error code on failure
+ *****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_BinarySemCreate (UINT16 usCount, UINT32 *puwSemHandle)
+{
+    return osSemCreate(usCount, OS_SEM_BINARY_MAX_COUNT, puwSemHandle);
 }
 
 /*****************************************************************************
@@ -140,26 +175,34 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SemDelete(UINT32 uwSemHandle)
 {
     UINT32      uwIntSave;
     SEM_CB_S    *pstSemDeleted;
+    UINT32      uwErrNo;
+    UINT32      uwErrLine;
 
-   pstSemDeleted = GET_SEM(uwSemHandle);
-   uwIntSave = LOS_IntLock();
-   if ((uwSemHandle >= (UINT32)LOSCFG_BASE_IPC_SEM_LIMIT) ||
-        (0 == pstSemDeleted->usSemStat))
-   {
+    if (uwSemHandle >= (UINT32)LOSCFG_BASE_IPC_SEM_LIMIT)
+    {
+        OS_GOTO_ERR_HANDLER(LOS_ERRNO_SEM_INVALID);
+    }
+
+    pstSemDeleted = GET_SEM(uwSemHandle);
+    uwIntSave = LOS_IntLock();
+    if (OS_SEM_UNUSED == pstSemDeleted->usSemStat)
+    {
         LOS_IntRestore(uwIntSave);
-        return LOS_ERRNO_SEM_INVALID;
+        OS_GOTO_ERR_HANDLER(LOS_ERRNO_SEM_INVALID);
     }
 
-   if (!LOS_ListEmpty(&pstSemDeleted->stSemList))
-   {
-       LOS_IntRestore(uwIntSave);
-       return LOS_ERRNO_SEM_PENDED;
+    if (!LOS_ListEmpty(&pstSemDeleted->stSemList))
+    {
+        LOS_IntRestore(uwIntSave);
+        OS_GOTO_ERR_HANDLER(LOS_ERRNO_SEM_PENDED);
     }
 
-   LOS_ListAdd(&g_stUnusedSemList, &pstSemDeleted->stSemList);
-   pstSemDeleted->usSemStat = OS_SEM_UNUSED;
-   LOS_IntRestore(uwIntSave);
-   return LOS_OK;
+    LOS_ListAdd(&g_stUnusedSemList, &pstSemDeleted->stSemList);
+    pstSemDeleted->usSemStat = OS_SEM_UNUSED;
+    LOS_IntRestore(uwIntSave);
+    return LOS_OK;
+ErrHandler:
+    OS_RETURN_ERROR_P2(uwErrLine, uwErrNo);
 }
 
 /*****************************************************************************
@@ -176,19 +219,23 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout)
     SEM_CB_S    *pstSemPended;
     UINT32      uwRetErr;
     LOS_TASK_CB *pstRunTsk;
-    LOS_DL_LIST *pstPendObj;
+
+    if (uwSemHandle >= (UINT32)LOSCFG_BASE_IPC_SEM_LIMIT)
+    {
+        OS_RETURN_ERROR(LOS_ERRNO_SEM_INVALID);
+    }
 
     pstSemPended = GET_SEM(uwSemHandle);
     uwIntSave = LOS_IntLock();
-    if ((uwSemHandle >= (UINT32)LOSCFG_BASE_IPC_SEM_LIMIT) || (0 == pstSemPended->usSemStat))
+    if (OS_SEM_UNUSED == pstSemPended->usSemStat)
     {
         LOS_IntRestore(uwIntSave);
-        return LOS_ERRNO_SEM_INVALID;
+        OS_RETURN_ERROR(LOS_ERRNO_SEM_INVALID);
     }
 
-    if (pstSemPended->uwSemCount > 0)
+    if (pstSemPended->usSemCount > 0)
     {
-        pstSemPended->uwSemCount--;
+        pstSemPended->usSemCount--;
         LOS_IntRestore(uwIntSave);
         return LOS_OK;
     }
@@ -203,6 +250,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout)
     {
         uwRetErr = LOS_ERRNO_SEM_PEND_INTERR;
         PRINT_ERR("!!!LOS_ERRNO_SEM_PEND_INTERR!!!\n");
+#if (LOSCFG_PLATFORM_EXC == YES)
+        osBackTrace();
+#endif
         goto errre_uniSemPend;
     }
 
@@ -210,26 +260,15 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout)
     {
         uwRetErr = LOS_ERRNO_SEM_PEND_IN_LOCK;
         PRINT_ERR("!!!LOS_ERRNO_SEM_PEND_IN_LOCK!!!\n");
+#if (LOSCFG_PLATFORM_EXC == YES)
+        osBackTrace();
+#endif
         goto errre_uniSemPend;
     }
 
     pstRunTsk = (LOS_TASK_CB *)g_stLosTask.pstRunTask;
-    LOS_PriqueueDequeue(&pstRunTsk->stPendList);
-    pstRunTsk->usTaskStatus &= (~OS_TASK_STATUS_READY);
     pstRunTsk->pTaskSem = (VOID *)pstSemPended;
-    pstPendObj = &pstRunTsk->stPendList;
-    pstRunTsk->usTaskStatus |= OS_TASK_STATUS_PEND;
-    LOS_ListTailInsert(&pstSemPended->stSemList, pstPendObj);
-    if (uwTimeout != LOS_WAIT_FOREVER)
-    {
-        pstRunTsk->usTaskStatus |= OS_TASK_STATUS_TIMEOUT;
-        osTaskAdd2TimerList((LOS_TASK_CB *)pstRunTsk, uwTimeout);
-    }
-    else
-    {
-        pstRunTsk->usTaskStatus &= (~OS_TASK_STATUS_TIMEOUT);
-    }
-
+    osTaskWait(&pstSemPended->stSemList, OS_TASK_STATUS_PEND, uwTimeout);
     (VOID)LOS_IntRestore(uwIntSave);
     LOS_Schedule();
 
@@ -237,17 +276,15 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout)
     {
         uwIntSave = LOS_IntLock();
         pstRunTsk->usTaskStatus &= (~OS_TASK_STATUS_TIMEOUT);
-        (VOID)LOS_IntRestore(uwIntSave);
         uwRetErr = LOS_ERRNO_SEM_TIMEOUT;
-        goto error_uniSemPend;
+        goto errre_uniSemPend;
     }
 
     return LOS_OK;
 
 errre_uniSemPend:
     (VOID)LOS_IntRestore(uwIntSave);
-error_uniSemPend:
-    return (uwRetErr);
+    OS_RETURN_ERROR(uwRetErr);
 }
 
 /*****************************************************************************
@@ -273,39 +310,26 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 uwSemHandle)
     if (OS_SEM_UNUSED == pstSemPosted->usSemStat)
     {
         LOS_IntRestore(uwIntSave);
-        return LOS_ERRNO_SEM_INVALID;
+        OS_RETURN_ERROR(LOS_ERRNO_SEM_INVALID);
     }
 
-    if (OS_SEM_COUNT_MAX == pstSemPosted->uwSemCount )
+    if (pstSemPosted->usMaxSemCount == pstSemPosted->usSemCount)
     {
         (VOID)LOS_IntRestore(uwIntSave);
-        return LOS_ERRNO_SEM_OVERFLOW;
+        OS_RETURN_ERROR(LOS_ERRNO_SEM_OVERFLOW);
     }
     if (!LOS_ListEmpty(&pstSemPosted->stSemList))
     {
         pstResumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&(pstSemPosted->stSemList))); /*lint !e413*/
-        LOS_ListDelete(LOS_DL_LIST_FIRST(&(pstSemPosted->stSemList)));
-        LOS_ASSERT_COND(pstResumedTask->usTaskStatus & OS_TASK_STATUS_PEND);
-        pstResumedTask->usTaskStatus &= (~OS_TASK_STATUS_PEND);
-        if (pstResumedTask->usTaskStatus & OS_TASK_STATUS_TIMEOUT)
-        {
-            osTimerListDelete(pstResumedTask);
-            pstResumedTask->usTaskStatus &= (~OS_TASK_STATUS_TIMEOUT);
-        }
-
         pstResumedTask->pTaskSem = NULL;
-        if (!(pstResumedTask->usTaskStatus & OS_TASK_STATUS_SUSPEND))
-        {
-            pstResumedTask->usTaskStatus |= OS_TASK_STATUS_READY;
-            LOS_PriqueueEnqueue(&pstResumedTask->stPendList, pstResumedTask->usPriority);
-        }
+        osTaskWake(pstResumedTask, OS_TASK_STATUS_PEND);
 
         (VOID)LOS_IntRestore(uwIntSave);
         LOS_Schedule();
     }
     else
     {
-        pstSemPosted->uwSemCount++;
+        pstSemPosted->usSemCount++;
         (VOID)LOS_IntRestore(uwIntSave);
     }
 

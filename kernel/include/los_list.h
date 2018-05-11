@@ -39,7 +39,7 @@
 #ifndef _LOS_LIST_H
 #define _LOS_LIST_H
 
-#include "los_base.h"
+#include "los_typedef.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -66,7 +66,7 @@ typedef struct LOS_DL_LIST
  *This API is used to initialize a doubly linked list.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameter passed in should be ensured to be a legal pointer.</li>
  *</ul>
  *
  *@param pstList    [IN] Node in a doubly linked list.
@@ -77,7 +77,7 @@ typedef struct LOS_DL_LIST
  *@see
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListInit(LOS_DL_LIST *pstList)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListInit(LOS_DL_LIST *pstList)
 {
     pstList->pstNext = pstList;
     pstList->pstPrev = pstList;
@@ -114,19 +114,19 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListInit(LOS_DL_LIST *pstList)
  *This API is used to insert a new node to a doubly linked list.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameters passed in should be ensured to be legal pointers.</li>
  *</ul>
  *
- *@param pstList    [IN]    Position where the new node is inserted.
+ *@param pstList    [IN]   Doubly linked list where the new node is inserted.
  *@param pstNode    [IN]   New node to be inserted.
  *
  *@retval None
  *@par Dependency:
  *<ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- *@see
+ *@see LOS_ListDelete
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListAdd(LOS_DL_LIST *pstList, LOS_DL_LIST *pstNode)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListAdd(LOS_DL_LIST *pstList, LOS_DL_LIST *pstNode)
 {
     pstNode->pstNext = pstList->pstNext;
     pstNode->pstPrev = pstList;
@@ -139,10 +139,10 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListAdd(LOS_DL_LIST *pstList, LOS_DL_LIST
  *@brief Insert a node to the tail of a doubly linked list.
  *
  *@par Description:
- *This API is used to insert a new node to the tail of a doubly linked list. pstListObject and pstNewNode must point to valid memory.
+ *This API is used to insert a new node to the tail of a doubly linked list.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameters passed in should be ensured to be legal pointers.</li>
  *</ul>
  *
  *@param pstList     [IN] Doubly linked list where the new node is inserted.
@@ -151,10 +151,10 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListAdd(LOS_DL_LIST *pstList, LOS_DL_LIST
  *@retval None.
  *@par Dependency:
  *<ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_ListAdd
+ *@see LOS_ListAdd | LOS_ListHeadInsert
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *pstList, LOS_DL_LIST *pstNode)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *pstList, LOS_DL_LIST *pstNode)
 {
     LOS_ListAdd(pstList->pstPrev, pstNode);
 }
@@ -169,7 +169,7 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *pstList, LOS_
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameter passed in should be ensured to be a legal pointer.</li>
  *</ul>
  *
  *@param pstNode    [IN] Node to be deleted.
@@ -180,7 +180,7 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *pstList, LOS_
  *@see LOS_ListAdd
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListDelete(LOS_DL_LIST *pstNode)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListDelete(LOS_DL_LIST *pstNode)
 {
     pstNode->pstNext->pstPrev = pstNode->pstPrev;
     pstNode->pstPrev->pstNext = pstNode->pstNext;
@@ -198,10 +198,10 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListDelete(LOS_DL_LIST *pstNode)
  *</ul>
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameter passed in should be ensured to be a legal pointer.</li>
  *</ul>
  *
- *@param pstNode  [IN] Node in the doubly linked list.
+ *@param pstList  [IN] Doubly linked list.
  *
  *@retval TRUE The doubly linked list is empty.
  *@retval FALSE The doubly linked list is not empty.
@@ -210,7 +210,7 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListDelete(LOS_DL_LIST *pstNode)
  *@see
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *pstNode)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *pstNode)
 {
     return (BOOL)(pstNode->pstNext == pstNode);
 }
@@ -257,7 +257,7 @@ LITE_OS_SEC_ALW_INLINE INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *pstNode)
  *@see
  *@since Huawei LiteOS V100R001C00
  */
-#define LOS_OFF_SET_OF(type, member) ((long)&((type *)0)->member)
+#define LOS_OFF_SET_OF(type, member) ((long)&((type *)0)->member)   /*lint -e(413) */
 
 /**
  *@ingroup los_list
@@ -338,11 +338,11 @@ LITE_OS_SEC_ALW_INLINE INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *pstNode)
  */
 #define LOS_DL_LIST_FOR_EACH_ENTRY_SAFE(item, next, list, type, member)            \
     for (item = LOS_DL_LIST_ENTRY((list)->pstNext, type, member), \
-        next = LOS_DL_LIST_ENTRY(item->member->pstNext, type, member); \
+        next = LOS_DL_LIST_ENTRY(item->member.pstNext, type, member); \
         &item->member != (list); \
-        item = next, item = LOS_DL_LIST_ENTRY(item->member.pstNext, type, member))
+        item = next, next = LOS_DL_LIST_ENTRY(item->member.pstNext, type, member))
 
-LITE_OS_SEC_ALW_INLINE INLINE VOID osListDel(LOS_DL_LIST *pstPrevNode, LOS_DL_LIST *pstNextNode)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID osListDel(LOS_DL_LIST *pstPrevNode, LOS_DL_LIST *pstNextNode)
 {
     pstNextNode->pstPrev = pstPrevNode;
     pstPrevNode->pstNext = pstNextNode;
@@ -356,10 +356,10 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID osListDel(LOS_DL_LIST *pstPrevNode, LOS_DL_LI
  *This API is used to delete initialize a doubly linked list.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The parameter passed in should be ensured to be s legal pointer.</li>
  *</ul>
  *
- *@param pstList    [IN] Node in a doubly linked list.
+ *@param pstList    [IN] Doubly linked list.
  *
  *@retval None.
  *@par Dependency:
@@ -367,7 +367,7 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID osListDel(LOS_DL_LIST *pstPrevNode, LOS_DL_LI
  *@see
  *@since Huawei LiteOS V100R001C00
  */
-LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListDelInit(LOS_DL_LIST *pstList)
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListDelInit(LOS_DL_LIST *pstList)
 {
     osListDel(pstList->pstPrev, pstList->pstNext);
     LOS_ListInit(pstList);
@@ -428,7 +428,7 @@ LITE_OS_SEC_ALW_INLINE INLINE VOID LOS_ListDelInit(LOS_DL_LIST *pstList)
  *@brief Initialize a double linked list.
  *
  *@par Description:
- *This API is used to Initialize a double linked list.
+ *This API is used to initialize a double linked list.
  *@attention
  *<ul>
  *<li>None.</li>

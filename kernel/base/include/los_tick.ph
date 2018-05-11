@@ -43,12 +43,29 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
 /**
  * @ingroup los_tick
  * Count of Ticks
  */
 extern UINT64 g_ullTickCount;
+
+/**
+ * @ingroup los_tick
+ * Ticks per second
+ */
+extern UINT32    g_uwTicksPerSec;
+
+/**
+ * @ingroup los_tick
+ * Cycles per Second
+ */
+extern UINT32    g_uwCyclePerSec;
+
+/**
+ * @ingroup los_tick
+ * Cycles per Tick
+ */
+extern UINT32    g_uwCyclesPerTick;
 
 /**
 * @ingroup  los_tick
@@ -66,12 +83,15 @@ extern UINT64 g_ullTickCount;
 *
 * @retval None.
 * @par Dependency:
-* <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+* <ul><li>los_tick.ph: the header file that contains the API declaration.</li></ul>
 * @see None.
 * @since Huawei LiteOS V100R001C00
 */
 extern VOID osTickHandler(VOID);
 
+#if (LOSCFG_KERNEL_TICKLESS == YES)
+LITE_OS_SEC_TEXT VOID osTickHandlerLoop(UINT32 uwElapseTicks);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

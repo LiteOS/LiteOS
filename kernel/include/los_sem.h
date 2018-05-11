@@ -40,6 +40,7 @@
 #define _LOS_SEM_H
 
 #include "los_base.h"
+#include "los_err.h"
 #include "los_list.h"
 #include "los_task.h"
 
@@ -102,7 +103,7 @@ extern "C" {
 #define LOS_ERRNO_SEM_UNAVAILABLE               LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x04)
 
 /**
-* @ingoup los_sem
+* @ingroup los_sem
 * Semaphore error code: The API is called during an interrupt, which is forbidden.
 *
 * Value: 0x02000705
@@ -153,35 +154,63 @@ extern "C" {
 
 /**
  * @ingroup los_sem
- * Maximum number of semaphores.
+ * Semaphore error code: LOS_ERRNO_SEM_MAXNUM_ZERO is error.
  *
+ * Value: 0x0200070A
+ *
+ * Solution: LOS_ERRNO_SEM_MAXNUM_ZERO should not be error.
  */
-#define OS_SEM_COUNT_MAX                        0xFFFE
+#define LOS_ERRNO_SEM_MAXNUM_ZERO                    LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x0A)
 
 /**
  *@ingroup los_sem
- *@brief Create a semaphore.
+ *@brief Create a Counting semaphore.
  *
  *@par Description:
- *This API is used to initialize a semaphore control structure according to the initial number of available semaphores specified by uwCount and return the ID of this semaphore control structure.
+ *This API is used to create a semaphore control structure according to the initial number of available semaphores specified by usCount and return the ID of this semaphore control structure.
  *@attention
  *<ul>
  *<li>None.</li>
  *</ul>
  *
- *@param uwCount        [IN] Initial number of available semaphores. The value range is [1, OS_SEM_COUNT_MAX].
+ *@param usCount        [IN] Initial number of available semaphores. The value range is [0, OS_SEM_COUNTING_MAX_COUNT).
  *@param puwSemHandle   [OUT] ID of the semaphore control structure that is initialized.
  *
- *@retval #LOS_ERRNO_SEM_PTR_NULL    0x02000703: The passed-in puwSemHandle value is NULL.
- *@retval #LOS_ERRNO_SEM_OVERFLOW    0x02000709: The passed-in uwCount value is greater than the maximum number of available semaphores.
- *@retval #LOS_ERRNO_SEM_ALL_BUSY    0x02000704: No semaphore control structure is available.
- *@retval #LOS_OK   0: The semaphore is successfully created.
+ *@retval #LOS_ERRNO_SEM_PTR_NULL     The passed-in puwSemHandle value is NULL.
+ *@retval #LOS_ERRNO_SEM_OVERFLOW     The passed-in usCount value is greater than the maximum number of available semaphores.
+ *@retval #LOS_ERRNO_SEM_ALL_BUSY     No semaphore control structure is available.
+ *@retval #LOS_OK   The semaphore is successfully created.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_EventDelete
+ *@see LOS_SemDelete
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SemCreate(UINT16 usCount, UINT32 *puwSemHandle);
+
+/**
+ *@ingroup los_sem
+ *@brief Create a binary semaphore.
+ *
+ *@par Description:
+ *This API is used to create a binary semaphore control structure according to the initial number of available semaphores specified by usCount and return the ID of this semaphore control structure.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param usCount        [IN] Initial number of available semaphores. The value range is [0, 1].
+ *@param puwSemHandle   [OUT] ID of the semaphore control structure that is initialized.
+ *
+ *@retval #LOS_ERRNO_SEM_PTR_NULL     The passed-in puwSemHandle value is NULL.
+ *@retval #LOS_ERRNO_SEM_OVERFLOW     The passed-in usCount value is greater than the maximum number of available semaphores.
+ *@retval #LOS_ERRNO_SEM_ALL_BUSY     No semaphore control structure is available.
+ *@retval #LOS_OK   The semaphore is successfully created.
+ *@par Dependency:
+ *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
+ *@see LOS_SemDelete
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_BinarySemCreate (UINT16 usCount, UINT32 *puwSemHandle);
 
 /**
  *@ingroup los_sem
@@ -191,14 +220,14 @@ extern UINT32 LOS_SemCreate(UINT16 usCount, UINT32 *puwSemHandle);
  *This API is used to delete a semaphore control structure that has an ID specified by uwSemHandle.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specified sem id must be created first. </li>
  *</ul>
  *
- *@param uwSemHandle   [IN] ID of the semaphore control structure to be deleted.
+ *@param uwSemHandle   [IN] ID of the semaphore control structure to be deleted. The ID of the semaphore control structure is obtained from semaphore creation.
  *
- *@retval #LOS_ERRNO_SEM_INVALID 0x02000702: The passed-in puwSemHandle value is invalid.
- *@retval #LOS_ERRNO_SEM_PENDED  0x0200070a: The queue of the tasks that are waiting on the semaphore control structure is not null.
- *@retval #LOS_OK   0: The semaphore control structure is successfully deleted.
+ *@retval #LOS_ERRNO_SEM_INVALID  The passed-in uwSemHandle value is invalid.
+ *@retval #LOS_ERRNO_SEM_PENDED   The queue of the tasks that are waiting on the semaphore control structure is not null.
+ *@retval #LOS_OK   The semaphore control structure is successfully deleted.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
  *@see LOS_SemCreate
@@ -214,21 +243,21 @@ extern UINT32 LOS_SemDelete(UINT32 uwSemHandle);
  *This API is used to request a semaphore based on the semaphore control structure ID specified by uwSemHandle and the parameter that specifies the timeout period.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specified sem id must be created first. </li>
  *</ul>
  *
- *@param uwSemHandle   [IN] ID of the semaphore control structure to be requested.
- *@param uwTimeout      [IN] Timeout interval for waiting on the semaphore. The value range is [0, 0xFFFFFFFF]. If the value is set to 0, the semaphore is not waited on. If the value is set to 0xFFFFFFFF, the semaphore is waited on forever.
+ *@param uwSemHandle   [IN] ID of the semaphore control structure to be requested. The ID of the semaphore control structure is obtained from semaphore creation.
+ *@param uwTimeout     [IN] Timeout interval for waiting on the semaphore. The value range is [0, 0xFFFFFFFF]. If the value is set to 0, the semaphore is not waited on. If the value is set to 0xFFFFFFFF, the semaphore is waited on forever(unit: Tick).
  *
- *@retval #LOS_ERRNO_SEM_INVALID         0x02000701: The passed-in puwSemHandle value is invalid.
- *@retval #LOS_ERRNO_SEM_UNAVAILABLE     0x02000704: The passed-in value of the parameter that specifies the timeout interval is invalid.
- *@retval #LOS_ERRNO_SEM_PEND_INTERR     0x02000706: The API is called during an interrupt, which is forbidden.
- *@retval #LOS_ERRNO_SEM_PEND_IN_LOCK    0x02000706: The task is unable to request a semaphore because task scheduling is locked.
- *@retval #LOS_ERRNO_SEM_TIMEOUT         0x02000707: The request for the semaphore times out.
- *@retval #LOS_OK   0: The semaphore request succeeds.
+ *@retval #LOS_ERRNO_SEM_INVALID          The passed-in uwSemHandle value is invalid.
+ *@retval #LOS_ERRNO_SEM_UNAVAILABLE      There is no available semaphore resource.
+ *@retval #LOS_ERRNO_SEM_PEND_INTERR      The API is called during an interrupt, which is forbidden.
+ *@retval #LOS_ERRNO_SEM_PEND_IN_LOCK     The task is unable to request a semaphore because task scheduling is locked.
+ *@retval #LOS_ERRNO_SEM_TIMEOUT	 The request for the semaphore times out.
+ *@retval #LOS_OK   The semaphore request succeeds.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_SemPost
+ *@see LOS_SemPost | LOS_SemCreate
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout);
@@ -241,17 +270,17 @@ extern UINT32 LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout);
  *This API is used to release a semaphore that has a semaphore control structure ID specified by uwSemHandle.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specified sem id must be created first. </li>
  *</ul>
  *
- *@param uwSemHandle   [IN] ID of the semaphore control structure to be released.
+ *@param uwSemHandle   [IN] ID of the semaphore control structure to be released.The ID of the semaphore control structure is obtained from semaphore creation.
  *
- *@retval #LOS_ERRNO_SEM_INVALID     0x02000701: The passed-in puwSemHandle value is invalid.
- *@retval #LOS_ERRNO_SEM_OVERFLOW    0x02000708: The times of semaphore release exceed the maximum times permitted.
- *@retval #LOS_OK                    0: The semaphore is successfully released.
+ *@retval #LOS_ERRNO_SEM_INVALID      The passed-in uwSemHandle value is invalid.
+ *@retval #LOS_ERRNO_SEM_OVERFLOW     The times of semaphore release exceed the maximum times permitted.
+ *@retval #LOS_OK                     The semaphore is successfully released.
  *@par Dependency:
  *<ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_SemPend
+ *@see LOS_SemPend | LOS_SemCreate
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SemPost(UINT32 uwSemHandle);

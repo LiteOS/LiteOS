@@ -61,8 +61,8 @@ enum enSwTmrState
  */
 typedef struct tagSwTmrHandlerItem
 {
-    SWTMR_PROC_FUNC     pfnHandler;     /**< Callback function that handles software timer timeout      */
-    UINT32              uwArg;          /**< Parameter passed in when the callback function that handles software timer timeout is called       */
+    SWTMR_PROC_FUNC     pfnHandler;     /**< Callback function that handles software timer timeout          */
+    UINT32              uwArg;          /**< Parameter passed in when the callback function that handles software timer timeout is called     */
 } SWTMR_HANDLER_ITEM_S;
 
 /**
@@ -92,12 +92,80 @@ extern SWTMR_CTRL_S             *m_pstSwtmrCBArray;
  *
  *@retval None.
  *@par Dependency:
- *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_swtmr.ph: the header file that contains the API declaration.</li></ul>
  *@see LOS_SwtmrStop
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 osSwtmrScan(VOID);
 
+/**
+ *@ingroup los_swtmr
+ *@brief Initialization software timer.
+ *
+ *@par Description:
+ *<ul>
+ *<li>This API is used to initialization software.</li>
+ *</ul>
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param  None.
+ *
+ *@retval None.
+ *@par Dependency:
+ *<ul><li>los_swtmr.ph: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osSwTmrInit(VOID);
+
+/**
+ *@ingroup los_swtmr
+ *@brief Get next timeout.
+ *
+ *@par Description:
+ *<ul>
+ *<li>This API is used to get next timeout.</li>
+ *</ul>
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param  None.
+ *
+ *@retval None.
+ *@par Dependency:
+ *<ul><li>los_swtmr.ph: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osSwTmrGetNextTimeout(VOID);
+
+/**
+ *@ingroup los_swtmr
+ *@brief Adjust software timer list.
+ *
+ *@par Description:
+ *<ul>
+ *<li>This API is used to adjust software timer list.</li>
+ *</ul>
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param  UINT32   Sleep time.
+ *
+ *@retval UINT32    Sleep time.
+ *@par Dependency:
+ *<ul><li>los_swtmr.ph: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern VOID osSwTmrAdjust(UINT32 uwSleepTime);
 
 #ifdef __cplusplus
 #if __cplusplus

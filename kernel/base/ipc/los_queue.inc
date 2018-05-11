@@ -43,9 +43,30 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
-extern UINT32 osQueueCreate(UINT16 usLen, UINT32 *puwQueueID, UINT16 usMaxMsgSize, QUEUE_CB_S **ppstQueueCBOut);
-
+/**
+ *@ingroup los_queue
+ *@brief Handle when read or write queue.
+ *
+ *@par Description:
+ *This API is used to handle when read or write queue.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param UINT32  Queue id.
+ *@param UINT32  Operate type
+ *@param VOID *  Buffer address.
+ *@param UINT32  Buffer size.
+ *@param UINT32  Timeout.
+ *
+ *@retval   UINT32  Handle result.
+ *@par Dependency:
+ *<ul><li>los_queue.inc: the header file that contains the API declaration.</li></ul>
+ *@see None.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osQueueOperate(UINT32 uwQueueID, UINT32 uwOperateType, VOID *pBufferAddr, UINT32 *puwBufferSize, UINT32 uwTimeOut);
 
 #ifdef __cplusplus
 #if __cplusplus

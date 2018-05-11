@@ -94,6 +94,94 @@ typedef struct tagStackInfo
     BOOL   bOvf;                                   /**<Flag that indicates whether a task stack overflow occurs        */
 } STACK_INFO_S;
 
+/**
+ * @ingroup  los_task
+ * @brief Add task to sorted delay list.
+ *
+ * @par Description:
+ * This API is used to add task to sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstTaskCB should be a correct pointer to task control block structure.</li>
+ * </ul>
+ *
+ * @param  pstTaskCB [IN] Type #LOS_TASK_CB * pointer to task control block structure.
+ * @param  uwTimeout  [IN] Type #UINT32 wait time, ticks.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task.inc: the header file that contains the API declaration.</li></ul>
+ * @see osTimerListDelete
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osTaskAdd2TimerList(LOS_TASK_CB *pstTaskCB, UINT32 uwTimeout);
+
+/**
+ * @ingroup  los_task
+ * @brief delete task from sorted delay list.
+ *
+ * @par Description:
+ * This API is used to delete task from sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstTaskCB should be a correct pointer to task control block structure.</li>
+ * </ul>
+ *
+ * @param  pstTaskCB [IN] Type #LOS_TASK_CB * pointer to task control block structure.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task.inc: the header file that contains the API declaration.</li></ul>
+ * @see osTaskAdd2TimerList
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osTimerListDelete(LOS_TASK_CB *pstTaskCB);
+
+/**
+ * @ingroup  los_task
+ * @brief Convert task status to string.
+ *
+ * @par Description:
+ * This API is used to convert task status to string.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  usTaskStatus [IN] Type #UINT16 task status.
+ *
+ * @retval  UINT8 *  String.
+ * @par Dependency:
+ * <ul><li>los_task.inc: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT8 *osConvertTskStatus(UINT16 usTaskStatus);
+
+/**
+ * @ingroup  los_task
+ * @brief Get all task information.
+ *
+ * @par Description:
+ * This API is used to get all task information.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  UINT32  All task information.
+ * @par Dependency:
+ * <ul><li>los_task.inc: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osGetAllTskInfo(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

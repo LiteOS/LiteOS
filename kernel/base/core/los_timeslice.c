@@ -36,6 +36,7 @@
 #include "los_task.ph"
 #include "los_tick.ph"
 #include "los_typedef.ph"
+#include "los_timeslice.ph"
 
 #ifdef __cplusplus
 #if __cplusplus

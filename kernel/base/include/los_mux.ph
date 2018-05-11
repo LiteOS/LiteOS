@@ -53,11 +53,11 @@ extern "C"{
 typedef struct
 {
     UINT8           ucMuxStat;       /**< State OS_MUX_UNUSED,OS_MUX_USED  */
-    UINT16          usMuxCount;      /**< Times of locking a mutex  */
-    UINT32          ucMuxID;         /**< Handle ID  */
-    LOS_DL_LIST     stMuxList;       /**< Mutex linked list  */
-    LOS_TASK_CB     *pstOwner;       /**< The current thread that is locking a mutex  */
-    UINT16          usPriority;      /**< Priority of the thread that is locking a mutex  */
+    UINT16          usMuxCount;      /**< Times of locking a mutex */
+    UINT32          ucMuxID;         /**< Handle ID*/
+    LOS_DL_LIST     stMuxList;       /**< Mutex linked list*/
+    LOS_TASK_CB     *pstOwner;       /**< The current thread that is locking a mutex*/
+    UINT16          usPriority;      /**< Priority of the thread that is locking a mutex */
 } MUX_CB_S;
 
 /**
@@ -80,6 +80,26 @@ extern MUX_CB_S             *g_pstAllMux;
  */
 #define GET_MUX(muxid)                  (((MUX_CB_S *)g_pstAllMux) + (muxid))
 
+/**
+ *@ingroup los_mux
+ *@brief Initializes the mutex.
+ *
+ *@par Description:
+ *This API is used to initializes the mutex.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param None.
+ *
+ *@retval UINT32     Initialization result.
+ *@par Dependency:
+ *<ul><li>los_mux.ph: the header file that contains the API declaration.</li></ul>
+ *@see LOS_MuxDelete
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osMuxInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

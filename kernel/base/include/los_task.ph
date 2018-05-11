@@ -127,14 +127,6 @@ extern "C" {
  * @ingroup los_task
  * Flag that indicates the task or task control block status.
  *
- * The task is automatically deleted.
- */
-#define OS_TASK_STATUS_DETACHED                     0x0080
-
-/**
- * @ingroup los_task
- * Flag that indicates the task or task control block status.
- *
  * The task is waiting for an event to occur.
  */
 #define OS_TASK_STATUS_EVENT                        0x0400
@@ -225,7 +217,7 @@ extern "C" {
 *
 * @retval 0 or 1. One indicates that the task ID is invalid, whereas zero indicates that the task ID is valid.
 * @par Dependency:
-* <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+* <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
 * @see
 * @since Huawei LiteOS V100R001C00
 */
@@ -243,7 +235,7 @@ extern "C" {
 *
 * @retval Pointer to the task control block.
 * @par Dependency:
-* <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+* <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
 * @see
 * @since Huawei LiteOS V100R001C00
 */
@@ -261,11 +253,12 @@ extern "C" {
 *
 * @retval Pointer to the task control block.
 * @par Dependency:
-* <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+* <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
 * @see
 * @since Huawei LiteOS V100R001C00
 */
 #define OS_TCB_FROM_TID(TaskID)                       (((LOS_TASK_CB *)g_pstTaskCBArray) + (TaskID))
+#define OS_IDLE_TASK_ENTRY                            ((TSK_ENTRY_FUNC)osIdleTask)
 
 /**
  * @ingroup los_task
@@ -273,26 +266,24 @@ extern "C" {
  */
 typedef struct tagTaskCB
 {
-    VOID                        *pStackPointer;             /**< Task stack pointer                 */
+    VOID                        *pStackPointer;             /**< Task stack pointer          */
     UINT16                      usTaskStatus;
     UINT16                      usPriority;
-    UINT32                      uwStackSize;                /**< Task stack size                 */
-    UINT32                      uwTopOfStack;               /**< Task stack top               */
+    UINT32                      uwStackSize;                /**< Task stack size             */
+    UINT32                      uwTopOfStack;               /**< Task stack top              */
     UINT32                      uwTaskID;                   /**< Task ID                     */
-    TSK_ENTRY_FUNC              pfnTaskEntry;               /**< Task entrance function               */
-    VOID                        *pTaskSem;                  /**< Task-held semaphore           */
-    VOID                        *pThreadJoin;               /**< pthread adaption            */
-    VOID                        *pThreadJoinRetval;         /**< pthread adaption            */
-    VOID                        *pTaskMux;                  /**< Task-held mutex           */
-    UINT32                      auwArgs[4];                 /**< Parameter, of which the maximum number is 4          */
-    CHAR                        *pcTaskName;                /**< Task name                     */
+    TSK_ENTRY_FUNC              pfnTaskEntry;               /**< Task entrance function      */
+    VOID                        *pTaskSem;                  /**< Task-held semaphore         */
+    VOID                        *pTaskMux;                  /**< Task-held mutex             */
+    UINT32                      uwArg;                      /**< Parameter                   */
+    CHAR                        *pcTaskName;                /**< Task name                   */
     LOS_DL_LIST                 stPendList;
     LOS_DL_LIST                 stTimerList;
     UINT32                      uwIdxRollNum;
     EVENT_CB_S                  uwEvent;
-    UINT32                      uwEventMask;                /**< Event mask               */
-    UINT32                      uwEventMode;                /**< Event mode               */
-    VOID                        *puwMsg;                    /**< Memory allocated to queues          */
+    UINT32                      uwEventMask;                /**< Event mask                  */
+    UINT32                      uwEventMode;                /**< Event mode                  */
+    VOID                        *puwMsg;                    /**< Memory allocated to queues  */
 } LOS_TASK_CB;
 
 typedef struct stLosTask
@@ -371,10 +362,7 @@ typedef struct tagTaskTimeSlice
 } OS_TASK_ROBIN_S;
 
 extern VOID osTaskSchedule(VOID);
-extern VOID osTaskScan(VOID);
-extern VOID osIdleTask(VOID);
-extern UINT32 osIdleTaskCreate(VOID);
-extern UINT32 osTaskInit(VOID);
+
 
 /**
  * @ingroup  los_task
@@ -394,7 +382,7 @@ extern UINT32 osTaskInit(VOID);
  *
  * @retval  None.
  * @par Dependency:
- * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
  * @see
  * @since Huawei LiteOS V100R001C00
  */
@@ -402,50 +390,205 @@ extern VOID osTaskPriModify(LOS_TASK_CB *pstTaskCB, UINT16 usPriority);
 
 /**
  * @ingroup  los_task
- * @brief Add task to sorted delay list.
+ * @brief Scan a task.
  *
  * @par Description:
- * This API is used to add task to sorted delay list.
+ * This API is used to scan a task.
  *
  * @attention
  * <ul>
- * <li>The pstTaskCB should be a correct pointer to task control block structure.</li>
+ * <li>None.</li>
  * </ul>
  *
- * @param  pstTaskCB [IN] Type #LOS_TASK_CB * pointer to task control block structure.
- * @param  uwTimeout  [IN] Type #UINT32 wait time, ticks.
+ * @param  None.
  *
  * @retval  None.
  * @par Dependency:
- * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see osTimerListDelete
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID osTaskAdd2TimerList(LOS_TASK_CB *pstTaskCB, UINT32 uwTimeout);
+extern VOID osTaskScan(VOID);
 
 /**
  * @ingroup  los_task
- * @brief delete task from sorted delay list.
+ * @brief Initialization a task.
  *
  * @par Description:
- * This API is used to delete task from sorted delay list.
+ * This API is used to initialization a task.
  *
  * @attention
  * <ul>
- * <li>The pstTaskCB should be a correct pointer to task control block structure.</li>
+ * <li>None.</li>
  * </ul>
  *
- * @param  pstTaskCB [IN] Type #LOS_TASK_CB * pointer to task control block structure.
+ * @param  None.
+ *
+ * @retval  UINT32    Initialization result.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osTaskInit(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Create idle task.
+ *
+ * @par Description:
+ * This API is used to create idle task.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  UINT32   Create result.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osIdleTaskCreate(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Check task switch.
+ *
+ * @par Description:
+ * This API is used to check task switch.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
  *
  * @retval  None.
  * @par Dependency:
- * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see osTaskAdd2TimerList
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID osTimerListDelete(LOS_TASK_CB *pstTaskCB);
+extern VOID osTaskSwitchCheck(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief TaskMonInit.
+ *
+ * @par Description:
+ * This API is used to taskMonInit.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osTaskMonInit(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Task entry.
+ *
+ * @par Description:
+ * This API is used to task entry.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  uwTaskID  [IN] Type #UINT32   task id.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
 extern VOID osTaskEntry(UINT32 uwTaskID);
 
+/**
+ * @ingroup  los_task
+ * @brief pend running task to pendlist
+ *
+ * @par Description:
+ * This API is used to pend task to  pendlist and add to sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstList should be a vaild pointer to pendlist.</li>
+ * </ul>
+ *
+ * @param  pstList      [IN] Type #LOS_DL_LIST * pointer to list which running task will be pended.
+ * @param  uwTaskStatus [IN] Type #UINT32  Task Status.
+ * @param  uwTimeOut    [IN] Type #UINT32  Expiry time. The value range is [0,LOS_WAIT_FOREVER].
+ *
+ * @retval  LOS_OK       wait success
+ * @retval  LOS_NOK      pend out
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see osTaskWake
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osTaskWait(LOS_DL_LIST *pstList, UINT32 uwTaskStatus, UINT32 uwTimeOut);
+
+/**
+ * @ingroup  los_task
+ * @brief delete task from pendlist.
+ *
+ * @par Description:
+ * This API is used to delete task from pendlist and also add to the priqueue.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstList should be a vaild pointer to pend list.</li>
+ * </ul>
+ *
+ * @param  pstResumedTask [IN] Type #LOS_TASK_CB * pointer to the task which will be add to priqueue.
+ * @param  uwTaskStatus [IN] Type #UINT32  Task Status.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see osTaskWait
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osTaskWake(LOS_TASK_CB *pstResumedTask, UINT32 uwTaskStatus);
+
+/**
+ * @ingroup  los_task
+ * @brief Get the task water line.
+ *
+ * @par Description:
+ * This API is used to get the task water line.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  uwTaskID [IN] Type #UINT32 task id.
+ *
+ * @retval  UINT32  Task water line.
+ * @par Dependency:
+ * <ul><li>los_task.ph: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osGetTaskWaterLine(UINT32 uwTaskID);
 
 #ifdef __cplusplus
 #if __cplusplus
