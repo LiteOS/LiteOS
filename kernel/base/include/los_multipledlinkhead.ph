@@ -35,6 +35,48 @@
 #ifndef _LOS_MULTIPLE_DLINK_HEAD_PH
 #define _LOS_MULTIPLE_DLINK_HEAD_PH
 
-#include "los_multipledlinkhead.h"
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#include "los_list.h"
+
+#define OS_MAX_MULTI_DLNK_LOG2              30
+#define OS_MIN_MULTI_DLNK_LOG2              4
+#define OS_MULTI_DLNK_NUM                   ((OS_MAX_MULTI_DLNK_LOG2 - OS_MIN_MULTI_DLNK_LOG2) + 1)
+#define OS_DLNK_HEAD_SIZE                   OS_MULTI_DLNK_HEAD_SIZE
+#define OS_DLnkInitHead                     LOS_DLnkInitMultiHead
+#define OS_DLnkHead                         LOS_DLnkMultiHead
+#define OS_DLnkNextHead                     LOS_DLnkNextMultiHead
+#define OS_DLnkFirstHead                    LOS_DLnkFirstMultiHead
+#define OS_MULTI_DLNK_HEAD_SIZE             sizeof(LOS_MULTIPLE_DLNK_HEAD)
+
+typedef struct
+{
+      LOS_DL_LIST stListHead[OS_MULTI_DLNK_NUM];
+} LOS_MULTIPLE_DLNK_HEAD;
+
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE LOS_DL_LIST *LOS_DLnkNextMultiHead(VOID *pHeadAddr, LOS_DL_LIST *pstListHead)
+{
+      LOS_MULTIPLE_DLNK_HEAD *head = (LOS_MULTIPLE_DLNK_HEAD *)pHeadAddr;
+
+          return (&(head->stListHead[OS_MULTI_DLNK_NUM - 1]) == pstListHead) ? NULL : (pstListHead + 1);
+}
+
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE LOS_DL_LIST *LOS_DLnkFirstMultiHead(VOID *pHeadAddr)
+{
+      return (LOS_DL_LIST *)pHeadAddr;
+}
+
+extern VOID LOS_DLnkInitMultiHead(VOID *pHeadAddr);
+extern LOS_DL_LIST *LOS_DLnkMultiHead(VOID *pHeadAddr, UINT32 uwSize);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* _LOS_MULTIPLE_DLINK_HEAD_PH */

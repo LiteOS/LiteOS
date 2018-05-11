@@ -32,22 +32,25 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_base Basic definitions
+/**@defgroup kernel Kernel
+ * @defgroup los_base Basic definitions
  * @ingroup kernel
  */
 
 #ifndef _LOS_BASE_H
 #define _LOS_BASE_H
 
+#ifdef LOSCFG_LIB_LIBCMINI
+#include "libcmini.h"
+#endif
 #include "los_builddef.h"
 #include "los_typedef.h"
 #include "los_config.h"
 #include "los_printf.h"
 #include "los_list.h"
 #include "los_errno.h"
-#ifdef LOSCFG_LIB_LIBCMINI
-#include "libcmini.h"
-#endif
+#include "los_compiler.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -148,6 +151,7 @@ extern "C" {
  */
 #define WRITE_UINT64(ullValue, ullAddr)              (*((volatile UINT64 *)(ullAddr)) = (ullValue))
 
+/*lint -e40*/
 #if PRINT_LEVEL < LOS_ERR_LEVEL
 #define LOS_ASSERT(judge)
 #else
@@ -155,12 +159,13 @@ extern "C" {
     do { \
         if ((judge) == 0) \
         { \
-            LOS_IntLock(); \
+            (void)LOS_IntLock(); \
             PRINT_ERR("ASSERT ERROR! %s, %d, %s\n", __FILE__, __LINE__, __func__); \
             while(1); \
         } \
     } while(0)
 #endif
+/*lint +e40*/
 
 /**
  *@ingroup los_base
@@ -177,7 +182,7 @@ extern "C" {
  *@param uwAddr     [IN]  The variable what you want to align.
  *@param uwBoundary [IN]  The align size what you want to align.
  *
- *@retval The variable what have been aligned.
+ *@retval #UINT32 The variable what have been aligned.
  *@par Dependency:
  *<ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
  *@see
@@ -197,24 +202,65 @@ extern UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary);
  * <li>The task fails to be delayed if it is being delayed during interrupt processing or it is locked.</li>
  * <li>If 0 is passed in and the task scheduling is not locked, execute the next task in the queue of tasks with the priority of the current task.
  * If no ready task with the priority of the current task is available, the task scheduling will not occur, and the current task continues to be executed.</li>
+ * <li>The parameter passed in can not be equal to LOS_WAIT_FOREVER(0xFFFFFFFF).
+ * If that happens, the task will not sleep 0xFFFFFFFF milliseconds or sleep forever but sleep 0xFFFFFFFF Ticks.</li>
  * </ul>
-
  *
  *@param uwMsecs [IN] Type #UINT32 Number of MS for which the task is delayed.
  *
- *@retval None.
+ *@retval None
  *@par Dependency:
  *<ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
- *@see
+ *@see None
  *@since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_Msleep(UINT32 uwMsecs);
 
 /**
- * @ingroup los_base
- * Dynamic memory pool address, of which the size is defined by OS_SYS_MEM_SIZE in los_config.h.
+ *@ingroup los_base
+ *@brief System kernel initialization function.
+ *
+ *@par Description:
+ *This API is used to start liteOS .
+ *
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param: None.
+ *
+ *@retval #LOS_OK                                  0:LiteOS start success.
+ *
+ *@par Dependency:
+ *<ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ *@see
+ *@since Huawei LiteOS V100R001C00
  */
-extern UINT8 *m_aucSysMem0;
+extern  UINT32 LOS_Start(VOID);
+
+/**
+ *@ingroup los_base
+ *@brief System kernel initialization function.
+ *
+ *@par Description:
+ *This API is used to Initialize kernel ,configure all system modules.
+ *
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param: None.
+ *
+ *@retval #LOS_OK                                  0:System kernel initialization success.
+ *
+ *@par Dependency:
+ *<ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ *@see
+ *@since Huawei LiteOS V100R001C00
+ */
+extern  UINT32 LOS_KernelInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -44,8 +44,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-void _dprintf(const char *fmt, va_list ap);
-int __dprintf(const char *fmt, va_list ap, void (*uart_fputc)(unsigned n, void *cookie), char *cookie);
+VOID _dprintf(const char *fmt, va_list ap);
+int __dprintf(const char *fmt, va_list ap, VOID (*uart_fputc)(unsigned n, VOID *cookie), char *cookie);
 
 
 #ifdef __cplusplus

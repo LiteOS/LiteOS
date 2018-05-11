@@ -33,7 +33,6 @@
  *---------------------------------------------------------------------------*/
 
 #include "los_sys.inc"
-
 #include "los_tick.ph"
 
 #ifdef __cplusplus
@@ -41,21 +40,6 @@
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-LITE_OS_SEC_TEXT_INIT VOID LOS_Reboot(VOID)
-{
-#ifdef USE_DUMP_EXPORT
-    /*restart the UART and send the dump info to UART  (m_stExcInfo and m_aucTaskArray)*/
-    dump_export_printf("MCU is DUMP!\n");
-
-#endif /*USE_DUMP_EXPORT*/
-    (VOID) LOS_IntLock();
-
-    while (1)
-    {
-        /* Wait for HWWDG to reboot board. */
-    }
-}
 
 /*****************************************************************************
 Function   : LOS_TickCountGet
@@ -120,20 +104,20 @@ Return     : LOS_OK on success ,or error code on failure
 *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 osCpuTick2MS(CPU_TICK *pstCpuTick, UINT32 *puwMsHi, UINT32 *puwMsLo)
 {
-    UINT64 udwCpuTick;
-    double temp;
+    UINT64 ullCpuTick;
+    double dTemp;
 
     if ( (NULL == pstCpuTick) || (NULL == puwMsHi) || (NULL == puwMsLo) )
     {
         return LOS_ERRNO_SYS_PTR_NULL;
     }
 
-    udwCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
-    temp = udwCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_MS_PER_SECOND); /*lint !e160 !e653*/
-    udwCpuTick = (UINT64)temp;
+    ullCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
+    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_MS_PER_SECOND); /*lint !e160 !e653*/
+    ullCpuTick = (UINT64)dTemp;
 
-    *puwMsLo = (UINT32)udwCpuTick;
-    *puwMsHi = (UINT32)(udwCpuTick >> OS_SYS_MV_32_BIT);
+    *puwMsLo = (UINT32)ullCpuTick;
+    *puwMsHi = (UINT32)(ullCpuTick >> OS_SYS_MV_32_BIT);
 
     return LOS_OK;
 }
@@ -148,47 +132,23 @@ Return     : LOS_OK on success ,or error code on failure
 *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 osCpuTick2US(CPU_TICK *pstCpuTick, UINT32 *puwUsHi, UINT32 *puwUsLo)
 {
-    UINT64 udwCpuTick;
-    double temp;
+    UINT64 ullCpuTick;
+    double dTemp;
 
     if ( (NULL == pstCpuTick) || (NULL == puwUsHi) || (NULL == puwUsLo) )
     {
         return LOS_ERRNO_SYS_PTR_NULL;
     }
 
-    udwCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
-    temp = udwCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_US_PER_SECOND); /*lint !e160 !e653*/
-    udwCpuTick = (UINT64)temp;
+    ullCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
+    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_US_PER_SECOND); /*lint !e160 !e653*/
+    ullCpuTick = (UINT64)dTemp;
 
-    *puwUsLo = (UINT32)udwCpuTick;
-    *puwUsHi = (UINT32)(udwCpuTick >> OS_SYS_MV_32_BIT);
+    *puwUsLo = (UINT32)ullCpuTick;
+    *puwUsHi = (UINT32)(ullCpuTick >> OS_SYS_MV_32_BIT);
 
     return LOS_OK;
 }
-
-/*****************************************************************************
-Function   : get_jiffies_64
-Description: get current jiffies
-Input      : None
-Output     : None
-Return     : current jiffies
-*****************************************************************************/
-UINT64 get_jiffies_64(void)
-{
-    return LOS_TickCountGet();
-}
-/*****************************************************************************
-Function   : jiffies_to_msecs
-Description: jiffies convert to milliseconds
-Input      : jiffies
-Output     : None
-Return     : milliseconds
-*****************************************************************************/
-unsigned int jiffies_to_msecs(const unsigned long j)
-{
-    return LOS_Tick2MS(j);
-}
-
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -75,12 +75,12 @@ extern "C" {
  *
  * Value: 0x02000302
  *
- * Solution: Check the mode value. The value range is [0,2].
+ * Solution: Check the mode value. The value range is [0,3].
  */
 #define LOS_ERRNO_SWTMR_MODE_INVALID                 LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x02)
 
 /**
- * @ingroup swtmr
+ * @ingroup los_swtmr
  * Software timer error code: The passed-in software timer ID is NULL.
  *
  * Value: 0x02000303
@@ -206,7 +206,7 @@ extern "C" {
 #define LOS_ERRNO_SWTMR_SORTLIST_NULL                LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x0f)
 
 /**
- * @ingroup swtmr
+ * @ingroup los_swtmr
  * Software timer error code: The passed-in number of remaining Ticks configured on the software timer is NULL.
  *
  * Value: 0x02000310
@@ -214,6 +214,40 @@ extern "C" {
  * Solution: Define a variable of the number of remaining Ticks before passing in the number of remaining Ticks.
  */
 #define LOS_ERRNO_SWTMR_TICK_PTR_NULL                LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x10)
+
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#define OS_ERRNO_SWTMR_ROUSES_INVALID               LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x11)
+#define OS_ERRNO_SWTMR_ALIGN_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x12)
+
+#define OS_SWTMR_BIT_ALREADY_ALIGNED                (1 << 31)
+#define OS_SWTMR_BIT_CAN_ALIGNED                    (1 << 30)
+#define OS_SWTMR_BIT_MULTIPLE                       (1 << 29)
+
+#define SET_ALIGN_SWTMR_ALREADY_ALIGNED(num)                ((num) = 0x80000000 | ((num) & 0x7FFFFFFF))
+#define SET_ALIGN_SWTMR_ALREADY_NOT_ALIGNED(num)            ((num) = ((num) & 0x7FFFFFFF))
+#define SET_ALIGN_SWTMR_CAN_ALIGNED(num)                    ((num) = 0x40000000| (num & 0xBFFFFFFF))
+#define SET_ALIGN_SWTMR_CAN_NOT_ALIGNED(num)                ((num) = (num & 0xBFFFFFFF))
+#define SET_ALIGN_SWTMR_CAN_MULTIPLE(num)                   ((num)= 0x20000000|(num & 0xDFFFFFFF) )
+#define SET_ALIGN_SWTMR_CAN_NOT_MULTIPLE(num)               ((num)= (num & 0xDFFFFFFF) )
+#define SET_ALIGN_SWTMR_DIVISOR_TIMERS(num, value)          (num = (value & 0x00FFFFFF) | (num & 0xFF000000))//bit23:0
+#define GET_ALIGN_SWTMR_DIVISOR_TIMERS(num)                 (num & 0x00FFFFFF)
+
+#define CHECK_ALIGN_SWTMR_CAN_MULTI_ALIGN(num)              ((num & 0xE0000000) == 0x60000000)
+#define CHECK_ALIGN_SWTMR_CAN_PERIODIC_ALIGN(num)           ((num & 0xE0000000) == 0x40000000)
+#define CHECK_ALIGN_SWTMR_ALREADY_ALIGN(num)                ((num & 0xC0000000) == 0xC0000000)
+
+enum enSwTmrRousesType
+{
+    OS_SWTMR_ROUSES_IGNORE,    /* timer don't need to wake up system */
+    OS_SWTMR_ROUSES_ALLOW,     /* timer can wake up system */
+};
+
+enum enSwTmrAlignSensitive
+{
+    OS_SWTMR_ALIGN_SENSITIVE,         /* timer don't need to align  */
+    OS_SWTMR_ALIGN_INSENSITIVE,     /* timer need to align */
+};
+#endif
 
 /**
  * @ingroup los_swtmr
@@ -223,6 +257,7 @@ enum enSwTmrType
 {
     LOS_SWTMR_MODE_ONCE,                 /**< One-off software timer */
     LOS_SWTMR_MODE_PERIOD,               /**< Periodic software timer */
+    LOS_SWTMR_MODE_NO_SELFDELETE,        /**< One-off software timer, but not self-delete */
     LOS_SWTMR_MODE_OPP,                  /**< After the one-off timer finishes timing, the periodic software timer is enabled. This mode is not supported temporarily.*/
 };
 
@@ -257,11 +292,13 @@ typedef struct tagSwTmrCtrl
     struct tagSwTmrCtrl *pstNext;       /**< Pointer to the next software timer                      */
     UINT8               ucState;        /**< Software timer state                                    */
     UINT8               ucMode;         /**< Software timer mode                                     */
-    UINT8               ucOverrun;      /**< Times that a software timer repeats timing              */
-    UINT16              usTimerID;      /**< Software timer ID                   */
-    UINT32              uwCount;        /**< Times that a software timer works               */
-    UINT32              uwInterval;     /**< Timeout interval of a periodic software timer         */
-    UINT32              uwExpiry;       /**< Timeout interval of an one-off software timer         */
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+    UINT8               ucRouses;       /*wake up enable                                             */
+    UINT8               ucSensitive;    /*align enable                                               */
+#endif
+    UINT16              usTimerID;      /**< Software timer ID                                       */
+    UINT32              uwCount;        /**< Times that a software timer works                       */
+    UINT32              uwInterval;     /**< Timeout interval of a periodic software timer           */
     UINT32              uwArg;          /**< Parameter passed in when the callback function that handles software timer timeout is called */
     SWTMR_PROC_FUNC     pfnHandler;     /**< Callback function that handles software timer timeout   */
 } SWTMR_CTRL_S;
@@ -275,18 +312,18 @@ typedef struct tagSwTmrCtrl
  *This API is used to start a software timer that has a specified ID.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specific timer must be created first</li>
  *</ul>
  *
- *@param  usSwTmrID  [IN] Software timer ID.
+ *@param  usSwTmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_SWTMR_ID_INVALID      0x02000306: Invalid software timer ID.
- *@retval #LOS_ERRNO_SWTMR_NOT_CREATED     0x02000307: The software timer is not created.
- *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID  0x02ee030f: Invalid software timer state.
- *@retval #LOS_OK  0: The software timer is successfully started.
+ *@retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
+ *@retval #LOS_ERRNO_SWTMR_NOT_CREATED      The software timer is not created.
+ *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID   Invalid software timer state.
+ *@retval #LOS_OK                           The software timer is successfully started.
  *@par Dependency:
  *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_SwtmrStop
+ *@see LOS_SwtmrStop | LOS_SwtmrCreate
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SwtmrStart(UINT16 usSwTmrID);
@@ -299,22 +336,48 @@ extern UINT32 LOS_SwtmrStart(UINT16 usSwTmrID);
  *This API is used to stop a software timer that has a specified ID.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specific timer should be created and started firstly.</li>
  *</ul>
  *
- *@param  usSwTmrID  [IN] Software timer ID.
+ *@param  usSwTmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_SWTMR_ID_INVALID      0x02000306: Invalid software timer ID.
- *@retval #LOS_ERRNO_SWTMR_NOT_CREATED     0x02000307: The software timer is not created.
- *@retval #LOS_ERRNO_SWTMR_NOT_STARTED     0x0200030e: The software timer is not started.
- *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID  0x0200030f: Invalid software timer state.
- *@retval #LOS_OK   0: The software timer is successfully stopped.
+ *@retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
+ *@retval #LOS_ERRNO_SWTMR_NOT_CREATED      The software timer is not created.
+ *@retval #LOS_ERRNO_SWTMR_NOT_STARTED      The software timer is not started.
+ *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID   Invalid software timer state.
+ *@retval #LOS_OK                           The software timer is successfully stopped.
  *@par Dependency:
  *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_SwtmrStart
+ *@see LOS_SwtmrStart | LOS_SwtmrCreate
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SwtmrStop(UINT16 usSwTmrID);
+
+/**
+ *@ingroup los_swtmr
+ *@brief Obtain the number of remaining Ticks configured on a software timer.
+ *
+ *@par Description:
+ *This API is used to obtain the number of remaining Ticks configured on the software timer of which the ID is specified by usSwTmrID.
+ *@attention
+ *<ul>
+ *<li>The specific timer should be created and started successfully, error happends otherwise.</li>
+ *</ul>
+ *
+ *@param  usSwTmrID  [IN]  Software timer ID created by LOS_SwtmrCreate. The value of ID should be in [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
+ *@param  uwTick     [OUT] Number of remaining Ticks configured on the software timer.
+ *
+ *@retval #LOS_ERRNO_SWTMR_ID_INVALID      Invalid software timer ID.
+ *@retval #LOS_ERRNO_SWTMR_NOT_CREATED     The software timer is not created.
+ *@retval #LOS_ERRNO_SWTMR_NOT_STARTED     The software timer is not started.
+ *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID  Invalid software timer state.
+ *@retval #LOS_OK                          The number of remaining Ticks is successfully obtained.
+ *@par Dependency:
+ *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
+ *@see LOS_SwtmrCreate
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_SwtmrTimeGet(UINT16 usSwTmrID, UINT32 *uwTick);
 
 /**
  *@ingroup los_swtmr
@@ -325,26 +388,31 @@ extern UINT32 LOS_SwtmrStop(UINT16 usSwTmrID);
  *@attention
  *<ul>
  *<li>Do not use the delay interface in the callback function that handles software timer timeout.</li>
+ *<li>Threre are LOSCFG_BASE_CORE_SWTMR_LIMIT timers available, change it's value when necessory.</li>
  *</ul>
  *
- *@param  uwInterval     [IN] Timing duration of the software timer to be created (unit: mse).
+ *@param  uwInterval     [IN] Timing duration of the software timer to be created (unit: ms).
  *@param  ucMode         [IN] Software timer mode. Pass in one of the modes specified by enSwTmrType. There are three types of modes, one-off, periodic, and continuously periodic after one-off, of which the third mode is not supported temporarily.
  *@param  pfnHandler     [IN] Callback function that handles software timer timeout.
- *@param  pusSwTmrID     [OUT] Software timer ID.
+ *@param  pusSwTmrID     [OUT] Software timer ID created by LOS_SwtmrCreate.
  *@param  uwArg          [IN] Parameter passed in when the callback function that handles software timer timeout is called.
  *
- *@retval #LOS_ERRNO_SWTMR_INTERVAL_NOT_SUITED      0x02000302: The software timer timeout interval is 0.
- *@retval #LOS_ERRNO_SWTMR_MODE_INVALID             0x02000303: Invalid software timer mode.
- *@retval #LOS_ERRNO_SWTMR_PTR_NULL                 0x02000301: The callback function that handles software timer timeout is NULL.
- *@retval #LOS_ERRNO_SWTMR_RET_PTR_NULL             0x02000304: The passed-in software timer ID is NULL.
- *@retval #LOS_ERRNO_SWTMR_MAXSIZE                  0x02000305: The number of software timers exceeds the configured permitted maximum number.
- *@retval #LOS_OK  0: The software timer is successfully created.
+ *@retval #LOS_ERRNO_SWTMR_INTERVAL_NOT_SUITED   The software timer timeout interval is 0.
+ *@retval #LOS_ERRNO_SWTMR_MODE_INVALID          Invalid software timer mode.
+ *@retval #LOS_ERRNO_SWTMR_PTR_NULL              The callback function that handles software timer timeout is NULL.
+ *@retval #LOS_ERRNO_SWTMR_RET_PTR_NULL          The passed-in software timer ID is NULL.
+ *@retval #LOS_ERRNO_SWTMR_MAXSIZE               The number of software timers exceeds the configured permitted maximum number.
+ *@retval #LOS_OK                                The software timer is successfully created.
  *@par Dependency:
  *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  *@see LOS_SwtmrDelete
  *@since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SWTMR_PROC_FUNC pfnHandler, UINT16 *pusSwTmrID, UINT32 uwArg);
+ extern UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SWTMR_PROC_FUNC pfnHandler, UINT16 *pusSwTmrID, UINT32 uwArg
+                                          #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+                                          , UINT8 ucRouses, UINT8 ucSensitive
+                                          #endif
+                                          );
 
 /**
  *@ingroup los_swtmr
@@ -354,15 +422,15 @@ extern UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SWTMR_PROC_FUNC p
  *This API is used to delete a software timer.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>The specific timer should be created and then stopped firstly.</li>
  *</ul>
  *
- *@param  pusSwTmrID     [IN] Software timer ID.
+ *@param  usSwTmrID     [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_SWTMR_ID_INVALID               0x02000306: Invalid software timer ID.
- *@retval #LOS_ERRNO_SWTMR_NOT_CREATED              0x02000307: The software timer is not created.
- *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID           0x0200030f: Invalid software timer state.
- *@retval #LOS_OK  0: The software timer is successfully deleted.
+ *@retval #LOS_ERRNO_SWTMR_ID_INVALID        Invalid software timer ID.
+ *@retval #LOS_ERRNO_SWTMR_NOT_CREATED       The software timer is not created.
+ *@retval #LOS_ERRNO_SWTMR_STATUS_INVALID    Invalid software timer state.
+ *@retval #LOS_OK                            The software timer is successfully deleted.
  *@par Dependency:
  *<ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  *@see LOS_SwtmrCreate

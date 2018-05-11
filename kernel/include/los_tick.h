@@ -78,6 +78,27 @@ extern "C" {
  */
 #define LOS_ERRNO_TICK_PER_SEC_TOO_SMALL            LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x02)
 
+/**
+ *  @ingroup  los_tick
+ *  @brief: System clock get function.
+ *
+ *  @par Description:
+ *  This API is used to get system clock.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param: None.
+ *
+ * @retval: system clock.
+ *
+ * @par Dependency:
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ *
+ * */
+extern UINT32 LOS_SysClockGet(void);
 
 #ifdef __cplusplus
 #if __cplusplus

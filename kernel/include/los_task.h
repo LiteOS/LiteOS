@@ -42,23 +42,16 @@
 #include "los_base.h"
 #include "los_list.h"
 #include "los_sys.h"
+#include "los_hw.h"
 #include "los_tick.h"
 #include "los_event.h"
+#include "los_err.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-
-/**
- * @ingroup los_task
- * Flag that indicates the task or task control block status.
- *
- * The task is automatically deleted.
- */
-#define LOS_TASK_STATUS_DETACHED                    0x0080
 
 /**
  * @ingroup los_task
@@ -172,16 +165,6 @@ extern "C" {
 
 /**
  * @ingroup los_task
- * Task error code: The task is locked when it is being deleted.
- *
- * Value: 0x0300020b
- *
- * Solution: Unlock the task.
- */
-#define LOS_ERRNO_TSK_DELETE_LOCKED                 LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x0b)
-
-/**
- * @ingroup los_task
  * Task error code: The task message is nonzero.
  *
  * Value: 0x0200020c
@@ -276,7 +259,7 @@ extern "C" {
  *
  * Value: 0x03000215
  *
- * Solution: Check the task ID and do not operate on the idle task.
+ * Solution: Suspend the task after unlocking the task.
  */
 #define LOS_ERRNO_TSK_SUSPEND_LOCKED                LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x15)
 
@@ -382,6 +365,16 @@ extern "C" {
 
 /**
  * @ingroup los_task
+ * Task error code: The operation is performed on the software timer task.
+ *
+ * Value: 0x02000222
+ *
+ * Solution: Check the task ID and do not operate on the software timer task.
+ */
+#define LOS_ERRNO_TSK_OPERATE_SWTMR                 LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x22)
+
+/**
+ * @ingroup los_task
  * Define the type of the task switching hook function.
  *
  */
@@ -413,10 +406,7 @@ extern TSKSWITCHHOOK g_pfnUsrTskSwitchHook;
 * @see
 * @since Huawei LiteOS V100R001C00
 */
-typedef VOID *(*TSK_ENTRY_FUNC)(UINT32 uwParam1,
-                        UINT32 uwParam2,
-                        UINT32 uwParam3,
-                        UINT32 uwParam4);
+typedef VOID *(*TSK_ENTRY_FUNC)(UINT32 uwArg);
 
 /**
  * @ingroup los_task
@@ -426,12 +416,12 @@ typedef VOID *(*TSK_ENTRY_FUNC)(UINT32 uwParam1,
  */
 typedef struct tagTskInitParam
 {
-   TSK_ENTRY_FUNC       pfnTaskEntry;               /**< Task entrance function               */
-   UINT16               usTaskPrio;                 /**< Task priority                 */
-   UINT32               auwArgs[4];                 /**< Task parameters, of which the maximum number is four          */
-   UINT32               uwStackSize;                /**< Task stack size               */
-   CHAR                 *pcName;                    /**< Task name                     */
-   UINT32               uwResved;                   /**< Reserved. It is automatically deleted if set to LOS_TASK_STATUS_DETACHED. It is unable to be deleted if set to 0.*/
+   TSK_ENTRY_FUNC       pfnTaskEntry;               /**< Task entrance function                 */
+   UINT16               usTaskPrio;                 /**< Task priority                          */
+   UINT32               uwArg;                      /**< Task parameters                        */
+   UINT32               uwStackSize;                /**< Task stack size                        */
+   CHAR                 *pcName;                    /**< Task name                              */
+   UINT32               uwResved;                   /**< Reserved                               */
 } TSK_INIT_PARAM_S;
 
 /**
@@ -448,46 +438,70 @@ typedef struct tagTskInitParam
  */
 typedef struct tagTskInfo
 {
-    CHAR                acName[LOS_TASK_NAMELEN];   /**< Task entrance function               */
-    UINT32              uwTaskID;                   /**< Task ID                     */
-    UINT16              usTaskStatus;               /**< Task status                   */
-    UINT16              usTaskPrio;                 /**< Task priority                 */
-    VOID                *pTaskSem;                  /**< Semaphore pointer             */
-    VOID                *pTaskMux;                  /**< Mutex pointer             */
-    EVENT_CB_S          uwEvent;                    /**< Event                   */
-    UINT32              uwEventMask;                /**< Event mask               */
-    UINT32              uwStackSize;                /**< Task stack size                 */
-    UINT32              uwTopOfStack;               /**< Task stack top                   */
-    UINT32              uwBottomOfStack;            /**< Task stack bottom                   */
-    UINT32              uwSP;                       /**< Task SP pointer                 */
-    UINT32              uwCurrUsed;                 /**< Current task stack usage         */
-    UINT32              uwPeakUsed;                 /**< Task stack usage peak             */
+    CHAR                acName[LOS_TASK_NAMELEN];   /**< Task entrance function         */
+    UINT32              uwTaskID;                   /**< Task ID                        */
+    UINT16              usTaskStatus;               /**< Task status                    */
+    UINT16              usTaskPrio;                 /**< Task priority                  */
+    VOID                *pTaskSem;                  /**< Semaphore pointer              */
+    VOID                *pTaskMux;                  /**< Mutex pointer                  */
+    EVENT_CB_S          uwEvent;                    /**< Event                          */
+    UINT32              uwEventMask;                /**< Event mask                     */
+    UINT32              uwStackSize;                /**< Task stack size                */
+    UINT32              uwTopOfStack;               /**< Task stack top                 */
+    UINT32              uwBottomOfStack;            /**< Task stack bottom              */
+    UINT32              uwSP;                       /**< Task SP pointer                */
+    UINT32              uwCurrUsed;                 /**< Current task stack usage       */
+    UINT32              uwPeakUsed;                 /**< Task stack usage peak          */
     BOOL                bOvf;                       /**< Flag that indicates whether a task stack overflow occurs         */
 } TSK_INFO_S;
+
+/**
+ * @ingroup los_task
+ * Task switch information structure.
+ *
+ */
+#define OS_TASK_SWITCH_INFO_COUNT                           (0xA)
+typedef struct tagTaskSwitchInfo
+{
+    UINT8 ucIdx;
+    UINT8 ucIsFull; /* bit [7] store isfull status, bits [6:0] store count of task switch info */
+    UINT16 auwPID[OS_TASK_SWITCH_INFO_COUNT];
+    CHAR   acName[OS_TASK_SWITCH_INFO_COUNT][LOS_TASK_NAMELEN];
+}OS_TASK_SWITCH_INFO;
+
 
 /**
  * @ingroup  los_task
  * @brief Create a task and suspend.
  *
  * @par Description:
- * This API is used to create a task and suspend it. This task will not added to the queue of ready tasks before resume it.
+ * This API is used to create a task and suspend it. This task will not be added to the queue of ready tasks before resume it.
  *
  * @attention
  * <ul>
  * <li>During task creation, the task control block and task stack of the task that is previously automatically deleted are deallocated.</li>
  * <li>The task name is a pointer and is not allocated memory.</li>
- * <li>If the size of the task stack of the task to be created is 0, configure #TASK_DEFAULT_STACK_SIZE to specify the default task stack size.</li>
+ * <li>If the size of the task stack of the task to be created is 0, configure #LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE to specify the default task stack size. The stack size should be a reasonable value, if the size is too large, may cause memory exhaustion.</li>
  * <li>The task stack size must be aligned on the boundary of 8 bytes. The size is determined by whether it is big enough to avoid task stack overflow.</li>
  * <li>Less parameter value indicates higher task priority.</li>
  * <li>The task name cannot be null.</li>
  * <li>The pointer to the task executing function cannot be null.</li>
+ * <li>The two parameters of this interface is pointer, it should be a correct value, otherwise, the system may be abnormal.</li>
  * </ul>
  *
- * @param  puwTaskID   [OUT] Type #UINT32 * Task ID.
- * @param  pstInitParam [IN] Type  #TSK_INIT_PARAM_S * Parameter for task creation.
+ * @param  puwTaskID    [OUT] Type  #UINT32 * Task ID.
+ * @param  pstInitParam [IN]  Type  #TSK_INIT_PARAM_S * Parameter for task creation.
  *
- * @retval #OS_ERROR                                 -1:        The task fails to be created.
- * @retval #LOS_OK                                   0:         The task is successfully created.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param puwTaskID is NULL.
+ * @retval #LOS_ERRNO_TSK_PTR_NULL          Param pstInitParam is NULL.
+ * @retval #LOS_ERRNO_TSK_NAME_EMPTY        The task name is NULL.
+ * @retval #LOS_ERRNO_TSK_ENTRY_NULL        The task entrance is NULL.
+ * @retval #LOS_ERRNO_TSK_PRIOR_ERROR       Incorrect task priority.
+ * @retval #LOS_ERRNO_TSK_STKSZ_TOO_LARGE   The task stack size is too large.
+ * @retval #LOS_ERRNO_TSK_STKSZ_TOO_SMALL   The task stack size is too small.
+ * @retval #LOS_ERRNO_TSK_TCB_UNAVAILABLE   No free task control block is available.
+ * @retval #LOS_ERRNO_TSK_NO_MEMORY         Insufficient memory for task creation.
+ * @retval #LOS_OK                          The task is successfully created.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * <ul><li>los_config.h: the header file that contains system configuration items.</li></ul>
@@ -501,33 +515,34 @@ extern UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARAM_S *pstInitPar
  * @brief Create a task.
  *
  * @par Description:
- * This API is used to create a task. If the priority of the task created after the system is initialized is higher than the current task and the created task is not locked, it is scheduled for running.
+ * This API is used to create a task. If the priority of the task created after system initialized is higher than the current task and task scheduling is not locked, it is scheduled for running.
  * If not, the created task is added to the queue of ready tasks.
  *
  * @attention
  * <ul>
  * <li>During task creation, the task control block and task stack of the task that is previously automatically deleted are deallocated.</li>
  * <li>The task name is a pointer and is not allocated memory.</li>
- * <li>If the size of the task stack of the task to be created is 0, configure #TASK_DEFAULT_STACK_SIZE to specify the default task stack size.</li>
+ * <li>If the size of the task stack of the task to be created is 0, configure #LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE to specify the default task stack size.</li>
  * <li>The task stack size must be aligned on the boundary of 8 bytes. The size is determined by whether it is big enough to avoid task stack overflow.</li>
  * <li>Less parameter value indicates higher task priority.</li>
  * <li>The task name cannot be null.</li>
  * <li>The pointer to the task executing function cannot be null.</li>
+ * <li>The two parameters of this interface is pointer, it should be a correct value, otherwise, the system may be abnormal.</li>
  * </ul>
  *
- * @param  puwTaskID   [OUT] Type #UINT32 * Task ID.
- * @param  pstInitParam [IN] Type  #TSK_INIT_PARAM_S * Parameter for task creation.
+ * @param  puwTaskID    [OUT] Type  #UINT32 * Task ID.
+ * @param  pstInitParam [IN]  Type  #TSK_INIT_PARAM_S * Parameter for task creation.
  *
- * @retval #LOS_ERRNO_TSK_ID_INVALID             0x02000207:invalid Task ID
- * @retval #return LOS_ERRNO_TSK_PTR_NULL      0x02000201:Null parameter.
- * @retval #LOS_ERRNO_TSK_NAME_EMPTY           0x02000205:The task name is NULL.
- * @retval #LOS_ERRNO_TSK_ENTRY_NULL            0x02000204:The task entrance is NULL.
- * @retval #LOS_ERRNO_TSK_PRIOR_ERROR          0x02000203:Incorrect task priority.
- * @retval #LOS_ERRNO_TSK_STKSZ_TOO_LARGE   0x02000220:The task stack size is too large.
- * @retval #LOS_ERRNO_TSK_STKSZ_TOO_SMALL   0x02000206:The task stack size is too small.
- * @retval #LOS_ERRNO_TSK_TCB_UNAVAILABLE    0x02000211:No free task control block is available.
- * @retval #LOS_ERRNO_TSK_NO_MEMORY            0x03000200:Insufficient memory for task creation.
- * @retval #LOS_OK                                   0:         The task is successfully created.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param puwTaskID is NULL.
+ * @retval #LOS_ERRNO_TSK_PTR_NULL          Param pstInitParam is NULL.
+ * @retval #LOS_ERRNO_TSK_NAME_EMPTY        The task name is NULL.
+ * @retval #LOS_ERRNO_TSK_ENTRY_NULL        The task entrance is NULL.
+ * @retval #LOS_ERRNO_TSK_PRIOR_ERROR       Incorrect task priority.
+ * @retval #LOS_ERRNO_TSK_STKSZ_TOO_LARGE   The task stack size is too large.
+ * @retval #LOS_ERRNO_TSK_STKSZ_TOO_SMALL   The task stack size is too small.
+ * @retval #LOS_ERRNO_TSK_TCB_UNAVAILABLE   No free task control block is available.
+ * @retval #LOS_ERRNO_TSK_NO_MEMORY         Insufficient memory for task creation.
+ * @retval #LOS_OK                          The task is successfully created.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * <ul><li>los_config.h: the header file that contains system configuration items.</li></ul>
@@ -546,14 +561,15 @@ extern UINT32 LOS_TaskCreate(UINT32 *puwTaskID, TSK_INIT_PARAM_S *pstInitParam);
  * @attention
  * <ul>
  * <li>If the task is delayed or blocked, resume the task without adding it to the queue of ready tasks.</li>
+ * <li>If the priority of the task resumed after system initialized is higher than the current task and task scheduling is not locked, it is scheduled for running.</li>
  * </ul>
  *
- * @param  uwTaskID [IN] Type #UINT32 Task ID.
+ * @param  uwTaskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
- * @retval #LOS_ERRNO_TSK_ID_INVALID          0x02000207:invalid Task ID
- * @retval #LOS_ERRNO_TSK_NOT_CREATED      0x0200020a:The task is not created.
- * @retval #LOS_ERRNO_TSK_NOT_SUSPENDED  0x02000209:The task is not suspended.
- * @retval #LOS_OK                                   0: The task is successfully resumed.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED       The task is not created.
+ * @retval #LOS_ERRNO_TSK_NOT_SUSPENDED     The task is not suspended.
+ * @retval #LOS_OK                          The task is successfully resumed.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TaskSuspend
@@ -571,17 +587,18 @@ extern UINT32 LOS_TaskResume(UINT32 uwTaskID);
  * @attention
  * <ul>
  * <li>The task that is running and locked cannot be suspended.</li>
- * <li>The idle task cannot be suspended.</li>
+ * <li>The idle task and swtmr task cannot be suspended.</li>
  * </ul>
  *
- * @param  uwTaskID [IN] Type #UINT32 Task ID.
+ * @param  uwTaskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
- * @retval #LOS_ERRNO_TSK_OPERATE_IDLE     0x02000214:Check the task ID and do not operate on the idle task.
- * @retval #LOS_ERRNO_TSK_ID_INVALID         0x02000207:invalid Task ID
- * @retval #LOS_ERRNO_TSK_NOT_CREATED     0x0200020a:The task is not created.
- * @retval #LOS_ERRNO_TSK_ALREADY_SUSPENDED    0x02000208:The task is already suspended.
- * @retval #LOS_ERRNO_TSK_SUSPEND_LOCKED    0x03000215:The task being suspended is locked.
- * @retval #LOS_OK                                    0: The task is successfully suspended.
+ * @retval #LOS_ERRNO_TSK_OPERATE_IDLE                  Check the task ID and do not operate on the idle task.
+ * @retval #LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED     Check the task ID and do not operate on the swtmr task.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID                    Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED                   The task is not created.
+ * @retval #LOS_ERRNO_TSK_ALREADY_SUSPENDED             The task is already suspended.
+ * @retval #LOS_ERRNO_TSK_SUSPEND_LOCKED                The task being suspended is current task and task scheduling is locked.
+ * @retval #LOS_OK                                      The task is successfully suspended.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TaskResume
@@ -598,20 +615,21 @@ extern UINT32 LOS_TaskSuspend(UINT32 uwTaskID);
  *
  * @attention
  * <ul>
- * <li>None.</li>
+ * <li>The idle task and swtmr task cannot be deleted.</li>
+ * <li>If delete current task maybe cause unexpected error.</li>
+ * <li>If a task get a mutex is deleted or automatically deleted before release this mutex, other tasks pended this mutex maybe never be shchduled.</li>
  * </ul>
  *
- * @param  uwTaskID [IN] Type #UINT32 Task ID.
+ * @param  uwTaskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
- * @retval #LOS_ERRNO_TSK_OPERATE_IDLE     0x02000214:Check the task ID and do not operate on the idle task.
- * @retval #LOS_ERRNO_TSK_ID_INVALID         0x02000207:invalid Task ID
- * @retval #LOS_ERRNO_TSK_NOT_CREATED     0x0200020a:The task is not created.
- * @retval #LOS_ERRNO_TSK_DELETE_LOCKED  0x0300020b:The task is locked when it is being deleted.
-
- * @retval #LOS_OK                                    0: The task is successfully deleted.
+ * @retval #LOS_ERRNO_TSK_OPERATE_IDLE                  Check the task ID and do not operate on the idle task.
+ * @retval #LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED     Check the task ID and do not operate on the swtmr task.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID                    Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED                   The task is not created.
+ * @retval #LOS_OK                                      The task is successfully deleted.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TaskCreate
+ * @see LOS_TaskCreate | LOS_TaskCreateOnly
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_TaskDelete(UINT32 uwTaskID);
@@ -626,17 +644,18 @@ extern UINT32 LOS_TaskDelete(UINT32 uwTaskID);
  * @attention
  * <ul>
  * <li>The task fails to be delayed if it is being delayed during interrupt processing or it is locked.</li>
- * <li>If 0 is passed in and the task scheduling is not locked, execute the next task in the queue of tasks with the priority of the current task.
+ * <li>If 0 is passed in and the task scheduling is not locked, execute the next task in the queue of tasks with the same priority of the current task.
  * If no ready task with the priority of the current task is available, the task scheduling will not occur, and the current task continues to be executed.</li>
+ * <li>Using the interface before system initialized is not allowed.</li>
  * </ul>
  *
  * @param  uwTick [IN] Type #UINT32 Number of Ticks for which the task is delayed.
  *
- * @retval #LOS_ERRNO_TSK_DELAY_IN_INT                         0x0300020d:The task delay occurs during an interrupt.
- * @retval #LOS_ERRNO_TSK_DELAY_IN_LOCK                       0x0200020e:The task delay occurs when the task is locked.
- * @retval #LOS_ERRNO_TSK_ID_INVALID                             0x02000207: invalid Task ID
- * @retval #LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK        0x02000210: No tasks with the same priority is available for scheduling.
- * @retval #LOS_OK                                    0: The task is successfully delayed.
+ * @retval #LOS_ERRNO_TSK_DELAY_IN_INT              The task delay occurs during an interrupt.
+ * @retval #LOS_ERRNO_TSK_DELAY_IN_LOCK             The task delay occurs when the task scheduling is locked.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID                Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK     No tasks with the same priority is available for scheduling.
+ * @retval #LOS_OK                                  The task is successfully delayed.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see
@@ -700,21 +719,21 @@ extern VOID LOS_TaskUnlock(VOID);
  * <ul>
  * <li>If the set priority is higher than the priority of the current running task, task scheduling probably occurs.</li>
  * <li>Changing the priority of the current running task also probably causes task scheduling.</li>
- * <li>Using the interface to change the priority of software timer task is not allowed.</li>
+ * <li>Using the interface to change the priority of software timer task and idle task is not allowed.</li>
  * <li>Using the interface in the interrupt is not allowed.</li>
  * </ul>
  *
- * @param  uwTaskID [IN] Type #UINT32 Task ID.
- * @param  usTaskPrio [IN] Type #TSK_PRIOR_T Task priority.
+ * @param  uwTaskID   [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  usTaskPrio [IN] Type #UINT16 Task priority.
  *
- * @retval #LOS_ERRNO_TSK_PRIOR_ERROR     0x02000203: Incorrect task priority.Re-configure the task priority
- * @retval #LOS_ERRNO_TSK_OPERATE_IDLE    0x02000214: Check the task ID and do not operate on the idle task.
- * @retval #LOS_ERRNO_TSK_ID_INVALID        0x02000207: invalid Task ID
- * @retval #LOS_ERRNO_TSK_NOT_CREATED    0x0200020a: The task is not created.
- * @retval #LOS_OK                                   0: The task priority is successfully set.
+ * @retval #LOS_ERRNO_TSK_PRIOR_ERROR    Incorrect task priority.Re-configure the task priority
+ * @retval #LOS_ERRNO_TSK_OPERATE_IDLE   Check the task ID and do not operate on the idle task.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID     Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED    The task is not created.
+ * @retval #LOS_OK                       The task priority is successfully set to a specified priority.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TaskPriGet
+ * @see LOS_TaskPriSet
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_TaskPriSet(UINT32 uwTaskID, UINT16 usTaskPrio);
@@ -729,20 +748,20 @@ extern UINT32 LOS_TaskPriSet(UINT32 uwTaskID, UINT16 usTaskPrio);
  * @attention
  * <ul>
  * <li>Changing the priority of the current running task probably causes task scheduling.</li>
- * <li>Using the interface to change the priority of software timer task is not allowed.</li>
+ * <li>Using the interface to change the priority of software timer task and idle task is not allowed.</li>
  * <li>Using the interface in the interrupt is not allowed.</li>
  * </ul>
  *
- * @param  usTaskPrio [IN] Type#TSK_PRIOR_T Task priority.
+ * @param  usTaskPrio [IN] Type #UINT16 Task priority.
  *
- * @retval #LOS_ERRNO_TSK_PRIOR_ERROR     0x02000203: Incorrect task priority.Re-configure the task priority
- * @retval #LOS_ERRNO_TSK_OPERATE_IDLE    0x02000214: Check the task ID and do not operate on the idle task.
- * @retval #LOS_ERRNO_TSK_ID_INVALID        0x02000207: invalid Task ID
- * @retval #LOS_ERRNO_TSK_NOT_CREATED    0x0200020a: The task is not created.
- * @retval #LOS_OK                                   0: The priority of the current running task is successfully set to a specified priority.
+ * @retval #LOS_ERRNO_TSK_PRIOR_ERROR     Incorrect task priority.Re-configure the task priority
+ * @retval #LOS_ERRNO_TSK_OPERATE_IDLE    Check the task ID and do not operate on the idle task.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID      Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED     The task is not created.
+ * @retval #LOS_OK                        The priority of the current running task is successfully set to a specified priority.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TaskPriSet
+ * @see LOS_TaskPriGet
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_CurTaskPriSet(UINT16 usTaskPrio);
@@ -752,7 +771,7 @@ extern UINT32 LOS_CurTaskPriSet(UINT16 usTaskPrio);
  * @brief Change the scheduling sequence of tasks with the same priority.
  *
  * @par Description:
- * This API is used to move a task in a queue of tasks with the same priority to the tail of the queue of ready tasks.
+ * This API is used to move current task in a queue of tasks with the same priority to the tail of the queue of ready tasks.
  *
  * @attention
  * <ul>
@@ -761,9 +780,9 @@ extern UINT32 LOS_CurTaskPriSet(UINT16 usTaskPrio);
  *
  * @param  None.
  *
- * @retval #LOS_ERRNO_TSK_ID_INVALID                             0x02000207: invalid Task ID
- * @retval #LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK        0x02000210: No tasks with the same priority is available for scheduling.
- * @retval #LOS_OK                                                          0: The scheduling sequence of tasks with same priority is successfully changed.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID                    Invalid Task ID
+ * @retval #LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK         No tasks with the same priority is available for scheduling.
+ * @retval #LOS_OK                                      The scheduling sequence of tasks with same priority is successfully changed.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see
@@ -780,10 +799,10 @@ extern UINT32 LOS_TaskYield(VOID);
  *
  * @attention None.
  *
- * @param  uwTaskID [IN] Type #UINT32 Task ID.
+ * @param  uwTaskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
- * @retval #OS_INVALID The task priority fails to be obtained.
- * @retval # The task priority is successfully returned.
+ * @retval #OS_INVALID      The task priority fails to be obtained.
+ * @retval #UINT16          The task priority.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TaskPriSet
@@ -798,6 +817,177 @@ extern UINT16 LOS_TaskPriGet(UINT32 uwTaskID);
  * @par Description:
  * This API is used to obtain the ID of current running task.
  *
+ * @attention
+ * <ul>
+ * <li> This interface should not be called before system initialized.</li>
+ * </ul>
+ *
+ * @retval #LOS_ERRNO_TSK_ID_INVALID    Invalid Task ID.
+ * @retval #UINT32                      Task ID.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_CurTaskIDGet(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain next running task ID.
+ *
+ * @par Description:
+ * This API is used to obtain the ID of next running task.
+ *
+ * @attention None.
+ *
+ *
+ * @retval #LOS_ERRNO_TSK_ID_INVALID    invalid Task ID.
+ * @retval #UINT32                      task id.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_NextTaskIDGet(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain next running task ID.
+ *
+ * @par Description:
+ * This API is used to obtain the ID of next running task.
+ *
+ * @attention None.
+ *
+ *
+ * @retval #NULL            invalid Task name.
+ * @retval #CHAR*           task name.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern CHAR *LOS_CurTaskNameGet(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain a task information structure.
+ *
+ * @par Description:
+ * This API is used to obtain a task information structure.
+ *
+ * @attention
+ * <ul>
+ * <li>One parameter of this interface is a pointer, it should be a correct value, otherwise, the system may be abnormal.</li>
+ * </ul>
+ *
+ * @param  uwTaskID    [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  pstTaskInfo [OUT] Type  #TSK_INFO_S* Pointer to the task information structure to be obtained.
+ *
+ * @retval #LOS_ERRNO_TSK_PTR_NULL        Null parameter.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID      Invalid task ID.
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED     The task is not created.
+ * @retval #LOS_OK                        The task information structure is successfully obtained.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_TaskInfoGet(UINT32 uwTaskID, TSK_INFO_S *pstTaskInfo);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain the task status.
+ *
+ * @par Description:
+ * This API is used to obtain the task status.
+ *
+ * @attention None.
+ *
+ * @param  uwTaskID   [IN] Type  #TSK_HANDLE_T Task ID.
+ * @param  puwTaskStatus [OUT] Type  #UINT32 Pointer to the task status to be obtained.
+ *
+ * @retval #LOS_ERRNO_TSK_PTR_NULL                    0x02000201: Null parameter.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID                  0x02000207: Invalid task ID.
+ * @retval #LOS_ERRNO_TSK_NOT_CREATED                 0x0200020a: The task is not created.
+ * @retval #LOS_OK                                   0: The task information structure is successfully obtained.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_TaskStatusGet(UINT32 uwTaskID, UINT32* puwTaskStatus);
+
+/**
+ *@ingroup los_monitor
+ *@brief Obtain all tasks info.
+ *
+ *@par Description:
+ *This API is used to obtain all tasks info.
+ *@attention
+ *<ul>
+ *<li>This API can be called only after the CPU usage is initialized. Otherwise, -1 will be returned.</li>
+ *</ul>
+ *
+ *@param None.
+ *
+ *@retval #OS_ERROR           -1:all tasks info obtain failed.
+ *@retval #LOS_OK              0:all tasks info is successfully obtained.
+ *@par Dependency:
+ *<ul><li>los_monitor.h: the header file that contains the API declaration.</li></ul>
+ *@see LOS_TaskInfoMonitor
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_TaskInfoMonitor(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain tasks switch info.
+ *
+ * @par Description:
+ * This API is used to obtain tasks switch info.
+ *
+ * @attention None.
+ *
+ * @param  uwIdx            [IN]  Type  #UINT32  Switch info array index.
+ * @param  pTaskSwitchInfo  [OUT] Type  #UINT32* First 4 bytes is task id, and then is task name, name len is OS_TSK_NAME_LEN.
+ *
+ * @retval #LOS_ERRNO_TSK_PTR_NULL           0x02000201: Null parameter.
+ * @retval #LOS_OK                           0: The task switch information is successfully obtained.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_TaskSwitchInfoGet(UINT32 uwIdx, UINT32 *pTaskSwitchInfo);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain tasks schduling info.
+ *
+ * @par Description:
+ * This API is used to obtain task is scheduled.
+ *
+ * @attention None.
+ *
+ * @param None.
+ *
+ * @retval                          1: Tasks is scheduled.
+ * @retval                          0: Tasks not scheduling yet.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ * @since Huawei LiteOS V100R001C00
+ */
+extern BOOL LOS_TaskIsRunning(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain current new task ID.
+ *
+ * @par Description:
+ * This API is used to obtain the ID of new  task.
+ *
  * @attention None.
  *
  *
@@ -808,7 +998,25 @@ extern UINT16 LOS_TaskPriGet(UINT32 uwTaskID);
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_CurTaskIDGet(VOID);
+ extern  UINT32 LOS_NewTaskIDGet(VOID);
+ /**
+  * @ingroup  los_task
+  * @brief Obtain current new task name.
+  *
+  * @par Description:
+  * This API is used to obtain the name of new  task.
+  *
+  * @attention None.
+  *
+  *
+  * @retval #NULL: invalid Task name.
+  * @retval # Task name.
+  * @par Dependency:
+  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+  * @see
+  * @since Huawei LiteOS V100R001C00
+  */
+ extern CHAR* LOS_TaskNameGet(UINT32 uwTaskID);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -35,7 +35,8 @@
 #ifndef _LOS_PRIQUEUE_PH
 #define _LOS_PRIQUEUE_PH
 
-#include "los_priqueue.h"
+#include "los_list.h"
+#include "los_typedef.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,6 +44,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+
+#define OS_PRIORITY_QUEUE_PRIORITYNUM   32
 
 /**
  *@ingroup los_priqueue
@@ -58,12 +61,113 @@ extern "C" {
  *
  *@retval none.
  *@par Dependency:
- *<ul><li>los_priqueue.h: the header file that contains the API declaration.</li></ul>
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
  *@see none.
  *@since Huawei LiteOS V100R001C00
  */
 extern VOID osPriqueueInit(VOID);
 
+/**
+ *@ingroup los_priqueue
+ *@brief Insert a item to the priority queue.
+ *
+ *@par Description:
+ *This API is used to insert a item to the priority queue according to the priority of this item.
+ *@attention
+ *<ul>
+ *<li>Param ptrPQItem must point to valid memory.</li>
+ *<li>Param uwPri rang is [0, OS_PRIORITY_QUEUE_PRIORITYNUM),included 0 and not included LOS_PRIORITY_QUEUE_PRIORITYNUM.</li>
+ *</ul>
+ *@param ptrPQItem   [IN] The node of item to be inserted.
+ *@param uwPri   [IN] Priority of the item be inserted.
+ *
+ *@retval none.
+ *@par Dependency:
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
+ *@see osPriqueueDequeue.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern VOID osPriqueueEnqueue(LOS_DL_LIST *ptrPQItem, UINT32 uwPri);
+
+/**
+ *@ingroup los_priqueue
+ *@brief Delete a item from the priority queue.
+ *
+ *@par Description:
+ *This API is used to delete a item from the priority queue.
+ *@attention
+ *<ul>
+ *<li>Param ptrPQItem must point to valid memory.</li>
+ *</ul>
+ *@param ptrPQItem   [IN] The node of item to be deleted.
+ *
+ *@retval none.
+ *@par Dependency:
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
+ *@see osPriqueueEnqueue.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern VOID osPriqueueDequeue(LOS_DL_LIST *ptrPQItem);
+
+/**
+ *@ingroup los_priqueue
+ *@brief Obtain the item with highest priority.
+ *
+ *@par Description:
+ *This API is used to obtain the item with highest priority in the priority queue.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *@param none.
+ *
+ *@retval NULL    : The priority queue is empty.
+ *@retval item node : The node of the item with highest priority.
+ *@par Dependency:
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
+ *@see none.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern LOS_DL_LIST *osPriqueueTop(VOID);
+
+/**
+ *@ingroup los_priqueue
+ *@brief Obtain the number of items with the specified priority.
+ *
+ *@par Description:
+ *This API is used to obtain the number of items with the specified priority.
+ *@attention
+ *<ul>
+ *<li>Param uwPri rang is [0, OS_PRIORITY_QUEUE_PRIORITYNUM),included 0 and not included LOS_PRIORITY_QUEUE_PRIORITYNUM.</li>
+ *</ul>
+ *@param uwPri    [IN] Obtain the number of items with the specified priority of uwPri.
+ *
+ *@retval The number of items :The number of items with the specified priority.
+ *@par Dependency:
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
+ *@see none.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osPriqueueSize(UINT32 uwPri);
+
+/**
+ *@ingroup los_priqueue
+ *@brief Obtain the total number of items in the priority queue.
+ *
+ *@par Description:
+ *This API is used to obtain the number of items in the priority queue.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@retval The number of items: The total number of items in the priority queue.
+ *@par Dependency:
+ *<ul><li>los_priqueue.ph: the header file that contains the API declaration.</li></ul>
+ *@see none.
+ *@since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osPriqueueTotalSize(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

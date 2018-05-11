@@ -46,8 +46,144 @@ extern "C" {
 
 extern SWTMR_CTRL_S *m_pstSwtmrFreeList;
 
+/**
+ * @ingroup los_swtmr
+ * Handle function of software timer task .
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to handle the overtime software timer.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osSwTmrTask(VOID);
 
+/**
+ * @ingroup los_swtmr
+ * Create the task of software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to create the task of software timer.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval UINT32 Create result.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see osSwtmrDelete
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osSwTmrTaskCreate(VOID);
 
+/**
+ * @ingroup los_swtmr
+ * Start a software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to start a software timer.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  pstSwtmr [IN] Type #SWTMR_CTRL_S * pointer to swtmr control block structure.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see osSwtmrStop
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osSwTmrStart(SWTMR_CTRL_S *pstSwtmr);
+
+/**
+ * @ingroup los_swtmr
+ * Stop a software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to stop a software timer.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  pstSwtmr [IN] Type #SWTMR_CTRL_S * pointer to swtmr control block structure.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see osSwTmrStart
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osSwtmrStop(SWTMR_CTRL_S *pstSwtmr);
+
+/**
+ * @ingroup los_swtmr
+ * Insert a software timer to timer list.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to insert a software timer to timer list.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  pstHead  [OUT] Type #SWTMR_CTRL_S * pointer to swtmr control block structure head.
+ * @param  pstSwtmr [IN] Type #SWTMR_CTRL_S * pointer to swtmr control block structure.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID osSwtimerInsert(SWTMR_CTRL_S **pstHead, SWTMR_CTRL_S *pstSwtmr);
+
+/**
+ * @ingroup los_swtmr
+ * Obtain the number of remaining Ticks configured on a software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to obtain the number of remaining Ticks configured on the software timer.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  pstSwtmr [IN] Type #SWTMR_CTRL_S * pointer to swtmr control block structure.
+ *
+ * @retval UINT32  Ticks.
+ * @par Dependency:
+ * <ul><li>los_swtmr.inc: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 osSwtmrTimeGet(SWTMR_CTRL_S *pstSwtmr);
 
 #ifdef __cplusplus
 #if __cplusplus

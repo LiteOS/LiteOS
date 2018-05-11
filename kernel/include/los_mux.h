@@ -165,23 +165,32 @@ extern "C"{
  */
 #define LOS_ERRNO_MUX_REG_ERROR         LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0B)
 
+/**
+ * @ingroup los_mux
+ *
+ * Mutex error code: LOS_ERRNO_MUX_MAXNUM_ZERO is zero.
+ * Value: 0x02001d0C
+ *
+ * Solution: LOS_ERRNO_MUX_MAXNUM_ZERO should not be zero.
+ */
+#define LOS_ERRNO_MUX_MAXNUM_ZERO         LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0C)
 
 /**
  *@ingroup los_mux
  *@brief Create a mutex.
  *
  *@par Description:
- *This API is used to create a mutex. If there are available mutexes, the mutex is successfully created with a handle to the mutex returned.
+ *This API is used to create a mutex. A mutex handle is assigned to puwMuxHandle when the mutex is created successfully. Return LOS_OK on creating successful, return specific error code otherwise.
  *@attention
  *<ul>
  *<li>The total number of mutexes is pre-configured. If there are no available mutexes, the mutex creation fails.</li>
  *</ul>
  *
- *@param puwMuxHandle   [OUT] ID of the handle to the successfully created mutex.
+ *@param puwMuxHandle   [OUT] Handle pointer of the successfully created mutex. The value of handle should be in [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_MUX_PTR_NULL           0x02001d02: The puwMuxHandle pointer is NULL.
- *@retval #LOS_ERRNO_MUX_ALL_BUSY           0x02001d03: The mutex fails to be created because all mutexes in the OS are being in use.
- *@retval #LOS_OK                          0x00000000: The mutex is successfully created.
+ *@retval #LOS_ERRNO_MUX_PTR_NULL           The puwMuxHandle pointer is NULL.
+ *@retval #LOS_ERRNO_MUX_ALL_BUSY           No available mutex.
+ *@retval #LOS_OK                           The mutex is successfully created.
  *@par Dependency:
  *<ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>
  *@see LOS_MuxDelete
@@ -194,20 +203,21 @@ extern UINT32 LOS_MuxCreate(UINT32 *puwMuxHandle);
  *@brief Delete a mutex.
  *
  *@par Description:
- *This API is used to delete a specified mutex and add it to the list of available mutexes.
+ *This API is used to delete a specified mutex. Return LOS_OK on deleting successfully, return specific error code otherwise.
  *@attention
  *<ul>
- *<li>The mutex that is not owned or waited on by any thread is able to be successfully deleted.</li>
+ *<li>The specific mutex should be created firstly.</li>
+ *<li>The mutex can be deleted successfully only if no other tasks pend on it.</li>
  *</ul>
  *
- *@param puwMuxHandle   [IN] ID of the handle to the mutex to be deleted.
+ *@param puwMuxHandle   [IN] Handle of the mutex to be deleted. The value of handle should be in [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_MUX_INVALID            0x02001d01: The mutex fails to be deleted because it is not usable or it is being in use.
- *@retval #LOS_ERRNO_MUX_PENDED             0x02001d09: The mutex fails to be deleted because it is locked.
- *@retval #LOS_OK                          0x00000000: The mutex is successfully deleted.
+ *@retval #LOS_ERRNO_MUX_INVALID            Invalid handle or mutex in use.
+ *@retval #LOS_ERRNO_MUX_PENDED             Tasks pended on this mutex.
+ *@retval #LOS_OK                           The mutex is successfully deleted.
  *@par Dependency:
  *<ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_MuxDelete
+ *@see LOS_MuxCreate
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_MuxDelete(UINT32 puwMuxHandle);
@@ -220,24 +230,25 @@ extern UINT32 LOS_MuxDelete(UINT32 puwMuxHandle);
  *This API is used to wait for a specified period of time to lock a mutex.
  *@attention
  *<ul>
+ *<li>The specific mutex should be created firstly.</li>
  *<li>The function fails if the mutex that is waited on is already locked by another thread when the task scheduling is disabled.</li>
  *<li>Do not wait on a mutex during an interrupt.</li>
  *<li>The priority inheritance protocol is supported. If a higher-priority thread is waiting on a mutex, it changes the priority of the thread that owns the mutex to avoid priority inversion.</li>
  *<li>A recursive mutex can be locked more than once by the same thread.</li>
  *</ul>
  *
- *@param uwMuxHandle    [IN] ID of the handle to the mutex to be waited on.
- *@param uwTimeout      [IN] Waiting time. The value range is [0,LOS_WAIT_FOREVER].
+ *@param uwMuxHandle    [IN] Handle of the mutex to be waited on.  The value of handle should be in [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
+ *@param uwTimeout      [IN] Waiting time. The value range is [0, LOS_WAIT_FOREVER](unit: Tick).
  *
- *@retval #LOS_ERRNO_MUX_INVALID            0x02001d01: The mutex state (for example, the mutex does not exist or is not in use) is not applicable for the current operation.
- *@retval #LOS_ERRNO_MUX_UNAVAILABLE        0x02001d04: The mutex fails to be locked because it is locked by another thread and a period of time is not set for waiting for the mutex to become available.
- *@retval #LOS_ERRNO_MUX_PEND_INTERR        0x02001d05: The mutex is being locked during an interrupt.
- *@retval #LOS_ERRNO_MUX_PEND_IN_LOCK       0x02001d06: The mutex is waited on when the task scheduling is disabled.
- *@retval #LOS_ERRNO_MUX_TIMEOUT            0x02001d07: The mutex waiting times out.
- *@retval #LOS_OK                          0x00000000: The mutex is successfully locked.
+ *@retval #LOS_ERRNO_MUX_INVALID            The mutex state (for example, the mutex does not exist or is not in use) is not applicable for the current operation.
+ *@retval #LOS_ERRNO_MUX_UNAVAILABLE        The mutex fails to be locked because it is locked by another thread and a period of time is not set for waiting for the mutex to become available.
+ *@retval #LOS_ERRNO_MUX_PEND_INTERR        The mutex is being locked during an interrupt.
+ *@retval #LOS_ERRNO_MUX_PEND_IN_LOCK       The mutex is waited on when the task scheduling is disabled.
+ *@retval #LOS_ERRNO_MUX_TIMEOUT            The mutex waiting times out.
+ *@retval #LOS_OK                           The mutex is successfully locked.
  *@par Dependency:
  *<ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_MuxPost
+ *@see LOS_MuxCreate | LOS_MuxPost
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_MuxPend(UINT32 uwMuxHandle, UINT32 uwTimeout);
@@ -250,19 +261,19 @@ extern UINT32 LOS_MuxPend(UINT32 uwMuxHandle, UINT32 uwTimeout);
  *This API is used to release a specified mutex.
  *@attention
  *<ul>
+ *<li>The specific mutex should be created firstly.</li>
  *<li>Do not release a mutex during an interrupt.</li>
  *<li>If a recursive mutex is locked for many times, it must be unlocked for the same times to be released.</li>
  *</ul>
  *
- *@param uwMuxHandle    [IN] ID of the handle to the mutex to be released.
+ *@param uwMuxHandle    [IN] Handle of the mutex to be released. The value of handle should be in [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  *
- *@retval #LOS_ERRNO_MUX_INVALID            0x02001d01: The mutex state (for example, the mutex does not exist or is not in use) is not applicable for the current operation.
- *@retval #LOS_ERRNO_MUX_PEND_INTERR        0x02001d05: The mutex is being released during an interrupt.
- *@retval #LOS_ERRNO_MUX_INVALID            0x02001d01: The mutex state (for example, the mutex to be released is owned by another thread) is not applicable for the current operation.
- *@retval #LOS_OK                          0x00000000: The mutex is successfully released.
+ *@retval #LOS_ERRNO_MUX_INVALID            The mutex state (for example, the mutex does not exist or is not in use or owned by other thread) is not applicable for the current operation.
+ *@retval #LOS_ERRNO_MUX_PEND_INTERR        The mutex is being released during an interrupt.
+ *@retval #LOS_OK                           The mutex is successfully released.
  *@par Dependency:
  *<ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>
- *@see LOS_MuxPend
+ *@see LOS_MuxCreate | LOS_MuxPend
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_MuxPost(UINT32 uwMuxHandle);

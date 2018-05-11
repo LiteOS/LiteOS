@@ -1,8 +1,6 @@
-DIRECTORIES += kernel/base/core
-
-C_SOURCES += kernel/base/core/los_priqueue.c \
-             kernel/base/core/los_swtmr.c \
-			 kernel/base/core/los_sys.c \
-			 kernel/base/core/los_task.c \
-			 kernel/base/core/los_tick.c \
-			 kernel/base/core/los_timeslice.c 
+objs-y += los_timeslice.o
+objs-y += los_tick.o
+objs-y += los_swtmr.o
+objs-y += los_task.o
+objs-y += los_sys.o
+objs-y += los_priqueue.o

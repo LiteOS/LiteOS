@@ -122,15 +122,15 @@ typedef struct tagSysTime
  *This API is used to obtain the number of Ticks.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>None</li>
  *</ul>
  *
- *@param  None.
+ *@param  None
  *
- *@retval The number of Ticks is successfully obtained.
+ *@retval UINT64 The number of Ticks.
  *@par Dependency:
  *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
+ *@see None
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT64 LOS_TickCountGet (VOID);
@@ -143,15 +143,15 @@ extern UINT64 LOS_TickCountGet (VOID);
  *This API is used to obtain the number of cycles in one second.
  *@attention
  *<ul>
- *<li>None.</li>
+ *<li>None</li>
  *</ul>
  *
- *@param  None.
+ *@param  None
  *
- *@retval Number of cycles obtained through the conversion. The number of cycles in one second is successfully obtained.
+ *@retval UINT32 Number of cycles obtained in one second.
  *@par Dependency:
  *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
+ *@see None
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_CyclePerTickGet(VOID);
@@ -167,12 +167,12 @@ extern UINT32 LOS_CyclePerTickGet(VOID);
  *<li>The number of milliseconds obtained through the conversion is 32-bit.</li>
  *</ul>
  *
- *@param  tick  [IN] Number of Ticks. The value range is (0,OS_SYS_CLOCK).
+ *@param  uwTick  [IN] Number of Ticks. The value range is (0,OS_SYS_CLOCK).
  *
- *@retval Number of milliseconds obtained through the conversion. Ticks are successfully converted to milliseconds.
+ *@retval UINT32 Number of milliseconds obtained through the conversion. Ticks are successfully converted to milliseconds.
  *@par  Dependency:
  *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
+ *@see LOS_MS2Tick
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_Tick2MS(UINT32 uwTick);
@@ -185,39 +185,19 @@ extern UINT32 LOS_Tick2MS(UINT32 uwTick);
  *This API is used to convert milliseconds to Ticks.
  *@attention
  *<ul>
- *<li>Pay attention to the value to be converted because data possibly overflows.</li>
+ *<li>If the parameter passed in is equal to 0xFFFFFFFF, the retval is 0xFFFFFFFF. Pay attention to the value to be converted because data possibly overflows.</li>
  *</ul>
  *
- *@param  millisec  [IN] Number of milliseconds.
+ *@param  uwMillisec  [IN] Number of milliseconds.
  *
- *@retval Number of Ticks obtained through the conversion. Milliseconds are successfully converted to Ticks.
+ *@retval UINT32 Number of Ticks obtained through the conversion.
  *@par Dependency:
  *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
+ *@see LOS_Tick2MS
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_MS2Tick(UINT32 uwMillisec);
 
-/**
- *@ingroup los_sys
- *@brief System reboot.
- *
- *@par Description:
- *This API is used to restart system.
- *@attention
- *<ul>
- *<li></li>
- *</ul>
- *
- *@param None.
- *
- *@retval None.
- *@par Dependency:
- *<ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- *@see None.
- *@since Huawei LiteOS V100R001C00
- */
-extern VOID LOS_Reboot(VOID);
 #ifdef __cplusplus
 #if __cplusplus
 }
