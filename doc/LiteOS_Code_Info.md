@@ -4,33 +4,25 @@
 
 LiteOS入口在工程对应的main.c中，基本流程如下：
 
+```C
 int main(void)
-
 {
-
     UINT32 uwRet = LOS_OK;
-
     HardWare_Init();
-
     uwRet = LOS_KernelInit();
-    
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
-
     LOS_Inspect_Entry();
-
     LOS_Start();
 }
+```
 
-1. 首先进行硬件初始化  HardWare_Init();
-   
-2. 初始化LiteOS内核 LOS_KernelInit();
-
-3. 初始化内核例程 LOS_Inspect_Entry();
-   
-4. 最后调用LOS_Start();开始task调度，LiteOS开始正常工作;
+1. 首先进行硬件初始化 `HardWare_Init();`
+2. 初始化LiteOS内核 `LOS_KernelInit();`
+3. 初始化内核例程 `LOS_Inspect_Entry();`
+4. 最后调用`LOS_Start();`开始task调度，LiteOS开始正常工作;
 
 
 ## LiteOS的代码目录结构说明
