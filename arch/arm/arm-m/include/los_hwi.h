@@ -52,7 +52,13 @@ extern "C" {
  * Maximum number of used hardware interrupts.
  */
 #ifndef OS_HWI_MAX_NUM
+#if (__CORTEX_M == 0U)
+/* Cortex-m0 and Cortex-m0plus default 32 */
 #define OS_HWI_MAX_NUM              32
+#elif (__CORTEX_M == 3U || __CORTEX_M == 4U || __CORTEX_M == 7U)
+/* Cortex-m3,Cortex-m4 and Cortex-m7 default 240 */
+#define OS_HWI_MAX_NUM              240
+#endif
 #endif
 
 /**
