@@ -32,11 +32,15 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
+<<<<<<< HEAD
 #include "los_event.inc"
+=======
+>>>>>>> master
 #include "los_priqueue.ph"
 #include "los_task.ph"
 #include "los_hw.h"
 #include "los_hwi.h"
+#include "los_event.inc"
 
 #ifdef __cplusplus
 #if __cplusplus
