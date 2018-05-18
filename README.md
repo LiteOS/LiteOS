@@ -15,7 +15,7 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 ## LiteOS 开发指南
 
-[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.pdf)
+[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.md)
 
 该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以根据该文档学习各模块的使用。
 

@@ -308,11 +308,6 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 
 Huawei LiteOS任务的状态由内核自动维护，对用户不可见，不需要用户去操作。  
 
-用户在调用LOS\_TaskCreate接口创建任务时，需要将创建任务的TSK\_INIT\_PARAM\_S参数的uwResved域设置为LOS\_TASK\_STATUS\_DETACHED，即自删除状态，设置成自删除状态的任务会在运行完成时进行自删除动作。 
-
-![](./meta/DevGuide/icon_notice.png)  
-	在调用内核LOS\_TaskCreate接口创建任务时，默认必须要将任务状态设置为LOS\_TASK\_STATUS\_DETACHED。  
-
 #### TASK错误码
 
 对任务存在失败可能性的操作，包括创建任务、删除任务、挂起任务、恢复任务、延时任务等等，均需要返回对应的错误码，以便快速定位错误原因。 
