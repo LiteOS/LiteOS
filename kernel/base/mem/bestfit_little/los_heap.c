@@ -54,7 +54,7 @@ LITE_OS_SEC_DATA_INIT static UINT32 g_uwMaxHeapUsed = 0;
 #endif
 
 #define HEAP_CAST(t, exp) ((t)(exp))
-#define HEAP_ALIGN 8
+#define HEAP_ALIGN 4
 #define ALIGNE(sz) (sz + HEAP_ALIGN - 1) & ~(HEAP_ALIGN - 1)
 
 /*****************************************************************************
@@ -168,6 +168,7 @@ LITE_OS_SEC_TEXT VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz)
     }
 
 SIZE_MATCH:
+    pstBest->uwAlignFlag = 0;
     pstBest->uwUsed = 1;
     pRet = pstBest->ucData;
 
