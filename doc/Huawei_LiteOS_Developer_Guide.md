@@ -84,7 +84,7 @@
 
 | 日期 | 修订版本 | 描述 |  
 | - | :- | :- |  
-| 2018年03月30日 | C50 | 社区开源版本 |
+| 2018年03月30日 | V2.1.1 | 社区开源版本 |
 
 
 <h2 id="3">3.概述</h3>
@@ -156,9 +156,9 @@ Huawei LiteOS开源Kernel支持的核
 - Huawei LiteOS提供一套Huawei LiteOS接口，同时支持CMSIS接口，它们功能一致，但混用CMSIS和Huawei LiteOS接口可能会导致不可预知的错误,例如用CMSIS接口申请信号量，但用Huawei LiteOS接口释放信号量。  
 - 开发驱动程序只能用Huawei LiteOS的接口，上层APP建议用CMSIS接口。  
 
-<h2 id="4">基础内核</h2>
+<h2 id="4">4.基础内核</h2>
 
-<h3 id="4.1">任务</h3>
+<h3 id="4.1">4.1 任务</h3>
 
 ### 概述
 
@@ -534,7 +534,7 @@ static UINT32 Example_TaskLo(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic3.png)
 
-<h3 id="4.2">内存</h3>
+<h3 id="4.2">4.2.内存</h3>
 
 ### 概述  
 
