@@ -2682,7 +2682,7 @@ UINT32 Example_swTimer(void)
 得到的结果为：  
 ![](./meta/DevGuide/pic23.png)   
 
-<h3 id="4.10">双向链表</h3>
+<h3 id="4.10">4.10 双向链表</h3>
 
 ### 概述
 
@@ -2814,7 +2814,7 @@ Head insert DLlistNode03 success
 Delete success  
 ```  
 
-<h3 id="5">Agent Tiny</h3>
+<h3 id="5">5.Agent Tiny</h3>
 
 ### 概述
 
