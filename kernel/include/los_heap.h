@@ -61,8 +61,9 @@ extern "C" {
 struct LOS_HEAP_NODE {
 
     struct LOS_HEAP_NODE* pstPrev;
-    UINT32 uwSize:31;
+    UINT32 uwSize:30;
     UINT32 uwUsed: 1;
+    UINT32 uwAlignFlag: 1; /* Little-Endian, MSB. Big-Endian, LSB */
     UINT8  ucData[];/*lint !e43*/
 };
 
