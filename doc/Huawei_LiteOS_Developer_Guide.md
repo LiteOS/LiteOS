@@ -534,7 +534,7 @@ static UINT32 Example_TaskLo(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic3.png)
 
-<h3 id="4.2">4.2.内存</h3>
+<h3 id="4.2">4.2 内存</h3>
 
 ### 概述  
 
@@ -925,7 +925,7 @@ UINT32 Example_StaticMem(VOID)
 结果显示  
 ![](./meta/DevGuide/pic12.png)    
 
-<h3 id="4.3">中断机制</h3>
+<h3 id="4.3">4.3 中断机制</h3>
 
 ### 概述  
 
@@ -1084,7 +1084,7 @@ UINT32 Example_Interrupt(VOID)
 #### 结果验证  
 ![](./meta/DevGuie/pic13.png)   
 
-<h3 id="4.4">队列</h3>
+<h3 id="4.4">4.4 队列</h3>
 
 ### 概述  
 
@@ -1402,7 +1402,7 @@ UINT32 Example_MsgQueue(void)
 ![](./meta/DevGuide/pic15.png)  
 
 
-<h3 id="4.5">事件</h3>
+<h3 id="4.5">4.5 事件</h3>
 
 ### 概述
 
@@ -1651,7 +1651,7 @@ UINT32 Example_SndRcvEvent(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic17.png)  
 
-<h3 id="4.6">互斥锁</h3>
+<h3 id="4.6">4.6 互斥锁</h3>
 
 ### 概述
 
@@ -1917,7 +1917,7 @@ UINT32 Example_MutexLock(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic19.png)  
 
-<h3 id="4.7">信号量</h3>
+<h3 id="4.7">4.7 信号量</h3>
 
 ### 概述
 
@@ -2214,7 +2214,7 @@ UINT32 Example_Semphore(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic21.png)   
 
-<h3 id="4.8">时间管理</h3>
+<h3 id="4.8">4.8 时间管理</h3>
 
 ### 概述
 
@@ -2370,7 +2370,7 @@ UINT32 Example_GetTick(VOID)
 示例中系统时钟频率为80MHZ。    
 
 
-<h3 id="4.9">软件定时器</h3>
+<h3 id="4.9">4.9 软件定时器</h3>
 
 ### 概述
 
