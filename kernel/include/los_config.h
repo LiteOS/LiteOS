@@ -597,18 +597,6 @@ extern UINT32 g_sys_mem_addr_end;
 #define OS_INCLUDE_SHELL                                    NO
 #endif
 
-/*=============================================================================
-                                       Lib configurable feature configuration
-=============================================================================*/
-
-/**
- * @ingroup los_config
- * Configuration lib configurable feature to open
- */
-#ifndef LOSCFG_LIB_CONFIGURABLE
-#define LOSCFG_LIB_CONFIGURABLE                             NO
-#endif
-
 
 /*=============================================================================
                                        Test module configuration
@@ -620,19 +608,6 @@ extern UINT32 g_sys_mem_addr_end;
  */
 #ifndef LOSCFG_TEST
 #define LOSCFG_TEST                                         NO
-#endif
-
-
-/*=============================================================================
-                                       LIBC module configuration
-=============================================================================*/
-
-/**
- * @ingroup los_config
- * Configuration to support libc
- */
-#ifndef LOSCFG_LIB_LIBC
-#define LOSCFG_LIB_LIBC                                     NO
 #endif
 
 

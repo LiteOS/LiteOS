@@ -36,12 +36,11 @@
 #include "los_task.ph"
 #include "los_config.h"
 
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-LITE_OS_SEC_BSS_MINOR TSK_MEM_USED_INFO * g_TskMemUsedInfo;
-__attribute__((section(".sysmemused")))TSK_MEM_USED_INFO g_TskMemUsedInfo_0;
-#else
+typedef struct {
+    UINT32 uwMemUsed;
+} TSK_MEM_USED_INFO;
+
 LITE_OS_SEC_BSS_MINOR TSK_MEM_USED_INFO g_TskMemUsedInfo[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
-#endif
 
 LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedInc(UINT32 uwUsedSize)
 {
