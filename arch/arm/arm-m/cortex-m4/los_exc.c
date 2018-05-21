@@ -41,7 +41,7 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-#if (LOSCFG_PLATFORM_HWI == YES)
+#if (LOSCFG_PLATFORM_EXC == YES)
 
 VOID *m_puwExcContent;
 UINT32 g_uwCurNestCount = 0;
@@ -397,7 +397,7 @@ void SVC_Handler(void)
 }
 #endif
 
-#endif /*(LOSCFG_PLATFORM_HWI == YES)*/
+#endif /*(LOSCFG_PLATFORM_EXC == YES)*/
 
 #ifdef __cplusplus
 #if __cplusplus
