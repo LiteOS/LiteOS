@@ -68,8 +68,8 @@ LITE_OS_SEC_BSS LOS_DL_LIST                    g_stTskRecyleList;
 LITE_OS_SEC_BSS  TSK_SORTLINK_ATTRIBUTE_S            g_stTskSortLink;
 LITE_OS_SEC_BSS  BOOL                                g_bTaskScheduled;
 
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
+#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnUsrTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
 #endif /* LOSCFG_BASE_CORE_TSK_MONITOR == YES */
 
@@ -126,7 +126,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 osTaskNextSwitchTimeGet(VOID)
  Output      : None
  Return      : None
  *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osIdleTask(VOID)
+LITE_OS_SEC_TEXT WEAK VOID osIdleTask(VOID)
 {
     while (1)
     {
@@ -667,7 +667,6 @@ LITE_OS_SEC_TEXT_MINOR VOID osTaskMonInit(VOID)
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == YES)
     (VOID)memset(&g_astTskSwitchInfo, 0, sizeof(OS_TASK_SWITCH_INFO));
     g_astTskSwitchInfo.ucIsFull = 0x7F & OS_TASK_SWITCH_INFO_COUNT;
-
 #if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     osExcRegister((EXC_INFO_TYPE)OS_EXC_TYPE_TSK_SWITCH, (EXC_INFO_SAVE_CALLBACK)LOS_TaskSwitchInfoGet, &g_astTskSwitchInfo);
 #endif

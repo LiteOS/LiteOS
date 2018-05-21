@@ -97,7 +97,9 @@ static osInspect_Def gInspect[LOS_INSPECT_BUFF] = {
 
     {LOS_INSPECT_DMEM,LOS_INSPECT_STU_START,Example_Dyn_Mem,"D_MEM"},
 
+#if (LOSCFG_PLATFORM_HWI == YES)
     //{LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_START,Example_Interrupt},
+#endif
 
 };
 

@@ -43,12 +43,6 @@
 #include "los_exc.ph"
 #endif
 
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#include "los_build.h"
-#include "los_memstat.ph"
-#include "string.h"
-#endif
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -58,34 +52,8 @@ extern "C" {
 LITE_OS_SEC_BSS UINT8* m_aucSysMem0;
 
 #if (LOSCFG_PLATFORM_EXC == YES)
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-LITE_OS_SEC_BSS UINT8 *m_aucTaskArray;
-#else
 LITE_OS_SEC_BSS UINT8 m_aucTaskArray[MAX_EXC_MEM_SIZE];
 #endif
-#endif
-
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#if (LOSCFG_LIB_LIBC == YES)
-extern int *errno_array;
-extern CHAR LOS_BLOCK_START(errno);
-extern CHAR LOS_BLOCK_END(errno);
-#endif
-
-extern TSK_MEM_USED_INFO *g_TskMemUsedInfo;
-extern CHAR LOS_BLOCK_START(sysmemused);
-extern CHAR LOS_BLOCK_END(sysmemused);
-
-LITE_OS_SEC_BSS UINT32 g_uwOsSysClock;
-LITE_OS_SEC_BSS UINT32 g_uwSemLimit;
-LITE_OS_SEC_BSS UINT32 g_uwMuxLimit;
-LITE_OS_SEC_BSS UINT32 g_uwQueueLimit;
-LITE_OS_SEC_BSS UINT32 g_uwSwtmrLimit;
-LITE_OS_SEC_BSS UINT32 g_uwTskLimit;
-LITE_OS_SEC_BSS UINT32 g_uwMinusOneTickPerSecond;
-#endif
-
-
 extern UINT32 osTickInit(UINT32 uwSystemClock, UINT32 uwTickPerSecond);
 
 LITE_OS_SEC_TEXT_INIT void osEnableFPU(void)
@@ -114,30 +82,9 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_Reboot(VOID)
  Output      : None
  Return      : None
  *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT_REDIRECT static VOID osRegister(VOID)
+LITE_OS_SEC_TEXT_INIT static VOID osRegister(VOID)
 {
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-    g_uwTskLimit = LOSCFG_BASE_CORE_TSK_LIMIT_CONFIG;
-    g_uwTskMaxNum = g_uwTskLimit + 1;
-
-#if (LOSCFG_LIB_LIBC == YES)
-    errno_array = (INT32 *)&LOS_BLOCK_START(errno);
-    memset(errno_array, 0, (&LOS_BLOCK_END(errno) - &LOS_BLOCK_START(errno)));
-#endif
-
-    g_TskMemUsedInfo = (TSK_MEM_USED_INFO *)&LOS_BLOCK_START(sysmemused);
-    memset(g_TskMemUsedInfo, 0, (&LOS_BLOCK_END(sysmemused) - &LOS_BLOCK_START(sysmemused)));
-
-    g_uwOsSysClock = OS_SYS_CLOCK_CONFIG;
-    g_uwMinusOneTickPerSecond = LOSCFG_BASE_CORE_TICK_PER_SECOND_CONFIG - 1; /* tick per sencond minus one */
-    g_uwSemLimit = LOSCFG_BASE_IPC_SEM_LIMIT_CONFIG;
-    g_uwMuxLimit = LOSCFG_BASE_IPC_MUX_LIMIT_CONFIG;
-    g_uwQueueLimit = LOSCFG_BASE_IPC_QUEUE_LIMIT_CONFIG;
-    g_uwSwtmrLimit = LOSCFG_BASE_CORE_SWTMR_LIMIT_CONFIG;
-
-#else
     g_uwTskMaxNum = LOSCFG_BASE_CORE_TSK_LIMIT + 1; /* Reserved 1 for IDLE */
-#endif
 
     return;
 }
@@ -181,7 +128,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
  Output      : None
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT_REDIRECT UINT32 LOS_KernelInit(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 {
     UINT32 uwRet;
 
@@ -287,6 +234,7 @@ LITE_OS_SEC_TEXT_INIT_REDIRECT UINT32 LOS_KernelInit(VOID)
     uwRet = los_TestInit();
     if (uwRet != LOS_OK)
     {
+        PRINT_ERR("los_TestInit error\n");
         return uwRet;
     }
 #endif
