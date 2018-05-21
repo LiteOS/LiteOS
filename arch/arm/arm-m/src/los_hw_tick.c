@@ -62,10 +62,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 osTickStart(VOID)
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
 
+#if (LOSCFG_PLATFORM_HWI == YES)
 #if (OS_HWI_WITH_ARG == YES)
     osSetVector(SysTick_IRQn, (HWI_PROC_FUNC)osTickHandler, NULL);
 #else
     osSetVector(SysTick_IRQn, osTickHandler);
+#endif
 #endif
 
     g_uwCyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;

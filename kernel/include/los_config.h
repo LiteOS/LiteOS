@@ -151,6 +151,13 @@ extern "C" {
 #define LOSCFG_PLATFORM_HWI_LIMIT                           32
 #endif
 
+/**
+ * @ingroup los_config
+ * tickless function dependency relationship
+ */
+#if (LOSCFG_PLATFORM_HWI == NO && LOSCFG_KERNEL_TICKLESS == YES)
+    #error "tickless lean on platform hwi for support, should make LOSCFG_PLATFORM_HWI = YES"
+#endif
 
 /*=============================================================================
                                        Task module configuration

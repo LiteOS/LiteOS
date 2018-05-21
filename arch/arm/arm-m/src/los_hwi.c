@@ -36,12 +36,17 @@
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 #include "los_tickless.ph"
 #endif
+#if (LOSCFG_PLATFORM_HWI == NO)
+#include "los_tick.ph"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+#if (LOSCFG_PLATFORM_HWI == YES)
 
 /*lint -save -e40 -e522 -e533*/
 
@@ -78,6 +83,8 @@ LITE_OS_SEC_DATA_INIT HWI_SLAVE_FUNC m_pstHwiSlaveForm[OS_VECTOR_CNT] = {{(HWI_P
 LITE_OS_SEC_DATA_INIT HWI_PROC_FUNC m_pstHwiSlaveForm[OS_VECTOR_CNT] = {0};
 #endif
 
+#endif /*(LOSCFG_PLATFORM_HWI == YES)*/
+
 /*****************************************************************************
  Function    : osIntNumGet
  Description : Get a interrupt number
@@ -90,6 +97,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 osIntNumGet(VOID)
     return __get_IPSR();
 }
 
+#if (LOSCFG_PLATFORM_HWI == YES)
 /*****************************************************************************
  Function    : osHwiDefaultHandler
  Description : default handler of the hardware interrupt
@@ -254,6 +262,35 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiDelete(HWI_HANDLE_T uwHwiNum)
 
     return LOS_OK;
 }
+
+#else
+
+/*****************************************************************************
+ Function    : PendSV_Handler
+ Description : This function handles PendSVC exception, Call LiteOS interface
+               osPendSV.
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+void PendSV_Handler(void)
+{
+    osPendSV();
+}
+/*****************************************************************************
+ Function    : SysTick_Handler
+ Description : This function handles SysTick exception, Call LiteOS interface
+               osTickHandler.
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+void SysTick_Handler(void)
+{
+    osTickHandler();
+}
+
+#endif /*(LOSCFG_PLATFORM_HWI == YES)*/
 
 #ifdef __cplusplus
 #if __cplusplus

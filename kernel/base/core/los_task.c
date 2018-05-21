@@ -68,8 +68,8 @@ LITE_OS_SEC_BSS LOS_DL_LIST                    g_stTskRecyleList;
 LITE_OS_SEC_BSS  TSK_SORTLINK_ATTRIBUTE_S            g_stTskSortLink;
 LITE_OS_SEC_BSS  BOOL                                g_bTaskScheduled;
 
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
+#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnUsrTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
 #endif /* LOSCFG_BASE_CORE_TSK_MONITOR == YES */
 

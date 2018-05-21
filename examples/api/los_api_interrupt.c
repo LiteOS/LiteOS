@@ -43,6 +43,7 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
+#if (LOSCFG_PLATFORM_HWI == YES)
 static VOID Example_Exti0_Init(VOID)
 {
     /*add your IRQ init code here*/
@@ -70,6 +71,7 @@ UINT32 Example_Interrupt(VOID)
 
     return LOS_OK;
 }
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
