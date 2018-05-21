@@ -87,7 +87,7 @@
 | 2018年03月30日 | C50 | 社区开源版本 |
 
 
-## 概述  
+<h3 id="2">概述</h3>
 
 ### 背景介绍  
 
@@ -156,9 +156,10 @@ Huawei LiteOS开源Kernel支持的核
 - Huawei LiteOS提供一套Huawei LiteOS接口，同时支持CMSIS接口，它们功能一致，但混用CMSIS和Huawei LiteOS接口可能会导致不可预知的错误,例如用CMSIS接口申请信号量，但用Huawei LiteOS接口释放信号量。  
 - 开发驱动程序只能用Huawei LiteOS的接口，上层APP建议用CMSIS接口。  
 
-# 基础内核
+<h2 id="4">基础内核</h2>
 
-## 任务
+<h3 id="4.1">任务</h3>
+
 ### 概述
 
 #### 基本概念
