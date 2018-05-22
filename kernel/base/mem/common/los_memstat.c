@@ -32,9 +32,91 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _LOS_MEMSTAT_INC
-#define _LOS_MEMSTAT_INC
+#include "los_memstat.inc"
+#include "los_task.ph"
+#include "los_config.h"
 
-#include "los_memstat.ph"
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_MEMSTAT_INC */
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+
+typedef struct {
+    UINT32 uwMemUsed;
+} TSK_MEM_USED_INFO;
+
+LITE_OS_SEC_BSS_MINOR TSK_MEM_USED_INFO g_TskMemUsedInfo[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+
+LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedInc(UINT32 uwUsedSize)
+{
+    UINT32 uwTaskId;
+
+    if (NULL == g_stLosTask.pstRunTask)
+    {
+        return;
+    }
+
+    if (OS_INT_ACTIVE)
+    {
+        return;
+    }
+
+    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
+
+    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
+    {
+        return;
+    }
+
+    g_TskMemUsedInfo[uwTaskId].uwMemUsed += uwUsedSize;
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedDec(UINT32 uwUsedSize)
+{
+    UINT32 uwTaskId;
+
+    if (NULL == g_stLosTask.pstRunTask)
+    {
+        return;
+    }
+
+    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
+
+    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
+    {
+        return;
+    }
+
+    if (OS_INT_ACTIVE)
+    {
+        return;
+    }
+
+    g_TskMemUsedInfo[uwTaskId].uwMemUsed -= uwUsedSize;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 osTaskMemUsage(UINT32 uwTaskId)
+{
+    if ((UINT32)uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
+    {
+        return LOS_NOK;
+    }
+
+    return g_TskMemUsedInfo[(UINT32)uwTaskId].uwMemUsed;
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskMemUsage(UINT32 uwTaskId)
+{
+    return osTaskMemUsage(uwTaskId);
+}
+
+#endif /*(LOSCFG_MEM_TASK_USED_STATISTICS == YES)*/
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif /* __cplusplus */

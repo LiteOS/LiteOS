@@ -32,65 +32,12 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_memstat.inc"
-#include "los_task.ph"
-#include "los_config.h"
+#ifndef _LOS_MEMSTAT_INC
+#define _LOS_MEMSTAT_INC
 
-typedef struct {
-    UINT32 uwMemUsed;
-} TSK_MEM_USED_INFO;
+#include "los_memstat.ph"
 
-LITE_OS_SEC_BSS_MINOR TSK_MEM_USED_INFO g_TskMemUsedInfo[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+#define OS_MEM_ADD_USED(arg)         osTaskMemUsedInc(arg)
+#define OS_MEM_REDUCE_USED(arg)      osTaskMemUsedDec(arg)
 
-LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedInc(UINT32 uwUsedSize)
-{
-    UINT32 uwTaskId;
-
-    if (NULL == g_stLosTask.pstRunTask)
-    {
-        return;
-    }
-
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
-
-    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return;
-    }
-
-    g_TskMemUsedInfo[uwTaskId].uwMemUsed += uwUsedSize;
-}
-
-LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedDec(UINT32 uwUsedSize)
-{
-    UINT32 uwTaskId;
-
-    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
-
-    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return;
-    }
-
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    g_TskMemUsedInfo[uwTaskId].uwMemUsed -= uwUsedSize;
-}
-
-LITE_OS_SEC_TEXT_MINOR UINT32 osTaskMemUsage(UINT32 uwTaskId)
-{
-    if ((UINT32)uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return LOS_NOK;
-    }
-
-    return g_TskMemUsedInfo[(UINT32)uwTaskId].uwMemUsed;
-}
+#endif /* _LOS_MEMSTAT_INC */
