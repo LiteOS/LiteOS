@@ -41,6 +41,10 @@
 #include <los_heap.ph>
 #include <los_typedef.h>
 
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+#include "los_memstat.inc"
+#endif
+
 #ifdef CONFIG_DDR_HEAP
 LITE_OS_SEC_BSS_MINOR struct LOS_HEAP_MANAGER g_stDdrHeap;
 #endif
@@ -171,6 +175,9 @@ SIZE_MATCH:
     pstBest->uwAlignFlag = 0;
     pstBest->uwUsed = 1;
     pRet = pstBest->ucData;
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+    OS_MEM_ADD_USED(pstBest->uwSize);
+#endif
 
 #if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
     g_uwCurHeapUsed += (uwSz + sizeof(struct LOS_HEAP_NODE));
@@ -239,6 +246,9 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 
     /* set to unused status */
     pstNode->uwUsed = 0;
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+    OS_MEM_REDUCE_USED(pstNode->uwSize);
+#endif
 
 #if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
     if (g_uwCurHeapUsed >= (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE)))

@@ -484,6 +484,14 @@ extern UINT32 g_sys_mem_addr_end;
 #define OS_SYS_NOCACHEMEM_ADDR                              &m_aucSysNoCacheMem0[0]
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration module tailoring of the total amount of memory used for tasks
+ */
+#ifndef LOSCFG_MEM_TASK_USED_STATISTICS
+#define LOSCFG_MEM_TASK_USED_STATISTICS                     NO
+#endif
+
 
 /*=============================================================================
                                         Exception module configuration
