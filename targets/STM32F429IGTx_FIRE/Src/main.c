@@ -34,6 +34,7 @@
 
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
+#include "at_api_interface.h"
 
 RNG_HandleTypeDef hrng;
 UINT32 g_TskHandle;
@@ -48,8 +49,12 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
+    #if 0
     hieth_hw_init();
     net_init();
+    #endif
+    at_api_register(&at_interface);
+    at_api_init();
     agent_tiny_entry();
 }
 UINT32 creat_main_task()
