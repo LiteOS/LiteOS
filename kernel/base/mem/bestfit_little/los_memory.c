@@ -51,6 +51,14 @@ VOID *g_pPoolHead = NULL;
 #endif
 
 #define OS_SLAB_CAST(_t, _exp) ((_t)(_exp))
+#define OS_MEM_POOL_BASE_ALIGN 4
+#define IS_ALIGNED(value, alignSize)  (0 == (((UINT32)(value)) & ((UINT32)(alignSize - 1))))
+
+#define OS_MEM_ALIGN(value, uwAlign) (((UINT32)(value) + (UINT32)(uwAlign - 1)) & (~(UINT32)(uwAlign - 1)))
+#define OS_MEM_ALIGN_FLAG (0x80000000)   /* Little-Endian, 0x80000000. Big-Endian, 0x00000001 */
+#define OS_MEM_SET_ALIGN_FLAG(uwAlign) (uwAlign = ((uwAlign) | OS_MEM_ALIGN_FLAG))
+#define OS_MEM_GET_ALIGN_FLAG(uwAlign) ((uwAlign) & OS_MEM_ALIGN_FLAG)
+#define OS_MEM_GET_ALIGN_GAPSIZE(uwAlign) ((uwAlign) & (~OS_MEM_ALIGN_FLAG))
 
 LITE_OS_SEC_TEXT_MINOR VOID *osSlabCtrlHdrGet(VOID *pPool)
 {
@@ -80,6 +88,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize)
 #endif
 
     if (!pPool || uwSize <= sizeof(struct LOS_HEAP_MANAGER))
+        return LOS_NOK;
+
+    if (!IS_ALIGNED(pPool, OS_MEM_POOL_BASE_ALIGN))
         return LOS_NOK;
 
     uvIntSave = LOS_IntLock();
@@ -252,8 +263,48 @@ LITE_OS_SEC_TEXT VOID *LOS_MemAlloc (VOID *pPool, UINT32 uwSize)
 *****************************************************************************/
 LITE_OS_SEC_TEXT VOID *LOS_MemAllocAlign(VOID *pPool, UINT32 uwSize, UINT32 uwBoundary)
 {
-    (VOID)uwBoundary;
-    return LOS_MemAlloc(pPool, uwSize);
+    VOID *pRet = NULL;
+    UINT32 uwUseSize;
+    UINT32 uwGapSize;
+    VOID *pAlignedPtr;
+
+    do {
+        /*
+         * uwBoundary can`t be 0 and it must be a multiple of sizeof(VOID *)
+         */
+        if ((NULL == pPool) || (0 == uwSize) || (0 == uwBoundary) || !IS_ALIGNED(uwBoundary, sizeof(VOID *)))
+        {
+            break;
+        }
+
+        /*
+         * 4 bytes stores offset between alignedPtr and pRet.
+         * uwBoundary is used to compensate for the gap between alignedPtr and pRet.
+         * note: pRet has been aligned on the boundary of address 4.
+         *       LOS_MemAllocAlign interface only apply for memory from the osHeap,
+         *       SLAB memory doesn`t support LOS_MemAllocAlign interface.
+         */
+        uwUseSize = uwSize + uwBoundary + 4;
+        pRet = osHeapAlloc(pPool, uwUseSize);
+
+        if (pRet)
+        {
+            pAlignedPtr = (VOID *)OS_MEM_ALIGN(pRet, uwBoundary);
+            if (pRet == pAlignedPtr)
+            {
+                break;
+            }
+
+            /* store gapSize in address (pRet -4), it will be checked while free */
+            uwGapSize = (UINT32)pAlignedPtr - (UINT32)pRet;
+            OS_MEM_SET_ALIGN_FLAG(uwGapSize);
+            *((UINT32 *)((UINT32)pAlignedPtr - 4)) = uwGapSize;
+
+            pRet = pAlignedPtr;
+        }
+    } while (0);
+
+    return pRet;
 }
 
 /*****************************************************************************
@@ -327,6 +378,8 @@ LITE_OS_SEC_TEXT_MINOR VOID *LOS_MemRealloc(VOID *pPool, VOID *pPtr, UINT32 uwSi
 LITE_OS_SEC_TEXT UINT32 LOS_MemFree (VOID *pPool, VOID *pMem)
 {
     BOOL bRet = FALSE;
+    UINT32 uwGapSize;
+
     if ((NULL == pPool) || (NULL == pMem))
     {
         return LOS_NOK;
@@ -336,7 +389,15 @@ LITE_OS_SEC_TEXT UINT32 LOS_MemFree (VOID *pPool, VOID *pMem)
     bRet = osSlabMemFree(pPool, pMem);
     if(bRet != TRUE)
 #endif
+    {
+        uwGapSize = *((UINT32 *)((UINT32)pMem - 4));
+        if (OS_MEM_GET_ALIGN_FLAG(uwGapSize))
+        {
+            uwGapSize = OS_MEM_GET_ALIGN_GAPSIZE(uwGapSize);
+            pMem = (VOID *)((UINT32)pMem - uwGapSize);
+        }
         bRet = osHeapFree(pPool, pMem);
+    }
 
     return (bRet == TRUE ? LOS_OK : LOS_NOK);
 }

@@ -43,13 +43,11 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-typedef struct {
-    UINT32 uwMemUsed;
-} TSK_MEM_USED_INFO;
 
 extern VOID osTaskMemUsedInc(UINT32 uwUsedSize);
 extern VOID osTaskMemUsedDec(UINT32 uwUsedSize);
 extern UINT32 osTaskMemUsage(UINT32 uwTaskId);
+extern UINT32 LOS_TaskMemUsage(UINT32 uwTaskId);
 
 
 #ifdef __cplusplus

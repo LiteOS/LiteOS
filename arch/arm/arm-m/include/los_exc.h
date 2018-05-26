@@ -172,11 +172,7 @@ extern VOID osExcBusFault(VOID);
 extern VOID osExcUsageFault(VOID);
 extern VOID osExcSvcCall(VOID);
 extern VOID osBackTrace(VOID);
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-extern UINT8 *m_aucTaskArray;
-#else
 extern UINT8 m_aucTaskArray[];
-#endif
 
 /**
  *@ingroup los_exc

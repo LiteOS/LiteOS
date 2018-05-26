@@ -2,11 +2,25 @@
 
 ## 目 录
 
+* [1.知识共享许可协议说明](#1)
+* [2.前言](#2)
+* [3.概述](#3)
+* [4.基础内核](#4)
+* [4.1.任务](#4.1)
+* [4.2.内存](#4.2)
+* [4.3.中断机制](#4.3)
+* [4.4.队列](#4.4)
+* [4.5.事件](#4.5)
+* [4.6.互斥锁](#4.6)
+* [4.7.信号量](#4.7)
+* [4.8时间管理](#4.8)
+* [4.9.软件定时器](#4.9)
+* [4.10.双向链表](#4.10)
+* [5.Agent Tiny](#5)
 
 
 
-## 知识共享许可协议说明
-
+<h2 id="1">1.知识共享许可协议说明</h3>
 
 **您可以自由地：**  
 
@@ -38,7 +52,7 @@
 为了方便用户理解，这是协议的概述. 可以访问网址<https://creativecommons.org/licenses/by-sa/3.0/legalcode>了解完整协议内容。  
 
 
-## 前言
+<h2 id="2">2.前言</h3>
 
 **目的**
 
@@ -70,10 +84,10 @@
 
 | 日期 | 修订版本 | 描述 |  
 | - | :- | :- |  
-| 2018年03月30日 | C50 | 社区开源版本 |
+| 2018年03月30日 | V2.1.1 | 社区开源版本 |
 
 
-## 概述  
+<h2 id="3">3.概述</h3>
 
 ### 背景介绍  
 
@@ -142,9 +156,10 @@ Huawei LiteOS开源Kernel支持的核
 - Huawei LiteOS提供一套Huawei LiteOS接口，同时支持CMSIS接口，它们功能一致，但混用CMSIS和Huawei LiteOS接口可能会导致不可预知的错误,例如用CMSIS接口申请信号量，但用Huawei LiteOS接口释放信号量。  
 - 开发驱动程序只能用Huawei LiteOS的接口，上层APP建议用CMSIS接口。  
 
-# 基础内核
+<h2 id="4">4.基础内核</h2>
 
-## 任务
+<h3 id="4.1">4.1 任务</h3>
+
 ### 概述
 
 #### 基本概念
@@ -307,11 +322,6 @@ Huawei LiteOS 系统中的任务管理模块为用户提供下面几种功能。
 #### TASK状态
 
 Huawei LiteOS任务的状态由内核自动维护，对用户不可见，不需要用户去操作。  
-
-用户在调用LOS\_TaskCreate接口创建任务时，需要将创建任务的TSK\_INIT\_PARAM\_S参数的uwResved域设置为LOS\_TASK\_STATUS\_DETACHED，即自删除状态，设置成自删除状态的任务会在运行完成时进行自删除动作。 
-
-![](./meta/DevGuide/icon_notice.png)  
-	在调用内核LOS\_TaskCreate接口创建任务时，默认必须要将任务状态设置为LOS\_TASK\_STATUS\_DETACHED。  
 
 #### TASK错误码
 
@@ -524,7 +534,7 @@ static UINT32 Example_TaskLo(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic3.png)
 
-## 内存  
+<h3 id="4.2">4.2 内存</h3>
 
 ### 概述  
 
@@ -915,7 +925,7 @@ UINT32 Example_StaticMem(VOID)
 结果显示  
 ![](./meta/DevGuide/pic12.png)    
 
-## 中断机制  
+<h3 id="4.3">4.3 中断机制</h3>
 
 ### 概述  
 
@@ -1074,7 +1084,7 @@ UINT32 Example_Interrupt(VOID)
 #### 结果验证  
 ![](./meta/DevGuie/pic13.png)   
 
-## 队列  
+<h3 id="4.4">4.4 队列</h3>
 
 ### 概述  
 
@@ -1392,7 +1402,7 @@ UINT32 Example_MsgQueue(void)
 ![](./meta/DevGuide/pic15.png)  
 
 
-## 事件
+<h3 id="4.5">4.5 事件</h3>
 
 ### 概述
 
@@ -1641,7 +1651,7 @@ UINT32 Example_SndRcvEvent(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic17.png)  
 
-## 互斥锁
+<h3 id="4.6">4.6 互斥锁</h3>
 
 ### 概述
 
@@ -1907,7 +1917,7 @@ UINT32 Example_MutexLock(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic19.png)  
 
-## 信号量
+<h3 id="4.7">4.7 信号量</h3>
 
 ### 概述
 
@@ -2204,7 +2214,7 @@ UINT32 Example_Semphore(VOID)
 编译运行得到的结果为：  
 ![](./meta/DevGuide/pic21.png)   
 
-## 时间管理
+<h3 id="4.8">4.8 时间管理</h3>
 
 ### 概述
 
@@ -2360,7 +2370,7 @@ UINT32 Example_GetTick(VOID)
 示例中系统时钟频率为80MHZ。    
 
 
-## 软件定时器
+<h3 id="4.9">4.9 软件定时器</h3>
 
 ### 概述
 
@@ -2672,7 +2682,7 @@ UINT32 Example_swTimer(void)
 得到的结果为：  
 ![](./meta/DevGuide/pic23.png)   
 
-## 双向链表
+<h3 id="4.10">4.10 双向链表</h3>
 
 ### 概述
 
@@ -2804,7 +2814,7 @@ Head insert DLlistNode03 success
 Delete success  
 ```  
 
-## Agent Tiny
+<h3 id="5">5.Agent Tiny</h3>
 
 ### 概述
 
