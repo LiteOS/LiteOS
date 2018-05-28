@@ -14,7 +14,6 @@ uint32_t ri = 0;
 at_task at = {
 	.init = at_init,
 	.write = at_write,
-	.read = at_read,
     .get_id = at_get_unuse_linkid,
 };
 
@@ -53,9 +52,60 @@ void at_usart_config(UART_HandleTypeDef * usart)
       _Error_Handler(__FILE__, __LINE__);
     }
     __HAL_UART_CLEAR_FLAG(usart,UART_FLAG_TC);
-    LOS_HwiCreate(AT_USART_IRQn, 0,0,at_irq_handler,NULL);
+    LOS_HwiCreate(AT_USART_IRQn, 0, 0, at_irq_handler,NULL);
     __HAL_UART_ENABLE_IT(usart, UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
+
+}
+
+//if p not in list, add it at head;
+void at_listener_list_add(at_listner * p)
+{
+    at_listner * tmp = at.head;
+
+    if (NULL == tmp)
+    {
+        at.head = p;
+        p->next = NULL; 
+        return;
+    }
+
+    while(tmp)
+    {
+        if (0 == strncmp((char *)tmp->perfix, (char *)p->perfix, strlen((char*)p->perfix)))
+        {
+            AT_LOG("pasher(%s) already in list!", p->perfix);
+            return;
+        }
+        if (NULL == tmp->next)
+        {    
+        //add it at tail;
+            tmp->next = p;
+            p->next = NULL;
+            break;
+        }
+       tmp = tmp->next;
+    }
+}
+
+void at_listner_list_del(at_listner * p)
+{
+    at_listner * tmp = at.head;
+    if (tmp == p)
+    {
+        at.head = p->next;
+        return;
+    }
+
+    while(tmp->next)
+    {
+        if (tmp->next == p)
+        {
+            tmp->next = p->next;
+            break;
+        }
+        tmp = tmp->next;
+    }
 
 }
 
@@ -78,71 +128,71 @@ int32_t at_get_unuse_linkid()
 	return -1;
 }
 
-uint32_t wait_for_resp(char * reply1, char *reply2)
-{
-    uint32_t ret = 0;
-    char * pp1, *pp2;
-    uint32_t retry_t;
 
-    // got 10 resp for reply
-    for(retry_t = 0; retry_t < 10; retry_t++){
-        LOS_SemPend(at.resp_sem, LOS_WAIT_FOREVER);
-        AT_LOG("get resp :%s ", at.cmdresp);
-
-        if (NULL != reply1 && NULL != reply2){
-            pp1 = strstr((const char *)at.cmdresp, (const char *)reply1);
-            pp2 = strstr((const char *)at.cmdresp, (const char *)reply2);
-            ret = (NULL != pp1 || NULL != pp2);
-        } else if (NULL != reply1) {
-            pp1 = strstr((const char *)at.cmdresp, (const char *)reply1);
-            ret = (NULL != pp1);
-        } else if (NULL != reply2) {
-            pp2 = strstr((const char *)at.cmdresp, (const char *)reply2);
-            ret = (NULL != pp2);
-        }
-
-        if (ret){
-            memset(at.cmdresp, 0, MAX_AT_RESP_LEN);
-            return ret;
-        }
-    }
-		return ret;
-
-}
-void store_resp_buf(uint8_t * buf, uint32_t len)
+void store_resp_buf(int8_t * resp_buf, int8_t * buf, uint32_t len)
 {
     if (NULL == buf || 0 == len || len > MAX_AT_RESP_LEN)
         return;
 
-    strcat((char*)at.cmdresp, (char *)buf);
+    strcat((char*)resp_buf, (char *)buf);
 }
-int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout)
+
+int32_t at_cmd(int8_t * buf, int32_t len, char * rep1, char * rep2)
 {
-    uint32_t qlen = sizeof(QUEUE_BUFF);
+    uint32_t i;
+    at_listner listener;
+    char * line_end = AT_LINE_END;
+    char rep_b[512] = {0};
 
-    QUEUE_BUFF  qbuf = {0, NULL};
-    int ret = LOS_QueueReadCopy(g_at_link[id].qid, &qbuf, &qlen, timeout);
-    AT_LOG("ret = %x, len = %d", ret, qbuf.len);
+    listener.perfix = buf;
+    listener.suffix = (int8_t *)rep1;
+    listener.callback = NULL;
+    listener.resp = (int8_t*)rep_b;
 
-    if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+    at_listener_list_add(&listener);
+
+    for (i = 0; i < len ; i++){
+        at_usart.Instance->DR = (buf[i] & (uint16_t)0x00FF);
+        while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
     }
-    return qbuf.len;
+
+    for (i = 0; i < strlen(AT_LINE_END) ; i++){
+        at_usart.Instance->DR = (line_end[i] & (uint16_t)0x00FF);
+        while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
+    }
+
+    LOS_SemPend(at.resp_sem, LOS_WAIT_FOREVER);
+    at_listner_list_del(&listener); 
+
+    AT_LOG("repb:%s", rep_b);
+
+    return len;
 }
 
-int32_t at_write(const int8_t * buf, int32_t len, char * rep1, char * rep2)
+int32_t at_write(int8_t * buf, int32_t len)
 {
-	uint32_t i, ret = AT_OK;
+	uint32_t i;
+    at_listner listener;
+    char rep_b[512] = {0};
+
+    listener.perfix = "\r\nRecv";
+    listener.suffix = "SEND OK";
+    listener.callback = NULL;
+    listener.resp = (int8_t*)rep_b;
+
+    at_listener_list_add(&listener);
 
     for (i = 0; i < len ; i++){
         at_usart.Instance->DR = (buf[i] & (uint16_t)0x00FF);
 		while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
     }
-    if ((!rep1 && !rep2) || wait_for_resp(rep1, rep2)){
-        ret = len; //get excepted reply, return send len
-    }
-	return ret;
+
+    LOS_SemPend(at.resp_sem, LOS_WAIT_FOREVER);
+    at_listner_list_del(&listener); 
+
+    AT_LOG("repb:%s", rep_b);
+
+	return len;
 }
 
 
@@ -174,87 +224,97 @@ int read_resp(uint8_t * buf)
 void at_recv_task(uint32_t p)
 {
     uint32_t recv_len = 0;
+    uint32_t suffix_catching = 0;
     uint8_t * tmp = at.userdata; //[MAX_USART_BUF_LEN] = {0};
     int ret = 0;
+    at_listner * listener = NULL;
+
     QUEUE_BUFF  buf;
 
     while(1){
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
+        if (NULL == listener) listener = at.head;
+
         memset(tmp, 0, MAX_AT_USERDATA_LEN);
         recv_len = read_resp(tmp);
 
         if (0 >= recv_len)
             continue;
 
-        uint32_t data_len = 0;
-        uint32_t linkid = 0;
+        int32_t data_len = 0;
+        int32_t linkid = 0;
         char * p1, * p2;
-        AT_LOG("get recv_len = %d", recv_len);
+        AT_LOG("get recv_len = %d buf:%s", recv_len, tmp);
 
         p1 = (char *)tmp;
-        for (;;){
-            if (0 == memcmp(p1, AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX)))
+        p2 = (char *)(tmp + recv_len);
+        for (;listener != NULL;){
+            data_len = p2 - p1;
+            if (data_len <= 0)
+                break;
+
+            AT_LOG("get data_len = %d", data_len);
+
+            if (suffix_catching)
             {
-                //data format "+IPD,len:xxxxx"
-                p2 = strstr(p1, ",");
-                if (NULL == p2)
-                {
-                    AT_LOG("got +IPD format invaild!");
-                    p1 += 4;
-                    continue;
-                }
+                char * suffix;
+                suffix = strstr(p1, (const char*)listener->suffix);
+                AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
 
-                if (AT_MUXMODE_MULTI == at.mux_mode)
+                if (NULL == suffix)
                 {
-                    linkid = 0;
-                    for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
-                    {
-                        linkid = (linkid * 10 + (*p2 - '0'));
-                    }
-                    AT_LOG("got +IPD linkid id = %d!", linkid);
+                    suffix_catching = 1;
+                    store_resp_buf((int8_t*)listener->resp, (int8_t*)p1, p2 - p1);
                 }
-
-                for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
+                else 
                 {
-                    data_len = (data_len * 10 + (*p2 - '0'));
-                }
-                p2++; //over ':'
-
-                buf.len = data_len;
-                buf.addr = atiny_malloc(data_len);
-                if (NULL == buf.addr)
-                {
-                    AT_LOG("atiny_malloc failed!");
-                    p1 = p2 + data_len;
-                    data_len = 0;
-                    continue;
-                }
-
-                AT_LOG("get +IPD data, len = %d, store to :%p", data_len, buf.addr);
-                memcpy(buf.addr, p2, data_len);
-                if (LOS_OK != (ret = LOS_QueueWriteCopy(g_at_link[linkid].qid, &buf, sizeof(QUEUE_BUFF), 0)))
-                {
-                    AT_LOG("LOS_QueueWriteCopy  failed! ret = %x", ret);
-                    atiny_free(buf.addr);
-                }
-
-                p1 = p2 + data_len;
-                data_len = 0;
-            }
-            else
-            {
-                p2 = strstr(p1, AT_DATAF_PREFIX);
-                if (NULL == p2) {
-                    p2 = (char *)tmp + recv_len;//end
-                    store_resp_buf((uint8_t*)p1 , p2 - p1);
+                    suffix_catching = 0;
+                    store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix - p1);
                     LOS_SemPost(at.resp_sem);
-                    break;
-                }
-                store_resp_buf((uint8_t*)p1 , p2 - p1);
-                LOS_SemPost(at.resp_sem);
-                p1 = p2;
+                    listener = NULL;
+                } 
+                break;
             }
 
+            AT_LOG("responding for cmd:%s", listener->perfix);
+            if (data_len > strlen((char*)listener->perfix) && 0 == strncmp(p1, (char*)listener->perfix, strlen((char*)listener->perfix)))
+            {
+                AT_LOG("Get resp for cmd:%s, suffix = %s", listener->perfix, listener->suffix);
+                if (NULL == listener->suffix && listener->callback)
+                {
+                    //process in callback, data format , like +IPD/+CIPEVENT, etc
+                    int32_t t_len = listener->callback((int8_t *)p1, data_len);
+                    if (data_len <= 0)
+                    {
+                        break;
+                    }
+                    p1 +=  t_len;
+                }
+
+                if (NULL != listener->suffix){
+                    // cmd resp, end with OK/ERROR etc
+                    char * suffix;
+                    suffix = strstr(p1 + strlen((char*)listener->perfix), (const char*)listener->suffix);
+                    AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
+                    if (NULL == suffix)
+                    {
+                        suffix_catching = 1;
+                        store_resp_buf(listener->resp, (int8_t *)p1, (int32_t)(p2 - p1));
+                        break;
+                    }
+                    else 
+                    {
+                        suffix_catching = 0;
+                        store_resp_buf(listener->resp, (int8_t*)p1, suffix - p1);
+                        LOS_SemPost(at.resp_sem);
+                        p1 = suffix + strlen((char*)listener->suffix) + 1;  //end with "\r\n"
+                    }
+                }
+                listener = at.head;
+                continue;
+            }
+            AT_LOG("responding next...");
+            listener = listener->next;
         }
     }
 }
@@ -322,11 +382,14 @@ int32_t at_struct_init(at_task * at)
         goto malloc_userdata_buf;
     }
 
-    at->read = at_read;
+    at->head = NULL;
+    at->cmd = at_cmd,
     at->write = at_write;
     at->mux_mode = 1;
     return AT_OK;
 
+
+//        atiny_free(at->userdata);
     malloc_userdata_buf:
 	    atiny_free(at->cmdresp);
 	malloc_resp_buf:

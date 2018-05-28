@@ -15,7 +15,8 @@ typedef struct {
 	/*发送，当命令发送后，如果超过一定的时间没收到应答，要返回错误*/
 	int32_t  (*send)(int32_t id , const uint8_t  *buf, uint32_t len);
     int32_t  (*recv_timeout)(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout);
-    
+	int32_t  (*recv)(int32_t id , int8_t  *buf, uint32_t len);
+   
 	int32_t  (*close)(int32_t id);/*关闭连接*/
 	int32_t  (*recv_cb)(int32_t id);/*收到各种事件处理，暂不实现 
 

@@ -3,8 +3,13 @@
 
 #include "at_api_interface.h"
 
+#if 0
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
+#else
+#define WIFI_SSID      		"iPhone"
+#define WIFI_PASSWD    		"songjiannan"
+#endif
 
 #define AT_MODU_NAME    	"ESP8266"
 #define AT_USART   			USART3
@@ -13,8 +18,10 @@
 
 #define AT_MAX_LINK_NUM     4
 
-#define AT_CMD_RST    		"AT+RST\r\n"
-#define AT_CMD_ECHO_OFF 	"ATE0\r\n"
+#define AT_LINE_END 			"\r\n"
+
+#define AT_CMD_RST    		"AT+RST"
+#define AT_CMD_ECHO_OFF 	"ATE0"
 #define AT_CMD_CWMODE  		"AT+CWMODE_CUR"
 #define AT_CMD_JOINAP  		"AT+CWJAP_CUR"
 #define AT_CMD_MUX 			"AT+CIPMUX"

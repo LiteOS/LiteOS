@@ -57,11 +57,11 @@ int32_t at_api_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	return AT_FAILED;
 }
 
-int32_t at_api_recv()
+int32_t at_api_recv(int32_t id, unsigned char* buf, size_t len)
 {
-//	if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
+	if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
 	{
-//		return gp_at_adaptor_api->recv();
+		return gp_at_adaptor_api->recv(id, (int8_t*)buf, len);
 	}
 	return AT_FAILED;
 }
