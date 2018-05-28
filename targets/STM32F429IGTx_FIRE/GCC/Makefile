@@ -88,8 +88,14 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
         C_SOURCES += $(HAL_DRIVER_SRC)
+
+HARDWARE_SRC =  \
+        ${wildcard $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Src/*.c}
+        C_SOURCES += $(HARDWARE_SRC)
 
 LWIP_SRC =  \
         ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/api/*.c} \
@@ -206,6 +212,10 @@ HAL_DRIVER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
+
+HARDWARE_INC = \
+        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Inc
+        C_INCLUDES += $(HARDWARE_INC)
 
 LWIP_INC = \
         -I $(TOP_DIR)/components/net/lwip-2.0.3/src/include
