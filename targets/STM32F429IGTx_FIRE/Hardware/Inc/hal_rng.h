@@ -72,11 +72,11 @@ void hal_rng_config(void);
  *
  *@param none.
  *
- *@retval #uint32_t     random number
+ *@retval #int          random number
  *@par Dependency: none.
  *@see none.
  */
-uint32_t hal_rng_generate_number();
+int hal_rng_generate_number(void);
 
 /**
  *@ingroup hal_rng

@@ -94,7 +94,7 @@ void atiny_usleep(unsigned long usec);
  *@par Dependency: none.
  *@see none.
  */
-int atiny_random(unsigned char* output, size_t len);
+int atiny_random(void* output, size_t len);
 
 /**
  *@ingroup atiny_adapter

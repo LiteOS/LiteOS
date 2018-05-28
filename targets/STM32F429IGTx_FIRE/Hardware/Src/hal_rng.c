@@ -46,7 +46,7 @@ void hal_rng_config(void)
     (void)HAL_RNG_Init(&g_rng_handle);
 }
 
-uint32_t hal_rng_generate_number()
+int hal_rng_generate_number()
 {
     uint32_t random_number;
 
@@ -55,7 +55,7 @@ uint32_t hal_rng_generate_number()
         return 0U;
     }
 
-    return random_number;
+    return (int)random_number;
 }
 
 int hal_rng_generate_buffer(void* buf, size_t len)
