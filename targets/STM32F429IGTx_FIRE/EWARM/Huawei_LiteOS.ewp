@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.1.14181</state>
+                    <state>8.22.1.15696</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -199,6 +199,10 @@
                 <option>
                     <name>DSPExtension</name>
                     <state>1</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
+                    <state>0</state>
                 </option>
             </data>
         </settings>
@@ -345,7 +349,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$TOOLKIT_DIR$\CMSIS\Include</state>
+                    <state>$TOOLKIT_DIR$\CMSIS\Core\Include</state>
                     <state>$PROJ_DIR$\..\Inc</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis\1.0</state>
@@ -372,6 +376,7 @@
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\examples</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\osadapter</state>
+                    <state>$PROJ_DIR$\..\Hardware\Inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1060,7 +1065,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1247,6 +1252,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
@@ -2154,6 +2163,9 @@
             <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_iwdg.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.c</name>
         </file>
         <file>
@@ -2172,6 +2184,9 @@
             <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spdifrx.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim.c</name>
         </file>
         <file>
@@ -2185,6 +2200,21 @@
         <name>er-coap</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</name>
+        </file>
+    </group>
+    <group>
+        <name>hardware</name>
+        <file>
+            <name>$PROJ_DIR$\..\Hardware\Src\hal_flash.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Hardware\Src\hal_iwdg.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Hardware\Src\hal_rng.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Hardware\Src\hal_spi_flash.c</name>
         </file>
     </group>
     <group>
