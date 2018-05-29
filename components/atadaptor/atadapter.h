@@ -6,6 +6,7 @@
 #include "atiny_adapter.h"
 
 /* MACRO DEFINE */
+#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG(fmt, arg...)  printf("[%s:%d]"fmt"\n", __func__, __LINE__, ##arg)
 #else
@@ -56,9 +57,10 @@ typedef struct at_task{
 	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
 	uint8_t  *userdata;  /*来自对端的数据，默认512字节*/
 	uint32_t  mux_mode;/*0:单连接，1：多连接*/
+	at_link  *linkid;
 	at_listner * head;
 
-	int32_t (*cmd)(int8_t * buf, int32_t len, char * rep1, char * rep2);
+	int32_t (*cmd)(int8_t * buf, int32_t len, char * suffix, char * rep_buf);
 	int32_t (*write)(int8_t * buf, int32_t len);
 	void    (*init)(void);
 	int32_t (*get_id)();

@@ -3,7 +3,7 @@
 
 #include "at_api_interface.h"
 
-#if 0
+#if 1
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
 #else
@@ -28,6 +28,8 @@
 #define AT_CMD_CONN			"AT+CIPSTART"
 #define AT_CMD_SEND			"AT+CIPSEND"
 #define AT_CMD_CLOSE		"AT+CIPCLOSE"
+#define AT_CMD_CHECK_IP		"AT+CIPSTA_CUR?"
+#define AT_CMD_CHECK_MAC	"AT+CIPSTAMAC_CUR?"
 
 #define MAX_AT_RECV_LEN     1024
 #define MAX_AT_USERDATA_LEN 512

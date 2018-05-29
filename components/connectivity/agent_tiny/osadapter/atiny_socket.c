@@ -165,6 +165,12 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     }
 #else
     ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }    
+
     ctx->fd = at_api_connect(host, port, proto);
     if (ctx->fd < 0)
     {
