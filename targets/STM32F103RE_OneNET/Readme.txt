@@ -1,1 +1,1 @@
-��Ŀ¼�ṩ��OneNetĿ���ʹ��
+OneNet 目标板工程目录
