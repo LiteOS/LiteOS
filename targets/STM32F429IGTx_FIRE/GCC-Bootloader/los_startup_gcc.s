@@ -147,6 +147,47 @@ g_pfnVectors:
   .word  0
   .word  PendSV_Handler
   .word  SysTick_Handler
+<<<<<<< HEAD
+=======
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0
+  .word  0 //USART1_IRQHandler
+>>>>>>> 61c2d246c5df4470c83872326091aba39c3d4b32
 
 
 /*******************************************************************************
