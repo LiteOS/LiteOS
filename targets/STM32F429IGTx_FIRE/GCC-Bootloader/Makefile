@@ -52,43 +52,20 @@ BUILD_DIR = build
 # source
 ######################################
 # C sources
-KERNEL_SRC =  \
-        ${wildcard $(TOP_DIR)/kernel/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/ipc/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/mem/bestfit_little/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/mem/common/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/misc/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/base/om/*.c} \
-        ${wildcard $(TOP_DIR)/kernel/extended/tickless/*.c}
-        C_SOURCES += $(KERNEL_SRC)
-
-CMSIS_SRC =  \
-        ${wildcard $(TOP_DIR)/components/cmsis/*.c}
-        C_SOURCES += $(CMSIS_SRC)
-
-ARCH_SRC =  \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c}
-        C_SOURCES += $(ARCH_SRC)
-
 HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
         C_SOURCES += $(HAL_DRIVER_SRC)
@@ -97,62 +74,21 @@ HARDWARE_SRC =  \
         ${wildcard $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Src/*.c}
         C_SOURCES += $(HARDWARE_SRC)
 
-LWIP_SRC =  \
-        ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/api/*.c} \
-        ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/core/ipv4/*.c} \
-        ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/core/*.c} \
-        ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/netif/ethernet.c}
-        C_SOURCES += $(LWIP_SRC)
-
-LWIP_PORT_SRC = \
-        ${wildcard $(TOP_DIR)/components/net/lwip_port/OS/*.c}
-        C_SOURCES += $(LWIP_PORT_SRC)
-
-MBEDTLS_SRC = \
-        ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c}
-        C_SOURCES += $(MBEDTLS_SRC)
-
-MBEDTLS_PORT_SRC = \
-        ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls_port/*.c}
-        C_SOURCES += $(MBEDTLS_PORT_SRC)
-
-ER_COAP_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13/er-coap-13.c}
-        C_SOURCES += $(ER_COAP_SRC)
-
-LWM2M_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
-        C_SOURCES += $(LWM2M_SRC)
-
-OS_ADAPTER_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/osadapter/*.c}
-        C_SOURCES += $(OS_ADAPTER_SRC)
-
-ATINY_TINY_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/*.c}
-        C_SOURCES += $(ATINY_TINY_SRC)
-
-AGENT_DEMO_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
-        C_SOURCES += $(AGENT_DEMO_SRC)
-
 FOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
         C_SOURCES += $(FOTA_SRC)
 
-USER_SRC =  \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
+USER_SRC = \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/bootloader_main.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/usart.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/board.c
         C_SOURCES += $(USER_SRC)
 
 
 # ASM sources
 ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
-        ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
+        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
 
 
 ######################################
@@ -181,32 +117,14 @@ AS_DEFS =
 C_DEFS =  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
-        -D USE_MBED_TLS \
-        -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
-        -D WITH_LWIP \
-        -D LWM2M_LITTLE_ENDIAN \
-        -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
-        -D WITH_DTLS \
-        -D LWIP_TIMEVAL_PRIVATE=0
+        -D USE_BOOTLOADER
 
 
 # AS includes
 AS_INCLUDES =
 
 # C includes
-KERNEL_INC = \
-        -I $(TOP_DIR)/kernel/base/include  \
-        -I $(TOP_DIR)/kernel/extended/include  \
-        -I $(TOP_DIR)/kernel/include \
-        -I $(TOP_DIR)/kernel/base/core
-        C_INCLUDES += $(KERNEL_INC)
-
-CMSIS_INC = \
-        -I $(TOP_DIR)/components/cmsis  \
-        -I $(TOP_DIR)/components/cmsis/2.0
-        C_INCLUDES += $(CMSIS_INC)
-
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
         -I $(TOP_DIR)/arch/arm/common/cmsis
@@ -220,45 +138,6 @@ HAL_DRIVER_INC = \
 HARDWARE_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Inc
         C_INCLUDES += $(HARDWARE_INC)
-
-LWIP_INC = \
-        -I $(TOP_DIR)/components/net/lwip-2.0.3/src/include
-        C_INCLUDES += $(LWIP_INC)
-
-LWIP_PORT_INC = \
-        -I $(TOP_DIR)/components/net/lwip_port \
-        -I $(TOP_DIR)/components/net/lwip_port/OS
-        C_INCLUDES += $(LWIP_PORT_INC)
-
-MBEDTLS_INC = \
-        -I $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/include \
-        -I $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls
-        C_INCLUDES += $(MBEDTLS_INC)
-
-MBEDTLS_PORT_INC = \
-        -I $(TOP_DIR)/components/security/mbedtls/mbedtls_port
-        C_INCLUDES += $(MBEDTLS_PORT_INC)
-
-ER_COAP_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13
-        C_INCLUDES += $(ER_COAP_INC)
-
-LWM2M_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core
-        C_INCLUDES += $(LWM2M_INC)
-
-OS_ADAPTER_INC = \
-        -I $(TOP_DIR)/components/connectivity/agent_tiny/osadapter
-        C_INCLUDES += $(OS_ADAPTER_INC)
-
-ATINY_TINY_INC = \
-        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
-        -I $(TOP_DIR)/components/connectivity/agent_tiny/comm/include
-        C_INCLUDES += $(ATINY_TINY_INC)
-
-AGENT_DEMO_INC = \
-        -I $(TOP_DIR)/components/connectivity/agent_tiny/examples
-        C_INCLUDES += $(AGENT_DEMO_INC)
 
 FOTA_INC = \
         -I $(TOP_DIR)/components/fota/ota
