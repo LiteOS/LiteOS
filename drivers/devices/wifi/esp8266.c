@@ -38,6 +38,8 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
     int32_t id = at.get_id();
     char cmd[64] = {0};
 
+    AT_LOG("host:%s, port:%s", host, port);
+
     if (AT_MUXMODE_SIGNEL == at.mux_mode)
     {
         snprintf(cmd, 64, "%s=\"%s\",\"%s\",%s", AT_CMD_CONN, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
@@ -54,10 +56,10 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
         if (ret != LOS_OK)
         {
             AT_LOG("init dataQueue failed!");
+            at.linkid[id].usable = AT_LINK_UNUSE;
             return  -1;
         }
 
-        at.linkid[id].usable = 1;
         snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
     at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
@@ -66,6 +68,7 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
 int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
+	int32_t ret = -1;
     char cmd[64] = {0};
     if (AT_MUXMODE_SIGNEL == at.mux_mode)
     {
@@ -75,9 +78,11 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
     {
         snprintf(cmd, 64, "%s=%d,%d", AT_CMD_SEND, id, len);
     }
-    at.cmd((int8_t*)cmd, strlen(cmd), ">", NULL);
 
-    return at.write((int8_t*)buf, len);
+ //   at.cmd(cmd, strlen(cmd), ">", NULL);
+    ret = at.write(cmd, "SEND OK", (int8_t*)buf, len);
+
+    return ret;
 
 }
 
@@ -253,29 +258,10 @@ int32_t esp8266_deinit(void)
     return AT_FAILED;
 }
 
-int32_t esp8266_listner_add(int8_t * perfix , int8_t * suffix, event_cb cb)
-{
-    at_listner *l;
-
-    l = atiny_malloc(sizeof(at_listner));
-    if (NULL == l)
-        return -1;
-
-    l->perfix = perfix;
-    l->suffix = suffix;
-    l->callback = cb;
-    l->resp = NULL;
-    l->resp_len = 0;
-
-    at_listener_list_add(l);
-    return 0;
-}
-
-
 int32_t esp8266_init()
 {
     at.init();
-    esp8266_listner_add((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
+    at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
 
     esp8266_reset();
     esp8266_choose_net_mode(STA);
@@ -290,14 +276,26 @@ int32_t esp8266_init()
     AT_LOG("get ip:%s, gw:%s mac:%s", ip, gw, mac);
     return AT_OK;
 }
+at_config at_user_conf = {
+    .name = AT_MODU_NAME,
+    .usart = USART3,
+    .buardrate = AT_BUARDRATE,
+    .irqn = AT_USART_IRQn,
+    .linkid_num = AT_MAX_LINK_NUM,
+    .recv_buf_len = MAX_AT_RECV_LEN,
+    .userdata_buf_len = MAX_AT_USERDATA_LEN,
+    .resp_buf_len = MAX_AT_RESP_LEN,
+    .line_end = AT_LINE_END,
+    .mux_mode = 1, //support multi connection mode
+};
 
 at_adaptor_api at_interface = {
     .name = (int8_t*)AT_MODU_NAME,
     .timeout = 2000,   // 2000 tick
-    .init = esp8266_init,    
 
+    .init = esp8266_init,    
 //    .get_id = NULL, /*获取连接id，仅多连接时需要*/
-//    .get_localip = esp8266_get_localip,/*获取本地IP*/
+    .get_localip = esp8266_get_localip,/*获取本地IP*/
     /*建立TCP或者UDP连接*/
     .connect = esp8266_connect,
     /*发送，当命令发送后，如果超过一定的时间没收到应答，要返回错误*/

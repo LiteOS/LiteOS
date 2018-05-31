@@ -4,16 +4,29 @@
 #include "los_task.h"
 #include "los_sem.h"
 
+/* FUNCTION */
+void at_init();
+int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
+int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
+int32_t at_get_unuse_linkid();
+void at_listener_list_add(at_listner * p);
+void at_listner_list_del(at_listner * p);
+int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf);
+int32_t at_add_listner(int8_t * perfix , int8_t * suffix, event_cb cb);
+
+/* VARIABLE */
 UART_HandleTypeDef at_usart;
-at_link g_at_link[AT_MAX_LINK_NUM];
 
 uint32_t wi = 0;
 uint32_t wi_bak= 0;
 uint32_t ri = 0;
 
+//init function for at struct
 at_task at = {
-	.init = at_init,
-	.write = at_write,
+    .init = at_init,
+    .cmd = at_cmd,
+    .write = at_write,
+    .add_listener = at_add_listner,
     .get_id = at_get_unuse_linkid,
 };
 
@@ -26,7 +39,7 @@ void at_irq_handler(void)
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
 		at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
-		if (wi >=MAX_AT_RECV_LEN)wi = 0;
+		if (wi >= at_user_conf.recv_buf_len)wi = 0;
     }
     else if (__HAL_UART_GET_FLAG(&at_usart,UART_FLAG_IDLE) != RESET)
     {
@@ -39,8 +52,8 @@ void at_irq_handler(void)
 
 void at_usart_config(UART_HandleTypeDef * usart)
 {
-    usart->Instance = AT_USART;
-    usart->Init.BaudRate = AT_BUARDRATE;
+    usart->Instance = at_user_conf.usart;
+    usart->Init.BaudRate = at_user_conf.buardrate;
 
     usart->Init.WordLength = UART_WORDLENGTH_8B;
     usart->Init.StopBits = UART_STOPBITS_1;
@@ -52,13 +65,13 @@ void at_usart_config(UART_HandleTypeDef * usart)
       _Error_Handler(__FILE__, __LINE__);
     }
     __HAL_UART_CLEAR_FLAG(usart,UART_FLAG_TC);
-    LOS_HwiCreate(AT_USART_IRQn, 0, 0, at_irq_handler,NULL);
+    LOS_HwiCreate(at_user_conf.irqn, 0, 0, at_irq_handler,NULL);
     __HAL_UART_ENABLE_IT(usart, UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
 
 }
 
-//if p not in list, add it at head;
+//if p not in list, add it to tail;
 void at_listener_list_add(at_listner * p)
 {
     at_listner * tmp = at.head;
@@ -80,12 +93,14 @@ void at_listener_list_add(at_listner * p)
 
     while(tmp)
     {
+        /*
         if (0 == strncmp((char *)tmp->perfix, (char *)node->perfix, strlen((char*)node->perfix)))
         {
             AT_LOG("pasher(%s) already in list!", node->perfix);
             atiny_free(node);
             return;
         }
+        */
         if (NULL == tmp->next)
         {    
         //add it at tail;
@@ -97,27 +112,44 @@ void at_listener_list_add(at_listner * p)
     }
 }
 
+int32_t at_add_listner(int8_t * perfix , int8_t * suffix, event_cb cb)
+{
+    at_listner *l;
+
+    l = atiny_malloc(sizeof(at_listner));
+    if (NULL == l)
+        return -1;
+
+    l->perfix = perfix;
+    l->suffix = suffix;
+    l->callback = cb;
+    l->resp = NULL;
+    l->resp_len = 0;
+
+    at_listener_list_add(l);
+    return 0;
+}
 void at_listner_list_del(at_listner * p)
 {
-    at_listner * tmp = at.head;
-    at_listner * node = tmp;
-    if (strncmp((char*)p->perfix, (char*)tmp->perfix, strlen((char*)p->perfix)) == 0)
+    at_listner * head = at.head;
+    at_listner * node = head;
+    if (strncmp((char*)p->perfix, (char*)head->perfix, strlen((char*)p->perfix)) == 0)
     {
-        at.head = tmp->next;
+        at.head = head->next;
         atiny_free(node);
         return;
     }
 
-    while(tmp->next)
+    while(head->next)
     {
-        node = tmp->next;
+        node = head->next;
         if (strncmp((char*)p->perfix, (char*)node->perfix, strlen((char*)p->perfix)) == 0)
         {
-            tmp->next = node->next;
+            head->next = node->next;
             atiny_free(node);
             break;
         }
-        tmp = tmp->next;
+        head = head->next;
     }
 
 }
@@ -128,13 +160,15 @@ int32_t at_get_unuse_linkid()
 
     if (AT_MUXMODE_SIGNEL == at.mux_mode)
     {
+        at.linkid[0].usable = AT_LINK_INUSE;
         return 0;    // use queue in link 0 when in signel mode
     }
 
-	for (i = 0; i < AT_MAX_LINK_NUM; i++)
+	for (i = 0; i < at_user_conf.linkid_num; i++)
 	{
-		if (AT_LINK_UNUSE == g_at_link[i].usable)
+		if (AT_LINK_UNUSE == at.linkid[i].usable)
 		{
+            at.linkid[i].usable = AT_LINK_INUSE;
 			return i;
 		}
 	}
@@ -144,20 +178,20 @@ int32_t at_get_unuse_linkid()
 
 void store_resp_buf(int8_t * resp_buf, int8_t * buf, uint32_t len)
 {
-    if (NULL == buf || 0 == len || len > MAX_AT_RESP_LEN)
+    if (NULL == buf || 0 == len || len > at_user_conf.resp_buf_len)
         return;
 
     strcat((char*)resp_buf, (char *)buf);
 }
 
-int32_t at_cmd(int8_t * buf, int32_t len, char * suffix, char * rep_buf)
+int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf)
 {
-    uint32_t i;
     at_listner listener;
-    char * line_end = AT_LINE_END;
-    char rep_b[MAX_AT_RESP_LEN] = {0};
+    char * line_end = at_user_conf.line_end;
+    char rep_b[512] = {0};
+    int ret;
 
-    listener.perfix = buf;
+    listener.perfix = cmd;
     listener.suffix = (int8_t *)suffix;
     listener.callback = NULL;
     if (NULL == rep_buf)
@@ -168,20 +202,23 @@ int32_t at_cmd(int8_t * buf, int32_t len, char * suffix, char * rep_buf)
     {
         listener.resp = (int8_t*)rep_buf;
     }
+    ret = LOS_SemCreate(0, &listener.resp_sem);
+    if (ret != LOS_OK)
+    {
+        AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
+        return -1;
+    }
 
     at_listener_list_add(&listener);
 
-    for (i = 0; i < len ; i++){
-        at_usart.Instance->DR = (buf[i] & (uint16_t)0x00FF);
-        while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
-    }
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
+    HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
+    HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
+    LOS_MuxPost(at.cmd_mux);
 
-    for (i = 0; i < strlen(AT_LINE_END) ; i++){
-        at_usart.Instance->DR = (line_end[i] & (uint16_t)0x00FF);
-        while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
-    }
+    LOS_SemPend(listener.resp_sem, LOS_WAIT_FOREVER);
+    LOS_SemDelete(listener.resp_sem);
 
-    LOS_SemPend(at.resp_sem, LOS_WAIT_FOREVER);
     at_listner_list_del(&listener); 
 
  //   AT_LOG("repb:%s", listener.resp);
@@ -189,28 +226,42 @@ int32_t at_cmd(int8_t * buf, int32_t len, char * suffix, char * rep_buf)
     return len;
 }
 
-int32_t at_write(int8_t * buf, int32_t len)
+int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
 {
-	uint32_t i;
     at_listner listener;
     char rep_b[512] = {0};
+    char * line_end = at_user_conf.line_end;
+    int ret;
 
-    listener.perfix = "\r\nRecv";
-    listener.suffix = "SEND OK";
+    listener.perfix = cmd;
+    listener.suffix = suffix;
     listener.callback = NULL;
     listener.resp = (int8_t*)rep_b;
 
+    ret = LOS_SemCreate(0, &listener.resp_sem);
+    if (ret != LOS_OK)
+    {
+        AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
+        return -1;
+    }
     at_listener_list_add(&listener);
 
-    for (i = 0; i < len ; i++){
-        at_usart.Instance->DR = (buf[i] & (uint16_t)0x00FF);
-		while (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_TXE) == RESET);
-    }
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
 
-    LOS_SemPend(at.resp_sem, LOS_WAIT_FOREVER);
+    HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, strlen((char*)cmd), 0xffff);
+    HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
+    osDelay(osMs2Tick(200));
+
+    HAL_UART_Transmit(&at_usart, (uint8_t*)buf, len, 0xffff);
+    LOS_SemPend(listener.resp_sem, LOS_WAIT_FOREVER); 
+
+    LOS_MuxPost(at.cmd_mux);
+
+    LOS_SemDelete(listener.resp_sem);
+
     at_listner_list_del(&listener); 
 
-    AT_LOG("repb:%s", rep_b);
+ //   AT_LOG("repb:%s", rep_b);
 
 	return len;
 }
@@ -232,7 +283,7 @@ int read_resp(uint8_t * buf)
         len = wi - ri;
         memcpy(buf, &at.recv_buf[ri], len);
     } else {
-        uint32_t tmp_len = MAX_AT_RECV_LEN - ri;
+        uint32_t tmp_len = at_user_conf.recv_buf_len - ri;
         memcpy(buf, &at.recv_buf[ri], tmp_len);
         memcpy(buf + tmp_len, at.recv_buf, wi);
         len = wi + tmp_len;
@@ -255,7 +306,7 @@ void at_recv_task(uint32_t p)
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
         if (NULL == listener) listener = at.head;
 
-        memset(tmp, 0, MAX_AT_USERDATA_LEN);
+        memset(tmp, 0, at_user_conf.userdata_buf_len);
         recv_len = read_resp(tmp);
 
         if (0 >= recv_len)
@@ -264,7 +315,7 @@ void at_recv_task(uint32_t p)
         int32_t data_len = 0;
         int32_t linkid = 0;
         char * p1, * p2;
-        AT_LOG("get recv_len = %d ", recv_len);
+//        AT_LOG("get recv_len = %d buf = %s", recv_len, tmp);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
@@ -273,12 +324,11 @@ void at_recv_task(uint32_t p)
             if (data_len <= 0)
                 break;
 
-
             if (suffix_catching)
             {
                 char * suffix;
                 suffix = strstr(p1, (const char*)listener->suffix);
-                AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
+//                AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
 
                 if (NULL == suffix)
                 {
@@ -289,7 +339,7 @@ void at_recv_task(uint32_t p)
                 {
                     suffix_catching = 0;
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix - p1);
-                    LOS_SemPost(at.resp_sem);
+                    LOS_SemPost(listener->resp_sem);
                     listener = NULL;
                 } 
                 break;
@@ -298,7 +348,7 @@ void at_recv_task(uint32_t p)
 //            AT_LOG("responding for cmd:%s", listener->perfix);
             if (data_len > strlen((char*)listener->perfix) && 0 == strncmp(p1, (char*)listener->perfix, strlen((char*)listener->perfix)))
             {
- //               AT_LOG("Get resp for cmd:%s, suffix = %s", listener->perfix, listener->suffix);
+//                AT_LOG("Get resp for cmd:%s, suffix = %s", listener->perfix, listener->suffix);
                 if (NULL == listener->suffix && listener->callback)
                 {
                     //process in callback, data format , like +IPD/+CIPEVENT, etc
@@ -314,7 +364,7 @@ void at_recv_task(uint32_t p)
                     // cmd resp, end with OK/ERROR etc
                     char * suffix;
                     suffix = strstr(p1 + strlen((char*)listener->perfix), (const char*)listener->suffix);
-                    AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
+//                    AT_LOG("GOT suffix (%s) at %p", listener->suffix, suffix);
                     if (NULL == suffix)
                     {
                         suffix_catching = 1;
@@ -325,7 +375,7 @@ void at_recv_task(uint32_t p)
                     {
                         suffix_catching = 0;
                         store_resp_buf(listener->resp, (int8_t*)p1, suffix - p1);
-                        LOS_SemPost(at.resp_sem);
+                        LOS_SemPost(listener->resp_sem);
                         p1 = suffix + strlen((char*)listener->suffix) + 1;  //end with "\r\n"
                     }
                 }
@@ -373,35 +423,35 @@ int32_t at_struct_init(at_task * at)
     }
 
 
-    ret = LOS_SemCreate(0, &at->resp_sem);
+    ret = LOS_MuxCreate(&at->cmd_mux);
     if (ret != LOS_OK)
     {
-        AT_LOG("init at_resp_sem failed!");
-        goto at_resp_sema_failed;
+        AT_LOG("init cmd_mux failed!");
+        goto at_cmd_mux_failed;
     }
 
-    at->recv_buf = atiny_malloc(MAX_AT_RECV_LEN);
+    at->recv_buf = atiny_malloc(at_user_conf.recv_buf_len);
     if (NULL == at->recv_buf)
     {
     	AT_LOG("malloc recv_buf failed!");
         goto malloc_recv_buf;
     }
 
-	at->cmdresp = atiny_malloc(MAX_AT_RESP_LEN);
+	at->cmdresp = atiny_malloc(at_user_conf.resp_buf_len);
     if (NULL == at->cmdresp)
     {
     	AT_LOG("malloc cmdresp failed!");
         goto malloc_resp_buf;
     }
 
-	at->userdata = atiny_malloc(MAX_AT_USERDATA_LEN);
+	at->userdata = atiny_malloc(at_user_conf.userdata_buf_len);
     if (NULL == at->userdata)
     {
     	AT_LOG("malloc userdata failed!");
         goto malloc_userdata_buf;
     }
 
-    at->linkid = (at_link*)atiny_malloc(AT_MAX_LINK_NUM * sizeof(at_link));
+    at->linkid = (at_link*)atiny_malloc(at_user_conf.linkid_num * sizeof(at_link));
     if (NULL == at->linkid)
     {
        AT_LOG("malloc for at linkid array failed!");
@@ -409,9 +459,8 @@ int32_t at_struct_init(at_task * at)
     }
 
     at->head = NULL;
-    at->cmd = at_cmd,
-    at->write = at_write;
-    at->mux_mode = 1;
+    at->mux_mode = at_user_conf.mux_mode;
+
     return AT_OK;
 
 //      atiny_free(at->linkid)
@@ -422,8 +471,8 @@ int32_t at_struct_init(at_task * at)
 	malloc_resp_buf:
 		atiny_free(at->recv_buf);
     malloc_recv_buf:
-        LOS_SemDelete(at->resp_sem);
-    at_resp_sema_failed:
+        LOS_MuxDelete(at->cmd_mux);
+    at_cmd_mux_failed:
         LOS_SemDelete(at->recv_sem);
     at_recv_sema_failed:
         return AT_FAILED;
@@ -431,7 +480,7 @@ int32_t at_struct_init(at_task * at)
 
 void at_init()
 {
-    AT_LOG("Config %s......\n", AT_MODU_NAME);
+    AT_LOG("Config %s......\n", at_user_conf.name);
 
     osDelay(2000);
 	if (AT_OK != at_struct_init(&at))

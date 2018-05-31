@@ -1,7 +1,6 @@
 
 #include "at_api_interface.h"
 #include "atadapter.h"
-#include "esp8266.h"
 
 static at_adaptor_api  *gp_at_adaptor_api = NULL;
 

@@ -18,7 +18,10 @@
 
 #define AT_MAX_LINK_NUM     4
 
-#define AT_LINE_END 			"\r\n"
+#define AT_LINE_END 		"\r\n"
+#define MAX_AT_RECV_LEN     1024
+#define MAX_AT_USERDATA_LEN 512
+#define MAX_AT_RESP_LEN     512
 
 #define AT_CMD_RST    		"AT+RST"
 #define AT_CMD_ECHO_OFF 	"ATE0"
@@ -31,9 +34,6 @@
 #define AT_CMD_CHECK_IP		"AT+CIPSTA_CUR?"
 #define AT_CMD_CHECK_MAC	"AT+CIPSTAMAC_CUR?"
 
-#define MAX_AT_RECV_LEN     1024
-#define MAX_AT_USERDATA_LEN 512
-#define MAX_AT_RESP_LEN     512
 #define AT_DATAF_PREFIX      "\r\n+IPD"
 
 typedef enum {
