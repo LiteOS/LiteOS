@@ -136,6 +136,8 @@ typedef struct
     unsigned int  storing_cnt;   /*storing为true时，lwm2m缓存区总字节个数*/
 } atiny_server_param_t;
 
+
+/*
 typedef struct
 {
     bool  is_bootstrap;
@@ -145,6 +147,49 @@ typedef struct
     char* psk;
     unsigned short psk_len;
 } atiny_security_param_t;
+*/
+
+typedef enum
+{
+    BOOTSTRAP_FACTORY = 0,
+	BOOTSTRAP_CLIENT_INITIATED,
+	BOOTSTRAP_SEQUENCE
+} atiny_bootstrap_type_e;
+
+
+
+/*
+typedef struct
+{
+    bool  is_bootstrap;
+    char* server_ip;
+    char* server_port;
+
+    char* psk_Id;
+    char* psk;
+    unsigned short psk_len;
+
+} atiny_security_param_t;
+*/
+
+typedef struct
+{
+	atiny_bootstrap_type_e  bootstrap_mode;
+    char* iot_server_ip;
+    char* iot_server_port;
+
+    char* bs_server_ip;
+    char* bs_server_port;
+
+    char* psk_Id;
+    char* psk;
+    unsigned short psk_len;
+
+    int securityMode;
+
+} atiny_security_param_t;
+
+
 
 typedef enum
 {

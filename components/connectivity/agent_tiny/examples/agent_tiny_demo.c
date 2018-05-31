@@ -34,7 +34,11 @@
 
 #include "agent_tiny_demo.h"
 
-#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
+//#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
+
+#define DEFAULT_SERVER_IPV4 "192.168.3.119"/*Huawei */
+
+
 #define LWM2M_LIFE_TIME     50000
 
 char * g_endpoint_name = "44440003";
@@ -112,19 +116,32 @@ void agent_tiny_entry(void)
 
     atiny_params = &g_atiny_params;
     atiny_params->server_params.binding = "UQ";
-    atiny_params->server_params.life_time = LWM2M_LIFE_TIME;
+    //atiny_params->server_params.life_time = LWM2M_LIFE_TIME;//LWM2M_LIFE_TIME is 50000, could change to 20 for test
+    atiny_params->server_params.life_time = 20;  //LWM2M_LIFE_TIME
     atiny_params->server_params.storing_cnt = 0;
 
     security_param = &(atiny_params->security_params[0]);
-    security_param->is_bootstrap = FALSE;
-    security_param->server_ip = DEFAULT_SERVER_IPV4;
+
+    //security_param->is_bootstrap = FALSE;
+    //security_param->server_ip = DEFAULT_SERVER_IPV4;
+
+    security_param->bootstrap_mode = BOOTSTRAP_CLIENT_INITIATED;
+    security_param->iot_server_ip = NULL;
+    security_param->bs_server_ip = DEFAULT_SERVER_IPV4;  //ip should be changed to leshan server
+
 #ifdef WITH_DTLS
-    security_param->server_port = "5684";
+    //security_param->server_port = "5684";
+    security_param->iot_server_port = NULL;
+    security_param->bs_server_port = "5684";
+
     security_param->psk_Id = g_endpoint_name_s;
     security_param->psk = (char*)g_psk_value;
     security_param->psk_len = 16;
 #else
-    security_param->server_port = "5683";
+    //security_param->server_port = "5683";
+    security_param->iot_server_port = NULL;
+    security_param->bs_server_port = "5683";
+
     security_param->psk_Id = NULL;
     security_param->psk = NULL;
     security_param->psk_len = 0;

@@ -71,8 +71,57 @@ typedef struct
 } handle_data_t;
 
 void observe_handle_ack(lwm2m_transaction_t* transacP, void* message);
+static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_params);
 
 static handle_data_t g_atiny_handle;
+
+/*
+ * author:     twx378188
+ * add date:   2019-05-30
+ * description: in order to check the params for the bootstrap, expecialy for the mode and the ip/port
+ * return:
+ * 			success: ATINY_OK
+ * 			fail:    ATINY_ARG_INVALID
+ *
+ */
+static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_params)
+{
+	if(NULL == security_params)
+	{
+		return ATINY_ARG_INVALID;
+	}
+
+	//begin three bootstrap mode and it's param check
+	if(BOOTSTRAP_FACTORY == security_params->bootstrap_mode)
+	{
+		if((NULL == security_params->iot_server_ip)||(NULL == security_params->iot_server_port))
+		{
+			LOG("[bootstrap_tag]: BOOTSTRAP_FACTORY mode's params is wrong, should have iot server ip/port");
+			return ATINY_ARG_INVALID;
+		}
+	}
+	else if(BOOTSTRAP_CLIENT_INITIATED== security_params->bootstrap_mode)
+	{
+		if((NULL == security_params->bs_server_ip)||(NULL == security_params->bs_server_port))
+		{
+			LOG("[bootstrap_tag]: BOOTSTRAP_CLIENT_INITIATED mode's params is wrong, should have bootstrap server ip/port");
+			return ATINY_ARG_INVALID;
+		}
+	}
+	else if(BOOTSTRAP_SEQUENCE== security_params->bootstrap_mode)
+	{
+		return ATINY_OK;
+	}
+	else
+	{
+		LOG("[bootstrap_tag]: BOOTSTRAP's only have three mode, should of :0,1,2");
+		return ATINY_ARG_INVALID;
+	}
+
+
+	return ATINY_OK;
+}
+
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
@@ -80,6 +129,12 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ARG_INVALID;
+    }
+
+    if(ATINY_OK != atiny_check_bootstrap_init_param(&(atiny_params->security_params[0])))
+    {
+		LOG("[bootstrap_tag]: BOOTSTRAP's param is wrong");
+		return ATINY_ARG_INVALID;
     }
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));
@@ -97,6 +152,12 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     return ATINY_OK;
 }
 
+/*
+ * modify info:
+ *  people: twx378188
+ * 	date:	2018-05-30
+ * 	reason:	modify for bootstrap mode, origin code support FACTORY mode.
+ */
 int  atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* device_info, handle_data_t* handle)
 {
     int result;
@@ -105,6 +166,14 @@ int  atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* 
     char serverUri[SERVER_URI_MAX_LEN];
     uint16_t serverId = SERVER_ID;
     char* epname = (char*)device_info->endpoint_name;
+
+    //add for bootstrap begin
+    char* temp_ip = NULL;
+    char* temp_port = NULL;
+    //attention: in fact,FACTORY MODE also belong to bootstrap mode,but get_security_object, the param
+    //isBootstrap false for FACTORY MODE, because no need to get info from bootstrap server
+    bool b_need_bootstrap_info = true;
+    //add for bootstrap end
 
     result = atiny_init_rpt();
     if (result != ATINY_OK)
@@ -129,6 +198,32 @@ int  atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* 
 
     handle->lwm2m_context = lwm2m_context;
 
+    if(atiny_params->security_params[0].bootstrap_mode == BOOTSTRAP_FACTORY)
+    {
+    	temp_ip = atiny_params->security_params[0].iot_server_ip;
+    	temp_port = atiny_params->security_params[0].iot_server_port;
+    	b_need_bootstrap_info = false;
+    }
+    else if(atiny_params->security_params[0].bootstrap_mode == BOOTSTRAP_SEQUENCE)
+    {
+		temp_ip = atiny_params->security_params[0].bs_server_ip;
+		temp_port = atiny_params->security_params[0].bs_server_port;
+    	if((atiny_params->security_params[0].iot_server_ip != NULL)&&(atiny_params->security_params[0].iot_server_port != NULL))
+    	{
+    		temp_ip = atiny_params->security_params[0].iot_server_ip;
+    		temp_port = atiny_params->security_params[0].iot_server_port;
+    		b_need_bootstrap_info = false;
+    	}
+    }
+    else if(atiny_params->security_params[0].bootstrap_mode == BOOTSTRAP_CLIENT_INITIATED)
+    {
+    	temp_ip = atiny_params->security_params[0].bs_server_ip;
+    	temp_port = atiny_params->security_params[0].bs_server_port;
+
+    	//Should start bootstrap request soon, not for clientHoldofftime, should use flag to contrl the clientHoldofftime
+    }
+
+    /*
     if (atiny_params->security_params[0].psk != NULL)
     {
         (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",
@@ -139,10 +234,21 @@ int  atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* 
         (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",
                              atiny_params->security_params[0].server_ip, atiny_params->security_params[0].server_port);
     }
+    */
+
+    if (atiny_params->security_params[0].psk != NULL)
+	{
+		(void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",temp_ip, temp_port);
+	}
+	else
+	{
+		(void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",temp_ip, temp_port);
+	}
+
 
     handle->obj_array[OBJ_SECURITY_INDEX] = get_security_object(serverId, serverUri,
                                             atiny_params->security_params[0].psk_Id, atiny_params->security_params[0].psk,
-                                            atiny_params->security_params[0].psk_len, false);
+                                            atiny_params->security_params[0].psk_len, b_need_bootstrap_info);//false change to b_need_bootstrap_info
     if (NULL ==  handle->obj_array[OBJ_SECURITY_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create security object");

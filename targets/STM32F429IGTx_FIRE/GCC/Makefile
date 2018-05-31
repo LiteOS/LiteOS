@@ -177,8 +177,11 @@ C_DEFS =  \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
-        -D WITH_DTLS \
+		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0
+#       -D WITH_DTLS \   
+#       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
+        
 
 
 # AS includes
