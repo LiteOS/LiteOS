@@ -275,7 +275,9 @@ int32_t esp8266_init()
 {
     at.init();
     at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
-
+#ifdef 	USE_USARTRX_DMA
+    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],MAX_AT_RECV_LEN-1);
+#endif
     esp8266_reset();
     esp8266_choose_net_mode(STA);
     while(AT_FAILED == esp8266_joinap(WIFI_SSID, WIFI_PASSWD))
@@ -314,14 +316,14 @@ at_adaptor_api at_interface = {
     .get_localip = esp8266_get_localip,/*获取本地IP*/
     /*建立TCP或者UDP连接*/
     .connect = esp8266_connect,
-    /*发送，当命令发送后，如果超过一定的时间没收到应答，要返回错误*/
+
     .send = esp8266_send,
 
     .recv_timeout = esp8266_recv_timeout,
     .recv = esp8266_recv,
 
     .close = esp8266_close,/*关闭连接*/
-    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实现 */
+    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实�?*/
 
     .deinit = esp8266_deinit,
 };
