@@ -14,6 +14,9 @@
 #define AT_LOG(fmt, arg...)
 #endif
 
+#define USE_USARTRX_DMA
+
+
 #define AT_OK    		 0
 #define AT_FAILED 		-1
 
@@ -73,7 +76,7 @@ typedef struct at_task{
 	uint8_t  *recv_buf;  /*底层接收缓存区，默认4k大小*/
 	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
 	uint8_t  *userdata;  /*来自对端的数据，默认512字节*/
-	uint32_t  mux_mode;/* 使用的连接模式 0:单连接，1：多连接*/
+	uint32_t  mux_mode;/* 使用的连接模�?0:单连接，1：多连接*/
 	at_link  *linkid;
 	at_listner * head;
 	uint32_t timeout;  //命令响应超时时间
@@ -89,5 +92,5 @@ typedef struct at_task{
 
 //declear in device drivers
 extern at_config at_user_conf;
-
+extern UART_HandleTypeDef at_usart;
 #endif
