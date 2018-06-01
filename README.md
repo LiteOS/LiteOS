@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/LiteOS/LiteOS.svg?branch=develop)](https://travis-ci.org/LiteOS/LiteOS)
+
 ## Huawei LiteOS简介
 
 Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的轻量级操作系统。本项目属于华为物联网操作系统[Huawei LiteOS](http://developer.huawei.com/ict/cn/site-iot/product/liteos)源码，现有基础内核支持任务管理、内存管理、时间管理、通信机制、中断管理、队列管理、事件管理、定时器等操作系统基础组件，更好地支持低功耗场景，支持tickless机制，支持定时器对齐。
@@ -15,7 +17,7 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 ## LiteOS 开发指南
 
-[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.pdf)
+[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.md)
 
 该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以根据该文档学习各模块的使用。
 

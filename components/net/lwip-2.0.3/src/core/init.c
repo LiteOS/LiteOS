@@ -328,6 +328,16 @@ PACK_STRUCT_END
 #endif /* LWIP_TCP */
 #endif /* !LWIP_DISABLE_TCP_SANITY_CHECKS */
 
+STlwIPFuncSsp g_stlwIPSspCallbacks;
+
+void lwIPRegSspCbk(const STlwIPFuncSsp* pstFuncSsp)
+{
+    if (NULL != pstFuncSsp && NULL != pstFuncSsp->pfRand)
+    {
+        g_stlwIPSspCallbacks.pfRand = pstFuncSsp->pfRand;
+    }
+}
+
 /**
  * @ingroup lwip_nosys
  * Initialize all modules.

@@ -50,6 +50,7 @@
 #include "string.h"
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
+#include "hal_rng.h"
 #include "usart.h"
 #include "dwt.h"
 #include "lwip/netif.h"

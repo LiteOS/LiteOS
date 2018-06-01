@@ -141,11 +141,19 @@ typedef VOID (**HWI_VECTOR_FUNC)(void);
  */
 extern UINT32  g_vuwIntCount;
 
+#if (LOSCFG_PLATFORM_HWI == YES)
 /**
  * @ingroup los_hwi
  * An interrupt is active.
  */
 #define OS_INT_ACTIVE               (g_vuwIntCount > 0)
+#else
+/**
+ * @ingroup los_hwi
+ * An interrupt is active.
+ */
+#define OS_INT_ACTIVE               (osIntNumGet())
+#endif
 
 /**
  * @ingroup los_hwi

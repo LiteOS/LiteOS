@@ -52,7 +52,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -369,7 +369,7 @@
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
               <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWIP,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\drivers\devices\wifi;..\..\..\components\atadaptor</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\atadaptor;..\..\..\drivers\devices\wifi</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -696,6 +696,41 @@
               <FileName>stm32f4xx_hal_rng.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_iwdg.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>hardware</GroupName>
+          <Files>
+            <File>
+              <FileName>hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_rng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_spi_flash.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -37,6 +37,10 @@
 #include <los_slab.ph>
 #include <los_hwi.h>
 
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+#include "los_memstat.inc"
+#endif
+
 VOID *osSlabBlockHeadFill(OS_SLAB_BLOCK_NODE *pstSlabNode, UINT32 uwBlkSz)
 {
     OS_SLAB_BLOCK_MAGIC_SET(pstSlabNode);
@@ -121,6 +125,9 @@ VOID *osSlabMemAlloc(VOID *pPool, UINT32 uwSz)
                 /* alloc success */
                 pRet = osSlabBlockHeadFill((OS_SLAB_BLOCK_NODE *)pRet, pstSlabMem->stSlabClass[uwIdx].blkSz);
                 pstSlabMem->stSlabClass[uwIdx].blkUsedCnt++;
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+                OS_MEM_ADD_USED(pstSlabMem->stSlabClass[uwIdx].blkSz);
+#endif
             }
 
             (VOID)LOS_IntRestore(uvIntSave);
@@ -162,6 +169,9 @@ BOOL osSlabMemFree(VOID *pPool, VOID* pPtr)
             {
                 bRet = TRUE;
                 pstSlabMem->stSlabClass[uwIdx].blkUsedCnt--;
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+                OS_MEM_REDUCE_USED(pstSlabMem->stSlabClass[uwIdx].blkSz);
+#endif
             }
 
             (VOID)LOS_IntRestore(uvIntSave);
