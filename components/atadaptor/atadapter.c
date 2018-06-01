@@ -189,7 +189,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf)
     at_listner listener;
     char * line_end = at_user_conf.line_end;
     char rep_b[512] = {0};
-    int ret;
+    int ret = AT_FAILED;
 
     listener.perfix = cmd;
     listener.suffix = (int8_t *)suffix;
@@ -206,7 +206,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf)
     if (ret != LOS_OK)
     {
         AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
-        return -1;
+        return AT_FAILED;
     }
 
     at_listener_list_add(&listener);
@@ -214,15 +214,20 @@ int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf)
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
     HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
+
+    ret = LOS_SemPend(listener.resp_sem, at.timeout);
     LOS_MuxPost(at.cmd_mux);
 
-    LOS_SemPend(listener.resp_sem, LOS_WAIT_FOREVER);
     LOS_SemDelete(listener.resp_sem);
 
     at_listner_list_del(&listener); 
-
  //   AT_LOG("repb:%s", listener.resp);
 
+    if (ret != LOS_OK)
+    {
+        AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
+        return AT_FAILED;
+    }
     return len;
 }
 
@@ -231,7 +236,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listner listener;
     char rep_b[512] = {0};
     char * line_end = at_user_conf.line_end;
-    int ret;
+    int ret = AT_FAILED;
 
     listener.perfix = cmd;
     listener.suffix = suffix;
@@ -242,7 +247,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     if (ret != LOS_OK)
     {
         AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
-        return -1;
+        return AT_FAILED;
     }
     at_listener_list_add(&listener);
 
@@ -253,7 +258,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     osDelay(osMs2Tick(200));
 
     HAL_UART_Transmit(&at_usart, (uint8_t*)buf, len, 0xffff);
-    LOS_SemPend(listener.resp_sem, LOS_WAIT_FOREVER); 
+    ret = LOS_SemPend(listener.resp_sem, at.timeout);
 
     LOS_MuxPost(at.cmd_mux);
 
@@ -262,7 +267,11 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listner_list_del(&listener); 
 
  //   AT_LOG("repb:%s", rep_b);
-
+    if (ret != LOS_OK)
+    {
+        AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
+        return AT_FAILED;
+    }
 	return len;
 }
 
@@ -460,7 +469,7 @@ int32_t at_struct_init(at_task * at)
 
     at->head = NULL;
     at->mux_mode = at_user_conf.mux_mode;
-
+    at->timeout = at_user_conf.timeout;
     return AT_OK;
 
 //      atiny_free(at->linkid)

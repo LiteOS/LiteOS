@@ -62,7 +62,12 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
         snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
-    at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
+    ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
+    if (AT_FAILED == ret)
+    {
+        AT_LOG("at.cmd return failed!");
+        return -1;
+    }
     return id;
 }
 
@@ -80,7 +85,7 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
     }
 
  //   at.cmd(cmd, strlen(cmd), ">", NULL);
-    ret = at.write(cmd, "SEND OK", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, "SEND OK", (int8_t*)buf, len);
 
     return ret;
 
@@ -93,6 +98,10 @@ int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
     QUEUE_BUFF  qbuf = {0, NULL};
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, LOS_WAIT_FOREVER);
     AT_LOG("ret = %x, len = %d", ret, qbuf.len);
+    if (ret != LOS_OK)
+    {
+        return -1;
+    }
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
@@ -108,6 +117,10 @@ int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t tim
     QUEUE_BUFF  qbuf = {0, NULL};
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, timeout);
     AT_LOG("ret = %x, len = %d, id = %d", ret, qbuf.len, id);
+    if (ret != LOS_OK)
+    {
+        return -1;
+    }
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
@@ -188,13 +201,13 @@ int32_t esp8266_data_handler(int8_t * buf, int32_t len)
             atiny_free(qbuf.addr);
             goto END;
         }
-        ret = (p2 + data_len - buf);
+        ret = (p2 + data_len - (char*)buf);
     }
 END:
     return ret;
 }
 
-int8_t* esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本地IP*/
+int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本地IP*/
 {
     char resp[512] = {0};
     at.cmd((int8_t*)AT_CMD_CHECK_IP, strlen((char*)AT_CMD_CHECK_IP), "OK", resp);
@@ -228,7 +241,7 @@ int8_t* esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本�
     return NULL;
 }
 
-int8_t* esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
+int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
 {
     char resp[512] = {0};    
     char * p1, *p2;
@@ -265,7 +278,10 @@ int32_t esp8266_init()
 
     esp8266_reset();
     esp8266_choose_net_mode(STA);
-    while(0 == esp8266_joinap(WIFI_SSID, WIFI_PASSWD));
+    while(AT_FAILED == esp8266_joinap(WIFI_SSID, WIFI_PASSWD))
+    {
+        AT_LOG("connect ap failed, repeat...");
+    };
     esp8266_set_mux_mode(at.mux_mode);
 
     static int8_t ip[32];
@@ -287,14 +303,14 @@ at_config at_user_conf = {
     .resp_buf_len = MAX_AT_RESP_LEN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode
+    .timeout = AT_CMD_TIMEOUT,   //  ms
+
 };
 
 at_adaptor_api at_interface = {
-    .name = (int8_t*)AT_MODU_NAME,
-    .timeout = 2000,   // 2000 tick
 
     .init = esp8266_init,    
-//    .get_id = NULL, /*获取连接id，仅多连接时需要*/
+    .get_localmac = esp8266_get_localmac, /*获取本地MAC*/
     .get_localip = esp8266_get_localip,/*获取本地IP*/
     /*建立TCP或者UDP连接*/
     .connect = esp8266_connect,

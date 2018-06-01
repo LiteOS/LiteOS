@@ -62,6 +62,7 @@ typedef struct __config{
 	uint32_t resp_buf_len;
 	char * line_end;
 	uint32_t  mux_mode;/*0:单连接，1：多连接*/
+	uint32_t timeout;  //命令响应超时时间
 }at_config;
 
 typedef struct at_task{
@@ -72,9 +73,10 @@ typedef struct at_task{
 	uint8_t  *recv_buf;  /*底层接收缓存区，默认4k大小*/
 	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
 	uint8_t  *userdata;  /*来自对端的数据，默认512字节*/
-	uint32_t  mux_mode;/*0:单连接，1：多连接*/
+	uint32_t  mux_mode;/* 使用的连接模式 0:单连接，1：多连接*/
 	at_link  *linkid;
 	at_listner * head;
+	uint32_t timeout;  //命令响应超时时间
 
 	void    (*init)(void);
 	int32_t (*cmd)(int8_t * cmd, int32_t len, char * suffix, char * rep_buf);
@@ -85,6 +87,7 @@ typedef struct at_task{
 	int32_t (*add_listener)(int8_t * perfix , int8_t * suffix, event_cb cb);
 } at_task;
 
+//declear in device drivers
 extern at_config at_user_conf;
 
 #endif

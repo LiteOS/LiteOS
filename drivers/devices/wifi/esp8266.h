@@ -15,7 +15,7 @@
 #define AT_USART   			USART3
 #define AT_BUARDRATE   		115200
 #define AT_USART_IRQn   	USART3_IRQn
-
+#define AT_CMD_TIMEOUT		5000    //ms
 #define AT_MAX_LINK_NUM     4
 
 #define AT_LINE_END 		"\r\n"
