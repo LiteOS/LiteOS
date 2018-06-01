@@ -35,14 +35,13 @@
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
 
-RNG_HandleTypeDef hrng;
 UINT32 g_TskHandle;
 
 VOID HardWare_Init(VOID)
 {
     SystemClock_Config();
     Debug_USART1_UART_Init();
-    HAL_RNG_Init(&hrng);
+    hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
 
