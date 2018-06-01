@@ -148,6 +148,14 @@ USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
+ATADAPTOR_SRC = \
+        ${wildcard $(TOP_DIR)/components/atadaptor/*.c}
+        C_SOURCES += $(ATADAPTOR_SRC)
+
+USER_DRIVERS_SRC = \
+        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+        C_SOURCES += $(USER_DRIVERS_SRC)
+
 
 # ASM sources
 ASM_SOURCES =  \
@@ -269,6 +277,13 @@ USER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
+ATADAPTOR_INC = \
+        -I $(TOP_DIR)/components/atadaptor
+        C_INCLUDES += $(ATADAPTOR_INC)
+
+USER_DRIVERS_INC = \
+        -I $(TOP_DIR)/drivers/devices/wifi
+        C_INCLUDES += $(USER_DRIVERS_INC)
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
