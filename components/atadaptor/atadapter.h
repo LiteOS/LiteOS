@@ -7,14 +7,20 @@
 #include "atiny_adapter.h"
 
 /* MACRO DEFINE */
-#define AT_DEBUG
-#ifdef AT_DEBUG
-#define AT_LOG(fmt, arg...)  printf("[%s:%d]"fmt"\n", __func__, __LINE__, ##arg)
+#define AT_INTO
+#ifdef AT_INTO
+#define AT_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
 #else
 #define AT_LOG(fmt, arg...)
 #endif
 
-#define USE_USARTRX_DMA
+//#define AT_DEBUG
+#ifdef AT_DEBUG
+#define AT_LOG_DEBUG(fmt, arg...)  printf("[%s:%d][D]"fmt"\n", __func__, __LINE__, ##arg)
+#else
+#define AT_LOG_DEBUG(fmt, arg...)
+#endif
+//#define USE_USARTRX_DMA
 
 
 #define AT_OK    		 0
@@ -52,7 +58,7 @@ typedef struct _listner{
 	uint32_t resp_sem;
 	
 	int32_t (*callback)(int8_t *p, int32_t len);
-}at_listner;
+}at_listener;
 
 typedef struct __config{
 	char * name;
@@ -63,6 +69,7 @@ typedef struct __config{
 	uint32_t recv_buf_len;
 	uint32_t userdata_buf_len;
 	uint32_t resp_buf_len;
+	char * cmd_begin;
 	char * line_end;
 	uint32_t  mux_mode;/*0:单连接，1：多连接*/
 	uint32_t timeout;  //命令响应超时时间
@@ -76,9 +83,9 @@ typedef struct at_task{
 	uint8_t  *recv_buf;  /*底层接收缓存区，默认4k大小*/
 	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
 	uint8_t  *userdata;  /*来自对端的数据，默认512字节*/
-	uint32_t  mux_mode;/* 使用的连接模�?0:单连接，1：多连接*/
+	uint32_t  mux_mode;/* 使用的连接模?0:单连接，1：多连接*/
 	at_link  *linkid;
-	at_listner * head;
+	at_listener * head;
 	uint32_t timeout;  //命令响应超时时间
 
 	void    (*init)(void);

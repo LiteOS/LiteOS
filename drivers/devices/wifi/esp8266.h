@@ -3,11 +3,11 @@
 
 #include "at_api_interface.h"
 
-#if 1
+#if 0
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
 #else
-#define WIFI_SSID      		"iPhone"
+#define WIFI_SSID      		"kiwi-mango-banana"
 #define WIFI_PASSWD    		"songjiannan"
 #endif
 
@@ -15,10 +15,11 @@
 #define AT_USART   			USART3
 #define AT_BUARDRATE   		115200
 #define AT_USART_IRQn   	USART3_IRQn
-#define AT_CMD_TIMEOUT		5000    //ms
+#define AT_CMD_TIMEOUT		10000    //ms
 #define AT_MAX_LINK_NUM     4
 
 #define AT_LINE_END 		"\r\n"
+#define AT_CMD_BEGIN		"\r\n"
 #define MAX_AT_RECV_LEN     1024
 #define MAX_AT_USERDATA_LEN 512
 #define MAX_AT_RESP_LEN     512

@@ -7,29 +7,34 @@ extern at_task at;
 
 at_adaptor_api at_interface;
 
+int32_t esp8266_echo_off(void)
+{
+    return at.cmd((int8_t*)AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), "OK\r\n", NULL);
+}
+
 int32_t esp8266_reset(void)
 {
-    return at.cmd((int8_t*)AT_CMD_RST, strlen(AT_CMD_RST), "ready", NULL);
+    return at.cmd((int8_t*)AT_CMD_RST, strlen(AT_CMD_RST), "ready\r\n", NULL);
 }
 
 int32_t esp8266_choose_net_mode(enum_net_mode m)
 {
     char cmd[64] = {0};
     snprintf(cmd, 64, "%s=%d", AT_CMD_CWMODE, (int)m);
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", "no change"); 
+    return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL); 
 }
 
 int32_t esp8266_set_mux_mode(int32_t m)
 {
     char cmd[64] = {0};
     snprintf(cmd, 64, "%s=%d", AT_CMD_MUX, (int)m);
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL);
 }
 int32_t esp8266_joinap(char * pssid, char * ppasswd)
 {
     char cmd[64] = {0};
     snprintf(cmd, 64, "%s=\"%s\",\"%s\"", AT_CMD_JOINAP, pssid, ppasswd);
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL); 
+    return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL); 
 }
 
 int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
@@ -62,7 +67,7 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
         snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
-    ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
+    ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK\r\n", NULL);
     if (AT_FAILED == ret)
     {
         AT_LOG("at.cmd return failed!");
@@ -85,7 +90,7 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
     }
 
  //   at.cmd(cmd, strlen(cmd), ">", NULL);
-    ret = at.write((int8_t *)cmd, "SEND OK", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, "SEND OK\r\n", (int8_t*)buf, len);
 
     return ret;
 
@@ -142,7 +147,7 @@ int32_t esp8266_close(int32_t id)
         at.linkid[id].usable = 0;
         snprintf(cmd, 64, "%s=%d", AT_CMD_CLOSE, id);
     }
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL);
 }
 
 int32_t esp8266_data_handler(int8_t * buf, int32_t len)
@@ -155,7 +160,7 @@ int32_t esp8266_data_handler(int8_t * buf, int32_t len)
     AT_LOG("entry!");
 
     //process data frame ,like +IPD,linkid,len:data
-    int32_t ret = 0;
+    int32_t ret = -1;
     int32_t linkid = 0, data_len = 0;
     char * p1, *p2;
     QUEUE_BUFF qbuf;
@@ -278,7 +283,9 @@ int32_t esp8266_init()
 #ifdef 	USE_USARTRX_DMA
     HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],MAX_AT_RECV_LEN-1);
 #endif
-    esp8266_reset();
+    esp8266_reset();  
+    esp8266_echo_off();
+
     esp8266_choose_net_mode(STA);
     while(AT_FAILED == esp8266_joinap(WIFI_SSID, WIFI_PASSWD))
     {
@@ -303,6 +310,7 @@ at_config at_user_conf = {
     .recv_buf_len = MAX_AT_RECV_LEN,
     .userdata_buf_len = MAX_AT_USERDATA_LEN,
     .resp_buf_len = MAX_AT_RESP_LEN,
+    .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode
     .timeout = AT_CMD_TIMEOUT,   //  ms
@@ -314,7 +322,7 @@ at_adaptor_api at_interface = {
     .init = esp8266_init,    
     .get_localmac = esp8266_get_localmac, /*获取本地MAC*/
     .get_localip = esp8266_get_localip,/*获取本地IP*/
-    /*建立TCP或者UDP连接*/
+    /*建立TCP或�UDP连接*/
     .connect = esp8266_connect,
 
     .send = esp8266_send,
