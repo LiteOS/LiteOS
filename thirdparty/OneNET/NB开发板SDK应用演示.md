@@ -1,10 +1,12 @@
-#NBSDK开发环境简介
+NBSDK开发环境简介
+===
 
 * IDE软件版本：KEIL uVersion V5.24。
 * NBSDK版本：V2.1
 * LiteOS版本：C50
 
-##1. 编译环境如下图：
+1. 编译环境如下图：
+---
 
 ##2. 通过NBSDK连接CMIOT，需要配置程序的IMEI、IMSI值与平台NB设备的该值一致。如下图：
 
