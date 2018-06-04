@@ -7,7 +7,11 @@ NBSDK开发环境简介
 
 1. 编译环境如下图：
 ---
+<<<<<<< HEAD
 ![](https://github.com/lichen0319/LiteOS/tree/align/thirdparty/OneNET/image/1.png)
+=======
+![111](image/1.png)
+>>>>>>> c5d002bb35a1c7daff4c66b386fb13fa112b27ed
 
 2. 通过NBSDK连接CMIOT，需要配置程序的IMEI、IMSI值与平台NB设备的该值一致。如下图：
 ---
@@ -33,4 +37,8 @@ NBSDK开发环境简介
 
 ##4. 修改源码：我们定义2个对象，数字输出和温度传感器，分别定义1个对象的实例。如下图。对象资源的定义信息详见源码：
 
+<<<<<<< HEAD
 ##5. 实际应用请参考最新版本的[《NB-IOT 协议接入说明文档》]()。
+=======
+##5. 实际应用请参考最新版本的《NB-IOT 协议接入说明文档》。
+>>>>>>> c5d002bb35a1c7daff4c66b386fb13fa112b27ed
