@@ -73,4 +73,4 @@
 ## 获取源码：
 
 * 如要获取OneNet NBSDK，请联系我司签署NDA协议。
-* [合作入口](https://open.iot.10086.cn/)
+* [OneNET 合作入口](https://open.iot.10086.cn/)
