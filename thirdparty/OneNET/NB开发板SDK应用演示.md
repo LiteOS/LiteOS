@@ -1,12 +1,17 @@
-#NBSDK开发环境简介
+NBSDK开发环境简介
+===
 
 * IDE软件版本：KEIL uVersion V5.24。
 * NBSDK版本：V2.1
 * LiteOS版本：C50
 
-##1. 编译环境如下图：
+1. 编译环境如下图：
+---
+![](https://github.com/lichen0319/LiteOS/tree/align/thirdparty/OneNET/image/1.png)
 
-##2. 通过NBSDK连接CMIOT，需要配置程序的IMEI、IMSI值与平台NB设备的该值一致。如下图：
+2. 通过NBSDK连接CMIOT，需要配置程序的IMEI、IMSI值与平台NB设备的该值一致。如下图：
+---
+![](https://github.com/lichen0319/LiteOS/tree/align/thirdparty/OneNET/image/2.png)
 
 ##3. 打开cis_def.h头文件，修改文件结尾的IMSI与IMEI的值为平台设备的该值，重新编译下载到NB开发板，即可连接到平台。如下图：
 
@@ -28,4 +33,4 @@
 
 ##4. 修改源码：我们定义2个对象，数字输出和温度传感器，分别定义1个对象的实例。如下图。对象资源的定义信息详见源码：
 
-##5. 实际应用请参考最新版本的《NB-IOT 协议接入说明文档》。
+##5. 实际应用请参考最新版本的[《NB-IOT 协议接入说明文档》]()。
