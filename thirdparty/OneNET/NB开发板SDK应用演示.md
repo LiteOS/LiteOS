@@ -62,10 +62,10 @@ NBSDK应用移植简介
 ---
 ![](https://github.com/lichen0319/LiteOS/blob/align/thirdparty/OneNET/image/11.png)
 
-为适应自身应用，用户需要修改cis_sample_entry.c里的如下回调函数，如下图
+5. 为适应自身应用，用户需要修改cis_sample_entry.c里的如下回调函数，如下图
 ---
 ![](https://github.com/lichen0319/LiteOS/blob/align/thirdparty/OneNET/image/12.png)
 
 
-5. 实际应用请参考最新版本的[《NB-IOT 协议接入说明文档》](https://open.iot.10086.cn/doc/art431.html#118)。
+6. 实际应用请参考最新版本的[《NB-IOT 协议接入说明文档》](https://open.iot.10086.cn/doc/art431.html#118)。
 ---
