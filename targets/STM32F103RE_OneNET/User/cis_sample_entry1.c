@@ -1,3 +1,32 @@
+/*
+ Copyright (c) 2017 Chinamobile
+
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+     * Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+     * Neither the name of Intel Corporation nor the names of its contributors
+       may be used to endorse or promote products derived from this software
+       without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cis_def.h>
@@ -41,8 +70,8 @@ static struct st_observe_info* g_observeList = NULL;
 
 static void*      g_context = NULL;
 static bool       g_shutdown = false;
- bool       g_doUnregister = false;
- bool       g_doRegister = false;
+bool       g_doUnregister = false;
+bool       g_doRegister = false;
 
 
 static cis_time_t g_lifetimeLast = 0;
@@ -75,7 +104,7 @@ struct st_callback_info
 {
     struct st_callback_info* next;
     cis_listid_t       mid;
-	et_callback_type_t1 flag; 
+    et_callback_type_t1 flag; 
     cis_uri_t uri;
 
     union
@@ -100,7 +129,7 @@ struct st_callback_info
             cis_observe_attr_t params;
         }asObserveParam;
     }param;
-	
+
 };
 
 
@@ -114,7 +143,7 @@ static void prv_make_sample_data()
     {
         st_sample_object* obj = &g_objectList[i];
         switch(i){
-        case 0:
+            case 0:
             {
                 obj->oid = SAMPLE_OID_A;
                 obj->instBitmap = SAMPLE_A_INSTANCE_BITMAP;
@@ -138,7 +167,7 @@ static void prv_make_sample_data()
 
             }
             break;
-        case 1:
+            case 1:
             {
                 obj->oid = SAMPLE_OID_B;
                 obj->instBitmap = SAMPLE_B_INSTANCE_BITMAP;
@@ -185,95 +214,82 @@ int taskThread(char *argv[])
         switch (node->flag)
         {
             case 0:
-                break;
+            break;
             case SAMPLE_CALLBACK_READ:
-                {
-                    cis_uri_t uriLocal;
-                    uriLocal = node->uri;
-                    prv_readResponse(g_context,&uriLocal,node->mid);
-                }
-                break;
+            {
+                cis_uri_t uriLocal;
+                uriLocal = node->uri;
+                prv_readResponse(g_context,&uriLocal,node->mid);
+            }
+            break;
             case SAMPLE_CALLBACK_DISCOVER:
-                {
-                    cis_uri_t uriLocal;
-                    uriLocal = node->uri;
-                    prv_discoverResponse(g_context,&uriLocal,node->mid);
-                }
-                break;
+            {
+                cis_uri_t uriLocal;
+                uriLocal = node->uri;
+                prv_discoverResponse(g_context,&uriLocal,node->mid);
+            }
+            break;
             case SAMPLE_CALLBACK_WRITE:
-                {
-                    //write
-                    prv_writeResponse(g_context,&node->uri,node->param.asWrite.value,node->param.asWrite.count,node->mid);
-                    cis_data_t* data = node->param.asWrite.value;
-                    cis_attrcount_t count = node->param.asWrite.count;
+            {
+                //write
+                prv_writeResponse(g_context,&node->uri,node->param.asWrite.value,node->param.asWrite.count,node->mid);
+                cis_data_t* data = node->param.asWrite.value;
+                cis_attrcount_t count = node->param.asWrite.count;
 
-                    for (int i=0;i<count;i++)
+                for (int i=0;i<count;i++)
+                {
+                    if(data[i].type == cis_data_type_string || data[i].type == cis_data_type_opaque)
                     {
-                        if(data[i].type == cis_data_type_string || data[i].type == cis_data_type_opaque)
-                        {
-                            if(data[i].asBuffer.buffer != NULL)
+                        if(data[i].asBuffer.buffer != NULL)
                             cis_free(data[i].asBuffer.buffer);
-                        }
                     }
-                    cis_free(data);
                 }
-                break;
+                cis_free(data);
+            }
+            break;
             case SAMPLE_CALLBACK_EXECUTE:
-                {
-                    //exec and notify
-                    prv_execResponse(g_context,&node->uri,node->param.asExec.buffer,node->param.asExec.length,node->mid);
-                    cis_free(node->param.asExec.buffer);
-                }
-                break;
+            {
+                //exec and notify
+                prv_execResponse(g_context,&node->uri,node->param.asExec.buffer,node->param.asExec.length,node->mid);
+                cis_free(node->param.asExec.buffer);
+            }
+            break;
             case SAMPLE_CALLBACK_SETPARAMS:
-                {
-                    //set parameters and notify
-                    prv_paramsResponse(g_context,&node->uri,node->param.asObserveParam.params,node->mid);
-                }
-                break;
+            {
+                //set parameters and notify
+                prv_paramsResponse(g_context,&node->uri,node->param.asObserveParam.params,node->mid);
+            }
+            break;
             case SAMPLE_CALLBACK_OBSERVE:
-                {
-                    if(node->param.asObserve.flag){
-                        uint16_t count = 0;
-                        struct st_observe_info* observe_new = (struct st_observe_info*)cis_malloc(sizeof(struct st_observe_info));
-                        cissys_assert(observe_new!=NULL);
-                        observe_new->mid = node->mid;
-                        observe_new->uri = node->uri;
-                        observe_new->next = NULL;
+            {
+                if(node->param.asObserve.flag){
+                    uint16_t count = 0;
+                    struct st_observe_info* observe_new = (struct st_observe_info*)cis_malloc(sizeof(struct st_observe_info));
+                    cissys_assert(observe_new!=NULL);
+                    observe_new->mid = node->mid;
+                    observe_new->uri = node->uri;
+                    observe_new->next = NULL;
 
-                        g_observeList = (struct st_observe_info*)cis_list_add((cis_list_t*)g_observeList,(cis_list_t*)observe_new);
-                       /*
-                        LOGD("cis_on_observe set(%d): %d/%d/%d",
-                            count,
-                            uri->objectId,
-                            CIS_URI_IS_SET_INSTANCE(uri)?uri->instanceId:-1,
-                            CIS_URI_IS_SET_RESOURCE(uri)?uri->resourceId:-1);
-											*/
+                    g_observeList = (struct st_observe_info*)cis_list_add((cis_list_t*)g_observeList,(cis_list_t*)observe_new);
 
-                        cis_response(g_context,NULL,NULL,node->mid,CIS_RESPONSE_OBSERVE);
-                    }else{
-                        struct st_observe_info* delnode = NULL;
+                    cis_response(g_context,NULL,NULL,node->mid,CIS_RESPONSE_OBSERVE);
+                }else{
+                    struct st_observe_info* delnode = NULL;
 
-                        g_observeList = (struct st_observe_info *)cis_list_remove((cis_list_t *)g_observeList,node->mid,(cis_list_t **)&delnode);
-                        if(delnode == NULL)return CIS_RESPONSE_NOT_FOUND;
+                    g_observeList = (struct st_observe_info *)cis_list_remove((cis_list_t *)g_observeList,node->mid,(cis_list_t **)&delnode);
+                    if(delnode == NULL)return CIS_RESPONSE_NOT_FOUND;
 
-                        cis_free(delnode);
-                        /*
-                        LOGD("cis_on_observe cancel: %d/%d/%d\n",
-                            uri->objectId,
-                            CIS_URI_IS_SET_INSTANCE(uri)?uri->instanceId:-1,
-                            CIS_URI_IS_SET_RESOURCE(uri)?uri->resourceId:-1);
-                         */
-                        cis_response(g_context,NULL,NULL,node->mid,CIS_RESPONSE_OBSERVE);
-                    }
+                    cis_free(delnode);
+                    cis_response(g_context,NULL,NULL,node->mid,CIS_RESPONSE_OBSERVE);
                 }
+            }
             default:
-                break;
+            break;
         }
 
         cis_free(node);
     }
-        
+
     return 1;
 }
 
@@ -282,26 +298,23 @@ int taskThread(char *argv[])
 
 int cis_sample_entry(void* config_bin,uint32_t config_size)
 {
-	cis_version_t ver;
-	int index = 0;
-	
-	cis_callback_t callback;
-	callback.onRead = cis_onRead;
-	callback.onWrite = cis_onWrite;
-	callback.onExec = cis_onExec;
-  callback.onObserve = cis_onObserve;
-  callback.onSetParams = cis_onParams;
-  callback.onEvent = cis_onEvent;
-	callback.onDiscover = cis_onDiscover;
+    cis_version_t ver;
+    int index = 0;
 
-		g_lifetime = 30;
-		/*init sample data*/
-		prv_make_sample_data();
-//	  Led_Init();
-//   	USART1_Init();
-//	  USART3_Init();
-	  netdev_init();
-	 
+    cis_callback_t callback;
+    callback.onRead = cis_onRead;
+    callback.onWrite = cis_onWrite;
+    callback.onExec = cis_onExec;
+    callback.onObserve = cis_onObserve;
+    callback.onSetParams = cis_onParams;
+    callback.onEvent = cis_onEvent;
+    callback.onDiscover = cis_onDiscover;
+
+    g_lifetime = 30;
+    /*init sample data*/
+    prv_make_sample_data();
+    netdev_init();
+
     if(cis_init(&g_context, config_bin, config_size) != CIS_RET_OK){
         printf("cis entry init failed.\n");
         return -1;
@@ -326,9 +339,9 @@ int cis_sample_entry(void* config_bin,uint32_t config_size)
         instBytes = (instCount - 1) / 8 + 1;//要用多少个字节来表示实例，每个实例占用一位
         instAsciiPtr = obj->instBitmap;
         instPtr = (uint8_t*)cis_malloc(instBytes);
-	     	cissys_assert(instPtr!=NULL);
+        cissys_assert(instPtr!=NULL);
         memset(instPtr,0,instBytes);
-        
+
         for (i = 0;i < instCount;i++)//这一段代码的意思是把类似"1101"的二进制字符串转换为二进制数据1101
         {
             cis_instcount_t instBytePos = i / 8;
@@ -348,55 +361,44 @@ int cis_sample_entry(void* config_bin,uint32_t config_size)
         cis_addobject(g_context,oid,&bitmap,&rescount);
         cis_free(instPtr);
     }
-    
+
     g_shutdown = false;
     g_doUnregister = false;
     
     //register enabled
     g_doRegister = true;
-		
-		os_thread_new("callbackTask", taskThread, NULL, CIS_TASK_STACK_SIZE, CIS_TASK_PRIO);
+
+    os_thread_new("callbackTask", taskThread, NULL, CIS_TASK_STACK_SIZE, CIS_TASK_PRIO);
     
     while(!g_shutdown)
     {
         uint32_t pumpRet;
         
-
-        /*
-        *wait press keyboard for register test;
-        *do register press 'o'
-        *do unregister press 'r'
-        **/
-
+        if(g_doRegister)
         {
-            if(g_doRegister)
-            {
-                g_doRegister = false;
-                cis_register(g_context,g_lifetime,&callback);//将回调函数注册进SDK内
-            }
-
-            if(g_doUnregister){
-                g_doUnregister = false;
-                cis_unregister(g_context);
-                struct st_observe_info* delnode;
-                while(g_observeList != NULL){
-                    g_observeList =(struct st_observe_info *)CIS_LIST_RM((cis_list_t *)g_observeList,g_observeList->mid,(cis_list_t **)&delnode);
-                    cis_free(delnode);
-                }
-								cissys_sleepms(1000);
-                g_doRegister = 1;
-            }
-            
+            g_doRegister = false;
+            cis_register(g_context,g_lifetime,&callback);//将回调函数注册进SDK内
         }
-        
+
+        if(g_doUnregister){
+            g_doUnregister = false;
+            cis_unregister(g_context);
+            struct st_observe_info* delnode;
+            while(g_observeList != NULL){
+                g_observeList =(struct st_observe_info *)CIS_LIST_RM((cis_list_t *)g_observeList,g_observeList->mid,(cis_list_t **)&delnode);
+                cis_free(delnode);
+            }
+            cissys_sleepms(1000);
+            g_doRegister = 1;
+        }
+
         /*pump function*/
         pumpRet = cis_pump(g_context);
         if(pumpRet == PUMP_RET_CUSTOM)
         {
-            //printf("pump sleep(1000)\n");
             cissys_sleepms(1000);
         }
-        //g_doUnregister=1;
+
         uint32_t nowtime;
         /*data observe data report*/
         nowtime = cissys_gettime();
@@ -404,15 +406,16 @@ int cis_sample_entry(void* config_bin,uint32_t config_size)
         if(nowtime - g_notifyLast > 10*1000){
             g_notifyLast = nowtime;
             while(node != NULL){
-                if(node->mid == 0)continue;
-                if(node->uri.flag == 0)continue;
+                if(node->mid == 0)
+                    continue;
+                if(node->uri.flag == 0)
+                    continue;
                 cis_uri_t uriLocal;
                 uriLocal = node->uri;
                 prv_observeNotify(g_context,&uriLocal,node->mid);//订阅资源发送接口
                 node = node->next;
             }
         }
-        
     }
     
     
@@ -426,8 +429,7 @@ int cis_sample_entry(void* config_bin,uint32_t config_size)
 
     cissys_sleepms(2000);
 
-
-	return 0;
+    return 0;
 }
 
 
@@ -454,7 +456,7 @@ void prv_observeNotify(void* context,cis_uri_t* uri,cis_mid_t mid)
     {
         switch(uri->objectId)
         {
-        case SAMPLE_OID_A:
+            case SAMPLE_OID_A:
             {
                 for(index=0;index<SAMPLE_A_INSTANCE_COUNT;index++)
                 {                   
@@ -462,7 +464,7 @@ void prv_observeNotify(void* context,cis_uri_t* uri,cis_mid_t mid)
                     if(inst != NULL &&  inst->enabled == true)
                     {
                         cis_data_t tmpdata[2];
-											
+
                         tmpdata[0].type = cis_data_type_bool;
                         tmpdata[0].value.asBoolean = inst->instance.boolValue;
                         uri->resourceId = attributeA_boolValue;
@@ -481,7 +483,7 @@ void prv_observeNotify(void* context,cis_uri_t* uri,cis_mid_t mid)
                 }
             }
             break;
-        case SAMPLE_OID_B:
+            case SAMPLE_OID_B:
             {
                 for(index=0;index<SAMPLE_A_INSTANCE_COUNT;index++)
                 {                   
@@ -507,11 +509,10 @@ void prv_observeNotify(void* context,cis_uri_t* uri,cis_mid_t mid)
             }
             break;
         }
-    }else if(CIS_URI_IS_SET_INSTANCE(uri))
-    {
+    } else if (CIS_URI_IS_SET_INSTANCE(uri)) {
         switch(object->oid)
         {
-        case SAMPLE_OID_A:
+            case SAMPLE_OID_A:
             {
                 if(uri->instanceId > SAMPLE_A_INSTANCE_COUNT){
                     return;
@@ -556,7 +557,7 @@ void prv_observeNotify(void* context,cis_uri_t* uri,cis_mid_t mid)
                 }
             }
             break;
-        case SAMPLE_OID_B:
+            case SAMPLE_OID_B:
             {
                 if(uri->instanceId > SAMPLE_B_INSTANCE_COUNT){
                     return;
@@ -628,7 +629,7 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
     {
         switch(uri->objectId)
         {
-        case SAMPLE_OID_A:
+            case SAMPLE_OID_A:
             {
                 for(index=0;index<SAMPLE_A_INSTANCE_COUNT;index++)
                 {                   
@@ -637,7 +638,7 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
                     {
                         cis_data_t tmpdata[2];
 
-												tmpdata[0].type = cis_data_type_bool;
+                        tmpdata[0].type = cis_data_type_bool;
                         tmpdata[0].value.asBoolean = inst->instance.boolValue;
                         uri->resourceId = attributeA_boolValue;
                         uri->instanceId = inst->instId;
@@ -655,7 +656,7 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
                 }
             }
             break;
-        case SAMPLE_OID_B:
+            case SAMPLE_OID_B:
             {
                 for(index=0;index<SAMPLE_A_INSTANCE_COUNT;index++)
                 {                   
@@ -687,7 +688,7 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
     {
         switch(object->oid)
         {
-        case SAMPLE_OID_A:
+            case SAMPLE_OID_A:
             {
                 if(uri->instanceId > SAMPLE_A_INSTANCE_COUNT){
                     return;
@@ -732,7 +733,7 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
                 }
             }
             break;
-        case SAMPLE_OID_B:
+            case SAMPLE_OID_B:
             {
                 if(uri->instanceId > SAMPLE_B_INSTANCE_COUNT){
                     return;
@@ -745,8 +746,8 @@ void prv_readResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
                 if(CIS_URI_IS_SET_RESOURCE(uri)){
                     if(uri->resourceId == attributeB_floatValue)
                     {
-extern float SHT20_GetTempreture(void);
-inst->instance.floatValue = SHT20_GetTempreture();
+                        extern float SHT20_GetTempreture(void);
+                        inst->instance.floatValue = SHT20_GetTempreture();
 
                         value.type = cis_data_type_float;
                         value.value.asFloat = inst->instance.floatValue;
@@ -804,7 +805,7 @@ void prv_discoverResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
 
     switch(uri->objectId)
     {
-    case SAMPLE_OID_A:
+        case SAMPLE_OID_A:
         {
 
             uri->objectId = URI_INVALID;
@@ -821,7 +822,7 @@ void prv_discoverResponse(void* context,cis_uri_t* uri,cis_mid_t mid)
 
         }
         break;
-    case SAMPLE_OID_B:
+        case SAMPLE_OID_B:
         {
             uri->objectId = URI_INVALID;
             uri->instanceId = URI_INVALID;
@@ -852,7 +853,7 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
 
     uint8_t index;
     st_sample_object* object = NULL;
-    
+
 
     if(!CIS_URI_IS_SET_INSTANCE(uri))
     {
@@ -873,7 +874,7 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
 
     switch(object->oid)
     {
-    case SAMPLE_OID_A:
+        case SAMPLE_OID_A:
         {
             if(uri->instanceId > SAMPLE_A_INSTANCE_COUNT){
                 return;
@@ -888,22 +889,22 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
                 printf("write %d/%d/%d\n",uri->objectId,uri->instanceId,value[i].id);
                 if (value[i].id == attributeA_boolValue)
                 {
-									if(value[i].type == cis_data_type_string){
-											inst->instance.boolValue = atoi((const char*)value[i].asBuffer.buffer);
-									}else{
-											inst->instance.boolValue = value[i].value.asBoolean;
-									}
-									if (inst->instance.boolValue) {
-										LOS_EvbLedControl(LOS_LED1, LED_ON);
-									} else {
-										LOS_EvbLedControl(LOS_LED1, LED_OFF);
-									}
-									
+                    if(value[i].type == cis_data_type_string){
+                        inst->instance.boolValue = atoi((const char*)value[i].asBuffer.buffer);
+                    }else{
+                        inst->instance.boolValue = value[i].value.asBoolean;
+                    }
+                    if (inst->instance.boolValue) {
+                        LOS_EvbLedControl(LOS_LED1, LED_ON);
+                    } else {
+                        LOS_EvbLedControl(LOS_LED1, LED_OFF);
+                    }
+
                 }
             }
         }
         break;
-    case SAMPLE_OID_B:
+        case SAMPLE_OID_B:
         {
             if(uri->instanceId > SAMPLE_B_INSTANCE_COUNT){
                 return;
@@ -918,7 +919,7 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
                 printf("write %d/%d/%d\n",uri->objectId,uri->instanceId,value[i].id);
                 switch(value[i].id)
                 {
-                case attributeB_floatValue:
+                    case attributeB_floatValue:
                     {
                         if(value[i].type == cis_data_type_opaque){
                             inst->instance.floatValue = atof((const char*)value[i].asBuffer.buffer);
@@ -927,7 +928,7 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
                         }
                     }
                     break;
-                case  attributeB_stringValue:
+                    case  attributeB_stringValue:
                     {
                         memset(inst->instance.strValue,0,sizeof(inst->instance.strValue));
                         strncpy(inst->instance.strValue,(char*)value[i].asBuffer.buffer,value[i].asBuffer.length);
@@ -935,7 +936,6 @@ void prv_writeResponse          (void* context,cis_uri_t* uri,const cis_data_t* 
                     break;
                 }
             }
-
         }
         break;
     }
@@ -949,7 +949,7 @@ void prv_execResponse              (void* context,cis_uri_t* uri,const uint8_t* 
 
     uint8_t index;
     st_sample_object* object = NULL;
-    
+
 
     for (index = 0;index< SAMPLE_OBJECT_MAX;index++)
     {
@@ -962,10 +962,9 @@ void prv_execResponse              (void* context,cis_uri_t* uri,const uint8_t* 
         return;
     }
 
-
     switch(object->oid)
     {
-    case SAMPLE_OID_A:
+        case SAMPLE_OID_A:
         {
             if(uri->instanceId > SAMPLE_A_INSTANCE_COUNT){
                 return;
@@ -976,7 +975,7 @@ void prv_execResponse              (void* context,cis_uri_t* uri,const uint8_t* 
             }
         }
         break;
-    case SAMPLE_OID_B:
+        case SAMPLE_OID_B:
         {
             if(uri->instanceId > SAMPLE_B_INSTANCE_COUNT){
                 return;
@@ -988,22 +987,15 @@ void prv_execResponse              (void* context,cis_uri_t* uri,const uint8_t* 
 
             if(uri->resourceId == actionB_1)
             {
-                /*
-                *\call action;
-                */
-                 printf("exec actionB_1\n");
-                 cis_response(context,NULL,NULL,mid,CIS_RESPONSE_EXECUTE);
+                printf("exec actionB_1\n");
+                cis_response(context,NULL,NULL,mid,CIS_RESPONSE_EXECUTE);
             }else{
                 return;
             }
         }
         break;
     }
-};
-
-
-
-
+}
 
 
 void prv_paramsResponse         (void* context,cis_uri_t* uri,cis_observe_attr_t parameters,cis_mid_t mid)
@@ -1035,7 +1027,6 @@ void prv_paramsResponse         (void* context,cis_uri_t* uri,cis_observe_attr_t
     /*set parameter to observe resource*/
     /*do*/
 
-
     cis_response(context,NULL,NULL,mid,CIS_RESPONSE_OBSERVE_PARAMS);
 
 }
@@ -1057,7 +1048,7 @@ static cis_data_t* prv_dataDup(const cis_data_t* value,cis_attrcount_t attrcount
         newData[index].type = value[index].type;
         newData[index].asBuffer.length = value[index].asBuffer.length;
         newData[index].asBuffer.buffer = (uint8_t*)cis_malloc(value[index].asBuffer.length);
-		cissys_assert(newData[index].asBuffer.buffer !=NULL);
+        cissys_assert(newData[index].asBuffer.buffer !=NULL);
         memcpy(newData[index].asBuffer.buffer,value[index].asBuffer.buffer,value[index].asBuffer.length);
 
 
@@ -1071,7 +1062,7 @@ static cis_data_t* prv_dataDup(const cis_data_t* value,cis_attrcount_t attrcount
 cis_coapret_t cis_onRead		        (void* context,cis_uri_t* uri,cis_mid_t mid)
 {
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_READ;
     newNode->mid = mid;
@@ -1080,15 +1071,14 @@ cis_coapret_t cis_onRead		        (void* context,cis_uri_t* uri,cis_mid_t mid)
 
     printf("cis_onRead:(%d/%d/%d)\n",uri->objectId,uri->instanceId,uri->resourceId);
 
-   
-	return CIS_CALLBACK_CONFORM;
+    return CIS_CALLBACK_CONFORM;
 }
 
 cis_coapret_t cis_onDiscover(void* context,cis_uri_t* uri,cis_mid_t mid)
 {
 
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_DISCOVER;
     newNode->mid = mid;
@@ -1097,7 +1087,7 @@ cis_coapret_t cis_onDiscover(void* context,cis_uri_t* uri,cis_mid_t mid)
 
     printf("cis_onDiscover:(%d/%d/%d)\n",uri->objectId,uri->instanceId,uri->resourceId);
 
-	return CIS_CALLBACK_CONFORM;
+    return CIS_CALLBACK_CONFORM;
 }
 
 cis_coapret_t cis_onWrite		        (void* context,cis_uri_t* uri,const cis_data_t* value,cis_attrcount_t attrcount,cis_mid_t mid)
@@ -1114,7 +1104,7 @@ cis_coapret_t cis_onWrite		        (void* context,cis_uri_t* uri,const cis_data_
     printf("rcv write %s\r\n",value->asBuffer.buffer);
 
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-  	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_WRITE;
     newNode->mid = mid;
@@ -1122,10 +1112,8 @@ cis_coapret_t cis_onWrite		        (void* context,cis_uri_t* uri,const cis_data_
     newNode->param.asWrite.count = attrcount;
     newNode->param.asWrite.value = prv_dataDup(value,attrcount);
     g_callbackList = (struct st_callback_info*)CIS_LIST_ADD(g_callbackList,newNode);
-//    printf("type is %d\r\n",value->type);
 
     return CIS_CALLBACK_CONFORM;
-   
 }
 
 
@@ -1144,17 +1132,16 @@ cis_coapret_t cis_onExec              (void* context,cis_uri_t* uri,const uint8_
     }
 
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_EXECUTE;
     newNode->mid = mid;
     newNode->uri = *uri;
     newNode->param.asExec.buffer = (uint8_t*)cis_malloc(length);
-	cissys_assert(newNode->param.asExec.buffer !=NULL);
+    cissys_assert(newNode->param.asExec.buffer !=NULL);
     newNode->param.asExec.length = length;
     memcpy(newNode->param.asExec.buffer,value,length);
     g_callbackList = (struct st_callback_info*)CIS_LIST_ADD(g_callbackList,newNode);
-
 
     return CIS_CALLBACK_CONFORM;
 }
@@ -1170,10 +1157,9 @@ cis_coapret_t cis_onObserve         (void* context,cis_uri_t* uri,bool flag,cis_
     {
         return CIS_CALLBACK_BAD_REQUEST;
     }
-    
 
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_OBSERVE;
     newNode->mid = mid;
@@ -1198,7 +1184,7 @@ cis_coapret_t cis_onParams         (void* context,cis_uri_t* uri,cis_observe_att
     }
 
     struct st_callback_info* newNode = (struct st_callback_info*)cis_malloc(sizeof(struct st_callback_info));
-	cissys_assert(newNode !=NULL);
+    cissys_assert(newNode !=NULL);
     newNode->next = NULL;
     newNode->flag = SAMPLE_CALLBACK_SETPARAMS;
     newNode->mid = mid;
@@ -1211,39 +1197,37 @@ cis_coapret_t cis_onParams         (void* context,cis_uri_t* uri,cis_observe_att
 
 void cis_onEvent             (void* context,cis_evt_t eid,void* param)
 {
-	printf("cis_on_event id: %d : ",eid);
+    printf("cis_on_event id: %d : ",eid);
 
     switch(eid)
     {
         case CIS_EVENT_RESPONSE_FAILED:
-					printf("CIS_EVENT_RESPONSE_FAILED: %d\n",(int32_t)param);
-				break;
+        printf("CIS_EVENT_RESPONSE_FAILED: %d\n",(int32_t)param);
+        break;
         case CIS_EVENT_NOTIFY_FAILED:
-					printf("CIS_EVENT_NOTIFY_FAILED: %d\n",(int32_t)param);
-				break;
+        printf("CIS_EVENT_NOTIFY_FAILED: %d\n",(int32_t)param);
+        break;
         case CIS_EVENT_UPDATE_NEED:
-					printf("CIS_EVENT_UPDATE_NEED: %d\n",(int32_t)param);
-					cis_update_reg(g_context,g_lifetime,false);
-				break;
-				
-				case CIS_EVENT_CONNECT_SUCCESS:
-					printf("CIS_EVENT_CONNECT_SUCCESS: %d\n",(int32_t)param);
-				break;
-				case CIS_EVENT_REG_SUCCESS:
-					printf("CIS_EVENT_REG_SUCCESS: %d\n",(int32_t)param);
-				break;
-				case CIS_EVENT_REG_TIMEOUT:
-					printf("CIS_EVENT_REG_TIMEOUT: %d\n",(int32_t)param);
-				break;
-				case CIS_EVENT_UPDATE_SUCCESS:
-					printf("CIS_EVENT_UPDATE_SUCCESS: %d\n",(int32_t)param);
-				break;
-				case CIS_EVENT_UPDATE_TIMEOUT:
-					printf("CIS_EVENT_UPDATE_TIMEOUT: %d\n",(int32_t)param);
-				break;				
+        printf("CIS_EVENT_UPDATE_NEED: %d\n",(int32_t)param);
+        cis_update_reg(g_context,g_lifetime,false);
+        break;
+        case CIS_EVENT_CONNECT_SUCCESS:
+        printf("CIS_EVENT_CONNECT_SUCCESS: %d\n",(int32_t)param);
+        break;
+        case CIS_EVENT_REG_SUCCESS:
+        printf("CIS_EVENT_REG_SUCCESS: %d\n",(int32_t)param);
+        break;
+        case CIS_EVENT_REG_TIMEOUT:
+        printf("CIS_EVENT_REG_TIMEOUT: %d\n",(int32_t)param);
+        break;
+        case CIS_EVENT_UPDATE_SUCCESS:
+        printf("CIS_EVENT_UPDATE_SUCCESS: %d\n",(int32_t)param);
+        break;
+        case CIS_EVENT_UPDATE_TIMEOUT:
+        printf("CIS_EVENT_UPDATE_TIMEOUT: %d\n",(int32_t)param);
+        break;				
 
         default:
-				break;
+        break;
     }
-    
 }
