@@ -187,7 +187,7 @@ static uint8_t prv_init_forbidden(lwm2m_context_t * contextP,
     memset(*forbidden, 0, *sizeP);
     for (instanceP = targetP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
     {
-        uriP.resourceId = instanceP->id;
+        uriP.instanceId = instanceP->id;
         if (acc_auth_operate(contextP, &uriP, OBJ_ACC_READ, serverId) != COAP_NO_ERROR)
         {
             (*sizeP)--;
