@@ -186,11 +186,11 @@ typedef enum
 
 } OBJ_ACC_OPERATE;
 
-#define ACC_AUTH_R                  0x01
-#define ACC_AUTH_W                  0x02
-#define ACC_AUTH_E                  0x04
-#define ACC_AUTH_D                  0x08
-#define ACC_AUTH_C                  0x10
+#define ACC_AUTH_R     (0x01 << OBJ_ACC_READ)
+#define ACC_AUTH_W     (0x01 << OBJ_ACC_WRITE)
+#define ACC_AUTH_E     (0x01 << OBJ_ACC_EXCUTE)
+#define ACC_AUTH_D     (0x01 << OBJ_ACC_DELETE)
+#define ACC_AUTH_C     (0x01 << OBJ_ACC_CREATE)
 
 lwm2m_object_t* acc_ctrl_create_object(void);
 void acl_ctrl_free_object(lwm2m_object_t * objectP);
