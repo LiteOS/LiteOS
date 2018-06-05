@@ -164,6 +164,47 @@ uint8_t object_checkNumeric(lwm2m_context_t * contextP,
     return result;
 }
 
+static uint8_t prv_init_forbidden(lwm2m_context_t * contextP,
+                                  lwm2m_object_t * targetP,
+                                  uint16_t objId,
+                                  uint16_t serverId,
+                                  int * sizeP,
+                                  uint8_t ** forbidden)
+{
+    lwm2m_list_t * instanceP;
+    lwm2m_uri_t uriP;
+    int i;
+
+    uriP.flag = LWM2M_URI_FLAG_INSTANCE_ID;
+    uriP.objectId = objId;
+
+    i = 0;
+    *forbidden = (uint8_t *)lwm2m_malloc(*sizeP);
+    if (*forbidden == NULL)
+    {
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+    memset(*forbidden, 0, *sizeP);
+    for (instanceP = targetP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
+    {
+        uriP.resourceId = instanceP->id;
+        if (acc_auth_operate(contextP, &uriP, OBJ_ACC_READ, serverId) != COAP_NO_ERROR)
+        {
+            (*sizeP)--;
+            (*forbidden)[i] = 1;
+        }
+        ++i;
+    }
+
+    if (*sizeP == 0)
+    {
+        lwm2m_free(*forbidden);
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    return COAP_NO_ERROR;
+}
+
 uint8_t object_readData(lwm2m_context_t * contextP,
                         lwm2m_uri_t * uriP,
                         int * sizeP,
@@ -199,37 +240,16 @@ uint8_t object_readData(lwm2m_context_t * contextP,
     {
         // multiple object instances read
         lwm2m_list_t * instanceP;
-        lwm2m_uri_t uriT;
         uint8_t * forbidden = NULL;
         int i;
         int j;
 
         result = COAP_205_CONTENT;
 
-        uriT.flag = LWM2M_URI_FLAG_INSTANCE_ID;
-        uriT.objectId = uriP->objectId;
-
         *sizeP = 0;
         for (instanceP = targetP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
         {
             (*sizeP)++;
-        }
-
-        if (*sizeP > 0)
-        {
-            i = 0;
-            forbidden = (uint8_t *)lwm2m_malloc(*sizeP);
-            memset(forbidden, 0, *sizeP);
-            for (instanceP = targetP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
-            {
-                uriT.resourceId = instanceP->id;
-                if (acc_auth_operate(contextP, &uriT, OBJ_ACC_READ, serverId) != COAP_NO_ERROR)
-                {
-                    (*sizeP)--;
-                    forbidden[i] = 1;
-                }
-                ++i;
-            }
         }
 
         if (*sizeP == 0)
@@ -238,6 +258,12 @@ uint8_t object_readData(lwm2m_context_t * contextP,
         }
         else
         {
+            if ((result = prv_init_forbidden(contextP, targetP,
+                 uriP->objectId, serverId, sizeP, &forbidden)) != COAP_NO_ERROR)
+            {
+                return result;
+            }
+
             *dataP = lwm2m_data_new(*sizeP);
             if (*dataP == NULL)
             {
