@@ -93,7 +93,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum number of used hardware interrupts, including Tick timer interrupts.
  */
-#define LOSCFG_PLATFORM_HWI_LIMIT                           96
+#define LOSCFG_PLATFORM_HWI_LIMIT                           41
 
 
 /*=============================================================================
@@ -110,7 +110,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of tasks except the idle task rather than the number of usable tasks
  */
-#define LOSCFG_BASE_CORE_TSK_LIMIT                          15              // max num task
+#define LOSCFG_BASE_CORE_TSK_LIMIT                          6               // max num task
 
 /**
  * @ingroup los_config
@@ -146,13 +146,13 @@ extern "C" {
  * @ingroup los_config
  * Configuration item for task (stack) monitoring module tailoring
  */
-#define LOSCFG_BASE_CORE_TSK_MONITOR                        YES
+#define LOSCFG_BASE_CORE_TSK_MONITOR                        NO
 
 /**
  * @ingroup los_config
  * Configuration item for task perf task filter hook
  */
-#define LOSCFG_BASE_CORE_EXC_TSK_SWITCH                     YES
+#define LOSCFG_BASE_CORE_EXC_TSK_SWITCH                     NO
 
 /**
  * @ingroup los_config
@@ -198,7 +198,7 @@ extern "C" {
  * @ingroup los_config
  * Configuration item for mutex module tailoring
  */
-#define LOSCFG_BASE_IPC_MUX                                 YES
+#define LOSCFG_BASE_IPC_MUX                                 NO
 
 /**
  * @ingroup los_config
@@ -239,7 +239,7 @@ extern "C" {
 
 #define LOSCFG_BASE_CORE_SWTMR_TASK                         YES
 
-#define LOSCFG_BASE_CORE_SWTMR_ALIGN                        YES
+#define LOSCFG_BASE_CORE_SWTMR_ALIGN                        NO
 #if(LOSCFG_BASE_CORE_SWTMR == NO && LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
     #error "swtmr align first need support swmtr, should make LOSCFG_BASE_CORE_SWTMR = YES"
 #endif
@@ -248,7 +248,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of software timers rather than the number of usable software timers
  */
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                        16             // the max SWTMR numb
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                        5
 
 /**
  * @ingroup los_config
@@ -308,13 +308,13 @@ extern UINT32 g_sys_mem_addr_end;
  */
 #define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     YES
 
-#define LOSCFG_MEMORY_BESTFIT                               YES
+#define LOSCFG_MEMORY_BESTFIT                               NO
 
 /**
  * @ingroup los_config
  * Configuration module tailoring of more mempry pool checking
  */
-#define LOSCFG_MEM_MUL_POOL                                 YES
+#define LOSCFG_MEM_MUL_POOL                                 NO
 
 /**
  * @ingroup los_config
@@ -326,7 +326,7 @@ extern UINT32 g_sys_mem_addr_end;
  * @ingroup los_config
  * Configuration module tailoring of slab memory
  */
-#define LOSCFG_KERNEL_MEM_SLAB                              YES
+#define LOSCFG_KERNEL_MEM_SLAB                              NO
 
 
 /*=============================================================================
@@ -378,7 +378,6 @@ extern UINT32 g_sys_mem_addr_end;
  */
 #define LOSCFG_KERNEL_RUNSTOP                               NO
 
-
 /*=============================================================================
                                         track configuration
 =============================================================================*/
@@ -395,6 +394,14 @@ extern UINT32 g_sys_mem_addr_end;
  */
 #define LOSCFG_BASE_MISC_TRACK_MAX_COUNT                    1024
 
+#define LOSCFG_STATIC_TASK                                  YES
+#define LOSCFG_STATIC_TIMER                                 YES
+#define LOSCFG_SOC_HAS_SYSTICK                              NO
+#define LOSCFG_STATIC_SEM                                   YES
+
+#define LOSCFG_HEAP_MEMORY_PEAK_STATISTICS                  NO
+
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                0x80
 
 #ifdef __cplusplus
 #if __cplusplus

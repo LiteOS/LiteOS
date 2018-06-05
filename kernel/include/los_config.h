@@ -626,6 +626,22 @@ extern UINT32 g_sys_mem_addr_end;
 #endif
 
 
+/* TODO: comments */
+#ifndef LOSCFG_STATIC_TASK
+#define LOSCFG_STATIC_TASK                                  NO
+#endif
+
+
+#ifndef LOSCFG_STATIC_TIMER
+#define LOSCFG_STATIC_TIMER                                 NO
+#endif
+
+
+#ifndef LOSCFG_SOC_HAS_SYSTICK
+#define LOSCFG_SOC_HAS_SYSTICK                              YES
+#endif
+
+
 /*=============================================================================
                                        LiteOS kernel version configuration
 =============================================================================*/

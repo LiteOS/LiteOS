@@ -257,7 +257,11 @@ extern "C" {
 * @see
 * @since Huawei LiteOS V100R001C00
 */
+#if LOSCFG_STATIC_TASK == YES
+#define OS_TCB_FROM_TID(TaskID)                       (g_apstTaskCBArray[(TaskID)])
+#else
 #define OS_TCB_FROM_TID(TaskID)                       (((LOS_TASK_CB *)g_pstTaskCBArray) + (TaskID))
+#endif
 #define OS_IDLE_TASK_ENTRY                            ((TSK_ENTRY_FUNC)osIdleTask)
 
 /**
@@ -285,6 +289,32 @@ typedef struct tagTaskCB
     UINT32                      uwEventMode;                /**< Event mode                  */
     VOID                        *puwMsg;                    /**< Memory allocated to queues  */
 } LOS_TASK_CB;
+
+#if LOSCFG_STATIC_TASK == YES
+#define LOS_TASK_DEF(pname, name, entry, taskPrio, arg, stackSize)             \
+LOS_STATIC_ASSERT (stackSize > sizeof (INT64));                                \
+LOS_STATIC_ASSERT (taskPrio <= OS_TASK_PRIORITY_LOWEST);                       \
+LOS_STATIC_ASSERT (taskPrio >= 0);                                             \
+static INT64 s_##sp_##pname [stackSize / sizeof (INT64)] = {0};                \
+static LOS_TASK_CB s_##pname##CB =                                             \
+{                                                                              \
+    &((TSK_CONTEXT_S *) (&s_##sp_##pname [stackSize / sizeof (INT64)]))[-1],   \
+    OS_TASK_STATUS_SUSPEND,                                                    \
+    taskPrio,                                                                  \
+    stackSize,                                                                 \
+    (UINT32) s_##sp_##pname,                                                   \
+    0,  /* uwTaskID init later? */                                             \
+    (TSK_ENTRY_FUNC) entry,                                                    \
+    NULL,                                                                      \
+    NULL,                                                                      \
+    arg,                                                                       \
+    name,                                                                      \
+    {0},    /* stPendList init later */                                        \
+    {0},    /* stTimerList */                                                  \
+}
+#define LOS_TASK_INIT(pname, pid)                                              \
+    LOS_StaticTaskInit (((void *) &s_##pname##CB), pid)
+#endif
 
 typedef struct stLosTask
 {
@@ -327,14 +357,10 @@ extern UINT32               g_uwSwtmrTaskID;
  * Starting address of a task.
  *
  */
-extern LOS_TASK_CB          *g_pstTaskCBArray;
-
-/**
- * @ingroup los_task
- * Delayed task linked list.
- *
- */
-extern LOS_DL_LIST          g_stTaskTimerList;
+#if LOSCFG_STATIC_TASK == YES
+extern  LOS_TASK_CB         *g_apstTaskCBArray[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+#else
+extern  LOS_TASK_CB         *g_pstTaskCBArray;
 
 /**
  * @ingroup los_task
@@ -342,13 +368,7 @@ extern LOS_DL_LIST          g_stTaskTimerList;
  *
  */
 extern LOS_DL_LIST          g_stLosFreeTask;
-
-/**
- * @ingroup los_task
- * Circular linked list that stores tasks that are deleted automatically.
- *
- */
-extern LOS_DL_LIST          g_stTskRecyleList;
+#endif
 
 /**
  * @ingroup los_task

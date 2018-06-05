@@ -52,8 +52,14 @@ extern "C"{
 
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
+LOS_STATIC_ASSERT(LOSCFG_BASE_IPC_SEM_LIMIT > 0);
+
+#if LOSCFG_STATIC_SEM == NO
 LITE_OS_SEC_BSS LOS_DL_LIST  g_stUnusedSemList;
 LITE_OS_SEC_BSS SEM_CB_S    *g_pstAllSem;
+#else
+LITE_OS_SEC_BSS SEM_CB_S    *g_apstAllSem[LOSCFG_BASE_IPC_SEM_LIMIT];
+#endif
 
 /*****************************************************************************
  Function     : osSemInit
@@ -64,15 +70,11 @@ LITE_OS_SEC_BSS SEM_CB_S    *g_pstAllSem;
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 osSemInit(VOID)
 {
+#if LOSCFG_STATIC_SEM == NO
     SEM_CB_S    *pstSemNode;
     UINT16      uwIndex;
 
     LOS_ListInit(&g_stUnusedSemList);
-
-    if (LOSCFG_BASE_IPC_SEM_LIMIT == 0)   /*lint !e506*/
-    {
-        return LOS_ERRNO_SEM_MAXNUM_ZERO;
-    }
 
     g_pstAllSem = (SEM_CB_S *)LOS_MemAlloc(m_aucSysMem0, (LOSCFG_BASE_IPC_SEM_LIMIT * sizeof(SEM_CB_S)));
     if (NULL == g_pstAllSem)
@@ -88,9 +90,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSemInit(VOID)
         pstSemNode->usSemStat = OS_SEM_UNUSED;
         LOS_ListTailInsert(&g_stUnusedSemList, &pstSemNode->stSemList);
     }
+#endif
+
     return LOS_OK;
 }
 
+#if LOSCFG_STATIC_SEM == NO
 
 /*****************************************************************************
  Function     : osSemCreate
@@ -204,6 +209,37 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SemDelete(UINT32 uwSemHandle)
 ErrHandler:
     OS_RETURN_ERROR_P2(uwErrLine, uwErrNo);
 }
+
+#else
+
+UINT32 LOS_StaticSemInit(void *pvSemCB, UINT16 *pusSemID)
+{
+    static UINT16 usSemID = 0;
+    UINTPTR uvIntSave;
+    UINT32 ret = LOS_OK;
+
+    SEM_CB_S *pstSemCB = (SEM_CB_S *)pvSemCB;
+
+    uvIntSave = LOS_IntLock();
+
+    if (usSemID < LOSCFG_BASE_IPC_SEM_LIMIT)
+    {
+        g_apstAllSem [usSemID] = pstSemCB;
+        pstSemCB->usSemID = usSemID;
+        *pusSemID = usSemID;
+        usSemID++;
+    }
+    else
+    {
+        ret = LOS_ERRNO_SEM_NO_MEMORY;
+    }
+
+    LOS_IntRestore(uvIntSave);
+
+    return ret;
+}
+
+#endif
 
 /*****************************************************************************
  Function     : LOS_SemPend
