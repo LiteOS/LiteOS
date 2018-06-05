@@ -261,6 +261,7 @@ uint8_t object_readData(lwm2m_context_t * contextP,
             if ((result = prv_init_forbidden(contextP, targetP,
                  uriP->objectId, serverId, sizeP, &forbidden)) != COAP_NO_ERROR)
             {
+                *dataP = NULL;
                 return result;
             }
 
