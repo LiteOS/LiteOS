@@ -26,6 +26,8 @@
 #include "nrf_gpio.h"
 #include "main.h"
 
+extern UINT64      g_ullTickCount;
+
 extern void osTickHandler (void);                                         /**< osTickHandler not declared in any header file, extern here. */
 
 #define GPIO_TOGGLE_TICK_EVENT    (LED_0)                                 /**< Pin number to toggle when there is a tick event in RTC. */
@@ -51,7 +53,7 @@ static void lfclk_config(void)
 
 /** @brief Function for configuring the RTC with TICK frequency.
  */
-static void rtc_config(void)
+static void rtc_start(void)
 {
     unsigned int prescaler = (LFCLK_FREQUENCY / LOSCFG_BASE_CORE_TICK_PER_SECOND) - 1;
 
@@ -62,11 +64,14 @@ static void rtc_config(void)
     }
 
     NVIC_EnableIRQ(RTC0_IRQn);                                      // Enable Interrupt for the RTC in the core.
+    NVIC_SetPriority (RTC0_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
     NRF_RTC0->PRESCALER     = prescaler;                            // Set prescaler to a TICK of RTC_FREQUENCY.
 
     // Enable TICK event and TICK interrupt:
     NRF_RTC0->EVTENSET      = RTC_EVTENSET_TICK_Msk;
     NRF_RTC0->INTENSET      = RTC_INTENSET_TICK_Msk;
+
+    NRF_RTC0->TASKS_START = 1;
 }
 
 /** @brief: Function for handling the RTC0 interrupts.
@@ -78,19 +83,32 @@ void RTC0_IRQHandler()
         ((NRF_RTC0->INTENSET & RTC_INTENSET_TICK_Msk) != 0))
     {
         NRF_RTC0->EVENTS_TICK = 0;
-        osTickHandler ();
+
+        g_ullTickCount++;
+
+#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
+        osTimesliceCheck();
+#endif
+
+        osTaskScan();   //task timeout scan
+
+#if (LOSCFG_BASE_CORE_SWTMR == YES)
+        (VOID)osSwtmrScan();
+#endif
     }
 }
 
 /**
  * @brief Function for application main entry.
  */
-void nrf_rtc_init (void)
+UINT32 osTickStart(void)
 {
-    lfclk_config();
-    rtc_config();
+    g_ullTickCount = 0;
 
-    NRF_RTC0->TASKS_START = 1;
+    lfclk_config();
+    rtc_start();
+
+    return LOS_OK;
 }
 
 /**  @} */

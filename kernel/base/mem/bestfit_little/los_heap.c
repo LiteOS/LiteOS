@@ -157,16 +157,19 @@ LITE_OS_SEC_TEXT VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz)
         pstNode = (struct LOS_HEAP_NODE*)(pstBest->ucData + uwSz);
 
         pstNode->uwUsed = 0;
-        pstNode->uwSize = pstBest->uwSize - uwSz- sizeof(struct LOS_HEAP_NODE);
+        pstNode->uwSize = pstBest->uwSize - uwSz - sizeof(struct LOS_HEAP_NODE);
         pstNode->pstPrev = pstBest;
 
-        if (pstBest != pstHeapMan->pstTail)
+        pstT = osHeapPrvGetNext(pstHeapMan, pstBest);
+
+        if (pstT == NULL)
         {
-            if ((pstT = osHeapPrvGetNext(pstHeapMan, pstNode)) != NULL)
-                pstT->pstPrev = pstNode;
+            pstHeapMan->pstTail = pstNode;      /* pstBest is tail */
         }
         else
-            pstHeapMan->pstTail = pstNode;
+        {
+            pstT->pstPrev = pstNode;
+        }
 
         pstBest->uwSize = uwSz;
     }
@@ -187,16 +190,15 @@ SIZE_MATCH:
     }
 #endif
 
+    g_uwAllocCount++;
+
 out:
+/*
     if (pstHeapMan->pstTail->uwSize < 1024)
         osAlarmHeapInfo(pstHeapMan);
+        */
 
     LOS_IntRestore(uvIntSave);
-
-    if (NULL != pRet)
-    {
-        g_uwAllocCount++;
-    }
 
     return pRet;
 }
@@ -270,14 +272,11 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 
     if ((pstT = osHeapPrvGetNext(pstHeapMan, pstNode)) != NULL)
         pstT->pstPrev = pstNode;
+    
+    g_uwFreeCount++;
 
 OUT:
     LOS_IntRestore(uvIntSave);
-
-    if (TRUE == bRet)
-    {
-        g_uwFreeCount++;
-    }
 
     return bRet;
 }
