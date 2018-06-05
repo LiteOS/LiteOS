@@ -125,11 +125,21 @@ static void prv_requestBootstrap(lwm2m_context_t * context,
     }
 }
 
+/*
+ * modify info:
+ * people:          twx378188
+ * modify date:     2019-06-04
+ * modify place:    STATE_BS_HOLD_OFF, STATE_BS_PENDING
+ * pay attention:
+ *              the targetP->status are important, change one, should take care of other status.
+ *
+ */
 void bootstrap_step(lwm2m_context_t * contextP,
                     uint32_t currentTime,
                     time_t * timeoutP)
 {
     lwm2m_server_t * targetP;
+    bool server_to_client_mode = false;
 
     LOG("entering");
     targetP = contextP->bootstrapServerList;
@@ -150,7 +160,25 @@ void bootstrap_step(lwm2m_context_t * contextP,
         case STATE_BS_HOLD_OFF:
             if (targetP->registration <= currentTime)
             {
-                prv_requestBootstrap(contextP, targetP);
+            	if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED)||(contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))  //add by tan
+            	{
+            		prv_requestBootstrap(contextP, targetP);
+            	}
+            	else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
+            	{
+            		//targetP->status = STATE_BS_PENDING;  //this situation is over clientHoldOffTime
+            		if(contextP->bs_server_uri != NULL)
+            		{
+            			targetP->status = STATE_BS_FINISHING; //so get to the process : contextP->state = STATE_INITIAL;
+
+            			server_to_client_mode = true;  //
+            			contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
+            		}
+            		else
+            		{
+            			//wait for bs_server write info to the device-----wait---wait---wait---
+            		}
+            	}
             }
             else if (*timeoutP > targetP->registration - currentTime)
             {
@@ -163,15 +191,32 @@ void bootstrap_step(lwm2m_context_t * contextP,
             break;
 
         case STATE_BS_PENDING:
-            if (targetP->registration <= currentTime)
-            {
-               targetP->status = STATE_BS_FAILING;
-               *timeoutP = 0;
-            }
-            else if (*timeoutP > targetP->registration - currentTime)
-            {
-                *timeoutP = targetP->registration - currentTime;
-            }
+        	//NO_BS_SEQUENCE_STATE and bootstrapServerList exist, is client initiated mode
+        	if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED)||(contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))
+        	{
+				if (targetP->registration <= currentTime)
+				{
+				   targetP->status = STATE_BS_FAILING;
+				   *timeoutP = 0;
+				}
+				else if (*timeoutP > targetP->registration - currentTime)
+				{
+					*timeoutP = targetP->registration - currentTime;
+				}
+        	}
+        	else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
+        	{
+        		if (targetP->registration <= currentTime)
+				{
+        			//add by tan: SERVER_INITIATED after write info, start to regist----,server not send finish request before timer
+        			targetP->status = STATE_BS_FINISHING;
+				   *timeoutP = 0;
+				}
+				else if (*timeoutP > targetP->registration - currentTime)
+				{
+					*timeoutP = targetP->registration - currentTime;
+				}
+        	}
             break;
 
         case STATE_BS_FINISHING:
@@ -200,6 +245,15 @@ void bootstrap_step(lwm2m_context_t * contextP,
         LOG_ARG("Finalal status: %s", STR_STATUS(targetP->status));
         targetP = targetP->next;
     }
+
+    if(server_to_client_mode)
+    {
+    	if(bootstrap_sequence_factory_to_server_initiated(contextP)==0)
+    	{
+    		contextP->state = STATE_INITIAL;
+    	}
+    }
+
 }
 
 uint8_t bootstrap_handleFinish(lwm2m_context_t * context,

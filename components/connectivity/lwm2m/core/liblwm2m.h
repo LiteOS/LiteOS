@@ -691,6 +691,17 @@ typedef enum
     STATE_READY
 } lwm2m_client_state_t;
 
+typedef enum
+{
+    BS_SEQUENCE_STATE_INITIAL = 0,
+	BS_SEQUENCE_STATE_FACTORY,
+	BS_SEQUENCE_STATE_SERVER_INITIATED,
+	BS_SEQUENCE_STATE_CLIENT_INITIATED,
+	BS_SEQUENCE_STATE_END,
+	NO_BS_SEQUENCE_STATE
+} lwm2m_bs_sequence_state_t;
+
+
 #endif
 /*
  * LWM2M Context
@@ -711,6 +722,8 @@ typedef struct
 {
 #ifdef LWM2M_CLIENT_MODE
     lwm2m_client_state_t state;
+    lwm2m_bs_sequence_state_t bs_sequence_state;
+    char*				 bs_server_uri;   //    coaps://     coap://
     char*                endpointName;
     char*                msisdn;
     char*                altPath;
@@ -767,6 +780,9 @@ void lwm2m_register_event_handler(lwm2m_event_handler_t callback);
 void lwm2m_notify_even(module_type_t type, int code, const char* arg, int arg_len);
 int lwm2m_reconnect(lwm2m_context_t * context);
 
+//add by tan
+int bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t * contextP);
+int bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contextP);
 #endif
 
 #ifdef LWM2M_SERVER_MODE
