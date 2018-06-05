@@ -63,6 +63,31 @@ typedef struct
     LOS_DL_LIST     stSemList;             /**< Queue of tasks that are waiting on a semaphore*/
 } SEM_CB_S;
 
+#if LOSCFG_STATIC_SEM == YES
+
+#define OS_SEM_DEF(pname, count, max)                                          \
+LOS_STATIC_ASSERT (count <= max);                                              \
+static SEM_CB_S s_##pname##CB =                                                \
+{                                                                              \
+    OS_SEM_USED, count, max, 0,                                                \
+    {                                                                          \
+        (LOS_DL_LIST *)&s_##pname##CB.stSemList,                               \
+        (LOS_DL_LIST *)&s_##pname##CB.stSemList                                \
+    }                                                                          \
+}
+#define OS_SEM_INIT(pname, pid) LOS_StaticSemInit((void *) &s_##pname##CB, pid)
+
+#define LOS_SEM_DEF(pname, count)                                              \
+    OS_SEM_DEF(pname, count, OS_SEM_COUNTING_MAX_COUNT)
+#define LOS_BIN_SEM_DEF(pname, count)                                          \
+    OS_SEM_DEF(pname, count, OS_SEM_BINARY_MAX_COUNT)
+
+#define LOS_SEM_INIT        OS_SEM_INIT
+#define LOS_BIN_SEM_INIT    OS_SEM_INIT
+
+#endif
+
+
 /**
  * @ingroup los_sem
  *The semaphore is not in use.
@@ -81,13 +106,17 @@ typedef struct
  *
  */
 #define GET_SEM_LIST(ptr)               LOS_DL_LIST_ENTRY(ptr, SEM_CB_S, stSemList)
-extern SEM_CB_S    *g_pstAllSem;
 /**
  * @ingroup los_sem
  * Obtain a semaphore ID.
  *
  */
+
+#if LOSCFG_STATIC_SEM == YES
+#define GET_SEM(semid)                  ((g_apstAllSem[semid]))
+#else
 #define GET_SEM(semid)                  (((SEM_CB_S *)g_pstAllSem) + (semid))
+#endif
 
 /**
  *@ingroup los_sem
