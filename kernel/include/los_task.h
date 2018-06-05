@@ -408,6 +408,8 @@ extern TSKSWITCHHOOK g_pfnUsrTskSwitchHook;
 */
 typedef VOID *(*TSK_ENTRY_FUNC)(UINT32 uwArg);
 
+#if (LOSCFG_STATIC_TASK == NO)
+
 /**
  * @ingroup los_task
  * Define the structure of the parameters used for task creation.
@@ -423,6 +425,8 @@ typedef struct tagTskInitParam
    CHAR                 *pcName;                    /**< Task name                              */
    UINT32               uwResved;                   /**< Reserved                               */
 } TSK_INIT_PARAM_S;
+
+#endif
 
 /**
  * @ingroup los_task
@@ -469,6 +473,9 @@ typedef struct tagTaskSwitchInfo
     CHAR   acName[OS_TASK_SWITCH_INFO_COUNT][LOS_TASK_NAMELEN];
 }OS_TASK_SWITCH_INFO;
 
+#if (LOSCFG_STATIC_TASK == YES)
+UINT32 LOS_StaticTaskInit(void *pvTaskCB, UINT32 *puwTaskID);
+#else
 
 /**
  * @ingroup  los_task
@@ -550,6 +557,7 @@ extern UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARAM_S *pstInitPar
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_TaskCreate(UINT32 *puwTaskID, TSK_INIT_PARAM_S *pstInitParam);
+#endif
 
 /**
  * @ingroup  los_task
@@ -606,6 +614,8 @@ extern UINT32 LOS_TaskResume(UINT32 uwTaskID);
  */
 extern UINT32 LOS_TaskSuspend(UINT32 uwTaskID);
 
+#if (LOSCFG_STATIC_TASK == NO)
+
 /**
  * @ingroup  los_task
  * @brief Delete a task.
@@ -633,6 +643,7 @@ extern UINT32 LOS_TaskSuspend(UINT32 uwTaskID);
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_TaskDelete(UINT32 uwTaskID);
+#endif
 
 /**
  * @ingroup  los_task

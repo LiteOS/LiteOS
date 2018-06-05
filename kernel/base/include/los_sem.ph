@@ -63,6 +63,32 @@ typedef struct
     LOS_DL_LIST     stSemList;             /**< Queue of tasks that are waiting on a semaphore*/
 } SEM_CB_S;
 
+#if (LOSCFG_STATIC_SEM == YES)
+
+#define OS_SEM_DEF(name, count, max)                                           \
+LOS_STATIC_ASSERT (count <= max);                                              \
+LOS_STATIC_ASSERT (count >= 0);                                                \
+static SEM_CB_S s_##name##CB =                                                 \
+{                                                                              \
+    OS_SEM_USED, count, max, 0,                                                \
+    {                                                                          \
+        (LOS_DL_LIST *)&s_##name##CB.stSemList,                                \
+        (LOS_DL_LIST *)&s_##name##CB.stSemList                                 \
+    }                                                                          \
+}
+#define OS_SEM_INIT(name, pid) LOS_StaticSemInit((void *) &s_##name##CB, pid)
+
+#define LOS_SEM_DEF(name, count)                                               \
+    OS_SEM_DEF(name, count, OS_SEM_COUNTING_MAX_COUNT)
+#define LOS_BIN_SEM_DEF(name, count)                                           \
+    OS_SEM_DEF(name, count, OS_SEM_BINARY_MAX_COUNT)
+
+#define LOS_SEM_INIT        OS_SEM_INIT
+#define LOS_BIN_SEM_INIT    OS_SEM_INIT
+
+#endif
+
+
 /**
  * @ingroup los_sem
  *The semaphore is not in use.
@@ -81,13 +107,24 @@ typedef struct
  *
  */
 #define GET_SEM_LIST(ptr)               LOS_DL_LIST_ENTRY(ptr, SEM_CB_S, stSemList)
-extern SEM_CB_S    *g_pstAllSem;
+
+#if (LOSCFG_STATIC_SEM == YES)
+extern SEM_CB_S *g_apstAllSem[LOSCFG_BASE_IPC_SEM_LIMIT];
+#else
+extern SEM_CB_S *g_pstAllSem;
+#endif
+
 /**
  * @ingroup los_sem
  * Obtain a semaphore ID.
  *
  */
+
+#if (LOSCFG_STATIC_SEM == YES)
+#define GET_SEM(semid)                  ((g_apstAllSem[semid]))
+#else
 #define GET_SEM(semid)                  (((SEM_CB_S *)g_pstAllSem) + (semid))
+#endif
 
 /**
  *@ingroup los_sem

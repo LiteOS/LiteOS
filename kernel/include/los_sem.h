@@ -162,6 +162,8 @@ extern "C" {
  */
 #define LOS_ERRNO_SEM_MAXNUM_ZERO                    LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x0A)
 
+#if (LOSCFG_STATIC_SEM == NO)
+
 /**
  *@ingroup los_sem
  *@brief Create a Counting semaphore.
@@ -234,6 +236,12 @@ extern UINT32 LOS_BinarySemCreate (UINT16 usCount, UINT32 *puwSemHandle);
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_SemDelete(UINT32 uwSemHandle);
+
+#else
+
+UINT32 LOS_StaticSemInit(void *pvSemCB, UINT16 *pusSemID);
+
+#endif
 
 /**
  *@ingroup los_sem

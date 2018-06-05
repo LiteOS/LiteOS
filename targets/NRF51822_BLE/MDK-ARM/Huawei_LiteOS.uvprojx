@@ -133,12 +133,12 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <Capability>1</Capability>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -165,13 +165,13 @@
             <AdsANot>0</AdsANot>
             <AdsLLst>1</AdsLLst>
             <AdsLmap>1</AdsLmap>
-            <AdsLcgr>1</AdsLcgr>
+            <AdsLcgr>0</AdsLcgr>
             <AdsLsym>1</AdsLsym>
             <AdsLszi>1</AdsLszi>
-            <AdsLtoi>1</AdsLtoi>
-            <AdsLsun>1</AdsLsun>
+            <AdsLtoi>0</AdsLtoi>
+            <AdsLsun>0</AdsLsun>
             <AdsLven>1</AdsLven>
-            <AdsLsxf>1</AdsLsxf>
+            <AdsLsxf>0</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
             <AdsCpuType>"Cortex-M0"</AdsCpuType>
@@ -187,7 +187,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -311,10 +311,10 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -326,15 +326,15 @@
             <uC99>1</uC99>
             <uGnu>1</uGnu>
             <useXO>0</useXO>
-            <v6Lang>1</v6Lang>
-            <v6LangP>1</v6LangP>
+            <v6Lang>3</v6Lang>
+            <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
+              <MiscControls>--diag_suppress=1,47,177,186,223,1295,1296</MiscControls>
               <Define>NRF51</Define>
               <Undefine></Undefine>
               <IncludePath>..\Drivers\Inc;..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\cortex-m0;..\..\..\arch\arm\arm-m\include;..\OS_CONFIG</IncludePath>
@@ -425,13 +425,6 @@
         </Group>
         <Group>
           <GroupName>liteos/cmsis</GroupName>
-          <Files>
-            <File>
-              <FileName>cmsis_liteos.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\cmsis\cmsis_liteos.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>liteos/kernel</GroupName>
@@ -487,11 +480,6 @@
               <FilePath>..\..\..\kernel\base\ipc\los_sem.c</FilePath>
             </File>
             <File>
-              <FileName>los_heap.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_heap.c</FilePath>
-            </File>
-            <File>
               <FileName>los_membox.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_membox.c</FilePath>
@@ -500,11 +488,6 @@
               <FileName>los_memcheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_memory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memory.c</FilePath>
             </File>
             <File>
               <FileName>los_memstat.c</FileName>
@@ -537,9 +520,14 @@
               <FilePath>..\..\..\kernel\los_init.c</FilePath>
             </File>
             <File>
-              <FileName>los_tickless.c</FileName>
+              <FileName>los_memory.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\extended\tickless\los_tickless.c</FilePath>
+              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_heap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_heap.c</FilePath>
             </File>
           </Files>
         </Group>

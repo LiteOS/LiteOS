@@ -43,7 +43,13 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#if (LOSCFG_STATIC_SEM == YES)
+extern SEM_CB_S *g_apstAllSem[LOSCFG_BASE_IPC_SEM_LIMIT];
+#else
 extern SEM_CB_S *g_pstAllSem;
+#endif
+
+#if (LOSCFG_STATIC_SEM == NO)
 
 /**
  *@ingroup los_sem
@@ -67,6 +73,8 @@ extern SEM_CB_S *g_pstAllSem;
  *@since Huawei LiteOS V100R001C00
  */
 UINT32 osSemCreate (UINT16 usCount, UINT16 usMaxCount, UINT32 *puwSemHandle);
+
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
