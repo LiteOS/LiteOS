@@ -174,15 +174,15 @@ extern void conn_s_updateRxStatistic(lwm2m_object_t * objectP, uint16_t rxDataBy
  */
 typedef enum
 {
-    OBJ_ACC_READ,
-    OBJ_ACC_WRITE,
-    OBJ_ACC_EXCUTE,
-    OBJ_ACC_CREATE,
-    OBJ_ACC_DELETE,
-    OBJ_ACC_WRITE_ATTR,
-    OBJ_ACC_DISCOVER,
-    OBJ_ACC_OBSERVE,
-    OBJ_ACC_NOTIFY,
+    OBJ_ACC_READ       = 0,
+    OBJ_ACC_WRITE_ATTR = 0,
+    OBJ_ACC_OBSERVE    = 0,
+    OBJ_ACC_NOTIFY     = 0,
+    OBJ_ACC_WRITE      = 1,
+    OBJ_ACC_EXCUTE     = 2,
+    OBJ_ACC_DELETE     = 3,
+    OBJ_ACC_CREATE     = 4,
+    OBJ_ACC_DISCOVER   = 5,
 
 } OBJ_ACC_OPERATE;
 

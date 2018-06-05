@@ -542,26 +542,9 @@ static acc_ctrl_ri_t* prv_get_acl_instance(acc_ctrl_ri_t* accCtrlRiP, uint16_t s
     return targetP;
 }
 
-static bool prv_auth_match(OBJ_ACC_OPERATE op, uint16_t auth_op)
+static inline bool prv_auth_match(OBJ_ACC_OPERATE op, uint16_t auth_op)
 {
-    switch (op)
-    {
-    case OBJ_ACC_NOTIFY:
-    case OBJ_ACC_READ:
-    case OBJ_ACC_OBSERVE:
-    case OBJ_ACC_WRITE_ATTR:
-        return (auth_op & ACC_AUTH_R) != 0;
-    case OBJ_ACC_WRITE:
-        return (auth_op & ACC_AUTH_W) != 0;
-    case OBJ_ACC_EXCUTE:
-        return (auth_op & ACC_AUTH_E) != 0;
-    case OBJ_ACC_DELETE:
-        return (auth_op & ACC_AUTH_D) != 0;
-    case OBJ_ACC_CREATE:
-        return (auth_op & ACC_AUTH_C) != 0;
-    default:
-        return false;
-    }
+    return auth_op & (0x01 << op);
 }
 
 static bool prv_check_instance_auth(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, uint16_t instId,
