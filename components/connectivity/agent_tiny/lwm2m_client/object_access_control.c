@@ -64,6 +64,7 @@
  */
 
 #include "internals.h"
+#include "object_comm.h"
 #include <string.h>
 
 // Resource Id's:
@@ -71,7 +72,7 @@
 #define RES_M_OBJECT_INSTANCE_ID    1
 #define RES_O_ACL                   2
 #define RES_M_ACCESS_CONTROL_OWNER  3
-#define ACC_CTRLOBJ_ID 2
+
 #define MAX_DATA_VAL 65535
 
 typedef struct acc_ctrl_ri_s
@@ -126,7 +127,7 @@ static uint8_t prv_set_tlv(lwm2m_data_t* dataP, acc_ctrl_oi_t* accCtrlOiP)
                 subTlvP[ri].id = accCtrlRiP->resInstId;
                 lwm2m_data_encode_int(accCtrlRiP->accCtrlValue, &subTlvP[ri]);
             }
-            lwm2m_data_encode_instances(subTlvP, 2, dataP);
+            lwm2m_data_encode_instances(subTlvP, ri, dataP);
             return COAP_205_CONTENT;
         }
     }
@@ -438,7 +439,7 @@ lwm2m_object_t * acc_ctrl_create_object(void)
          * It assign his unique object ID
          * The 2 is the standard ID for the optional object "Access Control".
          */
-        accCtrlObj->objID = ACC_CTRLOBJ_ID;
+        accCtrlObj->objID = LWM2M_ACL_OBJECT_ID;
         // Init callbacks, empty instanceList!
         accCtrlObj->readFunc    = prv_read;
         accCtrlObj->writeFunc   = prv_write;
@@ -510,4 +511,245 @@ bool acc_ctrl_oi_add_ac_val (lwm2m_object_t* accCtrlObjP, uint16_t instId,
         return ret;
 
     return prv_add_ac_val (accCtrlOiP, acResId, acValue);
+}
+
+static acc_ctrl_oi_t* prv_get_acc_instance(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, uint16_t instId)
+{
+    acc_ctrl_oi_t* itor = accCtrlOiP;
+
+    while (itor)
+    {
+        if (itor->objectId == objId && itor->objectInstId == instId)
+        {
+            return itor;
+        }
+        itor = itor->next;
+    }
+
+    return NULL;
+}
+
+static acc_ctrl_ri_t* prv_get_acl_instance(acc_ctrl_ri_t* accCtrlRiP, uint16_t serverId)
+{
+    acc_ctrl_ri_t* targetP;
+
+    targetP = (acc_ctrl_ri_t *)LWM2M_LIST_FIND(accCtrlRiP, serverId);
+    if (NULL == targetP)
+    {
+        targetP = (acc_ctrl_ri_t *)LWM2M_LIST_FIND(accCtrlRiP, 0);
+    }
+
+    return targetP;
+}
+
+static bool prv_auth_match(OBJ_ACC_OPERATE op, uint16_t auth_op)
+{
+    switch (op)
+    {
+    case OBJ_ACC_NOTIFY:
+    case OBJ_ACC_READ:
+    case OBJ_ACC_OBSERVE:
+    case OBJ_ACC_WRITE_ATTR:
+        return (auth_op & ACC_AUTH_R) != 0;
+    case OBJ_ACC_WRITE:
+        return (auth_op & ACC_AUTH_W) != 0;
+    case OBJ_ACC_EXCUTE:
+        return (auth_op & ACC_AUTH_E) != 0;
+    case OBJ_ACC_DELETE:
+        return (auth_op & ACC_AUTH_D) != 0;
+    case OBJ_ACC_CREATE:
+        return (auth_op & ACC_AUTH_C) != 0;
+    default:
+        return false;
+    }
+}
+
+static bool prv_check_instance_auth(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, uint16_t instId,
+                                    uint16_t serverId, OBJ_ACC_OPERATE op)
+{
+    acc_ctrl_oi_t* targetP;
+    acc_ctrl_ri_t* accCtrlRiP;
+
+    targetP = prv_get_acc_instance(accCtrlOiP, objId, instId);
+    if (NULL == targetP)
+    {
+        return false;
+    }
+    accCtrlRiP = prv_get_acl_instance(targetP->accCtrlValList, serverId);
+    if (NULL == accCtrlRiP)
+    {
+        return targetP->accCtrlOwner == serverId;
+    }
+    return prv_auth_match(op, accCtrlRiP->accCtrlValue);
+}
+
+static uint8_t prv_acc_self_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* uri,
+                                       OBJ_ACC_OPERATE op, uint16_t serverId)
+{
+    acc_ctrl_oi_t* targetP;
+
+    if (LWM2M_URI_IS_SET_INSTANCE(uri))
+    {
+        targetP = (acc_ctrl_oi_t*)LWM2M_LIST_FIND(accCtrlOiP, uri->instanceId);
+        if (NULL != targetP && targetP->accCtrlOwner == serverId)
+        {
+            return COAP_NO_ERROR;
+        }
+        else
+        {
+            return COAP_401_UNAUTHORIZED;
+        }
+    }
+    else
+    {
+        targetP = accCtrlOiP;
+        while (targetP)
+        {
+            if (targetP->accCtrlOwner != serverId)
+            {
+                return COAP_401_UNAUTHORIZED;
+            }
+            targetP = targetP->next;
+        }
+        return COAP_NO_ERROR;
+    }
+}
+
+static uint8_t prv_pre_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* uri,
+                                  OBJ_ACC_OPERATE op, uint16_t serverId)
+{
+    if (OBJ_ACC_CREATE == op)
+    {
+        if (!prv_check_instance_auth(accCtrlOiP, uri->objectId, MAX_DATA_VAL, serverId, op))
+        {
+            return COAP_401_UNAUTHORIZED;
+        }
+
+        return COAP_NO_ERROR;
+    }
+    else if (OBJ_ACC_DISCOVER == op)
+    {
+        return COAP_NO_ERROR;
+    }
+    else if (uri->objectId == LWM2M_ACL_OBJECT_ID)
+    {
+        return prv_acc_self_auth_check(accCtrlOiP, uri, op, serverId);
+    }
+    else
+    {
+        if (LWM2M_URI_IS_SET_INSTANCE(uri))
+        {
+            if (!prv_check_instance_auth(accCtrlOiP, uri->objectId, uri->instanceId, serverId, op))
+            {
+                return COAP_401_UNAUTHORIZED;
+            }
+        }
+    }
+
+    return COAP_NO_ERROR;
+}
+
+static uint8_t prv_post_action_check(lwm2m_uri_t* uri, OBJ_ACC_OPERATE op)
+{
+    if (LWM2M_URI_IS_SET_RESOURCE(uri))
+    {
+        return COAP_NO_ERROR;
+    }
+    else if (LWM2M_URI_IS_SET_INSTANCE(uri))
+    {
+        if (OBJ_ACC_EXCUTE == op)
+        {
+            return COAP_405_METHOD_NOT_ALLOWED;
+        }
+        else
+        {
+            /*
+             * For the write operation, check whether the resources
+             * can be written or not, is in the write operation of
+             * the specific object.
+             */
+            return COAP_NO_ERROR;
+        }
+    }
+    else
+    {
+        if (OBJ_ACC_WRITE_ATTR == op|| OBJ_ACC_CREATE == op)
+        {
+            return COAP_NO_ERROR;
+        }
+        else if (OBJ_ACC_NOTIFY == op
+                 || OBJ_ACC_READ == op || OBJ_ACC_OBSERVE == op)
+        {
+            /*
+             * We should do the auth check in object_read interface
+             * and just ignore here.
+             */
+            return COAP_NO_ERROR;
+        }
+        else
+        {
+            return COAP_405_METHOD_NOT_ALLOWED;
+        }
+    }
+}
+
+static int prv_get_srv_cnt(lwm2m_server_t* serverP)
+{
+    lwm2m_server_t* itor = serverP;
+    int cnt = 0;
+
+    while (itor)
+    {
+        if (!itor->dirty)
+        {
+            ++cnt;
+        }
+        itor = itor->next;
+    }
+
+    return cnt;
+}
+
+uint8_t acc_auth_operate(lwm2m_context_t* contextP, lwm2m_uri_t* uri,
+                         OBJ_ACC_OPERATE op, uint16_t serverId)
+{
+    uint8_t ret;
+    lwm2m_object_t* accCtrlObjP;
+    acc_ctrl_oi_t* accCtrlOiP;
+
+    if (prv_get_srv_cnt(contextP->serverList) <= 1)
+    {
+        return COAP_NO_ERROR;
+    }
+
+    if (0 == serverId)
+    {
+        return COAP_NO_ERROR;
+    }
+
+    accCtrlObjP = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, LWM2M_ACL_OBJECT_ID);
+
+    if (NULL == accCtrlObjP)
+    {
+        return COAP_401_UNAUTHORIZED;
+    }
+
+    accCtrlOiP = (acc_ctrl_oi_t *)(accCtrlObjP->instanceList);
+
+    if (NULL == accCtrlOiP)
+    {
+        return COAP_401_UNAUTHORIZED;
+    }
+
+    if ((ret = prv_pre_auth_check(accCtrlOiP, uri, op, serverId)) != COAP_NO_ERROR)
+    {
+        return ret;
+    }
+
+    if ((ret = prv_post_action_check(uri, op)) != COAP_NO_ERROR)
+    {
+        return ret;
+    }
+
+    return COAP_NO_ERROR;
 }
