@@ -38,6 +38,8 @@
 #include "los_swtmr.h"
 #include "los_hwi.h"
 
+#if LOSCFG_SOC_HAS_SYSTICK == YES
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -209,3 +211,5 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_GetSystickCycle(UINT32 *puwCntHi, UINT32 *puwCnt
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
+#endif

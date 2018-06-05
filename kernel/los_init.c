@@ -154,7 +154,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-    uwRet =osTaskInit();
+    uwRet = osTaskInit();
     if (uwRet != LOS_OK)
     {
         PRINT_ERR("osTaskInit error\n");
@@ -220,9 +220,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-    #if(LOSCFG_BASE_CORE_TIMESLICE == YES)
+#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
     osTimesliceInit();
-    #endif
+#endif
 
     uwRet = osIdleTaskCreate();
     if (uwRet != LOS_OK)
