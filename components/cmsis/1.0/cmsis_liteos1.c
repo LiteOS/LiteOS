@@ -88,6 +88,7 @@ osStatus osKernelInitialize (void)
 // Thread Public API
 
 /// Create a thread and add it to Active Threads and set it to state READY
+#if (LOSCFG_STATIC_TASK == NO)
 osThreadId osThreadCreate(const osThreadDef_t *thread_def, void *argument)
 {
     osThreadId tskcb;
@@ -119,6 +120,7 @@ osThreadId osThreadCreate(const osThreadDef_t *thread_def, void *argument)
 
     return tskcb;
 }
+#endif
 
 /// Return the thread ID of the current running thread
 osThreadId osThreadGetId(void)
@@ -209,6 +211,7 @@ osPriority osThreadGetPriority(osThreadId thread_id)
     return (osPriority)osPriorityRet;
 }
 
+#if (LOSCFG_STATIC_SEM == NO)
 osSemaphoreId osBinarySemaphoreCreate(const osSemaphoreDef_t *semaphore_def, INT32 count)
 {
 #if (LOSCFG_BASE_IPC_SEM == YES)
@@ -260,6 +263,7 @@ osSemaphoreId osSemaphoreCreate(const osSemaphoreDef_t *semaphore_def, INT32 cou
     }
 #endif
 }
+#endif
 
 /// Wait until a Semaphore becomes available
 /*
@@ -1077,6 +1081,7 @@ osTimerId osTimerExtCreate (const osTimerDef_t *timer_def, os_timer_type type, v
 }
 #endif
 
+#if (LOSCFG_STATIC_TIMER == NO)
 osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument)
 {
     SWTMR_CTRL_S *pstSwtmr = (SWTMR_CTRL_S *)NULL;
@@ -1109,6 +1114,7 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
 #endif
     return pstSwtmr;
 }
+#endif
 
 osStatus osTimerStart (osTimerId timer_id, UINT32 millisec)
 {
@@ -1191,6 +1197,7 @@ osStatus osTimerRestart (osTimerId timer_id, UINT32 millisec, UINT8 strict)
     return osOK;
 }
 
+#if (LOSCFG_STATIC_TIMER == NO)
 osStatus osTimerDelete (osTimerId timer_id)
 {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
@@ -1212,9 +1219,10 @@ osStatus osTimerDelete (osTimerId timer_id)
         return osErrorResource;
     }
 #endif
-    return osOK;
 
+    return osOK;
 }
+#endif
 
 osStatus osDelay (UINT32 millisec)
 {

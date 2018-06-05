@@ -52,8 +52,12 @@ extern "C" {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
 
 LITE_OS_SEC_BSS UINT32            m_uwSwTmrHandlerQueue;       /*Software Timer timeout queue ID*/
+#if LOSCFG_STATIC_TIMER == YES
+LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_apstSwtmrCBArray [LOSCFG_BASE_CORE_SWTMR_LIMIT] = {NULL};
+#else
 LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrCBArray;           /*first address in Timer memory space  */
 LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrFreeList;          /*Free list of Softwaer Timer*/
+#endif
 LITE_OS_SEC_BSS SWTMR_CTRL_S     *m_pstSwtmrSortList;          /*The software timer count list*/
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
@@ -71,15 +75,13 @@ LITE_OS_SEC_DATA_INIT static SWTMR_CTRL_S               *m_pstRousesPrev = NULL;
    }\
    uvIntSave = LOS_IntLock();\
    usSwTmrCBID = usSwTmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT;\
-   pstSwtmr = m_pstSwtmrCBArray + usSwTmrCBID;\
+   pstSwtmr = OS_SWT_FROM_SID(usSwTmrCBID);\
    if (pstSwtmr->usTimerID != usSwTmrID)\
    {\
        LOS_IntRestore(uvIntSave);\
        return LOS_ERRNO_SWTMR_ID_INVALID;\
    }\
 }
-
-
 
 /*****************************************************************************
 Function   : osSwTmrTask
@@ -116,6 +118,11 @@ LITE_OS_SEC_TEXT VOID osSwTmrTask(VOID)
     }//end of for
 }
 
+#if LOSCFG_STATIC_TASK == YES
+LOS_TASK_DEF (Swt_Task, "Swt_Task", osSwTmrTask, 0, 0,
+    LOSCFG_BASE_CORE_TSK_SWTMR_STACK_SIZE);
+#endif
+
 /*****************************************************************************
 Function   : osSwTmrTaskCreate
 Description: Create Software Timer
@@ -125,6 +132,7 @@ Return     : LOS_OK on success or error code on failure
 *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrTaskCreate(VOID)
 {
+#if LOSCFG_STATIC_TASK == NO
     UINT32 uwRet;
     TSK_INIT_PARAM_S stSwTmrTask;
 
@@ -135,6 +143,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrTaskCreate(VOID)
     stSwTmrTask.usTaskPrio      = 0;
     uwRet = LOS_TaskCreate(&g_uwSwtmrTaskID, &stSwTmrTask);
     return uwRet;
+#else
+    return LOS_TASK_INIT(Swt_Task, &g_uwIdleTaskID);
+#endif
 }
 
 /*****************************************************************************
@@ -158,10 +169,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrInit(VOID)
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0, LOSCFG_BASE_CORE_SWTMR_LIMIT);
- #endif
+    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0,
+        sizeof (m_uwSwTmrAlignID[0]) * LOSCFG_BASE_CORE_SWTMR_LIMIT);
+#endif
 
     m_pstSwtmrSortList = (SWTMR_CTRL_S *)NULL;
+
+#if LOSCFG_STATIC_TIMER == NO
     uwSize = sizeof(SWTMR_CTRL_S) * LOSCFG_BASE_CORE_SWTMR_LIMIT;
     pstSwtmr = (SWTMR_CTRL_S *)LOS_MemAlloc(m_aucSysMem0, uwSize);
     if (NULL == pstSwtmr)
@@ -181,6 +195,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrInit(VOID)
         pstTemp->pstNext = pstSwtmr;
         pstTemp = pstSwtmr;
     }
+#endif
 
     uwRet = LOS_QueueCreate((CHAR *)NULL, OS_SWTMR_HANDLE_QUEUE_SIZE, &m_uwSwTmrHandlerQueue, 0, sizeof(SWTMR_HANDLER_ITEM_S));
     if (uwRet != LOS_OK)
@@ -259,7 +274,7 @@ LITE_OS_SEC_TEXT VOID osSwTmrStart(SWTMR_CTRL_S *pstSwtmr)
             while (pstCur != NULL)
             {
                 uwCount += pstCur->uwCount;
-                if (pstCur->usTimerID == ((SWTMR_CTRL_S  *)(m_pstSwtmrCBArray + uwMinInLargeID))->usTimerID)
+                if (pstCur->usTimerID == OS_SWT_FROM_SID(uwMinInLargeID)->usTimerID)
                 {
                     break;
                 }
@@ -273,7 +288,7 @@ LITE_OS_SEC_TEXT VOID osSwTmrStart(SWTMR_CTRL_S *pstSwtmr)
         else if(uwMaxInLitteID != LOSCFG_BASE_CORE_SWTMR_LIMIT)
         {
             pstSwtmr->uwCount = 0;
-            pstPrev = m_pstSwtmrCBArray + uwMaxInLitteID;
+            pstPrev = OS_SWT_FROM_SID(uwMaxInLitteID);
             pstCur = pstPrev->pstNext;
             goto Inset_list;
         }
@@ -348,6 +363,7 @@ Return     : None
 *****************************************************************************/
 LITE_OS_SEC_TEXT STATIC_INLINE VOID osSwtmrDelete(SWTMR_CTRL_S *pstSwtmr)
 {
+#if LOSCFG_STATIC_TIMER == NO
     /**insert to free list **/
     pstSwtmr->pstNext = m_pstSwtmrFreeList;
     m_pstSwtmrFreeList = pstSwtmr;
@@ -355,6 +371,7 @@ LITE_OS_SEC_TEXT STATIC_INLINE VOID osSwtmrDelete(SWTMR_CTRL_S *pstSwtmr)
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
     m_uwSwTmrAlignID[pstSwtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT] = 0;
+#endif
 #endif
 }
 
@@ -497,7 +514,7 @@ LITE_OS_SEC_TEXT UINT32 osSwTmrGetNextTimeout(VOID)
     }
     else
     {
-        return	0xFFFFFFFF;
+        return 0xFFFFFFFF;
     }
 
     return uwSleepTime;
@@ -655,6 +672,8 @@ LITE_OS_SEC_TEXT UINT32 osSwtmrTimeGet(SWTMR_CTRL_S *pstSwtmr)
     return uwTick;
 }
 
+#if LOSCFG_STATIC_TIMER == NO
+
 /*****************************************************************************
 Function   : LOS_SwtmrCreate
 Description: Create software timer
@@ -733,6 +752,35 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SW
 
     return LOS_OK;
 }
+#else
+
+UINT32 LOS_StaticTimerInit(SWTMR_CTRL_S *pstSwtmr, UINT16 *pusTimerID)
+{
+    static UINT16 usTimerID = 0;
+    UINTPTR uvIntSave;
+    UINT32 ret = LOS_OK;
+
+    uvIntSave = LOS_IntLock();
+
+    if (usTimerID < LOSCFG_BASE_CORE_SWTMR_LIMIT)
+    {
+        m_apstSwtmrCBArray[usTimerID] = pstSwtmr;
+        pstSwtmr->usTimerID = usTimerID;
+        *pusTimerID = usTimerID;
+        pstSwtmr->ucState = OS_SWTMR_STATUS_CREATED;
+        usTimerID++;
+    }
+    else
+    {
+        ret = LOS_ERRNO_SWTMR_MAXSIZE;
+    }
+
+    LOS_IntRestore(uvIntSave);
+
+    return ret;
+}
+
+#endif
 
 /*****************************************************************************
 Function   : LOS_SwtmrStart
@@ -838,7 +886,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrTimeGet(UINT16 usSwTmrID, UINT32 *uwTick)
 
     uvIntSave = LOS_IntLock();
     usSwTmrCBID = usSwTmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT;
-    pstSwtmr = m_pstSwtmrCBArray + usSwTmrCBID;
+    pstSwtmr = OS_SWT_FROM_SID(usSwTmrCBID);
 
     if (pstSwtmr->usTimerID != usSwTmrID)
     {
@@ -887,7 +935,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT16 usSwTmrID)
     case OS_SWTMR_STATUS_TICKING:
         osSwtmrStop(pstSwtmr);
     case OS_SWTMR_STATUS_CREATED:  /*lint !e616*/
+#if LOSCFG_STATIC_TIMER == NO
         osSwtmrDelete(pstSwtmr);
+#endif
         break;
     default:
         uwRet = LOS_ERRNO_SWTMR_STATUS_INVALID;

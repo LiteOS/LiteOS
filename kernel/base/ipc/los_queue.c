@@ -79,8 +79,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 osQueueInit(VOID)
         return LOS_ERRNO_QUEUE_NO_MEMORY;
     }
 
-    (VOID)memset(g_pstAllQueue, 0, LOSCFG_BASE_IPC_QUEUE_LIMIT * sizeof(QUEUE_CB_S));
-
     LOS_ListInit(&g_stFreeQueueList);
     for (usIndex = 0; usIndex < LOSCFG_BASE_IPC_QUEUE_LIMIT; usIndex++)
     {
@@ -127,7 +125,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *pcQueueName,
         return LOS_ERRNO_QUEUE_CREAT_PTR_NULL;
     }
 
-    if(usMaxMsgSize > OS_NULL_SHORT -4)
+    if(usMaxMsgSize > OS_NULL_SHORT - 4)
     {
         return LOS_ERRNO_QUEUE_SIZE_TOO_BIG;
     }

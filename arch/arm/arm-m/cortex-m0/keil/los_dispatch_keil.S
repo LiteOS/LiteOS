@@ -70,17 +70,17 @@ LOS_StartToRun
 
     LDR     R0, =g_stLosTask
     LDR     R2, [R0, #4]
-    LDR     R0, =g_stLosTask
     STR     R2, [R0]
 
-    LDR     R3, =g_stLosTask
-    LDR     R0, [R3]
-    LDRH    R7, [R0, #4]
-    MOVS    R6, #OS_TASK_STATUS_RUNNING
-    ORRS    R7, R7, R6
-    STRH    R7, [R0, #4]
+    LDRH    r0, [r2, #4]
+    MOVS    r1, #OS_TASK_STATUS_RUNNING
+    ORRS    r0, r0, r1
+    STRH    r0, [r2, #4]
 
-    LDR     R3, [R0]
+    ;;; TODO: update all the other los*.s with this change
+    ;;;       and delete this comment then
+
+    LDR     R3, [R2]
     ADDS    R3, R3, #36
 
     LDMFD   R3!, {R0-R2}
