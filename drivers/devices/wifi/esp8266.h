@@ -3,7 +3,6 @@
 
 #include "at_api_interface.h"
 
-#if 0
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
 #else
@@ -43,4 +42,3 @@ typedef enum {
 	ATA_AP,
 }enum_net_mode;
 
-#endif

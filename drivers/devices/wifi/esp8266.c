@@ -1,8 +1,10 @@
+
 #include "esp8266.h"
 #include "atadapter.h"
 #include "at_api_interface.h"
 #include "atiny_socket.h"
-
+#include "main.h"
+#if NETWORK_TYPE == ESP8266_USART_WIFI
 extern at_task at;
 
 at_adaptor_api at_interface;
@@ -45,27 +47,25 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
     AT_LOG("host:%s, port:%s", host, port);
 
-    if (AT_MUXMODE_SIGNEL == at.mux_mode)
+    if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
         snprintf(cmd, 64, "%s=\"%s\",\"%s\",%s", AT_CMD_CONN, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
     else 
     {
-        if (id < 0 || id >= AT_MAX_LINK_NUM)
-        {
-            AT_LOG("no vailed linkid for use(id = %d)", id);
-            return -1;
-        }
-
-        ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
-        if (ret != LOS_OK)
-        {
-            AT_LOG("init dataQueue failed!");
-            at.linkid[id].usable = AT_LINK_UNUSE;
-            return  -1;
-        }
-
         snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
+    }
+    if (id < 0 || id >= AT_MAX_LINK_NUM)
+    {
+        AT_LOG("no vailed linkid for use(id = %d)", id);
+        return -1;
+    }
+    ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
+    if (ret != LOS_OK)
+    {
+        AT_LOG("init dataQueue failed!");
+        at.linkid[id].usable = AT_LINK_UNUSE;
+        return  -1;
     }
     ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK\r\n", NULL);
     if (AT_FAILED == ret)
@@ -80,7 +80,7 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
 	int32_t ret = -1;
     char cmd[64] = {0};
-    if (AT_MUXMODE_SIGNEL == at.mux_mode)
+    if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
         snprintf(cmd, 64, "%s=%d", AT_CMD_SEND, len);
     }
@@ -137,7 +137,7 @@ int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t tim
 int32_t esp8266_close(int32_t id)
 {
     char cmd[64] = {0};
-    if (AT_MUXMODE_SIGNEL == at.mux_mode)
+    if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
         snprintf(cmd, 64, "%s", AT_CMD_CLOSE);
     }
@@ -335,4 +335,4 @@ at_adaptor_api at_interface = {
 
     .deinit = esp8266_deinit,
 };
-
+#endif

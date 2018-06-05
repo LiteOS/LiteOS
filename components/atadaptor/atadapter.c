@@ -218,7 +218,7 @@ int32_t at_get_unuse_linkid()
 {
 	int i;
 
-    if (AT_MUXMODE_SIGNEL == at.mux_mode)
+    if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
         at.linkid[0].usable = AT_LINK_INUSE;
         return 0;    // use queue in link 0 when in signel mode
@@ -413,12 +413,14 @@ void at_recv_task(uint32_t p)
                 if (NULL == suffix)
                 {
                     suffix_catching = 1;
-                    store_resp_buf((int8_t*)listener->resp, (int8_t*)p1, p2 - p1);
+                    if(NULL != listener->resp)
+                        store_resp_buf((int8_t*)listener->resp, (int8_t*)p1, p2 - p1);
                 }
                 else 
                 {
                     suffix_catching = 0;
-                    store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix - p1);
+                    if(NULL != listener->resp)
+                        store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix - p1);
                     LOS_SemPost(listener->resp_sem);
                     listener = NULL;
                 } 

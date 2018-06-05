@@ -14,7 +14,7 @@
 #define AT_LOG(fmt, arg...)
 #endif
 
-//#define AT_DEBUG
+#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%s:%d][D]"fmt"\n", __func__, __LINE__, ##arg)
 #else
@@ -29,7 +29,7 @@
 #define AT_LINK_UNUSE		0
 #define AT_LINK_INUSE 		1
 
-#define AT_MUXMODE_SIGNEL   0
+#define AT_MUXMODE_SINGLE   0
 #define AT_MUXMODE_MULTI    1
 
 /* VARIABLE DECLEAR */
