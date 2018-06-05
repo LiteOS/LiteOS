@@ -120,12 +120,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     SWI3_IRQHandler
                 DCD     SWI4_IRQHandler
                 DCD     SWI5_IRQHandler
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
-                DCD     0                         ; Reserved
+                                                  ; IRQ Reserved from now
 
 __Vectors_End
 
@@ -150,69 +145,54 @@ Reset_Handler   PROC
                 LDR     R2, [R0]
                 ORRS    R2, R2, R1
                 STR     R2, [R0]
-                
-                LDR     R0, =NRF_POWER_RAMONB_ADDRESS
+
+				ADDS    R0, R0, #(NRF_POWER_RAMONB_ADDRESS - NRF_POWER_RAMON_ADDRESS)
                 LDR     R2, [R0]
                 ORRS    R2, R2, R1
                 STR     R2, [R0]
 
-                LDR     R0, =SystemInit
-                BLX     R0
-                LDR     R0, =__main
-                BX      R0
+                BL      SystemInit
+                BL      __main
                 ENDP
 
 ; Dummy Exception Handlers (infinite loops which can be modified)
 
-NMI_Handler     PROC
-                EXPORT  NMI_Handler               [WEAK]
-                B       .
-                ENDP
-HardFault_Handler \
-                PROC
-                EXPORT  HardFault_Handler         [WEAK]
-                B       .
-                ENDP
-SVC_Handler     PROC
-                EXPORT  SVC_Handler               [WEAK]
-                B       .
-                ENDP
-PendSV_Handler  PROC
-                EXPORT  PendSV_Handler            [WEAK]
-                B       .
-                ENDP
-SysTick_Handler PROC
-                EXPORT  SysTick_Handler           [WEAK]
-                B       .
-                ENDP
-
 Default_Handler PROC
 
-                EXPORT   POWER_CLOCK_IRQHandler [WEAK]
-                EXPORT   RADIO_IRQHandler [WEAK]
-                EXPORT   UART0_IRQHandler [WEAK]
-                EXPORT   SPI0_TWI0_IRQHandler [WEAK]
-                EXPORT   SPI1_TWI1_IRQHandler [WEAK]
-                EXPORT   GPIOTE_IRQHandler [WEAK]
-                EXPORT   ADC_IRQHandler [WEAK]
-                EXPORT   TIMER0_IRQHandler [WEAK]
-                EXPORT   TIMER1_IRQHandler [WEAK]
-                EXPORT   TIMER2_IRQHandler [WEAK]
-                EXPORT   RTC0_IRQHandler [WEAK]
-                EXPORT   TEMP_IRQHandler [WEAK]
-                EXPORT   RNG_IRQHandler [WEAK]
-                EXPORT   ECB_IRQHandler [WEAK]
-                EXPORT   CCM_AAR_IRQHandler [WEAK]
-                EXPORT   WDT_IRQHandler [WEAK]
-                EXPORT   RTC1_IRQHandler [WEAK]
-                EXPORT   QDEC_IRQHandler [WEAK]
-                EXPORT   LPCOMP_IRQHandler [WEAK]
-                EXPORT   SWI0_IRQHandler [WEAK]
-                EXPORT   SWI1_IRQHandler [WEAK]
-                EXPORT   SWI2_IRQHandler [WEAK]
-                EXPORT   SWI3_IRQHandler [WEAK]
-                EXPORT   SWI4_IRQHandler [WEAK]
-                EXPORT   SWI5_IRQHandler [WEAK]
+                EXPORT NMI_Handler [WEAK]
+                EXPORT HardFault_Handler [WEAK]
+                EXPORT SVC_Handler [WEAK]
+                EXPORT PendSV_Handler [WEAK]
+                EXPORT POWER_CLOCK_IRQHandler [WEAK]
+                EXPORT RADIO_IRQHandler [WEAK]
+                EXPORT UART0_IRQHandler [WEAK]
+                EXPORT SPI0_TWI0_IRQHandler [WEAK]
+                EXPORT SPI1_TWI1_IRQHandler [WEAK]
+                EXPORT GPIOTE_IRQHandler [WEAK]
+                EXPORT ADC_IRQHandler [WEAK]
+                EXPORT TIMER0_IRQHandler [WEAK]
+                EXPORT TIMER1_IRQHandler [WEAK]
+                EXPORT TIMER2_IRQHandler [WEAK]
+                EXPORT RTC0_IRQHandler [WEAK]
+                EXPORT TEMP_IRQHandler [WEAK]
+                EXPORT RNG_IRQHandler [WEAK]
+                EXPORT ECB_IRQHandler [WEAK]
+                EXPORT CCM_AAR_IRQHandler [WEAK]
+                EXPORT WDT_IRQHandler [WEAK]
+                EXPORT RTC1_IRQHandler [WEAK]
+                EXPORT QDEC_IRQHandler [WEAK]
+                EXPORT LPCOMP_IRQHandler [WEAK]
+                EXPORT SWI0_IRQHandler [WEAK]
+                EXPORT SWI1_IRQHandler [WEAK]
+                EXPORT SWI2_IRQHandler [WEAK]
+                EXPORT SWI3_IRQHandler [WEAK]
+                EXPORT SWI4_IRQHandler [WEAK]
+                EXPORT SWI5_IRQHandler [WEAK]
+
+NMI_Handler
+HardFault_Handler
+SVC_Handler
+PendSV_Handler
 POWER_CLOCK_IRQHandler
 RADIO_IRQHandler
 UART0_IRQHandler
@@ -238,7 +218,7 @@ SWI2_IRQHandler
 SWI3_IRQHandler
 SWI4_IRQHandler
 SWI5_IRQHandler
-                B .
+                B       .
                 ENDP
                 ALIGN
 

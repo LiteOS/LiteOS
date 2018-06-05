@@ -68,22 +68,10 @@ void simple_uart_put(uint8_t cr)
   NRF_UART0->EVENTS_TXDRDY=0;
 }
 
-void simple_uart_putstring(const uint8_t *str)
-{
-  uint_fast8_t i = 0;
-  uint8_t ch = str[i++];
-  while (ch != '\0')
-  {
-    simple_uart_put(ch);
-    ch = str[i++];
-  }
-}
-
 void simple_uart_config(  uint8_t rts_pin_number,
                           uint8_t txd_pin_number,
                           uint8_t cts_pin_number,
-                          uint8_t rxd_pin_number,
-                          bool    hwfc)
+                          uint8_t rxd_pin_number)
 {
 /** @snippet [Configure UART RX and TX pin] */
   nrf_gpio_cfg_output(txd_pin_number);
@@ -91,15 +79,6 @@ void simple_uart_config(  uint8_t rts_pin_number,
 
   NRF_UART0->PSELTXD = txd_pin_number;
   NRF_UART0->PSELRXD = rxd_pin_number;
-/** @snippet [Configure UART RX and TX pin] */
-  if (hwfc)
-  {
-    nrf_gpio_cfg_output(rts_pin_number);
-    nrf_gpio_cfg_input(cts_pin_number, NRF_GPIO_PIN_NOPULL);
-    NRF_UART0->PSELCTS = cts_pin_number;
-    NRF_UART0->PSELRTS = rts_pin_number;
-    NRF_UART0->CONFIG  = (UART_CONFIG_HWFC_Enabled << UART_CONFIG_HWFC_Pos);
-  }
 
   NRF_UART0->BAUDRATE         = (UART_BAUDRATE_BAUDRATE_Baud115200 << UART_BAUDRATE_BAUDRATE_Pos);
   NRF_UART0->ENABLE           = (UART_ENABLE_ENABLE_Enabled << UART_ENABLE_ENABLE_Pos);

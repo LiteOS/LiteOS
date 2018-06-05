@@ -65,7 +65,9 @@ extern "C" {
 
 #define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)
 
-#define PRINT_LEVEL LOS_ERR_LEVEL
+/* define PRINT_LEVEL to 0 for the smallest footprint */
+
+#define PRINT_LEVEL     0
 
 #if PRINT_LEVEL < LOS_DEBUG_LEVEL
 #define PRINT_DEBUG(fmt, args...)
@@ -102,9 +104,6 @@ extern "C" {
 #else
 #define PRINT_EMG(fmt, args...)     do{(printf("[EMG] "), printf(fmt, ##args));}while(0)
 #endif
-
-#define PRINT_RELEASE(fmt, args...)   printf(fmt, ##args)
-
 
 #ifdef __cplusplus
 #if __cplusplus
