@@ -87,15 +87,17 @@ int TimerLeftMS(Timer* timer)
 
 static int los_mqtt_read(void *ctx, unsigned char* buffer, int len, int timeout_ms)
 {
+    fd_set read_fds;
+    int fd, ret, rc;
+    int bytes;
+    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};;
+
     if(NULL == ctx || NULL == buffer)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-    fd_set read_fds;
-    int fd = ((mqtt_context_t *)ctx)->fd;
-    int ret;
-    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
+    fd = ((mqtt_context_t *)ctx)->fd;
     if (interval.tv_sec < 0 || (interval.tv_sec == 0 && interval.tv_usec <= 0))
     {
         interval.tv_sec = 0;
@@ -111,10 +113,10 @@ static int los_mqtt_read(void *ctx, unsigned char* buffer, int len, int timeout_
 
     if(ret > 0 && FD_ISSET(fd, &read_fds))
     {
-        int bytes = 0;
+        bytes = 0;
         while (bytes < len)
         {
-            int rc = recv(fd, &buffer[bytes], (size_t)(len - bytes), 0);
+            rc = recv(fd, &buffer[bytes], (size_t)(len - bytes), 0);
             if (rc == -1)
             {
                 if (errno != EAGAIN && errno != EWOULDBLOCK)
@@ -139,12 +141,13 @@ static int los_mqtt_read(void *ctx, unsigned char* buffer, int len, int timeout_
 
 static int los_mqtt_tls_read(mbedtls_ssl_context* ssl, unsigned char* buffer, int len, int timeout_ms)
 {
+    int ret;
+
     if(NULL == ssl || NULL == buffer)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-    int ret;
 
     mbedtls_ssl_conf_read_timeout(ssl->conf, timeout_ms);
 
@@ -176,13 +179,13 @@ static int los_mqtt_tls_read(mbedtls_ssl_context* ssl, unsigned char* buffer, in
 *****************************************************************************/
 static int los_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 {
+    int ret = -1;
+
     if(NULL == n || NULL == buffer)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-
-    int ret = -1;
 
     switch(n->proto)
     {
@@ -202,14 +205,16 @@ static int los_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 
 static int los_mqtt_write(void *ctx, unsigned char* buffer, int len, int timeout_ms)
 {
+    int fd, rc;
+    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};;
+
     if(NULL == ctx || NULL == buffer)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-    int fd = ((mqtt_context_t *)ctx)->fd;
+    fd = ((mqtt_context_t *)ctx)->fd;
 
-    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
     if (interval.tv_sec < 0 || (interval.tv_sec == 0 && interval.tv_usec <= 0))
     {
         interval.tv_sec = 0;
@@ -217,7 +222,7 @@ static int los_mqtt_write(void *ctx, unsigned char* buffer, int len, int timeout
     }
 
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&interval, sizeof(struct timeval));
-    int rc = write(fd, buffer, len);
+    rc = write(fd, buffer, len);
     return rc;
 }
 
@@ -240,13 +245,13 @@ static int los_mqtt_write(void *ctx, unsigned char* buffer, int len, int timeout
 *****************************************************************************/
 int los_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 {
+    int ret = -1;
+
     if(NULL == n || NULL == buffer)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-
-    int ret = -1;
 
     switch(n->proto)
     {
@@ -281,12 +286,6 @@ void NetworkInit(Network* n)
 
 static int los_mqtt_connect(Network* n, char* addr, int port)
 {
-    if(NULL == n || NULL == addr)
-    {
-        printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
-        return -1;
-    }
-
     int type = SOCK_STREAM;
     struct sockaddr_in address;
     int rc = -1;
@@ -294,10 +293,17 @@ static int los_mqtt_connect(Network* n, char* addr, int port)
     struct addrinfo *result = NULL;
     struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
     mqtt_context_t *ctx = NULL;
+    struct addrinfo* res;
+
+    if(NULL == n || NULL == addr)
+    {
+        printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
+        return -1;
+    }
 
     if ((rc = getaddrinfo(addr, NULL, &hints, &result)) == 0)
     {
-        struct addrinfo* res = result;
+        res = result;
 
         /* prefer ip4 addresses */
         while (res)
@@ -452,21 +458,20 @@ static void my_debug( void *ctx, int level,
 
 static int los_mqtt_tls_connect(Network* n, char* addr, int port)
 {
-    if(NULL == n || NULL == addr)
-    {
-        printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
-        return -1;
-    }
     int ret;
     mbedtls_net_context *server_fd;
     mbedtls_ssl_context* ssl;
     mbedtls_ssl_config* conf;
     mbedtls_entropy_context* entropy;
     mbedtls_ctr_drbg_context* ctr_drbg;
-
     char port_str[16] = {0};
-
     const char* pers = "myhint";
+
+    if(NULL == n || NULL == addr)
+    {
+        printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
+        return -1;
+    }
 
     (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
     (void)mbedtls_platform_set_snprintf(atiny_snprintf);
@@ -593,13 +598,13 @@ exit:
 
 int NetworkConnect(Network* n, char* addr, int port)
 {
+    int ret = -1;
+
     if(NULL == n || NULL == addr)
     {
         printf("[%s][%d] invalid params.\n", __FUNCTION__, __LINE__);
         return -1;
     }
-
-    int ret = -1;
 
     switch(n->proto)
     {
@@ -619,12 +624,14 @@ int NetworkConnect(Network* n, char* addr, int port)
 
 static void los_mqtt_disconnect(void* ctx)
 {
+    int fd;
+
     if(NULL == ctx)
     {
         printf("[%s][%d] invalid param.\n", __FUNCTION__, __LINE__);
         return;
     }
-    int fd = ((mqtt_context_t *)ctx)->fd;
+    fd = ((mqtt_context_t *)ctx)->fd;
     if(fd > 0)
     {
         close(fd);

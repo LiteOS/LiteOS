@@ -74,14 +74,18 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 
 void atiny_deinit(void* phandle)
 {
+    handle_data_t* handle;
+    MQTTClient *client;
+    Network* network;
+
     if(NULL == phandle)
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
         return;
     }
-    handle_data_t* handle = (handle_data_t*)phandle;
-    MQTTClient *client = &(handle->client);
-    Network* network = client->ipstack;
+    handle = (handle_data_t*)phandle;
+    client = &(handle->client);
+    network = client->ipstack;
     
     MQTTDisconnect(client);
     NetworkDisconnect(network);
@@ -91,14 +95,14 @@ void atiny_deinit(void* phandle)
 
 int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 {
+    int i, rc = -1;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
+
     if(!topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
     }
-
-    int i, rc = -1;
-    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
@@ -130,14 +134,14 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 
 int mqtt_del_interest_topic(const char *topic)
 {
+    int i, rc = -1;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
+
     if(!topic)
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
     }
-
-    int i, rc = -1;
-    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
@@ -153,12 +157,13 @@ int mqtt_del_interest_topic(const char *topic)
 
 int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 {
+     int rc;
+
     if(!client || !topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
     }
-    int rc;
 
     if(0 != mqtt_add_interest_topic(topic, qos, cb))
         return -1;
@@ -172,12 +177,13 @@ int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos,
 
 int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
 {
+    int rc;
+
     if(!client || !topic)
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
     }
-    int rc;
 
     if(0 != mqtt_del_interest_topic(topic))
         return -1;
@@ -191,14 +197,15 @@ int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
 
 int mqtt_message_publish(MQTTClient *client, cloud_msg_t* send_data)
 {
+    int rc = -1;
+    MQTTMessage message;
+
     if(!client || !send_data)
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
     }
 
-    int rc = -1;
-    MQTTMessage message;
     memset(&message, 0x0, sizeof(message));
     message.qos = send_data->qos;
     message.retained = 0;
@@ -241,13 +248,13 @@ void mqtt_message_arrived(MessageData* md)
 
 void mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM])
 {
+    int i, rc;
+
     if(NULL == client || NULL == interest_uris)
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
         return;
     }
-
-    int i, rc;
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
@@ -263,6 +270,15 @@ void mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t int
 
 int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 {
+    Network n;
+    handle_data_t* handle;
+    MQTTClient *client;
+    atiny_param_t *atiny_params;
+    int rc;
+    unsigned char sendbuf[MQTT_SENDBUF_SIZE];
+    unsigned char readbuf[MQTT_READBUF_SIZE];
+    MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
+
     if ((NULL == device_info) || (NULL == phandle))
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
@@ -281,13 +297,9 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         return ATINY_ARG_INVALID;
     }
 
-    Network n;
-    handle_data_t* handle = (handle_data_t*)phandle;
-    MQTTClient *client = &(handle->client);
-    atiny_param_t *atiny_params = handle->atiny_params;
-    int rc;
-    unsigned char sendbuf[MQTT_SENDBUF_SIZE];
-    unsigned char readbuf[MQTT_READBUF_SIZE];
+    handle = (handle_data_t*)phandle;
+    client = &(handle->client);
+    atiny_params = handle->atiny_params;
 
     handle->device_info = device_info;
 
@@ -318,7 +330,6 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 
     MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, sendbuf, MQTT_SENDBUF_SIZE, readbuf, MQTT_READBUF_SIZE);
 
-    MQTTPacket_connectData data = MQTTPacket_connectData_initializer;       
     data.willFlag = device_info->will_flag;
     data.MQTTVersion = 3;
     data.clientID.cstring = device_info->client_id;
@@ -352,6 +363,10 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 
 int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
 {
+    handle_data_t* handle;
+    MQTTClient *client;
+    int rc= -1;
+
     if (NULL == phandle || NULL == send_data || NULL == send_data->uri 
         || !(send_data->qos>=CLOUD_QOS_MOST_ONCE && send_data->qos<CLOUD_QOS_LEVEL_MAX)
         || !(send_data->method>=CLOUD_METHOD_GET&& send_data->method<CLOUD_METHOD_MAX))
@@ -360,9 +375,8 @@ int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
         return ATINY_ARG_INVALID;
     }
 
-    handle_data_t* handle = (handle_data_t*)phandle;
-    MQTTClient *client = &(handle->client);
-    int rc= -1;
+    handle = (handle_data_t*)phandle;
+    client = &(handle->client);
 
     switch(send_data->method)
     {

@@ -118,10 +118,6 @@ void agent_tiny_entry(void)
      UINT32 uwRet = LOS_OK;
     atiny_param_t* atiny_params;
     atiny_device_info_t *device_info = &g_device_info;
-    if(NULL == device_info)
-    {
-        return;
-    }
 
     device_info->client_id = AGENT_TINY_DEMO_CLIENT_ID;
     device_info->user_name = AGENT_TINY_DEMO_USERNAME;
