@@ -118,7 +118,7 @@ void at_usart_config(UART_HandleTypeDef * usart)
       _Error_Handler(__FILE__, __LINE__);
     }
     __HAL_UART_CLEAR_FLAG(usart,UART_FLAG_TC);
-    LOS_HwiCreate(at_user_conf.irqn, 0, 0, at_irq_handler,NULL);
+    LOS_HwiCreate(at_user_conf.irqn, 0, 0, at_irq_handler, 0);
     __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
 
 #ifdef USE_USARTRX_DMA
@@ -262,7 +262,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, char * suffix, char * rep_buf)
     {
         listener.resp = (int8_t*)rep_buf;
     }
-    ret = LOS_SemCreate(0, &listener.resp_sem);
+    ret = LOS_SemCreate(0, (UINT32*)&listener.resp_sem);
     if (ret != LOS_OK)
     {
         AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
@@ -304,7 +304,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     listener.callback = NULL;
     listener.resp = (int8_t*)rep_b;
 
-    ret = LOS_SemCreate(0, &listener.resp_sem);
+    ret = LOS_SemCreate(0, (UINT32*)&listener.resp_sem);
     if (ret != LOS_OK)
     {
         AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
@@ -377,10 +377,7 @@ void at_recv_task(uint32_t p)
     uint32_t recv_len = 0;
     static uint32_t suffix_catching = 0;
     uint8_t * tmp = at.userdata; //[MAX_USART_BUF_LEN] = {0};
-    int ret = 0;
     at_listener * listener = NULL;
-
-    QUEUE_BUFF  buf;
 
     while(1){
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
@@ -393,9 +390,8 @@ void at_recv_task(uint32_t p)
             continue;
 
         int32_t data_len = 0;
-        int32_t linkid = 0;
         char * p1, * p2;
-        AT_LOG("get recv_len = %d buf = %s", recv_len, tmp);
+        AT_LOG("get recv_len = %lu buf = %s", recv_len, tmp);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
@@ -480,7 +476,7 @@ uint32_t create_at_recv_task()
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)at_recv_task;
     task_init_param.uwStackSize = 0x1000;
 
-    uwRet = LOS_TaskCreate(&at.tsk_hdl, &task_init_param);
+    uwRet = LOS_TaskCreate((UINT32*)&at.tsk_hdl, &task_init_param);
     if(LOS_OK != uwRet)
     {
         return uwRet;
@@ -497,7 +493,7 @@ int32_t at_struct_init(at_task * at)
 		return ret;
 	}
 
-	ret = LOS_SemCreate(0, &at->recv_sem);
+	ret = LOS_SemCreate(0, (UINT32*)&at->recv_sem);
     if (ret != LOS_OK)
     {
         AT_LOG("init at_recv_sem failed!");
@@ -505,7 +501,7 @@ int32_t at_struct_init(at_task * at)
     }
 
 
-    ret = LOS_MuxCreate(&at->cmd_mux);
+    ret = LOS_MuxCreate((UINT32*)&at->cmd_mux);
     if (ret != LOS_OK)
     {
         AT_LOG("init cmd_mux failed!");
@@ -540,7 +536,7 @@ int32_t at_struct_init(at_task * at)
        goto malloc_linkid;
     }
 
-    ret = LOS_MuxCreate(&list_mux);
+    ret = LOS_MuxCreate((UINT32*)&list_mux);
     if (ret != LOS_OK)
     {
         AT_LOG("init cmd_mux failed!");

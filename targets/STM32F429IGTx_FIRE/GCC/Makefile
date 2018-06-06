@@ -153,7 +153,8 @@ ATADAPTOR_SRC = \
         C_SOURCES += $(ATADAPTOR_SRC)
 
 USER_DRIVERS_SRC = \
-        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c} \
+        ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
         C_SOURCES += $(USER_DRIVERS_SRC)
 
 
@@ -282,7 +283,8 @@ ATADAPTOR_INC = \
         C_INCLUDES += $(ATADAPTOR_INC)
 
 USER_DRIVERS_INC = \
-        -I $(TOP_DIR)/drivers/devices/wifi
+        -I $(TOP_DIR)/drivers/devices/wifi \
+        -I $(TOP_DIR)/drivers/devices/gprs \
         C_INCLUDES += $(USER_DRIVERS_INC)
 
 # compile gcc flags
