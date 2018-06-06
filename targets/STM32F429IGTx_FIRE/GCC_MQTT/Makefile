@@ -184,7 +184,7 @@ C_DEFS =  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
         -D USE_MBED_TLS \
-        -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
+        -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_psk.h\" \
         -D WITH_LWIP \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE \
