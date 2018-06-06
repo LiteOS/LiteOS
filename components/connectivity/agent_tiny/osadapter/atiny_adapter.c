@@ -115,6 +115,24 @@ int atiny_printf(const char* format, ...)
     return ret;
 }
 
+char *atiny_strdup(const char *ch)
+{
+    char *copy;
+    size_t length;
+
+    if(NULL == ch)
+        return NULL;
+
+    length = strlen(ch);
+    copy= (char *)atiny_malloc(length + 1);
+    if(NULL == copy)
+        return NULL;
+    strncpy(copy, ch, length);
+    copy[length] = '\0';
+
+    return copy;
+}
+
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
 void* atiny_mutex_create(void)
