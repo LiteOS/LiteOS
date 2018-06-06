@@ -694,10 +694,10 @@ typedef enum
 typedef enum
 {
     BS_SEQUENCE_STATE_INITIAL = 0,
-	BS_SEQUENCE_STATE_FACTORY,
-	BS_SEQUENCE_STATE_SERVER_INITIATED,
-	BS_SEQUENCE_STATE_CLIENT_INITIATED,
-	NO_BS_SEQUENCE_STATE
+    BS_SEQUENCE_STATE_FACTORY,
+    BS_SEQUENCE_STATE_SERVER_INITIATED,
+    BS_SEQUENCE_STATE_CLIENT_INITIATED,
+    NO_BS_SEQUENCE_STATE
 } lwm2m_bs_sequence_state_t;
 
 
@@ -722,7 +722,7 @@ typedef struct
 #ifdef LWM2M_CLIENT_MODE
     lwm2m_client_state_t state;
     lwm2m_bs_sequence_state_t bs_sequence_state;
-    char*				 bs_server_uri;   //    coaps://     coap://
+    char*                bs_server_uri;   //    coaps://     coap://
     char*                endpointName;
     char*                msisdn;
     char*                altPath;

@@ -141,16 +141,16 @@ typedef struct
 typedef enum
 {
     BOOTSTRAP_FACTORY = 0,
-	BOOTSTRAP_CLIENT_INITIATED,
-	BOOTSTRAP_SEQUENCE
+    BOOTSTRAP_CLIENT_INITIATED,
+    BOOTSTRAP_SEQUENCE
 } atiny_bootstrap_type_e;
 
 
 typedef struct
 {
-	atiny_bootstrap_type_e  bootstrap_mode;
+    atiny_bootstrap_type_e  bootstrap_mode;
 
-	//two pairs of ip/port, because bootstrap sequence will make more try than one.
+    //two pairs of ip/port, because bootstrap sequence will make more try than one.
     char* iot_server_ip;
     char* iot_server_port;
     char* bs_server_ip;

@@ -148,6 +148,8 @@ void bootstrap_step(lwm2m_context_t * contextP,
         switch (targetP->status)
         {
         case STATE_DEREGISTERED:
+            //pay attention: targetP->lifetime come from securityobj instance, it's init value is 10. too small, too short for
+            //STATE_BS_HOLD_OFF. of course, the value could be wrote by the bs server. encode decode used for securityobj/serverobj instance
             targetP->registration = currentTime + targetP->lifetime;
             targetP->status = STATE_BS_HOLD_OFF;
             if (*timeoutP > targetP->lifetime)
@@ -196,6 +198,7 @@ void bootstrap_step(lwm2m_context_t * contextP,
             {
                 if (targetP->registration <= currentTime)
                 {
+                   //bootstrap failed, and in the atiny_bind, will return error again and again. do not try bootstrap request? need it?
                    targetP->status = STATE_BS_FAILING;
                    *timeoutP = 0;
                 }

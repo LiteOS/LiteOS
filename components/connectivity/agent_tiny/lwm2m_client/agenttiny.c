@@ -79,47 +79,47 @@ static handle_data_t g_atiny_handle;
  * add date:   2019-05-30
  * description: in order to check the params for the bootstrap, expecialy for the mode and the ip/port
  * return:
- * 			success: ATINY_OK
- * 			fail:    ATINY_ARG_INVALID
+ *              success: ATINY_OK
+ *              fail:    ATINY_ARG_INVALID
  *
  */
 static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_params)
 {
-	if(NULL == security_params)
-	{
-		return ATINY_ARG_INVALID;
-	}
+    if(NULL == security_params)
+    {
+        return ATINY_ARG_INVALID;
+    }
 
-	//begin three bootstrap mode and it's param check
-	if(BOOTSTRAP_FACTORY == security_params->bootstrap_mode)
-	{
-		if((NULL == security_params->iot_server_ip)||(NULL == security_params->iot_server_port))
-		{
-			LOG("[bootstrap_tag]: BOOTSTRAP_FACTORY mode's params is wrong, should have iot server ip/port");
-			return ATINY_ARG_INVALID;
-		}
-	}
-	else if(BOOTSTRAP_CLIENT_INITIATED == security_params->bootstrap_mode)
-	{
-		if((NULL == security_params->bs_server_ip)||(NULL == security_params->bs_server_port))
-		{
-			LOG("[bootstrap_tag]: BOOTSTRAP_CLIENT_INITIATED mode's params is wrong, should have bootstrap server ip/port");
-			return ATINY_ARG_INVALID;
-		}
-	}
-	else if(BOOTSTRAP_SEQUENCE== security_params->bootstrap_mode)
-	{
-		return ATINY_OK;
-	}
-	else
-	{
-		//it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
-		LOG("[bootstrap_tag]: BOOTSTRAP's only have three mode, should been :0,1,2");
-		return ATINY_ARG_INVALID;
-	}
+    //begin three bootstrap mode and it's param check
+    if(BOOTSTRAP_FACTORY == security_params->bootstrap_mode)
+    {
+        if((NULL == security_params->iot_server_ip)||(NULL == security_params->iot_server_port))
+        {
+            LOG("[bootstrap_tag]: BOOTSTRAP_FACTORY mode's params is wrong, should have iot server ip/port");
+            return ATINY_ARG_INVALID;
+        }
+    }
+    else if(BOOTSTRAP_CLIENT_INITIATED == security_params->bootstrap_mode)
+    {
+        if((NULL == security_params->bs_server_ip)||(NULL == security_params->bs_server_port))
+        {
+            LOG("[bootstrap_tag]: BOOTSTRAP_CLIENT_INITIATED mode's params is wrong, should have bootstrap server ip/port");
+            return ATINY_ARG_INVALID;
+        }
+    }
+    else if(BOOTSTRAP_SEQUENCE== security_params->bootstrap_mode)
+    {
+        return ATINY_OK;
+    }
+    else
+    {
+        //it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
+        LOG("[bootstrap_tag]: BOOTSTRAP's only have three mode, should been :0,1,2");
+        return ATINY_ARG_INVALID;
+    }
 
 
-	return ATINY_OK;
+    return ATINY_OK;
 }
 
 
@@ -133,8 +133,8 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 
     if(ATINY_OK != atiny_check_bootstrap_init_param(&(atiny_params->security_params[0])))
     {
-		LOG("[bootstrap_tag]: BOOTSTRAP's params are wrong");
-		return ATINY_ARG_INVALID;
+        LOG("[bootstrap_tag]: BOOTSTRAP's params are wrong");
+        return ATINY_ARG_INVALID;
     }
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));

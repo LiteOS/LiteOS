@@ -510,6 +510,10 @@ int bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t * contextP)
     //should use bootstrap, so we must change the bootstrap flag in security_object. could see object_getServers
     security_object = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, LWM2M_SECURITY_OBJECT_ID);
 
+
+    //[should think late]:in the regist, I think iot server will not write info for the client. so the /0/0 uri is still iot_server uri
+    //which be set in the get_security_object. and in the server initiated mod, will have a connection in the bootstrap_start which is no need
+    //at all, so write the uri with NULL. it is ok?
     dataP = lwm2m_data_new(1);
     if (dataP == NULL)
     {
@@ -610,7 +614,17 @@ static void bootstrap_dealwith_reg_failed(lwm2m_context_t * contextP)
     bool to_register_entrance = false;
     const int REGIST_INTERVAL_TIME = 100;
 
-    time_t end_cnt = lwm2m_gettime();
+    if(NULL == contextP)
+    {
+        LOG("[bootstrap_tag]: contextP is NULL, in bootstrap_dealwith_reg_failed");
+        return;
+    }
+
+    time_t end_cnt = lwm2m_gettime(); //may it will run all the time, so end_cnt my less than start_cnt
+    if(end_cnt < start_cnt)
+    {
+        start_cnt = end_cnt;
+    }
 
     if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
     {
