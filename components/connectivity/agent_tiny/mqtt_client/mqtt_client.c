@@ -41,6 +41,7 @@
 #include "MQTTClient.h"
 
 void mqtt_message_arrived(MessageData* md);
+void device_info_member_free(atiny_device_info_t* info);
 
 #define MQTT_COMMAND_TIMEOUT_MS (60*1000)
 #define MQTT_KEEPALIVE_INTERVAL (100)
@@ -49,12 +50,116 @@ void mqtt_message_arrived(MessageData* md);
 
 typedef struct
 {
-    atiny_device_info_t *device_info;
+    atiny_device_info_t device_info;
     MQTTClient client;
-    atiny_param_t *atiny_params;
+    atiny_param_t atiny_params;
 } handle_data_t;
 
 static handle_data_t g_atiny_handle;
+
+void atiny_param_member_free(atiny_param_t* param)
+{
+    if(NULL == param)
+    {
+        return;
+    }
+
+    if(NULL != param->server_ip)
+    {
+        atiny_free(param->server_ip);
+        param->server_ip = NULL;
+    }
+
+    if(NULL != param->server_port)
+    {
+        atiny_free(param->server_port);
+        param->server_port = NULL;
+    }
+
+    switch(param->security_typ)
+    {
+        case CLOUD_SECURITY_TYPE_PSK:
+            if(NULL != param->psk.psk_id)
+            {
+                atiny_free(param->psk.psk_id);
+                param->psk.psk_id = NULL;
+            }
+            if(NULL != param->psk.psk)
+            {
+                atiny_free(param->psk.psk);
+                param->psk.psk = NULL;
+            }
+            break;
+        case CLOUD_SECURITY_TYPE_CA:
+            if(NULL != param->ca.ca_crt)
+            {
+                atiny_free(param->ca.ca_crt);
+                param->ca.ca_crt = NULL;
+            }
+            if(NULL != param->ca.server_crt)
+            {
+                atiny_free(param->ca.server_crt);
+                param->ca.server_crt = NULL;
+            }
+            if(NULL != param->ca.server_key)
+            {
+                atiny_free(param->ca.server_key);
+                param->ca.server_key = NULL;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return;
+}
+
+int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
+{
+    if(NULL == dest || NULL == src)
+    {
+        //ATINY_LOG(LOG_FATAL, "Invalid args");
+        return -1;
+    }
+    dest->server_ip = atiny_strdup((const char *)(src->server_ip));
+    if(NULL == dest->server_ip)
+        goto atiny_param_dup_failed;
+
+    dest->server_port = atiny_strdup((const char *)(src->server_port));
+    if(NULL == dest->server_port)
+        goto atiny_param_dup_failed;
+
+    switch(src->security_typ)
+    {
+        case CLOUD_SECURITY_TYPE_PSK:
+            dest->psk.psk_id = atiny_strdup((const char *)(src->psk.psk_id));
+            if(NULL == dest->psk.psk_id)
+                goto atiny_param_dup_failed;
+            dest->psk.psk = (unsigned char *)atiny_malloc(src->psk.psk_len);
+            if(NULL == dest->psk.psk)
+                goto atiny_param_dup_failed;
+            memcpy(dest->psk.psk, src->psk.psk, src->psk.psk_len);
+            break;
+        case CLOUD_SECURITY_TYPE_CA:
+            dest->ca.ca_crt = atiny_strdup((const char *)(src->ca.ca_crt));
+            if(NULL == dest->ca.ca_crt)
+                goto atiny_param_dup_failed;
+            dest->ca.server_crt = atiny_strdup((const char *)(src->ca.server_crt));
+            if(NULL == dest->ca.server_crt)
+                goto atiny_param_dup_failed;
+            dest->ca.server_key = atiny_strdup((const char *)(src->ca.server_key));
+            if(NULL == dest->ca.server_key)
+                goto atiny_param_dup_failed;
+            break;
+        default:
+            break;
+    }
+
+    return 0;
+atiny_param_dup_failed:
+    atiny_param_member_free(dest);
+    return -1;
+}
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
@@ -65,7 +170,9 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     }
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));
-    g_atiny_handle.atiny_params = atiny_params;
+    g_atiny_handle.atiny_params = *atiny_params;
+    if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
+        return ATINY_MALLOC_FAILED;
 
     *phandle = &g_atiny_handle;
 
@@ -86,7 +193,8 @@ void atiny_deinit(void* phandle)
     handle = (handle_data_t*)phandle;
     client = &(handle->client);
     network = client->ipstack;
-    
+    atiny_param_member_free(&(handle->atiny_params));
+    device_info_member_free(&(handle->device_info));
     MQTTDisconnect(client);
     NetworkDisconnect(network);
 
@@ -96,7 +204,7 @@ void atiny_deinit(void* phandle)
 int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 {
     int i, rc = -1;
-    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
 
     if(!topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
@@ -118,7 +226,12 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
     {
         if(interest_uris[i].uri == NULL)
         {
-            interest_uris[i].uri = topic;
+            interest_uris[i].uri = atiny_strdup((const char *)(topic));
+            if(NULL ==  interest_uris[i].uri)
+            {
+                rc = ATINY_MALLOC_FAILED;
+                break;
+            }
             interest_uris[i].qos = qos;
             interest_uris[i].cb = cb;
             rc = 0;
@@ -135,7 +248,7 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 int mqtt_del_interest_topic(const char *topic)
 {
     int i, rc = -1;
-    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
 
     if(!topic)
     {
@@ -147,6 +260,8 @@ int mqtt_del_interest_topic(const char *topic)
     {
         if(0 == strcmp(interest_uris[i].uri, topic))
         {
+            atiny_free(interest_uris[i].uri);
+            interest_uris[i].uri = NULL;
             memset(&(interest_uris[i]), 0x0, sizeof(interest_uris[i]));
         }
     }
@@ -220,11 +335,17 @@ int mqtt_message_publish(MQTTClient *client, cloud_msg_t* send_data)
 // 这里还需要考虑下通配符的事(luminais mark)
 void mqtt_message_arrived(MessageData* md)
 {
-    MQTTMessage* message = md->message;
-    MQTTString* topic = md->topicName;
-    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info->interest_uris;
+    MQTTMessage* message;
+    MQTTString* topic;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
     cloud_msg_t msg;
     int i;
+
+    if(NULL == md)
+        return;
+
+    message = md->message;
+    topic = md->topicName;
 
     printf("[%s][%d] %.*s : %.*s\n", __FUNCTION__, __LINE__, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
 
@@ -268,12 +389,134 @@ void mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t int
     return;
 }
 
+void will_options_member_free(cloud_will_options_t *will_options)
+{
+    if(NULL == will_options)
+    {
+        //ATINY_LOG(LOG_FATAL, "Invalid args");
+        return;
+    }
+
+    if(NULL != will_options->topic_name)
+    {
+        atiny_free(will_options->topic_name);
+        will_options->topic_name = NULL;
+    }
+    if(NULL != will_options->topic_msg)
+    {
+        atiny_free(will_options->topic_msg);
+        will_options->topic_msg = NULL;
+    }
+
+    return;
+}
+
+void device_info_member_free(atiny_device_info_t* info)
+{
+    int i;
+
+    if(NULL == info)
+    {
+        //ATINY_LOG(LOG_FATAL, "Invalid args");
+        return;
+    }
+
+    if(NULL != info->client_id)
+    {
+        atiny_free(info->client_id);
+        info->client_id = NULL;
+    }
+    if(NULL != info->user_name)
+    {
+        atiny_free(info->user_name);
+        info->user_name = NULL;
+    }
+    if(NULL != info->password)
+    {
+        atiny_free(info->password);
+        info->password = NULL;
+    }
+
+    if(1 == info->will_flag)
+    {
+        if(NULL != info->will_options)
+        {
+            will_options_member_free(info->will_options);
+            atiny_free(info->will_options);
+            info->will_options = NULL;
+        }
+    }
+
+    for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
+    {
+        if(NULL != info->interest_uris[i].uri)
+        {
+            atiny_free(info->interest_uris[i].uri);
+            info->interest_uris[i].uri = NULL;
+        }
+    }
+
+    return;
+}
+
+int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
+{
+    if(NULL == dest || NULL == src)
+    {
+        //ATINY_LOG(LOG_FATAL, "Invalid args");
+        return -1;
+    }
+
+    dest->client_id = atiny_strdup((const char *)(src->client_id));
+    if(NULL == dest->client_id)
+        goto device_info_dup_failed;
+
+    if(NULL != dest->user_name)
+    {
+        dest->user_name = atiny_strdup((const char *)(src->user_name));
+        if(NULL == dest->user_name)
+            goto device_info_dup_failed;
+    }
+
+    if(NULL != dest->password)
+    {
+        dest->password = atiny_strdup((const char *)(src->password));
+        if(NULL == dest->password)
+            goto device_info_dup_failed;
+    }
+
+    dest->will_flag = src->will_flag;
+
+    if(1 == dest->will_flag && NULL != src->will_options)
+    {
+        dest->will_options = (cloud_will_options_t *)atiny_malloc(sizeof(cloud_will_options_t));
+        if(NULL == dest->will_options)
+            goto device_info_dup_failed;
+
+        dest->will_options->topic_name= atiny_strdup((const char *)(src->will_options->topic_name));
+        if(NULL == dest->will_options->topic_name)
+            goto device_info_dup_failed;
+        dest->will_options->topic_msg= atiny_strdup((const char *)(src->will_options->topic_msg));
+        if(NULL == dest->will_options->topic_msg)
+            goto device_info_dup_failed;
+
+        dest->will_options->retained = src->will_options->retained;
+        dest->will_options->qos = src->will_options->qos;
+    }
+
+    return 0;
+device_info_dup_failed:
+    device_info_member_free(dest);
+    return -1;
+}
+
 int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 {
     Network n;
     handle_data_t* handle;
     MQTTClient *client;
     atiny_param_t *atiny_params;
+    atiny_device_info_t* device_info_t;
     int rc;
     unsigned char sendbuf[MQTT_SENDBUF_SIZE];
     unsigned char readbuf[MQTT_READBUF_SIZE];
@@ -299,9 +542,14 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 
     handle = (handle_data_t*)phandle;
     client = &(handle->client);
-    atiny_params = handle->atiny_params;
+    atiny_params = &(handle->atiny_params);
 
-    handle->device_info = device_info;
+    if(0 != device_info_dup(&(handle->device_info), device_info))
+    {
+        atiny_deinit(phandle);
+        return ATINY_MALLOC_FAILED;
+    }
+    device_info_t = &(handle->device_info);
 
     NetworkInit(&n);
 
@@ -330,16 +578,16 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 
     MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, sendbuf, MQTT_SENDBUF_SIZE, readbuf, MQTT_READBUF_SIZE);
 
-    data.willFlag = device_info->will_flag;
+    data.willFlag = device_info_t->will_flag;
     data.MQTTVersion = 3;
-    data.clientID.cstring = device_info->client_id;
-    data.username.cstring = device_info->user_name;
-    data.password.cstring = device_info->password;
-    if(device_info->will_flag)
+    data.clientID.cstring = device_info_t->client_id;
+    data.username.cstring = device_info_t->user_name;
+    data.password.cstring = device_info_t->password;
+    if(device_info_t->will_flag == 1)
     {
-        data.will.topicName.cstring = device_info->will_options->topic_name;
-        data.will.message.cstring = device_info->will_options->topic_msg;
-        data.will.qos= device_info->will_options->qos;
+        data.will.topicName.cstring = device_info_t->will_options->topic_name;
+        data.will.message.cstring = device_info_t->will_options->topic_msg;
+        data.will.qos= device_info_t->will_options->qos;
         data.will.retained = 0;
     }
     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL;
@@ -348,13 +596,13 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
     rc = MQTTConnect(client, &data);
     printf("[%s][%d] CONNACK : %d\n", __FUNCTION__, __LINE__, rc);
 
-    mqtt_subscribe_interest_topics(client, device_info->interest_uris);
+    mqtt_subscribe_interest_topics(client, device_info_t->interest_uris);
 
     while (rc >= 0)
     {
         rc = MQTTYield(client, 1000);    
     }
-    
+
     printf("[%s][%d] Stopping\n", __FUNCTION__, __LINE__);
     atiny_deinit(phandle);
 
