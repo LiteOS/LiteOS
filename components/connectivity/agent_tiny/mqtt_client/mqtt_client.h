@@ -35,11 +35,11 @@
 #ifndef __MQTT_CLIENT_H__
 #define __MQTT_CLIENT_H__
 
+#include "mqtt_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define MAX_REPORT_DATA_LEN      (1024)
 
 typedef enum
 {
@@ -95,8 +95,6 @@ typedef struct cloud_msg
     unsigned int payload_len;
     void *payload;
 }cloud_msg_t;
-
-#define ATINY_INTEREST_URI_MAX_NUM (5)
 
 typedef void (*atiny_rsp_cb)(cloud_msg_t *msg);
 

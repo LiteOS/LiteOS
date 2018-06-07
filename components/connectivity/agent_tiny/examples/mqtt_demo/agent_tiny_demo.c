@@ -115,14 +115,14 @@ UINT32 creat_report_task()
 
 void agent_tiny_entry(void)
 {
-     UINT32 uwRet = LOS_OK;
+    UINT32 uwRet = LOS_OK;
     atiny_param_t* atiny_params;
     atiny_device_info_t *device_info = &g_device_info;
 
     device_info->client_id = AGENT_TINY_DEMO_CLIENT_ID;
     device_info->user_name = AGENT_TINY_DEMO_USERNAME;
     device_info->password = AGENT_TINY_DEMO_PASSWORD;
-    device_info->will_flag = 0;
+    device_info->will_flag = MQTT_WILL_FLAG_FALSE;
     device_info->will_options = NULL;
     memcpy(device_info->interest_uris, g_interest_uris, sizeof(g_interest_uris));
 

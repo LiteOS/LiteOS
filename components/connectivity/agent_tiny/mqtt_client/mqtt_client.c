@@ -43,16 +43,15 @@
 void mqtt_message_arrived(MessageData* md);
 void device_info_member_free(atiny_device_info_t* info);
 
-#define MQTT_COMMAND_TIMEOUT_MS (60*1000)
-#define MQTT_KEEPALIVE_INTERVAL (100)
-#define MQTT_SENDBUF_SIZE (100)
-#define MQTT_READBUF_SIZE (100)
+unsigned char mqtt_sendbuf[MQTT_SENDBUF_SIZE];
+unsigned char mqtt_readbuf[MQTT_READBUF_SIZE];
 
 typedef struct
 {
     atiny_device_info_t device_info;
     MQTTClient client;
     atiny_param_t atiny_params;
+    char atiny_quit;
 } handle_data_t;
 
 static handle_data_t g_atiny_handle;
@@ -174,6 +173,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
         return ATINY_MALLOC_FAILED;
 
+    g_atiny_handle.atiny_quit = 0;
     *phandle = &g_atiny_handle;
 
     return ATINY_OK;
@@ -193,10 +193,14 @@ void atiny_deinit(void* phandle)
     handle = (handle_data_t*)phandle;
     client = &(handle->client);
     network = client->ipstack;
-    atiny_param_member_free(&(handle->atiny_params));
-    device_info_member_free(&(handle->device_info));
-    MQTTDisconnect(client);
-    NetworkDisconnect(network);
+    if(0 == handle->atiny_quit)
+    {
+        handle->atiny_quit = 1;
+        atiny_param_member_free(&(handle->atiny_params));
+        device_info_member_free(&(handle->device_info));
+        MQTTDisconnect(client);
+        NetworkDisconnect(network);
+    }
 
     return;
 }
@@ -272,7 +276,7 @@ int mqtt_del_interest_topic(const char *topic)
 
 int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 {
-     int rc;
+     int rc = -1;
 
     if(!client || !topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
@@ -292,7 +296,7 @@ int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos,
 
 int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
 {
-    int rc;
+    int rc = -1;
 
     if(!client || !topic)
     {
@@ -367,14 +371,14 @@ void mqtt_message_arrived(MessageData* md)
     return;
 }
 
-void mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM])
+int mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM])
 {
-    int i, rc;
+    int i, rc = -1;
 
     if(NULL == client || NULL == interest_uris)
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
-        return;
+        return -1;
     }
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
@@ -384,9 +388,11 @@ void mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t int
             continue;
         rc = MQTTSubscribe(client, interest_uris[i].uri, interest_uris[i].qos, mqtt_message_arrived);
         printf("[%s][%d] MQTTSubscribe %s[%d]\n", __FUNCTION__, __LINE__, interest_uris[i].uri, rc);
+        if(rc != 0)
+            break;
     }
 
-    return;
+    return rc;
 }
 
 void will_options_member_free(cloud_will_options_t *will_options)
@@ -461,6 +467,8 @@ void device_info_member_free(atiny_device_info_t* info)
 
 int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
 {
+    int i;
+
     if(NULL == dest || NULL == src)
     {
         //ATINY_LOG(LOG_FATAL, "Invalid args");
@@ -504,6 +512,18 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
         dest->will_options->qos = src->will_options->qos;
     }
 
+    for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
+    {
+        if(NULL == src->interest_uris[i].uri || '\0' == src->interest_uris[i].uri[0] || NULL == src->interest_uris[i].cb
+            || !(src->interest_uris[i].qos>=CLOUD_QOS_MOST_ONCE && src->interest_uris[i].qos<CLOUD_QOS_LEVEL_MAX))
+            continue;
+        dest->interest_uris[i].uri = atiny_strdup(src->interest_uris[i].uri);
+        if(NULL == dest->interest_uris[i].uri)
+            goto device_info_dup_failed;
+        dest->interest_uris[i].qos = src->interest_uris[i].qos;
+        dest->interest_uris[i].cb = src->interest_uris[i].cb;
+    }
+
     return 0;
 device_info_dup_failed:
     device_info_member_free(dest);
@@ -517,9 +537,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
     MQTTClient *client;
     atiny_param_t *atiny_params;
     atiny_device_info_t* device_info_t;
-    int rc;
-    unsigned char sendbuf[MQTT_SENDBUF_SIZE];
-    unsigned char readbuf[MQTT_READBUF_SIZE];
+    int rc = -1;
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
 
     if ((NULL == device_info) || (NULL == phandle))
@@ -534,7 +552,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         return ATINY_ARG_INVALID;
     }
 
-    if(device_info->will_flag == 1 && NULL == device_info->will_options)
+    if(device_info->will_flag == MQTT_WILL_FLAG_TRUE && NULL == device_info->will_options)
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
         return ATINY_ARG_INVALID;
@@ -573,39 +591,54 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             break;
     }
 
-    rc = NetworkConnect(&n, atiny_params->server_ip, atoi(atiny_params->server_port));
-    printf("[%s][%d] NetworkConnect : %d\n", __FUNCTION__, __LINE__, rc);
-
-    MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, sendbuf, MQTT_SENDBUF_SIZE, readbuf, MQTT_READBUF_SIZE);
+    memset(client, 0x0, sizeof(MQTTClient));
+    MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, mqtt_sendbuf, MQTT_SENDBUF_SIZE, mqtt_readbuf, MQTT_READBUF_SIZE);
 
     data.willFlag = device_info_t->will_flag;
     data.MQTTVersion = 3;
     data.clientID.cstring = device_info_t->client_id;
     data.username.cstring = device_info_t->user_name;
     data.password.cstring = device_info_t->password;
-    if(device_info_t->will_flag == 1)
+    if(device_info_t->will_flag == MQTT_WILL_FLAG_TRUE)
     {
         data.will.topicName.cstring = device_info_t->will_options->topic_name;
         data.will.message.cstring = device_info_t->will_options->topic_msg;
         data.will.qos= device_info_t->will_options->qos;
-        data.will.retained = 0;
+        data.will.retained = device_info_t->will_options->retained;
     }
-    data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL;
+    data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;
     data.cleansession = 1;
-    printf("[%s][%d] Send mqtt CONNECT to %s:%s\n", __FUNCTION__, __LINE__, atiny_params->server_ip, atiny_params->server_port);
-    rc = MQTTConnect(client, &data);
-    printf("[%s][%d] CONNACK : %d\n", __FUNCTION__, __LINE__, rc);
 
-    mqtt_subscribe_interest_topics(client, device_info_t->interest_uris);
-
-    while (rc >= 0)
+    while(handle->atiny_quit == 0)
     {
-        rc = MQTTYield(client, 1000);    
+        rc = NetworkConnect(&n, atiny_params->server_ip, atoi(atiny_params->server_port));
+        printf("[%s][%d] NetworkConnect : %d\n", __FUNCTION__, __LINE__, rc);
+        if(rc != 0)
+            continue;
+
+        printf("[%s][%d] Send mqtt CONNECT to %s:%s\n", __FUNCTION__, __LINE__, atiny_params->server_ip, atiny_params->server_port);
+        rc = MQTTConnect(client, &data);
+        printf("[%s][%d] CONNACK : %d\n", __FUNCTION__, __LINE__, rc);
+        if(0 != rc)
+        {
+            printf("[%s][%d] MQTTConnect failed\n", __FUNCTION__, __LINE__);
+            goto connect_again;
+        }
+
+        if(0 != mqtt_subscribe_interest_topics(client, device_info_t->interest_uris))
+        {
+            printf("[%s][%d] mqtt_subscribe_interest_topics failed\n", __FUNCTION__, __LINE__);
+            goto connect_again;
+        }
+
+        while (rc >= 0 && handle->atiny_quit == 0)
+        {
+            rc = MQTTYield(client, MQTT_EVENTS_HANDLE_PERIOD_MS);
+        }
+connect_again:
+        MQTTDisconnect(client);
+        NetworkDisconnect(&n);
     }
-
-    printf("[%s][%d] Stopping\n", __FUNCTION__, __LINE__);
-    atiny_deinit(phandle);
-
     return ATINY_OK;
 }
 
@@ -625,6 +658,9 @@ int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
 
     handle = (handle_data_t*)phandle;
     client = &(handle->client);
+
+    if(MQTTIsConnected(client) != 1)
+        return -1;
 
     switch(send_data->method)
     {
