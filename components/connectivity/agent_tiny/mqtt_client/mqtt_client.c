@@ -40,6 +40,9 @@
 #include "atiny_adapter.h"
 #include "MQTTClient.h"
 
+#define MQTT_VERSION_3_1 (3)
+#define MQTT_VERSION_3_1_1 (4)
+
 void mqtt_message_arrived(MessageData* md);
 void device_info_member_free(atiny_device_info_t* info);
 
@@ -648,7 +651,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
     MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, mqtt_sendbuf, MQTT_SENDBUF_SIZE, mqtt_readbuf, MQTT_READBUF_SIZE);
 
     data.willFlag = device_info_t->will_flag;
-    data.MQTTVersion = 3;
+    data.MQTTVersion = MQTT_VERSION_3_1;
     data.clientID.cstring = device_info_t->client_id;
     data.username.cstring = device_info_t->user_name;
     data.password.cstring = device_info_t->password;
