@@ -253,7 +253,13 @@ int at_send_cmd(char *cmd, int len, char *want, int delay, int retry)
 
 void SendCmd(char* cmd, char *result, uint16_t timeout, uint16_t retry)
 {
-	at_send_cmd(cmd, strlen(cmd), result, timeout, retry);
+	int ret;
+	printf("Sending CMD: %s\n", cmd);
+	ret = at_send_cmd(cmd, strlen(cmd), result, timeout, retry);
+	if (ret < 0)
+		printf("CMD Failed!\n");
+	else
+		printf("CMD OK!\n");
 }
 
 void SendData(char* cmd, char *result, uint16_t len, uint16_t timeout, uint16_t retry)
