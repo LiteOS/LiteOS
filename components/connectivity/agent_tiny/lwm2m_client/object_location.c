@@ -214,7 +214,7 @@ static uint8_t prv_location_read(uint16_t objInstId,
     for (i = 0 ; i < *numDataP ; i++)
     {
         result = prv_res2tlv ((*tlvArrayP)+i);
-        if (result!=COAP_205_CONTENT) break;
+        if (result != COAP_205_CONTENT) break;
     }
 
     return result;
