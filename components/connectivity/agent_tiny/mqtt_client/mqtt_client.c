@@ -75,7 +75,7 @@ void atiny_param_member_free(atiny_param_t* param)
         param->server_port = NULL;
     }
 
-    switch(param->security_typ)
+    switch(param->security_type)
     {
         case CLOUD_SECURITY_TYPE_PSK:
             if(NULL != param->psk.psk_id)
@@ -128,7 +128,7 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
     if(NULL == dest->server_port)
         goto atiny_param_dup_failed;
 
-    switch(src->security_typ)
+    switch(src->security_type)
     {
         case CLOUD_SECURITY_TYPE_PSK:
             dest->psk.psk_id = atiny_strdup((const char *)(src->psk.psk_id));
@@ -336,7 +336,51 @@ int mqtt_message_publish(MQTTClient *client, cloud_msg_t* send_data)
     return rc;
 }
 
-// 这里还需要考虑下通配符的事(luminais mark)
+char is_mqtt_topic_matched(char* topicFilter, MQTTString* topicName)
+{
+    char* curf = topicFilter;
+    char* curn;
+    char* curn_end;
+    char* nextpos;
+
+    if(NULL == topicFilter || NULL == topicName)
+    {
+        printf("[%s][%d] invalid params\n", __FUNCTION__, __LINE__);
+        return 0;
+    }
+
+    if(topicName->cstring)
+    {
+        curn = topicName->cstring;
+        curn_end = curn + strlen(topicName->cstring);
+    }
+    else
+    {
+        curn = topicName->lenstring.data;
+        curn_end = curn + topicName->lenstring.len;
+    }
+
+    while(*curf && curn < curn_end)
+    {
+        if(*curn == '/' && *curf != '/')
+            break;
+        if(*curf != '+' && *curf != '#' && *curf != *curn)
+            break;
+        if(*curf == '+')
+        {
+            nextpos = curn + 1;
+            while(nextpos < curn_end && *nextpos != '/')
+                nextpos = ++curn + 1;
+        }
+        else if(*curf == '#')
+            curn = curn_end - 1;
+        curf++;
+        curn++;
+    };
+
+    return (curn == curn_end) && (*curf == '\0');
+}
+
 void mqtt_message_arrived(MessageData* md)
 {
     MQTTMessage* message;
@@ -355,11 +399,20 @@ void mqtt_message_arrived(MessageData* md)
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
-        if(0 == strncmp(topic->lenstring.data, interest_uris[i].uri, topic->lenstring.len))
+        if(NULL != interest_uris[i].uri && (MQTTPacket_equals(topic, (char*)interest_uris[i].uri) ||
+                is_mqtt_topic_matched((char*)interest_uris[i].uri, topic)))
         {
             memset(&msg, 0x0, sizeof(msg));
-            msg.uri = topic->lenstring.data;
-            msg.uri_len = topic->lenstring.len;
+            if(topic->cstring)
+            {
+                msg.uri = topic->cstring;
+                msg.uri_len = strlen(topic->cstring);
+            }
+            else
+            {
+                msg.uri = topic->lenstring.data;
+                msg.uri_len = topic->lenstring.len;
+            }
             msg.method = CLOUD_METHOD_POST;
             msg.qos = message->qos;
             msg.payload_len = message->payloadlen;
@@ -571,7 +624,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 
     NetworkInit(&n);
 
-    switch(atiny_params->security_typ)
+    switch(atiny_params->security_type)
     {
         case CLOUD_SECURITY_TYPE_NONE:
             n.proto = MQTT_PROTO_NONE;
@@ -587,7 +640,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             printf("[%s][%d] CLOUD_SECURITY_TYPE_CA unsupported now\n", __FUNCTION__, __LINE__);
             return ATINY_ARG_INVALID;
         default:
-            printf("[%s][%d] invalid security_typ : %d\n", __FUNCTION__, __LINE__, atiny_params->security_typ);
+            printf("[%s][%d] invalid security_typ : %d\n", __FUNCTION__, __LINE__, atiny_params->security_type);
             break;
     }
 

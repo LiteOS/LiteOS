@@ -134,7 +134,7 @@ typedef struct atiny_param
 {
     char *server_ip;
     char *server_port;
-    cloud_security_type_e security_typ;
+    cloud_security_type_e security_type;
     union
     {
         cloud_security_psk_t psk;

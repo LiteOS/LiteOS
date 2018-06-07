@@ -130,13 +130,13 @@ void agent_tiny_entry(void)
     atiny_params->server_ip = DEFAULT_SERVER_IPV4;
     atiny_params->server_port = DEFAULT_SERVER_PORT;
 #ifdef WITH_DTLS
-    atiny_params->security_typ = CLOUD_SECURITY_TYPE_PSK;
+    atiny_params->security_type = CLOUD_SECURITY_TYPE_PSK;
     atiny_params->psk.psk_id = (unsigned char *)AGENT_TINY_DEMO_PSK_ID;
     atiny_params->psk.psk_id_len = strlen(AGENT_TINY_DEMO_PSK_ID);
     atiny_params->psk.psk = g_demo_psk;
     atiny_params->psk.psk_len = AGENT_TINY_DEMO_PSK_LEN;
 #else
-    atiny_params->security_typ = CLOUD_SECURITY_TYPE_NONE;
+    atiny_params->security_type = CLOUD_SECURITY_TYPE_NONE;
 #endif /* WITH_DTLS */
 
     if(ATINY_OK != atiny_init(atiny_params, &g_phandle))
