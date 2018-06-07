@@ -42,7 +42,7 @@ int32_t esp8266_joinap(char * pssid, char * ppasswd)
 int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
 {
     int32_t ret = AT_FAILED;
-    int32_t id = at.get_id();
+    int32_t id = 0;
     char cmd[64] = {0};
 
     AT_LOG("host:%s, port:%s", host, port);
@@ -53,19 +53,21 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
     }
     else 
     {
+        id = at.get_id();
+        if (id < 0 || id >= AT_MAX_LINK_NUM)
+        {
+            AT_LOG("no vailed linkid for use(id = %d)", id);
+            return -1;
+        }
         snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
-    if (id < 0 || id >= AT_MAX_LINK_NUM)
-    {
-        AT_LOG("no vailed linkid for use(id = %d)", id);
-        return -1;
-    }
+
     ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
     if (ret != LOS_OK)
     {
         AT_LOG("init dataQueue failed!");
         at.linkid[id].usable = AT_LINK_UNUSE;
-        return  -1;
+        return -1;
     }
     ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK\r\n", NULL);
     if (AT_FAILED == ret)
@@ -150,7 +152,7 @@ int32_t esp8266_close(int32_t id)
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL);
 }
 
-int32_t esp8266_data_handler(int8_t * buf, int32_t len)
+int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
     {
@@ -217,6 +219,7 @@ int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本�
     char resp[512] = {0};
     at.cmd((int8_t*)AT_CMD_CHECK_IP, strlen((char*)AT_CMD_CHECK_IP), "OK", resp);
 
+    AT_LOG("resp:%s", resp);
     char * p1, *p2;
     p1 = strstr(resp, "ip");
     if (ip && p1)
@@ -252,6 +255,7 @@ int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
     char * p1, *p2;
 
     at.cmd((int8_t*)AT_CMD_CHECK_MAC, strlen((char*)AT_CMD_CHECK_MAC), "OK", resp);
+    AT_LOG("resp:%s", resp);
 
     p1 = strstr(resp, ":");
     if (mac && p1)
@@ -279,7 +283,8 @@ int32_t esp8266_deinit(void)
 int32_t esp8266_init()
 {
     at.init();
-    at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
+    //at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
+    at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler);
 #ifdef 	USE_USARTRX_DMA
     HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],MAX_AT_RECV_LEN-1);
 #endif
@@ -307,9 +312,7 @@ at_config at_user_conf = {
     .buardrate = AT_BUARDRATE,
     .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
-    .recv_buf_len = MAX_AT_RECV_LEN,
-    .userdata_buf_len = MAX_AT_USERDATA_LEN,
-    .resp_buf_len = MAX_AT_RESP_LEN,
+    .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode

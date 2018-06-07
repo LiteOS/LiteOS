@@ -19,9 +19,8 @@
 
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
-#define MAX_AT_RECV_LEN     1024
-#define MAX_AT_USERDATA_LEN 512
-#define MAX_AT_RESP_LEN     512
+#define MAX_AT_USERDATA_LEN 2048
+
 
 #define AT_CMD_RST    		"AT+RST"
 #define AT_CMD_ECHO_OFF 	"ATE0"

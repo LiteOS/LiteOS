@@ -171,7 +171,7 @@ int32_t sim900a_close(int32_t id)
     }
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
 }
-int32_t sim900a_data_handler(int8_t * buf, int32_t len)
+int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
     {
@@ -249,12 +249,12 @@ int32_t sim900a_ini()
     {
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
-    at.add_listener((int8_t*)prefix_name, NULL, sim900a_data_handler);
+    at.oob_register((char*)prefix_name, strlen((char*)prefix_name), sim900a_data_handler);
     sim900a_echo_on();
     sim900a_check();
     sim900a_reset();
     sim900a_set_mux_mode(at.mux_mode);
-at.cmd((int8_t*)("AT+CIPMUX?"),strlen("AT+CIPMUX?"),"OK",NULL);
+    at.cmd((int8_t*)("AT+CIPMUX?"),strlen("AT+CIPMUX?"),"OK",NULL);
     return AT_OK;
 }
 
@@ -264,9 +264,7 @@ at_config at_user_conf = {
     .buardrate = AT_BUARDRATE,
     .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
-    .recv_buf_len = MAX_AT_RECV_LEN,
-    .userdata_buf_len = MAX_AT_USERDATA_LEN,
-    .resp_buf_len = MAX_AT_RESP_LEN,
+    .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode

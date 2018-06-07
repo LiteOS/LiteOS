@@ -14,7 +14,7 @@
 #define AT_LOG(fmt, arg...)
 #endif
 
-#define AT_DEBUG
+//#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%s:%d][D]"fmt"\n", __func__, __LINE__, ##arg)
 #else
@@ -35,7 +35,7 @@
 /* VARIABLE DECLEAR */
 
 /* TYPE REDEFINE */
-typedef int32_t (*event_cb)(int8_t * buf, int32_t len);
+typedef int32_t (*oob_callback)(void* arg, int8_t* buf, int32_t buflen);
 
 typedef struct {
     uint32_t len;
@@ -56,9 +56,20 @@ typedef struct _listner{
 	int8_t * resp;
 	uint32_t resp_len;
 	uint32_t resp_sem;
-	
-	int32_t (*callback)(int8_t *p, int32_t len);
 }at_listener;
+
+#define OOB_MAX_NUM 5
+typedef struct oob_s{
+	char featurestr[40];
+	int len;
+	oob_callback cb;
+	void* arg;
+}oob_t;
+
+typedef struct at_oob_s{
+	oob_t oob[OOB_MAX_NUM];
+	int32_t oob_num;
+} at_oob_t;
 
 typedef struct __config{
 	char * name;
@@ -66,9 +77,7 @@ typedef struct __config{
 	uint32_t buardrate;
 	uint32_t irqn;
 	uint32_t linkid_num;
-	uint32_t recv_buf_len;
-	uint32_t userdata_buf_len;
-	uint32_t resp_buf_len;
+	uint32_t user_buf_len; /* malloc 3 block memory for intener use, len * 3 */
 	char * cmd_begin;
 	char * line_end;
 	uint32_t  mux_mode;/*0:单连接，1：多连接*/
@@ -89,12 +98,12 @@ typedef struct at_task{
 	uint32_t timeout;  //命令响应超时时间
 
 	void    (*init)(void);
-	int32_t (*cmd)(int8_t * cmd, int32_t len, char * suffix, char * rep_buf);
+	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* 获取未使用的linkid, 多链接模式下使用 */
 	int32_t (*get_id)();
 	/* 注册用户消息处理函数到监听列表中 */
-	int32_t (*add_listener)(int8_t * perfix , int8_t * suffix, event_cb cb);
+	int32_t (*oob_register)(char* featurestr,int strlen, oob_callback callback);
 } at_task;
 
 //declear in device drivers
