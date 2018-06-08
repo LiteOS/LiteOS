@@ -90,7 +90,6 @@ static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_par
         return ATINY_ARG_INVALID;
     }
 
-    //begin three bootstrap mode and it's param check
     if(BOOTSTRAP_FACTORY == security_params->bootstrap_mode)
     {
         if((NULL == security_params->iot_server_ip)||(NULL == security_params->iot_server_port))
@@ -164,50 +163,68 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
  *     out: bs_port
  *     out: need_bs_info
  */
-void get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_context, char** bs_ip, char** bs_port, bool* need_bs_info)
+void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_context, char** bs_ip, char** bs_port, bool* need_bs_flag)
 {
+    char tmp_serverUri[SERVER_URI_MAX_LEN];
+
     if((NULL == atiny_params)||(NULL == lwm2m_context))
     {
         LOG("[bootstrap_tag]: the atiny_params or lwm2m_context params are NULL for get_set_bootstrap_info ");
         return;
     }
 
-    *need_bs_info = true;
+    *need_bs_flag = true;
 
     //the state is used for bootstrap sequence mode,  other mode are all marked as NO_BS_SEQUENCE_STATE
     lwm2m_context->bs_sequence_state = NO_BS_SEQUENCE_STATE;
 
-    //security_params is a array, in fact no need.
-    LOG_ARG("atiny_params->security_params[0].bootstrap_mode is %d",atiny_params->security_params[0].bootstrap_mode);
     switch(atiny_params->security_params[0].bootstrap_mode)
     {
     case BOOTSTRAP_FACTORY:
         *bs_ip = atiny_params->security_params[0].iot_server_ip;
         *bs_port = atiny_params->security_params[0].iot_server_port;
-        *need_bs_info = false;
+        *need_bs_flag = false;
         break;
     case BOOTSTRAP_SEQUENCE:
-        *bs_ip = atiny_params->security_params[0].bs_server_ip;  //the ip may be null. and server initiated did not use the ip.
+        //the ip may be null. and server initiated did not use the ip.
+        *bs_ip = atiny_params->security_params[0].bs_server_ip;
         *bs_port = atiny_params->security_params[0].bs_server_port;
         lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_SERVER_INITIATED;
 
         //lwm2m_context->bs_server_uri used for BS_SEQUENCE_STATE_SERVER_INITIATED to BS_SEQUENCE_STATE_CLIENT_INITIATED
-        //not only psk,but also psk_Id
-        if ((atiny_params->security_params[0].psk != NULL)&&(atiny_params->security_params[0].psk_Id))
+        if((*bs_ip != NULL)&&(*bs_port != NULL))
         {
-            atiny_snprintf(lwm2m_context->bs_server_uri, SERVER_URI_MAX_LEN, "coaps://%s:%s",*bs_ip, *bs_port);
+            if ((atiny_params->security_params[0].psk != NULL)&&(atiny_params->security_params[0].psk_Id))
+            {
+                atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",*bs_ip, *bs_port);
+            }
+            else
+            {
+                atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",*bs_ip, *bs_port);
+            }
+
+            lwm2m_context->bs_server_uri = (char*)lwm2m_malloc(strlen(tmp_serverUri)+1); //remember free
+            if(NULL == lwm2m_context->bs_server_uri)
+            {
+                //let's go, if it is NULL,  bootstrap or regist could still have a chance to win.
+                LOG("[bootstrap_tag]: lwm2m_malloc bs_server_uri fail in get_set_bootstrap_info");
+            }
+            else
+            {
+                strncpy(lwm2m_context->bs_server_uri,tmp_serverUri,strlen(tmp_serverUri)+1);
+            }
         }
         else
         {
-            atiny_snprintf(lwm2m_context->bs_server_uri, SERVER_URI_MAX_LEN, "coap://%s:%s",*bs_ip, *bs_port);
+            lwm2m_context->bs_server_uri = NULL;
         }
 
         if((atiny_params->security_params[0].iot_server_ip != NULL)&&(atiny_params->security_params[0].iot_server_port != NULL))
         {
-            //they will cover the value of above BOOTSTRAP_SEQUENCE, the situation is right.
+            //they will cover the value of above BOOTSTRAP_SEQUENCE.
             *bs_ip = atiny_params->security_params[0].iot_server_ip;
             *bs_port = atiny_params->security_params[0].iot_server_port;
-            *need_bs_info = false;
+            *need_bs_flag = false;
 
             lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_FACTORY;
         }
@@ -237,13 +254,13 @@ void get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_
     uint16_t serverId = SERVER_ID;
     char* epname = (char*)device_info->endpoint_name;
 
-    //add for bootstrap begin
+
     char* temp_ip = NULL;
     char* temp_port = NULL;
-    //attention: in fact,FACTORY MODE also belong to bootstrap mode,but get_security_object, the param
+    //attention: in fact,FACTORY MODE also belong to bootstrap mode,but in function get_security_object, the param
     //isBootstrap false for FACTORY MODE, because no need to get info from bootstrap server
-    bool b_need_bootstrap_info = true;
-    //add for bootstrap end
+    bool b_need_bootstrap_flag = true;
+
 
     result = atiny_init_rpt();
     if (result != ATINY_OK)
@@ -268,20 +285,7 @@ void get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_
 
     handle->lwm2m_context = lwm2m_context;
 
-    get_set_bootstrap_info(atiny_params,lwm2m_context,&temp_ip,&temp_port,&b_need_bootstrap_info);
-
-    /*
-    if (atiny_params->security_params[0].psk != NULL)
-    {
-        (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",
-                             atiny_params->security_params[0].server_ip, atiny_params->security_params[0].server_port);
-    }
-    else
-    {
-        (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",
-                             atiny_params->security_params[0].server_ip, atiny_params->security_params[0].server_port);
-    }
-    */
+    atiny_get_set_bootstrap_info(atiny_params,lwm2m_context,&temp_ip,&temp_port,&b_need_bootstrap_flag);
 
     if (atiny_params->security_params[0].psk != NULL)
     {
@@ -295,7 +299,7 @@ void get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_
 
     handle->obj_array[OBJ_SECURITY_INDEX] = get_security_object(serverId, serverUri,
                                             atiny_params->security_params[0].psk_Id, atiny_params->security_params[0].psk,
-                                            atiny_params->security_params[0].psk_len, b_need_bootstrap_info);//false change to b_need_bootstrap_info
+                                            atiny_params->security_params[0].psk_len, b_need_bootstrap_flag);//false change to b_need_bootstrap_info
     if (NULL ==  handle->obj_array[OBJ_SECURITY_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create security object");
