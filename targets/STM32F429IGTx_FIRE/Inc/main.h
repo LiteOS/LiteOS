@@ -60,6 +60,12 @@
 
 /* USER CODE END Private defines */
 
+#define COMMON_ETHER            0
+#define ESP8266_USART_WIFI      1
+#define M8686_SDIO_WIFI         2
+#define SIM_900A                3
+#define NETWORK_TYPE            SIM_900A
+
 #ifdef __cplusplus
  extern "C" {
 #endif
