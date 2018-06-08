@@ -125,17 +125,17 @@ VOID data_collection_task(VOID)
     Init_BH1750();
 #endif
     user_hw_init();
-	while (1)
+    while (1)
     {
 #ifdef	MODULE_DHT11
           /****************temperature and humidity*****************/
         if(DHT11_Read_TempAndHumidity(&DHT11_Data)==SUCCESS)
         {
-            printf("¶ÁÈ¡DHT11³É¹¦!-->Êª¶ÈÎª%.1f £¥RH £¬ÎÂ¶ÈÎª %.1f¡æ \n",DHT11_Data.humidity,DHT11_Data.temperature);
+            printf("è¯»å–DHT11æˆåŠŸ!-->æ¹¿åº¦ä¸º%.1f ï¼…RH ï¼Œæ¸©åº¦ä¸º %.1fâ„ƒ \n",DHT11_Data.humidity,DHT11_Data.temperature);
         }
         else
         {
-            printf("¶ÁÈ¡DHT11ĞÅÏ¢Ê§°Ü\n");
+            printf("è¯»å–DHT11ä¿¡æ¯å¤±è´¥\n");
             DHT11_Init();
         }
         sprintf(DHT11_send.temp, "%.1f", DHT11_Data.temperature);
@@ -155,7 +155,7 @@ VOID data_collection_task(VOID)
 #ifdef	MODULE_GPS
 		/****************GPS******************/
         HAL_UART_Receive_IT(&huart3,gps_uart,1000);
-        NMEA_BDS_GPRMC_Analysis(&gpsmsg,(uint8_t*)gps_uart);	//·ÖÎö×Ö·û´®
+        NMEA_BDS_GPRMC_Analysis(&gpsmsg,(uint8_t*)gps_uart);	//åˆ†æå­—ç¬¦ä¸²
         Longitude=(float)((float)gpsmsg.longitude_bd/100000);
         printf("Longitude:%.5f %lc     \r\n",Longitude,gpsmsg.ewhemi_bd);
         Latitude=(float)((float)gpsmsg.latitude_bd/100000);
@@ -197,18 +197,18 @@ UINT32 creat_data_collection_task()
 VOID data_report_task(VOID)
 {
     UINT32 uwRet = LOS_OK;
-    neul_bc95_reboot();                                             //³õÊ¼»¯Ä£¿é
-    while(neul_bc95_get_netstat()<0);                               //µÈ´ıÁ¬½ÓÉÏÍøÂç
-    //neul_bc95_set_cdpserver("180.101.147.115");                   //Á¬½ÓµçĞÅÆ½Ì¨
-    neul_bc95_set_cdpserver("218.4.33.71");                         //Á¬½Ó»ªÎªÆ½Ì¨
+    neul_bc95_reboot();                                             //åˆå§‹åŒ–æ¨¡å—
+    while(neul_bc95_get_netstat()<0);                               //ç­‰å¾…è¿æ¥ä¸Šç½‘ç»œ
+    //neul_bc95_set_cdpserver("180.101.147.115");                   //è¿æ¥ç”µä¿¡å¹³å°
+    neul_bc95_set_cdpserver("218.4.33.71");                         //è¿æ¥åä¸ºå¹³å°
     while(1)
     {
         printf("app task test\r\n");
 #ifdef	MODULE_DHT11
         /*******************temperature and humidity*****************/
-        if(neul_bc95_send_coap_paylaod((const char*)(&DHT11_send),sizeof(DHT11_send))>=0)       //·¢ËÍÊı¾İµ½Æ½Ì¨
-            printf("ocean_send_data OK!\n");                                                    //·¢ËÍ³É¹¦
-        else                                                                                    //·¢ËÍÊ§°Ü
+        if(neul_bc95_send_coap_paylaod((const char*)(&DHT11_send),sizeof(DHT11_send))>=0)       //å‘é€æ•°æ®åˆ°å¹³å°
+            printf("ocean_send_data OK!\n");                                                    //å‘é€æˆåŠŸ
+        else                                                                                    //å‘é€å¤±è´¥
         {
             printf("ocean_send_data Fail!\n");
         }
@@ -216,22 +216,22 @@ VOID data_report_task(VOID)
         memset(bc95_net_data.net_nmgr, 0, 5);
         neul_bc95_read_coap_msg(bc95_net_data.net_nmgr,5);
         printf("%s\n",bc95_net_data.net_nmgr);
-        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //¿ªµÆ
+        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //å¼€ç¯
         {
-        	HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);    // Êä³ö¸ßµçÆ½
+        	HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);    // è¾“å‡ºé«˜ç”µå¹³
         }
-        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //¹ØµÆ
+        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //å…³ç¯
         {
-        	HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);  // Êä³öµÍµçÆ½
+        	HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);  // è¾“å‡ºä½ç”µå¹³
         }
 #endif
 
 #ifdef	MODULE_SMOKE
         /***************************smoke*********************************/
         SMOKE_send.CSQ=neul_bc95_get_csq();
-        if(neul_bc95_send_coap_paylaod((const char*)(&SMOKE_send),sizeof(SMOKE_send))>=0)   //·¢ËÍÊı¾İµ½Æ½Ì¨
-            printf("ocean_send_data OK!\n");                                                //·¢ËÍ³É¹¦
-        else                                                                                //·¢ËÍÊ§°Ü
+        if(neul_bc95_send_coap_paylaod((const char*)(&SMOKE_send),sizeof(SMOKE_send))>=0)   //å‘é€æ•°æ®åˆ°å¹³å°
+            printf("ocean_send_data OK!\n");                                                //å‘é€æˆåŠŸ
+        else                                                                                //å‘é€å¤±è´¥
         {
             printf("ocean_send_data Fail!\n");
         }
@@ -239,13 +239,13 @@ VOID data_report_task(VOID)
         memset(bc95_net_data.net_nmgr, 0, 5);
         neul_bc95_read_coap_msg(bc95_net_data.net_nmgr,5);
         printf("%s\n",bc95_net_data.net_nmgr);
-        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //¿ª·äÃùÆ÷
+        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //å¼€èœ‚é¸£å™¨
         {
-            HAL_GPIO_WritePin(Beep_GPIO_Port,Beep_Pin,GPIO_PIN_SET);    // Êä³ö¸ßµçÆ½
+            HAL_GPIO_WritePin(Beep_GPIO_Port,Beep_Pin,GPIO_PIN_SET);    // è¾“å‡ºé«˜ç”µå¹³
         }
-        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //¹Ø·äÃùÆ÷
+        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //å…³èœ‚é¸£å™¨
         {
-            HAL_GPIO_WritePin(Beep_GPIO_Port,Beep_Pin,GPIO_PIN_RESET);  // Êä³öµÍµçÆ½
+            HAL_GPIO_WritePin(Beep_GPIO_Port,Beep_Pin,GPIO_PIN_RESET);  // è¾“å‡ºä½ç”µå¹³
         }
 #endif
 
@@ -257,9 +257,9 @@ VOID data_report_task(VOID)
             memset(GPS_send.Longitude, 0, 9);
             sprintf(GPS_send.Latitude, "%.5f", Latitude);
             sprintf(GPS_send.Longitude, "%.5f", Longitude);
-            if(neul_bc95_send_coap_paylaod((const char*)(&GPS_send),sizeof(GPS_send))>=0)   //·¢ËÍÊı¾İµ½Æ½Ì¨
-                printf("ocean_send_data OK!\n");                                            //·¢ËÍ³É¹¦
-            else                                                                            //·¢ËÍÊ§°Ü
+            if(neul_bc95_send_coap_paylaod((const char*)(&GPS_send),sizeof(GPS_send))>=0)   //å‘é€æ•°æ®åˆ°å¹³å°
+                printf("ocean_send_data OK!\n");                                            //å‘é€æˆåŠŸ
+            else                                                                            //å‘é€å¤±è´¥
             {
                 printf("ocean_send_data Fail!\n");
             }
@@ -267,13 +267,13 @@ VOID data_report_task(VOID)
             memset(bc95_net_data.net_nmgr, 0, 5);
             neul_bc95_read_coap_msg(bc95_net_data.net_nmgr,5);
             printf("%s\n",bc95_net_data.net_nmgr);
-            if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //¿ªµÆ
+            if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //å¼€ç¯
             {
-                HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);    // Êä³ö¸ßµçÆ½
+                HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_SET);    // è¾“å‡ºé«˜ç”µå¹³
             }
-            if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //¹ØµÆ
+            if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //å…³ç¯
             {
-                HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);  // Êä³öµÍµçÆ½
+                HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,GPIO_PIN_RESET);  // è¾“å‡ºä½ç”µå¹³
             }
         }
 
@@ -281,9 +281,9 @@ VOID data_report_task(VOID)
 
 #ifdef	MODULE_BH1750
         /**********************************BH1750*************************************/
-        if(neul_bc95_send_coap_paylaod((const char*)(&BH1750_send),sizeof(BH1750_send))>=0)         //·¢ËÍÊı¾İµ½Æ½Ì¨
-            printf("ocean_send_data OK!\n");                                                        //·¢ËÍ³É¹¦
-        else                                                                                        //·¢ËÍÊ§°Ü
+        if(neul_bc95_send_coap_paylaod((const char*)(&BH1750_send),sizeof(BH1750_send))>=0)         //å‘é€æ•°æ®åˆ°å¹³å°
+            printf("ocean_send_data OK!\n");                                                        //å‘é€æˆåŠŸ
+        else                                                                                        //å‘é€å¤±è´¥
         {
             printf("ocean_send_data Fail!\n");
         }
@@ -291,13 +291,13 @@ VOID data_report_task(VOID)
         memset(bc95_net_data.net_nmgr, 0, 5);
         neul_bc95_read_coap_msg(bc95_net_data.net_nmgr,5);
         printf("%s\n",bc95_net_data.net_nmgr);
-        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //¿ªµÆ
+        if(strcmp(bc95_net_data.net_nmgr,"ON")==0) //å¼€ç¯
         {
-            HAL_GPIO_WritePin(Light_GPIO_Port,Light_Pin,GPIO_PIN_RESET);    // Êä³öµÍµçÆ½
+            HAL_GPIO_WritePin(Light_GPIO_Port,Light_Pin,GPIO_PIN_RESET);    // è¾“å‡ºä½ç”µå¹³
         }
-        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //¹ØµÆ
+        if(strcmp(bc95_net_data.net_nmgr,"OFF")==0) //å…³ç¯
         {
-            HAL_GPIO_WritePin(Light_GPIO_Port,Light_Pin,GPIO_PIN_SET);  // Êä³ö¸ßµçÆ½
+            HAL_GPIO_WritePin(Light_GPIO_Port,Light_Pin,GPIO_PIN_SET);  // è¾“å‡ºé«˜ç”µå¹³
         }
 #endif
 	  uwRet=LOS_TaskDelay(500);

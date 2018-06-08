@@ -50,7 +50,7 @@
  *    Toby Jaffey - Please refer to git log
  *    Bosch Software Innovations GmbH - Please refer to git log
  *    Pascal Rieux - Please refer to git log
- *    
+ *
  *******************************************************************************/
 /*
  Copyright (c) 2013, 2014 Intel Corporation
@@ -83,6 +83,7 @@
 */
 
 #include "internals.h"
+#include "object_comm.h"
 #include <stdio.h>
 
 
@@ -204,7 +205,7 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
 
     LOG_ARG("Code: %02X, server status: %s", message->code, STR_STATUS(serverP->status));
     LOG_URI(uriP);
-    
+
     if (IS_OPTION(message, COAP_OPTION_CONTENT_TYPE))
     {
         format = utils_convertMediaType(message->content_type);
@@ -228,8 +229,6 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
         return COAP_IGNORE;
     }
 
-    // TODO: check ACL
-
     switch (message->code)
     {
     case COAP_GET:
@@ -243,7 +242,12 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
                 lwm2m_data_t * dataP = NULL;
                 int size = 0;
 
-                result = object_readData(contextP, uriP, &size, &dataP, NULL);
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_OBSERVE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
+
+                result = object_readData(contextP, uriP, &size, &dataP, NULL, serverP->shortID);
                 if (COAP_205_CONTENT == result)
                 {
                     result = observe_handleRequest(contextP, uriP, serverP, size, dataP, message, response);
@@ -285,17 +289,25 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
                   && message->accept_num == 1
                   && message->accept[0] == APPLICATION_LINK_FORMAT)
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_DISCOVER, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 format = LWM2M_CONTENT_LINK;
                 result = object_discover(contextP, uriP, serverP, &buffer, &length);
             }
             else
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_READ, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 if (IS_OPTION(message, COAP_OPTION_ACCEPT))
                 {
                     format = utils_convertMediaType((coap_content_type_t)message->accept[0]);
                 }
 
-                result = object_read(contextP, uriP, &format, &buffer, &length);
+                result = object_read(contextP, uriP, &format, &buffer, &length, serverP->shortID);
             }
             if (COAP_205_CONTENT == result)
             {
@@ -314,6 +326,10 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
         {
             if (!LWM2M_URI_IS_SET_INSTANCE(uriP))
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_CREATE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 result = object_create(contextP, uriP, format, message->payload, message->payload_len);
                 if (result == COAP_201_CREATED)
                 {
@@ -338,10 +354,18 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
             }
             else if (!LWM2M_URI_IS_SET_RESOURCE(uriP))
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_WRITE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 result = object_write(contextP, uriP, format, message->payload, message->payload_len);
             }
             else
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_EXCUTE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 result = object_execute(contextP, uriP, message->payload, message->payload_len);
             }
 
@@ -354,6 +378,10 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
             {
                 lwm2m_attributes_t attr;
 
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_WRITE_ATTR, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 if (0 != prv_readAttributes(message->uri_query, &attr))
                 {
                     result = COAP_400_BAD_REQUEST;
@@ -365,6 +393,10 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
             }
             else if (LWM2M_URI_IS_SET_INSTANCE(uriP))
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_WRITE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 result = object_write(contextP, uriP, format, message->payload, message->payload_len);
             }
             else
@@ -382,6 +414,10 @@ uint8_t dm_handleRequest(lwm2m_context_t * contextP,
             }
             else
             {
+                if ((result = acc_auth_operate(contextP, uriP, OBJ_ACC_DELETE, serverP->shortID)) != COAP_NO_ERROR)
+                {
+                    return result;
+                }
                 result = object_delete(contextP, uriP);
                 if (result == COAP_202_DELETED)
                 {

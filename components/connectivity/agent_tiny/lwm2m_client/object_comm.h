@@ -172,12 +172,35 @@ extern void conn_s_updateRxStatistic(lwm2m_object_t * objectP, uint16_t rxDataBy
 /*
  * object_access_control.c
  */
+typedef enum
+{
+    OBJ_ACC_READ       = 0,
+    OBJ_ACC_WRITE_ATTR = 0,
+    OBJ_ACC_OBSERVE    = 0,
+    OBJ_ACC_NOTIFY     = 0,
+    OBJ_ACC_WRITE      = 1,
+    OBJ_ACC_EXCUTE     = 2,
+    OBJ_ACC_DELETE     = 3,
+    OBJ_ACC_CREATE     = 4,
+    OBJ_ACC_DISCOVER   = 5,
+
+} OBJ_ACC_OPERATE;
+
+#define ACC_AUTH_R     (0x01 << OBJ_ACC_READ)
+#define ACC_AUTH_W     (0x01 << OBJ_ACC_WRITE)
+#define ACC_AUTH_E     (0x01 << OBJ_ACC_EXCUTE)
+#define ACC_AUTH_D     (0x01 << OBJ_ACC_DELETE)
+#define ACC_AUTH_C     (0x01 << OBJ_ACC_CREATE)
+
 lwm2m_object_t* acc_ctrl_create_object(void);
 void acl_ctrl_free_object(lwm2m_object_t * objectP);
 bool  acc_ctrl_obj_add_inst (lwm2m_object_t* accCtrlObjP, uint16_t instId,
                  uint16_t acObjectId, uint16_t acObjInstId, uint16_t acOwner);
 bool  acc_ctrl_oi_add_ac_val(lwm2m_object_t* accCtrlObjP, uint16_t instId,
                  uint16_t aclResId, uint16_t acValue);
+uint8_t acc_auth_operate(lwm2m_context_t* contextP, lwm2m_uri_t* uri,
+                 OBJ_ACC_OPERATE op, uint16_t serverId);
+
 /*
  * object_comm.c
  */
