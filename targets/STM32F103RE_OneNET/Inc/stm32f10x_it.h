@@ -45,7 +45,7 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 
-void EXTI0_IRQHandler(void);  //suzhen
+void EXTI0_IRQHandler(void);  //OneNET
 
 
 #ifdef __cplusplus

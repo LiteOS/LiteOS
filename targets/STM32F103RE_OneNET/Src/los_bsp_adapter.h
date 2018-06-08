@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "los_typedef.h" //szuhen
+#include "los_typedef.h" //OneNET
 
 
 extern void LOS_EvbSetup(void);

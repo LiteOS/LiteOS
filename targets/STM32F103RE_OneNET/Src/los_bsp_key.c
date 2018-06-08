@@ -5,7 +5,7 @@
     here include some special hearder file you need
 ******************************************************************************/
 #ifdef LOS_STM32F103ZE
-#include "stm32f10x.h"   //suzhen
+#include "stm32f10x.h"   //OneNET
 #endif
 
 /*****************************************************************************
@@ -23,11 +23,11 @@ void LOS_EvbKeyInit(void)
     //BSP_PB_Init(BUTTON_USER,BUTTON_MODE_GPIO);
     GPIO_InitTypeDef GPIO_InitStructure;
  
-		RCC_APB2PeriphClockCmd(KEY1_GPIO_CLK,ENABLE);  //使能PORTC时钟
+		RCC_APB2PeriphClockCmd(KEY1_GPIO_CLK,ENABLE); 
 
 		GPIO_InitStructure.GPIO_Pin  = KEY1_GPIO_PIN;  //KEY1
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;  //设置成上拉输入
-		GPIO_Init(KEY1_GPIO_PORT, &GPIO_InitStructure);//初始化GPIO
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+		GPIO_Init(KEY1_GPIO_PORT, &GPIO_InitStructure);
 #endif
 
     return;
@@ -68,9 +68,9 @@ unsigned int LOS_EvbGetKeyVal(int KeyNum)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 #ifdef LOS_STM32F103ZE
-    //if (GPIO_Pin == GPIO_PIN_0)   //suzhen
+    //if (GPIO_Pin == GPIO_PIN_0)   //OneNET
     {
-        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);  //onenet led3  //suzhen
+        //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);  //onenet led3  //OneNET
     }
 #endif
 }
