@@ -5,7 +5,7 @@
     here include some special hearder file you need
 ******************************************************************************/
 #ifdef LOS_STM32F103ZE
-#include "stm32f10x.h"  //suzhen
+#include "stm32f10x.h"  //OneNET
 #endif
 
 /*****************************************************************************
@@ -18,50 +18,33 @@
 void LOS_EvbLedInit(void)
 {
 #ifdef LOS_STM32F103ZE
-		/*?¡§¨°?¨°???GPIO_InitTypeDef¨¤¨¤D¨ª¦Ì??¨¢11¨¬?*/
+
 		GPIO_InitTypeDef GPIO_InitStructure;
 
-		/*?a??GPIOBo¨ªGPIOF¦Ì?¨ªa¨¦¨¨¨º¡À?¨®*/
 		RCC_APB2PeriphClockCmd( macLED1_GPIO_CLK|macLED2_GPIO_CLK|macLED3_GPIO_CLK, ENABLE); 
 
-		/*????¨°a????¦Ì?GPIOB¨°y??*/															   
 		GPIO_InitStructure.GPIO_Pin = macLED1_GPIO_PIN;	
-
-		/*¨¦¨¨??¨°y???¡ê¨º??a¨ª¡§¨®?¨ª?¨ª¨¬¨º?3?*/
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;   
-
-		/*¨¦¨¨??¨°y???¨´?¨º?a50MHz */   
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
-
-		/*¦Ì¡Â¨®??ao¡¥¨ºy¡ê?3?¨º??¡¥GPIOB0*/
 		GPIO_Init(macLED1_GPIO_PORT, &GPIO_InitStructure);	
 		
-		/*????¨°a????¦Ì?GPIOF¨°y??*/															   
 		GPIO_InitStructure.GPIO_Pin = macLED2_GPIO_PIN;
-
-		/*¦Ì¡Â¨®??ao¡¥¨ºy¡ê?3?¨º??¡¥GPIOF7*/
 		GPIO_Init(macLED2_GPIO_PORT, &GPIO_InitStructure);
 		
-		/*????¨°a????¦Ì?GPIOF¨°y??*/															   
 		GPIO_InitStructure.GPIO_Pin = macLED3_GPIO_PIN;
-
-		/*¦Ì¡Â¨®??ao¡¥¨ºy¡ê?3?¨º??¡¥GPIOF7*/
 		GPIO_Init(macLED3_GPIO_PORT, &GPIO_InitStructure);			  
 
-		/* 1?¡À??¨´¨®Dled¦Ì?	*/
 		GPIO_SetBits(macLED1_GPIO_PORT, macLED1_GPIO_PIN);
 		
-		/* 1?¡À??¨´¨®Dled¦Ì?	*/
 		GPIO_SetBits(macLED2_GPIO_PORT, macLED2_GPIO_PIN);	 
     
-    /* 1?¡À??¨´¨®Dled¦Ì?	*/
 		GPIO_SetBits(macLED3_GPIO_PORT, macLED3_GPIO_PIN);	 
 #endif
     return;
 }
 
 /*****************************************************************************
- Function    £ºLOS_EvbLedControl
+ Function    Â£ÂºLOS_EvbLedControl
  Discription : Led control function
  Input       : (1) index Led's index
                (2) cmd   Led on or off

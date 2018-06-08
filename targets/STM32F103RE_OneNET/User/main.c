@@ -67,7 +67,7 @@
 VOID HardWare_Init(VOID)
 {
     SystemClock_Config();
-    //Debug_USART1_UART_Init();  //suzhen
+    //Debug_USART1_UART_Init();  //OneNET
     LOS_EvbSetup();
 
     IIC_Init();

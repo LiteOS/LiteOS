@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017 Chinamobile
+ Copyright (c) 2018 Chinamobile
 
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
@@ -95,7 +95,7 @@ void us3_hard_init(int ulWantedBaud)
 	NVIC_Init( &NVIC_InitStructure );
 #else
 	void USART3_IRQHandler( void );
-	LOS_HwiCreate(USART3_IRQn, 0,0,USART3_IRQHandler,NULL); //suzhen
+	LOS_HwiCreate(USART3_IRQn, 0,0,USART3_IRQHandler,NULL); //OneNET
 #endif
 
 	USART_Cmd( USART3, ENABLE );
