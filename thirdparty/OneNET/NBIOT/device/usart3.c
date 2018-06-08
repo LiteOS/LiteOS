@@ -1,13 +1,41 @@
+/*
+ Copyright (c) 2018 Chinamobile
+
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+     * Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+     * Neither the name of Intel Corporation nor the names of its contributors
+       may be used to endorse or promote products derived from this software
+       without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
 #include "cmsis_os.h"    
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "M5310.h"
 #include "usart3.h"
- 
+
 #include "os-api.h"
 #include "los_bsp_led.h"
- 
+
 
 static char us3_rxBuffer[US3_RX_BUFSIZE];
 static volatile int  us3_rxCnt = 0;
@@ -66,8 +94,8 @@ void us3_hard_init(int ulWantedBaud)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init( &NVIC_InitStructure );
 #else
-void USART3_IRQHandler( void );
-	LOS_HwiCreate(USART3_IRQn, 0,0,USART3_IRQHandler,NULL); //suzhen
+	void USART3_IRQHandler( void );
+	LOS_HwiCreate(USART3_IRQn, 0,0,USART3_IRQHandler,NULL); //OneNET
 #endif
 
 	USART_Cmd( USART3, ENABLE );
@@ -96,38 +124,37 @@ void USART3_IRQHandler( void )
 {
 	char  cChar;
 
-  if( USART_GetITStatus( USART3, USART_IT_TXE ) != RESET )
-  {
+	if( USART_GetITStatus( USART3, USART_IT_TXE ) != RESET )
+	{
 		osEvent e;
 		e = osMessageGet(us3_txQueue, 0);
 		
-    if( e.status == osEventMessage ) {
+		if( e.status == osEventMessage ) {
 			cChar = (char) (e.value.v);
-      /* A character was retrieved from the queue so can be sent to the
-      THR now. */
-      USART_SendData( USART3, cChar );
-    } else {
+			/* A character was retrieved from the queue so can be sent to the THR now. */
+			USART_SendData( USART3, cChar );
+		} else {
 			
-      USART_ITConfig( USART3, USART_IT_TXE, DISABLE );
+			USART_ITConfig( USART3, USART_IT_TXE, DISABLE );
 			
 			if (osEventTimeout != e.status ) {
 				PRINT_ERR("%s - %d osMessageGet failed!\n", __func__, __LINE__);
 			}
 
-    }
-  }
+		}
+	}
 
-  if( USART_GetITStatus( USART3, USART_IT_RXNE ) != RESET )
-  {
-    cChar = USART_ReceiveData( USART3 );
+	if( USART_GetITStatus( USART3, USART_IT_RXNE ) != RESET )
+	{
+		cChar = USART_ReceiveData( USART3 );
 		
 		if (us3_rxCnt < sizeof(us3_rxBuffer))
 			us3_rxBuffer[us3_rxCnt++] = cChar;
-  }
+	}
 	
 	/* got one data frame */
 	if( USART_GetITStatus( USART3, USART_IT_IDLE ) != RESET )
-  {
+	{
 		char tmp;
 		tmp = USART3->SR;
 		tmp = USART3->DR;
@@ -163,9 +190,9 @@ void USART3_IRQHandler( void )
 int us3_write(const char *buffer, int size)
 {
 	char ch;
-  int sendLen = 0;
+	int sendLen = 0;
 	
-  while(1) {
+	while(1) {
 		int rc;
 		ch = *(buffer + sendLen);
 		if (ch == 0) {
@@ -179,11 +206,11 @@ int us3_write(const char *buffer, int size)
 		
 		if ( ++sendLen >= size )
 			break;
-  }
+	}
 
-  USART_ITConfig( USART3, USART_IT_TXE, ENABLE );
+	USART_ITConfig( USART3, USART_IT_TXE, ENABLE );
 
-  return sendLen;
+	return sendLen;
 }
 
 int at_send_cmd(char *cmd, int len, char *want, int delay, int retry)
@@ -194,7 +221,6 @@ int at_send_cmd(char *cmd, int len, char *want, int delay, int retry)
 	sem_t sem;
 	sem_init(&sem, 0, 0);
 	us3_cmdSem = &sem;
-	
 	
 	while (1) {
 		
@@ -219,7 +245,7 @@ int at_send_cmd(char *cmd, int len, char *want, int delay, int retry)
 	}
 	
 	us3_cmdSem = NULL;
-  sem_destroy(&sem);
+	sem_destroy(&sem);
 
 	return ret;
 }
@@ -227,7 +253,13 @@ int at_send_cmd(char *cmd, int len, char *want, int delay, int retry)
 
 void SendCmd(char* cmd, char *result, uint16_t timeout, uint16_t retry)
 {
-	at_send_cmd(cmd, strlen(cmd), result, timeout, retry);
+	int ret;
+	printf("Sending CMD: %s\n", cmd);
+	ret = at_send_cmd(cmd, strlen(cmd), result, timeout, retry);
+	if (ret < 0)
+		printf("CMD Failed!\n");
+	else
+		printf("CMD OK!\n");
 }
 
 void SendData(char* cmd, char *result, uint16_t len, uint16_t timeout, uint16_t retry)

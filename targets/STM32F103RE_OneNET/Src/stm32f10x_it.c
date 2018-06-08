@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-#if 0 //suzhen
+#if 0 //OneNET
 #include "core_cm3.h"
 #include "stdio.h"
 #include "usart1.h"

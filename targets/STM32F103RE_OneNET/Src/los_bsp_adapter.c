@@ -11,7 +11,7 @@
 #include "los_bsp_adapter.h"
 #include "los_bsp_key.h"
 #include "los_bsp_led.h"
-#include "usart.h"   //suzhen
+#include "usart.h"   //OneNET
 
 /* while use bsp code to start system tick, don't use LOS header */
 #define INCLUDE_LOS_HEADER
@@ -27,7 +27,7 @@
     here include some special hearder file you need
 ******************************************************************************/
 #ifdef LOS_STM32F103ZE
-#include "stm32f10x.h"    //suzhen
+#include "stm32f10x.h"    //OneNET
 #include "stm32f10x_it.h"
 #endif
 
@@ -64,11 +64,11 @@ extern void LOS_AppTickHandler (void);
 void LOS_EvbSetup(void)
 {
 	LOS_EvbUartInit(); 
-	LOS_EvbLedInit();    //suzhen
-	LOS_EvbKeyInit();   //suzhen
+	LOS_EvbLedInit();    //OneNET
+	LOS_EvbKeyInit();   //OneNET
 
   //OneNET
-	LOS_HwiCreate(EXTI0_IRQn, 0,0,EXTI0_IRQHandler,NULL); //suzhen
+	LOS_HwiCreate(EXTI0_IRQn, 0,0,EXTI0_IRQHandler,NULL); //OneNET
 	return ;
 }
 

@@ -50,12 +50,12 @@
 #include "string.h"
 #include <stdio.h>
 //#include "stm32f1xx_hal.h"
-#include "stm32f10x.h"   //suzhen
+#include "stm32f10x.h"   //OneNET
 
 #include "usart.h"
-#include "los_bsp_adapter.h"  //suzhen
-#include "los_bsp_key.h"   //suzhen
-#include "los_bsp_led.h"   //suzhen
+#include "los_bsp_adapter.h"  //OneNET
+#include "los_bsp_key.h"   //OneNET
+#include "los_bsp_led.h"   //OneNET
 
 #ifdef __cplusplus
  extern "C" {
