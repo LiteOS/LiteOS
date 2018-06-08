@@ -4,7 +4,7 @@
 #include "at_api_interface.h"
 #include "atiny_socket.h"
 
-#if NETWORK_TYPE == SIM_900A
+#if defined(USE_AT_FRAMEWORK) && defined(USE_SIM900A)
 extern at_task at;
 at_adaptor_api at_interface;
 char prefix_name[15];

@@ -34,8 +34,9 @@
 #include "main.h"
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
+#ifdef USE_AT_FRAMEWORK
 #include "at_api_interface.h"
-
+#endif
 UINT32 g_TskHandle;
 
 VOID HardWare_Init(VOID)
@@ -48,7 +49,7 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
-#if NETWORK_TYPE == COMMON_ETHER
+#ifndef USE_AT_FRAMEWORK
     hieth_hw_init();
     net_init();
 #else

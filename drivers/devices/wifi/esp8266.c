@@ -4,7 +4,7 @@
 #include "at_api_interface.h"
 #include "atiny_socket.h"
 #include "main.h"
-#if NETWORK_TYPE == ESP8266_USART_WIFI
+#if defined(USE_AT_FRAMEWORK) && defined(USE_ESP8266)
 extern at_task at;
 
 at_adaptor_api at_interface;
