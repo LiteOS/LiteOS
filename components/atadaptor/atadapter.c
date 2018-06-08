@@ -3,6 +3,7 @@
 #include "stm32f4xx_hal.h"
 #include "los_task.h"
 #include "los_sem.h"
+#if defined(USE_AT_FRAMEWORK)
 
 /* FUNCTION */
 void at_init();
@@ -536,3 +537,4 @@ int at_oob_register(char* cmd,int cmdlen, oob_callback callback)
     oob->cb = callback;
     return 0;
 }
+#endif

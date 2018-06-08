@@ -34,7 +34,10 @@
 
 #include "atiny_socket.h"
 #include "atiny_adapter.h"
+
+#ifdef USE_AT_FRAMEWORK
 #include "at_api_interface.h"
+#endif
 
 #if defined(WITH_LINUX)
 #include <sys/types.h>
@@ -77,7 +80,7 @@ typedef struct
 void* atiny_net_connect(const char* host, const char* port, int proto)
 {
     atiny_net_context* ctx;
-#ifdef NETWORK_TYPE_ETH
+#ifndef USE_AT_FRAMEWORK
     int flags;
     int ret;
     struct addrinfo hints;
@@ -225,7 +228,7 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         SOCKET_LOG("ilegal socket(%d)", fd);
         return -1;
     }
-#ifdef NETWORK_TYPE_ETH
+#ifndef USE_AT_FRAMEWORK
 
     FD_ZERO(&read_fds);
     FD_SET(fd, &read_fds);
@@ -259,7 +262,7 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
         return -1;
     }
 
-    #ifdef NETWORK_TYPE_ETH
+    #ifndef USE_AT_FRAMEWORK
     ret = send(fd, buf, len, 0);
     #else
     ret = at_api_send(fd, buf, len);
@@ -288,7 +291,7 @@ void atiny_net_close(void* ctx)
 
     if (fd >= 0)
     {
-        #ifdef NETWORK_TYPE_ETH
+        #ifndef USE_AT_FRAMEWORK
         close(fd);
         #else
         at_api_close(fd);
