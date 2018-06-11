@@ -597,8 +597,9 @@ lwm2m_object_t * get_security_object(uint16_t serverId,
                 targetP->secretKeyLen = pskLen;
             }
         }
-        targetP->isBootstrap = isBootstrap;
+        targetP->isBootstrap = isBootstrap;  //FACTORY MODE,isBootstrap is false
         targetP->shortID = serverId;
+        //10? is suitable? it could be changed by the bs server. for lwm2m_server_t member lifetime.
         targetP->clientHoldOffTime = SECURITY_HOLD_OFF_TIME;
 
         securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);

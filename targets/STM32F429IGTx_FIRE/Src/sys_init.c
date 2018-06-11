@@ -42,6 +42,13 @@ uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
 
+static void lwip_impl_register(void)
+{
+    STlwIPFuncSsp stlwIPSspCbk = {0};
+    stlwIPSspCbk.pfRand = hal_rng_generate_number;
+    lwIPRegSspCbk(&stlwIPSspCbk);
+}
+
 void net_init(void)
 {
     /* IP addresses initialization */
@@ -57,6 +64,8 @@ void net_init(void)
     GATEWAY_ADDRESS[1] = 168;
     GATEWAY_ADDRESS[2] = 3;
     GATEWAY_ADDRESS[3] = 1;
+
+    lwip_impl_register();
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);

@@ -51,7 +51,7 @@
  *    Bosch Software Innovations GmbH - Please refer to git log
  *    Pascal Rieux - Please refer to git log
  *    Scott Bertin - Please refer to git log
- *    
+ *
  *******************************************************************************/
 /*
  Copyright (c) 2013, 2014 Intel Corporation
@@ -283,8 +283,8 @@ int uri_getNumber(uint8_t * uriString, size_t uriLength);
 int uri_toString(lwm2m_uri_t * uriP, uint8_t * buffer, size_t bufferLen, uri_depth_t * depthP);
 
 // defined in objects.c
-uint8_t object_readData(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, int * sizeP, lwm2m_data_t ** dataP, lwm2m_data_cfg_t *cfg);
-uint8_t object_read(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_media_type_t * formatP, uint8_t ** bufferP, size_t * lengthP);
+uint8_t object_readData(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, int * sizeP, lwm2m_data_t ** dataP, lwm2m_data_cfg_t *cfg, uint16_t serverId);
+uint8_t object_read(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_media_type_t * formatP, uint8_t ** bufferP, size_t * lengthP, uint16_t serverId);
 uint8_t object_write(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_media_type_t format, uint8_t * buffer, size_t length);
 uint8_t object_create(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_media_type_t format, uint8_t * buffer, size_t length);
 uint8_t object_execute(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, uint8_t * buffer, size_t length);
@@ -337,7 +337,7 @@ void bootstrap_step(lwm2m_context_t * contextP, uint32_t currentTime, time_t* ti
 //uint8_t bootstrap_handleCommand(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_server_t * serverP, coap_packet_t * message, coap_packet_t * response);
 uint8_t bootstrap_handleDeleteAll(lwm2m_context_t * context, void * fromSessionH);
 uint8_t bootstrap_handleFinish(lwm2m_context_t * context, void * fromSessionH);
-//uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, void * fromSessionH, coap_packet_t * message, coap_packet_t * response);
+uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, void * fromSessionH, coap_packet_t * message, coap_packet_t * response);
 void bootstrap_start(lwm2m_context_t * contextP);
 lwm2m_status_t bootstrap_getStatus(lwm2m_context_t * contextP);
 

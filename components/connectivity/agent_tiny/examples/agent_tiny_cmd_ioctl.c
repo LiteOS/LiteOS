@@ -47,6 +47,12 @@
 #define ATINY_POWER_SOURCE_2    5
 #define ATINY_POWER_CURRENT_1   125
 #define ATINY_POWER_CURRENT_2   900
+#define ATINY_LATITUDE          27.986065f
+#define ATINY_LONGITUDE         86.922623f
+#define ATINY_ALTITUDE          8495.0000f
+#define ATINY_RADIUS            0.0f
+#define ATINY_SPEED             0.0f
+#define ATINY_TIME_CODE         1367491215
 
 int atiny_get_bind_mode(char* mode,int len)
 {
@@ -196,6 +202,75 @@ int atiny_update_psk(char* psk_id, int len)
     return ATINY_OK;
 }
 
+int atiny_get_latitude(float* latitude)
+{
+    *latitude = ATINY_LATITUDE;
+    return ATINY_OK;
+}
+
+int atiny_get_longitude(float* longitude)
+{
+    *longitude = ATINY_LONGITUDE;
+    return ATINY_OK;
+}
+
+int atiny_get_altitude(float* altitude)
+{
+    *altitude = ATINY_ALTITUDE;
+    return ATINY_OK;
+}
+
+int atiny_get_radius(float* radius)
+{
+    *radius = ATINY_RADIUS;
+    return ATINY_OK;
+}
+
+int atiny_get_speed(float* speed)
+{
+    *speed = ATINY_SPEED;
+    return ATINY_OK;
+}
+
+int atiny_get_timestamp(uint64_t* timestamp)
+{
+    *timestamp = atiny_gettime_ms() / 1000 + ATINY_TIME_CODE;
+    return ATINY_OK;
+}
+
+//-----  3GPP TS 23.032 V11.0.0(2012-09) ---------
+#define HORIZONTAL_VELOCITY                  0
+#define HORIZONTAL_VELOCITY_VERTICAL         1
+#define HORIZONTAL_VELOCITY_WITH_UNCERTAINTY 2
+
+#define VELOCITY_OCTETS                      5
+
+void location_get_velocity(atiny_velocity_s* velocity,
+                          uint16_t bearing,
+                          uint16_t horizontal_speed,
+                          uint8_t speed_uncertainty)
+{
+    uint8_t tmp[VELOCITY_OCTETS];
+    int copy_len;
+
+    tmp[0] = HORIZONTAL_VELOCITY_WITH_UNCERTAINTY << 4;
+    tmp[0] |= (bearing & 0x100) >> 8;
+    tmp[1] = (bearing & 0xff);
+    tmp[2] = horizontal_speed >> 8;
+    tmp[3] = horizontal_speed & 0xff;
+    tmp[4] = speed_uncertainty;
+
+    copy_len = MAX_VELOCITY_LEN > sizeof(tmp) ? sizeof(tmp) : MAX_VELOCITY_LEN;
+    memcpy(velocity->opaque, tmp, copy_len);
+    velocity->length = copy_len;
+}
+
+int atiny_get_velocity(atiny_velocity_s* velocity)
+{
+    location_get_velocity(velocity, 0, 0, 255);
+    return ATINY_OK;
+}
+
 int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
 {
     int result = ATINY_OK;
@@ -220,7 +295,7 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_BATERRY_LEVEL:
             result = atiny_get_baterry_level((int*)arg);
             break;
-           case ATINY_GET_MEMORY_FREE:
+        case ATINY_GET_MEMORY_FREE:
             result = atiny_get_memory_free((int*)arg);
             break;
         case ATINY_GET_DEV_ERR:
@@ -229,16 +304,16 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_POWER_CURRENT_1:
             result = atiny_get_power_current_1((int*)arg);
             break;
-           case ATINY_GET_POWER_CURRENT_2:
+        case ATINY_GET_POWER_CURRENT_2:
             result = atiny_get_power_current_2((int*)arg);
             break;
-           case ATINY_GET_POWER_SOURCE_1:
+        case ATINY_GET_POWER_SOURCE_1:
             result = atiny_get_power_source_1((int*)arg);
             break;
-           case ATINY_GET_POWER_SOURCE_2:
+        case ATINY_GET_POWER_SOURCE_2:
             result = atiny_get_power_source_2((int*)arg);
             break;
-           case ATINY_DO_FACTORY_RESET:
+        case ATINY_DO_FACTORY_RESET:
             result = atiny_do_factory_reset();
             break;
         case ATINY_GET_SERIAL_NUMBER:
@@ -268,7 +343,7 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_LINK_QUALITY:
             result = atiny_get_link_quality((int*)arg);
             break;
-           case ATINY_GET_LINK_UTILIZATION:
+        case ATINY_GET_LINK_UTILIZATION:
             result = atiny_get_link_utilization((int*)arg);
             break;
         case ATINY_WRITE_APP_DATA:
@@ -276,6 +351,27 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
             break;
         case ATINY_UPDATE_PSK:
             result = atiny_update_psk(arg, len);
+            break;
+        case ATINY_GET_LATITUDE:
+            result = atiny_get_latitude((float*)arg);
+            break;
+        case ATINY_GET_LONGITUDE:
+            result = atiny_get_longitude((float*)arg);
+            break;
+        case ATINY_GET_ALTITUDE:
+            result = atiny_get_altitude((float*)arg);
+            break;
+        case ATINY_GET_RADIUS:
+            result = atiny_get_radius((float*)arg);
+            break;
+        case ATINY_GET_SPEED:
+            result = atiny_get_speed((float*)arg);
+            break;
+        case ATINY_GET_TIMESTAMP:
+            result = atiny_get_timestamp((uint64_t*)arg);
+            break;
+        case ATINY_GET_VELOCITY:
+            result = atiny_get_velocity((atiny_velocity_s*)arg);
             break;
         default:
             break;
