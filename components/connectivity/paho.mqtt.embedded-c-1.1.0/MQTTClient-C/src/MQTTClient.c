@@ -173,18 +173,167 @@ static char isTopicMatched(char* topicFilter, MQTTString* topicName)
 }
 
 
+/**
+ * Copyright (c) 2009-2018 Roger Light <roger@atchoo.org>
+ * licensed under the Eclipse Public License 1.0 and the Eclipse Distribution License 1.0
+ */
+int MQTTTopicMatched(const char *sub, MQTTString *topic_name, char *result)
+{
+    int sublen, topiclen;
+    int spos, tpos;
+    char multilevel_wildcard = 0;
+    char *topic;
+
+    if(!result)
+        return -1;
+    *result = 0;
+
+    if(!sub || !topic_name)
+    {
+        return -1;
+    }
+
+    sublen = strlen(sub);
+
+    if(topic_name->cstring)
+    {
+        topic = topic_name->cstring;
+        topiclen = strlen(topic_name->cstring);
+    }
+    else
+    {
+        topic = topic_name->lenstring.data;
+        topiclen = topic_name->lenstring.len;
+    }
+
+    if(!sublen || !topiclen)
+    {
+        *result = 0;
+        return -1;
+    }
+
+    if(sublen && topiclen)
+    {
+        if((sub[0] == '$' && topic[0] != '$')
+            || (topic[0] == '$' && sub[0] != '$'))
+        {
+            return 0;
+        }
+    }
+
+    spos = 0;
+    tpos = 0;
+
+    while(spos < sublen && tpos <= topiclen)
+    {
+        if(sub[spos] == topic[tpos])
+        {
+            if(tpos == topiclen-1)
+            {
+                /* Check for e.g. foo matching foo/# */
+                if(spos == sublen-3 && sub[spos+1] == '/' && sub[spos+2] == '#')
+                {
+                    *result = 1;
+                    multilevel_wildcard = 1;
+                    return 0;
+                }
+            }
+            spos++;
+            tpos++;
+            if(spos == sublen && tpos == topiclen)
+            {
+                *result = 1;
+                return 0;
+            }
+            else if(tpos == topiclen && spos == sublen-1 && sub[spos] == '+')
+            {
+                if(spos > 0 && sub[spos-1] != '/')
+                {
+                    return -1;
+                }
+                spos++;
+                *result = 1;
+                return 0;
+            }
+        }
+        else
+        {
+            if(sub[spos] == '+')
+            {
+                /* Check for bad "+foo" or "a/+foo" subscription */
+                if(spos > 0 && sub[spos-1] != '/')
+                {
+                    return -1;
+                }
+                /* Check for bad "foo+" or "foo+/a" subscription */
+                if(spos < sublen-1 && sub[spos+1] != '/')
+                {
+                    return -1;
+                }
+                spos++;
+                while(tpos < topiclen && topic[tpos] != '/')
+                {
+                    tpos++;
+                }
+                if(tpos == topiclen && spos == sublen)
+                {
+                    *result = 1;
+                    return 0;
+                }
+            }
+            else if(sub[spos] == '#')
+            {
+                if(spos > 0 && sub[spos-1] != '/')
+                {
+                    return -1;
+                }
+                multilevel_wildcard = 1;
+                if(spos+1 != sublen)
+                {
+                    return -1;
+                }
+                else
+                {
+                    *result = 1;
+                    return 0;
+                }
+            }
+            else
+            {
+                /* Check for e.g. foo/bar matching foo/+/# */
+                if(spos > 0 && spos+2 == sublen && tpos == topiclen
+                    && sub[spos-1] == '+' && sub[spos] == '/' && sub[spos+1] == '#')
+                {
+                    *result = 1;
+                    multilevel_wildcard = 1;
+                    return 0;
+                }
+                return 0;
+            }
+        }
+    }
+    if(multilevel_wildcard == 0 && (tpos < topiclen || spos < sublen))
+    {
+        *result = 0;
+    }
+
+    return 0;
+}
+
+
 int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message)
 {
     int i;
     int rc = FAILURE;
+    char match_rst = 0;
 
     // we have to find the right message handler - indexed by topic
     for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
     {
-        if (c->messageHandlers[i].topicFilter != 0 && (MQTTPacket_equals(topicName, (char*)c->messageHandlers[i].topicFilter) ||
-                isTopicMatched((char*)c->messageHandlers[i].topicFilter, topicName)))
+        if (c->messageHandlers[i].topicFilter != 0)
         {
-            if (c->messageHandlers[i].fp != NULL)
+            (void)MQTTTopicMatched((const char*)c->messageHandlers[i].topicFilter, topicName, &match_rst);
+            if (1 == match_rst && c->messageHandlers[i].fp != NULL)
             {
                 MessageData md;
                 NewMessageData(&md, topicName, message);
