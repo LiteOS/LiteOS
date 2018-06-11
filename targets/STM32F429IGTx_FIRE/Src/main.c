@@ -31,25 +31,34 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include "main.h"
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
-
-RNG_HandleTypeDef hrng;
+#if defined WITH_AT_FRAMEWORK
+#include "at_api_interface.h"
+#endif
 UINT32 g_TskHandle;
 
 VOID HardWare_Init(VOID)
 {
     SystemClock_Config();
     Debug_USART1_UART_Init();
-    HAL_RNG_Init(&hrng);
+    hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
 
 VOID main_task(VOID)
 {
+
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
+    extern at_adaptor_api at_interface;
+    at_api_register(&at_interface);
+    at_api_init();
+#else
+#endif
     agent_tiny_entry();
 }
 UINT32 creat_main_task()

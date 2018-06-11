@@ -125,11 +125,20 @@ static void prv_requestBootstrap(lwm2m_context_t * context,
     }
 }
 
+/*
+ * modify info:
+ * modify date:     2019-06-04
+ * modify place:    STATE_BS_HOLD_OFF, STATE_BS_PENDING
+ * pay attention:
+ *                  the targetP->status are important, change one, should take care of other status.
+ *
+ */
 void bootstrap_step(lwm2m_context_t * contextP,
                     uint32_t currentTime,
                     time_t * timeoutP)
 {
     lwm2m_server_t * targetP;
+    bool server_to_client_mode = false;
 
     LOG("entering");
     targetP = contextP->bootstrapServerList;
@@ -139,6 +148,8 @@ void bootstrap_step(lwm2m_context_t * contextP,
         switch (targetP->status)
         {
         case STATE_DEREGISTERED:
+            //pay attention: targetP->lifetime come from securityobj instance, it's init value is 10. too small, too short for
+            //STATE_BS_HOLD_OFF. of course, the value could be wrote by the bs server. encode decode used for securityobj/serverobj instance
             targetP->registration = currentTime + targetP->lifetime;
             targetP->status = STATE_BS_HOLD_OFF;
             if (*timeoutP > targetP->lifetime)
@@ -150,27 +161,66 @@ void bootstrap_step(lwm2m_context_t * contextP,
         case STATE_BS_HOLD_OFF:
             if (targetP->registration <= currentTime)
             {
-                prv_requestBootstrap(contextP, targetP);
+                if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED)||(contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))  //add by tan
+                {
+                    prv_requestBootstrap(contextP, targetP);
+                }
+                else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
+                {
+                    //this situation is over clientHoldOffTime
+                    //targetP->status = STATE_BS_PENDING;
+                    if(contextP->bs_server_uri != NULL)
+                    {
+                        targetP->status = STATE_BS_FINISHING; //so get to the process : contextP->state = STATE_INITIAL;
+
+                        server_to_client_mode = true;  //
+                        contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
+                    }
+                    else
+                    {
+                        //LOG("[bootstrap_tag] ###########STATE_BS_HOLD_OFF ----wait---wait---wait---");
+                        //wait for bs_server write info to the device-----wait---wait---wait---
+                    }
+                }
             }
             else if (*timeoutP > targetP->registration - currentTime)
             {
                 *timeoutP = targetP->registration - currentTime;
             }
             break;
+
 
         case STATE_BS_INITIATED:
             // waiting
             break;
 
         case STATE_BS_PENDING:
-            if (targetP->registration <= currentTime)
+            if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED)||(contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))
             {
-               targetP->status = STATE_BS_FAILING;
-               *timeoutP = 0;
+                if (targetP->registration <= currentTime)
+                {
+                   //bootstrap failed, and in the atiny_bind, will return error again and again. do not try bootstrap request?
+                    //need it?
+                   targetP->status = STATE_BS_FAILING;
+                   *timeoutP = 0;
+                }
+                else if (*timeoutP > targetP->registration - currentTime)
+                {
+                    *timeoutP = targetP->registration - currentTime;
+                }
             }
-            else if (*timeoutP > targetP->registration - currentTime)
+            else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
             {
-                *timeoutP = targetP->registration - currentTime;
+                if (targetP->registration <= currentTime)
+                {
+                    //SERVER_INITIATED after write info, start to regist----,server not send finish request before timer
+                    targetP->status = STATE_BS_FINISHING;
+                   *timeoutP = 0;
+                }
+                else if (*timeoutP > targetP->registration - currentTime)
+                {
+                    *timeoutP = targetP->registration - currentTime;
+                }
             }
             break;
 
@@ -200,6 +250,15 @@ void bootstrap_step(lwm2m_context_t * contextP,
         LOG_ARG("Finalal status: %s", STR_STATUS(targetP->status));
         targetP = targetP->next;
     }
+
+    if(server_to_client_mode)
+    {
+        if(lwm2m_bootstrap_sequence_server_to_client_initiated(contextP) == 0)
+        {
+            contextP->state = STATE_INITIAL;
+        }
+    }
+
 }
 
 uint8_t bootstrap_handleFinish(lwm2m_context_t * context,

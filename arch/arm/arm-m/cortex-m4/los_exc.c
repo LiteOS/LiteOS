@@ -41,6 +41,8 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
+#if (LOSCFG_PLATFORM_EXC == YES)
+
 VOID *m_puwExcContent;
 UINT32 g_uwCurNestCount = 0;
 EXC_INFO_S m_stExcInfo;
@@ -91,11 +93,16 @@ EXC_INFO_ARRAY_S m_stExcArray[OS_EXC_TYPE_MAX - 1];
  Output      : None
  Return      : None
  *****************************************************************************/
+#if (LOSCFG_PLATFORM_HWI == YES)
+extern UINT32 g_vuwIntCount;
+#endif
 LITE_OS_SEC_TEXT_INIT VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UINT32 uwPid, EXC_CONTEXT_S *  pstExcBufAddr)
 {
     UINT16 usTmpFlag = (uwExcType >> 16) & 0xFFFF; // 为2在中断中，为1 uwFaultAddr有效
     g_uwCurNestCount++;
+#if (LOSCFG_PLATFORM_HWI == YES)
     g_vuwIntCount++;
+#endif
     m_stExcInfo.usNestCnt = g_uwCurNestCount;
 
     m_stExcInfo.usType = uwExcType & 0xFFFF;
@@ -319,6 +326,7 @@ static VOID osExcSave2DDR(VOID)
 
 LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
 {
+#if (LOSCFG_PLATFORM_HWI == YES)
     m_pstHwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT] = osExcNMI;
 
     //m_pstHwiForm[HardFault_IRQn + OS_SYS_VECTOR_CNT] = osExcHardFault;
@@ -326,6 +334,7 @@ LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
     m_pstHwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT] = osExcBusFault;
     m_pstHwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT] = osExcUsageFault;
     m_pstHwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT] = osExcSvcCall;
+#endif
     /* Enable USGFAULT, BUSFAULT, MEMFAULT */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= 0x70000;
     /* Enable DIV 0 and unaligned exception */  //因为文件系统存在非对齐操作，故此异常暂不接管
@@ -336,6 +345,59 @@ LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
     osExcRegister((EXC_INFO_TYPE)OS_EXC_TYPE_NVIC, (EXC_INFO_SAVE_CALLBACK)osExcSaveIntStatus, NULL);
 }
 
+#if (LOSCFG_PLATFORM_HWI == NO)
+/**
+  * @brief  This function handles NMI exception.
+  * @param  None
+  * @retval None
+  */
+void NMI_Handler(void)
+{
+    osExcNMI();
+}
+
+/**
+  * @brief  This function handles Hard Fault exception.
+  * @param  None
+  * @retval None
+  */
+void HardFault_Handler(void)
+{
+    osExcHardFault();
+}
+
+/**
+  * @brief  This function handles Bus Fault exception.
+  * @param  None
+  * @retval None
+  */
+void BusFault_Handler(void)
+{
+    osExcBusFault();
+}
+
+/**
+  * @brief  This function handles Usage Fault exception.
+  * @param  None
+  * @retval None
+  */
+void UsageFault_Handler(void)
+{
+    osExcUsageFault();
+}
+
+/**
+  * @brief  This function handles SVCall exception.
+  * @param  None
+  * @retval None
+  */
+void SVC_Handler(void)
+{
+    osExcSvcCall();
+}
+#endif
+
+#endif /*(LOSCFG_PLATFORM_EXC == YES)*/
 
 #ifdef __cplusplus
 #if __cplusplus

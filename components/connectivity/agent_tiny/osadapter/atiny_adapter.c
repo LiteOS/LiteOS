@@ -33,15 +33,12 @@
  *---------------------------------------------------------------------------*/
 
 #include "atiny_adapter.h"
-#include "stm32f4xx.h"
-#include "stm32f4xx_hal_rng.h"
+#include "hal_rng.h"
 #include "dwt.h"
 #include "los_memory.h"
 #include "los_sys.ph"
 #include "los_sem.ph"
 #include "los_tick.ph"
-
-extern RNG_HandleTypeDef hrng;
 
 #define ATINY_CNT_MAX_WAITTIME 0xFFFFFFFF
 #define LOG_BUF_SIZE (256)
@@ -75,22 +72,9 @@ void atiny_usleep(unsigned long usec)
     delayus((uint32_t)usec);
 }
 
-int atiny_random(unsigned char* output, size_t len)
+int atiny_random(void* output, size_t len)
 {
-    size_t i;
-    uint32_t random_number;
-
-    for (i = 0; i < len; i += sizeof(uint32_t))
-    {
-        if (HAL_RNG_GenerateRandomNumber(&hrng, &random_number) != HAL_OK)
-        {
-            return -1;
-        }
-        memcpy(output + i, &random_number,
-               sizeof(uint32_t) > len - i ? len - i : sizeof(uint32_t));
-    }
-
-    return 0;
+    return hal_rng_generate_buffer(output, len);
 }
 
 void* atiny_malloc(size_t size)
@@ -129,6 +113,24 @@ int atiny_printf(const char* format, ...)
     printf("%s", str_buf);
 
     return ret;
+}
+
+char *atiny_strdup(const char *ch)
+{
+    char *copy;
+    size_t length;
+
+    if(NULL == ch)
+        return NULL;
+
+    length = strlen(ch);
+    copy= (char *)atiny_malloc(length + 1);
+    if(NULL == copy)
+        return NULL;
+    strncpy(copy, ch, length);
+    copy[length] = '\0';
+
+    return copy;
 }
 
 #if (LOSCFG_BASE_IPC_SEM == YES)
@@ -206,4 +208,3 @@ void atiny_mutex_lock(void* mutex) { ((void)mutex); }
 void atiny_mutex_unlock(void* mutex) { ((void)mutex); }
 
 #endif /* LOSCFG_BASE_IPC_SEM == YES */
-
