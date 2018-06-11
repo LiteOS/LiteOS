@@ -40,6 +40,11 @@
 #include "atiny_adapter.h"
 #include "MQTTClient.h"
 
+#define MQTT_VERSION_3_1 (3)
+#define MQTT_VERSION_3_1_1 (4)
+#define MQTT_CLEAN_SESSION_TRUE (1)
+#define MQTT_CLEAN_SESSION_FALSE (0)
+
 void mqtt_message_arrived(MessageData* md);
 void device_info_member_free(atiny_device_info_t* info);
 
@@ -131,7 +136,7 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
     switch(src->security_type)
     {
         case CLOUD_SECURITY_TYPE_PSK:
-            dest->psk.psk_id = atiny_strdup((const char *)(src->psk.psk_id));
+            dest->psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->psk.psk_id));
             if(NULL == dest->psk.psk_id)
                 goto atiny_param_dup_failed;
             dest->psk.psk = (unsigned char *)atiny_malloc(src->psk.psk_len);
@@ -267,6 +272,8 @@ int mqtt_del_interest_topic(const char *topic)
             atiny_free(interest_uris[i].uri);
             interest_uris[i].uri = NULL;
             memset(&(interest_uris[i]), 0x0, sizeof(interest_uris[i]));
+            rc = 0;
+            break;
         }
     }
 
@@ -336,51 +343,6 @@ int mqtt_message_publish(MQTTClient *client, cloud_msg_t* send_data)
     return rc;
 }
 
-char is_mqtt_topic_matched(char* topicFilter, MQTTString* topicName)
-{
-    char* curf = topicFilter;
-    char* curn;
-    char* curn_end;
-    char* nextpos;
-
-    if(NULL == topicFilter || NULL == topicName)
-    {
-        printf("[%s][%d] invalid params\n", __FUNCTION__, __LINE__);
-        return 0;
-    }
-
-    if(topicName->cstring)
-    {
-        curn = topicName->cstring;
-        curn_end = curn + strlen(topicName->cstring);
-    }
-    else
-    {
-        curn = topicName->lenstring.data;
-        curn_end = curn + topicName->lenstring.len;
-    }
-
-    while(*curf && curn < curn_end)
-    {
-        if(*curn == '/' && *curf != '/')
-            break;
-        if(*curf != '+' && *curf != '#' && *curf != *curn)
-            break;
-        if(*curf == '+')
-        {
-            nextpos = curn + 1;
-            while(nextpos < curn_end && *nextpos != '/')
-                nextpos = ++curn + 1;
-        }
-        else if(*curf == '#')
-            curn = curn_end - 1;
-        curf++;
-        curn++;
-    };
-
-    return (curn == curn_end) && (*curf == '\0');
-}
-
 void mqtt_message_arrived(MessageData* md)
 {
     MQTTMessage* message;
@@ -392,32 +354,37 @@ void mqtt_message_arrived(MessageData* md)
     if(NULL == md)
         return;
 
+    if(NULL == md->topic_sub)
+        return;
+
     message = md->message;
     topic = md->topicName;
 
-    printf("[%s][%d] %.*s : %.*s\n", __FUNCTION__, __LINE__, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
+    printf("[%s][%d] [%s] %.*s : %.*s\n", __FUNCTION__, __LINE__, md->topic_sub, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
-        if(NULL != interest_uris[i].uri && (MQTTPacket_equals(topic, (char*)interest_uris[i].uri) ||
-                is_mqtt_topic_matched((char*)interest_uris[i].uri, topic)))
+        if(NULL != interest_uris[i].uri && NULL != interest_uris[i].cb)
         {
-            memset(&msg, 0x0, sizeof(msg));
-            if(topic->cstring)
+            if(0 == strcmp(md->topic_sub, interest_uris[i].uri))
             {
-                msg.uri = topic->cstring;
-                msg.uri_len = strlen(topic->cstring);
+                memset(&msg, 0x0, sizeof(msg));
+                if(topic->cstring)
+                {
+                    msg.uri = topic->cstring;
+                    msg.uri_len = strlen(topic->cstring);
+                }
+                else
+                {
+                    msg.uri = topic->lenstring.data;
+                    msg.uri_len = topic->lenstring.len;
+                }
+                msg.method = CLOUD_METHOD_POST;
+                msg.qos = message->qos;
+                msg.payload_len = message->payloadlen;
+                msg.payload = message->payload;
+                interest_uris[i].cb(&msg);
             }
-            else
-            {
-                msg.uri = topic->lenstring.data;
-                msg.uri_len = topic->lenstring.len;
-            }
-            msg.method = CLOUD_METHOD_POST;
-            msg.qos = message->qos;
-            msg.payload_len = message->payloadlen;
-            msg.payload = message->payload;
-            interest_uris[i].cb(&msg);
         }
     }
 
@@ -496,7 +463,7 @@ void device_info_member_free(atiny_device_info_t* info)
         info->password = NULL;
     }
 
-    if(1 == info->will_flag)
+    if(MQTT_WILL_FLAG_TRUE == info->will_flag)
     {
         if(NULL != info->will_options)
         {
@@ -548,7 +515,7 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
 
     dest->will_flag = src->will_flag;
 
-    if(1 == dest->will_flag && NULL != src->will_options)
+    if(MQTT_WILL_FLAG_TRUE == dest->will_flag && NULL != src->will_options)
     {
         dest->will_options = (cloud_will_options_t *)atiny_malloc(sizeof(cloud_will_options_t));
         if(NULL == dest->will_options)
@@ -648,7 +615,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
     MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, mqtt_sendbuf, MQTT_SENDBUF_SIZE, mqtt_readbuf, MQTT_READBUF_SIZE);
 
     data.willFlag = device_info_t->will_flag;
-    data.MQTTVersion = 3;
+    data.MQTTVersion = MQTT_VERSION_3_1;
     data.clientID.cstring = device_info_t->client_id;
     data.username.cstring = device_info_t->user_name;
     data.password.cstring = device_info_t->password;
@@ -660,7 +627,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         data.will.retained = device_info_t->will_options->retained;
     }
     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;
-    data.cleansession = 1;
+    data.cleansession = MQTT_CLEAN_SESSION_TRUE;
 
     while(handle->atiny_quit == 0)
     {

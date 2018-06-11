@@ -89,6 +89,7 @@ typedef struct MessageData
 {
     MQTTMessage* message;
     MQTTString* topicName;
+    const char* topic_sub;
 } MessageData;
 
 typedef struct MQTTConnackData

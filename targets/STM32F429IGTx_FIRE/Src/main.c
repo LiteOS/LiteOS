@@ -34,8 +34,9 @@
 #include "main.h"
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
+#if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
-
+#endif
 UINT32 g_TskHandle;
 
 VOID HardWare_Init(VOID)
@@ -48,12 +49,15 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
-#if NETWORK_TYPE == COMMON_ETHER
+
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
-#else
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
+    extern at_adaptor_api at_interface;
     at_api_register(&at_interface);
     at_api_init();
+#else
 #endif
     agent_tiny_entry();
 }

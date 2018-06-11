@@ -1,3 +1,5 @@
+
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
 #include "atadapter.h"
 #include "at_api_interface.h"
@@ -362,4 +364,4 @@ at_adaptor_api at_interface = {
 
     .deinit = nb_deinit,
 };
-
+#endif

@@ -97,7 +97,7 @@ typedef struct at_task{
 	at_listener * head;
 	uint32_t timeout;  //命令响应超时时间
 
-	void    (*init)(void);
+	void    (*init)(at_config *at_conf);
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* 获取未使用的linkid, 多链接模式下使用 */
@@ -107,6 +107,5 @@ typedef struct at_task{
 } at_task;
 
 //declear in device drivers
-extern at_config at_user_conf;
 extern UART_HandleTypeDef at_usart;
 #endif

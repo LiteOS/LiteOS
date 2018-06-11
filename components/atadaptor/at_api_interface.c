@@ -1,6 +1,7 @@
-
+#if defined(WITH_AT_FRAMEWORK)
 #include "at_api_interface.h"
 #include "atadapter.h"
+
 
 static at_adaptor_api  *gp_at_adaptor_api = NULL;
 
@@ -86,3 +87,4 @@ int8_t at_api_get_localip(int8_t *ip, int8_t * gw, int8_t * mask)
 	}
 	return AT_FAILED;
 }
+#endif
