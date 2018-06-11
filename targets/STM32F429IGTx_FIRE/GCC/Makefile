@@ -88,8 +88,14 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
         C_SOURCES += $(HAL_DRIVER_SRC)
+
+HARDWARE_SRC =  \
+        ${wildcard $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Src/*.c}
+        C_SOURCES += $(HARDWARE_SRC)
 
 LWIP_SRC =  \
         ${wildcard $(TOP_DIR)/components/net/lwip-2.0.3/src/api/*.c} \
@@ -130,6 +136,10 @@ AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
 
+FOTA_SRC = \
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
+        C_SOURCES += $(FOTA_SRC)
+
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
@@ -137,6 +147,15 @@ USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
+
+ATADAPTOR_SRC = \
+        ${wildcard $(TOP_DIR)/components/atadaptor/*.c}
+        C_SOURCES += $(ATADAPTOR_SRC)
+
+USER_DRIVERS_SRC = \
+        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c} \
+        ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
+        C_SOURCES += $(USER_DRIVERS_SRC)
 
 
 # ASM sources
@@ -210,6 +229,10 @@ HAL_DRIVER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
 
+HARDWARE_INC = \
+        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Inc
+        C_INCLUDES += $(HARDWARE_INC)
+
 LWIP_INC = \
         -I $(TOP_DIR)/components/net/lwip-2.0.3/src/include
         C_INCLUDES += $(LWIP_INC)
@@ -249,11 +272,23 @@ AGENT_DEMO_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/examples
         C_INCLUDES += $(AGENT_DEMO_INC)
 
+FOTA_INC = \
+        -I $(TOP_DIR)/components/fota/ota
+        C_INCLUDES += $(FOTA_INC)
+
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Inc \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
+ATADAPTOR_INC = \
+        -I $(TOP_DIR)/components/atadaptor
+        C_INCLUDES += $(ATADAPTOR_INC)
+
+USER_DRIVERS_INC = \
+        -I $(TOP_DIR)/drivers/devices/wifi \
+        -I $(TOP_DIR)/drivers/devices/gprs \
+        C_INCLUDES += $(USER_DRIVERS_INC)
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

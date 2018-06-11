@@ -79,6 +79,7 @@
  */
 
 #include "internals.h"
+#include "object_comm.h"
 #ifdef LWM2M_CLIENT_MODE
 
 
@@ -92,60 +93,67 @@
 #define RES_M_TIMESTAMP    5
 #define RES_O_SPEED        6
 
-#define PRV_LATITUDE 27.986065
-#define PRV_LONGITUDE 86.922623
-#define PRV_ALTITUDE 8495.0000
-#define PRV_RADIUS 0.0
-#define PRV_SPEED 0.0
-
-//-----  3GPP TS 23.032 V11.0.0(2012-09) ---------
-#define HORIZONTAL_VELOCITY                  0  // for Octet-1 upper half(..<<4)
-#define HORIZONTAL_VELOCITY_VERTICAL         1  // set vertical direction bit!
-#define HORIZONTAL_VELOCITY_WITH_UNCERTAINTY 2
-
-#define VELOCITY_OCTETS                      5  // for HORIZONTAL_VELOCITY_WITH_UNCERTAINTY
-
-typedef struct
-{
-    float    latitude;
-    float    longitude;
-    float    altitude;
-    float    radius;
-    uint8_t  velocity[VELOCITY_OCTETS];        //3GPP notation 1st step: HORIZONTAL_VELOCITY_WITH_UNCERTAINTY
-    unsigned long timestamp;
-    float    speed;
-} location_data_t;
-
 /**
 implementation for all read-able resources
 */
-static uint8_t prv_res2tlv(lwm2m_data_t* dataP,
-                           location_data_t* locDataP)
+static uint8_t prv_res2tlv(lwm2m_data_t* dataP)
 {
     //-------------------------------------------------------------------- JH --
     uint8_t ret = COAP_205_CONTENT;
+    float get_value;
+    uint64_t timestamp;
+    atiny_velocity_s velocity;
+
     switch (dataP->id)     // location resourceId
     {
     case RES_M_LATITUDE:
-        lwm2m_data_encode_float(locDataP->latitude, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_LATITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+            lwm2m_data_encode_float(get_value, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_M_LONGITUDE:
-        lwm2m_data_encode_float(locDataP->longitude, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_LONGITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+            lwm2m_data_encode_float(get_value, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_O_ALTITUDE:
-        lwm2m_data_encode_float(locDataP->altitude, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_ALTITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+            lwm2m_data_encode_float(get_value, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_O_RADIUS:
-        lwm2m_data_encode_float(locDataP->radius, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_RADIUS, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+            lwm2m_data_encode_float(get_value, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_O_VELOCITY:
-        lwm2m_data_encode_string((const char*)locDataP->velocity, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_VELOCITY, (char*)&velocity, sizeof(velocity)) == ATINY_OK) {
+            lwm2m_data_encode_opaque(velocity.opaque, velocity.length, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_M_TIMESTAMP:
-        lwm2m_data_encode_int(locDataP->timestamp, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_TIMESTAMP, (char*)&timestamp, sizeof(uint64_t)) == ATINY_OK) {
+            lwm2m_data_encode_float(timestamp, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     case RES_O_SPEED:
-        lwm2m_data_encode_float(locDataP->speed, dataP);
+        if (atiny_cmd_ioctl(ATINY_GET_SPEED, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+            lwm2m_data_encode_float(get_value, dataP);
+        } else {
+            ret = COAP_400_BAD_REQUEST;
+        }
         break;
     default:
         ret = COAP_404_NOT_FOUND;
@@ -176,7 +184,6 @@ static uint8_t prv_location_read(uint16_t objInstId,
     //-------------------------------------------------------------------- JH --
     int     i;
     uint8_t result = COAP_500_INTERNAL_SERVER_ERROR;
-    location_data_t* locDataP = (location_data_t*)(objectP->userData);
 
     // defined as single instance object!
     if (objInstId != 0) return COAP_404_NOT_FOUND;
@@ -206,8 +213,8 @@ static uint8_t prv_location_read(uint16_t objInstId,
 
     for (i = 0 ; i < *numDataP ; i++)
     {
-        result = prv_res2tlv ((*tlvArrayP)+i, locDataP);
-        if (result!=COAP_205_CONTENT) break;
+        result = prv_res2tlv ((*tlvArrayP)+i);
+        if (result != COAP_205_CONTENT) break;
     }
 
     return result;
@@ -216,62 +223,25 @@ static uint8_t prv_location_read(uint16_t objInstId,
 void display_location_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
-    location_data_t * data = (location_data_t *)object->userData;
+    float latitude = 0.0f;
+    float longitude = 0.0f;
+    float altitude = 0.0f;
+    float radius = 0.0f;
+    float speed = 0.0f;
+    uint64_t timestamp = 0U;
+
+    (void)atiny_cmd_ioctl(ATINY_GET_LATITUDE, &latitude, sizeof(float));
+    (void)atiny_cmd_ioctl(ATINY_GET_LONGITUDE, &longitude, sizeof(float));
+    (void)atiny_cmd_ioctl(ATINY_GET_ALTITUDE, &altitude, sizeof(float));
+    (void)atiny_cmd_ioctl(ATINY_GET_RADIUS, &radius, sizeof(float));
+    (void)atiny_cmd_ioctl(ATINY_GET_SPEED, &speed, sizeof(float));
+    (void)atiny_cmd_ioctl(ATINY_GET_TIMESTAMP, &timestamp, sizeof(uint64_t));
+
     fprintf(stdout, "  /%u: Location object:\r\n", object->objID);
-    if (NULL != data)
-    {
-        fprintf(stdout, "    latitude: %.6f, longitude: %.6f, altitude: %.6f, radius: %.6f, timestamp: %lu, speed: %.6f\r\n",
-                data->latitude, data->longitude, data->altitude, data->radius, data->timestamp, data->speed);
-    }
+    fprintf(stdout, "    latitude: %.6f, longitude: %.6f, altitude: %.6f, radius: %.6f, timestamp: %lu, speed: %.6f\r\n",
+            latitude, longitude, altitude, radius, timestamp, speed);
+
 #endif
-}
-
-/**
-  * Convenience function to set the velocity attributes.
-  * see 3GPP TS 23.032 V11.0.0(2012-09) page 23,24.
-  * implemented for: HORIZONTAL_VELOCITY_WITH_UNCERTAINTY
-  * @param locationObj location object reference (to be casted!)
-  * @param bearing          [Deg]  0 - 359    resolution: 1 degree
-  * @param horizontalSpeed  [km/h] 1 - s^16-1 resolution: 1 km/h steps
-  * @param speedUncertainty [km/h] 1-254      resolution: 1 km/h (255=undefined!)
-  */
-void location_setVelocity(lwm2m_object_t* locationObj,
-                          uint16_t bearing,
-                          uint16_t horizontalSpeed,
-                          uint8_t speedUncertainty)
-{
-    //-------------------------------------------------------------------- JH --
-    location_data_t* pData = locationObj->userData;
-    //pData->velocity[0] = HORIZONTAL_VELOCITY_WITH_UNCERTAINTY << 4;
-    pData->velocity[0] = (bearing & 0x100) >> 8;
-    pData->velocity[1] = (bearing & 0x0FF);
-    pData->velocity[2] = horizontalSpeed >> 8;
-    pData->velocity[3] = horizontalSpeed & 0xff;
-    pData->velocity[4] = speedUncertainty;
-}
-
-/**
-  * A convenience function to set the location coordinates with its timestamp.
-  * @see testMe()
-  * @param locationObj location object reference (to be casted!)
-  * @param latitude  the second argument.
-  * @param longitude the second argument.
-  * @param altitude  the second argument.
-  * @param timestamp the related timestamp. Seconds since 1970.
-  */
-void location_setLocationAtTime(lwm2m_object_t* locationObj,
-                             float latitude,
-                             float longitude,
-                             float altitude,
-                             uint64_t timestamp)
-{
-    //-------------------------------------------------------------------- JH --
-    location_data_t* pData = locationObj->userData;
-
-    pData->latitude  = latitude;
-    pData->longitude = longitude;
-    pData->altitude  = altitude;
-    pData->timestamp = timestamp;
 }
 
 /**
@@ -310,25 +280,6 @@ lwm2m_object_t * get_object_location(void)
         // In fact the library don't need to know the resources of the object, only the server does.
         //
         locationObj->readFunc    = prv_location_read;
-        locationObj->userData    = lwm2m_malloc(sizeof(location_data_t));
-
-        // initialize private data structure containing the needed variables
-        if (NULL != locationObj->userData)
-        {
-            location_data_t* data = (location_data_t*)locationObj->userData;
-            data->latitude    = PRV_LATITUDE;  // Mount Everest :)
-            data->longitude   = PRV_LONGITUDE;
-            data->altitude    = PRV_ALTITUDE;
-            data->radius      = PRV_RADIUS;
-            location_setVelocity(locationObj, 0, 0, 255); // 255: speedUncertainty not supported!
-            data->timestamp   = lwm2m_gettime();//time(NULL);
-            data->speed       = PRV_SPEED;
-        }
-        else
-        {
-            lwm2m_free(locationObj);
-            locationObj = NULL;
-        }
     }
 
     return locationObj;

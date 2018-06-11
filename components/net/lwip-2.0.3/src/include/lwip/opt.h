@@ -148,6 +148,29 @@
  * @}
  */
 
+/**
+ * @defgroup lwip_opts_security security interface
+ * @ingroup lwip_opts_infrastructure
+ * @{
+ */
+/**
+ * secure callback function for the random number generator.
+ */
+typedef int (*PTlwIPFuncRand)(void);
+/**
+ * struct for secure callback functions
+ */
+typedef struct lwip_impl
+{
+    PTlwIPFuncRand pfRand;
+} STlwIPFuncSsp;
+
+extern STlwIPFuncSsp g_stlwIPSspCallbacks;
+void lwIPRegSspCbk(const STlwIPFuncSsp* pstFuncSsp);
+/**
+ * @}
+ */
+
 /*
    ------------------------------------
    ----------- Core locking -----------

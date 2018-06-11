@@ -35,6 +35,10 @@
 #include "atiny_socket.h"
 #include "atiny_adapter.h"
 
+#ifdef USE_AT_FRAMEWORK
+#include "at_api_interface.h"
+#endif
+
 #if defined(WITH_LINUX)
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -75,12 +79,13 @@ typedef struct
 
 void* atiny_net_connect(const char* host, const char* port, int proto)
 {
+    atiny_net_context* ctx;
+#ifndef USE_AT_FRAMEWORK
     int flags;
     int ret;
     struct addrinfo hints;
     struct addrinfo* addr_list;
     struct addrinfo* cur;
-    atiny_net_context* ctx;
 
     if (NULL == host || NULL == port ||
         (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
@@ -161,7 +166,22 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     {
         SOCKET_LOG("TCP connect to server(%s:%s) succeed", host, port);
     }
+#else
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }    
 
+    ctx->fd = at_api_connect(host, port, proto);
+    if (ctx->fd < 0)
+    {
+        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        atiny_free(ctx);
+        ctx = NULL;
+    }
+#endif  
     return ctx;
 }
 
@@ -208,6 +228,7 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         SOCKET_LOG("ilegal socket(%d)", fd);
         return -1;
     }
+#ifndef USE_AT_FRAMEWORK
 
     FD_ZERO(&read_fds);
     FD_SET(fd, &read_fds);
@@ -224,6 +245,10 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     }
 
     return atiny_net_recv(ctx, buf, len);
+#else 
+    return at_api_recv_timeout(fd, buf, len, timeout);
+    
+#endif
 }
 
 int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
@@ -237,7 +262,11 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
         return -1;
     }
 
+    #ifndef USE_AT_FRAMEWORK
     ret = send(fd, buf, len, 0);
+    #else
+    ret = at_api_send(fd, buf, len);
+    #endif
 
     if (ret < 0)
     {
@@ -262,7 +291,11 @@ void atiny_net_close(void* ctx)
 
     if (fd >= 0)
     {
+        #ifndef USE_AT_FRAMEWORK
         close(fd);
+        #else
+        at_api_close(fd);
+        #endif
     }
 
     atiny_free(ctx);

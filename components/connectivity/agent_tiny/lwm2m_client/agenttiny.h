@@ -78,7 +78,22 @@ typedef enum
     ATINY_GET_LINK_UTILIZATION,
     ATINY_WRITE_APP_DATA,
     ATINY_UPDATE_PSK,
+    ATINY_GET_LATITUDE,
+    ATINY_GET_LONGITUDE,
+    ATINY_GET_ALTITUDE,
+    ATINY_GET_RADIUS,
+    ATINY_GET_SPEED,
+    ATINY_GET_TIMESTAMP,
+    ATINY_GET_VELOCITY,
 } atiny_cmd_e;
+
+#define MAX_VELOCITY_LEN 16
+
+typedef struct
+{
+    uint8_t opaque[MAX_VELOCITY_LEN];
+    int length;
+} atiny_velocity_s;
 
 /**
  *@ingroup agenttiny
