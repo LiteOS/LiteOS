@@ -89,6 +89,7 @@ typedef struct MessageData
 {
     MQTTMessage* message;
     MQTTString* topicName;
+    const char* topic_sub;
 } MessageData;
 
 typedef struct MQTTConnackData
@@ -222,8 +223,6 @@ inline DLLExport int MQTTIsConnected(MQTTClient* client)
 {
   return client->isconnected;
 }
-
-DLLExport int MQTTTopicMatched(const char *sub, MQTTString *topic_name, char *result);
 
 #if defined(MQTT_TASK)
 /** MQTT start background thread for a client.  After this, MQTTYield should not be called.

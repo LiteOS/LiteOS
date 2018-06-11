@@ -349,23 +349,24 @@ void mqtt_message_arrived(MessageData* md)
     MQTTString* topic;
     atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
     cloud_msg_t msg;
-    char match_rst = 0;
     int i;
 
     if(NULL == md)
         return;
 
+    if(NULL == md->topic_sub)
+        return;
+
     message = md->message;
     topic = md->topicName;
 
-    printf("[%s][%d] %.*s : %.*s\n", __FUNCTION__, __LINE__, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
+    printf("[%s][%d] [%s] %.*s : %.*s\n", __FUNCTION__, __LINE__, md->topic_sub, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
         if(NULL != interest_uris[i].uri && NULL != interest_uris[i].cb)
         {
-            (void)MQTTTopicMatched((const char *)interest_uris[i].uri, topic, &match_rst);
-            if(match_rst == 1)
+            if(0 == strcmp(md->topic_sub, interest_uris[i].uri))
             {
                 memset(&msg, 0x0, sizeof(msg));
                 if(topic->cstring)

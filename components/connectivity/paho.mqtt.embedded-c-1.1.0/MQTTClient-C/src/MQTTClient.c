@@ -17,9 +17,10 @@
  *******************************************************************************/
 #include "MQTTClient.h"
 
-static void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessage) {
+static void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessage, const char * topic_sub) {
     md->topicName = aTopicName;
     md->message = aMessage;
+    md->topic_sub = topic_sub;
 }
 
 
@@ -145,7 +146,7 @@ exit:
  * Copyright (c) 2009-2018 Roger Light <roger@atchoo.org>
  * licensed under the Eclipse Public License 1.0 and the Eclipse Distribution License 1.0
  */
-int MQTTTopicMatched(const char *sub, MQTTString *topic_name, char *result)
+static int MQTTTopicMatched(const char *sub, MQTTString *topic_name, char *result)
 {
     int sublen, topiclen;
     int spos, tpos;
@@ -304,7 +305,7 @@ int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message)
             if (1 == match_rst && c->messageHandlers[i].fp != NULL)
             {
                 MessageData md;
-                NewMessageData(&md, topicName, message);
+                NewMessageData(&md, topicName, message, (const char*)c->messageHandlers[i].topicFilter);
                 c->messageHandlers[i].fp(&md);
                 rc = MQTT_SUCCESS;
             }
@@ -314,7 +315,7 @@ int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message)
     if (rc == FAILURE && c->defaultMessageHandler != NULL)
     {
         MessageData md;
-        NewMessageData(&md, topicName, message);
+        NewMessageData(&md, topicName, message, NULL);
         c->defaultMessageHandler(&md);
         rc = MQTT_SUCCESS;
     }
