@@ -60,14 +60,6 @@
 
 /* USER CODE END Private defines */
 
-//#define USE_AT_FRAMEWORK      YES
-
-#if defined(USE_AT_FRAMEWORK)
-#define USE_ESP8266           YES
-//#define USE_SIM900A           YES
-//#define USE_BC95              YES
-#endif
-
 #ifdef __cplusplus
  extern "C" {
 #endif

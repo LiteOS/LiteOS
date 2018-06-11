@@ -1,13 +1,13 @@
 
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
 #include "esp8266.h"
 #include "atadapter.h"
 #include "at_api_interface.h"
 #include "atiny_socket.h"
-#include "main.h"
-#if defined(USE_AT_FRAMEWORK) && defined(USE_ESP8266)
+
 extern at_task at;
 
-at_adaptor_api at_interface;
+
 
 int32_t esp8266_echo_off(void)
 {
@@ -282,7 +282,21 @@ int32_t esp8266_deinit(void)
 
 int32_t esp8266_init()
 {
-    at.init();
+    at_config at_user_conf = {
+        .name = AT_MODU_NAME,
+        .usart = USART3,
+        .buardrate = AT_BUARDRATE,
+        .irqn = AT_USART_IRQn,
+        .linkid_num = AT_MAX_LINK_NUM,
+        .user_buf_len = MAX_AT_USERDATA_LEN,
+        .cmd_begin = AT_CMD_BEGIN,
+        .line_end = AT_LINE_END,
+        .mux_mode = 1, //support multi connection mode
+        .timeout = AT_CMD_TIMEOUT,   //  ms
+
+    };
+    at.init(&at_user_conf);
+    
     //at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler);
 #ifdef 	USE_USARTRX_DMA
@@ -306,19 +320,7 @@ int32_t esp8266_init()
     AT_LOG("get ip:%s, gw:%s mac:%s", ip, gw, mac);
     return AT_OK;
 }
-at_config at_user_conf = {
-    .name = AT_MODU_NAME,
-    .usart = USART3,
-    .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
-    .linkid_num = AT_MAX_LINK_NUM,
-    .user_buf_len = MAX_AT_USERDATA_LEN,
-    .cmd_begin = AT_CMD_BEGIN,
-    .line_end = AT_LINE_END,
-    .mux_mode = 1, //support multi connection mode
-    .timeout = AT_CMD_TIMEOUT,   //  ms
 
-};
 
 at_adaptor_api at_interface = {
 

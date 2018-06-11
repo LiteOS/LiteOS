@@ -1,7 +1,7 @@
-
+#if defined(WITH_AT_FRAMEWORK)
 #include "at_api_interface.h"
 #include "atadapter.h"
-#if defined(USE_AT_FRAMEWORK)
+
 
 static at_adaptor_api  *gp_at_adaptor_api = NULL;
 

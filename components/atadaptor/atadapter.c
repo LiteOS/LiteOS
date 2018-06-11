@@ -1,12 +1,15 @@
+
+#if defined(WITH_AT_FRAMEWORK)
+
 #include "atadapter.h"
 #include "at_api_interface.h"
 #include "stm32f4xx_hal.h"
 #include "los_task.h"
 #include "los_sem.h"
-#if defined(USE_AT_FRAMEWORK)
+
 
 /* FUNCTION */
-void at_init();
+void at_init(at_config *at_conf);
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 int32_t at_get_unuse_linkid();
@@ -37,6 +40,8 @@ at_task at = {
     .get_id = at_get_unuse_linkid,
 };
 at_oob_t at_oob;
+at_config at_user_conf;
+
 
 #ifdef USE_USARTRX_DMA
 void at_usart3rx_dma_irqhandler(void)
@@ -508,8 +513,11 @@ int32_t at_struct_init(at_task * at)
         return AT_FAILED;
 }
 
-void at_init()
+void at_init(at_config *at_conf)
 {
+
+    memcpy(&at_user_conf,at_conf,sizeof(at_config));
+    
     AT_LOG("Config %s......\n", at_user_conf.name);
 
     osDelay(2000);
