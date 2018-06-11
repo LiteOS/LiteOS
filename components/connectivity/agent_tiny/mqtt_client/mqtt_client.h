@@ -41,6 +41,11 @@
 extern "C" {
 #endif
 
+#define MQTT_WILL_FLAG_TRUE (1)
+#define MQTT_WILL_FLAG_FALSE (0)
+#define MQTT_RETAIN_FLAG_TRUE (1)
+#define MQTT_RETAIN_FLAG_FALSE (0)
+
 typedef enum
 {
     ATINY_OK                   = 0,
