@@ -43,8 +43,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define OS_MEM_ENABLE_MEM_STATISTICS
-
 /*
 * memcheck error code: the stack have not inited
 * Value: 0x02000100

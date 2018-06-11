@@ -44,17 +44,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
-#define OS_MEM_ENABLE_MEM_STATISTICS
-#ifdef OS_MEM_ENABLE_MEM_STATISTICS
-#include "los_memstat.ph"
-#define OS_MEM_ADD_USED(arg)         osTaskMemUsedInc(arg)
-#define OS_MEM_REDUCE_USED(arg)      osTaskMemUsedDec(arg)
-#else
-#define OS_MEM_ADD_USED(arg)
-#define OS_MEM_REDUCE_USED(arg)
-#endif
-
 #define OS_MEM_ALIGN(p, alignSize)    (((unsigned int)(p) + alignSize -1) &(~ (alignSize -1)))
 #define OS_MEM_NODE_HEAD_SIZE sizeof(LOS_MEM_DYN_NODE)
 #define OS_MEM_MIN_POOL_SIZE (OS_DLNK_HEAD_SIZE + 2 * OS_MEM_NODE_HEAD_SIZE + sizeof(LOS_MEM_POOL_INFO))

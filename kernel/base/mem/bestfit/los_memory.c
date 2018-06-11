@@ -43,6 +43,10 @@
 #include "los_task.ph"
 #include "los_exc.h"
 
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+#include "los_memstat.inc"
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -261,7 +265,9 @@ LITE_OS_SEC_TEXT STATIC_INLINE VOID osMemFreeNode(LOS_MEM_DYN_NODE *pstNode, VOI
     LOS_MEM_DYN_NODE *pstNextNode = (LOS_MEM_DYN_NODE *)NULL;
     LOS_DL_LIST *pstListHead = (LOS_DL_LIST *)NULL;
 
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
     OS_MEM_REDUCE_USED(OS_MEM_NODE_GET_SIZE(pstNode->uwSizeAndFlag));
+#endif
     pstNode->uwSizeAndFlag = OS_MEM_NODE_GET_SIZE(pstNode->uwSizeAndFlag);
     if ((pstNode->pstPreNode != NULL) &&
         (!OS_MEM_NODE_GET_USED_FLAG(pstNode->pstPreNode->uwSizeAndFlag)))
@@ -595,7 +601,9 @@ LITE_OS_SEC_TEXT STATIC_INLINE VOID *osMemAllocWithCheck(VOID *pPool, UINT32  uw
     LOS_ListDelete(&(pstAllocNode->stFreeNodeInfo));
     osMemSetMagicNumAndTaskid(pstAllocNode);
     OS_MEM_NODE_SET_USED_FLAG(pstAllocNode->uwSizeAndFlag);
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
     OS_MEM_ADD_USED(OS_MEM_NODE_GET_SIZE(pstAllocNode->uwSizeAndFlag));
+#endif
     return (pstAllocNode + 1);
 
 }
@@ -617,7 +625,9 @@ LITE_OS_SEC_TEXT_MINOR STATIC_INLINE VOID osMemReAllocSmaller(VOID *pPool, UINT3
          pstNode->uwSizeAndFlag = uwNodeSize;
          osMemSpitNode(pPool, pstNode, uwAllocSize);
          OS_MEM_NODE_SET_USED_FLAG(pstNode->uwSizeAndFlag);
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
          OS_MEM_REDUCE_USED(uwNodeSize - uwAllocSize);
+#endif
      }
 }
 
@@ -637,10 +647,14 @@ LITE_OS_SEC_TEXT_MINOR STATIC_INLINE VOID osMemMergeNodeForReAllocBigger(VOID *p
     pstNode->uwSizeAndFlag = uwNodeSize;
     LOS_ListDelete(&(pstNextNode->stFreeNodeInfo));
     osMemMergeNode(pstNextNode);
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
     OS_MEM_ADD_USED(pstNode->uwSizeAndFlag - uwNodeSize);
+#endif
     if ((uwAllocSize + OS_MEM_NODE_HEAD_SIZE + OS_MEM_ALIGN_SIZE) <= pstNode->uwSizeAndFlag)
     {
+#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
         OS_MEM_REDUCE_USED(pstNode->uwSizeAndFlag - uwAllocSize);
+#endif
         osMemSpitNode(pPool, pstNode, uwAllocSize);
     }
     OS_MEM_NODE_SET_USED_FLAG(pstNode->uwSizeAndFlag);
