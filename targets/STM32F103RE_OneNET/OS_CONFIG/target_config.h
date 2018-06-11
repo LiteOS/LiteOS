@@ -40,7 +40,7 @@
 #define _TARGET_CONFIG_H
 
 #include "los_typedef.h"
-#include "stm32f10x.h"    //suzhen
+#include "stm32f10x.h"    //OneNET
 #include <stdio.h>
 #include <string.h>
 

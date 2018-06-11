@@ -538,7 +538,7 @@ void observe_app_step(lwm2m_context_t * contextP,
     lwm2m_data_cfg_t  cfg = {0, 0, NULL};
     int size = 0;
 
-    while (COAP_205_CONTENT == object_readData(contextP, &targetP->uri, &size, &dataP, &cfg))
+    while (COAP_205_CONTENT == object_readData(contextP, &targetP->uri, &size, &dataP, &cfg, 0))
     {
 
         for (watcherP = targetP->watcherList ; watcherP != NULL ; watcherP = watcherP->next)
@@ -651,7 +651,7 @@ void observe_step(lwm2m_context_t * contextP,
 
         if (LWM2M_URI_IS_SET_RESOURCE(&targetP->uri))
         {
-            if (COAP_205_CONTENT != object_readData(contextP, &targetP->uri, &size, &dataP, &cfg)) continue;
+            if (COAP_205_CONTENT != object_readData(contextP, &targetP->uri, &size, &dataP, &cfg, 0)) continue;
             switch (dataP->type)
             {
             case LWM2M_TYPE_INTEGER:
@@ -849,7 +849,7 @@ void observe_step(lwm2m_context_t * contextP,
                         }
                         else
                         {
-                            if (COAP_205_CONTENT != object_read(contextP, &targetP->uri, &(watcherP->format), &buffer, &length))
+                            if (COAP_205_CONTENT != object_read(contextP, &targetP->uri, &(watcherP->format), &buffer, &length, 0))
                             {
                                 buffer = NULL;
                                 break;
