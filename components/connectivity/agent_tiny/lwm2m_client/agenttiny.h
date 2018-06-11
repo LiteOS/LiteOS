@@ -151,15 +151,37 @@ typedef struct
     unsigned int  storing_cnt;   /*storing为true时，lwm2m缓存区总字节个数*/
 } atiny_server_param_t;
 
+
+//bootstrap at least have one mode, we have three mode.
+typedef enum
+{
+    BOOTSTRAP_FACTORY = 0,
+    BOOTSTRAP_CLIENT_INITIATED,
+    BOOTSTRAP_SEQUENCE
+} atiny_bootstrap_type_e;
+
+
 typedef struct
 {
-    bool  is_bootstrap;
-    char* server_ip;
-    char* server_port;
+    atiny_bootstrap_type_e  bootstrap_mode;
+
+    //two pairs of ip/port, because bootstrap sequence will make more try than one.
+    char* iot_server_ip;
+    char* iot_server_port;
+    char* bs_server_ip;
+    char* bs_server_port;
+
     char* psk_Id;
     char* psk;
     unsigned short psk_len;
+
+    //get rid of it, now,when the pskid and psk are set (not NULL), the securityMode is LWM2M_SECURITY_MODE_PRE_SHARED_KEY, or else
+    //is LWM2M_SECURITY_MODE_NONE
+    //int securityMode;
+
 } atiny_security_param_t;
+
+
 
 typedef enum
 {

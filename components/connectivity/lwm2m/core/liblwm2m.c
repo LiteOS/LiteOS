@@ -239,6 +239,7 @@ void lwm2m_close(lwm2m_context_t * contextP)
 #endif
     prv_deleteObservedList(contextP);
     lwm2m_free(contextP->endpointName);
+    lwm2m_free(contextP->bs_server_uri);
     if (contextP->msisdn != NULL)
     {
         lwm2m_free(contextP->msisdn);
@@ -449,6 +450,252 @@ int lwm2m_reconnect(lwm2m_context_t * context)
 
 #endif
 
+/*
+ * add date:     2019-06-04
+ * description:  in order to mark the server of the bootstrapServerList and the serverList. think the server's data are
+ * 				 dirty, should be delete from the list, and will be new soon.
+ * return:       none
+ * pay attention:
+ *              the function in fact have been defined as prv_tagAllServer in another file. defined here again, in order to
+ *              not include and contact closely with another file.
+ *
+ */
+static void lwm2m_bootstrap_tagAllServer(lwm2m_context_t * contextP,
+                             lwm2m_server_t * serverP)
+{
+    lwm2m_server_t * targetP;
+
+    targetP = contextP->bootstrapServerList;
+    while (targetP != NULL)
+    {
+        if (targetP != serverP)
+        {
+            targetP->dirty = true;
+        }
+        targetP = targetP->next;
+    }
+    targetP = contextP->serverList;
+    while (targetP != NULL)
+    {
+        targetP->dirty = true;
+        targetP = targetP->next;
+    }
+}
+
+
+
+/*
+ * add date:     2019-06-04
+ * description:  only in the bootstrap sequence mode. when plan to change from factory to server, we should set the flag true for
+ *               bootstrap(factory regist directly, flag is false,did not have bootstrapServerList). when set ok, we should
+ *               start from the contextP->state = STATE_INITIAL
+ *
+ * return:
+                success:  0
+                fail:    -1
+ * pay attention:
+ *              the function will write some info for the security_object instance, that is /0/0, may should use lock,if context
+ *              need.
+ *
+ */
+int lwm2m_bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t * contextP)
+{
+    lwm2m_data_t * dataP;
+    lwm2m_object_t * security_object;
+    lwm2m_list_t * targetP;
+
+    //if regist fail, mean all iot server could not regist well, so tag it.
+    //bootstrapserverlist in this mode, should be NULL. even if is not null, we could tag it also.
+    lwm2m_bootstrap_tagAllServer(contextP, NULL);
+
+    //should use bootstrap, so we must change the bootstrap flag in security_object. could see object_getServers
+    security_object = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, LWM2M_SECURITY_OBJECT_ID);
+
+
+    //[should think late]:in the regist, I think iot server will not write info for the client. so the /0/0 uri is
+    //still iot_server uri which be set in the get_security_object. and in the server initiated mod, will have a
+    // connection in the bootstrap_start which is no need at all, so write the uri with NULL. it is ok?
+
+    dataP = lwm2m_data_new(1);
+    if (dataP == NULL)
+    {
+        LOG("[bootstrap_tag]: Internal allocation failure lwm2m_data_new!");
+        return -1;
+    }
+    dataP->id = LWM2M_SECURITY_BOOTSTRAP_ID;
+    lwm2m_data_encode_bool(true,dataP);
+
+    //all security_object instance are set flag true. of course, we could only set for targetP->id = 0.
+    //many instance situation are thinking late.
+    for (targetP = security_object->instanceList ; targetP != NULL ; targetP = targetP->next)
+    {
+        if(NULL != security_object->writeFunc)
+        {
+            security_object->writeFunc(targetP->id, 1, dataP, security_object);
+        }
+    }
+
+    //
+    //pay attention : we should get into lwm2m_step again, so will : contextP->state = STATE_INITIAL; run
+    //prv_refreshServerList, we get bootstrapserverlist , get into bootstrap process.
+
+    return 0;
+}
+
+
+/*
+ * add date:     2019-06-04
+ * description:  only in the bootstrap sequence mode. when plan to change from server to client. we have bootstrapServerList, but some
+ *               info, such as uri may not ok.and in client mode, we must have the suitable bs server ip. or else send request to who?
+ * return:
+                 success:  0
+                 fail:    -1
+ * pay attention:
+ *              the function will write some info for the security_object instance, that is /0/0, may should use lock,if context
+ *              need.
+ *
+ */
+int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contextP)
+{
+    lwm2m_data_t * dataP;
+    lwm2m_object_t * security_object;
+    lwm2m_list_t * targetP;
+
+    //if bs_server_ip is invalid, we should return -1 soon, and still run in server mode.
+    //bs_server_ip should be stored, it come from atiny_init input param. we should save it in lwm2m_context_t.
+    //should pay attention: because lwm2m_context_t variable is work for run environment. it should
+    //work for all instance, even if we now only use one instance.  all instance use the same bs_server_ip.
+
+    if(contextP->bs_server_uri == NULL)
+    {
+        LOG("[bootstrap_tag]: bs_server_uri is NULL, could not change to clinet initiate mode");
+        return -1;
+    }
+
+
+    security_object = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, LWM2M_SECURITY_OBJECT_ID);
+
+    //if regist fail, mean all iot server could not regist well, so tag it , and change to client initiated mode
+    lwm2m_bootstrap_tagAllServer(contextP, NULL);
+
+
+    ///write uri info
+    dataP = lwm2m_data_new(1);
+    if (dataP == NULL)
+    {
+        LOG("[bootstrap_tag]: Internal allocation failure lwm2m_data_new!");
+        return -1;
+    }
+    dataP->id = LWM2M_SECURITY_URI_ID;
+    lwm2m_data_encode_string(contextP->bs_server_uri, dataP);
+
+    for (targetP = security_object->instanceList ; targetP != NULL ; targetP = targetP->next)
+    {
+        if(NULL != security_object->writeFunc)
+        {
+            security_object->writeFunc(targetP->id, 1, dataP, security_object);
+        }
+    }
+
+    return 0;
+}
+
+
+/*
+ * author:       twx378188
+ * add date:     2019-06-04
+ * description:  only used in the situation: regist fail. when regist fail, we could regist again and again. and in the bootstrap
+ *               sequence mode, we could make some more, write new info and use bootstrap to get new info to regist.
+ * return:
+ *               success: 0
+ *               fail:    -1
+ * pay attention:
+ *              regist using old info a period, how long ?
+ *
+ *
+ */
+static void lwm2m_bootstrap_process_reg_failed(lwm2m_context_t * contextP)
+{
+    static time_t start_cnt;
+    static bool time_start = false;
+    bool to_register_entrance = false;
+    const int REGIST_INTERVAL_TIME = 100;
+    time_t end_cnt = lwm2m_gettime();
+
+    if(NULL == contextP)
+    {
+        LOG("[bootstrap_tag]: contextP is NULL, in bootstrap_dealwith_reg_failed");
+        return;
+    }
+
+    if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
+    {
+        if(!time_start)
+        {
+            time_start = true;
+            start_cnt = lwm2m_gettime();
+        }
+        end_cnt = lwm2m_gettime();
+
+        //let's regist using old info for a period
+        if(end_cnt >= REGIST_INTERVAL_TIME + start_cnt)
+        {
+            time_start = false;
+            if(lwm2m_bootstrap_sequence_factory_to_server_initiated(contextP) == 0)
+            {
+                contextP->state = STATE_INITIAL;
+                contextP->bs_sequence_state = BS_SEQUENCE_STATE_SERVER_INITIATED;
+            }
+            else
+            {
+                to_register_entrance = true;
+            }
+        }
+        else
+        {
+            to_register_entrance = true;
+        }
+
+    }
+    else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
+    {
+        if(!time_start)
+        {
+            time_start = true;
+            start_cnt = lwm2m_gettime();
+        }
+
+        end_cnt = lwm2m_gettime();
+        if(end_cnt >= REGIST_INTERVAL_TIME + start_cnt)
+        {
+            if(lwm2m_bootstrap_sequence_server_to_client_initiated(contextP) == 0)
+            {
+                contextP->state = STATE_INITIAL;
+                contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
+            }
+            else
+            {
+                to_register_entrance = true;
+            }
+        }
+        else
+        {
+            to_register_entrance = true;
+        }
+    }
+    else if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED) || (contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))
+    {
+        to_register_entrance = true;
+    }
+
+
+    if(to_register_entrance)
+    {
+        contextP->state = STATE_REGISTER_REQUIRED;  //no other method to try registe, only again and again
+        lwm2m_notify_even(MODULE_LWM2M,STATE_REG_FAILED, NULL, 0);
+    }
+}
+
 
 int lwm2m_step(lwm2m_context_t * contextP,
                time_t * timeoutP)
@@ -537,8 +784,12 @@ next_step:
         case STATE_REG_FAILED:
             // TODO avoid infinite loop by checking the bootstrap info is different
             //contextP->state = STATE_BOOTSTRAP_REQUIRED;
-            contextP->state = STATE_REGISTER_REQUIRED;
-            lwm2m_notify_even(MODULE_LWM2M,STATE_REG_FAILED, NULL, 0);
+
+        	//if regist fail, we may regist again or use other method to try  according the init param
+            lwm2m_bootstrap_process_reg_failed(contextP);
+
+        	//contextP->state = STATE_REGISTER_REQUIRED;
+        	//lwm2m_notify_even(MODULE_LWM2M,STATE_REG_FAILED, NULL, 0);
             break;
 
         case STATE_REG_PENDING:
