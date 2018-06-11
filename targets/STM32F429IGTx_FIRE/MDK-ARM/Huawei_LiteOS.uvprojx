@@ -10,13 +10,11 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.5.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.11.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -54,7 +52,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -126,6 +124,47 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
+          <Simulator>
+            <UseSimulator>0</UseSimulator>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>1</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>1</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Simulator>
+          <Target>
+            <UseTarget>1</UseTarget>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>0</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>0</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <RestoreTracepoints>1</RestoreTracepoints>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Target>
+          <RunDebugAfterBuild>0</RunDebugAfterBuild>
+          <TargetSelection>12</TargetSelection>
+          <SimDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+          </SimDlls>
+          <TargetDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+            <Driver>BIN\CMSIS_AGDI.dll</Driver>
+          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -190,7 +229,6 @@
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
-            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
@@ -327,16 +365,11 @@
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
-            <vShortEn>1</vShortEn>
-            <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
-            <v6WtE>0</v6WtE>
-            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWIP,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_AT_FRAMEWORK,USE_SIM900A</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -349,7 +382,6 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls>--diag_suppress=A1581W</MiscControls>
               <Define></Define>
@@ -414,6 +446,26 @@
               <FileName>sys_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\sys_init.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>drivers</GroupName>
+          <Files>
+            <File>
+              <FileName>esp8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\drivers\devices\wifi\esp8266.c</FilePath>
+            </File>
+            <File>
+              <FileName>sim900a.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\drivers\devices\gprs\sim900a.c</FilePath>
+            </File>
+            <File>
+              <FileName>bc95.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\drivers\devices\nb\bc95.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -644,6 +696,41 @@
               <FileName>stm32f4xx_hal_rng.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_iwdg.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>hardware</GroupName>
+          <Files>
+            <File>
+              <FileName>hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_rng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_spi_flash.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1434,6 +1521,26 @@
               <FileName>agent_tiny_cmd_ioctl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\examples\agent_tiny_cmd_ioctl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>at_framework</GroupName>
+          <Files>
+            <File>
+              <FileName>at_api_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\at_frame\at_api_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>at_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\at_frame\at_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>atadapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\at_frame\atadapter.c</FilePath>
             </File>
           </Files>
         </Group>

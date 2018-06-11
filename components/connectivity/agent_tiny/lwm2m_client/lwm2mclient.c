@@ -168,7 +168,7 @@ void handle_value_changed(lwm2m_context_t * lwm2mH,
 }
 
 #ifdef LWM2M_BOOTSTRAP
-
+/*
 static void prv_initiate_bootstrap(char * buffer,
                                    void * user_data)
 {
@@ -274,20 +274,21 @@ static void prv_backup_objects(lwm2m_context_t * context)
             memset(backupObjectArray[i], 0, sizeof(lwm2m_object_t));
     }
 
-    /*
-     * Backup content of objects 0 (security) and 1 (server)
-     */
+
+     //Backup content of objects 0 (security) and 1 (server)
+
     copy_security_object(backupObjectArray[0], (lwm2m_object_t *)LWM2M_LIST_FIND(context->objectList, LWM2M_SECURITY_OBJECT_ID));
     copy_server_object(backupObjectArray[1], (lwm2m_object_t *)LWM2M_LIST_FIND(context->objectList, LWM2M_SERVER_OBJECT_ID));
 }
+
 
 static void prv_restore_objects(lwm2m_context_t * context)
 {
     lwm2m_object_t * targetP;
 
-    /*
-     * Restore content  of objects 0 (security) and 1 (server)
-     */
+
+    //Restore content  of objects 0 (security) and 1 (server)
+
     targetP = (lwm2m_object_t *)LWM2M_LIST_FIND(context->objectList, LWM2M_SECURITY_OBJECT_ID);
     // first delete internal content
     clean_security_object(targetP);
@@ -345,4 +346,5 @@ static void close_backup_object()
         }
     }
 }
+*/
 #endif

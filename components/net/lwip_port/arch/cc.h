@@ -68,7 +68,7 @@
 
 #include "cpu.h"
 #include "usart.h"
-#include "stm32f4xx_hal_rng.h"
+
 typedef unsigned   char    u8_t;
 typedef signed     char    s8_t;
 typedef unsigned   short   u16_t;
@@ -126,8 +126,7 @@ typedef u32_t mem_ptr_t;
 
 #endif
 
-extern RNG_HandleTypeDef hrng;
-#define LWIP_RAND() HAL_RNG_GetRandomNumber(&hrng)
+#define LWIP_RAND() g_stlwIPSspCallbacks.pfRand()
 #define LWIP_PLATFORM_DIAG(x)  {printf x;}
 
 #define LWIP_PLATFORM_ASSERT(x) do { printf("Assertion \"%s\" failed at  \

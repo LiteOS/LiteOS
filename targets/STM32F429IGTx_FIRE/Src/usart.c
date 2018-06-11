@@ -93,6 +93,31 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
         /* USER CODE END USART1_MspInit 1 */
     }
+    else if(uartHandle->Instance==USART2)
+    {
+        /* config USART2 clock */
+        //RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2|RCC_AHB1Periph_GPIOA, ENABLE);
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_USART2_CLK_ENABLE();
+
+        /* USART2 GPIO config */
+        /* Configure USART2 Tx (PA.02) as alternate function push-pull */
+        GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    }
+    else if(uartHandle->Instance==USART3)
+    {
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        __HAL_RCC_USART3_CLK_ENABLE();
+        GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_11;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
 }
 
 void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
