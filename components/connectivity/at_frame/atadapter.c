@@ -2,14 +2,11 @@
 #if defined(WITH_AT_FRAMEWORK)
 
 #include "atadapter.h"
-#include "at_api_interface.h"
-#include "stm32f4xx_hal.h"
-#include "los_task.h"
-#include "los_sem.h"
+#include "at_hal.h"
 
 
 /* FUNCTION */
-void at_init(at_config *at_conf);
+void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 int32_t at_get_unuse_linkid();
@@ -17,19 +14,6 @@ void at_listener_list_add(at_listener * p);
 void at_listner_list_del(at_listener * p);
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 int at_oob_register(char* cmd,int cmdlen, oob_callback callback);
-
-/* VARIABLE */
-UART_HandleTypeDef at_usart;
-#ifdef USE_USARTRX_DMA
-
-DMA_HandleTypeDef  at_hdma_usart3_rx;
-#endif
-
-uint32_t list_mux;
-
-uint32_t wi = 0;
-uint32_t wi_bak= 0;
-uint32_t ri = 0;
 
 //init function for at struct
 at_task at = {
@@ -40,140 +24,29 @@ at_task at = {
     .get_id = at_get_unuse_linkid,
 };
 at_oob_t at_oob;
-at_config at_user_conf;
 
-
-#ifdef USE_USARTRX_DMA
-void at_usart3rx_dma_irqhandler(void)
-{
-    HAL_DMA_IRQHandler(&at_hdma_usart3_rx);
-}
-
-void at_usart3rx_dma_config(DMA_HandleTypeDef *hdma)
-{
-    printf("Now Init DMA1\n");
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    hdma->Instance = DMA1_Stream1;
-    hdma->Init.Channel = DMA_CHANNEL_4;
-    hdma->Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma->Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma->Init.MemInc = DMA_MINC_ENABLE;
-    hdma->Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma->Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-
-    hdma->Init.Mode = DMA_NORMAL;
-    hdma->Init.Priority = DMA_PRIORITY_HIGH;//DMA_PRIORITY_LOW;
-    hdma->Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    hdma->Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    hdma->Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma->Init.PeriphBurst = DMA_PBURST_SINGLE;
-    HAL_DMA_Init(hdma);
-
-    __HAL_LINKDMA(&at_usart,hdmarx,*hdma);
-        
-    LOS_HwiCreate(DMA1_Stream1_IRQn, 0, 0,at_usart3rx_dma_irqhandler, NULL);
-}
-#endif
-
-
-void at_irq_handler(void)
-{
-
-#ifndef USE_USARTRX_DMA
-    if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
-    {
-        at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
-        if (wi >= at_user_conf.user_buf_len)wi = 0;
-    }
-    else 
-#endif
-    if (__HAL_UART_GET_FLAG(&at_usart,UART_FLAG_IDLE) != RESET)
-    {
-        __HAL_UART_CLEAR_IDLEFLAG(&at_usart);
-#ifdef USE_USARTRX_DMA
-        HAL_UART_DMAStop(&at_usart);  
-        uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
-        if(empty > at_user_conf.user_buf_len)
-        {
-        //error
-        }
-        else
-        {
-            wi = (at_user_conf.user_buf_len - empty);
-        }
-#endif   
-        wi_bak = wi;
-        LOS_SemPost(at.recv_sem);
-    }
-}
-
-void at_usart_config(UART_HandleTypeDef * usart)
-{
-    usart->Instance = at_user_conf.usart;
-    usart->Init.BaudRate = at_user_conf.buardrate;
-
-    usart->Init.WordLength = UART_WORDLENGTH_8B;
-    usart->Init.StopBits = UART_STOPBITS_1;
-    usart->Init.Parity = UART_PARITY_NONE;
-    usart->Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    usart->Init.Mode = UART_MODE_RX | UART_MODE_TX;
-    if(HAL_UART_Init(usart) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
-    }
-    __HAL_UART_CLEAR_FLAG(usart,UART_FLAG_TC);
-    LOS_HwiCreate(at_user_conf.irqn, 0, 0, at_irq_handler, 0);
-    __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
-
-#ifdef USE_USARTRX_DMA
-    at_usart3rx_dma_config(&at_hdma_usart3_rx);
-#else
-    __HAL_UART_ENABLE_IT(usart, UART_IT_RXNE);
-#endif
-}
-
-at_listener * get_at_listener_head()
-{
-    at_listener * p = NULL;
-    LOS_MuxPend(list_mux, LOS_WAIT_FOREVER);
-    p = at.head;
-    LOS_MuxPost(list_mux);
-    return p;
-}
 //add p to tail;
 void at_listener_list_add(at_listener * p)
 {
     at_listener * head = at.head;
 
-    LOS_MuxPend(list_mux, LOS_WAIT_FOREVER);
-
     if (NULL == head)
     {
         at.head = p;
         p->next = NULL;
-        LOS_MuxPost(list_mux);
         return;
     }
-
-    LOS_MuxPost(list_mux);
-
 }
 
 void at_listner_list_del(at_listener * p)
 {
     at_listener * head = at.head;
-    at_listener * node = head;
 
-    LOS_MuxPend(list_mux, LOS_WAIT_FOREVER);
     if (p == head)
     {
         at.head = head->next;
-        LOS_MuxPost(list_mux);
         return;
     }
-
-    LOS_MuxPost(list_mux);
-
 }
 
 int32_t at_get_unuse_linkid()
@@ -208,32 +81,19 @@ void store_resp_buf(int8_t * resp_buf, int8_t * buf, uint32_t len)
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
 {
     at_listener listener;
-    char * line_end = at_user_conf.line_end;
     int ret = AT_FAILED;
 
-    listener.perfix = (int8_t *)at_user_conf.cmd_begin;
     listener.suffix = (int8_t *)suffix;
     listener.resp = (int8_t*)rep_buf;
 
-    ret = LOS_SemCreate(0, (UINT32*)&listener.resp_sem);
-    if (ret != LOS_OK)
-    {
-        AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
-        return AT_FAILED;
-    }
-
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     at_listener_list_add(&listener);
 
-    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
-    HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
-    HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
-
-    ret = LOS_SemPend(listener.resp_sem, at.timeout);
-    LOS_MuxPost(at.cmd_mux);
-
-    LOS_SemDelete(listener.resp_sem);
+    at_transmit((uint8_t*)cmd, len,1);
+    ret = LOS_SemPend(at.resp_sem, at.timeout);
 
     at_listner_list_del(&listener); 
+    LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
     {
@@ -246,77 +106,28 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
 {
     at_listener listener;
-    char * line_end = at_user_conf.line_end;
     int ret = AT_FAILED;
 
-    listener.perfix = (int8_t *)at_user_conf.cmd_begin;
     listener.suffix = (int8_t *)suffix;
     listener.resp = NULL;
 
-    ret = LOS_SemCreate(0, (UINT32*)&listener.resp_sem);
-    if (ret != LOS_OK)
-    {
-        AT_LOG("init listener.resp_sem failed(ret = %x)!", ret);
-        return AT_FAILED;
-    }
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     at_listener_list_add(&listener);
 
-    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
-
-    HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, strlen((char*)cmd), 0xffff);
-    HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
+    at_transmit((uint8_t*)cmd, strlen((char*)cmd), 1);
     osDelay(osMs2Tick(200));
 
-    HAL_UART_Transmit(&at_usart, (uint8_t*)buf, len, 0xffff);
-    ret = LOS_SemPend(listener.resp_sem, at.timeout);
-
-    LOS_MuxPost(at.cmd_mux);
-
-    LOS_SemDelete(listener.resp_sem);
+    at_transmit((uint8_t*)buf, len, 0);
+    ret = LOS_SemPend(at.resp_sem, at.timeout);
 
     at_listner_list_del(&listener); 
+    LOS_MuxPost(at.cmd_mux);
+
     if (ret != LOS_OK)
     {
         AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
         return AT_FAILED;
     }
-    return len;
-}
-
-
-int read_resp(uint8_t * buf)
-{
-    uint32_t len = 0;
-    uint32_t wi = wi_bak;
-    uint32_t tmp_len = 0;
-    if (NULL == buf){
-        return -1;
-    }
-
-    if (wi == ri){
-        return 0;
-    }
-
-    if (wi > ri){
-        len = wi - ri;
-        memcpy(buf, &at.recv_buf[ri], len);
-    } 
-    else 
-    {
-#ifndef USE_USARTRX_DMA
-        tmp_len = at_user_conf.user_buf_len - ri;
-        memcpy(buf, &at.recv_buf[ri], tmp_len);
-        memcpy(buf + tmp_len, at.recv_buf, wi);
-        len = wi + tmp_len;
-#endif
-    }
-  
-#ifndef USE_USARTRX_DMA
-    ri = wi;
-#else
-    ri = 0;
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],at_user_conf.user_buf_len-1);
-#endif
     return len;
 }
 
@@ -341,7 +152,6 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
 void at_recv_task(uint32_t p)
 {
     uint32_t recv_len = 0;
-    static uint32_t suffix_catching = 0;
     uint8_t * tmp = at.userdata; //[MAX_USART_BUF_LEN] = {0};
     int ret = 0;
     at_listener * listener = NULL;
@@ -375,7 +185,7 @@ void at_recv_task(uint32_t p)
                 continue;
             }
 
-            listener = get_at_listener_head();
+            listener = at.head;
             if (NULL == listener)
                 break;
 
@@ -383,7 +193,7 @@ void at_recv_task(uint32_t p)
             {
                 //listener->resp这里存的时候要判断是否非空
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
-                LOS_SemPost(listener->resp_sem);
+                LOS_SemPost(at.resp_sem);
                 listener = NULL;
                 break;
             }
@@ -400,7 +210,7 @@ void at_recv_task(uint32_t p)
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
-                LOS_SemPost(listener->resp_sem);
+                LOS_SemPost(at.resp_sem);
             } 
             break;
         }
@@ -456,6 +266,13 @@ int32_t at_struct_init(at_task * at)
         goto at_cmd_mux_failed;
     }
 
+    ret = LOS_SemCreate(0, (UINT32*)&at->resp_sem);
+    if (ret != LOS_OK)
+    {
+        AT_LOG("init resp_sem failed!");
+        goto at_resp_sem_failed;
+    }
+
     at->recv_buf = atiny_malloc(at_user_conf.user_buf_len);
     if (NULL == at->recv_buf)
     {
@@ -484,21 +301,12 @@ int32_t at_struct_init(at_task * at)
        goto malloc_linkid_failed;
     }
 
-    ret = LOS_MuxCreate((UINT32*)&list_mux);
-    if (ret != LOS_OK)
-    {
-        AT_LOG("init list_mux failed!");
-        goto at_list_mux_failed;
-    }
-
     at->head = NULL;
     at->mux_mode = at_user_conf.mux_mode;
     at->timeout = at_user_conf.timeout;
     return AT_OK;
 
- //       LOS_MuxDelete(list_mux);
-    at_list_mux_failed:
-        atiny_free(at->linkid);
+//        atiny_free(at->linkid);
     malloc_linkid_failed:
         atiny_free(at->userdata);
     malloc_userdata_buf:
@@ -506,42 +314,41 @@ int32_t at_struct_init(at_task * at)
     malloc_resp_buf:
         atiny_free(at->recv_buf);
     malloc_recv_buf:
-        LOS_MuxDelete(list_mux);
+        LOS_SemDelete(at->resp_sem);
+    at_resp_sem_failed:
+        LOS_MuxDelete(at->cmd_mux);
     at_cmd_mux_failed:
         LOS_SemDelete(at->recv_sem);
     at_recv_sema_failed:
         return AT_FAILED;
 }
 
-void at_init(at_config *at_conf)
-{
-
-    memcpy(&at_user_conf,at_conf,sizeof(at_config));
-    
+void at_init()
+{    
     AT_LOG("Config %s......\n", at_user_conf.name);
 
-    osDelay(2000);
+    LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
     {
-        AT_LOG("prepare at struct failed!");
+        AT_LOG("prepare AT struct failed!");
         return;
     }
-
-    at_usart_config(&at_usart);
+    at_init_oob();
+    at_usart_config();
     create_at_recv_task();
 
     AT_LOG("Config complete!!\n");
 
 }
 
-int at_oob_register(char* cmd,int cmdlen, oob_callback callback)
+int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)
 {
     oob_t *oob;
-    if(at_oob.oob_num == OOB_MAX_NUM || cmdlen >= 10)
+    if(at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
     oob = &(at_oob.oob[at_oob.oob_num++]);
-    memcpy(oob->featurestr,cmd,cmdlen);
-    oob->len = strlen(cmd);
+    memcpy(oob->featurestr, featurestr, cmdlen);
+    oob->len = strlen(featurestr);
     oob->cb = callback;
     return 0;
 }
