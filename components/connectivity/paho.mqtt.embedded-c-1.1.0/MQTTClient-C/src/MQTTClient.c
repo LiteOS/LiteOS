@@ -141,38 +141,6 @@ exit:
     return rc;
 }
 
-
-// assume topic filter and name is in correct format
-// # can only be at end
-// + and # can only be next to separator
-static char isTopicMatched(char* topicFilter, MQTTString* topicName)
-{
-    char* curf = topicFilter;
-    char* curn = topicName->lenstring.data;
-    char* curn_end = curn + topicName->lenstring.len;
-
-    while (*curf && curn < curn_end)
-    {
-        if (*curn == '/' && *curf != '/')
-            break;
-        if (*curf != '+' && *curf != '#' && *curf != *curn)
-            break;
-        if (*curf == '+')
-        {   // skip until we meet the next separator, or end of string
-            char* nextpos = curn + 1;
-            while (nextpos < curn_end && *nextpos != '/')
-                nextpos = ++curn + 1;
-        }
-        else if (*curf == '#')
-            curn = curn_end - 1;    // skip until end of string
-        curf++;
-        curn++;
-    };
-
-    return (curn == curn_end) && (*curf == '\0');
-}
-
-
 /**
  * Copyright (c) 2009-2018 Roger Light <roger@atchoo.org>
  * licensed under the Eclipse Public License 1.0 and the Eclipse Distribution License 1.0
