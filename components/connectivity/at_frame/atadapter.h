@@ -1,9 +1,10 @@
 #ifndef __AT_ADAPTER_H__
 #define __AT_ADAPTER_H__
 
-//#include "esp8266.h"
 #include "los_queue.h"
 #include "los_mux.h"
+#include "los_task.h"
+#include "los_sem.h"
 #include "atiny_adapter.h"
 
 /* MACRO DEFINE */
@@ -14,7 +15,7 @@
 #define AT_LOG(fmt, arg...)
 #endif
 
-//#define AT_DEBUG
+#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%s:%d][D]"fmt"\n", __func__, __LINE__, ##arg)
 #else
@@ -51,16 +52,15 @@ typedef struct {
 
 typedef struct _listner{
 	struct _listner * next;
-	int8_t * perfix;
 	int8_t * suffix;
 	int8_t * resp;
 	uint32_t resp_len;
-	uint32_t resp_sem;
 }at_listener;
 
 #define OOB_MAX_NUM 5
+#define OOB_CMD_LEN  40
 typedef struct oob_s{
-	char featurestr[40];
+	char featurestr[OOB_CMD_LEN];
 	int len;
 	oob_callback cb;
 	void* arg;
@@ -88,6 +88,7 @@ typedef struct at_task{
 
 	uint32_t  tsk_hdl;
 	uint32_t recv_sem;
+	uint32_t resp_sem;
 	uint32_t cmd_mux;
 	uint8_t  *recv_buf;  /*底层接收缓存区，默认4k大小*/
 	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
@@ -97,7 +98,7 @@ typedef struct at_task{
 	at_listener * head;
 	uint32_t timeout;  //命令响应超时时间
 
-	void    (*init)(at_config *at_conf);
+	void    (*init)();
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* 获取未使用的linkid, 多链接模式下使用 */
@@ -106,6 +107,4 @@ typedef struct at_task{
 	int32_t (*oob_register)(char* featurestr,int strlen, oob_callback callback);
 } at_task;
 
-//declear in device drivers
-extern UART_HandleTypeDef at_usart;
 #endif
