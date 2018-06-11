@@ -39,17 +39,9 @@
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
 
-#if defined(WITH_LINUX)
-#include <unistd.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <errno.h>
-
-#elif defined(WITH_LWIP)
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
-#endif
 
 #include "MQTTliteos.h"
 #include "atiny_adapter.h"
