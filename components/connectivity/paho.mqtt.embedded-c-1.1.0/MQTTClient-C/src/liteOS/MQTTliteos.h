@@ -32,8 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if !defined(__MQTT_LINUX_)
-#define __MQTT_LINUX_
+#if !defined(__MQTT_LITE_OS_)
+#define __MQTT_LITE_OS_
 
 #if defined(WIN32_DLL) || defined(WIN64_DLL)
   #define DLLImport __declspec(dllimport)
@@ -47,10 +47,7 @@
 #endif
 
 
-#include <lwip/sockets.h>
-#include <lwip/netdb.h>
 #include <stdio.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>

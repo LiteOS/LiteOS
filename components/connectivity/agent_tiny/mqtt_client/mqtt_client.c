@@ -223,7 +223,7 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
-        if(0 == strcmp(interest_uris[i].uri, topic))
+        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
         {
             interest_uris[i].qos = qos;
             interest_uris[i].cb = cb;
@@ -267,13 +267,12 @@ int mqtt_del_interest_topic(const char *topic)
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
-        if(0 == strcmp(interest_uris[i].uri, topic))
+        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
         {
             atiny_free(interest_uris[i].uri);
             interest_uris[i].uri = NULL;
             memset(&(interest_uris[i]), 0x0, sizeof(interest_uris[i]));
             rc = 0;
-            break;
         }
     }
 
@@ -311,12 +310,11 @@ int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
         return -1;
     }
 
-    if(0 != mqtt_del_interest_topic(topic))
-        return -1;
-
     rc = MQTTUnsubscribe(client, topic);
     if(0 != rc)
         printf("[%s][%d] MQTTUnsubscribe %s[%d]\n", __FUNCTION__, __LINE__, topic, rc);
+    else
+        (void)mqtt_del_interest_topic(topic);
 
     return rc;
 }
