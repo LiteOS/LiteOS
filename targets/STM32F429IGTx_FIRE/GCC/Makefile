@@ -149,11 +149,12 @@ USER_SRC =  \
         C_SOURCES += $(USER_SRC)
 
 ATADAPTOR_SRC = \
-        ${wildcard $(TOP_DIR)/components/atadaptor/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c}
         C_SOURCES += $(ATADAPTOR_SRC)
 
 USER_DRIVERS_SRC = \
         ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c} \
+		${wildcard $(TOP_DIR)/drivers/devices/nb/*.c} \
         ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
         C_SOURCES += $(USER_DRIVERS_SRC)
 
