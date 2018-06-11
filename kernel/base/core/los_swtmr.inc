@@ -43,8 +43,9 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
+#if (LOSCFG_STATIC_TIMER == NO)
 extern SWTMR_CTRL_S *m_pstSwtmrFreeList;
+#endif
 
 /**
  * @ingroup los_swtmr

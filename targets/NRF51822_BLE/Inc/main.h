@@ -19,6 +19,7 @@
 #include "los_sys.h"
 #include "los_typedef.h"
 #include "los_task.ph"
+#include "los_sem.ph"
 
 #include "nrf_gpio.h"
 

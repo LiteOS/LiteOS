@@ -71,9 +71,17 @@ typedef struct tagSwTmrHandlerItem
  */
 typedef SWTMR_HANDLER_ITEM_S    *SWTMR_HANDLER_ITEM_P;
 
+#if (LOSCFG_STATIC_TIMER == YES)
+extern SWTMR_CTRL_S             *m_apstSwtmrCBArray [LOSCFG_BASE_CORE_SWTMR_LIMIT];
+#else
 extern SWTMR_CTRL_S             *m_pstSwtmrCBArray;
+#endif
 
-#define OS_SWT_FROM_SID(SwTmrID)    ((SWTMR_CTRL_S *)m_pstSwtmrCBArray + (SwTmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT))
+#if (LOSCFG_STATIC_TIMER == YES)
+#define OS_SWT_FROM_SID(SwTmrID)    ((SWTMR_CTRL_S *)m_apstSwtmrCBArray[SwTmrID])
+#else
+#define OS_SWT_FROM_SID(SwTmrID)    ((SWTMR_CTRL_S *)m_pstSwtmrCBArray + (SwTmrID))
+#endif
 
 /**
  *@ingroup los_swtmr

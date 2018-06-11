@@ -62,7 +62,7 @@ void simple_uart_putstring(const uint8_t *str);
 @param rxd_pin_number Chip pin number to be used for UART RXD
 @param hwfc Enable hardware flow control
 */
-void simple_uart_config(uint8_t rts_pin_number, uint8_t txd_pin_number, uint8_t cts_pin_number, uint8_t rxd_pin_number, bool hwfc);
+void simple_uart_config(uint8_t rts_pin_number, uint8_t txd_pin_number, uint8_t cts_pin_number, uint8_t rxd_pin_number);
 
 /**
  *@}

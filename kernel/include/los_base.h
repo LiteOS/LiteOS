@@ -167,6 +167,13 @@ extern "C" {
 #endif
 /*lint +e40*/
 
+
+#define LOS_JOIN_AGIN(x,y)      x##Y
+#define LOS_JOIN(x , y)         LOS_JOIN_AGIN(x, y)
+
+#define LOS_STATIC_ASSERT(expr) \
+    typedef char LOS_JOIN(LOS_STATIC_ASSERT_FAILED_AT_LINE, __LINE__)[(expr) ? 1 : - 1]
+
 /**
  *@ingroup los_base
  *@brief Align the value (uwAddr) by some bytes (uwBoundary) you specify.
