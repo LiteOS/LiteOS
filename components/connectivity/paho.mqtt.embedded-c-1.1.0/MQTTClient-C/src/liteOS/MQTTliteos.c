@@ -37,6 +37,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
+#include "dtls_interface.h"
 
 #if defined(WITH_LINUX)
 #include <unistd.h>
@@ -493,7 +494,7 @@ static int los_mqtt_tls_connect(Network* n, char* addr, int port)
     mbedtls_ssl_config_init(conf);
     mbedtls_ctr_drbg_init(ctr_drbg);
     mbedtls_entropy_init(entropy);
-    mbedtls_net_init(server_fd);
+    server_fd->fd = -1;
 
     if( ( ret = mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func,entropy,
                                (const unsigned char *) pers,
