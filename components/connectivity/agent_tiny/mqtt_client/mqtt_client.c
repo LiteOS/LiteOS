@@ -272,6 +272,8 @@ int mqtt_del_interest_topic(const char *topic)
             atiny_free(interest_uris[i].uri);
             interest_uris[i].uri = NULL;
             memset(&(interest_uris[i]), 0x0, sizeof(interest_uris[i]));
+            rc = 0;
+            break;
         }
     }
 
