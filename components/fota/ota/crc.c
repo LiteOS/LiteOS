@@ -102,7 +102,7 @@ uint32_t calc_crc32(uint32_t origin, const void* buf, int32_t len)
         return 0;
     }
 
-    pbuf = buf;
+    pbuf = (const uint8_t*)buf;
     crc = ~origin;
 
     for (i = 0; i < len; ++i)

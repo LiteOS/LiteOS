@@ -31,10 +31,12 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include "main.h"
 #include "sys_init.h"
 #include "agent_tiny_demo.h"
-
+#ifdef USE_AT_FRAMEWORK
+#include "at_api_interface.h"
+#endif
 UINT32 g_TskHandle;
 
 VOID HardWare_Init(VOID)
@@ -47,8 +49,13 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
+#ifndef USE_AT_FRAMEWORK
     hieth_hw_init();
     net_init();
+#else
+    at_api_register(&at_interface);
+    at_api_init();
+#endif
     agent_tiny_entry();
 }
 UINT32 creat_main_task()
