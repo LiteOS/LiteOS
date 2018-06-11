@@ -169,6 +169,24 @@ int atiny_snprintf(char* buf, unsigned int size, const char* format, ...);
 int atiny_printf(const char* format, ...);
 
 /**
+ *@ingroup atiny_strdup
+ *@brief returns a pointer to a new string which is a duplicate of the string ch
+ *
+ *@par Description:
+ *This API returns a pointer to a new string which is a duplicate of the string ch. 
+   Memory for the new string is obtained with atiny_malloc, and can be freed with atiny_free
+ *@attention none.
+ *
+ *@param format         [IN] const char pointer
+ *@param ch            [IN] const char pointer points to the string to be duplicated
+ *
+ *@retval #char pointer          a pointer to a new string which is a duplicate of the string ch
+ *@par Dependency: none.
+ *@see atiny_malloc atiny_free.
+ */
+char *atiny_strdup(const char *ch);
+
+/**
  *@ingroup atiny_adapter
  *@brief create a mutex.
  *

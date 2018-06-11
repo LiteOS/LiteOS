@@ -52,7 +52,7 @@
  *    Bosch Software Innovations GmbH - Please refer to git log
  *    Pascal Rieux - Please refer to git log
  *    Scott Bertin - Please refer to git log
- *    
+ *
  *******************************************************************************/
 
 /*
@@ -92,7 +92,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include "object_comm.h"
 
 uint8_t object_checkReadable(lwm2m_context_t * contextP,
                              lwm2m_uri_t * uriP)
@@ -164,11 +164,53 @@ uint8_t object_checkNumeric(lwm2m_context_t * contextP,
     return result;
 }
 
+static uint8_t prv_init_forbidden(lwm2m_context_t * contextP,
+                                  lwm2m_object_t * targetP,
+                                  uint16_t objId,
+                                  uint16_t serverId,
+                                  int * sizeP,
+                                  uint8_t ** forbidden)
+{
+    lwm2m_list_t * instanceP;
+    lwm2m_uri_t uriP;
+    int i;
+
+    uriP.flag = LWM2M_URI_FLAG_INSTANCE_ID;
+    uriP.objectId = objId;
+
+    i = 0;
+    *forbidden = (uint8_t *)lwm2m_malloc(*sizeP);
+    if (*forbidden == NULL)
+    {
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+    memset(*forbidden, 0, *sizeP);
+    for (instanceP = targetP->instanceList; instanceP != NULL ; instanceP = instanceP->next)
+    {
+        uriP.instanceId = instanceP->id;
+        if (acc_auth_operate(contextP, &uriP, OBJ_ACC_READ, serverId) != COAP_NO_ERROR)
+        {
+            (*sizeP)--;
+            (*forbidden)[i] = 1;
+        }
+        ++i;
+    }
+
+    if (*sizeP == 0)
+    {
+        lwm2m_free(*forbidden);
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    return COAP_NO_ERROR;
+}
+
 uint8_t object_readData(lwm2m_context_t * contextP,
                         lwm2m_uri_t * uriP,
                         int * sizeP,
                         lwm2m_data_t ** dataP,
-                        lwm2m_data_cfg_t *cfg)
+                        lwm2m_data_cfg_t *cfg,
+                        uint16_t serverId)
 {
     uint8_t result;
     lwm2m_object_t * targetP;
@@ -198,7 +240,9 @@ uint8_t object_readData(lwm2m_context_t * contextP,
     {
         // multiple object instances read
         lwm2m_list_t * instanceP;
+        uint8_t * forbidden = NULL;
         int i;
+        int j;
 
         result = COAP_205_CONTENT;
 
@@ -214,19 +258,42 @@ uint8_t object_readData(lwm2m_context_t * contextP,
         }
         else
         {
+            if ((result = prv_init_forbidden(contextP, targetP,
+                 uriP->objectId, serverId, sizeP, &forbidden)) != COAP_NO_ERROR)
+            {
+                *dataP = NULL;
+                return result;
+            }
+
             *dataP = lwm2m_data_new(*sizeP);
-            if (*dataP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
+            if (*dataP == NULL)
+            {
+                if (forbidden != NULL)
+                {
+                    lwm2m_free(forbidden);
+                }
+                return COAP_500_INTERNAL_SERVER_ERROR;
+            }
 
             instanceP = targetP->instanceList;
             i = 0;
+            j = 0;
             while (instanceP != NULL && result == COAP_205_CONTENT)
             {
-                result = targetP->readFunc(instanceP->id, (int*)&((*dataP)[i].value.asChildren.count), &((*dataP)[i].value.asChildren.array), cfg, targetP);
-                (*dataP)[i].type = LWM2M_TYPE_OBJECT_INSTANCE;
-                (*dataP)[i].id = instanceP->id;
-                i++;
+                if (forbidden[i] == 0)
+                {
+                    result = targetP->readFunc(instanceP->id, (int*)&((*dataP)[j].value.asChildren.count), &((*dataP)[j].value.asChildren.array), cfg, targetP);
+                    (*dataP)[j].type = LWM2M_TYPE_OBJECT_INSTANCE;
+                    (*dataP)[j].id = instanceP->id;
+                    j++;
+                }
                 instanceP = instanceP->next;
+                i++;
             }
+        }
+        if (forbidden != NULL)
+        {
+            lwm2m_free(forbidden);
         }
     }
 
@@ -239,7 +306,8 @@ uint8_t object_read(lwm2m_context_t * contextP,
                     lwm2m_uri_t * uriP,
                     lwm2m_media_type_t * formatP,
                     uint8_t ** bufferP,
-                    size_t * lengthP)
+                    size_t * lengthP,
+                    uint16_t serverId)
 {
     uint8_t result;
     lwm2m_data_t * dataP = NULL;
@@ -247,7 +315,7 @@ uint8_t object_read(lwm2m_context_t * contextP,
     int res;
 
     LOG_URI(uriP);
-    result = object_readData(contextP, uriP, &size, &dataP, NULL);
+    result = object_readData(contextP, uriP, &size, &dataP, NULL, serverId);
 
     if (result == COAP_205_CONTENT)
     {
@@ -730,7 +798,7 @@ static lwm2m_list_t * prv_findServerInstance(lwm2m_object_t * objectP,
         dataP = lwm2m_data_new(size);
         if (dataP == NULL) return NULL;
         dataP->id = LWM2M_SERVER_SHORT_ID_ID;
-        
+
         if (objectP->readFunc(instanceP->id, &size, &dataP, NULL, objectP) != COAP_205_CONTENT)
         {
             lwm2m_data_free(size, dataP);
@@ -814,7 +882,7 @@ int object_getServers(lwm2m_context_t * contextP, bool checkOnly)
         }
         LOG_ARG("objID %d", objectP->objID);
         number++;
-                
+
     }
         LOG_ARG("number %d", number);
 
@@ -945,7 +1013,7 @@ uint8_t object_createInstance(lwm2m_context_t * contextP,
     targetP = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, uriP->objectId);
     if (NULL == targetP) return COAP_404_NOT_FOUND;
 
-    if (NULL == targetP->createFunc) 
+    if (NULL == targetP->createFunc)
     {
         return COAP_405_METHOD_NOT_ALLOWED;
     }
@@ -963,7 +1031,7 @@ uint8_t object_writeInstance(lwm2m_context_t * contextP,
     targetP = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP->objectList, uriP->objectId);
     if (NULL == targetP) return COAP_404_NOT_FOUND;
 
-    if (NULL == targetP->writeFunc) 
+    if (NULL == targetP->writeFunc)
     {
         return COAP_405_METHOD_NOT_ALLOWED;
     }

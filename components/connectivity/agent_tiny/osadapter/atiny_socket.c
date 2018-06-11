@@ -35,6 +35,7 @@
 #include "atiny_socket.h"
 #include "atiny_adapter.h"
 
+
 #if defined(WITH_LINUX)
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -45,14 +46,14 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <errno.h>
-
 #elif defined(WITH_LWIP)
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
+#elif defined(WITH_AT_FRAMEWORK)
+#include "at_api_interface.h"
+#else
 #endif
-
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
 
 #define SOCKET_DEBUG
 
@@ -75,12 +76,13 @@ typedef struct
 
 void* atiny_net_connect(const char* host, const char* port, int proto)
 {
+    atiny_net_context* ctx;
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     int flags;
     int ret;
     struct addrinfo hints;
     struct addrinfo* addr_list;
     struct addrinfo* cur;
-    atiny_net_context* ctx;
 
     if (NULL == host || NULL == port ||
         (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
@@ -161,7 +163,23 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     {
         SOCKET_LOG("TCP connect to server(%s:%s) succeed", host, port);
     }
+#elif defined(WITH_AT_FRAMEWORK)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }    
 
+    ctx->fd = at_api_connect(host, port, proto);
+    if (ctx->fd < 0)
+    {
+        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        atiny_free(ctx);
+        ctx = NULL;
+    }
+#else
+#endif  
     return ctx;
 }
 
@@ -169,9 +187,14 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
 {
     int ret;
     int fd = ((atiny_net_context*)ctx)->fd;
-
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = recv(fd, buf, len, 0);
+#elif defined(WITH_AT_FRAMEWORK)
+    ret = at_api_recv(fd,buf,len);
+#else
+#endif
 
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     if (ret < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
@@ -191,7 +214,7 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
         SOCKET_LOG("socket was closed by peer");
         return -1;
     }
-
+#endif
     return ret;
 }
 
@@ -199,10 +222,14 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
                            uint32_t timeout)
 {
     int ret;
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     struct timeval tv;
     fd_set read_fds;
+#endif
+	
     int fd = ((atiny_net_context*)ctx)->fd;
 
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     if (fd < 0)
     {
         SOCKET_LOG("ilegal socket(%d)", fd);
@@ -224,6 +251,11 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     }
 
     return atiny_net_recv(ctx, buf, len);
+    
+#elif defined(WITH_AT_FRAMEWORK)
+    return at_api_recv_timeout(fd, buf, len, timeout);
+#else    
+#endif
 }
 
 int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
@@ -237,8 +269,14 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
         return -1;
     }
 
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = send(fd, buf, len, 0);
+#elif defined(WITH_AT_FRAMEWORK)
+    ret = at_api_send(fd, buf, len);
+#else
+#endif
 
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     if (ret < 0)
     {
         /* no data available for now */
@@ -252,6 +290,7 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
             return -1;
         }
     }
+#endif
 
     return ret;
 }
@@ -262,11 +301,13 @@ void atiny_net_close(void* ctx)
 
     if (fd >= 0)
     {
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
         close(fd);
+#elif defined(WITH_AT_FRAMEWORK)
+        at_api_close(fd);
+#endif
     }
 
     atiny_free(ctx);
 }
-
-#endif /* WITH_LINUX || WITH_LWIP */
 
