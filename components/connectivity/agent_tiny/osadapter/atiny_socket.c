@@ -76,7 +76,7 @@ typedef struct
 
 void* atiny_net_connect(const char* host, const char* port, int proto)
 {
-    atiny_net_context* ctx;
+    atiny_net_context* ctx = NULL;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     int flags;
     int ret;
@@ -185,13 +185,14 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
 
 int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
 {
-    int ret;
+    int ret = -1;
     int fd = ((atiny_net_context*)ctx)->fd;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = recv(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_recv(fd,buf,len);
 #else
+    (void)fd; //clear unuse warning
 #endif
 
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
@@ -221,7 +222,7 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
 int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
                            uint32_t timeout)
 {
-    int ret;
+    int ret = -1;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     struct timeval tv;
     fd_set read_fds;
@@ -250,17 +251,19 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         return -2;
     }
 
-    return atiny_net_recv(ctx, buf, len);
+    ret = atiny_net_recv(ctx, buf, len);
     
 #elif defined(WITH_AT_FRAMEWORK)
-    return at_api_recv_timeout(fd, buf, len, timeout);
-#else    
+    ret = at_api_recv_timeout(fd, buf, len, timeout);
+#else
+    (void)fd; //clear unuse warning
 #endif
+    return ret;
 }
 
 int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
 {
-    int ret;
+    int ret = -1;
     int fd = ((atiny_net_context*)ctx)->fd;
 
     if (fd < 0)

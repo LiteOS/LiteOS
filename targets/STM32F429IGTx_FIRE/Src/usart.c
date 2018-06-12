@@ -146,13 +146,13 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 #if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
 int fputc(int ch, FILE *f)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
     return ch;
 }
 #elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
 __attribute__((used)) int _write(int fd, char *ptr, int len)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
     return len;
 }
 #endif

@@ -134,7 +134,7 @@ sys_sem_t s_xSemaphore;
   * @param  heth: ETH handle
   * @retval None
   */
-void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
+void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *pheth)
 {
 	sys_sem_signal(&s_xSemaphore);
 }
@@ -328,7 +328,10 @@ static void low_level_init(struct netif* netif)
 
     s_pxNetIf = netif;
 
-  sys_sem_new(&s_xSemaphore, 1);
+    if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
+    {
+	return;    
+    }
     /* create the task that handles the ETH_MAC */
     sys_thread_new((char*)"Eth_if", ethernetif_input, netif, netifINTERFACE_TASK_STACK_SIZE, netifINTERFACE_TASK_PRIORITY);
 

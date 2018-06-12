@@ -112,9 +112,9 @@ void at_usart_config(void)
 void at_transmit(uint8_t * cmd, int32_t len,int flag)
 {
     char * line_end = at_user_conf.line_end;
-    HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
+    (void)HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
 	if(flag == 1)
-    	HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
+    	(void)HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
 
 }
 

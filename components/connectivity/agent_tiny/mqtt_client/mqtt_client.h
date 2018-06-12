@@ -144,7 +144,7 @@ typedef struct atiny_param
     {
         cloud_security_psk_t psk;
         cloud_security_ca_t ca;
-    };
+    }u;
 }atiny_param_t;
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle);

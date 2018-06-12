@@ -76,7 +76,7 @@ void net_init(void)
     IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
 
     /* add the network interface (IPv4/IPv6) without RTOS */
-    netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
 
     /* Registers the default network interface */
     netif_set_default(&gnetif);
@@ -169,5 +169,5 @@ void hieth_hw_init(void)
 {
     extern void HAL_ETH_IRQHandler(void);
     //__HAL_ETH_DMA_CLEAR_FLAG(&heth, ETH_DMA_FLAG_R);
-    LOS_HwiCreate(ETH_IRQn, 1,0,HAL_ETH_IRQHandler,0);
+    (void)LOS_HwiCreate(ETH_IRQn, 1,0,HAL_ETH_IRQHandler,0);
 }
