@@ -255,6 +255,7 @@ int ota_default_update_process(void)
                 OTA_LOG("write ota flag failed");
                 return OTA_ERRNO_SPI_FLASH_WRITE;
             }
+            return OTA_ERRNO_OK;
         }
     default:
         OTA_LOG("unknown state:%d", g_ota_flag.state);
