@@ -1,13 +1,13 @@
 
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
 #include "esp8266.h"
 #include "atadapter.h"
 #include "at_api_interface.h"
 #include "atiny_socket.h"
-#include "main.h"
-#if defined(USE_AT_FRAMEWORK) && defined(USE_ESP8266)
+
 extern at_task at;
 
-at_adaptor_api at_interface;
+
 
 int32_t esp8266_echo_off(void)
 {

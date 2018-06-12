@@ -123,20 +123,20 @@ void agent_tiny_entry(void)
 
     security_param = &(atiny_params->security_params[0]);
 
-    security_param->bootstrap_mode = BOOTSTRAP_SEQUENCE;
-    security_param->iot_server_ip = "192.168.3.3";
+    security_param->bootstrap_mode = BOOTSTRAP_FACTORY;
+    security_param->iot_server_ip = DEFAULT_SERVER_IPV4;
     security_param->bs_server_ip = DEFAULT_SERVER_IPV4;
 
 #ifdef WITH_DTLS
     security_param->iot_server_port = "5684";
-    security_param->bs_server_port = "8684";
+    security_param->bs_server_port = "5684";
 
     security_param->psk_Id = g_endpoint_name_s;
     security_param->psk = (char*)g_psk_value;
     security_param->psk_len = 16;
 #else
-    security_param->iot_server_port = "5688";
-    security_param->bs_server_port = "8683";
+    security_param->iot_server_port = "5683";
+    security_param->bs_server_port = "5683";
 
     security_param->psk_Id = NULL;
     security_param->psk = NULL;

@@ -5,10 +5,6 @@
 
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
-#else
-#define WIFI_SSID      		"kiwi-mango-banana"
-#define WIFI_PASSWD    		"songjiannan"
-#endif
 
 #define AT_MODU_NAME    	"ESP8266"
 #define AT_USART   			USART3
@@ -40,4 +36,4 @@ typedef enum {
 	AP, 
 	ATA_AP,
 }enum_net_mode;
-
+#endif
