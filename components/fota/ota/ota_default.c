@@ -257,10 +257,12 @@ int ota_default_update_process(void)
             }
             return OTA_ERRNO_OK;
         }
+        break;
     default:
         OTA_LOG("unknown state:%d", g_ota_flag.state);
         return OTA_ERRNO_INTERNEL;
     }
+    return 0;
 }
 
 int ota_default_jump_to_application(void)
