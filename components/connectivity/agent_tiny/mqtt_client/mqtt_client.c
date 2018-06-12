@@ -83,32 +83,32 @@ void atiny_param_member_free(atiny_param_t* param)
     switch(param->security_type)
     {
         case CLOUD_SECURITY_TYPE_PSK:
-            if(NULL != param->psk.psk_id)
+            if(NULL != param->u.psk.psk_id)
             {
-                atiny_free(param->psk.psk_id);
-                param->psk.psk_id = NULL;
+                atiny_free(param->u.psk.psk_id);
+                param->u.psk.psk_id = NULL;
             }
-            if(NULL != param->psk.psk)
+            if(NULL != param->u.psk.psk)
             {
-                atiny_free(param->psk.psk);
-                param->psk.psk = NULL;
+                atiny_free(param->u.psk.psk);
+                param->u.psk.psk = NULL;
             }
             break;
         case CLOUD_SECURITY_TYPE_CA:
-            if(NULL != param->ca.ca_crt)
+            if(NULL != param->u.ca.ca_crt)
             {
-                atiny_free(param->ca.ca_crt);
-                param->ca.ca_crt = NULL;
+                atiny_free(param->u.ca.ca_crt);
+                param->u.ca.ca_crt = NULL;
             }
-            if(NULL != param->ca.server_crt)
+            if(NULL != param->u.ca.server_crt)
             {
-                atiny_free(param->ca.server_crt);
-                param->ca.server_crt = NULL;
+                atiny_free(param->u.ca.server_crt);
+                param->u.ca.server_crt = NULL;
             }
-            if(NULL != param->ca.server_key)
+            if(NULL != param->u.ca.server_key)
             {
-                atiny_free(param->ca.server_key);
-                param->ca.server_key = NULL;
+                atiny_free(param->u.ca.server_key);
+                param->u.ca.server_key = NULL;
             }
             break;
         default:
@@ -136,23 +136,23 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
     switch(src->security_type)
     {
         case CLOUD_SECURITY_TYPE_PSK:
-            dest->psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->psk.psk_id));
-            if(NULL == dest->psk.psk_id)
+            dest->u.psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->u.psk.psk_id));
+            if(NULL == dest->u.psk.psk_id)
                 goto atiny_param_dup_failed;
-            dest->psk.psk = (unsigned char *)atiny_malloc(src->psk.psk_len);
-            if(NULL == dest->psk.psk)
+            dest->u.psk.psk = (unsigned char *)atiny_malloc(src->u.psk.psk_len);
+            if(NULL == dest->u.psk.psk)
                 goto atiny_param_dup_failed;
-            memcpy(dest->psk.psk, src->psk.psk, src->psk.psk_len);
+            memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
             break;
         case CLOUD_SECURITY_TYPE_CA:
-            dest->ca.ca_crt = atiny_strdup((const char *)(src->ca.ca_crt));
-            if(NULL == dest->ca.ca_crt)
+            dest->u.ca.ca_crt = atiny_strdup((const char *)(src->u.ca.ca_crt));
+            if(NULL == dest->u.ca.ca_crt)
                 goto atiny_param_dup_failed;
-            dest->ca.server_crt = atiny_strdup((const char *)(src->ca.server_crt));
-            if(NULL == dest->ca.server_crt)
+            dest->u.ca.server_crt = atiny_strdup((const char *)(src->u.ca.server_crt));
+            if(NULL == dest->u.ca.server_crt)
                 goto atiny_param_dup_failed;
-            dest->ca.server_key = atiny_strdup((const char *)(src->ca.server_key));
-            if(NULL == dest->ca.server_key)
+            dest->u.ca.server_key = atiny_strdup((const char *)(src->u.ca.server_key));
+            if(NULL == dest->u.ca.server_key)
                 goto atiny_param_dup_failed;
             break;
         default:
@@ -596,10 +596,10 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             break;
         case CLOUD_SECURITY_TYPE_PSK:
             n.proto = MQTT_PROTO_TLS_PSK;
-            n.psk.psk_id = atiny_params->psk.psk_id;
-            n.psk.psk_id_len = atiny_params->psk.psk_id_len;
-            n.psk.psk = atiny_params->psk.psk;
-            n.psk.psk_len = atiny_params->psk.psk_len;
+            n.psk.psk_id = atiny_params->u.psk.psk_id;
+            n.psk.psk_id_len = atiny_params->u.psk.psk_id_len;
+            n.psk.psk = atiny_params->u.psk.psk;
+            n.psk.psk_len = atiny_params->u.psk.psk_len;
             break;
         case CLOUD_SECURITY_TYPE_CA:
             printf("[%s][%d] CLOUD_SECURITY_TYPE_CA unsupported now\n", __FUNCTION__, __LINE__);
