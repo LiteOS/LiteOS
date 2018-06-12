@@ -57,6 +57,7 @@ typedef enum
     ATINY_RESOURCE_NOT_ENOUGH  = -6,
     ATINY_CLIENT_UNREGISTERED  = -7,
     ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_SOCKET_ERROR = -9,
 } atiny_error_e;
 
 typedef enum cloud_security_type
