@@ -283,7 +283,7 @@ USER_INC = \
         C_INCLUDES += $(USER_INC)
 
 ATADAPTOR_INC = \
-        -I $(TOP_DIR)/components/atadaptor
+        -I $(TOP_DIR)/components/connectivity/at_frame
         C_INCLUDES += $(ATADAPTOR_INC)
 
 USER_DRIVERS_INC = \
