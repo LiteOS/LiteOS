@@ -13,7 +13,7 @@ int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener * p);
 void at_listner_list_del(at_listener * p);
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
-int at_oob_register(char* cmd,int cmdlen, oob_callback callback);
+int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback);
 
 //init function for at struct
 at_task at = {
@@ -115,7 +115,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listener_list_add(&listener);
 
     at_transmit((uint8_t*)cmd, strlen((char*)cmd), 1);
-    osDelay(osMs2Tick(200));
+    LOS_TaskDelay(200);
 
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
@@ -239,7 +239,7 @@ uint32_t create_at_recv_task()
 void at_init_oob(void)
 {
     at_oob.oob_num = 0;
-    memset(at_oob.oob,0,5*sizeof(struct oob_s));
+    memset(at_oob.oob,0,OOB_MAX_NUM * sizeof(struct oob_s));
 }
 
 int32_t at_struct_init(at_task * at)

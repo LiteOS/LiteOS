@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.22.1.15696</state>
+                    <state>8.22.2.15993</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -219,12 +219,12 @@
                     <state>USE_HAL_DRIVER</state>
                     <state>USE_MBED_TLS</state>
                     <state>MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;</state>
-                    <state>WITH_LWIP</state>
                     <state>LWM2M_LITTLE_ENDIAN</state>
                     <state>LWM2M_CLIENT_MODE</state>
                     <state>NDEBUG</state>
                     <state>WITH_DTLS</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
+                    <state>WITH_LWIP</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -377,6 +377,10 @@
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\examples</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\osadapter</state>
                     <state>$PROJ_DIR$\..\Hardware\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\at_frame</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\wifi</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\gprs</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\nb</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2083,6 +2087,18 @@
         </file>
     </group>
     <group>
+        <name>at_framework</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_api_interface.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_hal.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\atadapter.c</name>
+        </file>
+    </group>
+    <group>
         <name>atiny_tiny</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\agenttiny.c</name>
@@ -2725,6 +2741,18 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\usart.c</name>
+        </file>
+    </group>
+    <group>
+        <name>user_drivers</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\nb\bc95.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\gprs\sim900a.c</name>
         </file>
     </group>
 </project>
