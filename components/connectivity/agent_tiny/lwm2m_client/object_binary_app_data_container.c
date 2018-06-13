@@ -199,7 +199,7 @@ static uint8_t prv_read(uint16_t instanceId,
                         lwm2m_object_t * objectP)
 {
     plat_instance_t * targetP;
-    int ret;
+    uint8_t ret;
     int new_data_flag = false;
 
 
