@@ -2123,7 +2123,7 @@ HAL_StatusTypeDef HAL_ETH_ReadPHYRegister(ETH_HandleTypeDef *heth, uint16_t PHYR
 HAL_StatusTypeDef HAL_ETH_WritePHYRegister(ETH_HandleTypeDef *heth, uint16_t PHYReg, uint32_t RegValue);
 /* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth);
-void HAL_ETH_IRQHandler(void);
+void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth);
 /* Callback in non blocking modes (Interrupt) */
 void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth);
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth);

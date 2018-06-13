@@ -138,6 +138,12 @@ void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *pheth)
 {
 	sys_sem_signal(&s_xSemaphore);
 }
+
+/* Os ethernet interrupt handler */
+__weak void ETH_IRQHandler(void)
+{
+    HAL_ETH_IRQHandler(&heth);
+}
 //void ethernetif_input( void * pvParameters );
 static void arp_timer(void* arg);
 
