@@ -137,7 +137,7 @@ static int prv_spi_flash_send_byte(uint8_t send, uint8_t* recv)
     uint8_t tmp;
     uint8_t t_send = send;
 
-    if (HAL_SPI_TransmitReceive(&g_spi_flash, &t_send, &tmp, 1, 0xFFFFFF) != HAL_OK)
+    if (HAL_SPI_TransmitReceive(&g_spi_flash, &t_send, &tmp, 1, HAL_MAX_DELAY) != HAL_OK)
     {
         return -1;
     }
@@ -269,7 +269,7 @@ int hal_spi_flash_erase(uint32_t addr, int32_t len)
     }
 
     begin = addr / SPI_FLASH_SECTOR * SPI_FLASH_SECTOR;
-    end = (addr + len) / SPI_FLASH_SECTOR * SPI_FLASH_SECTOR;
+    end = (addr + len - 1) / SPI_FLASH_SECTOR * SPI_FLASH_SECTOR;
 
     for (i = begin; i <= end; i += SPI_FLASH_SECTOR)
     {

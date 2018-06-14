@@ -306,10 +306,10 @@ void lwm2m_close_connection(void* sessionH, void* userData)
 int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t timeout)
 {
     connection_t* connP = (connection_t*) sessionH;
-    timeout *= 1000;
-    int ret;
+    int ret = -1;
     const int TIME_OUT = -2;
-
+    
+    timeout *= 1000;
 #ifdef WITH_DTLS
 
     if (connP->dtls_flag == true)

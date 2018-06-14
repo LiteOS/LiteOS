@@ -196,11 +196,11 @@ void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* 
         {
             if ((atiny_params->security_params[0].psk != NULL)&&(atiny_params->security_params[0].psk_Id))
             {
-                atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",*bs_ip, *bs_port);
+                (void)atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",*bs_ip, *bs_port);
             }
             else
             {
-                atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",*bs_ip, *bs_port);
+                (void)atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",*bs_ip, *bs_port);
             }
 
             lwm2m_context->bs_server_uri = (char*)lwm2m_malloc(strlen(tmp_serverUri)+1); //remember free
@@ -490,7 +490,7 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
 void reboot_check(void)
 {
     if(g_reboot == 1) {
-        atiny_cmd_ioctl(ATINY_DO_DEV_REBOOT, NULL, 0);
+        (void)atiny_cmd_ioctl(ATINY_DO_DEV_REBOOT, NULL, 0);
     }
 }
 
@@ -507,7 +507,7 @@ static void atiny_connection_err_notify(lwm2m_context_t* context, connection_err
     if(!boostrap_flag)
     {
         handle = ATINY_FIELD_TO_STRUCT(context->userData, handle_data_t, client_data);
-        atiny_reconnect(handle);
+        (void)atiny_reconnect(handle);
     }
     ATINY_LOG(LOG_INFO, "connection err type %d bootstrap %d", err_type, boostrap_flag);
 }

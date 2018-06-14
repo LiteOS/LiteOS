@@ -722,13 +722,14 @@ osStatus_t osThreadTerminate (osThreadId_t thread_id)
 uint32_t osThreadGetCount (void)
 {
     uint32_t uwCount = 0;
+	int index = 0;
 
     if (OS_INT_ACTIVE)
     {
         return 0U;
     }
 
-    for(int index = 0; index <= LOSCFG_BASE_CORE_TSK_LIMIT; index++)
+    for(; index <= LOSCFG_BASE_CORE_TSK_LIMIT; index++)
     {
         if (!((g_pstTaskCBArray + index)->usTaskStatus & OS_TASK_STATUS_UNUSED))
         {
