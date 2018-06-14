@@ -37,9 +37,9 @@
 #include "agenttiny.h"
 #include "object_comm.h"
 #include "connection.h"
-#include "internals.h"
 #include "atiny_log.h"
 #include "atiny_rpt.h"
+#include "atiny_adapter.h"
 
 #define SERVER_URI_MAX_LEN      (64)
 #define MAX_PACKET_SIZE         (1024)
@@ -240,13 +240,13 @@ void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* 
 
 
 
-    /*
-    * modify info:
-    * 	date:	2018-05-30
-    * 	reason:	modify for bootstrap mode, origin code support FACTORY mode.
-    */
-    int  atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* device_info, handle_data_t* handle)
-    {
+/*
+* modify info:
+*     date:    2018-05-30
+*     reason:  modify for bootstrap mode, origin code support FACTORY mode.
+*/
+int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* device_info, handle_data_t* handle)
+{
     int result;
     client_data_t* pdata;
     lwm2m_context_t* lwm2m_context = NULL;
@@ -279,6 +279,12 @@ void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* 
     {
         ATINY_LOG(LOG_FATAL, "lwm2m_init fail");
         return ATINY_MALLOC_FAILED;
+    }
+    lwm2m_context->observe_mutex = atiny_mutex_create();
+    if (NULL == lwm2m_context->observe_mutex)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_mutex_create fail");
+        return ATINY_RESOURCE_NOT_ENOUGH;
     }
 
     pdata->lwm2mH = lwm2m_context;
@@ -423,6 +429,8 @@ void atiny_destroy(void* handle)
         free_binary_app_data_object(handle_data->obj_array[OBJ_APP_INDEX]);
     }
     atiny_destroy_rpt();
+
+    atiny_mutex_destroy(handle_data->lwm2m_context->observe_mutex);
 
     if (handle_data->lwm2m_context != NULL)
     {
@@ -643,6 +651,50 @@ int atiny_data_report(void* phandle, data_report_t* report_data)
     }
 
     return ret;
+}
+
+int atiny_data_change(void* phandle, atiny_report_type_e data_type)
+{
+    lwm2m_uri_t uri;
+    handle_data_t* handle;
+
+    if (NULL == phandle)
+    {
+        ATINY_LOG(LOG_ERR, "invalid args");
+        return ATINY_ARG_INVALID;
+    }
+
+    memset((void*)&uri, 0, sizeof(uri));
+    handle = (handle_data_t*)phandle;
+
+    if (handle->lwm2m_context->state != STATE_READY)
+    {
+        ATINY_LOG(LOG_INFO, "not registered");
+        return ATINY_CLIENT_UNREGISTERED;
+    }
+
+    switch (data_type)
+    {
+        case DEVICE_AVL_POWER_SOURCES:
+            (void)lwm2m_stringToUri("/3/0/6", 6, &uri);
+        case DEVICE_POWER_SOURCE_VOLTAGE:
+            (void)lwm2m_stringToUri("/3/0/7", 6, &uri);
+        case DEVICE_POWER_SOURCE_CURRENT:
+            (void)lwm2m_stringToUri("/3/0/8", 6, &uri);
+        case DEVICE_BATTERY_LEVEL:
+            (void)lwm2m_stringToUri("/3/0/9", 6, &uri);
+        case DEVICE_MEMORY_FREE:
+            (void)lwm2m_stringToUri("/3/0/10", 7, &uri);
+            break;
+        default:
+            return ATINY_RESOURCE_NOT_FOUND;
+    }
+
+    atiny_mutex_lock(handle->lwm2m_context->observe_mutex);
+    lwm2m_resource_value_changed(handle->lwm2m_context, &uri);
+    atiny_mutex_unlock(handle->lwm2m_context->observe_mutex);
+
+    return ATINY_OK;
 }
 
 void observe_handle_ack(lwm2m_transaction_t* transacP, void* message)

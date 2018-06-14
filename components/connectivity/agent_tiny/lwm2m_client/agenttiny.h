@@ -186,6 +186,11 @@ typedef struct
 typedef enum
 {
     FIRMWARE_UPDATE_STATE = 0,
+    DEVICE_AVL_POWER_SOURCES,
+    DEVICE_POWER_SOURCE_VOLTAGE,
+    DEVICE_POWER_SOURCE_CURRENT,
+    DEVICE_BATTERY_LEVEL,
+    DEVICE_MEMORY_FREE,
     APP_DATA
 } atiny_report_type_e;
 
@@ -300,6 +305,23 @@ typedef struct _data_report_t
  *@see none.
  */
 int atiny_data_report(void* phandle, data_report_t* report_data);
+
+/**
+ *@ingroup agenttiny
+ *@brief
+ *
+ *@par Description:
+ *This API is used to
+ *@attention none.
+ *
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *@param data_type      [IN] Data type of the changed resource.
+ *
+ *@retval #int          ATINY_OK if succeed or error code @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see none.
+ */
+int atiny_data_change(void* phandle, atiny_report_type_e data_type);
 
 typedef enum
 {
