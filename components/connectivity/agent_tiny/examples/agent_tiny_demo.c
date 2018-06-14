@@ -34,8 +34,8 @@
 
 #include "agent_tiny_demo.h"
 
-//#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
-#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
+#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
+//#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
 
 #define LWM2M_LIFE_TIME     50000
 
