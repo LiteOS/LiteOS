@@ -334,7 +334,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
         }
 
     case RES_O_MEMORY_FREE:
-        {
+    {
         int free_memory;
         result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char*)&free_memory, sizeof(int));
         if(result == ATINY_OK){
@@ -343,7 +343,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
         } else {
             return COAP_400_BAD_REQUEST;
         }
-        }
+    }
 
     case RES_M_ERROR_CODE:
     {

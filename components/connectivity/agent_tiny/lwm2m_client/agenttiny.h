@@ -301,6 +301,29 @@ typedef struct _data_report_t
  */
 int atiny_data_report(void* phandle, data_report_t* report_data);
 
+#define DEVICE_AVL_POWER_SOURCES    "/3/0/6"
+#define DEVICE_POWER_SOURCE_VOLTAGE "/3/0/7"
+#define DEVICE_POWER_SOURCE_CURRENT "/3/0/8"
+#define DEVICE_BATTERY_LEVEL        "/3/0/9"
+#define DEVICE_MEMORY_FREE          "/3/0/10"
+
+/**
+ *@ingroup agenttiny
+ *@brief
+ *
+ *@par Description:
+ *This API is used to
+ *@attention none.
+ *
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *@param data_type      [IN] Data type of the changed resource.
+ *
+ *@retval #int          ATINY_OK if succeed or error code @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see none.
+ */
+int atiny_data_change(void* phandle, const char* data_type);
+
 typedef enum
 {
     LOG_DEBUG = 0,

@@ -38,6 +38,8 @@
 
 #define ATINY_POWER_VOLTAGE_MIN 3800
 #define ATINY_POWER_VOLTAGE_MAX 5000
+#define ATINY_BATTERY_LEVEL     90
+#define ATINY_MEMORY_FREE       50
 #define ATINY_NETWORK_BEARER    5
 #define ATINY_SIGNAL_STRENGTH   90
 #define ATINY_CELL_ID           21103
@@ -126,13 +128,16 @@ int atiny_get_max_voltage(int* voltage)
 
 int atiny_get_baterry_level(int* voltage)
 {
-    *voltage = ATINY_POWER_VOLTAGE_MAX;
+    *voltage = ATINY_BATTERY_LEVEL;
     return ATINY_OK;
 }
 
 int atiny_get_memory_free(int* voltage)
 {
-    *voltage = ATINY_POWER_VOLTAGE_MAX;
+    int tmp;
+    (void)atiny_random(&tmp, sizeof(tmp));
+    tmp %= 30;
+    *voltage = ATINY_MEMORY_FREE + tmp;
     return ATINY_OK;
 }
 
