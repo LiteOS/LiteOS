@@ -138,11 +138,11 @@ typedef struct __SPI_HandleTypeDef
   void                       (*RxISR)(struct __SPI_HandleTypeDef * hspi); /* function pointer on Rx ISR */
 
   void                       (*TxISR)(struct __SPI_HandleTypeDef * hspi); /* function pointer on Tx ISR */
-
+/*lint -e10 */
   DMA_HandleTypeDef          *hdmatx;      /* SPI Tx DMA Handle parameters   */
 
   DMA_HandleTypeDef          *hdmarx;      /* SPI Rx DMA Handle parameters   */
-
+/*lint +e10 */
   HAL_LockTypeDef            Lock;         /* Locking object                 */
 
   __IO HAL_SPI_StateTypeDef  State;        /* SPI communication state */

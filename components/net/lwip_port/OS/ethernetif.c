@@ -569,7 +569,7 @@ void ethernetif_input( void* pvParameters )
                 pbuf_free(p);
                 p = NULL;
             }
-    }while(p != NULL);
+        }while(p != NULL);
     }
 }
 
