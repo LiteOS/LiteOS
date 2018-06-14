@@ -18,6 +18,14 @@ DEBUG = 1
 # optimization
 OPT = -Og
 
+#######################################
+# network
+#######################################
+USE_AT_FRAMEWORK := no
+ifeq ($(USE_AT_FRAMEWORK), yes)
+#ESP8266   # SIM900A  # NB_NEUL95
+	NETWORK_TYPE := ESP8266
+endif
 
 #######################################
 # binaries
@@ -148,15 +156,20 @@ USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
+ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
-        ${wildcard $(TOP_DIR)/components/atadaptor/*.c}
-        C_SOURCES += $(ATADAPTOR_SRC)
+    ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c}
+    C_SOURCES += $(ATADAPTOR_SRC)
 
-USER_DRIVERS_SRC = \
-        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c} \
-        ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
-        C_SOURCES += $(USER_DRIVERS_SRC)
-
+ifeq ($(NETWORK_TYPE), ESP8266)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+else ifeq ($(NETWORK_TYPE), SIM900A)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
+else ifeq ($(NETWORK_TYPE), NB_NEUL95)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/nb/*.c}
+endif
+    C_SOURCES += $(USER_DRIVERS_SRC)
+endif
 
 # ASM sources
 ASM_SOURCES =  \
@@ -192,7 +205,6 @@ C_DEFS =  \
         -D STM32F429xx \
         -D USE_MBED_TLS \
         -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
-        -D WITH_LWIP \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
@@ -201,7 +213,11 @@ C_DEFS =  \
 #       -D WITH_DTLS \   
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
         
-
+ifeq ($(USE_AT_FRAMEWORK), yes)
+        C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
+else
+        C_DEFS += -D WITH_LWIP
+endif
 
 # AS includes
 AS_INCLUDES =
@@ -282,14 +298,19 @@ USER_INC = \
         C_INCLUDES += $(USER_INC)
 
 ATADAPTOR_INC = \
-        -I $(TOP_DIR)/components/atadaptor
+        -I $(TOP_DIR)/components/connectivity/at_frame
         C_INCLUDES += $(ATADAPTOR_INC)
 
-USER_DRIVERS_INC = \
-        -I $(TOP_DIR)/drivers/devices/wifi \
-        -I $(TOP_DIR)/drivers/devices/gprs \
-        C_INCLUDES += $(USER_DRIVERS_INC)
-
+ifeq ($(USE_AT_FRAMEWORK), yes)
+ifeq ($(NETWORK_TYPE), ESP8266)
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi
+else ifeq ($(NETWORK_TYPE), SIM900A)
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/gprs
+else ifeq ($(NETWORK_TYPE), NB_NEUL95)
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/nb
+endif
+    C_INCLUDES += $(USER_DRIVERS_INC)
+endif
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 

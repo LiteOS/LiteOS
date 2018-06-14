@@ -96,5 +96,6 @@ int main(void)
         return LOS_NOK;
     }
 
-    LOS_Start();
+    (void)LOS_Start();
+    return 0;
 }
