@@ -140,7 +140,7 @@ void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *pheth)
 }
 
 /* Os ethernet interrupt handler */
-__weak void ETH_IRQHandler(void)
+void ETH_IRQHandler(void)
 {
     HAL_ETH_IRQHandler(&heth);
 }
