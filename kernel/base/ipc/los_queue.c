@@ -88,7 +88,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osQueueInit(VOID)
         pstQueueNode->usQueueID = usIndex;
         LOS_ListTailInsert(&g_stFreeQueueList, &pstQueueNode->stReadWriteList[OS_QUEUE_WRITE]);
     }
-    
+
 #if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     g_uwExcQueueMaxNum = LOSCFG_BASE_IPC_QUEUE_LIMIT;
     osExcRegister(OS_EXC_TYPE_QUE, (EXC_INFO_SAVE_CALLBACK)LOS_QueueInfoGet, &g_uwExcQueueMaxNum);
@@ -174,7 +174,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *pcQueueName,
     return LOS_OK;
 }
 
-LITE_OS_SEC_TEXT static UINT32 osQueueReadParameterCheck(UINT32 uwQueueID, VOID *pBufferAddr, UINT32 *puwBufferSize, UINT32 uwTimeOut)
+LITE_OS_SEC_TEXT static INLINE UINT32 osQueueReadParameterCheck(UINT32 uwQueueID, VOID *pBufferAddr, UINT32 *puwBufferSize, UINT32 uwTimeOut)
 {
     if (uwQueueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT)
     {
@@ -201,7 +201,7 @@ LITE_OS_SEC_TEXT static UINT32 osQueueReadParameterCheck(UINT32 uwQueueID, VOID 
 }
 
 
-LITE_OS_SEC_TEXT static UINT32 osQueueWriteParameterCheck(UINT32 uwQueueID, VOID *pBufferAddr, UINT32 *puwBufferSize, UINT32 uwTimeOut)
+LITE_OS_SEC_TEXT static INLINE UINT32 osQueueWriteParameterCheck(UINT32 uwQueueID, VOID *pBufferAddr, UINT32 *puwBufferSize, UINT32 uwTimeOut)
 {
     if (uwQueueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT)
     {
@@ -228,7 +228,7 @@ LITE_OS_SEC_TEXT static UINT32 osQueueWriteParameterCheck(UINT32 uwQueueID, VOID
     return LOS_OK;
 }
 
-LITE_OS_SEC_TEXT static VOID osQueueBufferOperate(QUEUE_CB_S *pstQueueCB, UINT32 uwOperateType, VOID *pBufferAddr, UINT32 *puwBufferSize)
+LITE_OS_SEC_TEXT static INLINE VOID osQueueBufferOperate(QUEUE_CB_S *pstQueueCB, UINT32 uwOperateType, VOID *pBufferAddr, UINT32 *puwBufferSize)
 {
     UINT8        *pucQueueNode;
     UINT32       uwMsgDataSize = 0;
@@ -259,16 +259,30 @@ LITE_OS_SEC_TEXT static VOID osQueueBufferOperate(QUEUE_CB_S *pstQueueCB, UINT32
 
     pucQueueNode = &(pstQueueCB->pucQueue[(usQueuePosion * (pstQueueCB->usQueueSize))]);
 
-    if(OS_QUEUE_IS_READ(uwOperateType))
+    if(OS_QUEUE_IS_POINT(uwOperateType))
     {
-        memcpy((VOID *)&uwMsgDataSize, (VOID *)(pucQueueNode + pstQueueCB->usQueueSize - sizeof(UINT32)), sizeof(UINT32));
-        memcpy((VOID *)pBufferAddr, (VOID *)pucQueueNode, uwMsgDataSize);
-        *puwBufferSize = uwMsgDataSize;
+        if(OS_QUEUE_IS_READ(uwOperateType))
+        {
+            *(UINT32 *)pBufferAddr = *(UINT32 *)pucQueueNode;
+        }
+        else
+        {
+            *(UINT32 *)pucQueueNode = *(UINT32 *)pBufferAddr;//change to pp when calling osQueueOperate
+        }
     }
     else
     {
-        memcpy((VOID *)pucQueueNode, (VOID *)pBufferAddr, *puwBufferSize);
-        memcpy((VOID *)(pucQueueNode + pstQueueCB->usQueueSize - sizeof(UINT32)), puwBufferSize, sizeof(UINT32));
+        if(OS_QUEUE_IS_READ(uwOperateType))
+        {
+            memcpy((VOID *)&uwMsgDataSize, (VOID *)(pucQueueNode + pstQueueCB->usQueueSize - sizeof(UINT32)), sizeof(UINT32));
+            memcpy((VOID *)pBufferAddr, (VOID *)pucQueueNode, uwMsgDataSize);
+            *puwBufferSize = uwMsgDataSize;
+        }
+        else
+        {
+            memcpy((VOID *)pucQueueNode, (VOID *)pBufferAddr, *puwBufferSize);
+            memcpy((VOID *)(pucQueueNode + pstQueueCB->usQueueSize - sizeof(UINT32)), puwBufferSize, sizeof(UINT32));
+        }
     }
 }
 
@@ -380,7 +394,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueReadCopy(UINT32  uwQueueID,
         return uwRet;
     }
 
-    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_READ, OS_QUEUE_HEAD);
+    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_READ, OS_QUEUE_HEAD,OS_QUEUE_NOT_POINT);
     return osQueueOperate(uwQueueID, uwOperateType, pBufferAddr, puwBufferSize, uwTimeOut);
 }
 
@@ -408,7 +422,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueWriteHeadCopy(UINT32 uwQueueID,
         return uwRet;
     }
 
-    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_HEAD);
+    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_HEAD,OS_QUEUE_NOT_POINT);
     return osQueueOperate(uwQueueID, uwOperateType, pBufferAddr, &uwBufferSize, uwTimeOut);
 }
 
@@ -436,7 +450,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueWriteCopy( UINT32 uwQueueID,
         return uwRet;
     }
 
-    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_TAIL);
+    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_TAIL, OS_QUEUE_NOT_POINT);
     return osQueueOperate(uwQueueID, uwOperateType, pBufferAddr, &uwBufferSize, uwTimeOut);
 }
 
@@ -451,7 +465,17 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueWriteCopy( UINT32 uwQueueID,
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_QueueRead(UINT32  uwQueueID, VOID *pBufferAddr, UINT32 uwBufferSize, UINT32 uwTimeOut)
 {
-    return LOS_QueueReadCopy(uwQueueID, pBufferAddr, &uwBufferSize, uwTimeOut);
+    UINT32 uwRet;
+    UINT32 uwOperateType;
+
+    uwRet = osQueueReadParameterCheck(uwQueueID, pBufferAddr, &uwBufferSize, uwTimeOut);
+    if(uwRet != LOS_OK)
+    {
+        return uwRet;
+    }
+
+    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_READ, OS_QUEUE_HEAD, OS_QUEUE_POINT);
+    return osQueueOperate(uwQueueID, uwOperateType, pBufferAddr, &uwBufferSize, uwTimeOut);
 }
 
 /*****************************************************************************
@@ -466,12 +490,19 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueRead(UINT32  uwQueueID, VOID *pBufferAddr, UINT
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_QueueWrite(UINT32 uwQueueID, VOID *pBufferAddr, UINT32 uwBufferSize, UINT32 uwTimeOut)
 {
-    if(pBufferAddr == NULL)
-    {
-        return LOS_ERRNO_QUEUE_WRITE_PTR_NULL;
-    }
+    UINT32 uwRet;
+    UINT32 uwOperateType;
+
     uwBufferSize = sizeof(UINT32*);
-    return LOS_QueueWriteCopy(uwQueueID, &pBufferAddr, uwBufferSize, uwTimeOut);
+
+    uwRet = osQueueWriteParameterCheck(uwQueueID, pBufferAddr, &uwBufferSize, uwTimeOut);
+    if(uwRet != LOS_OK)
+    {
+        return uwRet;
+    }
+
+    uwOperateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_TAIL, OS_QUEUE_POINT);
+    return osQueueOperate(uwQueueID, uwOperateType, &pBufferAddr, &uwBufferSize, uwTimeOut);
 }
 
 /*****************************************************************************
