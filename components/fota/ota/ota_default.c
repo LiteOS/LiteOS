@@ -228,6 +228,7 @@ int ota_default_check_update_state(ota_state* st)
 
 int ota_default_update_process(void)
 {
+/*lint -e616 */
     switch (g_ota_flag.state)
     {
     case OTA_S_IDLE:
@@ -255,13 +256,13 @@ int ota_default_update_process(void)
                 OTA_LOG("write ota flag failed");
                 return OTA_ERRNO_SPI_FLASH_WRITE;
             }
+            return OTA_ERRNO_OK;
         }
-        break;
     default:
         OTA_LOG("unknown state:%d", g_ota_flag.state);
         return OTA_ERRNO_INTERNEL;
     }
-    return 0;
+/*lint +e616 */
 }
 
 int ota_default_jump_to_application(void)

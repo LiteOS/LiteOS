@@ -391,12 +391,12 @@ void mqtt_message_arrived(MessageData* md)
 
 int mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM])
 {
-    int i, rc = -1;
+    int i, rc = ATINY_ARG_INVALID;
 
     if(NULL == client || NULL == interest_uris)
     {
         //ATINY_LOG(LOG_FATAL, "Parameter null");
-        return -1;
+        return ATINY_ARG_INVALID;
     }
 
     for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
@@ -407,7 +407,10 @@ int mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t inte
         rc = MQTTSubscribe(client, interest_uris[i].uri, (enum QoS)interest_uris[i].qos, mqtt_message_arrived);
         printf("[%s][%d] MQTTSubscribe %s[%d]\n", __FUNCTION__, __LINE__, interest_uris[i].uri, rc);
         if(rc != 0)
+        {
+            rc = ATINY_SOCKET_ERROR;
             break;
+        }
     }
 
     return rc;
@@ -643,7 +646,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             goto connect_again;
         }
 
-        if(0 != mqtt_subscribe_interest_topics(client, device_info_t->interest_uris))
+        if(ATINY_SOCKET_ERROR == mqtt_subscribe_interest_topics(client, device_info_t->interest_uris))
         {
             printf("[%s][%d] mqtt_subscribe_interest_topics failed\n", __FUNCTION__, __LINE__);
             goto connect_again;

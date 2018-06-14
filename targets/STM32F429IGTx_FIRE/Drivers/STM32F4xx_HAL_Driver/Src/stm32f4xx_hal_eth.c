@@ -944,59 +944,57 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth)
   *         the configuration information for ETHERNET module
   * @retval HAL status
   */
-void HAL_ETH_IRQHandler(void)
+void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
 {
-  extern ETH_HandleTypeDef heth;
-  ETH_HandleTypeDef* pheth = &heth;
   /* Frame received */
-  if (__HAL_ETH_DMA_GET_FLAG(pheth, ETH_DMA_FLAG_R))
+  if (__HAL_ETH_DMA_GET_FLAG(heth, ETH_DMA_FLAG_R)) 
   {
     /* Receive complete callback */
-    HAL_ETH_RxCpltCallback(pheth);
-
+    HAL_ETH_RxCpltCallback(heth);
+    
      /* Clear the Eth DMA Rx IT pending bits */
-    __HAL_ETH_DMA_CLEAR_IT(pheth, ETH_DMA_IT_R);
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_R);
 
     /* Set HAL State to Ready */
-    pheth->State = HAL_ETH_STATE_READY;
-
+    heth->State = HAL_ETH_STATE_READY;
+    
     /* Process Unlocked */
-    __HAL_UNLOCK(pheth);
+    __HAL_UNLOCK(heth);
 
   }
   /* Frame transmitted */
-  else if (__HAL_ETH_DMA_GET_FLAG(pheth, ETH_DMA_FLAG_T))
+  else if (__HAL_ETH_DMA_GET_FLAG(heth, ETH_DMA_FLAG_T)) 
   {
     /* Transfer complete callback */
-    HAL_ETH_TxCpltCallback(pheth);
-
+    HAL_ETH_TxCpltCallback(heth);
+    
     /* Clear the Eth DMA Tx IT pending bits */
-    __HAL_ETH_DMA_CLEAR_IT(pheth, ETH_DMA_IT_T);
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_T);
 
     /* Set HAL State to Ready */
-    pheth->State = HAL_ETH_STATE_READY;
-
+    heth->State = HAL_ETH_STATE_READY;
+    
     /* Process Unlocked */
-    __HAL_UNLOCK(pheth);
+    __HAL_UNLOCK(heth);
   }
-
+  
   /* Clear the interrupt flags */
-  __HAL_ETH_DMA_CLEAR_IT(pheth, ETH_DMA_IT_NIS);
-
+  __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_IT_NIS);
+  
   /* ETH DMA Error */
-  if(__HAL_ETH_DMA_GET_FLAG(pheth, ETH_DMA_FLAG_AIS))
+  if(__HAL_ETH_DMA_GET_FLAG(heth, ETH_DMA_FLAG_AIS))
   {
     /* Ethernet Error callback */
-    HAL_ETH_ErrorCallback(pheth);
+    HAL_ETH_ErrorCallback(heth);
 
     /* Clear the interrupt flags */
-    __HAL_ETH_DMA_CLEAR_IT(pheth, ETH_DMA_FLAG_AIS);
-
+    __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMA_FLAG_AIS);
+  
     /* Set HAL State to Ready */
-    pheth->State = HAL_ETH_STATE_READY;
-
+    heth->State = HAL_ETH_STATE_READY;
+    
     /* Process Unlocked */
-    __HAL_UNLOCK(pheth);
+    __HAL_UNLOCK(heth);
   }
 }
 
