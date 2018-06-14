@@ -72,6 +72,7 @@
 
 #include "net.h"
 #include "ssl.h"
+#include "eth.h"
 
 #ifdef __cplusplus
  extern "C" {
