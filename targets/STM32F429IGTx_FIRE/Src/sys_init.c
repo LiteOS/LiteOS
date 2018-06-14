@@ -167,7 +167,6 @@ void SystemClock_Config(void)
 
 void hieth_hw_init(void)
 {
-    extern void HAL_ETH_IRQHandler(void);
-    //__HAL_ETH_DMA_CLEAR_FLAG(&heth, ETH_DMA_FLAG_R);
-    (void)LOS_HwiCreate(ETH_IRQn, 1,0,HAL_ETH_IRQHandler,0);
+    extern void ETH_IRQHandler(void);
+    (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
 }
