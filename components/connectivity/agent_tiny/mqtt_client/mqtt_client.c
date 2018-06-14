@@ -44,6 +44,8 @@
 #define MQTT_VERSION_3_1_1 (4)
 #define MQTT_CLEAN_SESSION_TRUE (1)
 #define MQTT_CLEAN_SESSION_FALSE (0)
+#define MQTT_TOPIC_SUBSCRIBED_TRUE (1)
+#define MQTT_TOPIC_SUBSCRIBED_FALSE (0)
 
 void mqtt_message_arrived(MessageData* md);
 void device_info_member_free(atiny_device_info_t* info);
@@ -254,6 +256,29 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
     return rc;
 }
 
+int mqtt_is_topic_subscribed(const char *topic)
+{
+    int i, rc = 0;
+    atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
+
+    if(!topic)
+    {
+        //ATINY_LOG(LOG_FATAL, "invalid params");
+        return -1;
+    }
+
+    for(i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
+    {
+        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
+        {
+            rc = 1;
+            break;
+        }
+    }
+
+    return rc;
+}
+
 int mqtt_del_interest_topic(const char *topic)
 {
     int i, rc = -1;
@@ -310,11 +335,16 @@ int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
         return -1;
     }
 
-    rc = MQTTUnsubscribe(client, topic);
-    if(0 != rc)
-        printf("[%s][%d] MQTTUnsubscribe %s[%d]\n", __FUNCTION__, __LINE__, topic, rc);
-    else
-        (void)mqtt_del_interest_topic(topic);
+    rc = mqtt_is_topic_subscribed(topic);
+
+    if(MQTT_TOPIC_SUBSCRIBED_TRUE == rc)
+    {
+        rc = MQTTUnsubscribe(client, topic);
+        if(0 != rc)
+            printf("[%s][%d] MQTTUnsubscribe %s[%d]\n", __FUNCTION__, __LINE__, topic, rc);
+        else
+            (void)mqtt_del_interest_topic(topic);
+    }
 
     return rc;
 }
