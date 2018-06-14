@@ -143,7 +143,7 @@ int lwm2m_strncmp(const char* s1, const char* s2, size_t n);
 time_t lwm2m_gettime(void);
 
 //get len of random bytes in output.
-int lwm2m_rand(unsigned char* output, size_t len);
+int lwm2m_rand(void *output, size_t len);
 
 #define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS

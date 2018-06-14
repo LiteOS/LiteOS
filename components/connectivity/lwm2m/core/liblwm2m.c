@@ -101,7 +101,7 @@ lwm2m_context_t * lwm2m_init(void * userData)
     {
         memset(contextP, 0, sizeof(lwm2m_context_t));
         contextP->userData = userData;
-        lwm2m_rand((unsigned char *)&contextP->nextMID, sizeof(contextP->nextMID));
+        lwm2m_rand((void *)&contextP->nextMID, sizeof(contextP->nextMID));
     }
 
     return contextP;
