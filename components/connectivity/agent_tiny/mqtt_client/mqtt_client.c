@@ -551,6 +551,24 @@ device_info_dup_failed:
     return -1;
 }
 
+int atiny_isconnected(void* phandle)
+{
+    handle_data_t* handle;
+    MQTTClient *client;
+
+    if (NULL == phandle)
+    {
+        //ATINY_LOG(LOG_ERR, "invalid args");
+        printf("[%s][%d]\n", __FUNCTION__, __LINE__);
+        return ATINY_ARG_INVALID;
+    }
+
+    handle = (handle_data_t*)phandle;
+    client = &(handle->client);
+
+    return MQTTIsConnected(client);
+}
+
 int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 {
     Network n;
@@ -652,13 +670,14 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             goto connect_again;
         }
 
-        while (rc >= 0 && handle->atiny_quit == 0)
+        while (rc >= 0 && MQTTIsConnected(client) && handle->atiny_quit == 0)
         {
             rc = MQTTYield(client, MQTT_EVENTS_HANDLE_PERIOD_MS);
         }
 connect_again:
         MQTTDisconnect(client);
         NetworkDisconnect(&n);
+        data.cleansession = MQTT_CLEAN_SESSION_FALSE;
     }
     return ATINY_OK;
 }

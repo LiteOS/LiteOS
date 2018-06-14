@@ -150,6 +150,7 @@ typedef struct atiny_param
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle);
 void atiny_deinit(void* phandle);
+int atiny_isconnected(void* phandle);
 int atiny_bind(atiny_device_info_t* device_info, void* phandle);
 int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb);
 
