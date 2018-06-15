@@ -34,8 +34,8 @@
 
 #include "agent_tiny_demo.h"
 
-#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
-//#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
+//#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
+#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
 
 #define LWM2M_LIFE_TIME     50000
 
@@ -73,9 +73,9 @@ void app_data_report(void)
         report_data.cookie = cnt;
         cnt++;
         ret = atiny_data_report(g_phandle, &report_data);
-        printf("report ret:%d\n",ret);
+        printf("report ret: %d\n",ret);
         ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
-        printf("data change ret:%d\n",ret);
+        printf("data change ret: %d\n",ret);
         (void)LOS_TaskDelay(250*8);
     }
 }
