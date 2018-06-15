@@ -199,6 +199,11 @@ static int prv_spi_flash_write_page(const uint8_t* buf, uint32_t addr, int32_t l
     int ret = 0;
     int i;
 
+    if(0 == len)
+    {
+        return 0;
+    }
+
     prv_spi_flash_write_enable();
     SPI_FLASH_CS_ENABLE();
 

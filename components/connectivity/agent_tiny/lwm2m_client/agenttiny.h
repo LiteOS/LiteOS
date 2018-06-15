@@ -41,6 +41,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "atiny_fota_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,6 +86,7 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
+    ATINY_GET_FOTA_STORAGE_DEVICE
 } atiny_cmd_e;
 
 #define MAX_VELOCITY_LEN 16

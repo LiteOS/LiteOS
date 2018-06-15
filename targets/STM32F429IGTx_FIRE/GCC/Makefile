@@ -176,6 +176,9 @@ endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
 
+C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
+C_SOURCES += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
+
 # ASM sources
 ASM_SOURCES =  \
         ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
@@ -316,6 +319,9 @@ else ifeq ($(NETWORK_TYPE), NB_NEUL95)
 endif
     C_INCLUDES += $(USER_DRIVERS_INC)
 endif
+
+C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
+
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
@@ -366,7 +372,7 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile $(LD_FILE)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
