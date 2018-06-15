@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,34 +32,44 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef ATINY_LOG_H
-#define ATINY_LOG_H
-#include "agenttiny.h"
-#include "atiny_adapter.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#ifdef __cplusplus
+#ifndef _ATINY_FOTA_API_H_
+#define _ATINY_FOTA_API_H_
+#include <stdbool.h>
+#include <stdint.h>
+
+
+struct atiny_fota_storage_device_tag_s;
+typedef struct atiny_fota_storage_device_tag_s atiny_fota_storage_device_s;
+typedef enum
+{
+    ATINY_FOTA_DOWNLOAD_OK,
+    ATINY_FOTA_DOWNLOAD_FAIL
+}atiny_download_result_e;
+struct atiny_fota_storage_device_tag_s
+{
+    int (*write_software)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    void (*write_software_end)(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len);
+    int (*active_software)(atiny_fota_storage_device_s *thi);
+    int (*get_software_result)(atiny_fota_storage_device_s *thi);
+    int (*write_update_info)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    int (*read_update_info)(atiny_fota_storage_device_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
+};
+
+
+
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
-#ifdef ATINY_DEBUG
-const char* atiny_get_log_level_name(atiny_log_e log_level);
 
-#define ATINY_LOG(level, fmt, ...) \
-    do \
-    { \
-        if ((level) >= atiny_get_log_level()) \
-        { \
-            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        } \
-    } while (0)
-#else
-#define ATINY_LOG(level, fmt, ...)
-#endif
-
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 
-#endif
+#endif //_ATINY_FOTA_API_H_
+
 
