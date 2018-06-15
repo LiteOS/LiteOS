@@ -13,6 +13,8 @@ char wbuf[1064] = {0};
 char tmpbuf[1064]={0}; //用于转换hex
 char coapmsg[536]={0};
 
+#define MAX_SOCK_NUM 5
+remote_info sockinfo[MAX_SOCK_NUM];
 
 int32_t nb_data_handler(void* arg,int8_t * buf, int32_t len)
 {
@@ -217,7 +219,7 @@ int32_t nb_get_netstat(void)
 }
 
 
-int32_t nb_create_udpsock(const int8_t * host, const int8_t *port, int32_t proto)
+int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
 {
 	int socket;
 	char *cmd = "AT+NSOCR=DGRAM,17,";//udp
@@ -225,7 +227,7 @@ int32_t nb_create_udpsock(const int8_t * host, const int8_t *port, int32_t proto
 	char rbuf[1024]={0};
 	//nb_set_cdpserver(host,strlen(host));
 
-    sprintf(wbuf, "%s%d,1\r", cmd, (int)port);
+    sprintf(wbuf, "%s%d,1\r", cmd, port);//udp
 	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf);
 	sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
 	//neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
@@ -256,10 +258,11 @@ int32_t nb_close_udpsock(int socket)
 
 int32_t nb_init(void)
 {
-	char* ipaddr = CLOUD_IP;
 	int ret;
     at.init();
 	at.oob_register("+NNMI",strlen("+NNMI"), nb_data_handler);
+
+	memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
 
     nb_reset();
 	while(1)
@@ -269,17 +272,16 @@ int32_t nb_init(void)
 			break;
 		LOS_TaskDelay(1000);
 	}
-	nb_set_cdpserver(ipaddr);//
-	LOS_TaskDelay(3000);
 	//nb_get_auto_connect();
 	//nb_connect(NULL, NULL, NULL);
     return AT_OK;
 }
 
-int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
+int32_t nb_connect(const int8_t * host, const char *port, int32_t proto)
 {
 	int ret = 0;
 	int timecnt = 0;
+	int localport = 5600;
 	while(timecnt < 120)
 	{
 		ret = nb_get_netstat();
@@ -296,8 +298,21 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 	{
 		ret = nb_query_ip();
 	}
-	//nb_set_cdpserver((const char *)host);
-	ret = nb_create_udpsock(NULL, port, 0);
+    memset(wbuf, 0, 1064);
+    sprintf(wbuf, "%s,%s\r", (char *)host, port);
+	nb_set_cdpserver((const char *)wbuf);
+	do{
+		ret = nb_create_udpsock(NULL, localport, 1);
+		localport++;
+	}while(ret < 0);
+	localport--;
+	if(ret >= MAX_SOCK_NUM)
+	{
+		AT_LOG_DEBUG("sock num exceeded");
+		return -1;
+	}
+	memcpy(sockinfo[ret].ip, (const char*)host,strlen((const char*)host));
+	sockinfo[ret].port = localport;
     return ret;
 
 }
@@ -310,18 +325,49 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	memset(wbuf, 0, 1064);
 	memset(tmpbuf, 0, 1064);
 	neul_bc95_str_to_hex((const char *)buf, len, tmpbuf);
-	sprintf(wbuf, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,"192.53.100.53",(int)5683,(int)len,tmpbuf);//这些参数需要socket结构体保存
+	sprintf(wbuf, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].ip,(int)sockinfo[id].port,(int)len,tmpbuf);//这些参数需要socket结构体保存
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
 int32_t nb_recv(int32_t id , int8_t  *buf, uint32_t len)
 {
-    return -1;
+	char *cmd = "AT+NSORF=";
+    int rlen = 0;
+    int rskt = -1;
+    int port = 0;
+    int readleft = 0;
+    int ret;
+
+	memset(wbuf, 0, 1064);
+	memset(rbuf, 0, 1064);
+	memset(tmpbuf, 0, 1064);
+	sprintf(wbuf, "%s%d,%d\r", cmd, id, len);
+    do
+    {
+        ret = at.cmd(wbuf, strlen(wbuf), "OK",rbuf);
+    }while(ret < 0);
+    sscanf(rbuf, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,wbuf);
+    return rlen;
 }
 
 int32_t nb_recv_timeout(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout)
 {
-    return -1;
+	char *cmd = "AT+NSORF=";
+	int rlen = 0;
+	int rskt = -1;
+	int port = 0;
+	int ret;
+	int readleft = 0;
+
+	memset(wbuf, 0, 1064);
+	memset(rbuf, 0, 1064);
+	memset(tmpbuf, 0, 1064);
+	sprintf(wbuf, "%s%d,%d\r", cmd, id, len);
+	ret = at.cmd(wbuf, strlen(wbuf), "OK",rbuf);
+	if(ret < 0)
+		return -1;
+	sscanf(rbuf, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,wbuf);
+	return rlen;
 }
 
 int32_t nb_close(int32_t socket)
