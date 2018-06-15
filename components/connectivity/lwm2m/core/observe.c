@@ -166,12 +166,12 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
     observedP = prv_findObserved(contextP, uriP);
     if (observedP == NULL)
     {
-        atiny_mutex_lock(contextP->observe_mutex);
         observedP = (lwm2m_observed_t *)lwm2m_malloc(sizeof(lwm2m_observed_t));
         if (observedP == NULL) return NULL;
         allocatedObserver = true;
         memset(observedP, 0, sizeof(lwm2m_observed_t));
         memcpy(&(observedP->uri), uriP, sizeof(lwm2m_uri_t));
+        atiny_mutex_lock(contextP->observe_mutex);
         observedP->next = contextP->observedList;
         contextP->observedList = observedP;
         atiny_mutex_unlock(contextP->observe_mutex);
@@ -180,7 +180,6 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
     watcherP = prv_findWatcher(observedP, serverP);
     if (watcherP == NULL)
     {
-        atiny_mutex_lock(contextP->observe_mutex);
         watcherP = (lwm2m_watcher_t *)lwm2m_malloc(sizeof(lwm2m_watcher_t));
         if (watcherP == NULL)
         {
@@ -193,6 +192,7 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
         memset(watcherP, 0, sizeof(lwm2m_watcher_t));
         watcherP->active = false;
         watcherP->server = serverP;
+        atiny_mutex_lock(contextP->observe_mutex);
         watcherP->next = observedP->watcherList;
         observedP->watcherList = watcherP;
         atiny_mutex_unlock(contextP->observe_mutex);
