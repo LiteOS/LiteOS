@@ -2,139 +2,35 @@
 
 ## Contents
 
-* [1 Knowledge Sharing License Agreement 1](#knowledge-sharing-license-agreement)
+* [1 Knowledge Sharing License Agreement](#1)
 
-* [2 Preface 2](#preface)
+* [2 Preface](#2)
 
-* [3 Overview 4](#overview)
+* [3 Overview](#3)
 
-* [3.1 Background Introduction 4](#background-introduction)
+* [4 Basic Kernel](#4)
 
-* [3.2 Supported Cores 6](#supported-cores)
+* [4.1 Task](#4.1)
 
-* [3.3 Constraints 7](#constraints)
+* [4.2 Memory](#4.2)
 
-* [4 Basic Kernel 9](#basic-kernel)
+* [4.3 Interrupt](#4.3)
 
-* [4.1 Task 9](#task)
+* [4.4 Queue](#4.4)
 
-* [4.1.1 Overview 9](#overview-1)
+* [4.5 Event](#4.5)
 
-* [4.1.2 Development Guidelines 12](#development-guidelines)
+* [4.6 Mutex](#4.6)
 
-* [4.1.3 Precautions 17](#precautions)
+* [4.7 Semaphore](#4.7)
 
-* [4.1.4 Programming Example 18](#programming-example)
+* [4.8 Time Management](#4.8)
 
-* [4.2 Memory 21](#memory)
+* [4.9 Software Time](#4.9)
 
-* [4.2.1 Overview 21](#overview-2)
+* [4.10 Doubly Linked List](#4.10)
 
-* [4.2.2 Dynamic Memory 24](#dynamic-memory)
-
-* [4.2.2.1 Development Guidelines 24](#development-guidelines-1)
-
-* [4.2.2.2 Precautions 27](#precautions-1)
-
-* [4.2.2.3 Programming Example 28](#programming-example-1)
-
-* [4.2.3 Static Memory 29](#static-memory)
-
-* [4.2.3.1 Development Guidelines 29](#development-guidelines-2)
-
-* [4.2.3.2 Precautions 30](#precautions-2)
-
-* [4.2.3.3 Programming Example 30](#programming-example-2)
-
-* [4.3 Interrupt 32](#interrupt)
-
-* [4.3.1 Overview 32](#overview-3)
-
-* [4.3.2 Development Guidelines 34](#development-guidelines-3)
-
-* [4.3.3 Precautions 35](#precautions-3)
-
-* [4.3.4 Programming Example 35](#programming-example-3)
-
-* [4.4 Queue 36](#queue)
-
-* [4.4.1 Overview 36](#overview-4)
-
-* [4.4.2 Development Guidelines 38](#development-guidelines-4)
-
-* [4.4.3 Precautions 43](#precautions-4)
-
-* [4.4.4 Programming Example 43](#programming-example-4)
-
-* [4.5 Event 46](#event)
-
-* [4.5.1 Overview 46](#overview-5)
-
-* [4.5.2 Development Guidelines 48](#development-guidelines-5)
-
-* [4.5.3 Precautions 50](#precautions-5)
-
-* [4.5.4 Programming Example 51](#programming-example-5)
-
-* [4.6 Mutex 53](#mutex)
-
-* [4.6.1 Overview 53](#overview-6)
-
-* [4.6.2 Development Guidelines 54](#development-guidelines-6)
-
-* [4.6.3 Precautions 57](#precautions-6)
-
-* [4.6.4 Programming Example 57](#programming-example-6)
-
-* [4.7 Semaphore 60](#semaphore)
-
-* [4.7.1 Overview 60](#overview-7)
-
-* [4.7.2 Development Guidelines 62](#development-guidelines-7)
-
-* [4.7.3 Precautions 65](#precautions-7)
-
-* [4.7.4 Programming Example 65](#programming-example-7)
-
-* [4.8 Time Management 68](#time-management)
-
-* [4.8.1 Overview 68](#overview-8)
-
-* [4.8.2 Development Guidelines 69](#development-guidelines-8)
-
-* [4.8.3 Precautions 70](#precautions-8)
-
-* [4.8.4 Programming Example 70](#programming-example-8)
-
-* [4.9 Software Timer 72](#software-timer)
-
-* [4.9.1 Overview 72](#overview-9)
-
-* [4.9.2 Development Guidelines 73](#development-guidelines-9)
-
-* [4.9.3 Precautions 76](#precautions-9)
-
-* [4.9.4 Programming Example 76](#programming-example-9)
-
-* [4.10 Doubly Linked List 80](#doubly-linked-list)
-
-* [4.10.1 Overview 80](#overview-10)
-
-* [4.10.2 Development Guidelines 81](#development-guidelines-10)
-
-* [4.10.3 Precautions 81](#precautions-10)
-
-* [4.10.4 Programming Example 81](#programming-example-10)
-
-* [5 AgentTiny 84](#agenttiny)
-
-* [5.1 Overview 84](#overview-11)
-
-* [5.2 Development Guidelines 85](#development-guidelines-11)
-
-* [5.3 Precautions 87](#precautions-11)
-
-* [5.4 Programming Example 87](#programming-example-11)
+* [5 AgentTiny](#5)
 
 <h2 id="1">1.Knowledge Sharing License Agreement</h2>
 
@@ -216,14 +112,6 @@ changes made in earlier issues.
 
 <h2 id="3">3.Overview</h2>
 
-**About This Chapter**
-
-* [3.1 Background Introduction](#background-introduction)
-
-* [3.2 Supported Cores](#supported-cores)
-
-* [3.3 Constraints](#constraints)
-
 ### 3.1 Background Introduction
 
 Huawei LiteOS is a lightweight real-time operating system
@@ -237,9 +125,9 @@ contains operating system components based task management, memory management,
 time management, communication mechanism, interrupt management, queue
 management, event management, timer, etc. It can run independently.
 
-* Highlights of Huawei LiteOS Kernel
+Highlights of Huawei LiteOS Kernel
 
-* Highlight real-time and stable
+Highlight real-time and stable
 
 * Ultra-small kernel, basic kernel size of less than 10 KB
 
@@ -311,27 +199,7 @@ Cores supported by Huawei LiteOS
 
 <h2 id="4">4.Basic Kernel</h2>
 
-* [4.1 Task](#task)
-
-* [4.2 Memory](#memory)
-
-* [4.3 Interrupt](#interrupt)
-
-* [4.4 Queue](#queue)
-
-* [4.5 Event](#event)
-
-* [4.6 Mutex](#mutex)
-
-* [4.7 Semaphore](#semaphore)
-
-* [4.8 Time Management](#time-management)
-
-* [4.9 Software Timer](#software-timer)
-
-* [4.10 Doubly Linked List](#doubly-linked-list)
-
-### 4.1 Task
+<h3 id="4.1">4.1 Task</h3>
 
 **Overview**
 
@@ -535,23 +403,17 @@ Task creation is used as an example to explain the development process.
 
 1.  Configure the task management module in the los_config.h file.
 
-LOSCFG_BASE_CORE_TSK_LIMIT: the maximum number of tasks allowed. You can config
-according to requirement.
+    LOSCFG_BASE_CORE_TSK_LIMIT: the maximum number of tasks allowed. You can config according to requirement.
 
-LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE: IDLE task stack size. Retain the default
-value unless otherwise required. You can config according to requirement.
+    LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE: IDLE task stack size. Retain the default value unless otherwise required. You can config according to requirement.
 
-LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE: default task stack size. Specify the
-parameter value according to actual needs when users create tasks.
+    LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE: default task stack size. Specify the parameter value according to actual needs when users create tasks.
 
-LOSCFG_BASE_CORE_TIMESLICE: a switch to enable or disable the Time Slice. Set it
-to YES.
+    LOSCFG_BASE_CORE_TIMESLICE: a switch to enable or disable the Time Slice. Set it to YES.
 
-LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT: time slice. You can config according to
-actual situations.
+    LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT: time slice. You can config according to actual situations.
 
-LOSCFG_BASE_CORE_TSK_MONITOR: a switch to enable or disable the task monitoring
-module.
+    LOSCFG_BASE_CORE_TSK_MONITOR: a switch to enable or disable the task monitoring module.
 
 2.  Call the LOS_TaskLock API to lock task scheduling. Prohibits high-priority task scheduling.
 
@@ -625,12 +487,12 @@ An error code is 32 bits in length, where:
 * Bits 7–0: error ID number
 
 ```
- #define LOS_ERRNO_OS_NORMAL(MID,ERRNO)
- (LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
- LOS_ERRTYPE_NORMAL ：Define the error level as critical
- LOS_ERRNO_OS_ID ：OS error code flag.
- MID：OS_MOUDLE_ID
- ERRNO：error ID number
+#define LOS_ERRNO_OS_NORMAL(MID,ERRNO)  \ 
+(LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO)) 
+LOS_ERRTYPE_NORMAL : Define the error level as critical 
+LOS_ERRNO_OS_ID : OS error code flag. 
+MID: OS_MOUDLE_ID 
+ERRNO: error ID number
 ```
 
 For example:
@@ -694,151 +556,151 @@ suspend, resume, and query (task ID and information by task ID) a task.
 
 2.  TaskHi has a higher priority.
 
-3.  TaskLo has a lower priority.
-4.  
+3.  TaskLo has a lower priority.  
+
 **Example Code**
 
-```
-static UINT32 g_uwTskHiID;  
-static UINT32 g_uwTskLoID;  
-  
-\#define TSK_PRIOR_HI 4  
-\#define TSK_PRIOR_LO 5  
-  
-static UINT32 Example_TaskHi(VOID)  
-{  
-UINT32 uwRet = LOS_OK;  
-  
-dprintf("Enter TaskHi Handler.\\r\\n");  
-  
-/\* task delay 5 ticks, task will be suspend \*/  
-uwRet = LOS_TaskDelay(5);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("Delay Task Failed.\\r\\n");  
-return LOS_NOK;  
-}  
-  
-/\* task resumed \*/  
-dprintf("TaskHi LOS_TaskDelay Done.\\r\\n");  
-  
-/\* suspend self \*/  
-uwRet = LOS_TaskSuspend(g_uwTskHiID);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("Suspend TaskHi Failed.\\r\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return LOS_NOK;  
-}  
-  
-dprintf("TaskHi LOS_TaskResume Success.\\r\\n");  
-  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-  
-/\* delete self \*/  
-if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))  
-{  
-dprintf("TaskHi delete failed .\\n");  
-return LOS_NOK;  
-}  
-  
-return LOS_OK;  
-}  
-  
-static UINT32 Example_TaskLo(VOID)  
-{  
-UINT32 uwRet;  
-  
-dprintf("Enter TaskLo Handler.\\r\\n");  
-  
-/\* task delay 10 ticks, task will be suspend \*/  
-uwRet = LOS_TaskDelay(10);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("Delay TaskLo Failed.\\r\\n");  
-return LOS_NOK;  
-}  
-  
-dprintf("TaskHi LOS_TaskSuspend Success.\\r\\n");  
-  
-/\* resumed task g_uwTskHiID \*/  
-uwRet = LOS_TaskResume(g_uwTskHiID);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("Resume TaskHi Failed.\\r\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return LOS_NOK;  
-}  
-  
-/\* delete self \*/  
-if(LOS_OK != LOS_TaskDelete(g_uwTskLoID))  
-{  
-dprintf("TaskLo delete failed .\\n");  
-return LOS_NOK;  
-}  
-  
-return LOS_OK;  
-}  
-  
-UINT32 Example_TskCaseEntry(VOID)  
-{  
-UINT32 uwRet;  
-TSK_INIT_PARAM_S stInitParam;  
-  
-/\* lock task shcedue \*/  
-LOS_TaskLock();  
-  
-dprintf("LOS_TaskLock() Success!\\r\\n");  
-  
-stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;  
-stInitParam.usTaskPrio = TSK_PRIOR_HI;  
-stInitParam.pcName = "HIGH_NAME";  
-stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-/\* create high prio task \*/  
-uwRet = LOS_TaskCreate(&g_uwTskHiID, \&stInitParam);  
-if (uwRet != LOS_OK)  
-{  
-LOS_TaskUnlock();  
-  
-dprintf("Example_TaskHi create Failed!\\r\\n");  
-return LOS_NOK;  
-}  
-  
-dprintf("Example_TaskHi create Success!\\r\\n");  
-  
-stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;  
-stInitParam.usTaskPrio = TSK_PRIOR_LO;  
-stInitParam.pcName = "LOW_NAME";  
-stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-/\* create low prio task \*/  
-uwRet = LOS_TaskCreate(&g_uwTskLoID, \&stInitParam);  
-if (uwRet != LOS_OK)  
-{  
-/\* delete high prio task \*/  
-if (LOS_OK != LOS_TaskDelete(g_uwTskHiID))  
-{  
-dprintf("TaskHi delete failed .\\n");  
-}  
-  
-LOS_TaskUnlock();  
-  
-dprintf("Example_TaskLo create Failed!\\r\\n");  
-  
-return LOS_NOK;
-}  
-```
+```  
+static UINT32 g_uwTskHiID;
+static UINT32 g_uwTskLoID;
+
+#define TSK_PRIOR_HI 4
+#define TSK_PRIOR_LO 5
+
+static UINT32 Example_TaskHi(VOID)
+{
+    UINT32 uwRet = LOS_OK;
+
+    dprintf("Enter TaskHi Handler.\r\n");
+
+    /* task delay 5 ticks, task will be suspend */
+    uwRet = LOS_TaskDelay(5);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("Delay Task Failed.\r\n");
+        return LOS_NOK;
+    }
+
+    /* task resumed */
+    dprintf("TaskHi LOS_TaskDelay Done.\r\n");
+
+    /* suspend self */
+    uwRet = LOS_TaskSuspend(g_uwTskHiID);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("Suspend TaskHi Failed.\r\n");
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+        return LOS_NOK;
+    }
+
+    dprintf("TaskHi LOS_TaskResume Success.\r\n");
+
+    uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_SUCCESS);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("Set Inspect Status Err\n");
+    }
+
+    /* delete self */
+    if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))
+    {
+        dprintf("TaskHi delete failed .\n");
+        return LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
+static UINT32 Example_TaskLo(VOID)
+{
+    UINT32 uwRet;
+
+    dprintf("Enter TaskLo Handler.\r\n");
+
+    /* task delay 10 ticks, task will be suspend */
+    uwRet = LOS_TaskDelay(10);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("Delay TaskLo Failed.\r\n");
+        return LOS_NOK;
+    }
+
+    dprintf("TaskHi LOS_TaskSuspend Success.\r\n");
+
+    /* resumed task g_uwTskHiID */
+    uwRet = LOS_TaskResume(g_uwTskHiID);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("Resume TaskHi Failed.\r\n");
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+        return LOS_NOK;
+    }
+
+    /* delete self */
+    if(LOS_OK != LOS_TaskDelete(g_uwTskLoID))
+    {
+        dprintf("TaskLo delete failed .\n");
+        return LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
+UINT32 Example_TskCaseEntry(VOID)
+{
+    UINT32 uwRet;
+    TSK_INIT_PARAM_S stInitParam;
+
+    /* lock task shcedue */
+    LOS_TaskLock();
+
+    dprintf("LOS_TaskLock() Success!\r\n");
+
+    stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskHi;
+    stInitParam.usTaskPrio = TSK_PRIOR_HI;
+    stInitParam.pcName = "HIGH_NAME";
+    stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    /* create high prio task */
+    uwRet = LOS_TaskCreate(&g_uwTskHiID, &stInitParam);
+    if (uwRet != LOS_OK)
+    {
+        LOS_TaskUnlock();
+
+        dprintf("Example_TaskHi create Failed!\r\n");
+        return LOS_NOK;
+    }
+
+    dprintf("Example_TaskHi create Success!\r\n");
+
+    stInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_TaskLo;
+    stInitParam.usTaskPrio = TSK_PRIOR_LO;
+    stInitParam.pcName = "LOW_NAME";
+    stInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    /* create low prio task */
+    uwRet = LOS_TaskCreate(&g_uwTskLoID, &stInitParam);
+    if (uwRet != LOS_OK)
+    {
+        /* delete high prio task */
+        if (LOS_OK != LOS_TaskDelete(g_uwTskHiID))
+        {
+            dprintf("TaskHi delete failed .\n");
+        }
+
+        LOS_TaskUnlock();
+
+        dprintf("Example_TaskLo create Failed!\r\n");
+
+        return LOS_NOK;
+    }
+```  
 
 **Verification**
 
@@ -846,11 +708,7 @@ The verification result is as follows:
 
 ![](./meta/DevGuide_en/pic8.jpg)
 
-**Complete Code**
-
-los_api_task.c
-
-### 4.2 Memory
+<h3 id="4.2">4.2 Memory</h3>
 
 ### 4.2.1 Overview
 
@@ -900,7 +758,7 @@ LITTLE.
 
 **1 DLINK**
 
-Figure 4-2shows the dynamic memory management structure in Huawei LiteOS:
+Figure the dynamic memory management structure in Huawei LiteOS:
 
 ![](./meta/DevGuide_en/pic9.jpg)
 
@@ -923,19 +781,14 @@ to the array as free nodes for later use.
 **Part three:** uses most space in the memory pool and is the actual area that stores
 nodes. The ```LOS_MEM_DYN_NODE node``` structure is described as follows:
 
-```
+```  
 typedef struct tagLOS_MEM_DYN_NODE
-
 {
-
 LOS_DL_LIST stFreeNodeInfo;
-
-struct tagLOS_MEM_DYN_NODE \*pstPreNode;
-
+struct tagLOS_MEM_DYN_NODE *pstPreNode;
 UINT32 uwSizeAndFlag;
-
 }LOS_MEM_DYN_NODE;
-```
+```    
 
 ![](./meta/DevGuide_en/pic10.jpg)
 
@@ -995,7 +848,7 @@ Static memory
 
 ### 4.2.2 Dynamic Memory
 
-#### 4.2.1 Development Guidelines
+#### 4.2.2.1 Development Guidelines
 
 **Usage Scenarios**
 
@@ -1169,69 +1022,62 @@ In the programming example, the following steps will be performed:
 
 **Example Code**
 
-```
-UINT32 Example_Dyn_Mem(VOID)  
-{  
-UINT32 \*p_num = NULL;  
-UINT32 uwRet;  
-uwRet = LOS_MemInit(pDynMem, MEM_DYN_SIZE);  
-if (LOS_OK == uwRet)  
-{  
-dprintf("mempool init ok!\\n");  
-}  
-else  
-{  
-dprintf("mempool init failed!\\n");  
-return LOS_NOK;  
-}  
-  
-/\* mem alloc \*/  
-p_num = (UINT32 \*)LOS_MemAlloc(pDynMem, 4);  
-if (NULL == p_num)  
-{  
-dprintf("mem alloc failed!\\n");  
-return LOS_NOK;  
-}  
-dprintf("mem alloc ok\\n");  
-  
-/\* assignment \*/  
-\*p_num = 828;  
-dprintf("\*p_num = %d\\n", \*p_num);  
-  
-/\* mem free \*/  
-uwRet = LOS_MemFree(pDynMem, p_num);  
-if (LOS_OK == uwRet)  
-{  
-dprintf("mem free ok!\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-else  
-{  
-dprintf("mem free failed!\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return LOS_NOK;  
-}  
-return LOS_OK;  
+```  
+UINT32 Example_Dyn_Mem(VOID)
+{
+    UINT32 *p_num = NULL;
+    UINT32 uwRet;
+    uwRet = LOS_MemInit(m_aucSysMem0, OS_SYS_MEM_SIZE);
+    if (LOS_OK == uwRet)
+    {
+        dprintf("mempool init ok!\n");//内存初始化成功！
+    }
+    else
+    {
+        dprintf("mempool init failed!\n");//内存初始化失败！
+        return LOS_NOK;
+    }
+    /*分配内存*/
+    p_num = (UINT32*)LOS_MemAlloc(m_aucSysMem0, 4);
+    if (NULL == p_num)
+    {
+        dprintf("mem alloc failed!\n");//内存分配失败！
+        return LOS_NOK;
+    }
+    dprintf("mem alloc ok\n");//内存分配成功！
+    /*赋值*/
+    *p_num = 828;
+    dprintf("*p_num = %d\n", *p_num);
+    /*释放内存*/
+    uwRet = LOS_MemFree(m_aucSysMem0, p_num);
+    if (LOS_OK == uwRet)
+    {
+        dprintf("mem free ok!\n");//内存释放成功！
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_SUCCESS);
+  if (LOS_OK != uwRet)  
+  {
+   dprintf("Set Inspect Status Err\n");
+  }
+    }
+    else
+    {
+        dprintf("mem free failed!\n");//内存释放失败！
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM,LOS_INSPECT_STU_ERROR);
+  if (LOS_OK != uwRet)  
+  {
+   dprintf("Set Inspect Status Err\n");
+  }
+        return LOS_NOK;
+    }
+    return LOS_OK;
 }
-```
+```  
 
 **Verification**
 
 Verification result
 
 ![](./meta/DevGuide_en/pic16.jpg)
-
-**Complete Code**
-
-los_api_dynamic_mem.c
 
 ### 4.2.3 Static Memory
 
@@ -1289,9 +1135,7 @@ None.
 
 #### 4.2.3.2 Precautions
 
-The range of static memory pool can be acquired by using either a global
-    variable array or the LOS_AllocMem API. In the latter case, to avoid memory
-    leaks, free up a static memory block when the block is no longer in use.
+The range of static memory pool can be acquired by using either a global variable array or the LOS_AllocMem API. In the latter case, to avoid memory leaks, free up a static memory block when the block is no longer in use.
 
 #### 4.2.3.3 Programming Example
 
@@ -1317,62 +1161,62 @@ In the programming example, the following steps will be performed:
 
 **Example Code**
 
-```
-UINT32 Example_StaticMem(VOID)  
-{  
-UINT32 \*p_num = NULL;  
-UINT32 uwBlkSize = 3, uwBoxSize = 48;  
-UINT32 uwRet;  
-  
-uwRet = LOS_MemboxInit(&pBoxMem[0], uwBoxSize, uwBlkSize);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("Mem box init failed\\n");  
-return LOS_NOK;  
+```  
+UINT32 Example_StaticMem(VOID)
+{
+    UINT32 *p_num = NULL;
+    UINT32 uwBlkSize = 3, uwBoxSize = 48;
+    UINT32 uwRet;
+
+    uwRet = LOS_MemboxInit(&pBoxMem[0], uwBoxSize, uwBlkSize);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("Mem box init failed\n");
+        return LOS_NOK;
+    }
+    else
+    {
+        dprintf("Mem box init ok!\n");
+    }
+
+    /* membox alloc */
+    p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
+    if (NULL == p_num)
+    {
+        dprintf("Mem box alloc failed!\n");
+        return LOS_NOK;
+    }
+    dprintf("Mem box alloc ok\n");
+    /* assignment */
+    *p_num = 828;
+    dprintf("*p_num = %d\n", *p_num);
+    /* clear mem context */
+    LOS_MemboxClr(pBoxMem, p_num);
+    dprintf("clear data ok\n *p_num = %d\n", *p_num);
+    /* membox free */
+    uwRet = LOS_MemboxFree(pBoxMem, p_num);
+    if (LOS_OK == uwRet)
+    {
+        dprintf("Mem box free ok!\n");
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+    else
+    {
+        dprintf("Mem box free failed!\n");
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+
+    return LOS_OK;
 }  
-else  
-{  
-dprintf("Mem box init ok!\\n");  
-}  
-  
-/\* membox alloc \*/  
-p_num = (UINT32\*)LOS_MemboxAlloc(pBoxMem);  
-if (NULL == p_num)  
-{  
-dprintf("Mem box alloc failed!\\n");  
-return LOS_NOK;  
-}  
-dprintf("Mem box alloc ok\\n");  
-/\* assignment \*/  
-\*p_num = 828;  
-dprintf("\*p_num = %d\\n", \*p_num);  
-/\* clear mem context \*/  
-LOS_MemboxClr(pBoxMem, p_num);  
-dprintf("clear data ok\\n \*p_num = %d\\n", \*p_num);  
-/\* membox free \*/  
-uwRet = LOS_MemboxFree(pBoxMem, p_num);  
-if (LOS_OK == uwRet)  
-{  
-dprintf("Mem box free ok!\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-else  
-{  
-dprintf("Mem box free failed!\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-  
-return LOS_OK;  
-}
-```
+```  
 
 **Verification**
 
@@ -1380,11 +1224,7 @@ Verification result
 
 ![](./meta/DevGuide_en/pic17.jpg)
 
-**Complete Code**
-
-los_api_static_mem.c
-
-### 4.3 Interrupt
+<h3 id="4.3">4.3 Interrupt</h3>
 
 #### 4.3.1 Overview
 
@@ -1524,13 +1364,12 @@ The interrupt module provides the following functions:
 
   - LOSCFG_PLATFORM_HWI_LIMIT: the maximum allowed number of hardware interrupts.
 
-2 Call the LosHwiInit API to initialize the interrupt mechanism.
+2 Call the LOS_HwiInit API to initialize the interrupt mechanism.
 
-3 Call the LOS_HwiCreate API to create an interrupt.
+3 Call the LOS_HwiCreate API to create an interrupt. Enabel the specified interrupt as required.
 
-4 Call the hal_interrupt_unmask API to enable an interrupt.
+4 Call the LOS_HwiDelete API to delete an interrupt.  
 
-5 Call the hal_interrupt_mask API to disable an interrupt.
 
 #### 4.3.3 Precautions
 
@@ -1577,45 +1416,41 @@ Example_Exti0_Init () function based on the hardware of the development board.
 
 The code is as follows:
 
-```
-static VOID Example_Exti0_Init(VOID)  
-{  
-/\*add your IRQ init code here\*/  
-  
-return;  
-}  
-  
-static VOID User_IRQHandler(VOID)  
-{  
-dprintf("\\n User IRQ test\\n");  
-//LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);  
-return;  
-}  
-  
-UINT32 Example_Interrupt(VOID)  
-{  
-UINTPTR uvIntSave;  
-uvIntSave = LOS_IntLock();  
-  
-Example_Exti0_Init();  
-  
-LOS_HwiCreate(6, 0, 0, User_IRQHandler, 0);//create interrupt  
-  
-LOS_IntRestore(uvIntSave);  
-  
-return LOS_OK;  
+```  
+static VOID Example_Exti0_Init(VOID)
+{
+    /*add your IRQ init code here*/
+
+    return;
 }
-```
+
+static VOID User_IRQHandler(VOID)
+{
+    dprintf("\n User IRQ test\n");
+    //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
+    return;
+}
+
+UINT32 Example_Interrupt(VOID)
+{
+    UINTPTR uvIntSave;
+    uvIntSave = LOS_IntLock();
+
+    Example_Exti0_Init();
+
+    LOS_HwiCreate(6, 0, 0, User_IRQHandler, 0);//create interrupt
+
+    LOS_IntRestore(uvIntSave);
+
+    return LOS_OK;
+}  
+```  
 
 **Verification**
 
 ![](./meta/DevGuide_en/pic18.jpg)
 
-**Complete Code**
-
-los_api_interrupt.c
-
-### 4.4 Queue
+<h3 id="4.4">4.4 Queue</h3>
 
 #### 4.4.1 Overview
 
@@ -1651,27 +1486,25 @@ The following features characterize queues:
 
 **Queue Control Block**
 
-```
-/\*\*  
-\* \@ingroup los_queue  
-\* Queue information block structure  
-\*/  
-typedef struct tagQueueCB  
-{  
-UINT8 \*pucQueue; /\*\*\< pointer to the queue \*/  
-UINT16 usQueueState; /\*\*\< queue state \*/  
-UINT16 usQueueLen; /\*\*\< number of messages in the queue \*/  
-UINT16 usQueueSize; /\*\*\< message node size \*/  
-UNIT16 usQueueID; /\*\*\< queue ID \*/  
-UINT16 usQueueHead; /\*\*\< message head node position (array subscript)\*/  
-UINT16 usQueueTail; /\*\*\< message tail node position (array superscript)\*/  
-UINT16 usReadWritableCnt[2]; /\*\*\< Number of writable or readable messages in
-a queue. 0 indicates readable, and 1 indicates writable.\*/  
-LOS_DL_LIST stReadWriteableList[2]; /\*\*\< Read/write blocking queue. 0
-indicates the read blocking queue, and 1 indicates the write blocking queue.\*/  
-LOS_DL_LIST stMemList; /\*\*\< MailBox module usage \*/  
-} QUEUE_CB_S;
-```
+```  
+/**
+  * @ingroup los_queue
+  * Queue information block structure
+  */
+typedef struct tagQueueCB
+{
+    UINT8       *pucQueue;      /**< pointer to the queue */
+    UINT16      usQueueState;   /**< queue state */
+    UINT16      usQueueLen;     /**< number of messages in the queue */
+    UINT16      usQueueSize;    /**< message node size */
+    UNIT16      usQueueID;      /**< queue ID */
+    UINT16      usQueueHead;    /**< message head node position (array subscript)*/
+    UINT16      usQueueTail;    /**< message tail node position (array superscript)*/
+    UINT16      usReadWritableCnt[2];      /**< Number of writable or readable messages in a queue. 0 indicates readable, and 1 indicates writable.*/ 
+    LOS_DL_LIST stReadWriteableList[2];    /**< Read/write blocking queue. 0 indicates the read blocking queue, and 1 indicates the write blocking queue.*/
+    LOS_DL_LIST stMemList;      /**< MailBox module usage */
+} QUEUE_CB_S;  
+```  
 
 Each queue control block contains the element of queue state that indicates the
 usage of this queue:
@@ -1778,11 +1611,9 @@ creation and queue deletion, to facilitate fault locating.
 | 27  | LOS_ERRNO_QUEUE_ISEMPTY             | 0x0200061d | The queue is empty.                                                                         | Ensure the queue contains messages when it is being read.                                                                                                            |
 | 28  | LOS_ERRNO_QUEUE_READ_SIZE_TOO_SMALL | 0x0200061f | The buffer size passed in during queue reading is much smaller than the queue size.         | Increase the buffer size. Alternatively, decrease the node size.                                                                                                     |
 
-**Platform Differences**
+**Platform Differences**  
+None.  
 
-On a 3516A platform, the data that is written into a queue does not need to be
-aligned on the boundary of 4 bytes. However, on a 3518e platform, the alignment
-is needed.
 
 #### 4.4.3 Precautions
 
@@ -1815,155 +1646,151 @@ API to send messages. Task 2 calls the recv_Entry API to receive messages.
 
 **Example Code**
 
-```
-\#include "los_base.h"  
-\#include "los_task.h"  
-\#include "los_swtmr.h"  
-\#include "los_hwi.h"  
-\#include "los_queue.h"  
-\#include "los_event.h"  
-\#include "los_typedef.h"  
-\#include "los_api_msgqueue.h"  
-\#include "los_inspect_entry.h"  
-  
-\#ifdef \__cplusplus  
-\#if \__cplusplus  
-extern "C" {  
-\#endif /\* \__cpluscplus \*/  
-\#endif /\* \__cpluscplus \*/  
-  
-static UINT32 g_uwQueue;  
-  
-static CHAR abuf[] = "test is message x";  
-  
-/\* task1 send data \*/  
-static VOID \*send_Entry(UINT32 uwParam)  
-{  
-UINT32 i = 0,uwRet = 0;  
-UINT32 uwlen = sizeof(abuf);  
-  
-while (i \< API_MSG_NUM)  
-{  
-abuf[uwlen -2] = '0' + i;  
-i++;  
-  
-/\* write abuf data to queue \*/  
-uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);  
-if(uwRet != LOS_OK)  
-{  
-dprintf("send message failure,error:%x\\n",uwRet);  
-}  
-  
-LOS_TaskDelay(5);  
-}  
-  
-return NULL;  
-}  
-  
-/\* task2 recv data \*/  
-static VOID \*recv_Entry(UINT32 uwParam)  
-{  
-UINT32 uwReadbuf;  
-UINT32 uwRet = LOS_OK;  
-UINT32 uwMsgCount = 0;  
-  
-while (1)  
-{  
-/\* read data from queue to uwReadbuf \*/  
-uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 24, 0);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("recv message failure,error:%x\\n",uwRet);  
-break;  
-}  
-else  
-{  
-dprintf("recv message:%s\\n", (CHAR \*)uwReadbuf);  
-uwMsgCount++;  
-}  
-  
-(VOID)LOS_TaskDelay(5);  
-}  
-  
-/\* delete queue \*/  
-while (LOS_OK != LOS_QueueDelete(g_uwQueue))  
-{  
-(VOID)LOS_TaskDelay(1);  
-}  
-  
-dprintf("delete the queue success!\\n");  
-  
-if (API_MSG_NUM == uwMsgCount)  
-{  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-else  
-{  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-  
-return NULL;  
-}  
-  
-UINT32 Example_MsgQueue(VOID)  
-{  
-UINT32 uwRet = 0;  
-UINT32 uwTask1, uwTask2;  
-TSK_INIT_PARAM_S stInitParam1;  
-  
-/\* create task1 \*/  
-stInitParam1.pfnTaskEntry = send_Entry;  
-stInitParam1.usTaskPrio = 9;  
-stInitParam1.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-stInitParam1.pcName = "sendQueue";  
-LOS_TaskLock();//lock task schedue  
-uwRet = LOS_TaskCreate(&uwTask1, \&stInitParam1);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("create task1 failed!,error:%x\\n",uwRet);  
-return uwRet;  
-}  
-  
-/\*create task2\*/  
-stInitParam1.pfnTaskEntry = recv_Entry;  
-uwRet = LOS_TaskCreate(&uwTask2, \&stInitParam1);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("create task2 failed!,error:%x\\n",uwRet);  
-return uwRet;  
-}  
-  
-/\* create queue \*/  
-uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 24);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("create queue failure!,error:%x\\n",uwRet);  
-}  
-  
-dprintf("create the queue success!\\n");  
-LOS_TaskUnlock();//unlock task schedue  
-  
-return LOS_OK;  
+```  
+#include "los_base.h"
+#include "los_task.h"
+#include "los_swtmr.h"
+#include "los_hwi.h"
+#include "los_queue.h"
+#include "los_event.h"
+#include "los_typedef.h"
+#include "los_api_msgqueue.h"
+#include "los_inspect_entry.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
+
+static UINT32 g_uwQueue;
+
+static CHAR abuf[] = "test is message x";
+
+/* task1 send data */
+static VOID *send_Entry(UINT32 uwParam)
+{
+    UINT32 i = 0,uwRet = 0;
+    UINT32 uwlen = sizeof(abuf);
+
+    while (i < API_MSG_NUM)
+    {
+        abuf[uwlen -2] = '0' + i;
+        i++;
+
+        /* write abuf data to queue */
+        uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
+        if(uwRet != LOS_OK)
+        {
+            dprintf("send message failure,error:%x\n",uwRet);
+        }
+
+        LOS_TaskDelay(5);
+    }
+
+    return NULL;
 }
+
+/* task2 recv data */
+static VOID *recv_Entry(UINT32 uwParam)
+{
+    UINT32 uwReadbuf;
+    UINT32 uwRet = LOS_OK;
+    UINT32 uwMsgCount = 0;
+
+    while (1)
+    {
+        /* read data from queue to uwReadbuf */
+        uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 24, 0);
+        if (uwRet != LOS_OK)
+        {
+            dprintf("recv message failure,error:%x\n",uwRet);
+            break;
+        }
+        else
+        {
+            dprintf("recv message:%s\n", (CHAR *)uwReadbuf);
+            uwMsgCount++;
+        }
+
+        (VOID)LOS_TaskDelay(5);
+    }
+
+    /* delete queue */
+    while (LOS_OK != LOS_QueueDelete(g_uwQueue))
+    {
+        (VOID)LOS_TaskDelay(1);
+    }
+
+    dprintf("delete the queue success!\n");
+
+    if (API_MSG_NUM == uwMsgCount)
+    {
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+    else
+    {
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+
+    return NULL;
+}
+
+UINT32 Example_MsgQueue(VOID)
+{
+    UINT32 uwRet = 0;
+    UINT32 uwTask1, uwTask2;
+    TSK_INIT_PARAM_S stInitParam1;
+
+    /* create task1 */
+    stInitParam1.pfnTaskEntry = send_Entry;
+    stInitParam1.usTaskPrio = 9;
+    stInitParam1.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stInitParam1.pcName = "sendQueue";
+    LOS_TaskLock();//lock task schedue
+    uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("create task1 failed!,error:%x\n",uwRet);
+        return uwRet;
+    }
+
+    /*create task2*/
+    stInitParam1.pfnTaskEntry = recv_Entry;
+    uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("create task2 failed!,error:%x\n",uwRet);
+        return uwRet;
+    }
+
+    /* create queue */
+    uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 24);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("create queue failure!,error:%x\n",uwRet);
+    }
+
+    dprintf("create the queue success!\n");
+    LOS_TaskUnlock();//unlock task schedue
+
+    return LOS_OK;
+}  
 ```
 
 **Verification**
 
 ![](./meta/DevGuide_en/pic20.gif)
 
-**Complete Code**
-
-los_api_msgqueue.c
-
-### 4.5 Event
+<h3 id="4.5">4.5 Event</h3>
 
 #### 4.5.1 Overview
 
@@ -1996,17 +1823,17 @@ Characteristics of events in Huawei LiteOS are as follows:
 
 **Event control block**
 
-```
-/\*\*  
-\* \@ingroup los_event  
-\* Event control structure  
-\*/  
-typedef struct tagEvent  
-{  
-UINT32 uwEventID; /\*\*bit that indicates an event type\*/  
-LOS_DL_LIST stEventList; /\*\*linked list of event reading tasks\*/  
-} EVENT_CB_S, \*PEVENT_CB_S;
-```
+```  
+/**
+ * @ingroup los_event
+ * Event control structure
+ */
+typedef struct tagEvent
+{
+    UINT32 uwEventID;            /**bit that indicates an event type*/
+    LOS_DL_LIST    stEventList;  /**linked list of  event reading tasks*/
+} EVENT_CB_S, *PEVENT_CB_S;
+```  
 
 uwEventID indicates the type of the event in which a task is interested. Each
 bit indicates one event type with 0 indicating that the event does not occur and
@@ -2103,25 +1930,21 @@ level; bit 16 to bit 23 indicate an error code flag; bit 8 to bit 15 indicate
 the ID of the module that reports the error code; bit 0 to bit 7 indicate an
 error code. The following is the example of an error code:
 
-```
-\#define LOS_ERRNO_OS_ERROR(MID, ERRNO) \\
-
-(LOS_ERRTYPE_ERROR \| LOS_ERRNO_OS_ID \| ((UINT32)(MID) \<\< 8) \| (ERRNO))
-
+```  
+#define LOS_ERRNO_OS_ERROR(MID, ERRNO)  \
+(LOS_ERRTYPE_ERROR | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
 LOS_ERRTYPE_ERROR: Define critical OS errors
-
 LOS_ERRNO_OS_ID: OS error code flag
-
 MID: OS_MOUDLE_ID
-
 LOS_MOD_EVENT: Event module ID
-
 ERRNO: error ID number
-```
+```  
 
-**For example:**
+For example:
 
-```\#define LOS_ERRNO_EVENT_READ_IN_LOCK LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x05)```
+```  
+#define LOS_ERRNO_EVENT_READ_IN_LOCK LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x05)
+```  
 
 **Platform Differences**
 
@@ -2165,110 +1988,106 @@ that occur during event operations.
 
 The code is as follows:
 
-```
-/\* task pid \*/  
-static UINT32 g_TestTaskID;  
-/\* event control struct \*/  
-static EVENT_CB_S example_event;  
-  
-/\* wait event type \*/  
-\#define event_wait 0x00000001  
-  
-/\* example task entry function \*/  
-VOID Example_Event(VOID)  
-{  
-UINT32 uwEvent;  
-UINT32 uwRet = LOS_OK;  
-  
-/\*  
-\* timeout, WAITMODE to read event, timeout is 100 ticks,  
-\* if timeout, wake task directly  
-\*/  
-dprintf("Example_Event wait event 0x%x \\n",event_wait);  
-  
-uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);  
-if(uwEvent == event_wait)  
-{  
-dprintf("Example_Event,read event :0x%x\\n",uwEvent);  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-else  
-{  
-dprintf("Example_Event,read event timeout\\n");  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-return;  
-}  
-  
-UINT32 Example_SndRcvEvent(VOID)  
-{  
-UINT32 uwRet;  
-TSK_INIT_PARAM_S stTask1;  
-  
-/\* event init \*/  
-uwRet = LOS_EventInit(\&example_event);  
-if(uwRet != LOS_OK)  
-{  
-dprintf("init event failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* create task \*/  
-memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));  
-stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;  
-stTask1.pcName = "EventTsk1";  
-stTask1.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-stTask1.usTaskPrio = 5;  
-uwRet = LOS_TaskCreate(&g_TestTaskID, \&stTask1);  
-if(uwRet != LOS_OK)  
-{  
-dprintf("task create failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* write event \*/  
-dprintf("Example_TaskEntry_Event write event .\\n");  
-uwRet = LOS_EventWrite(&example_event, event_wait);  
-if(uwRet != LOS_OK)  
-{  
-dprintf("event write failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* clear event flag \*/  
-dprintf("EventMask:%d\\n", example_event.uwEventID);  
-LOS_EventClear(&example_event, \~example_event.uwEventID);  
-dprintf("EventMask:%d\\n", example_event.uwEventID);  
-  
-return LOS_OK;  
+```  
+/* task pid */
+static UINT32 g_TestTaskID;
+/* event control struct */
+static EVENT_CB_S  example_event;
+
+/* wait event type */
+#define event_wait 0x00000001
+
+/* example task entry function */
+VOID Example_Event(VOID)
+{
+    UINT32 uwEvent;
+    UINT32 uwRet = LOS_OK;
+
+    /*
+     * timeout, WAITMODE to read event, timeout is 100 ticks,
+     * if timeout, wake task directly
+     */
+    dprintf("Example_Event wait event 0x%x \n",event_wait);
+
+    uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
+    if(uwEvent == event_wait)
+    {
+        dprintf("Example_Event,read event :0x%x\n",uwEvent);
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+    else
+    {
+        dprintf("Example_Event,read event timeout\n");
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+    }
+    return;
 }
-```
+
+UINT32 Example_SndRcvEvent(VOID)
+{
+    UINT32 uwRet;
+    TSK_INIT_PARAM_S stTask1;
+
+    /* event init */
+    uwRet = LOS_EventInit(&example_event);
+    if(uwRet != LOS_OK)
+    {
+        dprintf("init event failed .\n");
+        return LOS_NOK;
+    }
+
+    /* create task */
+    memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_Event;
+    stTask1.pcName       = "EventTsk1";
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stTask1.usTaskPrio   = 5;
+    uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
+    if(uwRet != LOS_OK)
+    {
+        dprintf("task create failed .\n");
+        return LOS_NOK;
+    }
+
+    /* write event */
+    dprintf("Example_TaskEntry_Event write event .\n");
+    uwRet = LOS_EventWrite(&example_event, event_wait);
+    if(uwRet != LOS_OK)
+    {
+        dprintf("event write failed .\n");
+        return LOS_NOK;
+    }
+
+    /* clear event flag */
+    dprintf("EventMask:%d\n", example_event.uwEventID);
+    LOS_EventClear(&example_event, ~example_event.uwEventID);
+    dprintf("EventMask:%d\n", example_event.uwEventID);
+
+    return LOS_OK;
+}
+```  
 
 **Verification**
 
 The verification result is as follows:
 
-```
+```  
 Example_Event wait event 0x1  
-Example_TaskEntry write event .  
-Example_Event,read event :0x1  
-EventMask:1  
-EventMask:0
-```
+ Example_TaskEntry write event . 
+ Example_Event,read event :0x1 
+ EventMask:1 
+ EventMask:0  
+```  
 
-**Complete Code**
-
-los_api_event.c
-
-### 4.6 Mutex
+<h3 id="4.6">4.6 Mutex</h3>
 
 #### 4.6.1 Overview
 
@@ -2375,23 +2194,16 @@ level; bit 16 to bit 23 indicate an error code flag; bit 8 to bit 15 indicate
 the ID of the module that reports the error code; bit 0 to bit 7 indicate an
 error code. The following is the example of an error code:
 
-```
-\#define LOS_ERRNO_OS_ERROR(MID, ERRNO) \\
-
-(LOS_ERRTYPE_ERROR \| LOS_ERRNO_OS_ID \| ((UINT32)(MID) \<\< 8) \| (ERRNO))
-
+```  
+(LOS_ERRTYPE_ERROR | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
 LOS_ERRTYPE_ERROR: Define critical OS errors
-
 LOS_ERRNO_OS_ID: OS error code flag
-
 LOS_MOD_MUX: Mutex module ID
-
 MID: OS_MOUDLE_ID
-
 ERRNO: error ID number
-```
+```  
 
-For example:
+For example: 
 
 ```
 LOS_ERRNO_MUX_TIMEOUT LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x07)
@@ -2437,123 +2249,123 @@ Prerequisites
 
 The code is as follows:
 
-```
-/\* mux handle id \*/  
-static UINT32 g_Testmux01;  
-  
-/\* task pid \*/  
-static UINT32 g_TestTaskID01;  
-static UINT32 g_TestTaskID02;  
-  
-static VOID Example_MutexTask1(VOID)  
-{  
-UINT32 uwRet;  
-  
-dprintf("task1 try to get mutex, wait 10 Tick.\\n");  
-/\* get mux \*/  
-uwRet = LOS_MuxPend(g_Testmux01, 10);  
-  
-if (uwRet == LOS_OK)  
-{  
-dprintf("task1 get mutex g_Testmux01.\\n");  
-/\* release mux \*/  
-LOS_MuxPost(g_Testmux01);  
-return;  
-}  
-else if (uwRet == LOS_ERRNO_MUX_TIMEOUT)  
-{  
-dprintf("task1 timeout and try to get mutex, wait forever.\\n");  
-/\* LOS_WAIT_FOREVER type get mux, LOS_MuxPend return until has been get mux \*/  
-uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);  
-if (uwRet == LOS_OK)  
-{  
-dprintf("task1 wait forever,got mutex g_Testmux01 success.\\n");  
-/\* release mux \*/  
-LOS_MuxPost(g_Testmux01);  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return;  
-}  
-}  
-return;  
-}  
-  
-static VOID Example_MutexTask2(VOID)  
-{  
-UINT32 uwRet;  
-  
-dprintf("task2 try to get mutex, wait forever.\\n");  
-/\* get mux \*/  
-uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);  
-if(uwRet != LOS_OK)  
-{  
-dprintf("task2 LOS_MuxPend failed .\\n");  
-return;  
-}  
-  
-dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick.\\n");  
-  
-/\* task delay 100 ticks \*/  
-LOS_TaskDelay(100);  
-  
-dprintf("task2 resumed and post the g_Testmux01\\n");  
-/\* release mux \*/  
-LOS_MuxPost(g_Testmux01);  
-return;  
-}  
-  
-UINT32 Example_MutexLock(VOID)  
-{  
-UINT32 uwRet;  
-TSK_INIT_PARAM_S stTask1;  
-TSK_INIT_PARAM_S stTask2;  
-  
-/\* create mux \*/  
-LOS_MuxCreate(\&g_Testmux01);  
-  
-/\* lock task schedue \*/  
-LOS_TaskLock();  
-  
-/\* create task1 \*/  
-memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));  
-stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;  
-stTask1.pcName = "MutexTsk1";  
-stTask1.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-stTask1.usTaskPrio = 5;  
-uwRet = LOS_TaskCreate(&g_TestTaskID01, \&stTask1);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("task1 create failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* create task2 \*/  
-memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));  
-stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;  
-stTask2.pcName = "MutexTsk2";  
-stTask2.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;  
-stTask2.usTaskPrio = 4;  
-uwRet = LOS_TaskCreate(&g_TestTaskID02, \&stTask2);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("task2 create failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* unlock task schedue \*/  
-LOS_TaskUnlock();  
-/\* task delay 300 ticks \*/  
-LOS_TaskDelay(300);  
-  
-/\* delete mux \*/  
-LOS_MuxDelete(g_Testmux01);  
-  
-return LOS_OK;  
+```  
+/* mux handle id */
+static UINT32 g_Testmux01;
+
+/* task pid */
+static UINT32 g_TestTaskID01;
+static UINT32 g_TestTaskID02;
+
+static VOID Example_MutexTask1(VOID)
+{
+    UINT32 uwRet;
+
+    dprintf("task1 try to get mutex, wait 10 Tick.\n");
+    /* get mux */
+    uwRet = LOS_MuxPend(g_Testmux01, 10);
+
+    if (uwRet == LOS_OK)
+    {
+        dprintf("task1 get mutex g_Testmux01.\n");
+        /* release mux */
+        LOS_MuxPost(g_Testmux01);
+        return;
+    }
+    else if (uwRet == LOS_ERRNO_MUX_TIMEOUT)
+    {
+        dprintf("task1 timeout and try to get  mutex, wait forever.\n");
+        /* LOS_WAIT_FOREVER type get mux, LOS_MuxPend return until has been get mux */
+        uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+        if (uwRet == LOS_OK)
+        {
+            dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
+            /* release mux */
+            LOS_MuxPost(g_Testmux01);
+            uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX, LOS_INSPECT_STU_SUCCESS);
+            if (LOS_OK != uwRet)
+            {
+                dprintf("Set Inspect Status Err\n");
+            }
+            return;
+        }
+    }
+    return;
 }
-```
+
+static VOID Example_MutexTask2(VOID)
+{
+    UINT32 uwRet;
+
+    dprintf("task2 try to get mutex, wait forever.\n");
+    /* get mux */
+    uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
+    if(uwRet != LOS_OK)
+    {
+        dprintf("task2 LOS_MuxPend failed .\n");
+        return;
+    }
+
+    dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
+
+    /* task delay 100 ticks */
+    LOS_TaskDelay(100);
+
+    dprintf("task2 resumed and post the g_Testmux01\n");
+    /* release mux */
+    LOS_MuxPost(g_Testmux01);
+    return;
+}
+
+UINT32 Example_MutexLock(VOID)
+{
+    UINT32 uwRet;
+    TSK_INIT_PARAM_S stTask1;
+    TSK_INIT_PARAM_S stTask2;
+
+    /* create mux */
+    LOS_MuxCreate(&g_Testmux01);
+
+    /* lock task schedue */
+    LOS_TaskLock();
+
+    /* create task1 */
+    memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask1;
+    stTask1.pcName       = "MutexTsk1";
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stTask1.usTaskPrio   = 5;
+    uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("task1 create failed .\n");
+        return LOS_NOK;
+    }
+
+    /* create task2 */
+    memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+    stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_MutexTask2;
+    stTask2.pcName       = "MutexTsk2";
+    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stTask2.usTaskPrio   = 4;
+    uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("task2 create failed .\n");
+        return LOS_NOK;
+    }
+
+    /* unlock task schedue */
+    LOS_TaskUnlock();
+    /* task delay 300 ticks */
+    LOS_TaskDelay(300);
+
+    /* delete mux */
+    LOS_MuxDelete(g_Testmux01);
+
+    return LOS_OK;
+}  
+```  
 
 **Verification**
 
@@ -2561,11 +2373,7 @@ The verification result is as follows:
 
 ![](./meta/DevGuide_en/pic23.jpg)
 
-**Complete Code**
-
-los_api_mutex.c
-
-### 4.7 Semaphore
+<h3 id="4.7">4.7 Semaphore</h3>
 
 #### 4.7.1 Overview
 
@@ -2597,26 +2405,25 @@ semaphore for the purpose of mutex are:
 
 **Semaphore Control Block**
 
-```
-/\*\*  
-\* \@ingroup los_sem  
-\* Semaphore control structure.  
-\*/  
-typedef struct  
-{  
-UINT8 usSemStat; /\*\*whether to use flag bit\*/  
-UINT16 uwSemCount; /\*\*semaphore quantity index\*/  
-UINT32UINT16 usMaxSemCount; /\*\*Maximum number of semaphores\*/  
-UINT32 usSemID; /\*\*semaphore count\*/  
-LOS_DL_LIST stSemList; /\*\*suspend the task blocked on the semaphore\*/  
+```  
+/**
+ * @ingroup los_sem
+ * Semaphore control structure.
+ */
+typedef struct
+{
+    UINT8           usSemStat;          /**whether to use flag bit*/
+    UINT16          uwSemCount;         /**semaphore quantity index*/
+    UINT32UINT16    usMaxSemCount;      /**Maximum number of semaphores*/
+    UINT32          usSemID;            /**semaphore count*/
+    LOS_DL_LIST     stSemList;          /**suspend the task blocked on the semaphore*/
 }SEM_CB_S;
-```
+```  
 
 **Semaphore Operation Principle**
 
 During semaphore initialization, memory is allocated to N semaphores. N is
-configurable by users and limited by memory. For details, see section 10
-"Configuration Reference." All semaphores are initialized and added to the
+configurable by users and limited by memory. All semaphores are initialized and added to the
 linked list of semaphores that are not in use.
 
 During semaphore creation, a semaphore is obtained from the linked list of
@@ -2719,19 +2526,19 @@ level; bit 16 to bit 23 indicate an error code flag; bit 8 to bit 15 indicate
 the ID of the module that reports the error code; bit 0 to bit 7 indicate an
 error code. The following is the example of an error code:
 
-```
-\#define LOS_ERRNO_OS_NORMAL(MID,ERRNO) \\  
-(LOS_ERRTYPE_NORMAL \| LOS_ERRNO_OS_ID \| ((UINT32)(MID) \<\< 8) \| (ERRNO))  
-LOS_ERRTYPE_NORMAL: Define the error level as critical  
-LOS_ERRNO_OS_ID: OS error code flag.  
-MID: OS_MOUDLE_ID  
-ERRNO: error ID number
-```
+```  
+#define LOS_ERRNO_OS_NORMAL(MID,ERRNO)  \
+(LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
+LOS_ERRTYPE_NORMAL: Define the error level as critical
+LOS_ERRNO_OS_ID: OS error code flag.
+MID: OS_MOUDLE_ID
+ERRNO: error ID number  
+```  
 
-**For example:**
+For example
 
 ```
-LOS_ERRNO_SEM_NO_MEMORY LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x00))
+LOS_ERRNO_SEM_NO_MEMORY        LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x00))
 ```
 
 **Platform Differences**
@@ -2768,140 +2575,137 @@ Prerequisites
 * The **LOSCFG_BASE_IPC_SEM_LIMIT** parameter in the **los_config.h** file is set to the maximum number (for example, 1024) of semaphores that the operating system allows.
 
 The code is as follows:
+
 ```
-/\* task pid \*/  
-static UINT32 g_TestTaskID01, g_TestTaskID02;  
-/\* sem id \*/  
-static UINT32 g_usSemID;  
-  
-static VOID Example_SemTask1(VOID)  
-{  
-UINT32 uwRet;  
-  
-dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\\n");  
-/\* get sem, timeout is 10 ticks \*/  
-uwRet = LOS_SemPend(g_usSemID, 10);  
-  
-/\* get sem ok \*/  
-if (LOS_OK == uwRet)  
-{  
-LOS_SemPost(g_usSemID);  
-return;  
-}  
-/\* timeout, get sem fail \*/  
-if (LOS_ERRNO_SEM_TIMEOUT == uwRet)  
-{  
-dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\\n");  
-/\* get sem wait forever, LOS_SemPend return until has been get mux \*/  
-uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);  
-if (LOS_OK == uwRet)  
-{  
-dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\\n");  
-LOS_SemPost(g_usSemID);  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SEM, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return;  
-}  
-}  
-return;  
-}  
-  
-static VOID Example_SemTask2(VOID)  
-{  
-UINT32 uwRet;  
-dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\\n");  
-/\* wait forever get sem \*/  
-uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);  
-  
-if(LOS_OK == uwRet)  
-{  
-dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\\n");  
-}  
-  
-/\* task delay 20 ticks \*/  
-LOS_TaskDelay(20);  
-  
-dprintf("Example_SemTask2 post sem g_usSemID .\\n");  
-/\* release sem \*/  
-LOS_SemPost(g_usSemID);  
-  
-return;  
-}  
-  
-UINT32 Example_Semphore(VOID)  
-{  
-UINT32 uwRet = LOS_OK;  
-TSK_INIT_PARAM_S stTask1;  
-TSK_INIT_PARAM_S stTask2;  
-  
-/\* create sem \*/  
-LOS_SemCreate(0, \&g_usSemID);  
-  
-/\* lock task schedue \*/  
-LOS_TaskLock();  
-  
-/\* create task1 \*/  
-memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));  
-stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;  
-stTask1.pcName = "MutexTsk1";  
-stTask1.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;  
-stTask1.usTaskPrio = TASK_PRIO_TEST;  
-uwRet = LOS_TaskCreate(&g_TestTaskID01, \&stTask1);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("task1 create failed .\\n");  
-return LOS_NOK;  
-}  
-  
-/\* create task2 \*/  
-memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));  
-stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;  
-stTask2.pcName = "MutexTsk2";  
-stTask2.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;  
-stTask2.usTaskPrio = (TASK_PRIO_TEST - 1);  
-uwRet = LOS_TaskCreate(&g_TestTaskID02, \&stTask2);  
-if (uwRet != LOS_OK)  
-{  
-dprintf("task2 create failed .\\n");  
-  
-/\* delete task 1 \*/  
-if (LOS_OK != LOS_TaskDelete(g_TestTaskID01))  
-{  
-dprintf("task1 delete failed .\\n");  
-}  
-  
-return LOS_NOK;  
-}  
-  
-/\* unlock task schedue \*/  
-LOS_TaskUnlock();  
-  
-uwRet = LOS_SemPost(g_usSemID);  
-  
-/\* task delay 40 ticks \*/  
-LOS_TaskDelay(40);  
-  
-/\* delete sem \*/  
-LOS_SemDelete(g_usSemID);  
-  
-return uwRet;  
+/* task pid */
+static UINT32 g_TestTaskID01, g_TestTaskID02;
+/* sem id */
+static UINT32 g_usSemID;
+
+static VOID Example_SemTask1(VOID)
+{
+    UINT32 uwRet;
+
+    dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
+    /* get sem, timeout is 10 ticks */
+    uwRet = LOS_SemPend(g_usSemID, 10);
+
+    /* get sem ok */
+    if (LOS_OK == uwRet)
+    {
+        LOS_SemPost(g_usSemID);
+        return;
+    }
+    /* timeout, get sem fail */
+    if (LOS_ERRNO_SEM_TIMEOUT == uwRet)
+    {
+        dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
+        /* get sem wait forever, LOS_SemPend return until has been get mux */
+        uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+        if (LOS_OK == uwRet)
+        {
+            dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
+            LOS_SemPost(g_usSemID);
+            uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SEM, LOS_INSPECT_STU_SUCCESS);
+            if (LOS_OK != uwRet)
+            {
+                dprintf("Set Inspect Status Err\n");
+            }
+            return;
+        }
+    }
+    return;
+}
+
+static VOID Example_SemTask2(VOID)
+{
+    UINT32 uwRet;
+    dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
+    /* wait forever get sem */
+    uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
+
+    if(LOS_OK == uwRet)
+    {
+        dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+    }
+
+    /* task delay 20 ticks */
+    LOS_TaskDelay(20);
+
+    dprintf("Example_SemTask2 post sem g_usSemID .\n");
+    /* release sem */
+    LOS_SemPost(g_usSemID);
+
+    return;
+}
+
+UINT32 Example_Semphore(VOID)
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S stTask1;
+    TSK_INIT_PARAM_S stTask2;
+
+   /* create sem */
+    LOS_SemCreate(0, &g_usSemID);
+
+    /* lock task schedue */
+    LOS_TaskLock();
+
+    /* create task1 */
+    memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
+    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
+    stTask1.pcName       = "MutexTsk1";
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask1.usTaskPrio   = TASK_PRIO_TEST;
+    uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("task1 create failed .\n");
+        return LOS_NOK;
+    }
+
+    /* create task2 */
+    memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
+    stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
+    stTask2.pcName       = "MutexTsk2";
+    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
+    uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
+    if (uwRet != LOS_OK)
+    {
+        dprintf("task2 create failed .\n");
+
+        /* delete task 1 */
+        if (LOS_OK != LOS_TaskDelete(g_TestTaskID01))
+        {
+            dprintf("task1 delete failed .\n");
+        }
+
+        return LOS_NOK;
+    }
+
+    /* unlock task schedue */
+    LOS_TaskUnlock();
+
+    uwRet = LOS_SemPost(g_usSemID);
+
+    /* task delay 40 ticks */
+    LOS_TaskDelay(40);
+
+    /* delete sem */
+    LOS_SemDelete(g_usSemID);
+
+    return uwRet;
 }
 ```
 
-** Verification**
+**Verification**
 
 The verification result is as follows:
 
 ![](./meta/DevGuide_en/pic25.jpg)
 
-**Complete Code**
-
-los_api_sem.c
-
-### 4.8 Time Management
+<h3 id="4.8">4.8 Time Management</h3>
 
 #### 4.8.1 Overview
 
@@ -2960,18 +2764,6 @@ The time management module of Huawei LiteOS provides the following functions:
 | Time measurement  | LOS_CyclePerTickGet | Counts the number of cycles per tick        |
 |                   | LOS_TickCountGet    | Measures the runtime in ticks               |
 
-**Time Management Error Codes**
-
-Error codes are returned if errors occur during time conversion to facilitate
-fault locating.
-
-| No. | Definition                             | Error Code | Description                                | Solution                                                     |
-|-----|----------------------------------------|------------|--------------------------------------------|--------------------------------------------------------------|
-| 1   | LOS_ERRNO_SYS_PTR_NULL                 | 0x02000010 | The passed-in pointer is null.             | Pass in a valid pointer.                                     |
-| 2   | LOS_ERRNO_SYS_CLOCK_INVALID            | 0x02000011 | The system clock configuration is invalid. | Configure valid clock settings in the **los_config.h** file. |
-| 3   | LOS_ERRNO_SYS_MAXNUMOFCORES_IS_INVALID | 0x02000012 | The error code is not in-use.              | N/A                                                          |
-| 4   | LOS_ERRNO_SYS_PERIERRCOREID_IS_INVALID | 0x02000013 | The error code is not in-use.              | N/A                                                          |
-| 5   | LOS_ERRNO_SYS_HOOK_IS_FULL             | 0x02000014 | The error code is not in-use.              | N/A                                                          |
 
 **Development Process**
 
@@ -3016,63 +2808,65 @@ Prerequisites
 Time conversion:
 
 ```
-VOID Example_TransformTime(VOID)  
-{  
-UINT32 uwMs;  
-UINT32 uwTick;  
-  
-uwTick = LOS_MS2Tick(10000);//Convert 10000 ms into ticks  
-printf("uwTick = %d \\n",uwTick);  
-uwMs= LOS_Tick2MS(100);//Convert 100 ticks into ms  
-printf("uwMs = %d \\n",uwMs);  
-}
+VOID Example_TransformTime(VOID) 
+ { 
+     UINT32 uwMs; 
+     UINT32 uwTick; 
 
-Time measurement and deferral:
-
-UINT32 Example_GetTick(VOID)  
-{  
-UINT32 uwRet = LOS_OK;  
-UINT32 uwcyclePerTick;  
-UINT64 uwTickCount1,uwTickCount2;  
-  
-uwcyclePerTick = LOS_CyclePerTickGet();  
-if (0 != uwcyclePerTick)  
-{  
-dprintf("LOS_CyclePerTickGet = %d \\n", uwcyclePerTick);  
-}  
-  
-uwTickCount1 = LOS_TickCountGet();  
-if (0 != uwTickCount1)  
-{  
-dprintf("LOS_TickCountGet = %d \\n", (UINT32)uwTickCount1);  
-}  
-LOS_TaskDelay(200);  
-uwTickCount2 = LOS_TickCountGet();  
-if (0 != uwTickCount2)  
-{  
-dprintf("LOS_TickCountGet after delay = %d \\n", (UINT32)uwTickCount2);  
-}  
-  
-if ((uwTickCount2 - uwTickCount1) \>= 200)  
-{  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return LOS_OK;  
-}  
-else  
-{  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC, LOS_INSPECT_STU_ERROR);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-return LOS_NOK;  
-}  
-}
+     uwTick = LOS_MS2Tick(10000);//Convert 10000 ms into ticks 
+      printf("uwTick = %d \n",uwTick); 
+     uwMs= LOS_Tick2MS(100);//Convert 100 ticks into ms 
+         printf("uwMs = %d \n",uwMs); 
+ }
 ```
+
+Time measurement and deferral:  
+```  
+UINT32 Example_GetTick(VOID)
+{
+    UINT32 uwRet = LOS_OK;
+    UINT32 uwcyclePerTick;
+    UINT64 uwTickCount1,uwTickCount2;
+
+    uwcyclePerTick  = LOS_CyclePerTickGet();
+    if (0 != uwcyclePerTick)
+    {
+        dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
+    }
+
+    uwTickCount1 = LOS_TickCountGet();
+    if (0 != uwTickCount1)
+    {
+        dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount1);
+    }
+    LOS_TaskDelay(200);
+    uwTickCount2 = LOS_TickCountGet();
+    if (0 != uwTickCount2)
+    {
+        dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount2);
+    }
+
+    if ((uwTickCount2 - uwTickCount1) >= 200)
+    {
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC, LOS_INSPECT_STU_SUCCESS);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+        return LOS_OK;
+    }
+    else
+    {
+        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SYSTIC, LOS_INSPECT_STU_ERROR);
+        if (LOS_OK != uwRet)
+        {
+            dprintf("Set Inspect Status Err\n");
+        }
+        return LOS_NOK;
+    }
+}
+```  
+
 
 **Verification**
 
@@ -3084,11 +2878,7 @@ The verification result is as follows:
 
 In this example, the system clock frequency is 80 MHz.
 
-**Complete Code**
-
-los_api_systick.c
-
-### 4.9 Software Timer
+<h3 id="4.9">4.9 Software Timer</h3>
 
 ### 4.9.1 Overview
 
@@ -3249,19 +3039,18 @@ the ID of the module that reports the error code; bit 0 to bit 7 indicate an
 error code. The following is the example of an error code:
 
 ```
-\#define LOS_ERRNO_OS_NORMAL(MID,ERRNO) \\  
-(LOS_ERRTYPE_NORMAL \| LOS_ERRNO_OS_ID \| ((UINT32)(MID) \<\< 8) \| (ERRNO))  
-LOS_ERRTYPE_NORMAL: Define the error level as critical  
-LOS_ERRNO_OS_ID: OS error code flag.  
-MID: OS_MOUDLE_ID  
+#define LOS_ERRNO_OS_NORMAL(MID,ERRNO)  \
+(LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(MID) << 8) | (ERRNO))
+LOS_ERRTYPE_NORMAL: Define the error level as critical
+LOS_ERRNO_OS_ID: OS error code flag.
+MID: OS_MOUDLE_ID
 ERRNO: error ID number
 ```
 
-**For example:**
+For example:
 
 ```
-\#define LOS_ERRNO_SWTMR_PTR_NULL \\  
-LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x00)
+#define LOS_ERRNO_SWTMR_PTR_NULL \ LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x00)
 ```
 
 #### 4.9.3 Precautions
@@ -3297,137 +3086,134 @@ Prerequisites
 The code is as follows:
 
 ```
-static VOID Timer1_Callback(UINT32 arg)  
-{  
-UINT32 tick_last1;  
-  
-g_timercount1++;  
-tick_last1 = (UINT32)LOS_TickCountGet();  
-dprintf("g_timercount1=%d\\n", g_timercount1);  
-dprintf("tick_last1=%d\\n", tick_last1);  
-}  
-  
-static VOID Timer2_Callback(UINT32 arg)  
-{  
-UINT32 uwRet = LOS_OK;  
-UINT32 tick_last2;  
-  
-tick_last2 = (UINT32)LOS_TickCountGet();  
-g_timercount2++;  
-dprintf("g_timercount2=%d\\n", g_timercount2);  
-dprintf("tick_last2=%d\\n", tick_last2);  
-uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TIMER, LOS_INSPECT_STU_SUCCESS);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("Set Inspect Status Err\\n");  
-}  
-}  
-  
-UINT32 Example_swTimer(VOID)  
-{  
-UINT16 id1;  
-UINT16 id2;// timer id  
-UINT32 uwRet = LOS_OK;  
-  
-\#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)  
-uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1,
-OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);  
-\#else  
-uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1);  
-\#endif  
-if (LOS_OK != uwRet)  
-{  
-dprintf("create Timer1 failed\\n");  
-}  
-else  
-{  
-dprintf("create Timer1 success\\n");  
-}  
-  
-\#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)  
-uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1,
-OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);  
-\#else  
-uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1);  
-\#endif  
-if(LOS_OK != uwRet)  
-{  
-dprintf("create Timer2 failed\\n");  
-}  
-else  
-{  
-dprintf("create Timer2 success\\n");  
-}  
-  
-uwRet = LOS_SwtmrStart(id1);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("start Timer1 failed\\n");  
-}  
-else  
-{  
-dprintf("start Timer1 sucess\\n");  
-}  
-  
-(VOID)LOS_TaskDelay(200);  
-  
-uwRet = LOS_SwtmrStop(id1);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("stop Timer1 failed\\n");  
-}  
-else  
-{  
-dprintf("stop Timer1 sucess\\n");  
-}  
-  
-uwRet = LOS_SwtmrStart(id1);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("start Timer1 failed\\n");  
-}  
-  
-(VOID)LOS_TaskDelay(1000);  
-  
-/\*the timer that mode is once, kernel will delete it automatically when timer
-is timeout \*/  
-uwRet = LOS_SwtmrDelete(id1);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("delete Timer1 failed\\n");  
-}  
-else  
-{  
-dprintf("delete Timer1 sucess\\n");  
-}  
-  
-uwRet = LOS_SwtmrStart(id2);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("start Timer2 failed\\n");  
-}  
-else  
-{  
-dprintf("start Timer2 success\\n");  
-}  
-  
-(VOID)LOS_TaskDelay(1000);  
-  
-uwRet = LOS_SwtmrStop(id2);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("stop Timer2 failed\\n");  
-}  
-  
-uwRet = LOS_SwtmrDelete(id2);  
-if (LOS_OK != uwRet)  
-{  
-dprintf("delete Timer2 failed\\n");  
-}  
-  
-return LOS_OK;  
+static VOID Timer1_Callback(UINT32 arg)
+{
+    UINT32 tick_last1;
+
+    g_timercount1++;
+    tick_last1 = (UINT32)LOS_TickCountGet();
+    dprintf("g_timercount1=%d\n", g_timercount1);
+    dprintf("tick_last1=%d\n", tick_last1);
 }
-```
+
+static VOID Timer2_Callback(UINT32 arg)
+{
+    UINT32 uwRet = LOS_OK;
+    UINT32 tick_last2;
+
+    tick_last2 = (UINT32)LOS_TickCountGet();
+    g_timercount2++;
+    dprintf("g_timercount2=%d\n", g_timercount2);
+    dprintf("tick_last2=%d\n", tick_last2);
+    uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TIMER, LOS_INSPECT_STU_SUCCESS);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("Set Inspect Status Err\n");
+    }
+}
+
+UINT32 Example_swTimer(VOID)
+{
+    UINT16 id1;
+    UINT16 id2;// timer id
+    UINT32 uwRet = LOS_OK;
+
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+    uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
+#else
+    uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1);
+#endif
+    if (LOS_OK != uwRet)
+    {
+        dprintf("create Timer1 failed\n");
+    }
+    else
+    {
+        dprintf("create Timer1 success\n");
+    }
+
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+    uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
+#else
+    uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1);
+#endif
+    if(LOS_OK != uwRet)
+    {
+        dprintf("create Timer2 failed\n");
+    }
+    else
+    {
+        dprintf("create Timer2 success\n");
+    }
+
+    uwRet = LOS_SwtmrStart(id1);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("start Timer1 failed\n");
+    }
+    else
+    {
+        dprintf("start Timer1 sucess\n");
+    }
+
+    (VOID)LOS_TaskDelay(200);
+
+    uwRet = LOS_SwtmrStop(id1);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("stop Timer1 failed\n");
+    }
+    else
+    {
+        dprintf("stop Timer1 sucess\n");
+    }
+
+    uwRet = LOS_SwtmrStart(id1);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("start Timer1 failed\n");
+    }
+
+    (VOID)LOS_TaskDelay(1000);
+
+    /*the timer that mode is once, kernel will delete it automatically when timer is timeout */
+    uwRet = LOS_SwtmrDelete(id1);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("delete Timer1 failed\n");
+    }
+    else
+    {
+        dprintf("delete Timer1 sucess\n");
+    }
+
+    uwRet = LOS_SwtmrStart(id2);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("start Timer2 failed\n");
+    }
+    else
+    {
+        dprintf("start Timer2 success\n");
+    }
+
+    (VOID)LOS_TaskDelay(1000);
+
+    uwRet = LOS_SwtmrStop(id2);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("stop Timer2 failed\n");
+    }
+
+    uwRet = LOS_SwtmrDelete(id2);
+    if (LOS_OK != uwRet)
+    {
+        dprintf("delete Timer2 failed\n");
+    }
+
+    return LOS_OK;
+}  
+```  
 
 **Verification**
 
@@ -3435,11 +3221,7 @@ The verification result is as follows:
 
 ![](./meta/DevGuide_en/pic27.jpg)
 
-**Complete Code**
-
-los_api_timer.c
-
-### 4.10 Doubly Linked List
+<h3 id="4.10">4.10 Doubly Linked List</h3>
 
 ### 4.10.1 Overview
 
@@ -3515,50 +3297,49 @@ In the programming example, the following steps will be performed:
 The code is as follows:
 
 ```
-\#include "los_list.h"  
-\#include\<stdio.h\>  
-  
-VOID list_test(void)  
-{  
-/\*Initialize the doubly linked list and determine whether it is an empty
-list.\*/  
-printf("initial......\\n");  
-LOS_DL_LIST\* head;  
-head = (LOS_DL_LIST\*)malloc(sizeof(LOS_DL_LIST));  
-  
-LOS_InitList(head);  
-if (!ListEmpty(head))  
-{  
-printf("initial failed\\n");  
-return;  
-}  
-  
-/\*Insert a node into the tail of the list.\*/  
-printf("node add and tail add......\\n");  
-LOS_DL_LIST\* node1 = (LOS_DL_LIST\*)malloc(sizeof(LOS_DL_LIST));  
-LOS_DL_LIST\* node2 = (LOS_DL_LIST\*)malloc(sizeof(LOS_DL_LIST));  
-LOS_DL_LIST\* tail = (LOS_DL_LIST\*)malloc(sizeof(LOS_DL_LIST));  
-LOS_ListAdd(node1,head);  
-LOS_ListAdd(node2,node1);  
-if((node1-\>pstPrev == head) \|\| (node2-\>pstPrev == node1)){  
-printf("add node success\\n");  
-}  
-LOS_ListTailInsert(tail,head);  
-if(tail-\>pstPrev == node2){  
-printf("add tail success\\n");  
-}  
-  
-  
-/\*Delete a node from the list.\*/  
-printf("delete node......\\n");  
-LOS_ListDelete(node1);  
-free(node1);  
-if(head-\>pstNext == node2){  
-printf("delete node success\\n");  
-}  
-  
-}
-```
+#include "los_list.h" 
+ #include<stdio.h> 
+
+ VOID list_test(void) 
+ { 
+  /*Initialize the doubly linked list and determine whether it is an empty list.*/ 
+  printf("initial......\n"); 
+  LOS_DL_LIST* head; 
+  head = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST)); 
+
+  LOS_InitList(head); 
+  if (!ListEmpty(head)) 
+  { 
+   printf("initial failed\n"); 
+   return; 
+  } 
+
+  /*Insert a node into the tail of the list.*/ 
+  printf("node add and tail add......\n"); 
+  LOS_DL_LIST* node1 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST)); 
+  LOS_DL_LIST* node2 = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST)); 
+  LOS_DL_LIST* tail = (LOS_DL_LIST*)malloc(sizeof(LOS_DL_LIST)); 
+  LOS_ListAdd(node1,head); 
+  LOS_ListAdd(node2,node1); 
+  if((node1->pstPrev == head) || (node2->pstPrev == node1)){  
+   printf("add node success\n"); 
+  } 
+  LOS_ListTailInsert(tail,head); 
+  if(tail->pstPrev == node2){ 
+   printf("add tail success\n"); 
+ } 
+
+
+  /*Delete a node from the list.*/ 
+  printf("delete node......\n"); 
+  LOS_ListDelete(node1); 
+  free(node1); 
+  if(head->pstNext == node2){ 
+   printf("delete node success\n"); 
+  } 
+
+ }  
+```  
 
 **Verification**
 
@@ -3566,15 +3347,7 @@ The verification result is as follows:
 
 ![](./meta/DevGuide_en/pic28.jpg)
 
-### 5 AgentTiny
-
-[5.1 Overview](#overview-11)
-
-[5.2 Development Guidelines](#development-guidelines-11)
-
-[5.3 Precautions](#precautions-11)
-
-[5.4 Programming Example](#programming-example-11)
+<h2 id="5">5 AgentTiny</h2>
 
 ### 5.1 Overview
 
@@ -3677,128 +3450,126 @@ The programming example implements the following process:
 The code is as follows:
 
 ```
-\#define MAX_PSK_LEN 16  
-\#define DEFAULT_SERVER_IPV4 "139.159.209.89"  
-\#define DEFAULT_SERVER_PORT "5684"  
-\#define LWM2M_LIFE_TIME 50000  
-char \* g_endpoint_name_s = "11110001";  
-unsigned char g_psk_value[MAX_PSK_LEN] =
-{0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};  
-  
-UINT32 TskHandle;  
-  
-static void\* g_phandle = NULL;  
-static atiny_device_info_t g_device_info;  
-static atiny_param_t g_atiny_params;  
-  
-  
-int atiny_cmd_ioctl(atiny_cmd_e cmd, char\* arg, int len)  
-{  
-int result = ATINY_OK;  
-switch(cmd)  
-{  
-case ATINY_DO_DEV_REBOOT:  
-result = atiny_do_dev_reboot();  
-break;  
-case ATINY_GET_MIN_VOLTAGE:  
-result = atiny_get_min_voltage((int\*)arg);  
-break;  
-default:  
-result = ATINY_RESOURCE_NOT_FOUND;  
-break;  
-}  
-  
-return result;  
-}  
-  
-void atiny_event_notify(atiny_event_e stat, char\* arg, int len)  
-{  
-(void)atiny_printf("notify:stat:%d\\r\\n", stat);  
-}  
-  
-void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e
-status)  
-{  
-printf("ack type:%d cookie:%d status:%d\\n", type,cookie, status);  
-}  
-  
-void app_data_report(void)  
-{  
-uint8_t buf[5] = {0,1,6,5,9};  
-data_report_t report_data;  
-int cnt = 0;  
-  
-report_data.buf = buf;  
-report_data.callback = ack_callback;  
-report_data.cookie = 0;  
-report_data.len = sizeof(buf);  
-report_data.type = APP_DATA;  
-while(1)  
-{  
-report_data.cookie = cnt;  
-cnt++;  
-(void)atiny_data_report(g_phandle, \&report_data);  
-(void)LOS_TaskDelay(2000);  
-}  
-}  
-  
-UINT32 creat_report_task()  
-{  
-UINT32 uwRet = LOS_OK;  
-TSK_INIT_PARAM_S task_init_param;  
-  
-task_init_param.usTaskPrio = 1;  
-task_init_param.pcName = "app_data_report";  
-task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;  
-task_init_param.uwStackSize = 0x1000;  
-  
-uwRet = LOS_TaskCreate(&TskHandle, \&task_init_param);  
-if(LOS_OK != uwRet)  
-{  
-return uwRet;  
-}  
-return uwRet;  
-  
-}  
-  
-void agent_tiny_entry(void)  
-{  
-UINT32 uwRet = LOS_OK;  
-atiny_param_t\* atiny_params;  
-atiny_security_param_t \*security_param = NULL;  
-atiny_device_info_t \*device_info = \&g_device_info;  
-  
-device_info-\>endpoint_name = g_endpoint_name_s;  
-device_info-\>manufacturer = "test";  
-  
-atiny_params = \&g_atiny_params;  
-atiny_params-\>server_params.binding = "UQ";  
-atiny_params-\>server_params.life_time = LWM2M_LIFE_TIME;  
-atiny_params-\>server_params.storing_cnt = 0;  
-  
-security_param = \&(atiny_params-\>security_params[0]);  
-security_param-\>is_bootstrap = FALSE;  
-security_param-\>server_ip = DEFAULT_SERVER_IPV4;  
-security_param-\>server_port = DEFAULT_SERVER_PORT;  
-security_param-\>psk_Id = g_endpoint_name_s;  
-security_param-\>psk = (char\*)g_psk_value;  
-security_param-\>psk_len = sizeof(g_psk_value);  
-  
-  
-if(ATINY_OK != atiny_init(atiny_params, &g_phandle))  
-{  
-return;  
-}  
-  
-uwRet = creat_report_task();  
-if(LOS_OK != uwRet)  
-{  
-return;  
-}  
-  
-(void)atiny_bind(device_info, g_phandle);  
+#define MAX_PSK_LEN 16
+#define DEFAULT_SERVER_IPV4 "139.159.209.89"
+#define DEFAULT_SERVER_PORT "5684"
+#define LWM2M_LIFE_TIME     50000
+char *  g_endpoint_name_s = "11110001";
+unsigned char g_psk_value[MAX_PSK_LEN] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
+ 
+UINT32 TskHandle;
+ 
+static void* g_phandle = NULL;
+static atiny_device_info_t g_device_info;
+static atiny_param_t g_atiny_params;
+ 
+ 
+int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
+{
+    int result = ATINY_OK;
+    switch(cmd)
+    {
+        case ATINY_DO_DEV_REBOOT:
+             result = atiny_do_dev_reboot();
+            break;
+        case ATINY_GET_MIN_VOLTAGE:
+            result = atiny_get_min_voltage((int*)arg);
+            break;
+         default:
+            result = ATINY_RESOURCE_NOT_FOUND;
+            break;
+        }
+ 
+    return result; 
 }
-```
+ 
+void atiny_event_notify(atiny_event_e stat, char* arg, int len)
+{
+    (void)atiny_printf("notify:stat:%d\r\n", stat);
+}
+ 
+void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
+{
+    printf("ack type:%d cookie:%d status:%d\n", type,cookie, status);
+}
+ 
+void app_data_report(void)
+{
+    uint8_t buf[5] = {0,1,6,5,9};
+    data_report_t report_data;
+    int cnt = 0;
+        
+    report_data.buf = buf;
+    report_data.callback = ack_callback;
+    report_data.cookie = 0;
+    report_data.len = sizeof(buf);
+    report_data.type = APP_DATA;
+    while(1)
+    {
+        report_data.cookie = cnt;
+        cnt++;
+        (void)atiny_data_report(g_phandle, &report_data);
+        (void)LOS_TaskDelay(2000);
+    }
+}
+ 
+UINT32 creat_report_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+ 
+    task_init_param.usTaskPrio = 1;
+    task_init_param.pcName = "app_data_report";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
+    task_init_param.uwStackSize = 0x1000;
+ 
+    uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+ 
+}
+ 
+void agent_tiny_entry(void)
+{
+    UINT32 uwRet = LOS_OK;
+    atiny_param_t* atiny_params;
+    atiny_security_param_t  *security_param = NULL;
+    atiny_device_info_t *device_info = &g_device_info;
+ 
+    device_info->endpoint_name = g_endpoint_name_s;
+    device_info->manufacturer = "test";
+ 
+    atiny_params = &g_atiny_params;
+    atiny_params->server_params.binding = "UQ";
+    atiny_params->server_params.life_time = LWM2M_LIFE_TIME;
+    atiny_params->server_params.storing_cnt = 0;
+ 
+    security_param = &(atiny_params->security_params[0]);
+    security_param->is_bootstrap = FALSE;
+    security_param->server_ip = DEFAULT_SERVER_IPV4;
+    security_param->server_port = DEFAULT_SERVER_PORT;
+    security_param->psk_Id = g_endpoint_name_s;
+    security_param->psk = (char*)g_psk_value;
+    security_param->psk_len = sizeof(g_psk_value);
+ 
+ 
+    if(ATINY_OK != atiny_init(atiny_params, &g_phandle))
+    {
+        return;
+    }
+ 
+    uwRet = creat_report_task();
+    if(LOS_OK != uwRet)
+    {
+        return;
+    }
+ 
+(void)atiny_bind(device_info, g_phandle);
+}  
+```  
 
 **Verification**
 
@@ -3817,8 +3588,3 @@ successfully registered.
 
 ![](./meta/DevGuide_en/pic31.gif)
 
-**Complete Code**
-
-agent_tiny_demo.c
-
-agent_tiny_cmd_ioctl.c
