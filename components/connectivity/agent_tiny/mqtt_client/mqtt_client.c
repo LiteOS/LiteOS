@@ -212,12 +212,12 @@ void atiny_deinit(void* phandle)
     return;
 }
 
-int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
+int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb, char **topic_dup)
 {
     int i, rc = -1;
     atiny_interest_uri_t* interest_uris = g_atiny_handle.device_info.interest_uris;
 
-    if(!topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
+    if(!topic || !cb || !topic_dup || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
         //ATINY_LOG(LOG_FATAL, "invalid params");
         return -1;
@@ -229,6 +229,7 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
         {
             interest_uris[i].qos = qos;
             interest_uris[i].cb = cb;
+            *topic_dup = interest_uris[i].uri;
             return 0;
         }
     }
@@ -245,6 +246,7 @@ int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
             }
             interest_uris[i].qos = qos;
             interest_uris[i].cb = cb;
+            *topic_dup = interest_uris[i].uri;
             rc = 0;
             break;
         }
@@ -331,6 +333,7 @@ int mqtt_is_topic_subscribed_same(char *topic, cloud_qos_level_e qos, atiny_rsp_
 int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
 {
      int rc = -1;
+     char *topic_dup = NULL;
 
     if(!client || !topic || !cb || !(qos>=CLOUD_QOS_MOST_ONCE && qos<CLOUD_QOS_LEVEL_MAX))
     {
@@ -341,10 +344,10 @@ int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos,
     if(MQTT_TOPIC_SUBSCRIBED_TRUE == mqtt_is_topic_subscribed_same(topic, qos, cb))
         return 0;
 
-    if(0 != mqtt_add_interest_topic(topic, qos, cb))
+    if(0 != mqtt_add_interest_topic(topic, qos, cb, &topic_dup))
         return -1;
 
-    rc = MQTTSubscribe(client, topic, (enum QoS)qos, mqtt_message_arrived);
+    rc = MQTTSubscribe(client, topic_dup, (enum QoS)qos, mqtt_message_arrived);
     if(0 != rc)
         printf("[%s][%d] MQTTSubscribe %s[%d]\n", __FUNCTION__, __LINE__, topic, rc);
 
