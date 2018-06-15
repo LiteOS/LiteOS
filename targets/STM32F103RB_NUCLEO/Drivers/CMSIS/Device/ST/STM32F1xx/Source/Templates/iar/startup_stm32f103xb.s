@@ -1,8 +1,8 @@
-;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f103xb.s
 ;* Author             : MCD Application Team
-;* Version            : V1.5.0
-;* Date               : 14-April-2017
+;* Version            : V4.2.0
+;* Date               : 31-March-2017
 ;* Description        : STM32F103xB Performance Line Devices vector table for
 ;*                      EWARM toolchain.
 ;*                      This module performs:
@@ -15,7 +15,7 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;*
-;* <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+;* <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:
@@ -61,17 +61,6 @@
 
         ;; Forward declaration of sections.
         SECTION CSTACK:DATA:NOROOT(3)
-        SECTION LOS_HEAP:DATA:NOROOT(3)
-
-        SECTION .text:CODE:NOROOT(2)
-        PUBLIC  __LOS_HEAP_ADDR_START__
-        PUBLIC  __LOS_HEAP_ADDR_END__
-        EXTERN  __ICFEDIT_region_RAM_end__
-        DATA
-__LOS_HEAP_ADDR_START__
-        DCD     sfb(LOS_HEAP)
-__LOS_HEAP_ADDR_END__
-        DCD     __ICFEDIT_region_RAM_end__
 
         SECTION .intvec:CODE:NOROOT(2)
 

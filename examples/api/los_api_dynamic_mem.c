@@ -45,7 +45,7 @@ extern "C" {
 #endif /* __cpluscplus */
 
 #define MEM_DYN_SIZE  256
-static UINT8 pDynMem[MEM_DYN_SIZE];
+static UINT32 pDynMem[MEM_DYN_SIZE/4];
 extern UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize);
 
 UINT32 Example_Dyn_Mem(VOID)

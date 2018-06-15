@@ -110,18 +110,6 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
 
-  /* used by the startup to initialize liteos vector */
-  _si_liteos_vector_data = LOADADDR(.vector_ram);
-
-  /* Initialized liteos vector sections goes into RAM, load LMA copy after code */
-  .vector_ram :
-  {
-    . = ORIGIN(RAM);
-    _s_liteos_vector = .;
-    *(.data.vector)    /* liteos vector in ram */
-    _e_liteos_vector = .;
-  } > RAM AT> FLASH
-
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -165,9 +153,7 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
-  . = ALIGN(8);
-  __los_heap_addr_start__ = .;
-  __los_heap_addr_end__ = ORIGIN(RAM) + LENGTH(RAM) - _Min_Stack_Size - 1;
+
 
   /* Remove information from the standard libraries */
   /DISCARD/ :
