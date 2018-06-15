@@ -1,9 +1,9 @@
 /**
-  *************** (C) COPYRIGHT 2016 STMicroelectronics ************************
+  *************** (C) COPYRIGHT 2017 STMicroelectronics ************************
   * @file      startup_stm32f103xb.s
   * @author    MCD Application Team
-  * @version   V1.5.0
-  * @date      14-April-2017
+  * @version   V4.2.0
+  * @date      31-March-2017
   * @brief     STM32F103xB Devices vector table for Atollic toolchain.
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +16,7 @@
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,16 +50,6 @@
 
 .global g_pfnVectors
 .global Default_Handler
-.word  __los_heap_addr_start__
-.word  __los_heap_addr_end__
-
-/* start address for the initialization values of the .vector_ram section.
-defined in linker script */
-.word _si_liteos_vector_data
-/* start address for the .vector_ram section. defined in linker script */
-.word _s_liteos_vector
-/* end address for the .vector_ram section. defined in linker script */
-.word _e_liteos_vector
 
 /* start address for the initialization values of the .data section.
 defined in linker script */
@@ -83,36 +73,10 @@ defined in linker script */
  * @retval : None
 */
 
-    .section  .text
-    .global __LOS_HEAP_ADDR_START__
-    .global __LOS_HEAP_ADDR_END__
-__LOS_HEAP_ADDR_START__:
-    .word  __los_heap_addr_start__
-__LOS_HEAP_ADDR_END__:
-    .word  __los_heap_addr_end__
-
   .section .text.Reset_Handler
   .weak Reset_Handler
   .type Reset_Handler, %function
 Reset_Handler:
-  ldr   sp, =_estack      /* set stack pointer */
-
-/* Copy the vector_ram segment initializers from flash to SRAM */
-  movs  r1, #0
-  b  LoopCopyVectorInit
-
-CopyVectorInit:
-  ldr   r3, =_si_liteos_vector_data
-  ldr   r3, [r3, r1]
-  str   r3, [r0, r1]
-  adds   r1, r1, #4
-
-LoopCopyVectorInit:
-  ldr   r0, =_s_liteos_vector
-  ldr   r3, =_e_liteos_vector
-  adds   r2, r0, r1
-  cmp   r2, r3
-  bcc   CopyVectorInit
 
 /* Copy the data segment initializers from flash to SRAM */
   movs r1, #0
@@ -142,7 +106,7 @@ LoopFillZerobss:
   cmp r2, r3
   bcc FillZerobss
 
-/* Call the clock system initialization function.*/
+/* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */
     bl __libc_init_array
@@ -155,8 +119,9 @@ LoopFillZerobss:
  * @brief  This is the code that gets called when the processor receives an
  *         unexpected interrupt.  This simply enters an infinite loop, preserving
  *         the system state for examination by a debugger.
+ *
  * @param  None
- * @retval None
+ * @retval : None
 */
     .section .text.Default_Handler,"ax",%progbits
 Default_Handler:

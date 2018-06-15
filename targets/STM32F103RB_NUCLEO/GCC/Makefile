@@ -91,9 +91,12 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
+HAL_CMSIS_SRC =  \
+        $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c
+C_SOURCES += $(HAL_CMSIS_SRC)
+
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/main.c \
-        $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/system_stm32f1xx.c \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/usart.c \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
@@ -101,7 +104,7 @@ USER_SRC =  \
 
 # ASM sources
 ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
+        ${wildcard $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s}  \
         ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
 
 
@@ -164,6 +167,10 @@ HAL_DRIVER_INC = \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
 
+HAL_CMSIS_INC = \
+        -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/CMSIS/Device/ST/STM32F1xx/Include
+        C_INCLUDES += $(HAL_CMSIS_INC)
+
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Inc \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/OS_CONFIG
@@ -188,8 +195,8 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LD_FILE = STM32F103RBTx_LiteOS.ld
-LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
+LD_FILE = STM32F103RBTx_FLASH.ld
+LDSCRIPT = $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/linker/$(LD_FILE)
 
 # libraries
 LIBS = -lc -lm -lnosys

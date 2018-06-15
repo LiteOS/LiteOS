@@ -64,6 +64,10 @@ extern "C" {
     #define WEAK                    __weak
   #endif
 
+  #ifndef   CLZ
+    #define CLZ                     __CLZ
+  #endif
+
 #elif defined (__CC_ARM)
 
   #ifndef   ASM
