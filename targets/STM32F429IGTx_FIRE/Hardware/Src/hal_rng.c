@@ -43,6 +43,8 @@ RNG_HandleTypeDef g_rng_handle;
 
 void hal_rng_config(void)
 {
+    __HAL_RCC_RNG_CLK_ENABLE();
+    g_rng_handle.Instance = RNG;
     (void)HAL_RNG_Init(&g_rng_handle);
 }
 

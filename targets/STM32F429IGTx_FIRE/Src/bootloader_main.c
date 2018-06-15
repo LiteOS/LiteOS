@@ -118,7 +118,7 @@ int main(void)
     int ret;
     ota_assist assist;
 
-    HAL_Init();
+    (void)HAL_Init();
     SystemClock_Config();
     Debug_USART1_UART_Init();
     hal_spi_flash_config();
@@ -164,4 +164,5 @@ int main(void)
         OTA_LOG("start up roll back image failed, system start up failed");
         _Error_Handler(__FILE__, __LINE__);
     }
+    return ret;
 }

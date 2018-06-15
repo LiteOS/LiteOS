@@ -100,17 +100,17 @@
 
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
-#define LOG(STR) lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
-#define LOG_ARG(FMT, ...) lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
+#define LOG(STR) (void)lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
+#define LOG_ARG(FMT, ...) (void)lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
 #define LOG_URI(URI)                                                                \
 {                                                                                   \
-    if ((URI) == NULL) lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
+    if ((URI) == NULL) (void)lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
     else                                                                            \
     {                                                                               \
-        lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
-        if (LWM2M_URI_IS_SET_INSTANCE(URI)) lwm2m_printf("/%d", (URI)->instanceId); \
-        if (LWM2M_URI_IS_SET_RESOURCE(URI)) lwm2m_printf("/%d", (URI)->resourceId); \
-        lwm2m_printf("\r\n");                                                       \
+        (void)lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
+        if (LWM2M_URI_IS_SET_INSTANCE(URI)) (void)lwm2m_printf("/%d", (URI)->instanceId); \
+        if (LWM2M_URI_IS_SET_RESOURCE(URI)) (void)lwm2m_printf("/%d", (URI)->resourceId); \
+        (void)lwm2m_printf("\r\n");                                                       \
     }                                                                               \
 }
 #define UNUSEX(x)

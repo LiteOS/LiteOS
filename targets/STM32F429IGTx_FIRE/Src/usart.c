@@ -104,6 +104,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
         /* Configure USART2 Tx (PA.02) as alternate function push-pull */
         GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -114,6 +115,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
         __HAL_RCC_USART3_CLK_ENABLE();
         GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_11;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -146,13 +148,13 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 #if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
 int fputc(int ch, FILE *f)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
     return ch;
 }
 #elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
 __attribute__((used)) int _write(int fd, char *ptr, int len)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
     return len;
 }
 #endif
