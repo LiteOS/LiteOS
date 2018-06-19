@@ -49,8 +49,8 @@ const char* atiny_get_log_level_name(atiny_log_e log_level);
     { \
         if ((level) >= atiny_get_log_level()) \
         { \
-            (void)atiny_printf("[%s][%lld][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
+            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
         } \
     } while (0)
 #else

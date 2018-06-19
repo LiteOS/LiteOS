@@ -11,11 +11,6 @@ int32_t at_api_register(at_adaptor_api *api)
     {
     	gp_at_adaptor_api = api;
     }
-    return AT_OK;
-}
-
-int32_t at_api_init()
-{
 	if (gp_at_adaptor_api && gp_at_adaptor_api->init)
 	{
 		return gp_at_adaptor_api->init();
@@ -70,21 +65,4 @@ int32_t at_api_close(int32_t fd)
 	return AT_FAILED;
 }
 
-int8_t at_api_get_localmac(int8_t *mac)
-{
-	if (gp_at_adaptor_api && gp_at_adaptor_api->get_localmac)
-	{
-		return gp_at_adaptor_api->get_localmac(mac);
-	}
-	return AT_FAILED;
-}
-
-int8_t at_api_get_localip(int8_t *ip, int8_t * gw, int8_t * mask)
-{
-	if (gp_at_adaptor_api && gp_at_adaptor_api->get_localip)
-	{
-		return gp_at_adaptor_api->get_localip(ip, gw, mask);
-	}
-	return AT_FAILED;
-}
 #endif

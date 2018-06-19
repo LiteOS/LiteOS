@@ -19,15 +19,11 @@ typedef struct {
 }at_adaptor_api;
 
 int32_t at_api_register(at_adaptor_api *api);
-int32_t at_api_init();
 int32_t at_api_send(int32_t id , const uint8_t  *buf, uint32_t len);
 int32_t at_api_recv(int32_t id, unsigned char* buf, size_t len);
 int32_t at_api_recv_timeout(int32_t id, unsigned char* buf, size_t len, uint32_t timeout);
 int32_t at_api_connect(const char* host, const char* port, int proto);
 int32_t at_api_close(int32_t fd);
-int8_t at_api_get_localmac(int8_t *mac);
-int8_t at_api_get_localip(int8_t *ip, int8_t * gw, int8_t * mask);
-
 //declear in device drivers
 extern at_adaptor_api at_interface;
 

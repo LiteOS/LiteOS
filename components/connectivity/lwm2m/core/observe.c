@@ -82,6 +82,7 @@
 */
 
 #include "internals.h"
+#include "atiny_adapter.h"
 #include <stdio.h>
 
 
@@ -170,8 +171,10 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
         allocatedObserver = true;
         memset(observedP, 0, sizeof(lwm2m_observed_t));
         memcpy(&(observedP->uri), uriP, sizeof(lwm2m_uri_t));
+        atiny_mutex_lock(contextP->observe_mutex);
         observedP->next = contextP->observedList;
         contextP->observedList = observedP;
+        atiny_mutex_unlock(contextP->observe_mutex);
     }
 
     watcherP = prv_findWatcher(observedP, serverP);
@@ -189,8 +192,10 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
         memset(watcherP, 0, sizeof(lwm2m_watcher_t));
         watcherP->active = false;
         watcherP->server = serverP;
+        atiny_mutex_lock(contextP->observe_mutex);
         watcherP->next = observedP->watcherList;
         observedP->watcherList = watcherP;
+        atiny_mutex_unlock(contextP->observe_mutex);
     }
 
     return watcherP;
@@ -302,7 +307,7 @@ void observe_cancel(lwm2m_context_t * contextP,
         }
         if (targetP != NULL)
         {
-
+            atiny_mutex_lock(contextP->observe_mutex);
             lwm2m_notify_even(MODULE_URI, OBSERVE_UNSUBSCRIBE, (char*)&(observedP->uri), sizeof(observedP->uri));
             if (targetP->parameters != NULL) lwm2m_free(targetP->parameters);
             lwm2m_free(targetP);
@@ -311,6 +316,7 @@ void observe_cancel(lwm2m_context_t * contextP,
                 prv_unlinkObserved(contextP, observedP);
                 lwm2m_free(observedP);
             }
+            atiny_mutex_unlock(contextP->observe_mutex);
             return;
         }
     }
@@ -333,6 +339,7 @@ void observe_clear(lwm2m_context_t * contextP,
             lwm2m_observed_t * nextP;
             lwm2m_watcher_t * watcherP;
 
+            atiny_mutex_lock(contextP->observe_mutex);
             nextP = observedP->next;
 
             for (watcherP = observedP->watcherList; watcherP != NULL; watcherP = watcherP->next)
@@ -345,6 +352,7 @@ void observe_clear(lwm2m_context_t * contextP,
             lwm2m_free(observedP);
 
             observedP = nextP;
+            atiny_mutex_unlock(contextP->observe_mutex);
         }
         else
         {
@@ -867,7 +875,9 @@ void observe_step(lwm2m_context_t * contextP,
 
                     coap_set_header_observe(message, watcherP->counter++);
                     (void)message_send(contextP, message, watcherP->server->sessionH);
+                    atiny_mutex_lock(contextP->observe_mutex);
                     watcherP->update = false;
+                    atiny_mutex_unlock(contextP->observe_mutex);
                 }
 
                 // Store this value

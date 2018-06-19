@@ -733,6 +733,7 @@ typedef struct
     lwm2m_server_t*      serverList;
     lwm2m_object_t*      objectList;
     lwm2m_observed_t*    observedList;
+    void*                observe_mutex;
 #endif
 #ifdef LWM2M_SERVER_MODE
     lwm2m_client_t*         clientList;
