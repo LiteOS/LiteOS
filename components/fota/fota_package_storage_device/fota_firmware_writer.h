@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,34 +32,46 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef ATINY_LOG_H
-#define ATINY_LOG_H
-#include "agenttiny.h"
-#include "atiny_adapter.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#ifdef __cplusplus
+#ifndef _FOTA_FIRMWARE_WRITER_H_
+#define _FOTA_FIRMWARE_WRITER_H_
+
+#include "fota_package_storage_device.h"
+
+
+typedef struct
+{
+    uint32_t offset;
+    int offset_flag;
+
+    uint8_t * buffer;
+    uint16_t buffer_len;
+    uint16_t buffer_stored_len;
+    atiny_fota_storage_device_s *storage_device;
+    fota_hardware_s *hardware;
+}fota_firmware_writer_s;
+
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
-#ifdef ATINY_DEBUG
-const char* atiny_get_log_level_name(atiny_log_e log_level);
+void fota_fmw_wr_init(fota_firmware_writer_s *writer);
+void fota_fmw_wr_destroy(fota_firmware_writer_s *writer);
+void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, atiny_fota_storage_device_s *storage_device, fota_hardware_s *hardware);
+int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len);
+int fota_fmw_wr_write_end(fota_firmware_writer_s *writer);
 
-#define ATINY_LOG(level, fmt, ...) \
-    do \
-    { \
-        if ((level) >= atiny_get_log_level()) \
-        { \
-            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        } \
-    } while (0)
-#else
-#define ATINY_LOG(level, fmt, ...)
-#endif
 
-#ifdef __cplusplus
+
+
+
+#if defined(__cplusplus)
 }
 #endif
 
-#endif
+#endif //_FOTA_FIRMWARE_WRITER_H_
+
 

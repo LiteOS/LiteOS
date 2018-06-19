@@ -32,34 +32,24 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef ATINY_LOG_H
-#define ATINY_LOG_H
-#include "agenttiny.h"
-#include "atiny_adapter.h"
+#include "fota_package_crc.h"
+#include <string.h>
+#include "fota_package_head.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-#ifdef ATINY_DEBUG
-const char* atiny_get_log_level_name(atiny_log_e log_level);
 
-#define ATINY_LOG(level, fmt, ...) \
-    do \
-    { \
-        if ((level) >= atiny_get_log_level()) \
-        { \
-            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        } \
-    } while (0)
-#else
-#define ATINY_LOG(level, fmt, ...)
-#endif
-
-#ifdef __cplusplus
+void fota_pack_crc_init(fota_pack_crc_s *crc)
+{
 }
-#endif
+int fota_pack_crc_update(fota_pack_crc_s *crc, const uint8_t *buff, uint16_t len)
+{
+    return FOTA_OK;
+}
+int fota_pack_crc_check(fota_pack_crc_s *crc, uint32_t expect_crc)
+{
+    return FOTA_OK;
+}
 
-#endif
+
+
 

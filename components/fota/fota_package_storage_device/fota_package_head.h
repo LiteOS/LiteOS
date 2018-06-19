@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,34 +32,66 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef ATINY_LOG_H
-#define ATINY_LOG_H
-#include "agenttiny.h"
-#include "atiny_adapter.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#ifdef __cplusplus
+#ifndef _FOTA_PACKAGE_HEAD_H_
+#define _FOTA_PACKAGE_HEAD_H_
+#include "fota_package_storage_device.h"
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <atiny_adapter.h>
+
+#define FOTA_LOG(fmt, ...) \
+(void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
+
+
+#ifndef MIN
+#define MIN(a, b) (((a) <= (b)) ? (a) : (b))
+#endif
+
+enum
+{
+    FOTA_OK,
+    FOTA_ERR
+};
+
+struct fota_pack_head_tag_s;
+typedef int (*head_update_check)(const uint8_t *head_buff , uint16_t len, void *param);
+
+
+typedef struct fota_pack_head_tag_s
+{
+    uint8_t *buff;
+    uint16_t stored_len;
+    uint16_t head_len;
+    fota_hardware_s *hardware;
+    head_update_check update_check;
+    void *param;
+}fota_pack_head_s;
+
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
-#ifdef ATINY_DEBUG
-const char* atiny_get_log_level_name(atiny_log_e log_level);
 
-#define ATINY_LOG(level, fmt, ...) \
-    do \
-    { \
-        if ((level) >= atiny_get_log_level()) \
-        { \
-            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        } \
-    } while (0)
-#else
-#define ATINY_LOG(level, fmt, ...)
-#endif
+void fota_pack_head_init(fota_pack_head_s *head);
+void fota_pack_head_destroy(fota_pack_head_s *head);
+int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len,
+                    uint16_t *used_len);
+uint32_t fota_pack_head_get_crc(const fota_pack_head_s *head);
+int fota_pack_head_check_len(const fota_pack_head_s *head, uint32_t len);
+uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head);
+int fota_pack_head_set_head_info(fota_pack_head_s *head, uint16_t head_len, fota_hardware_s *hardware,
+                                            head_update_check updat_check, void *param);
 
-#ifdef __cplusplus
+
+#if defined(__cplusplus)
 }
 #endif
 
-#endif
+#endif //_FOTA_PACKAGE_HEAD_H_
+
 
