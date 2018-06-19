@@ -77,13 +77,13 @@ int ota_init(void)
 
 #ifndef USE_BOOTLOADER
 
-int ota_set_reboot(int32_t image_len, uint32_t image_crc, void (*func_reboot)(void))
+int ota_set_reboot(int32_t image_len)
 {
     if (g_ota_module.func_set_reboot == NULL)
     {
         g_ota_module.func_set_reboot = ota_default_set_reboot;
     }
-    return g_ota_module.func_set_reboot(image_len, image_crc, func_reboot);
+    return g_ota_module.func_set_reboot(image_len);
 }
 
 int ota_check_update_state(ota_state* st)
