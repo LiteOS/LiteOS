@@ -152,8 +152,8 @@ int32_t nb_send_coap_payload(int32_t id ,const uint8_t *buf, uint32_t len)
 	char* str = NULL;
 	int curcnt = 0;
 	static int sndcnt = 0;
-	neul_bc95_hex_to_str((const char*)buf, len, tmpbuf);
-	sprintf(cmd, "%s%d,%s%c",cmd1,strlen(tmpbuf),tmpbuf,'\r');
+	neul_bc95_str_to_hex((const char*)buf, len, tmpbuf);
+	sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
 	ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
 	if(ret < 0)
 		return -1;
@@ -256,11 +256,74 @@ int32_t nb_close_udpsock(int socket)
 
 }
 
+int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
+{
+    if (NULL == buf || len <= 0)
+    {
+        AT_LOG("param invailed!");
+        return -1;
+    }
+    AT_LOG("entry!");
+
+    //process data frame ,like +NSONMI:linkid,len
+    int32_t ret = -1;
+    int32_t sockid = 0, data_len = 0;
+    char * p1, *p2;
+    QUEUE_BUFF qbuf;
+    p1 = (char *)buf;
+	char* cmd = "AT+NSORF";
+
+    if (strstr(p1, AT_DATAF_PREFIX) != NULL)
+    {
+        p2 = strstr(p1, ",");
+        if (NULL == p2)
+        {
+            AT_LOG("got data prefix invailed!");
+            goto END;
+        }
+        
+        for (p2++; *p2 <= '9' && *p2 >= '0'; p2++)
+        {
+            sockid = sockid * 10 + (*p2 - '0');
+        }
+
+        for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
+        {
+            data_len = (data_len * 10 + (*p2 - '0'));
+        }
+
+        qbuf.addr = atiny_malloc(data_len + 40);//extra space for ip and port
+        if (NULL == qbuf.addr)
+        {
+            AT_LOG("malloc for qbuf failed!");
+            goto END;
+        }
+
+        qbuf.len = data_len;
+		memset(wbuf, 0, 1064);
+		memset(tmpbuf, 0, 1064);
+	    sprintf(wbuf, "%s=%d,%d\r", cmd, (int)sockid,(int)data_len);
+		sprintf(tmpbuf, "%d,\r",(int)sockid);
+	    at.cmd((int8_t*)wbuf, strlen(wbuf), tmpbuf, (char *)qbuf.addr);
+
+        if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
+        {
+            AT_LOG("LOS_QueueWriteCopy  failed!");
+            atiny_free(qbuf.addr);
+            goto END;
+        }
+        ret = data_len;
+    }
+END:
+    return ret;
+}
+
 int32_t nb_init(void)
 {
 	int ret;
     at.init();
-	at.oob_register("+NNMI",strlen("+NNMI"), nb_data_handler);
+	at.oob_register(AT_CMD_PREFIX,strlen(AT_CMD_PREFIX), nb_data_handler);
+	at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), nb_udp_recv);
 
 	memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
 
@@ -277,11 +340,12 @@ int32_t nb_init(void)
     return AT_OK;
 }
 
-int32_t nb_connect(const int8_t * host, const char *port, int32_t proto)
+int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 {
 	int ret = 0;
 	int timecnt = 0;
-	int localport = 5600;
+	static int localport = NB_STAT_LOCALPORT;
+
 	while(timecnt < 120)
 	{
 		ret = nb_get_netstat();
@@ -299,12 +363,13 @@ int32_t nb_connect(const int8_t * host, const char *port, int32_t proto)
 		ret = nb_query_ip();
 	}
     memset(wbuf, 0, 1064);
-    sprintf(wbuf, "%s,%s\r", (char *)host, port);
+    sprintf(wbuf, "%s,%s\r", (char *)host, (char *)port);
 	nb_set_cdpserver((const char *)wbuf);
 	do{
 		ret = nb_create_udpsock(NULL, localport, 1);
 		localport++;
 	}while(ret < 0);
+
 	localport--;
 	if(ret >= MAX_SOCK_NUM)
 	{
@@ -313,6 +378,15 @@ int32_t nb_connect(const int8_t * host, const char *port, int32_t proto)
 	}
 	memcpy(sockinfo[ret].ip, (const char*)host,strlen((const char*)host));
 	sockinfo[ret].port = localport;
+	localport++;
+
+    if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
+    {
+        AT_LOG("init dataQueue failed!");
+        at.linkid[ret].usable = AT_LINK_UNUSE;//adapter other module.
+        return -1;
+    }
+
     return ret;
 
 }
@@ -320,54 +394,73 @@ int32_t nb_connect(const int8_t * host, const char *port, int32_t proto)
 int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
 	char *cmd = "AT+NSOST=";
-	//char *str = "AT+NSOST=0,192.53.100.53,5683,1,11\r";
+	//char *str = "AT+NMGS192.53.100.53,5683,1,11\r";
 	
 	memset(wbuf, 0, 1064);
 	memset(tmpbuf, 0, 1064);
 	neul_bc95_str_to_hex((const char *)buf, len, tmpbuf);
-	sprintf(wbuf, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].ip,(int)sockinfo[id].port,(int)len,tmpbuf);//这些参数需要socket结构体保存
+	sprintf(wbuf, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].ip,(int)sockinfo[id].port,(int)len,tmpbuf);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
 int32_t nb_recv(int32_t id , int8_t  *buf, uint32_t len)
 {
-	char *cmd = "AT+NSORF=";
     int rlen = 0;
     int rskt = -1;
     int port = 0;
     int readleft = 0;
     int ret;
+	QUEUE_BUFF	qbuf = {0, NULL};
+	UINT32 qlen = sizeof(QUEUE_BUFF);
 
-	memset(wbuf, 0, 1064);
 	memset(rbuf, 0, 1064);
 	memset(tmpbuf, 0, 1064);
-	sprintf(wbuf, "%s%d,%d\r", cmd, id, len);
-    do
-    {
-        ret = at.cmd(wbuf, strlen(wbuf), "OK",rbuf);
-    }while(ret < 0);
-    sscanf(rbuf, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,wbuf);
-    return rlen;
+
+	 ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, LOS_WAIT_FOREVER);
+	 if (ret != LOS_OK)
+	 {
+		 return -1;
+	 }
+
+	 sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
+	 AT_LOG("ret = %x, len = %d", ret, rlen);
+	
+	 if (rlen){
+		 memcpy(buf, wbuf, rlen);
+		 atiny_free(qbuf.addr);
+	 }
+	 return rlen;
+
 }
 
 int32_t nb_recv_timeout(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout)
 {
-	char *cmd = "AT+NSORF=";
 	int rlen = 0;
 	int rskt = -1;
 	int port = 0;
-	int ret;
 	int readleft = 0;
+	int ret;
+	QUEUE_BUFF	qbuf = {0, NULL};
+	UINT32 qlen = sizeof(QUEUE_BUFF);
 
-	memset(wbuf, 0, 1064);
 	memset(rbuf, 0, 1064);
 	memset(tmpbuf, 0, 1064);
-	sprintf(wbuf, "%s%d,%d\r", cmd, id, len);
-	ret = at.cmd(wbuf, strlen(wbuf), "OK",rbuf);
-	if(ret < 0)
-		return -1;
-	sscanf(rbuf, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,wbuf);
-	return rlen;
+
+	 ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, timeout);
+	 if (ret != LOS_OK)
+	 {
+		 return -1;
+	 }
+
+	 sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
+	 AT_LOG("ret = %x, len = %d", ret, rlen);
+
+	 if (rlen){
+		 memcpy(buf, wbuf, rlen);
+		 atiny_free(qbuf.addr);
+	 }
+	 return rlen;
+
 }
 
 int32_t nb_close(int32_t socket)
