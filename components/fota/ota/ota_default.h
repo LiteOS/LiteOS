@@ -53,13 +53,13 @@ typedef struct
     uint16_t rsv;
     int32_t cur_offset;
     uint32_t image_length;
-    uint32_t image_crc;
+    uint32_t image_integrity;
     uint32_t crc;
 } ota_default_flag;
 
 int ota_default_init(void);
 
-int ota_default_set_reboot(int32_t image_len, uint32_t image_crc, void (*func_reboot)(void));
+int ota_default_set_reboot(int32_t image_len);
 
 int ota_default_check_update_state(ota_state* st);
 
