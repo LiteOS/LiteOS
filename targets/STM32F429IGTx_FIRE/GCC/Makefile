@@ -28,6 +28,11 @@ ifeq ($(USE_AT_FRAMEWORK), yes)
 endif
 
 #######################################
+# bootloader
+#######################################
+USE_BOOTLOADER := no
+
+#######################################
 # binaries
 #######################################
 PREFIX    = arm-none-eabi-
@@ -214,9 +219,9 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0
-#       -D WITH_DTLS \   
+#       -D WITH_DTLS \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
-        
+
 ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
 else
@@ -336,7 +341,11 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LD_FILE = STM32F429IGTx_LiteOS.ld
+ifeq ($(USE_BOOTLOADER), yes)
+	LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+else
+	LD_FILE = STM32F429IGTx_LiteOS.ld
+endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries

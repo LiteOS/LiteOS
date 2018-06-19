@@ -39,7 +39,7 @@
 #include "board.h"
 
 #define MAX_RESTART_CNT 5
-#define OTA_CRC_BUF_SIZE 0x1000
+#define OTA_INTEGRITY_BUF_SIZE 0x1000
 
 static ota_default_flag g_ota_flag;
 
@@ -100,36 +100,11 @@ static int prv_write_ota_default_flag(void)
     return ret;
 }
 
-static int prv_image_crc_check(void)
+static int prv_image_integrity(void)
 {
-    uint32_t crcOrigin = g_ota_flag.image_crc;
-    uint32_t crcCheck = 0;
-    uint32_t image_addr = OTA_IMAGE_DOWNLOAD_ADDR;
-    int32_t image_len = g_ota_flag.image_length;
-    uint8_t buf[OTA_CRC_BUF_SIZE];
-    int32_t check_len;
+    // TODO check integrity of the image
 
-    while (image_len > 0)
-    {
-        check_len = image_len > OTA_CRC_BUF_SIZE ? OTA_CRC_BUF_SIZE : image_len;
-        if (g_ota_assist.func_ota_read(buf, check_len, image_addr) != 0)
-        {
-            OTA_LOG("read image failed during crc check");
-            return -1;
-        }
-        crcCheck = calc_crc32(crcCheck, buf, check_len);
-        image_addr += check_len;
-        image_len -= check_len;
-    }
-
-    if (crcCheck == crcOrigin)
-    {
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
+    return 0;
 }
 
 static void prv_get_update_record(uint8_t* state, uint32_t* offset)
@@ -152,6 +127,17 @@ static int prv_set_update_record(uint8_t state, uint32_t offset)
     return prv_write_ota_default_flag();
 }
 
+static int prv_update_state(ota_state st)
+{
+    g_ota_flag.state = st;
+    if (prv_write_ota_default_flag() != 0)
+    {
+        OTA_LOG("write ota flag failed");
+        return OTA_ERRNO_SPI_FLASH_WRITE;
+    }
+    return OTA_ERRNO_OK;
+}
+
 int ota_default_init(void)
 {
     if (prv_read_ota_default_flag() != 0)
@@ -161,7 +147,7 @@ int ota_default_init(void)
         g_ota_flag.cur_state = 0;
         g_ota_flag.cur_offset = 0;
         g_ota_flag.image_length = 0;
-        g_ota_flag.image_crc = 0;
+        g_ota_flag.image_integrity = 0;
         if (prv_write_ota_default_flag() != 0)
         {
             OTA_LOG("write ota flag failed");
@@ -172,7 +158,7 @@ int ota_default_init(void)
     return OTA_ERRNO_OK;
 }
 
-int ota_default_set_reboot(int32_t image_len, uint32_t image_crc, void (*func_reboot)(void))
+int ota_default_set_reboot(int32_t image_len)
 {
     if (image_len < 0)
     {
@@ -183,23 +169,13 @@ int ota_default_set_reboot(int32_t image_len, uint32_t image_crc, void (*func_re
     g_ota_flag.cur_state = 0;
     g_ota_flag.cur_offset = 0;
     g_ota_flag.image_length = image_len;
-    g_ota_flag.image_crc = image_crc;
+    g_ota_flag.image_integrity = prv_image_integrity();
     g_ota_flag.state = OTA_S_NEEDUPDATE;
 
     if (prv_write_ota_default_flag() != 0)
     {
         OTA_LOG("write ota flag failed");
         return OTA_ERRNO_SPI_FLASH_WRITE;
-    }
-
-    if (NULL != func_reboot)
-    {
-        func_reboot();
-    }
-    else
-    {
-        OTA_LOG("reboot func is null and cannot reboot by itself");
-        return OTA_ERRNO_ILEGAL_PARAM;
     }
 
     return OTA_ERRNO_OK;
@@ -229,20 +205,31 @@ int ota_default_check_update_state(ota_state* st)
 int ota_default_update_process(void)
 {
 /*lint -e616 */
+    int ret;
+
     switch (g_ota_flag.state)
     {
     case OTA_S_IDLE:
     case OTA_S_FAILED:
         return OTA_ERRNO_OK;
     case OTA_S_NEEDUPDATE:
-        if (prv_image_crc_check() != 0)
+        if (prv_image_integrity() != g_ota_flag.image_integrity)
         {
-            OTA_LOG("image crc check failed");
-            return OTA_ERRNO_CRC_CHECK;
+            OTA_LOG("image integrity check failed");
+            (void)prv_update_state(OTA_S_FAILED);
+            return OTA_ERRNO_INTEGRITY_CHECK;
         }
     case OTA_S_UPDATING:
-        return board_update_copy(g_ota_flag.image_length,
-                                    prv_get_update_record, prv_set_update_record);
+        (void)prv_update_state(OTA_S_UPDATING);
+        ret = board_update_copy(g_ota_flag.image_length,
+                                prv_get_update_record, prv_set_update_record);
+        if (OTA_ERRNO_OK != ret)
+        {
+            OTA_LOG("update failed");
+            (void)prv_update_state(OTA_S_FAILED);
+            return ret;
+        }
+        return prv_update_state(OTA_S_SUCCEED);
     case OTA_S_SUCCEED:
         if (g_ota_flag.restart_cnt > MAX_RESTART_CNT)
         {
@@ -279,15 +266,5 @@ int ota_default_roll_back_image(void)
         OTA_LOG("image rollback failed");
         return ret;
     }
-    g_ota_flag.state = OTA_S_FAILED;
-
-    if (prv_write_ota_default_flag() != 0)
-    {
-        OTA_LOG("write ota flag failed");
-        return OTA_ERRNO_SPI_FLASH_WRITE;
-    }
-    else
-    {
-        return OTA_ERRNO_OK;
-    }
+    return prv_update_state(OTA_S_FAILED);
 }
