@@ -103,13 +103,15 @@ static int prv_write_ota_default_flag(void)
     return ret;
 }
 
+uint8_t g_integrity_buf[OTA_INTEGRITY_BUF_SIZE];
+
 static int prv_image_integrity(uint8_t* integrity)
 {
+    int ret = -1;
     uint32_t image_addr = OTA_IMAGE_DOWNLOAD_ADDR;
     uint32_t image_len = g_ota_flag.image_length;
     ota_sha256_context ctx;
     uint32_t check_len;
-    uint8_t buf[OTA_INTEGRITY_BUF_SIZE];
 
     ota_sha256_init(&ctx);
 
@@ -117,20 +119,22 @@ static int prv_image_integrity(uint8_t* integrity)
     {
         check_len = image_len > OTA_INTEGRITY_BUF_SIZE
                     ? OTA_INTEGRITY_BUF_SIZE : image_len;
-        if (g_ota_assist.func_ota_read(buf, check_len, image_addr) != 0)
+        if (g_ota_assist.func_ota_read(g_integrity_buf, check_len, image_addr) != 0)
         {
             OTA_LOG("read image failed during integrity check");
-            return -1;
+            goto exit;
         }
-        ota_sha256_update(&ctx, (const unsigned char*)buf, check_len);
+        ota_sha256_update(&ctx, (const unsigned char*)g_integrity_buf, check_len);
         image_addr += check_len;
         image_len -= check_len;
     }
 
+    ret = 0;
+
+exit:
     ota_sha256_finish(&ctx, (unsigned char*)integrity);
     ota_sha256_free(&ctx);
-
-    return 0;
+    return ret;
 }
 
 static void prv_get_update_record(uint8_t* state, uint32_t* offset)
