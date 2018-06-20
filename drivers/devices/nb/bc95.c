@@ -2,8 +2,6 @@
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
 #include "atadapter.h"
-#include "at_api_interface.h"
-#include "atiny_socket.h"
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -411,7 +409,7 @@ int32_t nb_recv_cb(int32_t id)
 
 int32_t nb_deinit(void)
 {
-    return nb_reset();
+    return nb_reboot();
 }
 
 at_config at_user_conf = {

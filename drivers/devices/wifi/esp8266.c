@@ -246,7 +246,7 @@ int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本�
     }
 
 //    printf("get ip :%s", resp);
-    return NULL;
+    return 0;
 }
 
 int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
@@ -267,7 +267,7 @@ int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
 
 
 //    printf("get ip :%s", resp);
-    return NULL;
+    return 0;
 }
 
 int32_t esp8266_recv_cb(int32_t id)
@@ -325,7 +325,7 @@ at_adaptor_api at_interface = {
     .init = esp8266_init,    
     .get_localmac = esp8266_get_localmac, /*获取本地MAC*/
     .get_localip = esp8266_get_localip,/*获取本地IP*/
-    /*建立TCP或�UDP连接*/
+    /*建立TCP或�UDP连接*/
     .connect = esp8266_connect,
 
     .send = esp8266_send,
@@ -334,7 +334,7 @@ at_adaptor_api at_interface = {
     .recv = esp8266_recv,
 
     .close = esp8266_close,/*关闭连接*/
-    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实�?*/
+    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实�?*/
 
     .deinit = esp8266_deinit,
 };

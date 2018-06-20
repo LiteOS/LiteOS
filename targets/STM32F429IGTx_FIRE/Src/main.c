@@ -68,7 +68,9 @@ VOID main_task(VOID)
 	ret = los_nb_report("3333", 4);
 	printf("closed\n");
     //los_nb_deinit();
-#else
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
+    extern at_adaptor_api at_interface;
+    at_api_register(&at_interface);
 #endif
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     agent_tiny_entry();
