@@ -45,9 +45,9 @@ typedef struct {
 
 
 typedef struct {
-	int32_t fd;		//convert between socket_fd and linkid
-	uint32_t qid;    // queue id
-	uint32_t usable;
+	UINT32 fd;		//convert between socket_fd and linkid
+	UINT32 qid;    // queue id
+	UINT32 usable;
 }at_link;
 
 typedef struct _listner{

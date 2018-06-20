@@ -41,7 +41,6 @@
 #include "usart.h"
 #include "ota.h"
 #include "board.h"
-#include "crc.h"
 
 #ifdef USE_IWDG
 #include "hal_iwdg.h"
