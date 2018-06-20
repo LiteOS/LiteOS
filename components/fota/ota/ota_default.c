@@ -213,7 +213,11 @@ int ota_default_set_reboot(int32_t image_len)
     g_ota_flag.cur_offset = 0;
     g_ota_flag.image_length = image_len;
     g_ota_flag.state = OTA_S_NEEDUPDATE;
-    prv_image_integrity(g_ota_flag.image_integrity);
+    if (prv_image_integrity(g_ota_flag.image_integrity) != 0)
+    {
+        OTA_LOG("do integrity check failed");
+        return OTA_ERRNO_INTEGRITY_CHECK;
+    }
 
     if (prv_write_ota_default_flag() != 0)
     {
