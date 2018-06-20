@@ -243,7 +243,7 @@ static int hal_fota_active_software(atiny_fota_storage_device_s *this)
         return ERR;
     }
 
-    return ota_set_reboot(hal->total_len, 0, NULL);
+    return ota_set_reboot(hal->total_len);
 }
 
 static int hal_fota_get_software_result(atiny_fota_storage_device_s *this)
