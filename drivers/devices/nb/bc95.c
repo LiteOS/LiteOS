@@ -11,12 +11,10 @@ at_adaptor_api at_interface;
 char rbuf[1064] = {0};
 char wbuf[1064] = {0};
 char tmpbuf[1064]={0}; //ÓÃÓÚ×ª»»hex
-char coapmsg[536]={0};
 
-#define MAX_SOCK_NUM 5
 remote_info sockinfo[MAX_SOCK_NUM];
-
-static int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
+#if 0
+int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
 {
     int i = 0;
     unsigned char tmp2 = 0x0;
@@ -35,7 +33,7 @@ static int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
     }
     return 0;
 }
-
+#endif
 int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
@@ -50,8 +48,9 @@ int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout)
     return 0;
 }
 
-int32_t nb_reset(void)
+int32_t nb_reboot(void)
 {
+    memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
     return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "REBOOTING", NULL);
 }
 
@@ -60,45 +59,7 @@ int32_t nb_hw_detect(void)//"AT+CFUN?\r"
     return at.cmd((int8_t*)AT_NB_hw_detect, strlen(AT_NB_hw_detect), "+CFUN:1", NULL);
 }
 
-int nb_get_msg(void)
-{
-	char *cmdcnt = "AT+NQMGR\r\n";
-	char *cmdmsg = "AT+NMGR\r\n";
-	char rbuf[1024]={0};
-	char wbuf[1024]={0};
-	int msgcnt = 0;
-	int readlen = 0;
-	at.cmd((int8_t*)cmdcnt, strlen(cmdcnt), "BUFFERED", rbuf);
-	sscanf(rbuf, "\r\nBUFFERED=%d,%s", &msgcnt, wbuf);
-    if (msgcnt < 0 )
-    {
-        return 0;
-    }
-	while(msgcnt > 0)
-	{
-		AT_LOG("msgcnt:%d\n",msgcnt);
-		memset(rbuf, 0, 1024);
-		at.cmd((int8_t*)cmdmsg, strlen(cmdmsg), "OK", rbuf);
-		sscanf(rbuf, "\r\n%d,%s\r\n\r\nOK\r\n",&readlen, tmpbuf);
-		if(readlen>0)
-		{
-			neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
-			AT_LOG("get cmd\n");
-			AT_LOG("msg:%s\n",coapmsg);
-			//ioctl(coapmsg,n);
-		}
-		msgcnt--;
-	}
-	return 0;
-}
-
-int32_t nb_send_test(void)
-{
-	char *cmd = "AT+NMGS=2,0101";
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
-}
-
-int32_t nb_set_cdpserver(const char *ipaddr)
+int32_t nb_set_cdpserver(char* host, char* port)
 {
     char *cmd = "AT+NCDP=";
     char *cmd2 = "AT+NCDP?";
@@ -106,6 +67,10 @@ int32_t nb_set_cdpserver(const char *ipaddr)
 	//char *cmdCGP = "AT+CGPADDR";
 	char tmpbuf[1064] = {0};
 	int ret;
+
+    char ipaddr[100] = {0};
+
+    sprintf(ipaddr, "%s,%s\r", host, port);
 
 	sprintf(tmpbuf, "%s%s%c", cmd, ipaddr, '\r');
     ret = at.cmd((int8_t*)tmpbuf, strlen(tmpbuf), "OK", NULL);
@@ -118,6 +83,43 @@ int32_t nb_set_cdpserver(const char *ipaddr)
 	ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), "OK", NULL);
 	//ret = at.cmd((int8_t*)cmdCGP, strlen(cmdCGP), NULL, NULL);
 	return ret;
+}
+
+int32_t nb_send_psk(char* pskid, char* psk)
+{
+        char* cmds = "AT+QSECSWT";//AT+QSECSWT=1,100    OK
+        char* cmdp = "AT+QSETPSK";//AT+QSETPSK=86775942,E6F4C799   OK
+        sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
+        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+        sprintf(wbuf, "%s=%s,%s\r", cmdp, pskid, psk);
+        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+        return 0;
+}
+
+int32_t nb_send_payload(const char* buf, int len)
+{
+    char *cmd1 = "AT+NMGS=";
+    char *cmd2 = "AT+NQMGS\r";
+    char tmpbuf[1064] = {0};
+    char cmd[1064] = {0};
+    int ret;
+    char* str = NULL;
+    int curcnt = 0;
+    static int sndcnt = 0;
+    neul_bc95_str_to_hex((const char*)buf, len, tmpbuf);
+    sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
+    ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    if(ret < 0)
+        return -1;
+    ret = at.cmd((int8_t*)cmd2, strlen(cmd2), "SENT=", rbuf);
+    if(ret < 0)
+        return -1;
+    str = strstr(rbuf,"SENT=");
+    sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
+    if(curcnt == sndcnt)
+        return -1;
+    sndcnt = curcnt;
+    return 0;
 }
 
 int32_t nb_get_auto_connect(void)
@@ -206,8 +208,10 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
 {
 	int socket;
 	char *cmd = "AT+NSOCR=DGRAM,17,";//udp
-	char wbuf[1024]={0};
-	char rbuf[1024]={0};
+	//char coapmsg[536]={0};
+    memset(rbuf, 0, 1064);
+	memset(wbuf, 0, 1064);
+
 	//nb_set_cdpserver(host,strlen(host));
 
     sprintf(wbuf, "%s%d,1\r", cmd, port);//udp
