@@ -34,7 +34,8 @@
 
 #include "ota.h"
 #include "ota_errno.h"
-#include "crc.h"
+#include "ota_crc.h"
+#include "ota_sha256.h"
 #include "ota_default.h"
 #include "board.h"
 
