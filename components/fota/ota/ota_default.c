@@ -128,11 +128,11 @@ static int prv_image_integrity(uint8_t* integrity)
         image_addr += check_len;
         image_len -= check_len;
     }
+    ota_sha256_finish(&ctx, (unsigned char*)integrity);
 
     ret = 0;
 
 exit:
-    ota_sha256_finish(&ctx, (unsigned char*)integrity);
     ota_sha256_free(&ctx);
     return ret;
 }
