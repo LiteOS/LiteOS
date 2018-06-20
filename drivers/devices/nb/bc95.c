@@ -2,8 +2,6 @@
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
 #include "atadapter.h"
-#include "at_api_interface.h"
-#include "atiny_socket.h"
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -14,7 +12,7 @@ char tmpbuf[1064]={0}; //ÓÃÓÚ×ª»»hex
 char coapmsg[536]={0};
 
 #define MAX_SOCK_NUM 5
-remote_info sockinfo[MAX_SOCK_NUM];
+extern remote_info sockinfo[MAX_SOCK_NUM];
 
 static int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
 {
