@@ -30,4 +30,14 @@ typedef struct _remote_info_t
     unsigned short port;
     char ip[16];
 }remote_info;//后续创建socket时需要该struct保存
+
+
+int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout);
+int32_t nb_set_cdpserver(const char *ipaddr);
+int32_t nb_reset(void);
+int32_t nb_hw_detect(void);
+int32_t nb_get_netstat(void);
+int nb_query_ip(void);
+
+
 #endif
