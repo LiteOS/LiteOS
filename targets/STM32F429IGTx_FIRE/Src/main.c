@@ -36,6 +36,7 @@
 #include "agent_tiny_demo.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
+#include "los_nb_api.h"
 #endif
 UINT32 g_TskHandle;
 
@@ -49,17 +50,24 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
-
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
-    at_api_init();
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+	int ret;
+    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+    los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
+    los_nb_notify(nb_data_ioctl);
+	osDelay(3000);
+	ret = los_nb_report("1111", 4);
+	printf("send:%d\n",ret);
+	ret = los_nb_report("1212", 4);
+	printf("closed\n");
 #else
 #endif
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
     agent_tiny_entry();
+#endif
 }
 UINT32 creat_main_task()
 {

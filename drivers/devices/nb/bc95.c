@@ -16,17 +16,6 @@ char coapmsg[536]={0};
 #define MAX_SOCK_NUM 5
 remote_info sockinfo[MAX_SOCK_NUM];
 
-int32_t nb_data_handler(void* arg,int8_t * buf, int32_t len)
-{
-    if (NULL == buf || len <= 0)
-    {
-        AT_LOG("param invailed!");
-        return -1;
-    }
-    AT_LOG("cmd in");
-	return 0;
-}
-
 static int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
 {
     int i = 0;
@@ -47,7 +36,7 @@ static int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
     return 0;
 }
 
-static int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout)
+int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
     if (NULL == bufin || len <= 0 || NULL == bufout)
@@ -107,12 +96,6 @@ int32_t nb_send_test(void)
 {
 	char *cmd = "AT+NMGS=2,0101";
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
-}
-
-int32_t nb_read(void)
-{
-	char *cmd = "AT+NMGR";
-    return at.cmd((int8_t*)cmd, strlen(cmd), "2", NULL);
 }
 
 int32_t nb_set_cdpserver(const char *ipaddr)
@@ -205,7 +188,7 @@ int32_t nb_check_csq(void)
     return at.cmd((int8_t*)cmd, strlen(cmd), NULL, NULL);
 }
 
-int nb_query_ip()
+int nb_query_ip(void)
 {
 	char *cmd = "AT+CGPADDR\r";
     return at.cmd((int8_t*)cmd, strlen(cmd), "+CGPADDR:0,", NULL);
@@ -231,23 +214,6 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
 	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf);
 	sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
 	//neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
-    if (socket >= 0)
-    {
-        return socket;
-    }
-    return -1;
-
-}
-
-int32_t nb_close_udpsock(int socket)
-{
-    char *cmd = "AT+NSOCL=";
-
-    memset(wbuf, 0, 1064);
-    sprintf(wbuf, "%s%d\r", cmd, socket);
-
-	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf);
-	//删除数组对应元素
     if (socket >= 0)
     {
         return socket;
@@ -318,53 +284,14 @@ int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
     return ret;
 }
 
-int32_t nb_init(void)
-{
-	int ret;
-    at.init();
-	at.oob_register(AT_CMD_PREFIX,strlen(AT_CMD_PREFIX), nb_data_handler);
-	at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), nb_udp_recv);
 
-	memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
-
-    nb_reset();
-	while(1)
-	{
-		ret = nb_hw_detect();
-		if(ret != AT_FAILED)
-			break;
-		LOS_TaskDelay(1000);
-	}
-	//nb_get_auto_connect();
-	//nb_connect(NULL, NULL, NULL);
-    return AT_OK;
-}
 
 int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 {
 	int ret = 0;
-	int timecnt = 0;
+	//int timecnt = 0;
 	static int localport = NB_STAT_LOCALPORT;
 
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		//nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		ret = nb_query_ip();
-	}
-    memset(wbuf, 0, 1064);
-    sprintf(wbuf, "%s,%s\r", (char *)host, (char *)port);
-	nb_set_cdpserver((const char *)wbuf);
 	do{
 		ret = nb_create_udpsock(NULL, localport, 1);
 		localport++;
@@ -497,7 +424,7 @@ at_config at_user_conf = {
 };
 
 at_adaptor_api at_interface = {
-    .init = nb_init,
+    .init = NULL,
 
     .connect = nb_connect,
     .send = nb_send,
