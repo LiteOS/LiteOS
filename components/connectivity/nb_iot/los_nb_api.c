@@ -1,17 +1,41 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "los_nb_api.h"
 #include "at_api_interface.h"
 #include "atiny_socket.h"
-
-extern at_task at;
-extern char rbuf[1064];
-extern char wbuf[1064];
-extern char tmpbuf[1064]; //ÓÃÓÚ×ª»»hex
-extern char coapmsg[536];
-
-#define MAX_SOCK_NUM 5
-remote_info sockinfo[MAX_SOCK_NUM];
 
 int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
 {
@@ -20,7 +44,7 @@ int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
         AT_LOG("param invailed!");
         return -1;
     }
-    AT_LOG("cmd in");
+    AT_LOG("cmd in:%s",buf);
 	return 0;
 }
 
@@ -30,17 +54,11 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     int timecnt = 0;
     at.init();
 
-    memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
-
-    nb_reset();
+    nb_reboot();
+    LOS_TaskDelay(1000);
     if(psk != NULL)//encryption v1.9
     {
-        char* cmds = "AT+QSECSWT";//AT+QSECSWT=1,100    OK
-        char* cmdp = "AT+QSETPSK";//AT+QSETPSK=86775942,E6F4C799   OK
-        sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
-        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
-        sprintf(wbuf, "%s=%s,%s\r", cmdp, psk->psk, psk->pskid);
-        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+        nb_send_psk(psk->pskid, psk->psk);
     }
 
     while(1)
@@ -69,37 +87,13 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 	{
 		ret = nb_query_ip();
 	}
-    memset(wbuf, 0, 1064);
-
-    sprintf(wbuf, "%s,%s\r", (char *)host, (char *)port);
-	nb_set_cdpserver((const char *)wbuf);
+	nb_set_cdpserver((char *)host, (char *)port);
     return ret;
 }
 
 int los_nb_report(const char* buf, int len)
 {
-    char *cmd1 = "AT+NMGS=";
-    char *cmd2 = "AT+NQMGS\r";
-    char tmpbuf[1064] = {0};
-    char cmd[1064] = {0};
-    int ret;
-    char* str = NULL;
-    int curcnt = 0;
-    static int sndcnt = 0;
-    neul_bc95_str_to_hex((const char*)buf, len, tmpbuf);
-    sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
-    ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
-    if(ret < 0)
-        return -1;
-    ret = at.cmd((int8_t*)cmd2, strlen(cmd2), "SENT=", rbuf);
-    if(ret < 0)
-        return -1;
-    str = strstr(rbuf,"SENT=");
-    sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
-    if(curcnt == sndcnt)
-        return -1;
-    sndcnt = curcnt;
-    return 0;
+    return nb_send_payload(buf, len);
 }
 
 int los_nb_notify(oob_callback callback)
@@ -109,7 +103,7 @@ int los_nb_notify(oob_callback callback)
 
 int los_nb_deinit(void)
 {
-    return nb_reset();;
+    return nb_reboot();;
 }
 
 #endif

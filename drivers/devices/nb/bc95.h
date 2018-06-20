@@ -23,7 +23,7 @@
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
 #define AT_DATAF_PREFIX      "+NSONMI"
-
+#define MAX_SOCK_NUM 5
 typedef struct _remote_info_t
 {
     int socket;
@@ -33,11 +33,13 @@ typedef struct _remote_info_t
 
 
 int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout);
-int32_t nb_set_cdpserver(const char *ipaddr);
+int32_t nb_set_cdpserver(char* host, char* port);
 int32_t nb_reset(void);
 int32_t nb_hw_detect(void);
 int32_t nb_get_netstat(void);
 int nb_query_ip(void);
-
+int32_t nb_send_payload(const char* buf, int len);
+int32_t nb_send_psk(char* pskid, char* psk);
+int32_t nb_reboot(void);
 
 #endif

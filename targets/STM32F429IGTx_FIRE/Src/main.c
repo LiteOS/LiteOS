@@ -55,14 +55,19 @@ VOID main_task(VOID)
     net_init();
 #elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 	int ret;
+    sec_param_s sec;
+    sec.pskid = "863703033497178";
+    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
+
     extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
     los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
     los_nb_notify(nb_data_ioctl);
 	osDelay(3000);
-	ret = los_nb_report("1111", 4);
+	ret = los_nb_report("2222", 4);
 	printf("send:%d\n",ret);
-	ret = los_nb_report("1212", 4);
+	ret = los_nb_report("3333", 4);
 	printf("closed\n");
+    //los_nb_deinit();
 #else
 #endif
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
