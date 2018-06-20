@@ -39,6 +39,8 @@
 #include "ota_default.h"
 #include "board.h"
 
+#include <string.h>
+
 #define MAX_RESTART_CNT 5
 #define OTA_INTEGRITY_BUF_SIZE 0x1000
 
@@ -101,9 +103,32 @@ static int prv_write_ota_default_flag(void)
     return ret;
 }
 
-static int prv_image_integrity(void)
+static int prv_image_integrity(uint8_t* integrity)
 {
-    // TODO check integrity of the image
+    uint32_t image_addr = OTA_IMAGE_DOWNLOAD_ADDR;
+    uint32_t image_len = g_ota_flag.image_length;
+    ota_sha256_context ctx;
+    uint32_t check_len;
+    uint8_t buf[OTA_INTEGRITY_BUF_SIZE];
+
+    ota_sha256_init(&ctx);
+
+    while (image_len > 0)
+    {
+        check_len = image_len > OTA_INTEGRITY_BUF_SIZE
+                    ? OTA_INTEGRITY_BUF_SIZE : image_len;
+        if (g_ota_assist.func_ota_read(buf, check_len, image_addr) != 0)
+        {
+            OTA_LOG("read image failed during integrity check");
+            return -1;
+        }
+        ota_sha256_update(&ctx, (const unsigned char*)buf, check_len);
+        image_addr += check_len;
+        image_len -= check_len;
+    }
+
+    ota_sha256_finish(&ctx, (unsigned char*)integrity);
+    ota_sha256_free(&ctx);
 
     return 0;
 }
@@ -139,6 +164,21 @@ static int prv_update_state(ota_state st)
     return OTA_ERRNO_OK;
 }
 
+static int prv_check_integrity_value(const uint8_t* v1, const uint8_t* v2)
+{
+    int i;
+
+    for (i = 0; i < OTA_IMAGE_INTEGRITY_LENGTH; ++i)
+    {
+        if (v1[i] != v2[i])
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int ota_default_init(void)
 {
     if (prv_read_ota_default_flag() != 0)
@@ -148,30 +188,32 @@ int ota_default_init(void)
         g_ota_flag.cur_state = 0;
         g_ota_flag.cur_offset = 0;
         g_ota_flag.image_length = 0;
-        g_ota_flag.image_integrity = 0;
+        memset(g_ota_flag.image_integrity, 0, OTA_IMAGE_INTEGRITY_LENGTH);
         if (prv_write_ota_default_flag() != 0)
         {
             OTA_LOG("write ota flag failed");
             return OTA_ERRNO_SPI_FLASH_WRITE;
         }
     }
+    OTA_LOG("state: %d", g_ota_flag.state);
+    OTA_LOG("restart_cnt: %d", g_ota_flag.restart_cnt);
 
     return OTA_ERRNO_OK;
 }
 
 int ota_default_set_reboot(int32_t image_len)
 {
-    if (image_len < 0)
+    if (image_len <= 0)
     {
-        OTA_LOG("ilegal image_len:%d", image_len);
+        OTA_LOG("ilegal image_len: %d", image_len);
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
     g_ota_flag.cur_state = 0;
     g_ota_flag.cur_offset = 0;
     g_ota_flag.image_length = image_len;
-    g_ota_flag.image_integrity = prv_image_integrity();
     g_ota_flag.state = OTA_S_NEEDUPDATE;
+    prv_image_integrity(g_ota_flag.image_integrity);
 
     if (prv_write_ota_default_flag() != 0)
     {
@@ -207,6 +249,7 @@ int ota_default_update_process(void)
 {
 /*lint -e616 */
     int ret;
+    uint8_t integrity[OTA_IMAGE_INTEGRITY_LENGTH];
 
     switch (g_ota_flag.state)
     {
@@ -214,9 +257,15 @@ int ota_default_update_process(void)
     case OTA_S_FAILED:
         return OTA_ERRNO_OK;
     case OTA_S_NEEDUPDATE:
-        if (prv_image_integrity() != g_ota_flag.image_integrity)
+        if (prv_image_integrity(integrity) != 0)
         {
             OTA_LOG("image integrity check failed");
+            (void)prv_update_state(OTA_S_FAILED);
+            return OTA_ERRNO_INTEGRITY_CHECK;
+        }
+        if (prv_check_integrity_value(integrity, g_ota_flag.image_integrity) != 0)
+        {
+            OTA_LOG("incomplete image detected");
             (void)prv_update_state(OTA_S_FAILED);
             return OTA_ERRNO_INTEGRITY_CHECK;
         }
