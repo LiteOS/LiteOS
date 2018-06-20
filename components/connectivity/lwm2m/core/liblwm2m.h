@@ -142,6 +142,9 @@ int lwm2m_strncmp(const char* s1, const char* s2, size_t n);
 // Per POSIX specifications, time_t is a signed integer.
 time_t lwm2m_gettime(void);
 
+//get len of random bytes in output.
+int lwm2m_rand(void *output, size_t len);
+
 #define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
@@ -730,6 +733,7 @@ typedef struct
     lwm2m_server_t*      serverList;
     lwm2m_object_t*      objectList;
     lwm2m_observed_t*    observedList;
+    void*                observe_mutex;
 #endif
 #ifdef LWM2M_SERVER_MODE
     lwm2m_client_t*         clientList;
