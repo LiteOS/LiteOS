@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := no
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := ESP8266
+	NETWORK_TYPE := NB_NEUL95
 endif
 
 #######################################
@@ -150,7 +150,8 @@ AGENT_DEMO_SRC = \
         C_SOURCES += $(AGENT_DEMO_SRC)
 
 FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
 
 USER_SRC =  \
@@ -172,7 +173,9 @@ ifeq ($(NETWORK_TYPE), ESP8266)
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/nb/*.c}
+    USER_DRIVERS_SRC = \
+	${wildcard $(TOP_DIR)/drivers/devices/nb/*.c} \
+	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
@@ -298,7 +301,8 @@ AGENT_DEMO_INC = \
         C_INCLUDES += $(AGENT_DEMO_INC)
 
 FOTA_INC = \
-        -I $(TOP_DIR)/components/fota/ota
+        -I $(TOP_DIR)/components/fota/ota \
+        -I $(TOP_DIR)/components/fota/utility
         C_INCLUDES += $(FOTA_INC)
 
 USER_INC = \
@@ -316,7 +320,9 @@ ifeq ($(NETWORK_TYPE), ESP8266)
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/gprs
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
-    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/nb
+    USER_DRIVERS_INC = \
+	-I $(TOP_DIR)/components/connectivity/nb_iot \
+	-I $(TOP_DIR)/drivers/devices/nb
 endif
     C_INCLUDES += $(USER_DRIVERS_INC)
 endif

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,101 +32,37 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_tick.inc"
-#include "los_base.ph"
-#include "los_swtmr.ph"
-#include "los_task.ph"
-#include "los_timeslice.ph"
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-#include "los_tickless.ph"
-#endif
+#ifndef _OTA_SHA256_H_
+#define _OTA_SHA256_H_
+
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
-#if __cplusplus
 extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
 
-
-LITE_OS_SEC_BSS UINT64      g_ullTickCount;
-LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
-LITE_OS_SEC_BSS UINT32      g_uwSysClock;
-LITE_OS_SEC_DATA_INIT BOOL  g_bSysTickStart = FALSE;
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-/*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandlerLoop(UINT32 uwElapseTicks)
+typedef struct
 {
-    UINT32 uwIndex;
+    uint32_t total[2];
+    uint32_t state[8];
+    unsigned char buffer[64];
+    int is224;
+} ota_sha256_context;
 
-    for (uwIndex = 0; uwIndex < uwElapseTicks; uwIndex++)
-    {
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-        platform_tick_handler();
-#endif
+void ota_sha256_init(ota_sha256_context *ctx);
 
-        g_ullTickCount ++;
+void ota_sha256_free(ota_sha256_context *ctx);
 
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-        osTimesliceCheck();
-#endif
-        osTaskScan();   //task timeout scan
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-        (VOID)osSwtmrScan();
-#endif
-    }
-}
+void ota_sha256_starts(ota_sha256_context *ctx, int is224);
 
-#endif
+void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input,
+                    size_t ilen);
 
-/*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
-{
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-    if (g_bReloadSysTickFlag)
-    {
-        LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
-        g_bReloadSysTickFlag = 0;
-    }
-    g_bTickIrqFlag = g_bTicklessFlag;
-#endif
-
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-    platform_tick_handler();
-#endif
-
-    g_ullTickCount ++;
-
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-    osTimesliceCheck();
-#endif
-
-    osTaskScan();   //task timeout scan
-
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-    (VOID)osSwtmrScan();
-#endif
-}
-
-LITE_OS_SEC_TEXT UINT32 LOS_SysClockGet(void)
-{
-    return g_uwSysClock;
-}
+void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32]);
 
 #ifdef __cplusplus
-#if __cplusplus
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
+
+#endif /* _OTA_SHA256_H_ */

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,79 +32,78 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_tick Tick
- * @ingroup kernel
- */
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#include "los_nb_api.h"
+#include "at_api_interface.h"
+#include "atiny_socket.h"
 
-#ifndef _LOS_TICK_H
-#define _LOS_TICK_H
-
-#include "los_errno.h"
-
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
-
-/**
- * @ingroup los_tick
- * Tick error code: The Tick configuration is incorrect.
- *
- * Value: 0x02000400
- *
- * Solution: Change values of the OS_SYS_CLOCK and LOSCFG_BASE_CORE_TICK_PER_SECOND system time configuration modules in Los_config.h.
- */
-#define LOS_ERRNO_TICK_CFG_INVALID                  LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x00)
-
-/**
- * @ingroup los_tick
- * Tick error code: This error code is not in use temporarily.
- *
- * Value: 0x02000401
- *
- * Solution: None.
- */
-#define LOS_ERRNO_TICK_NO_HWTIMER                   LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x01)
-
-/**
- * @ingroup los_tick
- * Tick error code: The number of Ticks is too small.
- *
- * Value: 0x02000402
- *
- * Solution: Change values of the OS_SYS_CLOCK and LOSCFG_BASE_CORE_TICK_PER_SECOND system time configuration modules according to the SysTick_Config function.
- */
-#define LOS_ERRNO_TICK_PER_SEC_TOO_SMALL            LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x02)
-
-/**
- *  @ingroup  los_tick
- *  @brief: System clock get function.
- *
- *  @par Description:
- *  This API is used to get system clock.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param: None.
- *
- * @retval: system clock.
- *
- * @par Dependency:
- * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- * @since Huawei LiteOS V100R001C00
- *
- * */
-extern UINT32 LOS_SysClockGet(void);
-extern BOOL g_bSysTickStart;
-
-#ifdef __cplusplus
-#if __cplusplus
+int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
+{
+    if (NULL == buf || len <= 0)
+    {
+        AT_LOG("param invailed!");
+        return -1;
+    }
+    AT_LOG("cmd in:%s",buf);
+	return 0;
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
-#endif /* _LOS_TICK_H */
+int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
+{
+    int ret;
+    int timecnt = 0;
+    at.init();
+
+    nb_reboot();
+    LOS_TaskDelay(1000);
+    if(psk != NULL)//encryption v1.9
+    {
+        nb_send_psk(psk->pskid, psk->psk);
+    }
+
+    while(1)
+    {
+        ret = nb_hw_detect();
+        if(ret != AT_FAILED)
+            break;
+        LOS_TaskDelay(1000);
+    }
+    //nb_get_auto_connect();
+    //nb_connect(NULL, NULL, NULL);
+
+	while(timecnt < 120)
+	{
+		ret = nb_get_netstat();
+		//nb_check_csq();
+		if(ret != AT_FAILED)
+		{
+			ret = nb_query_ip();
+			break;
+		}
+		LOS_TaskDelay(1000);
+		timecnt++;
+	}
+	if(ret != AT_FAILED)
+	{
+		ret = nb_query_ip();
+	}
+	nb_set_cdpserver((char *)host, (char *)port);
+    return ret;
+}
+
+int los_nb_report(const char* buf, int len)
+{
+    return nb_send_payload(buf, len);
+}
+
+int los_nb_notify(oob_callback callback)
+{
+    return at.oob_register(AT_CMD_PREFIX,strlen(AT_CMD_PREFIX), callback);
+}
+
+int los_nb_deinit(void)
+{
+    return nb_reboot();;
+}
+
+#endif
