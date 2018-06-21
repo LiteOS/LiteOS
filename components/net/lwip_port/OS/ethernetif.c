@@ -97,7 +97,7 @@
 
 
 static struct netif* s_pxNetIf = NULL;
-static struct eth_api s_eth_api; 
+static struct eth_api s_eth_api;
 
 /* Semaphore to signal incoming packets */
 static sys_sem_t s_xSemaphore;
@@ -108,7 +108,7 @@ static void arp_timer(void* arg);
 
 int8_t ethernetif_api_register(struct eth_api *api)
 {
-    if(api == NULL) 
+    if(api == NULL)
     {
         return ERR_ARG;
     }
@@ -132,9 +132,9 @@ void ethernetif_rxcb(void)
 */
 static void low_level_init(struct netif* netif)
 {
-    
+
     if(s_eth_api.init!=NULL)
-        s_eth_api.init(netif);
+        (void)s_eth_api.init(netif);
 
 #if LWIP_ARP || LWIP_ETHERNET
 
@@ -143,7 +143,7 @@ static void low_level_init(struct netif* netif)
     /* maximum transfer unit */
     netif->mtu = 1500;
     if(s_eth_api.set_mac)
-        s_eth_api.set_mac(netif);
+        (void)s_eth_api.set_mac(netif);
 
     /* Accept broadcast address and ARP traffic */
     /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
@@ -157,13 +157,13 @@ static void low_level_init(struct netif* netif)
 
     if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
     {
-	    return;    
+	    return;
     }
     /* create the task that handles the ETH_MAC */
     sys_thread_new((char*)"Eth_if", ethernetif_input, netif, netifINTERFACE_TASK_STACK_SIZE, netifINTERFACE_TASK_PRIORITY);
 
     if(s_eth_api.start)
-        s_eth_api.start(netif);
+        (void)s_eth_api.start(netif);
 
 #endif /* LWIP_ARP || LWIP_ETHERNET */
 
@@ -187,7 +187,7 @@ static void low_level_init(struct netif* netif)
 static err_t low_level_output(struct netif* netif, struct pbuf* p)
 {
     err_t err = ERR_IF;
-    
+
     if(s_eth_api.output)
     {
         err = s_eth_api.output(netif, p);
@@ -212,7 +212,7 @@ static struct pbuf* low_level_input(struct netif* netif)
         p = s_eth_api.input(netif);
     }
     return p;
-    
+
 }
 
 /**
