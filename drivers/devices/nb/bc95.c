@@ -12,7 +12,7 @@ char tmpbuf[1064]={0}; //ÓÃÓÚ×ª»»hex
 
 remote_info sockinfo[MAX_SOCK_NUM];
 #if 0
-int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
+int hex_to_str(const char *bufin, int len, char *bufout)
 {
     int i = 0;
     unsigned char tmp2 = 0x0;
@@ -32,7 +32,7 @@ int neul_bc95_hex_to_str(const char *bufin, int len, char *bufout)
     return 0;
 }
 #endif
-int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout)
+int str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
     if (NULL == bufin || len <= 0 || NULL == bufout)
@@ -90,8 +90,7 @@ int32_t nb_send_psk(char* pskid, char* psk)
         sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
         at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
         sprintf(wbuf, "%s=%s,%s\r", cmdp, pskid, psk);
-        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
-        return 0;
+        return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
 int32_t nb_send_payload(const char* buf, int len)
@@ -104,7 +103,8 @@ int32_t nb_send_payload(const char* buf, int len)
     char* str = NULL;
     int curcnt = 0;
     static int sndcnt = 0;
-    neul_bc95_str_to_hex((const char*)buf, len, tmpbuf);
+    str_to_hex(buf, len, tmpbuf);
+    memset(rbuf, 0, 1064);
     sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
     ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
     if(ret < 0)
@@ -117,7 +117,7 @@ int32_t nb_send_payload(const char* buf, int len)
     if(curcnt == sndcnt)
         return -1;
     sndcnt = curcnt;
-    return 0;
+    return ret;
 }
 
 int32_t nb_get_auto_connect(void)
@@ -135,7 +135,7 @@ int32_t nb_send_coap_payload(int32_t id ,const uint8_t *buf, uint32_t len)
 	char* str = NULL;
 	int curcnt = 0;
 	static int sndcnt = 0;
-	neul_bc95_str_to_hex((const char*)buf, len, tmpbuf);
+	str_to_hex((const char*)buf, len, tmpbuf);
 	sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
 	ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
 	if(ret < 0)
@@ -176,7 +176,7 @@ int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode)
     sscanf(rbuf, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,wbuf);
     if (rlen>0)
     {
-        neul_bc95_str_to_hex((const char *)(tmpbuf+22),rlen*2, buf);
+        str_to_hex((const char *)(tmpbuf+22),rlen*2, buf);
     }
 
     return rlen;
@@ -328,7 +328,7 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 
 	memset(wbuf, 0, 1064);
 	memset(tmpbuf, 0, 1064);
-	neul_bc95_str_to_hex((const char *)buf, len, tmpbuf);
+	str_to_hex((const char *)buf, len, tmpbuf);
 	sprintf(wbuf, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].ip,(int)sockinfo[id].port,(int)data_len,tmpbuf);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }

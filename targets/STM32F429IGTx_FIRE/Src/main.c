@@ -61,12 +61,16 @@ VOID main_task(VOID)
 
     extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
     los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
-    los_nb_notify(nb_data_ioctl);
+    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
 	osDelay(3000);
-	ret = los_nb_report("2222", 4);
+	ret = los_nb_report("2222", 2);
 	printf("send:%d\n",ret);
-	ret = los_nb_report("3333", 4);
-	printf("closed\n");
+	ret = los_nb_report("3333", 2);
+	printf("send:%d\n",ret);
+    ret = los_nb_report("4444", 1);
+	printf("send:%d\n",ret);
+    ret = los_nb_report("5555", 2);
+	printf("send:%d\n",ret);
     //los_nb_deinit();
 #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
     extern at_adaptor_api at_interface;

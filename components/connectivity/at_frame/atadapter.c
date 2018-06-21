@@ -85,6 +85,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
 
     listener.suffix = (int8_t *)suffix;
     listener.resp = (int8_t*)rep_buf;
+    AT_LOG("cmd:%s", cmd);
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     at_listener_list_add(&listener);
@@ -100,7 +101,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
         AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
         return AT_FAILED;
     }
-    return len;
+    return AT_OK;
 }
 
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
