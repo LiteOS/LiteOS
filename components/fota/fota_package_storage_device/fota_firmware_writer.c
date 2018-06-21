@@ -156,7 +156,7 @@ int fota_fmw_wr_write_combined_data(fota_firmware_writer_s *writer,
         return fota_fmw_wr_write_stored_data(writer);
     }
 
-     if(fota_fmw_wr_get_offset_info(writer, offset, &block_size, &block_end) != FOTA_OK)
+    if(fota_fmw_wr_get_offset_info(writer, offset, &block_size, &block_end) != FOTA_OK)
     {
         return FOTA_ERR;
     }

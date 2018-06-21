@@ -75,7 +75,7 @@ void net_init(void)
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
     IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
 
-    ethernetif_api_register(&g_eth_api);/*注册特定网卡的API*/
+    (void)ethernetif_api_register(&g_eth_api);/*注册特定网卡的API*/
     /* add the network interface (IPv4/IPv6) without RTOS */
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);//lint !e546
 
