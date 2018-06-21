@@ -32,9 +32,8 @@ typedef struct _remote_info_t
 }remote_info;//后续创建socket时需要该struct保存
 
 
-int neul_bc95_str_to_hex(const char *bufin, int len, char *bufout);
+int str_to_hex(const char *bufin, int len, char *bufout);
 int32_t nb_set_cdpserver(char* host, char* port);
-int32_t nb_reset(void);
 int32_t nb_hw_detect(void);
 int32_t nb_get_netstat(void);
 int nb_query_ip(void);

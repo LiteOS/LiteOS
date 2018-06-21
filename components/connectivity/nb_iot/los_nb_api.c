@@ -35,7 +35,8 @@
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "los_nb_api.h"
 #include "at_api_interface.h"
-#include "atiny_socket.h"
+//#include "atiny_socket.h"
+#include "bc95.h"
 
 int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
 {
@@ -55,7 +56,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     at.init();
 
     nb_reboot();
-    LOS_TaskDelay(1000);
+    LOS_TaskDelay(2000);
     if(psk != NULL)//encryption v1.9
     {
         nb_send_psk(psk->pskid, psk->psk);
@@ -64,7 +65,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     while(1)
     {
         ret = nb_hw_detect();
-        if(ret != AT_FAILED)
+        if(ret == AT_OK)
             break;
         LOS_TaskDelay(1000);
     }
@@ -85,9 +86,9 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 	}
 	if(ret != AT_FAILED)
 	{
-		ret = nb_query_ip();
+		nb_query_ip();
 	}
-	nb_set_cdpserver((char *)host, (char *)port);
+	ret = nb_set_cdpserver((char *)host, (char *)port);
     return ret;
 }
 
@@ -96,9 +97,9 @@ int los_nb_report(const char* buf, int len)
     return nb_send_payload(buf, len);
 }
 
-int los_nb_notify(oob_callback callback)
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
 {
-    return at.oob_register(AT_CMD_PREFIX,strlen(AT_CMD_PREFIX), callback);
+    return at.oob_register(featurestr,cmdlen, callback);
 }
 
 int los_nb_deinit(void)
