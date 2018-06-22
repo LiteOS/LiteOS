@@ -120,7 +120,6 @@ void display_device_object(lwm2m_object_t * objectP);
  */
 lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params);
 void free_object_firmware(lwm2m_object_t * objectP);
-void display_firmware_object(lwm2m_object_t * objectP);
 /*
  * object_location.c
  */
@@ -222,4 +221,5 @@ void copy_security_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSr
 
 int prv_refreshServerList(lwm2m_context_t * contextP);
 void output_buffer(FILE * stream, uint8_t * buffer, int length, int indent);
+void atiny_set_reboot_flag();
 #endif /* LWM2MCLIENT_H_ */

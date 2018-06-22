@@ -40,6 +40,7 @@
 #include "atiny_log.h"
 #include "atiny_rpt.h"
 #include "atiny_adapter.h"
+#include "atiny_fota_manager.h"
 
 #define SERVER_URI_MAX_LEN      (64)
 #define MAX_PACKET_SIZE         (1024)
@@ -124,6 +125,8 @@ static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_par
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
+    atiny_fota_storage_device_s * device = NULL;
+
     if (NULL == atiny_params || NULL == phandle)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
@@ -147,6 +150,16 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     atiny_mutex_lock(g_atiny_handle.quit_sem);
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
+
+    atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
+    if (NULL == device)
+    {
+        ATINY_LOG(LOG_FATAL, "Invalid args");
+        return ATINY_ERR;
+    }
+
+    atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
+                        device);
 
     return ATINY_OK;
 }
@@ -396,6 +409,8 @@ void atiny_destroy(void* handle)
         return;
     }
 
+    atiny_fota_manager_destroy(atiny_fota_manager_get_instance());
+
     if(handle_data->recv_buffer != NULL) {
         lwm2m_free(handle_data->recv_buffer);
     }
@@ -448,6 +463,7 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
             if (code == STATE_REGISTERED)
             {
                 atiny_event_notify(ATINY_REG_OK, NULL, 0);
+                atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
             }
             else if (code == STATE_REG_FAILED)
             {
@@ -563,6 +579,8 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         return ret;
     }
 
+    atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
+
     lwm2m_register_observe_ack_call_back(observe_handle_ack);
     lwm2m_register_event_handler(atiny_event_handle);
     lwm2m_register_connection_err_notify(atiny_connection_err_notify);
@@ -579,8 +597,8 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         (void)atiny_step_rpt(handle->lwm2m_context);
         atiny_handle_reconnect(handle);
         (void)lwm2m_step(handle->lwm2m_context, (time_t*)&timeout);
-        (void)lwm2m_poll(handle, &timeout);
         reboot_check();
+        (void)lwm2m_poll(handle, &timeout);
     }
 
     atiny_destroy(phandle);
@@ -712,5 +730,10 @@ int atiny_reconnect(void* phandle)
     handle->reconnect_flag = true;
 
     return ATINY_OK;
+}
+
+void atiny_set_reboot_flag()
+{
+    g_reboot = true;
 }
 

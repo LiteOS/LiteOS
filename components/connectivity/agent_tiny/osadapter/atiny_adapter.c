@@ -39,6 +39,7 @@
 #include "los_sys.ph"
 #include "los_sem.ph"
 #include "los_tick.ph"
+#include "stm32f4xx_hal_cortex.h"
 
 #define ATINY_CNT_MAX_WAITTIME 0xFFFFFFFF
 #define LOG_BUF_SIZE (256)
@@ -208,3 +209,9 @@ void atiny_mutex_lock(void* mutex) { ((void)mutex); }
 void atiny_mutex_unlock(void* mutex) { ((void)mutex); }
 
 #endif /* LOSCFG_BASE_IPC_SEM == YES */
+
+void atiny_reboot(void)
+{
+    HAL_NVIC_SystemReset();
+}
+
