@@ -786,6 +786,18 @@ int lwm2m_reconnect(lwm2m_context_t * context);
 //bootstrap
 int lwm2m_bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t * contextP);
 int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contextP);
+
+typedef struct
+{
+    uint32_t format;
+    uint8_t token[8];
+    uint32_t tokenLen;
+    uint32_t counter;
+}lwm2m_observe_info_t;
+
+uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info);
+uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state);
+
 #endif
 
 #ifdef LWM2M_SERVER_MODE

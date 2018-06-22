@@ -187,8 +187,6 @@ endif
 C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
 C_SOURCES += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
 
-C_SOURCES += ${wildcard  $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c}
-
 # ASM sources
 ASM_SOURCES =  \
         ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \

@@ -35,6 +35,7 @@
 #include "agent_tiny_cmd_ioctl.h"
 #include "agenttiny.h"
 #include "atiny_adapter.h"
+#include "fota_package_storage_device.h"
 
 #define ATINY_POWER_VOLTAGE_MIN 3800
 #define ATINY_POWER_VOLTAGE_MAX 5000
@@ -99,6 +100,8 @@ int atiny_get_model_mode(char* mode,int len)
 int atiny_do_dev_reboot(void)
 {
     (void)atiny_printf("device is rebooting......\r\n");
+    //LOS_TaskDelay(1000);
+    atiny_reboot();
     return ATINY_OK;
 }
 
@@ -327,14 +330,8 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_FIRMWARE_VER:
             result = atiny_get_firmware_ver(arg, len);
             break;
-        case ATINY_TRIG_FIRMWARE_UPDATE:
-            result = atiny_trig_firmware_update();
-            break;
         case ATINY_GET_FIRMWARE_STATE:
             result = atiny_get_firmware_state((int*)arg);
-            break;
-        case ATINY_GET_FIRMWARE_RESULT:
-            result = atiny_get_firmware_result((int*)arg);
             break;
         case ATINY_GET_NETWORK_BEARER:
             result = atiny_get_network_bearer((int*)arg);
@@ -377,6 +374,10 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
             break;
         case ATINY_GET_VELOCITY:
             result = atiny_get_velocity((atiny_velocity_s*)arg);
+            break;
+        case ATINY_GET_FOTA_STORAGE_DEVICE:
+            *((atiny_fota_storage_device_s **)arg) = fota_get_pack_device();
+            result = ATINY_OK;
             break;
         default:
             break;

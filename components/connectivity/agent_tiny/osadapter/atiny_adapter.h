@@ -251,6 +251,21 @@ void atiny_mutex_lock(void* mutex);
  */
 void atiny_mutex_unlock(void* mutex);
 
+/**
+ *@ingroup atiny_adapter
+ *@brief reboot.
+ *
+ *@par Description:
+ *This API is used to reboot.
+ *@attention none.
+ *
+ *@retval none.
+ *@par Dependency: none.
+ *@see none.
+ */
+void atiny_reboot(void);
+
+
 #if defined(__cplusplus)
 }
 #endif
