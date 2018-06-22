@@ -32,34 +32,20 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef ATINY_UPDATE_INFO_H
-#define ATINY_UPDATE_INFO_H
+#ifndef __FIRMWARE_UPDATE_H__
+#define __FIRMWARE_UPDATE_H__
 
-#include "atiny_fota_api.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum
+typedef enum firmware_update_rst
 {
-    TOCKEN_INFO,
-    FW_DOWNLOAD_INFO,
-    ATINY_UPDATE_INFO_MAX
-}atiny_update_info_e;
+    FIRMWARE_UPDATE_RST_SUCCESS = 0,
+    FIRMWARE_UPDATE_RST_FAILED,
+    FIRMWARE_UPDATE_RST_MAX
+}firmware_update_rst_e;
 
-struct atiny_update_info_tag_s;
-typedef struct atiny_update_info_tag_s atiny_update_info_s;
+typedef void (*firmware_update_notify)(firmware_update_rst_e rst, void *param);
 
-int atiny_update_info_set(atiny_update_info_s * thi, atiny_fota_storage_device_s *device);
-int atiny_update_info_write(atiny_update_info_s * thi, atiny_update_info_e type, const uint8_t *info, uint32_t len);
-int atiny_update_info_read(atiny_update_info_s * thi, atiny_update_info_e type, uint8_t *info, uint32_t len);
+void set_firmware_update_notify(firmware_update_notify notify_cb, void *param);
+int start_firmware_download(lwm2m_context_t *contextP, char *uri);
 
-atiny_update_info_s *atiny_update_info_get_instance(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif //ATINY_UPDATE_INFO_H
+#endif /* __FIRMWARE_UPDATE_H__ */
 
