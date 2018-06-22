@@ -31,90 +31,72 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "agent_tiny_demo.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
-#include "los_nb_api.h"
+
+/**@defgroup nbiot
+ * @ingroup nbiot
+ */
+
+#ifndef __NB_IOT_H__
+#define __NB_IOT_H__
+#include "atadapter.h"
+
+typedef struct sec_param{
+char* psk;
+char* pskid;
+uint8_t psk_len;
+}sec_param_s;
+
+extern at_task at;
+
+/*
+Func Name: los_nb_init
+
+@par Description
+    This API is used to init nb module and connect to cloud.
+@param[in]  host  cloud ip
+@param[in]  port  cloud port
+@param[in]  psk   if not null,the security param
+@par Return value
+*  0:on success
+*  negative value: on failure
+*/
+int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk);
+/*
+Func Name: los_nb_report
+
+@par Description
+    This API is used for nb module to report data to cloud.
+@param[in] buf point to data to be reported
+@param[in] buflen data length
+@par Return value
+*  0:on success
+*  negative value: on failure
+*/
+int los_nb_report(const char* buf, int buflen);
+/*
+Func Name: los_nb_notify
+
+@par Description
+    This API is used to regist callback when receive the cmd from cloud.
+@param[in] featurestr feature string that in cmd
+@param[in] cmdlen length of feature string
+@param[in] callback callback of device
+@par Return value
+*  0:on success
+*  negative value: on failure
+*/
+
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback);
+/*
+Func Name: los_nb_deinit
+
+@par Description
+    This API is used to deinit the nb module.
+@param[in] NULL
+@par Return value
+*  0:on success
+*  negative value: on failure
+*/
+
+int los_nb_deinit(void);
 #endif
-UINT32 g_TskHandle;
-
-VOID HardWare_Init(VOID)
-{
-    SystemClock_Config();
-    Debug_USART1_UART_Init();
-    hal_rng_config();
-    dwt_delay_init(SystemCoreClock);
-}
-
-VOID main_task(VOID)
-{
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-	int ret;
-    sec_param_s sec;
-    sec.pskid = "863703033497178";
-    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
-
-    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
-    los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
-    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-	osDelay(3000);
-	ret = los_nb_report("2222", 2);
-	printf("send:%d\n",ret);
-	ret = los_nb_report("3333", 2);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("4444", 1);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("5555", 2);
-	printf("send:%d\n",ret);
-    //los_nb_deinit();
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
-#endif
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    agent_tiny_entry();
-#endif
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}

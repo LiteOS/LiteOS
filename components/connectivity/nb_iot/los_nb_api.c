@@ -31,90 +31,80 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "agent_tiny_demo.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
+
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "los_nb_api.h"
-#endif
-UINT32 g_TskHandle;
+#include "at_api_interface.h"
+//#include "atiny_socket.h"
+#include "bc95.h"
 
-VOID HardWare_Init(VOID)
+int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
 {
-    SystemClock_Config();
-    Debug_USART1_UART_Init();
-    hal_rng_config();
-    dwt_delay_init(SystemCoreClock);
-}
-
-VOID main_task(VOID)
-{
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-	int ret;
-    sec_param_s sec;
-    sec.pskid = "863703033497178";
-    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
-
-    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
-    los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
-    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-	osDelay(3000);
-	ret = los_nb_report("2222", 2);
-	printf("send:%d\n",ret);
-	ret = los_nb_report("3333", 2);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("4444", 1);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("5555", 2);
-	printf("send:%d\n",ret);
-    //los_nb_deinit();
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
-#endif
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    agent_tiny_entry();
-#endif
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
+    if (NULL == buf || len <= 0)
     {
-        return uwRet;
+        AT_LOG("param invailed!");
+        return -1;
     }
-    return uwRet;
+    AT_LOG("cmd in:%s",buf);
+	return 0;
 }
 
-int main(void)
+int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
+    int ret;
+    int timecnt = 0;
+    at.init();
 
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
+    nb_reboot();
+    LOS_TaskDelay(2000);
+    if(psk != NULL)//encryption v1.9
     {
-        return LOS_NOK;
+        nb_send_psk(psk->pskid, psk->psk);
     }
 
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
+    while(1)
     {
-        return LOS_NOK;
+        ret = nb_hw_detect();
+        if(ret == AT_OK)
+            break;
+        LOS_TaskDelay(1000);
     }
+    //nb_get_auto_connect();
+    //nb_connect(NULL, NULL, NULL);
 
-    (void)LOS_Start();
-    return 0;
+	while(timecnt < 120)
+	{
+		ret = nb_get_netstat();
+		//nb_check_csq();
+		if(ret != AT_FAILED)
+		{
+			ret = nb_query_ip();
+			break;
+		}
+		LOS_TaskDelay(1000);
+		timecnt++;
+	}
+	if(ret != AT_FAILED)
+	{
+		nb_query_ip();
+	}
+	ret = nb_set_cdpserver((char *)host, (char *)port);
+    return ret;
 }
+
+int los_nb_report(const char* buf, int len)
+{
+    return nb_send_payload(buf, len);
+}
+
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
+{
+    return at.oob_register(featurestr,cmdlen, callback);
+}
+
+int los_nb_deinit(void)
+{
+    return nb_reboot();;
+}
+
+#endif

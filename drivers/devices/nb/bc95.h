@@ -3,7 +3,7 @@
 
 #include "at_api_interface.h"
 
-#define CLOUD_IP  "218.4.33.71,5683"
+//#define CLOUD_IP  "218.4.33.71,5683"
 #define AT_NB_LINE_END 			"\r\n"
 
 #define AT_NB_reboot    		"AT+NRB\r"
@@ -17,15 +17,28 @@
 #define AT_USART_IRQn   	USART3_IRQn
 #define AT_CMD_TIMEOUT		10000    //ms
 #define AT_MAX_LINK_NUM     4
-
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
 #define MAX_AT_USERDATA_LEN 2048
 
+#define NB_STAT_LOCALPORT 56
+#define AT_LINE_END 		"\r\n"
+#define AT_CMD_BEGIN		"\r\n"
+#define AT_DATAF_PREFIX      "+NSONMI"
+#define MAX_SOCK_NUM 5
 typedef struct _remote_info_t
 {
-    unsigned short port;
     int socket;
+    unsigned short port;
     char ip[16];
 }remote_info;//后续创建socket时需要该struct保存
+
+
+int str_to_hex(const char *bufin, int len, char *bufout);
+int32_t nb_set_cdpserver(char* host, char* port);
+int32_t nb_hw_detect(void);
+int32_t nb_get_netstat(void);
+int nb_query_ip(void);
+int32_t nb_send_payload(const char* buf, int len);
+int32_t nb_send_psk(char* pskid, char* psk);
+int32_t nb_reboot(void);
+
 #endif

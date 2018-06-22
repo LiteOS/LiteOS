@@ -31,90 +31,38 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "agent_tiny_demo.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
-#include "los_nb_api.h"
+
+#ifndef _OTA_SHA256_H_
+#define _OTA_SHA256_H_
+
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
-UINT32 g_TskHandle;
 
-VOID HardWare_Init(VOID)
+typedef struct
 {
-    SystemClock_Config();
-    Debug_USART1_UART_Init();
-    hal_rng_config();
-    dwt_delay_init(SystemCoreClock);
+    uint32_t total[2];
+    uint32_t state[8];
+    unsigned char buffer[64];
+    int is224;
+} ota_sha256_context;
+
+void ota_sha256_init(ota_sha256_context *ctx);
+
+void ota_sha256_free(ota_sha256_context *ctx);
+
+void ota_sha256_starts(ota_sha256_context *ctx, int is224);
+
+void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input,
+                    size_t ilen);
+
+void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32]);
+
+#ifdef __cplusplus
 }
-
-VOID main_task(VOID)
-{
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-	int ret;
-    sec_param_s sec;
-    sec.pskid = "863703033497178";
-    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
-
-    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
-    los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
-    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-	osDelay(3000);
-	ret = los_nb_report("2222", 2);
-	printf("send:%d\n",ret);
-	ret = los_nb_report("3333", 2);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("4444", 1);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("5555", 2);
-	printf("send:%d\n",ret);
-    //los_nb_deinit();
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
 #endif
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    agent_tiny_entry();
-#endif
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}
+#endif /* _OTA_SHA256_H_ */

@@ -24,8 +24,13 @@ OPT = -Og
 USE_AT_FRAMEWORK := no
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := ESP8266
+	NETWORK_TYPE := NB_NEUL95
 endif
+
+#######################################
+# bootloader
+#######################################
+USE_BOOTLOADER := no
 
 #######################################
 # binaries
@@ -145,7 +150,8 @@ AGENT_DEMO_SRC = \
         C_SOURCES += $(AGENT_DEMO_SRC)
 
 FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
 
 USER_SRC =  \
@@ -167,7 +173,9 @@ ifeq ($(NETWORK_TYPE), ESP8266)
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/nb/*.c}
+    USER_DRIVERS_SRC = \
+	${wildcard $(TOP_DIR)/drivers/devices/nb/*.c} \
+	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
@@ -214,9 +222,9 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0
-#       -D WITH_DTLS \   
+#       -D WITH_DTLS \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
-        
+
 ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
 else
@@ -293,7 +301,8 @@ AGENT_DEMO_INC = \
         C_INCLUDES += $(AGENT_DEMO_INC)
 
 FOTA_INC = \
-        -I $(TOP_DIR)/components/fota/ota
+        -I $(TOP_DIR)/components/fota/ota \
+        -I $(TOP_DIR)/components/fota/utility
         C_INCLUDES += $(FOTA_INC)
 
 USER_INC = \
@@ -311,7 +320,9 @@ ifeq ($(NETWORK_TYPE), ESP8266)
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/gprs
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
-    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/nb
+    USER_DRIVERS_INC = \
+	-I $(TOP_DIR)/components/connectivity/nb_iot \
+	-I $(TOP_DIR)/drivers/devices/nb
 endif
     C_INCLUDES += $(USER_DRIVERS_INC)
 endif
@@ -336,7 +347,11 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LD_FILE = STM32F429IGTx_LiteOS.ld
+ifeq ($(USE_BOOTLOADER), yes)
+	LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+else
+	LD_FILE = STM32F429IGTx_LiteOS.ld
+endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries

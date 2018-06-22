@@ -115,11 +115,11 @@ static int hal_fota_write_end_not_aligned_buffer(uint32_t offset, const uint8_t 
 
     if(NULL == *block_buff)
     {
-         *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
-         if(NULL == *block_buff)
-         {
-             HAL_FOTA_LOG("atiny_malloc fail");
-             return ERR;
+        *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
+        if(NULL == *block_buff)
+        {
+            HAL_FOTA_LOG("atiny_malloc fail");
+            return ERR;
         }
     }
 
@@ -243,7 +243,7 @@ static int hal_fota_active_software(atiny_fota_storage_device_s *this)
         return ERR;
     }
 
-    return ota_set_reboot(hal->total_len, 0, NULL);
+    return ota_set_reboot(hal->total_len);
 }
 
 static int hal_fota_get_software_result(atiny_fota_storage_device_s *this)
@@ -259,7 +259,7 @@ static int hal_fota_get_software_result(atiny_fota_storage_device_s *this)
 
 static int hal_fota_write_update_info(atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
-     if(offset + len >  UPDATE_INFO_SIZE)
+    if(offset + len >  UPDATE_INFO_SIZE)
     {
         HAL_FOTA_LOG("err offset %lu, len %lu", offset, len);
         return ERR;

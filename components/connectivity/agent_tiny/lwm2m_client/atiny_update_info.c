@@ -31,90 +31,88 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "agent_tiny_demo.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
-#include "los_nb_api.h"
-#endif
-UINT32 g_TskHandle;
 
-VOID HardWare_Init(VOID)
+#include "internals.h"
+#include "agenttiny.h"
+#include "atiny_update_info.h"
+
+#define OFFSET_BASE_TOCKEN_INFO (0U)
+#define OFFSET_BASE_FW_DOWNLOAD_INFO (32U)
+
+struct atiny_update_info_tag_s
 {
-    SystemClock_Config();
-    Debug_USART1_UART_Init();
-    hal_rng_config();
-    dwt_delay_init(SystemCoreClock);
-}
+    atiny_fota_storage_device_s *device;
+};
 
-VOID main_task(VOID)
+int atiny_update_info_set(atiny_update_info_s *thi, atiny_fota_storage_device_s *device)
 {
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-	int ret;
-    sec_param_s sec;
-    sec.pskid = "863703033497178";
-    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
+    if(NULL == thi || NULL == device)
+        return -1;
 
-    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
-    los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);
-    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-	osDelay(3000);
-	ret = los_nb_report("2222", 2);
-	printf("send:%d\n",ret);
-	ret = los_nb_report("3333", 2);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("4444", 1);
-	printf("send:%d\n",ret);
-    ret = los_nb_report("5555", 2);
-	printf("send:%d\n",ret);
-    //los_nb_deinit();
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
-#endif
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    agent_tiny_entry();
-#endif
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
+    thi->device = device;
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
     return 0;
 }
+
+int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, const uint8_t *info, uint32_t len)
+{
+    uint32_t offset = 0;
+
+    if(NULL == thi || !(type>=TOCKEN_INFO&&type<ATINY_UPDATE_INFO_MAX) || NULL == info)
+        return -1;
+
+    switch ( type )
+    {
+        case TOCKEN_INFO:
+            offset = OFFSET_BASE_TOCKEN_INFO;
+            break;
+        case FW_DOWNLOAD_INFO:
+            offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
+            break;
+        default:
+            return -1;
+    }
+    return thi->device->write_update_info(thi->device, offset, info, len);
+}
+
+int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, uint8_t *info, uint32_t len)
+{
+    uint32_t offset = 0;
+
+    if(NULL == thi || !(type>=TOCKEN_INFO&&type<ATINY_UPDATE_INFO_MAX) || NULL == info)
+        return -1;
+
+    switch ( type )
+    {
+        case TOCKEN_INFO:
+            offset = OFFSET_BASE_TOCKEN_INFO;
+            break;
+        case FW_DOWNLOAD_INFO:
+            offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
+            break;
+        default:
+            return -1;
+    }
+    return thi->device->read_update_info(thi->device, offset, info, len);
+}
+
+atiny_update_info_s *atiny_update_info_get_instance(void)
+{
+    atiny_update_info_s *update_info_p = (atiny_update_info_s *)lwm2m_malloc(sizeof(atiny_update_info_s));
+
+    if(update_info_p)
+        memset(update_info_p, 0x0, sizeof(atiny_update_info_s));
+
+    return update_info_p;
+}
+
+void atiny_update_info_del_instance(atiny_update_info_s **update_info_p)
+{
+    if(NULL == update_info_p || NULL == *update_info_p)
+        return;
+    lwm2m_free(*update_info_p);
+    *update_info_p = NULL;
+
+    return;
+}
+

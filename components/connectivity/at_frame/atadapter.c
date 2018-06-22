@@ -85,6 +85,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
 
     listener.suffix = (int8_t *)suffix;
     listener.resp = (int8_t*)rep_buf;
+    AT_LOG("cmd:%s", cmd);
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     at_listener_list_add(&listener);
@@ -100,7 +101,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
         AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
         return AT_FAILED;
     }
-    return len;
+    return AT_OK;
 }
 
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
@@ -134,13 +135,14 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
 int cloud_cmd_matching(int8_t * buf, int32_t len)
 {
     int32_t ret = 0;
+    char* cmp = NULL;
     int i;
-//    char* buf = (char*)at.userdata;
+
     for(i=0;i<at_oob.oob_num;i++){
-        //ret = strstr(at_oob.oob[i].featurestr,buf);
-        if(memcmp(at_oob.oob[i].featurestr,buf,at_oob.oob[i].len) == 0)
+        cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
+        if(cmp != NULL)
         {
-            AT_LOG("cloud match:%s buf:%s",at_oob.oob[i].featurestr,buf);
+            AT_LOG("cloud send cmd:%s buf:%s",at_oob.oob[i].featurestr,buf);
             if(at_oob.oob[i].cb != NULL)
                 ret = at_oob.oob[i].cb(at_oob.oob[i].arg,buf,len);
             return ret;
@@ -167,7 +169,7 @@ void at_recv_task(uint32_t p)
 
         int32_t data_len = 0;
         char * p1, * p2;
-        AT_LOG_DEBUG("get recv_len = %lu buf = %s", recv_len, tmp);
+        AT_LOG_DEBUG("recv len = %lu buf = %s", recv_len, tmp);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
