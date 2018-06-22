@@ -44,6 +44,8 @@ struct atiny_update_info_tag_s
     atiny_fota_storage_device_s *device;
 };
 
+static atiny_update_info_s g_update_info = {0};
+
 int atiny_update_info_set(atiny_update_info_s *thi, atiny_fota_storage_device_s *device)
 {
     if(NULL == thi || NULL == device)
@@ -98,21 +100,6 @@ int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, u
 
 atiny_update_info_s *atiny_update_info_get_instance(void)
 {
-    atiny_update_info_s *update_info_p = (atiny_update_info_s *)lwm2m_malloc(sizeof(atiny_update_info_s));
-
-    if(update_info_p)
-        memset(update_info_p, 0x0, sizeof(atiny_update_info_s));
-
-    return update_info_p;
-}
-
-void atiny_update_info_del_instance(atiny_update_info_s **update_info_p)
-{
-    if(NULL == update_info_p || NULL == *update_info_p)
-        return;
-    lwm2m_free(*update_info_p);
-    *update_info_p = NULL;
-
-    return;
+    return &g_update_info;
 }
 
