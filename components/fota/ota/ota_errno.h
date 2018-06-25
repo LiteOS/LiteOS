@@ -37,7 +37,7 @@
 
 #define OTA_ERRNO_OK                0
 #define OTA_ERRNO_ILEGAL_PARAM      -1
-#define OTA_ERRNO_CRC_CHECK         -2
+#define OTA_ERRNO_INTEGRITY_CHECK   -2
 #define OTA_ERRNO_SPI_FLASH_READ    -3
 #define OTA_ERRNO_SPI_FLASH_WRITE   -4
 #define OTA_ERRNO_INNER_FLASH_READ  -5

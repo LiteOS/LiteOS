@@ -41,7 +41,6 @@
 #include "usart.h"
 #include "ota.h"
 #include "board.h"
-#include "crc.h"
 
 #ifdef USE_IWDG
 #include "hal_iwdg.h"
@@ -118,13 +117,12 @@ int main(void)
     int ret;
     ota_assist assist;
 
-    (void)HAL_Init();
     SystemClock_Config();
     Debug_USART1_UART_Init();
     hal_spi_flash_config();
 
     printf("bootloader begin\n");
-    
+
     assist.func_printf = printf;
     assist.func_ota_read = hal_spi_flash_read;
     assist.func_ota_write = hal_spi_flash_erase_write;

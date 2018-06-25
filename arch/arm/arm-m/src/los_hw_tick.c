@@ -79,6 +79,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 osTickStart(VOID)
         return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;
     }
 
+    g_bSysTickStart = TRUE;
+
     return LOS_OK;
 }
 

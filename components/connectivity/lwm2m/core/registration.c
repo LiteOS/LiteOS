@@ -636,6 +636,20 @@ void registration_reset(lwm2m_context_t * contextP,
     }
     serverP->status = STATE_DEREGISTERED;
 }
+ lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP)
+ {
+     lwm2m_server_t * targetP = contextP->serverList;
+     while (targetP != NULL)
+     {
+         if (targetP->status == STATE_REGISTERED)
+         {
+             return targetP;
+         }
+         targetP = targetP->next;
+     }
+
+     return NULL;
+ }
 
 #endif
 

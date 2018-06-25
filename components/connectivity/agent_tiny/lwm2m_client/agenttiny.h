@@ -41,6 +41,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "atiny_fota_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,9 +69,7 @@ typedef enum
     ATINY_GET_POWER_SOURCE_2,
     ATINY_DO_FACTORY_RESET,
     ATINY_GET_FIRMWARE_VER,
-    ATINY_TRIG_FIRMWARE_UPDATE,
     ATINY_GET_FIRMWARE_STATE,
-    ATINY_GET_FIRMWARE_RESULT,
     ATINY_GET_NETWORK_BEARER,
     ATINY_GET_SIGNAL_STRENGTH,
     ATINY_GET_CELL_ID,
@@ -85,6 +84,7 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
+    ATINY_GET_FOTA_STORAGE_DEVICE
 } atiny_cmd_e;
 
 #define MAX_VELOCITY_LEN 16
@@ -395,6 +395,7 @@ typedef enum
     ATINY_RESOURCE_NOT_ENOUGH  = -6,
     ATINY_CLIENT_UNREGISTERED  = -7,
     ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_ERR                  = -9
 } atiny_error_e;
 
 
