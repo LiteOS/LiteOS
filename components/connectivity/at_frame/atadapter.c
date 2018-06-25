@@ -37,7 +37,10 @@
 #include "atadapter.h"
 #include "at_hal.h"
 
-
+#ifdef  USE_USARTRX_DMA
+uint8_t dma_wi_coun = 0;
+uint16_t *dma_wi = NULL;
+#endif
 /* FUNCTION */
 void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -47,8 +50,11 @@ void at_listener_list_add(at_listener * p);
 void at_listner_list_del(at_listener * p);
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback);
-void at_deinit();
+#ifdef USE_USARTRX_DMA
+int32_t at_dmawi_init(void);
+#endif
 
+void at_deinit();
 //init function for at struct
 at_task at = {
     .recv_buf = NULL,
@@ -201,7 +207,7 @@ void at_recv_task(uint32_t p)
 
     while(1){
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
-
+        do{/*DMA方式接收消息队列最大为8，因此会循环*/
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp);
 
@@ -232,9 +238,9 @@ void at_recv_task(uint32_t p)
             if (NULL == listener)
                 break;
 
-            if(listener->suffix == NULL)//鐢ㄦ埛涓嶉渶瑕佸緱鍒板洖搴旓紝鍒嗕袱绉嶆儏鍐碉紝涓�绉峳buf鐩存帴涓㈠純锛屼竴绉峳buf浜ょ粰涓嬩竴涓婃姤浠诲姟
+            if(listener->suffix == NULL)
             {
-                //listener->resp杩欓噷瀛樼殑鏃跺�欒鍒ゆ柇鏄惁闈炵┖
+                
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
                 LOS_SemPost(at.resp_sem);
                 listener = NULL;
@@ -257,6 +263,7 @@ void at_recv_task(uint32_t p)
             } 
             break;
         }
+        }while(recv_len > 0);
     }
 }
 
@@ -315,13 +322,21 @@ int32_t at_struct_init(at_task * at)
         AT_LOG("init resp_sem failed!");
         goto at_resp_sem_failed;
     }
-
+#ifndef USE_USARTRX_DMA
     at->recv_buf = atiny_malloc(at_user_conf.user_buf_len);
     if (NULL == at->recv_buf)
     {
         AT_LOG("malloc recv_buf failed!");
         goto malloc_recv_buf;
     }
+#else
+	at->recv_buf = atiny_malloc(at_user_conf.recv_buf_len);
+    if (NULL == at->recv_buf)
+    {
+        AT_LOG("malloc recv_buf failed!");
+        goto malloc_recv_buf;
+    }
+#endif
     memset(at->recv_buf, 0, at_user_conf.user_buf_len);
 
     at->cmdresp = atiny_malloc(at_user_conf.user_buf_len);
@@ -369,7 +384,21 @@ int32_t at_struct_init(at_task * at)
     at_recv_sema_failed:
         return AT_FAILED;
 }
+#ifdef USE_USARTRX_DMA
+int32_t at_dmawi_init(void)
+{
 
+    dma_wi_coun = at_user_conf.recv_buf_len/at_user_conf.user_buf_len;
+    dma_wi = atiny_malloc(dma_wi_coun * sizeof(*dma_wi));
+    if (NULL == dma_wi)
+    {
+        AT_LOG("malloc dma_wi failed!");
+        return AT_FAILED;
+    }
+
+    return AT_OK;
+}
+#endif
 int32_t at_struct_deinit(at_task * at)
 {
     int32_t ret = AT_OK;
@@ -438,6 +467,10 @@ void at_init()
         AT_LOG("prepare AT struct failed!");
         return;
     }
+#ifdef USE_USARTRX_DMA
+    if(AT_OK != at_dmawi_init())
+        return;
+#endif
     at_init_oob();
     at_usart_config();
     create_at_recv_task();

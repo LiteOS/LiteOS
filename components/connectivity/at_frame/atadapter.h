@@ -111,9 +111,12 @@ typedef struct __config{
 	uint32_t irqn;
 	uint32_t linkid_num;
 	uint32_t user_buf_len; /* malloc 3 block memory for intener use, len * 3 */
+#ifdef USE_USARTRX_DMA
+	uint32_t recv_buf_len;
+#endif
 	char * cmd_begin;
 	char * line_end;
-	uint32_t  mux_mode;/*0:single connection，1：multi connection*/
+	uint32_t  mux_mode;
 	uint32_t timeout;  //command respond timeout
 }at_config;
 
@@ -123,10 +126,10 @@ typedef struct at_task{
 	uint32_t recv_sem;
 	uint32_t resp_sem;
 	uint32_t cmd_mux;
-	uint8_t  *recv_buf;  /* uart recv buf， default 4k*/
+	uint8_t  *recv_buf;  
 	uint8_t  *cmdresp;/*AT cmd response,default 512 bytes*/
 	uint8_t  *userdata;  /*data form servers,default 512 bytes*/
-	uint32_t  mux_mode;/*0:single connection，1：multi connection*/
+	uint32_t  mux_mode;
 	at_link  *linkid;
 	at_listener * head;
 	uint32_t timeout; //command respond timeout
