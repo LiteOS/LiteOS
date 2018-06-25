@@ -346,7 +346,7 @@ void at_init()
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)
 {
     oob_t *oob;
-    if(at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
+    if(featurestr == NULL ||at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
     oob = &(at_oob.oob[at_oob.oob_num++]);
     memcpy(oob->featurestr, featurestr, cmdlen);
