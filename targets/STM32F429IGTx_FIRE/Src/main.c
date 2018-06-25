@@ -36,7 +36,9 @@
 #include "agent_tiny_demo.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
+#if defined USE_NB_NEUL95
 #include "los_nb_api.h"
+#endif
 #endif
 UINT32 g_TskHandle;
 
@@ -75,6 +77,7 @@ VOID main_task(VOID)
 #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
     extern at_adaptor_api at_interface;
     at_api_register(&at_interface);
+    agent_tiny_entry();
 #endif
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     agent_tiny_entry();
