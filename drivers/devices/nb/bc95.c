@@ -63,7 +63,7 @@ int32_t nb_set_cdpserver(char* host, char* port)
     char *cmd2 = "AT+NCDP?";
 	char *cmdNNMI = "AT+NNMI=1\r";
 	//char *cmdCGP = "AT+CGPADDR";
-	char tmpbuf[1064] = {0};
+	char tmpbuf[256] = {0};
 	int ret;
 
     char ipaddr[100] = {0};
@@ -72,7 +72,7 @@ int32_t nb_set_cdpserver(char* host, char* port)
 
 	sprintf(tmpbuf, "%s%s%c", cmd, ipaddr, '\r');
     ret = at.cmd((int8_t*)tmpbuf, strlen(tmpbuf), "OK", NULL);
-	if(ret <= 0)
+	if(ret < 0)
 	{
 		return ret;
 	}
