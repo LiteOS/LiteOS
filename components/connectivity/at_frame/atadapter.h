@@ -114,8 +114,8 @@ typedef struct __config{
 	uint32_t user_buf_len; /* malloc 3 block memory for intener use, len * 3 */
 	char * cmd_begin;
 	char * line_end;
-	uint32_t  mux_mode;/*0:单连接，1：多连接*/
-	uint32_t timeout;  //命令响应超时时间
+	uint32_t  mux_mode;/*0:single connection，1：multi connection*/
+	uint32_t timeout;  //command respond timeout
 }at_config;
 
 typedef struct at_task{
@@ -124,20 +124,20 @@ typedef struct at_task{
 	uint32_t recv_sem;
 	uint32_t resp_sem;
 	uint32_t cmd_mux;
-	uint8_t  *recv_buf;  /*底层接收缓存区，默认4k大小*/
-	uint8_t  *cmdresp;/*AT命令的返回，默认512字节*/
-	uint8_t  *userdata;  /*来自对端的数据，默认512字节*/
-	uint32_t  mux_mode;/* 使用的连接模?0:单连接，1：多连接*/
+	uint8_t  *recv_buf;  /* uart recv buf， default 4k*/
+	uint8_t  *cmdresp;/*AT cmd response,default 512 bytes*/
+	uint8_t  *userdata;  /*data form servers,default 512 bytes*/
+	uint32_t  mux_mode;/*0:single connection，1：multi connection*/
 	at_link  *linkid;
 	at_listener * head;
-	uint32_t timeout;  //命令响应超时时间
+	uint32_t timeout; //command respond timeout
 
 	void    (*init)();
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
-	/* 获取未使用的linkid, 多链接模式下使用 */
+	/* get unused linkid, use in multi connection mode*/
 	int32_t (*get_id)();
-	/* 注册用户消息处理函数到监听列表中 */
+	/* register uset msg process to the listener list */
 	int32_t (*oob_register)(char* featurestr,int strlen, oob_callback callback);
 	void (*deinit)();
 } at_task;

@@ -247,7 +247,7 @@ END:
     return ret;
 }
 
-int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本地IP*/
+int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*get local IP*/
 {
     char resp[512] = {0};
     at.cmd((int8_t*)AT_CMD_CHECK_IP, strlen((char*)AT_CMD_CHECK_IP), "OK", resp);
@@ -282,7 +282,7 @@ int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本�
     return AT_OK;
 }
 
-int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
+int8_t esp8266_get_localmac(int8_t * mac)/*get local mac*/
 {
     char resp[512] = {0};    
     char * p1, *p2;
@@ -357,9 +357,9 @@ at_config at_user_conf = {
 at_adaptor_api at_interface = {
 
     .init = esp8266_init,    
-    .get_localmac = esp8266_get_localmac, /*获取本地MAC*/
-    .get_localip = esp8266_get_localip,/*获取本地IP*/
-    /*建立TCP或�UDP连接*/
+    .get_localmac = esp8266_get_localmac, /*get local MAC*/
+    .get_localip = esp8266_get_localip,/*get local IP*/
+    /*build TCP or UDP connection*/
     .connect = esp8266_connect,
 
     .send = esp8266_send,
@@ -367,8 +367,8 @@ at_adaptor_api at_interface = {
     .recv_timeout = esp8266_recv_timeout,
     .recv = esp8266_recv,
 
-    .close = esp8266_close,/*关闭连接*/
-    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实�?*/
+    .close = esp8266_close,/*close connection*/
+    .recv_cb = esp8266_recv_cb,/* operation for events, not implements yet */
 
     .deinit = esp8266_deinit,
 };

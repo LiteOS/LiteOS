@@ -165,20 +165,20 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
 
 void sim900a_check(void)
 {
-	//���ģ����Ӧ�Ƿ�����
+	//check module response
     while(AT_FAILED == at.cmd((int8_t*)AT_CMD_AT,strlen(AT_CMD_AT),"OK",NULL))
     {
-      printf("\r\nģ����Ӧ���Բ���������\r\n");
-      printf("\r\n��ģ����Ӧ����һֱ������������ģ������ӻ��Ƿ��ѿ�����Դ����\r\n");
+      printf("\r\ncheck module response unnormal\r\n");
+      printf("\r\nplease check the module pin connection and the power switch\r\n");
       SIM900A_DELAY((osMs2Tick(500)));
     }
     if(AT_FAILED != at.cmd((int8_t*)AT_CMD_CPIN,strlen(AT_CMD_CPIN),"OK",NULL))
     {
-      printf("��⵽SIM��\n");
+      printf("detected sim card\n");
     }
     if(AT_FAILED != at.cmd((int8_t*)AT_CMD_COPS,strlen(AT_CMD_COPS),"CHINA MOBILE",NULL))
     {
-      printf("��ע�ᵽ����\n");
+      printf("registerd to the network\n");
     }
 }
 
