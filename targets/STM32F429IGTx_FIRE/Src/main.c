@@ -58,8 +58,8 @@ VOID main_task(VOID)
 #elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 	int ret;
     sec_param_s sec;
-    sec.pskid = "863703033497178";
-    sec.psk = "b5ed506680bb4908fb262dedbb61ed9d";
+    sec.pskid = "868744031130978";
+    sec.psk = "47019975ce03358b32ed25ef5c14b560";
 
     extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
     los_nb_init((const int8_t*)"218.4.33.72",(const int8_t*)"5683",NULL);

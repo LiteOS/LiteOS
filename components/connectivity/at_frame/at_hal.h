@@ -39,7 +39,6 @@
 #include "los_mux.h"
 #include "los_task.h"
 #include "los_sem.h"
-#include "atiny_adapter.h"
 #include "stm32f4xx_hal.h"
 
 void at_transmit(uint8_t * cmd, int32_t len,int flag);
