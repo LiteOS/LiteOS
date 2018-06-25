@@ -37,8 +37,7 @@
 #include "atiny_adapter.h"
 #include "fota_package_storage_device.h"
 
-#define ATINY_POWER_VOLTAGE_MIN 3800
-#define ATINY_POWER_VOLTAGE_MAX 5000
+#define ATINY_POWER_VOLTAGE     3800
 #define ATINY_BATTERY_LEVEL     90
 #define ATINY_MEMORY_FREE       50
 #define ATINY_NETWORK_BEARER    5
@@ -46,10 +45,8 @@
 #define ATINY_CELL_ID           21103
 #define ATINY_LINK_QUALITY      98
 #define ATINY_LINK_UTRILIZATION 10
-#define ATINY_POWER_SOURCE_1    1
-#define ATINY_POWER_SOURCE_2    5
-#define ATINY_POWER_CURRENT_1   125
-#define ATINY_POWER_CURRENT_2   900
+#define ATINY_POWER_SOURCE      1
+#define ATINY_POWER_CURRENT     125
 #define ATINY_LATITUDE          27.986065f
 #define ATINY_LONGITUDE         86.922623f
 #define ATINY_ALTITUDE          8495.0000f
@@ -57,43 +54,27 @@
 #define ATINY_SPEED             0.0f
 #define ATINY_TIME_CODE         1367491215
 
-int atiny_get_bind_mode(char* mode,int len)
+int atiny_get_manufacturer(char* manu, int len)
 {
-    (void)atiny_printf("bind type is UQ......\r\n");
-    (void)atiny_snprintf(mode, len, "UQ");
-    return ATINY_OK;
-}
-int atiny_get_power_current_1(int* arg)
-{
-    *arg = ATINY_POWER_CURRENT_1;
-    return ATINY_OK;
-}
-int atiny_get_power_current_2(int* arg)
-{
-    *arg = ATINY_POWER_CURRENT_2;
+    (void)atiny_snprintf(manu, len, "Open Mobile Alliance");
     return ATINY_OK;
 }
 
-int atiny_get_power_source_1(int* arg)
-{
-    *arg = ATINY_POWER_SOURCE_1;
-    return ATINY_OK;
-}
-int atiny_get_power_source_2(int* arg)
-{
-    *arg = ATINY_POWER_SOURCE_2;
-    return ATINY_OK;
-}
-
-int atiny_get_dev_err(int* arg)
-{
-    *arg = ATINY_OK;
-    return ATINY_OK;
-}
-
-int atiny_get_model_mode(char* mode,int len)
+int atiny_get_model_number(char* mode,int len)
 {
     (void)atiny_snprintf(mode, len, "Lightweight M2M Client");
+    return ATINY_OK;
+}
+
+int atiny_get_serial_number(char* num,int len)
+{
+    (void)atiny_snprintf(num, len, "345000123");
+    return ATINY_OK;
+}
+
+int atiny_get_firmware_ver(char* version, int len)
+{
+    (void)atiny_snprintf(version, len, "example_ver001");
     return ATINY_OK;
 }
 
@@ -111,21 +92,21 @@ int atiny_do_factory_reset(void)
     return ATINY_OK;
 }
 
-int atiny_get_serial_number(char* num,int len)
+int atiny_get_power_source(int* arg)
 {
-    (void)atiny_snprintf(num, len, "345000123");
+    *arg = ATINY_POWER_SOURCE;
     return ATINY_OK;
 }
 
-int atiny_get_min_voltage(int* voltage)
+int atiny_get_source_voltage(int* voltage)
 {
-    *voltage = ATINY_POWER_VOLTAGE_MIN;
+    *voltage = ATINY_POWER_VOLTAGE;
     return ATINY_OK;
 }
 
-int atiny_get_max_voltage(int* voltage)
+int atiny_get_power_current(int* arg)
 {
-    *voltage = ATINY_POWER_VOLTAGE_MAX;
+    *arg = ATINY_POWER_CURRENT;
     return ATINY_OK;
 }
 
@@ -144,9 +125,68 @@ int atiny_get_memory_free(int* voltage)
     return ATINY_OK;
 }
 
-int atiny_get_firmware_ver(char* version, int len)
+static int err_code = ATINY_OK;
+
+int atiny_get_dev_err(int* arg)
 {
-    (void)atiny_snprintf(version, len, "example_ver001");
+    *arg = err_code;
+    return ATINY_OK;
+}
+
+int atiny_do_reset_dev_err(void)
+{
+    err_code = ATINY_OK;
+    return ATINY_OK;
+}
+
+static int64_t g_current_time = ATINY_TIME_CODE;
+
+int atiny_get_current_time(int64_t* arg)
+{
+    *arg = g_current_time + atiny_gettime_ms() * 1000;
+    return ATINY_OK;
+}
+
+int atiny_set_current_time(const int64_t* arg)
+{
+    g_current_time = *arg - atiny_gettime_ms() * 1000;
+    return ATINY_OK;
+}
+
+#define UTC_OFFSET_MAX_LEN 7
+static char g_UTC_offset[UTC_OFFSET_MAX_LEN] = "+01:00";
+
+int atiny_get_UTC_offset(char* offset, int len)
+{
+    (void)atiny_snprintf(offset, len, g_UTC_offset);
+    return ATINY_OK;
+}
+
+int atiny_set_UTC_offset(const char* offset, int len)
+{
+    (void)atiny_snprintf(g_UTC_offset, len, offset);
+    return ATINY_OK;
+}
+
+#define TIMEZONE_MAXLEN 25
+static char g_timezone[TIMEZONE_MAXLEN] = "Europe/Berlin";
+
+int atiny_get_timezone(char* timezone, int len)
+{
+    (void)atiny_snprintf(timezone, len, g_timezone);
+    return ATINY_OK;
+}
+
+int atiny_set_timezone(const char* timezone, int len)
+{
+    (void)atiny_snprintf(g_timezone, len, timezone);
+    return ATINY_OK;
+}
+
+int atiny_get_bind_mode(char* mode, int len)
+{
+    (void)atiny_printf("bind type is UQ......\r\n");
+    (void)atiny_snprintf(mode, len, "UQ");
     return ATINY_OK;
 }
 
@@ -155,6 +195,7 @@ int atiny_trig_firmware_update(void)
     (void)atiny_printf("firmware is updating......\r\n");
     return ATINY_OK;
 }
+
 int atiny_get_firmware_result(int* result)
 {
     *result = 0;
@@ -284,22 +325,33 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
     int result = ATINY_OK;
     switch(cmd)
     {
-        case ATINY_GET_BINDING_MODES:
-             result = atiny_get_bind_mode(arg, len);
+        case ATINY_GET_MANUFACTURER:
+            result = atiny_get_manufacturer(arg, len);
             break;
         case ATINY_GET_MODEL_NUMBER:
-            result = atiny_get_model_mode(arg, len);
+            result = atiny_get_model_number(arg, len);
+            break;
+        case ATINY_GET_SERIAL_NUMBER:
+            result = atiny_get_serial_number(arg, len);
+            break;
+        case ATINY_GET_FIRMWARE_VER:
+            result = atiny_get_firmware_ver(arg, len);
             break;
         case ATINY_DO_DEV_REBOOT:
              result = atiny_do_dev_reboot();
             break;
-        case ATINY_GET_MIN_VOLTAGE:
-            result = atiny_get_min_voltage((int*)arg);
+        case ATINY_DO_FACTORY_RESET:
+            result = atiny_do_factory_reset();
             break;
-        case ATINY_GET_MAX_VOLTAGE:
-            result = atiny_get_max_voltage((int*)arg);
+        case ATINY_GET_POWER_SOURCE:
+            result = atiny_get_power_source((int*)arg);
             break;
-
+        case ATINY_GET_SOURCE_VOLTAGE:
+            result = atiny_get_source_voltage((int*)arg);
+            break;
+        case ATINY_GET_POWER_CURRENT:
+            result = atiny_get_power_current((int*)arg);
+            break;
         case ATINY_GET_BATERRY_LEVEL:
             result = atiny_get_baterry_level((int*)arg);
             break;
@@ -309,26 +361,29 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_DEV_ERR:
             result = atiny_get_dev_err((int*)arg);
             break;
-        case ATINY_GET_POWER_CURRENT_1:
-            result = atiny_get_power_current_1((int*)arg);
+        case ATINY_DO_RESET_DEV_ERR:
+            result = atiny_do_reset_dev_err();
             break;
-        case ATINY_GET_POWER_CURRENT_2:
-            result = atiny_get_power_current_2((int*)arg);
+        case ATINY_GET_CURRENT_TIME:
+            result = atiny_get_current_time((int64_t*)arg);
             break;
-        case ATINY_GET_POWER_SOURCE_1:
-            result = atiny_get_power_source_1((int*)arg);
+        case ATINY_SET_CURRENT_TIME:
+            result = atiny_set_current_time((const int64_t*)arg);
             break;
-        case ATINY_GET_POWER_SOURCE_2:
-            result = atiny_get_power_source_2((int*)arg);
+        case ATINY_GET_UTC_OFFSET:
+            result = atiny_get_UTC_offset(arg, len);
             break;
-        case ATINY_DO_FACTORY_RESET:
-            result = atiny_do_factory_reset();
+        case ATINY_SET_UTC_OFFSET:
+            result = atiny_set_UTC_offset(arg, len);
             break;
-        case ATINY_GET_SERIAL_NUMBER:
-            result = atiny_get_serial_number(arg, len);
+        case ATINY_GET_TIMEZONE:
+            result = atiny_get_timezone(arg, len);
             break;
-        case ATINY_GET_FIRMWARE_VER:
-            result = atiny_get_firmware_ver(arg, len);
+        case ATINY_SET_TIMEZONE:
+            result = atiny_set_timezone(arg, len);
+            break;
+        case ATINY_GET_BINDING_MODES:
+            result = atiny_get_bind_mode(arg, len);
             break;
         case ATINY_GET_FIRMWARE_STATE:
             result = atiny_get_firmware_state((int*)arg);
