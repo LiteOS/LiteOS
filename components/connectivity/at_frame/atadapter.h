@@ -39,7 +39,6 @@
 #include "los_mux.h"
 #include "los_task.h"
 #include "los_sem.h"
-#include "atiny_adapter.h"
 
 /* MACRO DEFINE */
 #define AT_INTO
