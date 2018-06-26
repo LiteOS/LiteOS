@@ -143,13 +143,14 @@ static int64_t g_current_time = ATINY_TIME_CODE;
 
 int atiny_get_current_time(int64_t* arg)
 {
-    *arg = g_current_time + atiny_gettime_ms() * 1000;
+    *arg = g_current_time + (int64_t)atiny_gettime_ms() / 1000;
+    printf("$$$$$$$$ %lld\n", *arg);
     return ATINY_OK;
 }
 
 int atiny_set_current_time(const int64_t* arg)
 {
-    g_current_time = *arg - atiny_gettime_ms() * 1000;
+    g_current_time = *arg - (int64_t)atiny_gettime_ms() / 1000;
     return ATINY_OK;
 }
 
@@ -164,7 +165,7 @@ int atiny_get_UTC_offset(char* offset, int len)
 
 int atiny_set_UTC_offset(const char* offset, int len)
 {
-    (void)atiny_snprintf(g_UTC_offset, len, offset);
+    (void)atiny_snprintf(g_UTC_offset, len + 1, offset);
     return ATINY_OK;
 }
 
@@ -179,7 +180,7 @@ int atiny_get_timezone(char* timezone, int len)
 
 int atiny_set_timezone(const char* timezone, int len)
 {
-    (void)atiny_snprintf(g_timezone, len, timezone);
+    (void)atiny_snprintf(g_timezone, len + 1, timezone);
     return ATINY_OK;
 }
 

@@ -172,7 +172,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
     switch (dataP->id)
     {
     case RES_O_MANUFACTURER:
-        result = atiny_cmd_ioctl(ATINY_GET_MODEL_NUMBER, str, MAX_STRING_LEN);
+        result = atiny_cmd_ioctl(ATINY_GET_MANUFACTURER, str, MAX_STRING_LEN);
         if(result == ATINY_OK) {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
@@ -331,7 +331,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         }
 
     case RES_O_TIMEZONE:
-        result = atiny_cmd_ioctl(ATINY_GET_TIMEZONE, timezone, PRV_OFFSET_MAXLEN);
+        result = atiny_cmd_ioctl(ATINY_GET_TIMEZONE, timezone, PRV_TIMEZONE_MAXLEN);
         if(result == ATINY_OK){
             lwm2m_data_encode_string(timezone, dataP);
             return COAP_205_CONTENT;
