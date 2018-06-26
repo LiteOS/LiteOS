@@ -167,6 +167,12 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
     int64_t current_time;
     char UTC_offset[PRV_OFFSET_MAXLEN];
     char timezone[PRV_TIMEZONE_MAXLEN];
+    lwm2m_data_t * subTlvP;
+    int power;
+    int voltage;
+    int battery_level;
+    int free_memory;
+    int err;
     int result;
     // a simple switch structure is used to respond at the specified resource asked
     switch (dataP->id)
@@ -215,9 +221,6 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_AVL_POWER_SOURCES:
     {
-        lwm2m_data_t * subTlvP;
-        int power;
-
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
@@ -225,6 +228,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(power, subTlvP);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
+            return COAP_205_CONTENT;
         }else {
            lwm2m_free(subTlvP);
            return COAP_400_BAD_REQUEST;
@@ -233,9 +237,6 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_POWER_SOURCE_VOLTAGE:
     {
-        lwm2m_data_t * subTlvP;
-        int voltage;
-
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
@@ -243,6 +244,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(voltage, subTlvP);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
+            return COAP_205_CONTENT;
         }else {
             lwm2m_free(subTlvP);
             return COAP_400_BAD_REQUEST;
@@ -251,16 +253,14 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_POWER_SOURCE_CURRENT:
     {
-        lwm2m_data_t * subTlvP;
-        int power;
-
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
         result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT, (char*)&power, sizeof(int));
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(power, &subTlvP[0]);
-            lwm2m_data_encode_instances(subTlvP, 2, dataP);
+            lwm2m_data_encode_instances(subTlvP, 1, dataP);
+            return COAP_205_CONTENT;
         }else {
             lwm2m_free(subTlvP);
             return COAP_400_BAD_REQUEST;
@@ -269,7 +269,6 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_BATTERY_LEVEL:
     {
-        int battery_level;
         result = atiny_cmd_ioctl(ATINY_GET_BATERRY_LEVEL, (char*)&battery_level, sizeof(int));
         if(result == ATINY_OK){
             lwm2m_data_encode_int(battery_level, dataP);
@@ -281,7 +280,6 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_MEMORY_FREE:
     {
-        int free_memory;
         result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char*)&free_memory, sizeof(int));
         if(result == ATINY_OK){
             lwm2m_data_encode_int(free_memory, dataP);
@@ -293,9 +291,6 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_M_ERROR_CODE:
     {
-        lwm2m_data_t * subTlvP;
-        int err;
-
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;

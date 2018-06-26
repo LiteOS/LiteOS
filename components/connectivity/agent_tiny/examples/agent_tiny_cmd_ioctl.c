@@ -144,7 +144,6 @@ static int64_t g_current_time = ATINY_TIME_CODE;
 int atiny_get_current_time(int64_t* arg)
 {
     *arg = g_current_time + (int64_t)atiny_gettime_ms() / 1000;
-    printf("$$$$$$$$ %lld\n", *arg);
     return ATINY_OK;
 }
 
