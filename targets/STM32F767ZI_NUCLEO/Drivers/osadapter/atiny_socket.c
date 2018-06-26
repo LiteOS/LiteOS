@@ -170,14 +170,18 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
         SOCKET_LOG("TCP connect to server(%s:%s) succeed", host, port);
     }
 #else
+		
     ctx = atiny_malloc(sizeof(atiny_net_context));
     if (NULL == ctx)
     {
         SOCKET_LOG("malloc failed for socket context");
         return NULL;
     }    
-
+		
+		#ifdef USE_ESP8266_SPI
     ctx->fd = wifi_spi_if_connect(host, port, proto);
+		#endif
+		
     if (ctx->fd < 0)
     {
         SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
@@ -218,7 +222,11 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
 
     return ret;
 	#else
+		
+		#ifdef USE_ESP8266_SPI
 		return wifi_spi_if_recv(fd , buf , len);
+		#endif
+		
 	#endif
 }
 
@@ -253,7 +261,10 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
 
     return atiny_net_recv(ctx, buf, len);
 #else 
+		
+		#ifdef USE_ESP8266_SPI
     return wifi_spi_if_recv_timeout(fd, buf, len, timeout);
+		#endif
     
 #endif
 }
@@ -272,7 +283,11 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     #ifndef USE_AT_FRAMEWORK
     ret = send(fd, buf, len, 0);
     #else
+		
+		#ifdef USE_ESP8266_SPI
     ret = wifi_spi_if_send(fd , buf , len);
+		#endif
+		
     #endif
 
     if (ret < 0)
@@ -301,7 +316,11 @@ void atiny_net_close(void* ctx)
         #ifndef USE_AT_FRAMEWORK
         close(fd);
         #else
+				
+				#ifdef USE_ESP8266_SPI
         wifi_spi_if_close(fd);
+				#endif
+			
         #endif
     }
 
