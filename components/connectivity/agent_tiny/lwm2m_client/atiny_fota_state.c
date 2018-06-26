@@ -62,13 +62,21 @@ void atiny_fota_state_init(atiny_fota_state_s *thi, atiny_fota_manager_s *manage
 int atiny_fota_start_download(atiny_fota_state_s * thi, const char *uri)
 {
     int ret;
+    atiny_fota_storage_device_s * device = NULL;
 
     ASSERT_THIS(return ATINY_ARG_INVALID);
+
+    atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
+    if (NULL == device)
+    {
+        ATINY_LOG(LOG_FATAL, "Invalid args");
+        return ATINY_ERR;
+    }
 
     atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_NULL);
 
     //TODO, return then proper result
-    ret = start_firmware_download(atiny_fota_manager_get_lwm2m_context(thi->manager), (char *)uri);
+    ret = start_firmware_download(atiny_fota_manager_get_lwm2m_context(thi->manager), (char *)uri, device);
     if(ret  != ATINY_OK)
     {
         atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_FAIL);

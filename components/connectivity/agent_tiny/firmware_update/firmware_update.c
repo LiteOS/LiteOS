@@ -34,42 +34,30 @@
 
 #include "internals.h"
 #include "agenttiny.h"
-#include "firmware_update.h"
 #include "atiny_update_info.h"
+#include "firmware_update.h"
 
-#define FW_PRODUCT_ID "ATINY"
-#define FW_PRODUCT_ID_MAX_LEN (8)
 #define FW_BLOCK_SIZE (512)
 
 #define COAP_PROTO_PREFIX "coap://"
 #define COAPS_PROTO_PREFIX "coaps://"
 
-typedef enum fw_record_data_type
-{
-    FW_RECORD_BLOCK_NUM,
-    FW_RECORD_BLOCK_MORE,
-    FW_RECORD_BLOCK_SIZE,
-    FW_RECORD_BLOCK_OFFSET,
-    FW_RECORD_RUI,
-    FW_RECORD_TYPE_MAX
-}fw_record_data_type_e;
-
 typedef struct fw_update_record
 {
-    uint32_t record_len;
     uint8_t in_use;
-    unsigned char product_id[FW_PRODUCT_ID_MAX_LEN];
-    uint32_t block_num;
     uint8_t block_more;
     uint16_t block_size;
+    uint32_t block_num;
     uint32_t block_offset;
     uint32_t uri_len;
     char *uri;
 }fw_update_record_t;
 
 static char *g_ota_uri = NULL;
+static char *g_ota_query = NULL;
 static atiny_fota_storage_device_s *g_fota_storage_device = NULL;
-static fw_update_record_t g_fw_update_record;
+static fw_update_record_t g_fw_update_record = {0};
+
 static firmware_update_notify g_firmware_update_notify = NULL;
 static void *g_firmware_update_notify_param = NULL;
 
@@ -85,6 +73,12 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
     uint16_t block_size = FW_BLOCK_SIZE;
     uint32_t block_offset = 0;
 
+    if(NULL == message)
+    {
+        printf("[%s][%d] transaction timeout\n", __FUNCTION__, __LINE__);
+        goto failed_exit;
+    }
+
     if(1 != coap_get_header_block2(message, &block_num, &block2_more, &block_size, &block_offset))
     {
         printf("[%s][%d] coap_get_header_block2 failed\n", __FUNCTION__, __LINE__);
@@ -95,11 +89,13 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
 
     if(0 == block_num)
     {
-        g_fw_update_record.block_size = block_size;
-        g_fw_update_record.block_num = block_num;
-        g_fw_update_record.block_offset = block_offset;
-        g_fw_update_record.block_more = block2_more;
+        g_fw_update_record.in_use = 1;
     }
+
+    g_fw_update_record.block_size = block_size;
+    g_fw_update_record.block_num = block_num;
+    g_fw_update_record.block_offset = block_offset;
+    g_fw_update_record.block_more = block2_more;
 
     len = (uint32_t)(packet->payload_len);
     if(g_fota_storage_device && g_fota_storage_device->write_software)
@@ -121,7 +117,7 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
         }
         coap_set_header_uri_path(transaction->message, g_ota_uri);
         //coap_set_header_uri_query(transaction->message, query);
-        coap_set_header_block2(transaction->message, block_num+1, 0, g_fw_update_record.block_size);
+        coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
         printf("[%s][%d] get next : %lu\n", __FUNCTION__, __LINE__, block_num+1);
 
         transaction->callback = firmware_download_reply;
@@ -162,77 +158,6 @@ failed_exit:
     return;
 }
 
-static int init_fota_storage_device(void)
-{
-    unsigned char product_id[FW_PRODUCT_ID_MAX_LEN] = {0};
-    uint32_t offset = 0;
-    int ret = -1;
-
-    memset(&g_fw_update_record, 0x0, sizeof(g_fw_update_record));
-
-    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&g_fota_storage_device, sizeof(g_fota_storage_device));
-    if(NULL == g_fota_storage_device)
-    {
-        printf("[%s][%d] fota_get_pack_device failed\n", __FUNCTION__, __LINE__);
-        return -1;
-    }
-
-    offset = sizeof(g_fw_update_record.in_use) + sizeof(g_fw_update_record.record_len);
-    ret = g_fota_storage_device->read_update_info(g_fota_storage_device, offset, product_id, FW_PRODUCT_ID_MAX_LEN);
-    if(0 != ret)
-    {
-        printf("[%s][%d] read_update_info failed\n", __FUNCTION__, __LINE__);
-        goto read_info_failed;
-    }
-    if(0 == memcmp(product_id, FW_PRODUCT_ID, strlen(FW_PRODUCT_ID)))
-    {
-        printf("[%s][%d] has been recorded\n", __FUNCTION__, __LINE__);
-        offset = sizeof(g_fw_update_record) - sizeof(g_fw_update_record.uri);
-        ret = g_fota_storage_device->read_update_info(g_fota_storage_device, 0, (uint8_t *)(&g_fw_update_record), offset);
-        if(0 != ret)
-        {
-            printf("[%s][%d] read_update_info failed\n", __FUNCTION__, __LINE__);
-            goto read_info_failed;
-        }
-        if(1 == g_fw_update_record.in_use)
-        {
-            g_fw_update_record.uri = (char *)lwm2m_malloc(g_fw_update_record.uri_len + 1);
-            if(NULL == g_fw_update_record.uri)
-            {
-                printf("[%s][%d] lwm2m_malloc failed\n", __FUNCTION__, __LINE__);
-                goto read_info_failed;
-            }
-            memset(g_fw_update_record.uri, 0x0, g_fw_update_record.uri_len + 1);
-            ret = g_fota_storage_device->read_update_info(g_fota_storage_device, offset, (uint8_t *)(g_fw_update_record.uri), g_fw_update_record.uri_len);
-            if(0 != ret)
-            {
-                printf("[%s][%d] read_update_info failed\n", __FUNCTION__, __LINE__);
-                goto read_info_failed;
-            }
-            printf("[%s][%d] record uri : %s\n", __FUNCTION__, __LINE__, g_fw_update_record.uri);
-        }
-        else
-        {
-            printf("[%s][%d] read_update_info failed\n", __FUNCTION__, __LINE__);
-            goto read_info_failed;
-        }
-    }
-    else
-    {
-        printf("[%s][%d] has not been recorded\n", __FUNCTION__, __LINE__);
-    }
-    return 0;
-read_info_failed:
-    printf("[%s][%d] read_update_info failed\n", __FUNCTION__, __LINE__);
-    if(NULL != g_fw_update_record.uri)
-    {
-        lwm2m_free(g_fw_update_record.uri);
-        g_fw_update_record.uri = NULL;
-    }
-    memset(&g_fw_update_record, 0x0, sizeof(g_fw_update_record));
-    return 0;
-}
-
 static int record_fw_uri(char *uri, int uri_len)
 {
     if(!uri || *uri == '\0' || uri_len <= 0)
@@ -252,8 +177,8 @@ static int record_fw_uri(char *uri, int uri_len)
         printf("[%s][%d] lwm2m_malloc failed\n", __FUNCTION__, __LINE__);
         return -1;
     }
-    memset(g_fw_update_record.uri, 0x0, uri_len + 1);
     memcpy(g_fw_update_record.uri, uri, uri_len);
+    g_fw_update_record.uri[uri_len] = '\0';
     g_fw_update_record.uri_len = uri_len;
 
     return 0;
@@ -277,13 +202,12 @@ static int update_uri_info(char *uri, int uri_len, unsigned char *update_flag)
     {
         memset(&g_fw_update_record, 0x0, sizeof(g_fw_update_record));
         ret = record_fw_uri(uri, uri_len);
+        *update_flag = 1;
         if(0 != ret)
         {
             printf("[%s][%d] record_fw_uri failed\n", __FUNCTION__, __LINE__);
             return -1;
         }
-        *update_flag = 1;
-        g_fw_update_record.in_use = 1;
         return 0;
     }
 }
@@ -326,13 +250,14 @@ int parse_firmware_uri(char *uri, int uri_len)
         printf("[%s][%d] lwm2m_malloc failed\n", __FUNCTION__, __LINE__);
         return -1;
     }
-    memset(g_ota_uri, 0x0, path_len + 1);
     memcpy(g_ota_uri, path, path_len);
+    g_ota_uri[path_len] = '\0';
 
     return 0;
 }
 
-int start_firmware_download(lwm2m_context_t *contextP, char *uri)
+int start_firmware_download(lwm2m_context_t *contextP, char *uri,
+    atiny_fota_storage_device_s *storage_device_p)
 {
     lwm2m_transaction_t * transaction;
     unsigned char update_flag = 0;
@@ -340,28 +265,19 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri)
     int uri_len;
     lwm2m_server_t *server;
 
-    if(!contextP || !uri || *uri == '\0')
+    if(!contextP || !uri || *uri == '\0' || !storage_device_p)
     {
         printf("[%s][%d] invalid params\n", __FUNCTION__, __LINE__);
         return -1;
     }
     printf("[%s][%d] start download %s\n", __FUNCTION__, __LINE__, uri);
+    g_fota_storage_device = storage_device_p;
     uri_len = strlen(uri);
     server = registration_get_registered_server(contextP);
     if(NULL == server)
     {
         printf("[%s][%d] registration_get_registered_server failed\n", __FUNCTION__, __LINE__);
         return -1;
-    }
-
-    if(NULL == g_fota_storage_device)
-    {
-        ret = init_fota_storage_device();
-        if(ret != 0)
-        {
-            printf("[%s][%d] init_fota_storage_device failed\n", __FUNCTION__, __LINE__);
-            return -1;
-        }
     }
 
     ret = update_uri_info(uri, uri_len, &update_flag);
@@ -394,8 +310,10 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri)
     }
     coap_set_header_uri_path(transaction->message, g_ota_uri);
     //coap_set_header_uri_query(transaction->message, query);
-    // now just download the whole firmware
-    coap_set_header_block2(transaction->message, 0, 0, FW_BLOCK_SIZE);
+    if(1 == g_fw_update_record.in_use)
+        coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+    else
+        coap_set_header_block2(transaction->message, 0, 0, FW_BLOCK_SIZE);
 
     transaction->callback = firmware_download_reply;
     transaction->userData = (void *)contextP;
