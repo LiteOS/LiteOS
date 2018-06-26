@@ -82,7 +82,7 @@ int str_to_hex(const char *bufin, int len, char *bufout)
 int32_t nb_reboot(void)
 {
     memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
-    return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "REBOOTING", NULL);
+    return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "REBOOT", NULL);
 }
 
 int32_t nb_hw_detect(void)//"AT+CFUN?\r"

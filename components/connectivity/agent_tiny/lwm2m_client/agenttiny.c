@@ -47,6 +47,8 @@
 #define SERVER_ID               (123)
 #define BIND_TIMEOUT            (10)
 
+int g_reboot = 0;
+
 enum
 {
     OBJ_SECURITY_INDEX = 0,

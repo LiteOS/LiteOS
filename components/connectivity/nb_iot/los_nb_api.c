@@ -103,12 +103,15 @@ int los_nb_report(const char* buf, int len)
 
 int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
 {
+    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
+        return -1;
     return at.oob_register(featurestr,cmdlen, callback);
 }
 
 int los_nb_deinit(void)
 {
-    return nb_reboot();;
+    //at.deinit();
+    return nb_reboot();
 }
 
 #endif

@@ -35,6 +35,7 @@
 #define __ESP8266_H__
 
 #include "at_api_interface.h"
+#include "atadapter.h"
 
 #define WIFI_SSID      		"TP-LINK_80D8BE"
 #define WIFI_PASSWD    		"87654321"
@@ -48,8 +49,13 @@
 
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
-#define MAX_AT_USERDATA_LEN 2048
 
+#ifndef USE_USARTRX_DMA
+#define MAX_AT_USERDATA_LEN 2048
+#else
+#define MAX_AT_RECV_LEN     (1024*4)
+#define MAX_AT_USERDATA_LEN (512)
+#endif
 
 #define AT_CMD_RST    		"AT+RST"
 #define AT_CMD_ECHO_OFF 	"ATE0"

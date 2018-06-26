@@ -40,16 +40,22 @@ extern at_task at;
 extern at_config at_user_conf;
 
 UART_HandleTypeDef at_usart;
-#ifdef USE_USARTRX_DMA
-
-DMA_HandleTypeDef  at_hdma_usart3_rx;
-#endif
 
 //uint32_t list_mux;
 
+#ifndef USE_USARTRX_DMA
 uint32_t wi = 0;
 uint32_t wi_bak= 0;
 uint32_t ri = 0;
+#else
+/*DMA²Ù×÷*/
+DMA_HandleTypeDef  at_hdma_usart3_rx;
+uint8_t dma_wbi = 0;
+uint8_t dma_rbi = 0;
+extern uint16_t *dma_wi;
+extern uint8_t dma_wi_coun;
+#endif
+
 
 #ifdef USE_USARTRX_DMA
 void at_usart3rx_dma_irqhandler(void)
@@ -101,17 +107,17 @@ void at_irq_handler(void)
 #ifdef USE_USARTRX_DMA
         HAL_UART_DMAStop(&at_usart);  
         uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
-        if(empty > at_user_conf.user_buf_len)
-        {
-        //error
-        }
-        else
-        {
-            wi = (at_user_conf.user_buf_len - empty);
-        }
-#endif   
+        dma_wi[dma_wbi++] = at_user_conf.user_buf_len - empty;
+        if(dma_wbi >= dma_wi_coun)
+            dma_wbi = 0;       	   
+#else
         wi_bak = wi;
+#endif   
         LOS_SemPost(at.recv_sem);
+        
+#ifdef USE_USARTRX_DMA		
+        HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*dma_wbi],at_user_conf.user_buf_len);
+#endif   
     }
 }
 
@@ -155,11 +161,14 @@ void at_transmit(uint8_t * cmd, int32_t len,int flag)
 int read_resp(uint8_t * buf)
 {
     uint32_t len = 0;
+#ifndef USE_USARTRX_DMA
     uint32_t wi = wi_bak;
     uint32_t tmp_len = 0;
+#endif
     if (NULL == buf){
         return -1;
     }
+#ifndef USE_USARTRX_DMA
 
     if (wi == ri){
         return 0;
@@ -171,19 +180,23 @@ int read_resp(uint8_t * buf)
     } 
     else 
     {
-#ifndef USE_USARTRX_DMA
         tmp_len = at_user_conf.user_buf_len - ri;
         memcpy(buf, &at.recv_buf[ri], tmp_len);
         memcpy(buf + tmp_len, at.recv_buf, wi);
         len = wi + tmp_len;
-#endif
     }
-  
+#else
+    if (dma_wbi == dma_rbi){
+        return 0;
+	  }
+    memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);     
+    len = dma_wi[dma_rbi];
+    dma_rbi++;
+    if(dma_rbi >= dma_wi_coun)
+        dma_rbi = 0;			
+#endif  
 #ifndef USE_USARTRX_DMA
     ri = wi;
-#else
-    ri = 0;
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],at_user_conf.user_buf_len-1);
 #endif
     return len;
 }
