@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
+#include "fota_port.h"
 
 //#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
 #define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
@@ -106,6 +107,23 @@ UINT32 creat_report_task()
 
 }
 
+void agent_tiny_fota_init(void)
+{
+    atiny_fota_storage_device_s *storage_device = NULL ;
+    fota_hardware_s *hardware = NULL;
+    fota_pack_device_info_s device_info;
+
+    hal_init_fota();
+
+    hal_get_fota_device(&storage_device, &hardware);
+
+    device_info.hardware = hardware;
+    device_info.storage_device = storage_device;
+    device_info.head_len = 40;
+    device_info.head_info_notify  = NULL;
+    fota_set_pack_device(fota_get_pack_device(), &device_info);
+}
+
 void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
@@ -116,6 +134,9 @@ void agent_tiny_entry(void)
     {
         return;
     }
+
+    agent_tiny_fota_init();
+
 #ifdef WITH_DTLS
     device_info->endpoint_name = g_endpoint_name_s;
 #else

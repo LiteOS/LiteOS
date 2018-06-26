@@ -1,10 +1,46 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
 #if defined(WITH_AT_FRAMEWORK)
 
 #include "atadapter.h"
 #include "at_hal.h"
 
-
+#ifdef  USE_USARTRX_DMA
+uint8_t dma_wi_coun = 0;
+uint16_t *dma_wi = NULL;
+#endif
 /* FUNCTION */
 void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -14,10 +50,21 @@ void at_listener_list_add(at_listener * p);
 void at_listner_list_del(at_listener * p);
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback);
+#ifdef USE_USARTRX_DMA
+int32_t at_dmawi_init(void);
+#endif
 
+void at_deinit();
 //init function for at struct
 at_task at = {
+    .recv_buf = NULL,
+    .cmdresp = NULL,
+    .userdata = NULL,
+    .linkid = NULL,
+    .head = NULL,
+
     .init = at_init,
+    .deinit = at_deinit,
     .cmd = at_cmd,
     .write = at_write,
     .oob_register = at_oob_register,
@@ -160,7 +207,7 @@ void at_recv_task(uint32_t p)
 
     while(1){
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
-
+        do{/*DMA��ʽ������Ϣ�������Ϊ8����˻�ѭ��*/
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp);
 
@@ -191,9 +238,9 @@ void at_recv_task(uint32_t p)
             if (NULL == listener)
                 break;
 
-            if(listener->suffix == NULL)//用户不需要得到回应，分两种情况，一种rbuf直接丢弃，一种rbuf交给下一上报任务
+            if(listener->suffix == NULL)
             {
-                //listener->resp这里存的时候要判断是否非空
+                
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
                 LOS_SemPost(at.resp_sem);
                 listener = NULL;
@@ -216,6 +263,7 @@ void at_recv_task(uint32_t p)
             } 
             break;
         }
+        }while(recv_len > 0);
     }
 }
 
@@ -274,13 +322,22 @@ int32_t at_struct_init(at_task * at)
         AT_LOG("init resp_sem failed!");
         goto at_resp_sem_failed;
     }
-
+#ifndef USE_USARTRX_DMA
     at->recv_buf = atiny_malloc(at_user_conf.user_buf_len);
     if (NULL == at->recv_buf)
     {
         AT_LOG("malloc recv_buf failed!");
         goto malloc_recv_buf;
     }
+#else
+	at->recv_buf = atiny_malloc(at_user_conf.recv_buf_len);
+    if (NULL == at->recv_buf)
+    {
+        AT_LOG("malloc recv_buf failed!");
+        goto malloc_recv_buf;
+    }
+#endif
+    memset(at->recv_buf, 0, at_user_conf.user_buf_len);
 
     at->cmdresp = atiny_malloc(at_user_conf.user_buf_len);
     if (NULL == at->cmdresp)
@@ -288,6 +345,7 @@ int32_t at_struct_init(at_task * at)
         AT_LOG("malloc cmdresp failed!");
         goto malloc_resp_buf;
     }
+    memset(at->cmdresp, 0, at_user_conf.user_buf_len);
 
     at->userdata = atiny_malloc(at_user_conf.user_buf_len);
     if (NULL == at->userdata)
@@ -295,6 +353,7 @@ int32_t at_struct_init(at_task * at)
         AT_LOG("malloc userdata failed!");
         goto malloc_userdata_buf;
     }
+    memset(at->userdata, 0, at_user_conf.user_buf_len);
 
     at->linkid = (at_link*)atiny_malloc(at_user_conf.linkid_num * sizeof(at_link));
     if (NULL == at->linkid)
@@ -302,6 +361,7 @@ int32_t at_struct_init(at_task * at)
        AT_LOG("malloc for at linkid array failed!");
        goto malloc_linkid_failed;
     }
+    memset(at->linkid, 0, at_user_conf.linkid_num * sizeof(at_link));
 
     at->head = NULL;
     at->mux_mode = at_user_conf.mux_mode;
@@ -324,6 +384,78 @@ int32_t at_struct_init(at_task * at)
     at_recv_sema_failed:
         return AT_FAILED;
 }
+#ifdef USE_USARTRX_DMA
+int32_t at_dmawi_init(void)
+{
+
+    dma_wi_coun = at_user_conf.recv_buf_len/at_user_conf.user_buf_len;
+    dma_wi = atiny_malloc(dma_wi_coun * sizeof(*dma_wi));
+    if (NULL == dma_wi)
+    {
+        AT_LOG("malloc dma_wi failed!");
+        return AT_FAILED;
+    }
+
+    return AT_OK;
+}
+#endif
+int32_t at_struct_deinit(at_task * at)
+{
+    int32_t ret = AT_OK;
+
+    if(at == NULL){
+        AT_LOG("invaild param!");
+        return AT_FAILED;
+    }
+
+    if (LOS_SemDelete(at->recv_sem) != LOS_OK)
+    {
+        AT_LOG("delete at.recv_sem failed!");
+        ret = AT_FAILED;
+    }
+
+    if (LOS_MuxDelete(at->cmd_mux) != LOS_OK)
+    {
+        AT_LOG("delete at.cmd_mux failed!");
+        ret = AT_FAILED;
+    }
+
+    if (LOS_SemDelete(at->resp_sem) != LOS_OK)
+    {
+        AT_LOG("delete at.resp_sem failed!");
+        ret = AT_FAILED;
+    }
+
+    if (NULL != at->recv_buf)
+    {
+        atiny_free(at->recv_buf);
+        at->recv_buf = NULL;
+    }
+
+    if (NULL != at->cmdresp)
+    {
+        atiny_free(at->cmdresp);
+        at->cmdresp = NULL;
+    }
+
+    if (NULL != at->userdata)
+    {
+        atiny_free(at->userdata);
+        at->userdata = NULL;
+    }
+
+    if (NULL != at->linkid)
+    {
+        atiny_free(at->linkid);
+        at->linkid = NULL;
+    }
+
+    at->head = NULL;
+    at->mux_mode = AT_MUXMODE_SINGLE;
+    at->timeout = 0;
+
+    return ret;
+}
 
 void at_init()
 {    
@@ -335,18 +467,34 @@ void at_init()
         AT_LOG("prepare AT struct failed!");
         return;
     }
+#ifdef USE_USARTRX_DMA
+    if(AT_OK != at_dmawi_init())
+        return;
+#endif
     at_init_oob();
     at_usart_config();
     create_at_recv_task();
 
     AT_LOG("Config complete!!\n");
+}
 
+void at_deinit()
+{
+    if(LOS_OK != LOS_TaskDelete(at.tsk_hdl))
+    {
+        AT_LOG("at_recv_task delete failed!");
+    }
+    if(AT_OK != at_struct_deinit(&at))
+    {
+        AT_LOG("at_struct_deinit failed!");
+    }
+    at_init_oob();
 }
 
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)
 {
     oob_t *oob;
-    if(at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
+    if(featurestr == NULL ||at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
     oob = &(at_oob.oob[at_oob.oob_num++]);
     memcpy(oob->featurestr, featurestr, cmdlen);

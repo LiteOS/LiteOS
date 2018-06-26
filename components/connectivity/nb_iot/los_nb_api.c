@@ -53,6 +53,8 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {
     int ret;
     int timecnt = 0;
+    if(host == NULL || port == NULL)
+        return -1;
     at.init();
 
     nb_reboot();
@@ -94,17 +96,22 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 
 int los_nb_report(const char* buf, int len)
 {
+    if(buf == NULL || len <= 0)
+        return -1;
     return nb_send_payload(buf, len);
 }
 
 int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
 {
+    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
+        return -1;
     return at.oob_register(featurestr,cmdlen, callback);
 }
 
 int los_nb_deinit(void)
 {
-    return nb_reboot();;
+    //at.deinit();
+    return nb_reboot();
 }
 
 #endif

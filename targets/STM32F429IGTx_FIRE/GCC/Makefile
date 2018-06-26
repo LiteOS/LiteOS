@@ -154,6 +154,10 @@ FOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
 
+FIRMWARE_UPDATE_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
+        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
+
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
@@ -305,6 +309,10 @@ FOTA_INC = \
         -I $(TOP_DIR)/components/fota/utility
         C_INCLUDES += $(FOTA_INC)
 
+FIRMWARE_UPDATE_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update
+        C_INCLUDES += $(FIRMWARE_UPDATE_INC)
+
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Inc \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/OS_CONFIG
@@ -328,6 +336,8 @@ endif
 endif
 
 C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
+
+C_INCLUDES += -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

@@ -56,7 +56,6 @@ int atiny_update_info_write(atiny_update_info_s * thi, atiny_update_info_e type,
 int atiny_update_info_read(atiny_update_info_s * thi, atiny_update_info_e type, uint8_t *info, uint32_t len);
 
 atiny_update_info_s *atiny_update_info_get_instance(void);
-void atiny_update_info_del_instance(atiny_update_info_s **update_info_p);
 
 #ifdef __cplusplus
 }
