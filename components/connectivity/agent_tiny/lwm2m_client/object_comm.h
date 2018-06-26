@@ -113,7 +113,6 @@ typedef struct _data_node_t
  */
 lwm2m_object_t * get_object_device(atiny_param_t *atiny_params, const char* manufacturer);
 void free_object_device(lwm2m_object_t * objectP);
-uint8_t device_change(lwm2m_data_t * dataArray, lwm2m_object_t * objectP);
 void display_device_object(lwm2m_object_t * objectP);
 /*
  * object_firmware.c
@@ -204,11 +203,6 @@ uint8_t acc_auth_operate(lwm2m_context_t* contextP, lwm2m_uri_t* uri,
  * object_comm.c
  */
 void handle_value_changed(lwm2m_context_t* lwm2mH, lwm2m_uri_t* uri, const char * value, size_t valueLength);
-/*
- * system_api.c
- */
-void init_value_change(lwm2m_context_t * lwm2m);
-void system_reboot(void);
 
 /*
  * object_security.c
