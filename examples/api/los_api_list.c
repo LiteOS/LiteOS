@@ -70,8 +70,29 @@ UINT32 Example_list(VOID)
     dprintf("node add and tail add......\n");
 
     LOS_DL_LIST *node1 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    if (node1 == NULL)
+    {
+        dprintf("malloc failed\n");
+        return LOS_NOK;
+    }
+
     LOS_DL_LIST *node2 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    if (node2 == NULL)
+    {
+        dprintf("malloc failed\n");
+        LOS_MemFree(m_aucSysMem0, node1);
+        return LOS_NOK;
+    }
+
     LOS_DL_LIST *tail = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    if (tail == NULL)
+    {
+        dprintf("malloc failed\n");
+        LOS_MemFree(m_aucSysMem0, node1);
+        LOS_MemFree(m_aucSysMem0, node2);
+        return LOS_NOK;
+    }
+
 
     LOS_ListAdd(head,node1);
     LOS_ListAdd(node1,node2);
