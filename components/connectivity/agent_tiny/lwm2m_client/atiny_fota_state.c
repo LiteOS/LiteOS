@@ -68,7 +68,8 @@ int atiny_fota_start_download(atiny_fota_state_s * thi, const char *uri)
     atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_NULL);
 
     //TODO, return then proper result
-    ret = start_firmware_download(atiny_fota_manager_get_lwm2m_context(thi->manager), (char *)uri);
+    ret = start_firmware_download(atiny_fota_manager_get_lwm2m_context(thi->manager), (char *)uri,
+        atiny_fota_manager_get_storage_device(thi->manager));
     if(ret  != ATINY_OK)
     {
         atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_FAIL);
