@@ -128,7 +128,7 @@ EXIT:
     ATINY_LOG(LOG_ERR, "lwm2m_send_notify result %d, state %d", ret, state);
 
     atiny_fota_manager_set_update_result(thi->manager, (ATINY_OK == result) ? ATINY_FIRMWARE_UPDATE_SUCCESS : ATINY_FIRMWARE_UPDATE_FAIL);
-    atiny_fota_manager_set_state(thi->manager, state);
+    (void)atiny_fota_manager_set_state(thi->manager, state);
 
     memset(&observe_info, 0, sizeof(observe_info));
     if(atiny_update_info_write(atiny_update_info_get_instance(), TOCKEN_INFO, (uint8_t *)&observe_info, sizeof(observe_info)) != ATINY_OK)
@@ -195,12 +195,12 @@ int atiny_fota_downloaded_state_execute_update(atiny_fota_state_s * thi)
         ATINY_LOG(LOG_ERR, "active_software fail");
         goto EXIT_IDLE;
     }
-    atiny_fota_manager_set_state(thi->manager, ATINY_FOTA_UPDATING);
+    (void)atiny_fota_manager_set_state(thi->manager, ATINY_FOTA_UPDATING);
     atiny_set_reboot_flag();
     return ATINY_OK;
 EXIT_IDLE:
     atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_FAIL);
-    atiny_fota_manager_set_state(thi->manager, ATINY_FOTA_IDLE);
+    (void)atiny_fota_manager_set_state(thi->manager, ATINY_FOTA_IDLE);
     return ATINY_ERR;
 
 }
