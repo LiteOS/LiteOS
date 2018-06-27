@@ -916,6 +916,8 @@ void observe_step(lwm2m_context_t * contextP,
 uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info)
 {
     lwm2m_observed_t * targetP;
+    lwm2m_watcher_t * watcherP;
+
     if((NULL == observe_info) || (NULL == contextP))
     {
         LOG("null pointer\n");
@@ -924,8 +926,6 @@ uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t 
 
     for (targetP = contextP->observedList ; targetP != NULL ; targetP = targetP->next)
     {
-        lwm2m_watcher_t * watcherP;
-
         if((!LWM2M_URI_IS_SET_RESOURCE(&targetP->uri))
             || (targetP->uri.objectId != LWM2M_FIRMWARE_UPDATE_OBJECT_ID)
             || (targetP->uri.instanceId != 0)
@@ -933,15 +933,12 @@ uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t 
         {
             continue;
         }
-
-        for (watcherP = targetP->watcherList ; watcherP != NULL ; watcherP = watcherP->next)
-        {
-            observe_info->counter = watcherP->counter;
-            memcpy(observe_info->token, watcherP->token, sizeof(observe_info->token));
-            observe_info->tokenLen = watcherP->tokenLen;
-            observe_info->format = watcherP->format;
-            return COAP_NO_ERROR;
-        }
+        watcherP = targetP->watcherList;
+        observe_info->counter = watcherP->counter;
+        memcpy(observe_info->token, watcherP->token, sizeof(observe_info->token));
+        observe_info->tokenLen = watcherP->tokenLen;
+        observe_info->format = watcherP->format;
+        return COAP_NO_ERROR;
     }
     return COAP_500_INTERNAL_SERVER_ERROR;
 }
