@@ -211,12 +211,13 @@ UINT32 LOS_InspectByID(enInspectID InspectID)
 static VOID LOS_Inspect_TskDeal(VOID)
 {
     UINT32 ulRet = LOS_OK;
+    UINT32 index;
     gInspectErrCnt = 0;
 
     /* output a message on hyperterminal using printf function */
     dprintf("\r\nLos Inspect start.\r\n");
 
-    for(UINT32 index = 0;index < LOS_INSPECT_BUFF; index++)
+    for(index = 0;index < LOS_INSPECT_BUFF; index++)
     {
         ulRet = LOS_InspectByID((enInspectID)index);
         if(LOS_OK != ulRet)

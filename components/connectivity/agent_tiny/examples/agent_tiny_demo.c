@@ -131,10 +131,6 @@ void agent_tiny_entry(void)
     atiny_param_t* atiny_params;
     atiny_security_param_t  *security_param = NULL;
     atiny_device_info_t *device_info = &g_device_info;
-    if(NULL == device_info)
-    {
-        return;
-    }
 
     agent_tiny_fota_init();
 
