@@ -115,17 +115,17 @@ void agent_tiny_fota_init(void)
     fota_pack_device_info_s device_info;
 
     int ret = hal_init_fota();
-    if(ret != 0)return -1;
+    if(ret != 0)return;
 
     ret = hal_get_fota_device(&storage_device, &hardware);
-    if(ret != 0)return -1;
+    if(ret != 0)return;
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
     device_info.head_len = 40;
     device_info.head_info_notify  = NULL;
     ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
-    if(ret != 0)return -1;
+    if(ret != 0)return;
 }
 
 void agent_tiny_entry(void)
