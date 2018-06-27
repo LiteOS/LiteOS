@@ -256,7 +256,9 @@ int parse_firmware_uri(char *uri, int uri_len)
         ATINY_LOG(LOG_ERR, "lwm2m_malloc failed");
         return -1;
     }
+    /*lint -e668 */
     memcpy(g_ota_uri, path, path_len);
+    /*lint +e668 */
     g_ota_uri[path_len] = '\0';
 
     return 0;
