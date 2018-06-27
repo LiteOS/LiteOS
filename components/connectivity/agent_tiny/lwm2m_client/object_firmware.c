@@ -109,7 +109,7 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
         *dataArrayP = lwm2m_data_new(array_size(resources));
         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         *numDataP = array_size(resources);
-        for(uint32_t i = 0 ; i < array_size(resources); ++i)
+        for(i = 0 ; i < array_size(resources); ++i)
         {
             (*dataArrayP)[i].id = resources[i];
         }

@@ -54,7 +54,7 @@ typedef struct fw_update_record
 }fw_update_record_t;
 
 static char *g_ota_uri = NULL;
-static char *g_ota_query = NULL;
+// static char *g_ota_query = NULL;
 static atiny_fota_storage_device_s *g_fota_storage_device = NULL;
 static fw_update_record_t g_fw_update_record = {0};
 
@@ -287,7 +287,7 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
     }
 
     ATINY_LOG(LOG_DEBUG, "update_flag = %u", update_flag);
-    if(1 == update_flag)
+    if(!(0 == update_flag && NULL != g_ota_uri))
     {
         if(NULL != g_ota_uri)
         {

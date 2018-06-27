@@ -153,7 +153,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
 
-    atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
+    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
@@ -447,10 +447,12 @@ void atiny_destroy(void* handle)
     }
     atiny_destroy_rpt();
 
-    atiny_mutex_destroy(handle_data->lwm2m_context->observe_mutex);
-
     if (handle_data->lwm2m_context != NULL)
     {
+        if (handle_data->lwm2m_context->observe_mutex != NULL)
+        {
+            atiny_mutex_destroy(handle_data->lwm2m_context->observe_mutex);
+        }
         lwm2m_close(handle_data->lwm2m_context);
     }
     atiny_mutex_unlock(handle_data->quit_sem);
