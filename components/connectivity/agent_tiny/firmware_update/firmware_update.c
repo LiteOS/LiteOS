@@ -72,6 +72,7 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
     uint8_t block2_more = 0;
     uint16_t block_size = FW_BLOCK_SIZE;
     uint32_t block_offset = 0;
+    int ret = 0;
 
     if(NULL == message)
     {
@@ -99,7 +100,10 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
 
     len = (uint32_t)(packet->payload_len);
     if(g_fota_storage_device && g_fota_storage_device->write_software)
-        g_fota_storage_device->write_software(g_fota_storage_device, block_offset, packet->payload, len);
+    {
+        ret = g_fota_storage_device->write_software(g_fota_storage_device, block_offset, packet->payload, len);
+        if(ret != 0)return;
+    }
     else if(NULL == g_fota_storage_device)
         ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
     else
@@ -115,9 +119,11 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
             ATINY_LOG(LOG_ERR, "transaction_new failed");
             goto failed_exit;
         }
-        coap_set_header_uri_path(transaction->message, g_ota_uri);
+        ret = coap_set_header_uri_path(transaction->message, g_ota_uri);
+        if(ret < 0)return;
         //coap_set_header_uri_query(transaction->message, query);
-        coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+        if(ret < 0)return;
         ATINY_LOG(LOG_DEBUG, "get next : %lu", block_num+1);
 
         transaction->callback = firmware_download_reply;
@@ -308,12 +314,19 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
         ATINY_LOG(LOG_ERR, "transaction_new failed");
         return -1;
     }
-    coap_set_header_uri_path(transaction->message, g_ota_uri);
+    ret = coap_set_header_uri_path(transaction->message, g_ota_uri);
+    if(ret < 0)return -1;
     //coap_set_header_uri_query(transaction->message, query);
     if(1 == g_fw_update_record.in_use)
-        coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+    {
+        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+        if(ret != 1)return -1;
+    }
     else
-        coap_set_header_block2(transaction->message, 0, 0, FW_BLOCK_SIZE);
+    {
+        ret = coap_set_header_block2(transaction->message, 0, 0, FW_BLOCK_SIZE);
+        if(ret != 1)return -1;
+    }
 
     transaction->callback = firmware_download_reply;
     transaction->userData = (void *)contextP;

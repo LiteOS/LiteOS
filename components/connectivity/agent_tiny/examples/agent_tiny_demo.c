@@ -114,15 +114,18 @@ void agent_tiny_fota_init(void)
     fota_hardware_s *hardware = NULL;
     fota_pack_device_info_s device_info;
 
-    hal_init_fota();
+    int ret = hal_init_fota();
+    if(ret != 0)return -1;
 
-    hal_get_fota_device(&storage_device, &hardware);
+    ret = hal_get_fota_device(&storage_device, &hardware);
+    if(ret != 0)return -1;
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
     device_info.head_len = 40;
     device_info.head_info_notify  = NULL;
-    fota_set_pack_device(fota_get_pack_device(), &device_info);
+    ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
+    if(ret != 0)return -1;
 }
 
 void agent_tiny_entry(void)
