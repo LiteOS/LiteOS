@@ -261,7 +261,6 @@ int parse_firmware_uri(char *uri, int uri_len)
     /*lint -esym(668,memcpy) */
     memcpy(g_ota_uri, path, path_len);
     g_ota_uri[path_len] = '\0';
-    /*lint +esym(668,memcpy) */
 
     return 0;
 }
