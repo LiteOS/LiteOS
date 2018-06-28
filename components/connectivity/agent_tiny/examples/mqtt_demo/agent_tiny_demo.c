@@ -103,7 +103,7 @@ UINT32 creat_report_task()
     task_init_param.usTaskPrio = 1;
     task_init_param.pcName = "app_data_report";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
-    task_init_param.uwStackSize = 0x800;
+    task_init_param.uwStackSize = 0x1000;
 
     uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
     if(LOS_OK != uwRet)
