@@ -84,7 +84,7 @@
 */
 
 #include "internals.h"
-
+#include "atiny_adapter.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -101,8 +101,7 @@ lwm2m_context_t * lwm2m_init(void * userData)
     {
         memset(contextP, 0, sizeof(lwm2m_context_t));
         contextP->userData = userData;
-        srand((int)lwm2m_gettime());
-        contextP->nextMID = rand();
+        lwm2m_rand((void *)&contextP->nextMID, sizeof(contextP->nextMID));
     }
 
     return contextP;
@@ -190,6 +189,7 @@ static void prv_deleteBootstrapServerList(lwm2m_context_t * context)
 
 static void prv_deleteObservedList(lwm2m_context_t * contextP)
 {
+    atiny_mutex_lock(contextP->observe_mutex);
     while (NULL != contextP->observedList)
     {
         lwm2m_observed_t * targetP;
@@ -208,6 +208,7 @@ static void prv_deleteObservedList(lwm2m_context_t * contextP)
 
         lwm2m_free(targetP);
     }
+    atiny_mutex_unlock(contextP->observe_mutex);
 }
 #endif
 

@@ -1,3 +1,37 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
+
 #if defined(WITH_AT_FRAMEWORK)
 
 #include "atadapter.h"
@@ -6,16 +40,22 @@ extern at_task at;
 extern at_config at_user_conf;
 
 UART_HandleTypeDef at_usart;
-#ifdef USE_USARTRX_DMA
-
-DMA_HandleTypeDef  at_hdma_usart3_rx;
-#endif
 
 //uint32_t list_mux;
 
+#ifndef USE_USARTRX_DMA
 uint32_t wi = 0;
 uint32_t wi_bak= 0;
 uint32_t ri = 0;
+#else
+/*DMA²Ù×÷*/
+DMA_HandleTypeDef  at_hdma_usart3_rx;
+uint8_t dma_wbi = 0;
+uint8_t dma_rbi = 0;
+extern uint16_t *dma_wi;
+extern uint8_t dma_wi_coun;
+#endif
+
 
 #ifdef USE_USARTRX_DMA
 void at_usart3rx_dma_irqhandler(void)
@@ -67,17 +107,17 @@ void at_irq_handler(void)
 #ifdef USE_USARTRX_DMA
         HAL_UART_DMAStop(&at_usart);  
         uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
-        if(empty > at_user_conf.user_buf_len)
-        {
-        //error
-        }
-        else
-        {
-            wi = (at_user_conf.user_buf_len - empty);
-        }
-#endif   
+        dma_wi[dma_wbi++] = at_user_conf.user_buf_len - empty;
+        if(dma_wbi >= dma_wi_coun)
+            dma_wbi = 0;       	   
+#else
         wi_bak = wi;
+#endif   
         LOS_SemPost(at.recv_sem);
+        
+#ifdef USE_USARTRX_DMA		
+        HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*dma_wbi],at_user_conf.user_buf_len);
+#endif   
     }
 }
 
@@ -121,11 +161,14 @@ void at_transmit(uint8_t * cmd, int32_t len,int flag)
 int read_resp(uint8_t * buf)
 {
     uint32_t len = 0;
+#ifndef USE_USARTRX_DMA
     uint32_t wi = wi_bak;
     uint32_t tmp_len = 0;
+#endif
     if (NULL == buf){
         return -1;
     }
+#ifndef USE_USARTRX_DMA
 
     if (wi == ri){
         return 0;
@@ -137,19 +180,23 @@ int read_resp(uint8_t * buf)
     } 
     else 
     {
-#ifndef USE_USARTRX_DMA
         tmp_len = at_user_conf.user_buf_len - ri;
         memcpy(buf, &at.recv_buf[ri], tmp_len);
         memcpy(buf + tmp_len, at.recv_buf, wi);
         len = wi + tmp_len;
-#endif
     }
-  
+#else
+    if (dma_wbi == dma_rbi){
+        return 0;
+	  }
+    memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);     
+    len = dma_wi[dma_rbi];
+    dma_rbi++;
+    if(dma_rbi >= dma_wi_coun)
+        dma_rbi = 0;			
+#endif  
 #ifndef USE_USARTRX_DMA
     ri = wi;
-#else
-    ri = 0;
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],at_user_conf.user_buf_len-1);
 #endif
     return len;
 }

@@ -147,14 +147,17 @@ USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/usart.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/eth.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
 
 # ASM sources
-ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
-        ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
+ASM_SOURCES_s =  \
+        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
+
+ASM_SOURCES_S =  \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
 
 
 ######################################
@@ -312,13 +315,18 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_s:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES_s)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
+vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile

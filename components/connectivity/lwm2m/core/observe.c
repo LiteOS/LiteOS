@@ -82,10 +82,13 @@
 */
 
 #include "internals.h"
+#include "atiny_adapter.h"
 #include <stdio.h>
 
 
 #ifdef LWM2M_CLIENT_MODE
+
+#define RES_M_STATE  3
 
 static lwm2m_transaction_callback_t  observe_call_back;
 
@@ -170,8 +173,10 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
         allocatedObserver = true;
         memset(observedP, 0, sizeof(lwm2m_observed_t));
         memcpy(&(observedP->uri), uriP, sizeof(lwm2m_uri_t));
+        atiny_mutex_lock(contextP->observe_mutex);
         observedP->next = contextP->observedList;
         contextP->observedList = observedP;
+        atiny_mutex_unlock(contextP->observe_mutex);
     }
 
     watcherP = prv_findWatcher(observedP, serverP);
@@ -189,8 +194,10 @@ static lwm2m_watcher_t * prv_getWatcher(lwm2m_context_t * contextP,
         memset(watcherP, 0, sizeof(lwm2m_watcher_t));
         watcherP->active = false;
         watcherP->server = serverP;
+        atiny_mutex_lock(contextP->observe_mutex);
         watcherP->next = observedP->watcherList;
         observedP->watcherList = watcherP;
+        atiny_mutex_unlock(contextP->observe_mutex);
     }
 
     return watcherP;
@@ -302,7 +309,7 @@ void observe_cancel(lwm2m_context_t * contextP,
         }
         if (targetP != NULL)
         {
-
+            atiny_mutex_lock(contextP->observe_mutex);
             lwm2m_notify_even(MODULE_URI, OBSERVE_UNSUBSCRIBE, (char*)&(observedP->uri), sizeof(observedP->uri));
             if (targetP->parameters != NULL) lwm2m_free(targetP->parameters);
             lwm2m_free(targetP);
@@ -311,6 +318,7 @@ void observe_cancel(lwm2m_context_t * contextP,
                 prv_unlinkObserved(contextP, observedP);
                 lwm2m_free(observedP);
             }
+            atiny_mutex_unlock(contextP->observe_mutex);
             return;
         }
     }
@@ -333,6 +341,7 @@ void observe_clear(lwm2m_context_t * contextP,
             lwm2m_observed_t * nextP;
             lwm2m_watcher_t * watcherP;
 
+            atiny_mutex_lock(contextP->observe_mutex);
             nextP = observedP->next;
 
             for (watcherP = observedP->watcherList; watcherP != NULL; watcherP = watcherP->next)
@@ -345,6 +354,7 @@ void observe_clear(lwm2m_context_t * contextP,
             lwm2m_free(observedP);
 
             observedP = nextP;
+            atiny_mutex_unlock(contextP->observe_mutex);
         }
         else
         {
@@ -867,7 +877,9 @@ void observe_step(lwm2m_context_t * contextP,
 
                     coap_set_header_observe(message, watcherP->counter++);
                     (void)message_send(contextP, message, watcherP->server->sessionH);
+                    atiny_mutex_lock(contextP->observe_mutex);
                     watcherP->update = false;
+                    atiny_mutex_unlock(contextP->observe_mutex);
                 }
 
                 // Store this value
@@ -897,6 +909,90 @@ void observe_step(lwm2m_context_t * contextP,
         if (dataP != NULL) lwm2m_data_free(size, dataP);
         if (buffer != NULL) lwm2m_free(buffer);
     }
+}
+
+
+
+uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info)
+{
+    lwm2m_observed_t * targetP;
+    lwm2m_watcher_t * watcherP;
+
+    if((NULL == observe_info) || (NULL == contextP))
+    {
+        LOG("null pointer\n");
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    for (targetP = contextP->observedList ; targetP != NULL ; targetP = targetP->next)
+    {
+        if((!LWM2M_URI_IS_SET_RESOURCE(&targetP->uri))
+            || (targetP->uri.objectId != LWM2M_FIRMWARE_UPDATE_OBJECT_ID)
+            || (targetP->uri.instanceId != 0)
+            || (targetP->uri.resourceId != RES_M_STATE))
+        {
+            continue;
+        }
+        watcherP = targetP->watcherList;
+        observe_info->counter = watcherP->counter;
+        memcpy(observe_info->token, watcherP->token, sizeof(observe_info->token));
+        observe_info->tokenLen = watcherP->tokenLen;
+        observe_info->format = watcherP->format;
+        return COAP_NO_ERROR;
+    }
+    return COAP_500_INTERNAL_SERVER_ERROR;
+}
+
+uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state)
+{
+    coap_packet_t message[1];
+    lwm2m_uri_t uri;
+    int res;
+    lwm2m_data_t data;
+    lwm2m_media_type_t format;
+    uint8_t *buffer = NULL;
+    lwm2m_server_t *server;
+
+    if((NULL == observe_info) || (NULL == contextP))
+    {
+        LOG("null pointer\n");
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    server = registration_get_registered_server(contextP);
+    if(NULL == server)
+    {
+        LOG("registration_get_registered_server fail\n");
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    uri.objectId = LWM2M_FIRMWARE_UPDATE_OBJECT_ID;
+    uri.instanceId = 0;
+    uri.resourceId = RES_M_STATE;
+    uri.flag = (LWM2M_URI_FLAG_OBJECT_ID | LWM2M_URI_FLAG_INSTANCE_ID | LWM2M_URI_FLAG_RESOURCE_ID);
+
+    format = observe_info->format;
+    memset(&data, 0, sizeof(data));
+    data.id = uri.resourceId;
+    lwm2m_data_encode_int(firmware_update_state, &data);
+    res = lwm2m_data_serialize(&uri, 1, &data, &format, &buffer);
+    if (res < 0)
+    {
+        LOG("lwm2m_data_serialize fail\n");
+        if (buffer != NULL)
+        {
+            lwm2m_free(buffer);
+        }
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    coap_init_message(message, COAP_TYPE_NON, COAP_205_CONTENT, 0);
+    coap_set_header_content_type(message, format);
+    coap_set_payload(message, buffer, res);
+    message->mid = contextP->nextMID++;
+    coap_set_header_token(message, observe_info->token, observe_info->tokenLen);
+    coap_set_header_observe(message, observe_info->counter);
+    return message_send(contextP, message, server->sessionH);
 }
 
 #endif

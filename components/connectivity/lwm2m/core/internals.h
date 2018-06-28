@@ -380,4 +380,7 @@ static inline int dm_isUriOpaqueHandle(const lwm2m_uri_t * uriP)
     return (19 == uriP->objectId);
 }
 
+ lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP);
+
+
 #endif

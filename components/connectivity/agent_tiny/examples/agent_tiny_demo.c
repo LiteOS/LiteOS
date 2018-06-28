@@ -33,16 +33,24 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
+#include "fota_port.h"
 
 //#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
-#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
+//#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
+//#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
+#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
 
 #define LWM2M_LIFE_TIME     50000
 
 char * g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
-char *g_endpoint_name_s = "11110006";
-unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x96};
+//char *g_endpoint_name_s = "11110006";
+//unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x96};
+
+char *g_endpoint_name_s = "88889999";
+unsigned char g_psk_value[16] = {0x02,0x77,0x68,0xca,0x0b,0xf5,0xdf,0xba,0x46,0x43,0x25,0xdd,0x4b,0xe7,0x0a,0x9d};
+
+
 
 //char * g_endpoint_name_s = "33330003";
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
@@ -73,7 +81,9 @@ void app_data_report(void)
         report_data.cookie = cnt;
         cnt++;
         ret = atiny_data_report(g_phandle, &report_data);
-        printf("report ret:%d\n",ret);
+        printf("report ret: %d\n",ret);
+        ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
+        printf("data change ret: %d\n",ret);
         (void)LOS_TaskDelay(250*8);
     }
 }
@@ -98,16 +108,35 @@ UINT32 creat_report_task()
 
 }
 
+void agent_tiny_fota_init(void)
+{
+    atiny_fota_storage_device_s *storage_device = NULL ;
+    fota_hardware_s *hardware = NULL;
+    fota_pack_device_info_s device_info;
+
+    int ret = hal_init_fota();
+    if(ret != 0)return;
+
+    ret = hal_get_fota_device(&storage_device, &hardware);
+    if(ret != 0)return;
+
+    device_info.hardware = hardware;
+    device_info.storage_device = storage_device;
+    device_info.head_len = 40;
+    device_info.head_info_notify  = NULL;
+    ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
+    if(ret != 0)return;
+}
+
 void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
     atiny_param_t* atiny_params;
     atiny_security_param_t  *security_param = NULL;
     atiny_device_info_t *device_info = &g_device_info;
-    if(NULL == device_info)
-    {
-        return;
-    }
+
+    agent_tiny_fota_init();
+
 #ifdef WITH_DTLS
     device_info->endpoint_name = g_endpoint_name_s;
 #else

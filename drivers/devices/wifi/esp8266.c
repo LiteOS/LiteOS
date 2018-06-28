@@ -1,3 +1,36 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
 #include "esp8266.h"
@@ -6,7 +39,11 @@
 #include "atiny_socket.h"
 
 extern at_task at;
+#ifdef  USE_USARTRX_DMA
+extern at_config at_user_conf;
+extern UART_HandleTypeDef at_usart;
 
+#endif
 
 
 int32_t esp8266_echo_off(void)
@@ -56,10 +93,10 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
         id = at.get_id();
         if (id < 0 || id >= AT_MAX_LINK_NUM)
         {
-            AT_LOG("no vailed linkid for use(id = %d)", id);
-            return -1;
+            AT_LOG("no vailed linkid for use(id = %ld)", id);
+            return AT_FAILED;
         }
-        snprintf(cmd, 64, "%s=%d,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
+        snprintf(cmd, 64, "%s=%ld,\"%s\",\"%s\",%s", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
     }
 
     ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
@@ -67,32 +104,32 @@ int32_t esp8266_connect(const int8_t * host, const int8_t *port, int32_t proto)
     {
         AT_LOG("init dataQueue failed!");
         at.linkid[id].usable = AT_LINK_UNUSE;
-        return -1;
+        return AT_FAILED;
     }
     ret = at.cmd((int8_t *)cmd, strlen(cmd), "OK\r\n", NULL);
     if (AT_FAILED == ret)
     {
         AT_LOG("at.cmd return failed!");
-        return -1;
+        return AT_FAILED;
     }
     return id;
 }
 
 int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
-	int32_t ret = -1;
+	int32_t ret = AT_FAILED;
     char cmd[64] = {0};
     if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
-        snprintf(cmd, 64, "%s=%d", AT_CMD_SEND, len);
+        snprintf(cmd, 64, "%s=%lu", AT_CMD_SEND, len);
     }
     else
     {
-        snprintf(cmd, 64, "%s=%d,%d", AT_CMD_SEND, id, len);
+        snprintf(cmd, 64, "%s=%ld,%lu", AT_CMD_SEND, id, len);
     }
 
  //   at.cmd(cmd, strlen(cmd), ">", NULL);
-    ret = at.write((int8_t *)cmd, "SEND OK\r\n", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, (int8_t *)"SEND OK\r\n", (int8_t*)buf, len);
 
     return ret;
 
@@ -103,11 +140,11 @@ int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
    uint32_t qlen = sizeof(QUEUE_BUFF);
 
     QUEUE_BUFF  qbuf = {0, NULL};
-    int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, LOS_WAIT_FOREVER);
-    AT_LOG("ret = %x, len = %d", ret, qbuf.len);
+    int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, LOS_WAIT_FOREVER);
+    AT_LOG("ret = %x, len = %ld", ret, qbuf.len);
     if (ret != LOS_OK)
     {
-        return -1;
+        return AT_FAILED;
     }
 
     if (qbuf.len){
@@ -122,11 +159,11 @@ int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t tim
    uint32_t qlen = sizeof(QUEUE_BUFF);
 
     QUEUE_BUFF  qbuf = {0, NULL};
-    int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, timeout);
-    AT_LOG("ret = %x, len = %d, id = %d", ret, qbuf.len, id);
+    int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, timeout);
+    AT_LOG("ret = %x, len = %ld, id = %ld", ret, qbuf.len, id);
     if (ret != LOS_OK)
     {
-        return -1;
+        return AT_FAILED;
     }
 
     if (qbuf.len){
@@ -147,7 +184,7 @@ int32_t esp8266_close(int32_t id)
     {
         LOS_QueueDelete(at.linkid[id].qid);
         at.linkid[id].usable = 0;
-        snprintf(cmd, 64, "%s=%d", AT_CMD_CLOSE, id);
+        snprintf(cmd, 64, "%s=%ld", AT_CMD_CLOSE, id);
     }
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK\r\n", NULL);
 }
@@ -157,7 +194,7 @@ int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
     if (NULL == buf || len <= 0)
     {
         AT_LOG("param invailed!");
-        return -1;
+        return AT_FAILED;
     }
     AT_LOG("entry!");
 
@@ -204,7 +241,7 @@ int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
 
         if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[linkid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
         {
-            AT_LOG("LOS_QueueWriteCopy  failed! ret = %x", ret);
+            AT_LOG("LOS_QueueWriteCopy  failed! ret = %lx", ret);
             atiny_free(qbuf.addr);
             goto END;
         }
@@ -214,7 +251,7 @@ END:
     return ret;
 }
 
-int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本地IP*/
+int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*get local IP*/
 {
     char resp[512] = {0};
     at.cmd((int8_t*)AT_CMD_CHECK_IP, strlen((char*)AT_CMD_CHECK_IP), "OK", resp);
@@ -246,10 +283,10 @@ int8_t esp8266_get_localip(int8_t * ip, int8_t * gw, int8_t * mask)/*获取本�
     }
 
 //    printf("get ip :%s", resp);
-    return NULL;
+    return AT_OK;
 }
 
-int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
+int8_t esp8266_get_localmac(int8_t * mac)/*get local mac*/
 {
     char resp[512] = {0};    
     char * p1, *p2;
@@ -267,17 +304,18 @@ int8_t esp8266_get_localmac(int8_t * mac)/*获取本地IP*/
 
 
 //    printf("get ip :%s", resp);
-    return NULL;
+    return AT_OK;
 }
 
 int32_t esp8266_recv_cb(int32_t id)
 {
-    return -1;
+    return AT_FAILED;
 }
 
 int32_t esp8266_deinit(void)
 {
-    return AT_FAILED;
+    at.deinit();
+    return AT_OK;
 }
 
 int32_t esp8266_init()
@@ -286,7 +324,7 @@ int32_t esp8266_init()
     //at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler);
 #ifdef 	USE_USARTRX_DMA
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[0],MAX_AT_RECV_LEN-1);
+    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*0],at_user_conf.user_buf_len);
 #endif
     esp8266_reset();  
     esp8266_echo_off();
@@ -313,6 +351,9 @@ at_config at_user_conf = {
     .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
+#ifdef  USE_USARTRX_DMA
+    .recv_buf_len = MAX_AT_RECV_LEN,
+#endif
     .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode
@@ -323,9 +364,9 @@ at_config at_user_conf = {
 at_adaptor_api at_interface = {
 
     .init = esp8266_init,    
-    .get_localmac = esp8266_get_localmac, /*获取本地MAC*/
-    .get_localip = esp8266_get_localip,/*获取本地IP*/
-    /*建立TCP或�UDP连接*/
+    .get_localmac = esp8266_get_localmac, /*get local MAC*/
+    .get_localip = esp8266_get_localip,/*get local IP*/
+    /*build TCP or UDP connection*/
     .connect = esp8266_connect,
 
     .send = esp8266_send,
@@ -333,8 +374,8 @@ at_adaptor_api at_interface = {
     .recv_timeout = esp8266_recv_timeout,
     .recv = esp8266_recv,
 
-    .close = esp8266_close,/*关闭连接*/
-    .recv_cb = esp8266_recv_cb,/*收到各种事件处理，暂不实�?*/
+    .close = esp8266_close,/*close connection*/
+    .recv_cb = esp8266_recv_cb,/* operation for events, not implements yet */
 
     .deinit = esp8266_deinit,
 };

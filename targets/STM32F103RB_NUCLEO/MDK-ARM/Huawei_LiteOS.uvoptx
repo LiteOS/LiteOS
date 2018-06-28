@@ -218,12 +218,24 @@
     <File>
       <GroupNumber>1</GroupNumber>
       <FileNumber>1</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c</PathWithFileName>
+      <FilenameWithoutPath>system_stm32f1xx.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>2</FileNumber>
       <FileType>2</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\los_startup_keil.s</PathWithFileName>
-      <FilenameWithoutPath>los_startup_keil.s</FilenameWithoutPath>
+      <PathWithFileName>..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\arm\startup_stm32f103xb.s</PathWithFileName>
+      <FilenameWithoutPath>startup_stm32f103xb.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -235,18 +247,6 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
-    <File>
-      <GroupNumber>2</GroupNumber>
-      <FileNumber>2</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\system_stm32f1xx.c</PathWithFileName>
-      <FilenameWithoutPath>system_stm32f1xx.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
     <File>
       <GroupNumber>2</GroupNumber>
       <FileNumber>3</FileNumber>

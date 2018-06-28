@@ -288,7 +288,14 @@ void PendSV_Handler(void)
  *****************************************************************************/
 void SysTick_Handler(void)
 {
-    osTickHandler();
+    if (g_bSysTickStart)
+    {
+        osTickHandler();
+    }
+    else
+    {
+        g_ullTickCount++;
+    }
 }
 
 #endif /*(LOSCFG_PLATFORM_HWI == YES)*/

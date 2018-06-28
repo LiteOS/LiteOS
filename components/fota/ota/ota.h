@@ -63,7 +63,7 @@ typedef struct
     int (*func_init)(void);
 
 #ifndef USE_BOOTLOADER /* used by app */
-    int (*func_set_reboot)(int32_t image_len, uint32_t image_crc, void (*func_reboot)(void));
+    int (*func_set_reboot)(int32_t image_len);
     int (*func_check_update_state)(ota_state* st);
 
 #else /* used by bootloader */
@@ -154,19 +154,17 @@ int ota_init(void);
  *
  *@par Description:
  *This API is used to reboot board by application. It will store image
- *len and image crc value to ota_flag, and set ota_state to need_update
+ *len to ota_flag, and set ota_state to need_update
  *and reboot.
  *@attention none.
  *
  *@param image_len     [IN] image length downloaded by application.
- *@param image_crc     [IN] crc value of the image.
- *@param func_reboot   [IN] reboot function passed by application.
  *
  *@retval #int          0 if succeed or -1 if failed.
  *@par Dependency: none.
  *@see none.
  */
-int ota_set_reboot(int32_t image_len, uint32_t image_crc, void (*func_reboot)(void));
+int ota_set_reboot(int32_t image_len);
 
 /**
  *@ingroup ota
@@ -224,7 +222,7 @@ int ota_jump_to_application(void);
  *
  *@par Description:
  *This API is used to roll back to older image if there is a problem
- *with new image. 
+ *with new image.
  *@attention none.
  *
  *@param none.

@@ -91,18 +91,23 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
+HAL_CMSIS_SRC =  \
+        $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c
+C_SOURCES += $(HAL_CMSIS_SRC)
+
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/main.c \
-        $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/system_stm32f1xx.c \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/usart.c \
         $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
 
 # ASM sources
-ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
-        ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
+ASM_SOURCES_s =  \
+        ${wildcard $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s}
+
+ASM_SOURCES_S = \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m3/gcc/los_dispatch_gcc.S}
 
 
 ######################################
@@ -164,6 +169,10 @@ HAL_DRIVER_INC = \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
 
+HAL_CMSIS_INC = \
+        -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Drivers/CMSIS/Device/ST/STM32F1xx/Include
+        C_INCLUDES += $(HAL_CMSIS_INC)
+
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/Inc \
         -I $(TOP_DIR)/targets/STM32F103RB_NUCLEO/OS_CONFIG
@@ -188,8 +197,8 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LD_FILE = STM32F103RBTx_LiteOS.ld
-LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
+LD_FILE = STM32F103RBTx_FLASH.ld
+LDSCRIPT = $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/linker/$(LD_FILE)
 
 # libraries
 LIBS = -lc -lm -lnosys
@@ -207,13 +216,18 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_s:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES_s)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
+vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile

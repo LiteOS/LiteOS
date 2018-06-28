@@ -52,7 +52,8 @@ LITE_OS_SEC_BSS UINT64      g_ullTickCount;
 LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
 LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
-LITE_OS_SEC_BSS UINT32      g_uwSysClock ;
+LITE_OS_SEC_BSS UINT32      g_uwSysClock;
+LITE_OS_SEC_DATA_INIT BOOL  g_bSysTickStart = FALSE;
 
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 /*****************************************************************************

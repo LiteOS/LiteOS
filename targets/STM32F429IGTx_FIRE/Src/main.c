@@ -36,6 +36,9 @@
 #include "agent_tiny_demo.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
+#if defined USE_NB_NEUL95
+#include "los_nb_api.h"
+#endif
 #endif
 UINT32 g_TskHandle;
 
@@ -47,19 +50,58 @@ VOID HardWare_Init(VOID)
     dwt_delay_init(SystemCoreClock);
 }
 
+extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+
 VOID main_task(VOID)
 {
-
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#if 0
+    sec_param_s sec;
+    sec.pskid = "868744031130978";
+    sec.psk = "47019975ce03358b32ed25ef5c14b560";
+#endif
+#define lijingqian 1
+#if lijingqian
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP1: Report Data to Server( NB Init )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_init((const int8_t*)"218.4.33.71",(const int8_t*)"5683",NULL);
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP2: Report Data to Server( NB Notify )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    osDelay(3000);
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP3: Report Data to Server( NB Report )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_report("22", 2);
+    los_nb_report("23", 2);
+#else
+    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+    los_nb_init((const int8_t*)"218.4.33.71",(const int8_t*)"5683",NULL);
+    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+	osDelay(3000);
+	ret = los_nb_report("22", 2);
+	printf("send:%d\n",ret);
+	ret = los_nb_report("33", 2);
+	printf("send:%d\n",ret);
+    ret = los_nb_report("44", 1);
+	printf("send:%d\n",ret);
+    ret = los_nb_report("55", 2);
+	printf("send:%d\n",ret);
+    //los_nb_deinit();
+#endif
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
     extern at_adaptor_api at_interface;
     at_api_register(&at_interface);
-    at_api_init();
-#else
-#endif
     agent_tiny_entry();
+#endif
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+    agent_tiny_entry();
+#endif
 }
 UINT32 creat_main_task()
 {

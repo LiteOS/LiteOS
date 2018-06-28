@@ -48,12 +48,15 @@ extern "C" {
 #endif /* __cplusplus */
 
 //number of slab class
-#define SLAB_MEM_COUNT 4
+#define SLAB_MEM_COUNT              4
+
+//step size of each class
+#define SLAB_MEM_CALSS_STEP_SIZE    0x10
 
 //max size of each class
-#define SLAB_MEM_ALLOCATOR_SIZE 512
+#define SLAB_MEM_ALLOCATOR_SIZE     512
 
-#define SLAB_BASIC_NEED_SIZE 0x1000
+#define SLAB_BASIC_NEED_SIZE        0x1000
 
 #ifdef __cplusplus
 #if __cplusplus
