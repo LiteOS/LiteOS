@@ -125,7 +125,8 @@ EXIT:
     state = ((ATINY_OK == result) ?  ATINY_FOTA_IDLE : ATINY_FOTA_DOWNLOADED);
     ret = lwm2m_send_notify(atiny_fota_manager_get_lwm2m_context(thi->manager),
                             &observe_info, state);
-    ATINY_LOG(LOG_ERR, "lwm2m_send_notify result %d, state %d", ret, state);
+    if(ret != 0)
+        ATINY_LOG(LOG_ERR, "lwm2m_send_notify result %d, state %d", ret, state);
 
     atiny_fota_manager_set_update_result(thi->manager, (ATINY_OK == result) ? ATINY_FIRMWARE_UPDATE_SUCCESS : ATINY_FIRMWARE_UPDATE_FAIL);
     (void)atiny_fota_manager_set_state(thi->manager, state);

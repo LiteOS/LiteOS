@@ -247,6 +247,8 @@ int parse_firmware_uri(char *uri, int uri_len)
     }
     //ÔÝ²»¿¼ÂÇquery
     char_p = uri + proto_len;
+    if(char_p == NULL)
+        return -1;
     path = strchr(char_p, '/');
     path_len = uri_len - (path - uri);
 
