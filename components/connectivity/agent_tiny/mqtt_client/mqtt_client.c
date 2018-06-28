@@ -741,6 +741,35 @@ connect_again:
     return ATINY_OK;
 }
 
+static int mqtt_send_packet_len(cloud_msg_t* send_data)
+{
+    int rem_len = 0;
+
+    if (NULL == send_data || NULL == send_data->uri
+        || !(send_data->qos>=CLOUD_QOS_MOST_ONCE && send_data->qos<CLOUD_QOS_LEVEL_MAX)
+        || !(send_data->method>=CLOUD_METHOD_GET&& send_data->method<CLOUD_METHOD_MAX))
+    {
+        return -1;
+    }
+
+    rem_len += 2 + strlen(send_data->uri) + send_data->payload_len;
+    if (send_data->qos > 0)
+        rem_len += 2; /* packetid */
+
+    rem_len += 1; /* header byte */
+
+    /* now remaining_length field */
+    if (rem_len < 128)
+        rem_len += 1;
+    else if (rem_len < 16384)
+        rem_len += 2;
+    else if (rem_len < 2097151)
+        rem_len += 3;
+    else
+        rem_len += 4;
+    return rem_len;
+}
+
 int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
 {
     handle_data_t* handle;
@@ -769,7 +798,7 @@ int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
             rc = mqtt_topic_subscribe(client, send_data->uri, send_data->qos, cb);
             break;
         case CLOUD_METHOD_POST:
-            if(send_data->payload_len<= 0 || send_data->payload_len > MAX_REPORT_DATA_LEN || NULL == send_data->payload)
+            if(send_data->payload_len<= 0 || NULL == send_data->payload || mqtt_send_packet_len(send_data) > MQTT_SENDBUF_SIZE)
                 return ATINY_ARG_INVALID;
             rc = mqtt_message_publish(client, send_data);
             break;
