@@ -36,6 +36,7 @@
 
 #include "atadapter.h"
 #include "at_hal.h"
+#include "atiny_adapter.h"
 
 #ifdef  USE_USARTRX_DMA
 uint8_t dma_wi_coun = 0;
@@ -140,7 +141,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
     at_transmit((uint8_t*)cmd, len,1);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 
-    at_listner_list_del(&listener); 
+    at_listner_list_del(&listener);
     LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
@@ -168,7 +169,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 
-    at_listner_list_del(&listener); 
+    at_listner_list_del(&listener);
     LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
@@ -240,7 +241,7 @@ void at_recv_task(uint32_t p)
 
             if(listener->suffix == NULL)
             {
-                
+
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
                 LOS_SemPost(at.resp_sem);
                 listener = NULL;
@@ -255,12 +256,12 @@ void at_recv_task(uint32_t p)
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t*)listener->resp, (int8_t*)p1, p2 - p1);
             }
-            else 
+            else
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
                 LOS_SemPost(at.resp_sem);
-            } 
+            }
             break;
         }
         }while(recv_len > 0);
@@ -458,7 +459,7 @@ int32_t at_struct_deinit(at_task * at)
 }
 
 void at_init()
-{    
+{
     AT_LOG("Config %s......\n", at_user_conf.name);
 
     LOS_TaskDelay(200);

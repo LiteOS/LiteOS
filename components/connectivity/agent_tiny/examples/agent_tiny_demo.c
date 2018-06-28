@@ -36,8 +36,9 @@
 #include "fota_port.h"
 
 //#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
-#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
+//#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
 //#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
+#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
 
 #define LWM2M_LIFE_TIME     50000
 
@@ -113,15 +114,18 @@ void agent_tiny_fota_init(void)
     fota_hardware_s *hardware = NULL;
     fota_pack_device_info_s device_info;
 
-    hal_init_fota();
+    int ret = hal_init_fota();
+    if(ret != 0)return;
 
-    hal_get_fota_device(&storage_device, &hardware);
+    ret = hal_get_fota_device(&storage_device, &hardware);
+    if(ret != 0)return;
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
     device_info.head_len = 40;
     device_info.head_info_notify  = NULL;
-    fota_set_pack_device(fota_get_pack_device(), &device_info);
+    ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
+    if(ret != 0)return;
 }
 
 void agent_tiny_entry(void)
@@ -130,10 +134,6 @@ void agent_tiny_entry(void)
     atiny_param_t* atiny_params;
     atiny_security_param_t  *security_param = NULL;
     atiny_device_info_t *device_info = &g_device_info;
-    if(NULL == device_info)
-    {
-        return;
-    }
 
     agent_tiny_fota_init();
 

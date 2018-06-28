@@ -103,9 +103,11 @@ USER_SRC =  \
 
 
 # ASM sources
-ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s}  \
-        ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
+ASM_SOURCES_s =  \
+        ${wildcard $(PROJECTBASE)/../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s}
+
+ASM_SOURCES_S = \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m3/gcc/los_dispatch_gcc.S}
 
 
 ######################################
@@ -214,13 +216,18 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_s:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES_s)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
+vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile

@@ -35,6 +35,7 @@
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
 #include "atadapter.h"
+#include "atiny_adapter.h"
 
 extern at_task at;
 at_adaptor_api at_interface;

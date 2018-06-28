@@ -60,7 +60,7 @@ int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, 
 {
     uint32_t offset = 0;
 
-    if(NULL == thi || !(type>=TOCKEN_INFO&&type<ATINY_UPDATE_INFO_MAX) || NULL == info)
+    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
         return -1;
 
     switch ( type )
@@ -81,7 +81,7 @@ int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, u
 {
     uint32_t offset = 0;
 
-    if(NULL == thi || !(type>=TOCKEN_INFO&&type<ATINY_UPDATE_INFO_MAX) || NULL == info)
+    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
         return -1;
 
     switch ( type )
