@@ -160,7 +160,7 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     thi->state = state;
     {
     /*lint -e614 */
-        atiny_fota_state_s *states[ATINY_FOTA_UPDATING];
+        atiny_fota_state_s *states[ATINY_FOTA_UPDATING + 1];
         states[ATINY_FOTA_IDLE] = ATINY_GET_STATE(thi->idle_state);
         states[ATINY_FOTA_DOWNLOADING] = ATINY_GET_STATE(thi->downloading_state);
         states[ATINY_FOTA_DOWNLOADED] = ATINY_GET_STATE(thi->downloaded_state);
