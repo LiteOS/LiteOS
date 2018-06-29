@@ -206,6 +206,7 @@ void atiny_deinit(void* phandle)
         atiny_param_member_free(&(handle->atiny_params));
         device_info_member_free(&(handle->device_info));
         (void)MQTTDisconnect(client);
+        MQTTClientDeInit(client);
         NetworkDisconnect(network);
     }
 

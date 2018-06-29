@@ -66,11 +66,11 @@ VOID main_task(VOID)
 #define lijingqian 1
 #if lijingqian
     printf("\r\n=====================================================");
-    printf("\r\nSTEP1: Report Data to Server( NB Init )");
+    printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
     los_nb_init((const int8_t*)"218.4.33.71",(const int8_t*)"5683",NULL);
     printf("\r\n=====================================================");
-    printf("\r\nSTEP2: Report Data to Server( NB Notify )");
+    printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
     los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
     osDelay(3000);
