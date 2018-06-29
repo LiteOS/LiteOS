@@ -546,7 +546,7 @@ static uint8_t prv_device_write(uint16_t instanceId,
             } else {
                 return COAP_400_BAD_REQUEST;
             }
-            break;
+            //break;
 
         default:
             result = COAP_405_METHOD_NOT_ALLOWED;
