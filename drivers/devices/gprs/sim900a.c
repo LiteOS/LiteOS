@@ -296,9 +296,8 @@ int32_t sim900a_ini()
 
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = USART2,
+    .usart = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,

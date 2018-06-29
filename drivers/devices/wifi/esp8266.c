@@ -39,12 +39,6 @@
 #include "atiny_socket.h"
 
 extern at_task at;
-#ifdef  USE_USARTRX_DMA
-extern at_config at_user_conf;
-extern UART_HandleTypeDef at_usart;
-
-#endif
-
 
 int32_t esp8266_echo_off(void)
 {
@@ -229,7 +223,7 @@ int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
         }
         p2++; //over ':'
 
-        qbuf.addr = atiny_malloc(data_len);
+        qbuf.addr = (uint8_t*)atiny_malloc((size_t)data_len);
         if (NULL == qbuf.addr)
         {
             AT_LOG("malloc for qbuf failed!");
@@ -323,9 +317,7 @@ int32_t esp8266_init()
     at.init();
     //at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler);
-#ifdef 	USE_USARTRX_DMA
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*0],at_user_conf.user_buf_len);
-#endif
+
     esp8266_reset();  
     esp8266_echo_off();
 
@@ -344,11 +336,11 @@ int32_t esp8266_init()
     AT_LOG("get ip:%s, gw:%s mac:%s", ip, gw, mac);
     return AT_OK;
 }
+
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = USART3,
+    .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
 #ifdef  USE_USARTRX_DMA

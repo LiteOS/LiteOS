@@ -34,14 +34,12 @@
 #ifndef __USART2_H
 #define	__USART2_H
 
-#include "stm32f4xx.h"
 #include <stdio.h>
 #include "cmsis_os.h"
 
 #define AT_MODU_NAME    	"SIM900A"
-#define AT_USART   			USART2
+#define AT_USART_PORT       2
 #define AT_BUARDRATE   		115200
-#define AT_USART_IRQn   	USART2_IRQn
 #define AT_CMD_TIMEOUT		10000    //ms
 #define AT_MAX_LINK_NUM     4
 
