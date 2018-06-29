@@ -169,18 +169,14 @@ void bootstrap_step(lwm2m_context_t * contextP,
                 {
                     //this situation is over clientHoldOffTime
                     //targetP->status = STATE_BS_PENDING;
-                    if(contextP->bs_server_uri != NULL)
+                    //if(contextP->bs_server_uri != NULL)
                     {
                         targetP->status = STATE_BS_FINISHING; //so get to the process : contextP->state = STATE_INITIAL;
 
                         server_to_client_mode = true;  //
                         contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
                     }
-                    else
-                    {
-                        //LOG("[bootstrap_tag] ###########STATE_BS_HOLD_OFF ----wait---wait---wait---");
-                        //wait for bs_server write info to the device-----wait---wait---wait---
-                    }
+
                 }
             }
             else if (*timeoutP > targetP->registration - currentTime)
@@ -256,6 +252,7 @@ void bootstrap_step(lwm2m_context_t * contextP,
         if(lwm2m_bootstrap_sequence_server_to_client_initiated(contextP) == 0)
         {
             contextP->state = STATE_INITIAL;
+            contextP->regist_first_flag = false;
         }
     }
 

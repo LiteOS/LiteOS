@@ -165,21 +165,12 @@ typedef enum
 
 typedef struct
 {
-    atiny_bootstrap_type_e  bootstrap_mode;
-
-    //two pairs of ip/port, because bootstrap sequence will make more try than one.
-    char* iot_server_ip;
-    char* iot_server_port;
-    char* bs_server_ip;
-    char* bs_server_port;
+    char* server_ip;
+    char* server_port;
 
     char* psk_Id;
     char* psk;
     unsigned short psk_len;
-
-    //get rid of it, now,when the pskid and psk are set (not NULL), the securityMode is LWM2M_SECURITY_MODE_PRE_SHARED_KEY, or else
-    //is LWM2M_SECURITY_MODE_NONE
-    //int securityMode;
 
 } atiny_security_param_t;
 
@@ -193,7 +184,12 @@ typedef enum
 
 typedef struct
 {
+
     atiny_server_param_t   server_params;
+
+    atiny_bootstrap_type_e  bootstrap_mode;
+
+    //both iot_server and bs_server have psk & pskID, index 0 for iot_server, and index 1 for bs_server
     atiny_security_param_t security_params[2];
 } atiny_param_t;
 

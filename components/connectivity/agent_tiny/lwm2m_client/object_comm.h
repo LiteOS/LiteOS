@@ -207,7 +207,7 @@ void handle_value_changed(lwm2m_context_t* lwm2mH, lwm2m_uri_t* uri, const char 
 /*
  * object_security.c
  */
-lwm2m_object_t * get_security_object(uint16_t serverId, const char* serverUri, char * bsPskId, char * psk, uint16_t pskLen, bool isBootstrap);
+lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_params,lwm2m_context_t* lwm2m_context);
 void clean_security_object(lwm2m_object_t * objectP);
 char * get_server_uri(lwm2m_object_t * objectP, uint16_t secObjInstID);
 void display_security_object(lwm2m_object_t * objectP);
