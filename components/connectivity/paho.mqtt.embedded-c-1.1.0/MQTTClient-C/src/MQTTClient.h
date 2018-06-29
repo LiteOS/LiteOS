@@ -132,6 +132,9 @@ typedef struct MQTTClient
     Mutex mutex;
     Thread thread;
 #endif
+#ifdef __MQTT_LITE_OS__
+    void *mutex;
+#endif
 } MQTTClient;
 
 #define DefaultClient {0, 0, 0, 0, NULL, NULL, 0, 0, 0}
@@ -146,6 +149,8 @@ typedef struct MQTTClient
  */
 DLLExport void MQTTClientInit(MQTTClient* client, Network* network, unsigned int command_timeout_ms,
 		unsigned char* sendbuf, size_t sendbuf_size, unsigned char* readbuf, size_t readbuf_size);
+
+DLLExport void MQTTClientDeInit(MQTTClient* c);
 
 /** MQTT Connect - send an MQTT connect packet down the network and wait for a Connack
  *  The nework object must be connected to the network endpoint before calling this
