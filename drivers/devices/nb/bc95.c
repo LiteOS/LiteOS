@@ -42,7 +42,7 @@ at_adaptor_api at_interface;
 
 char rbuf[1064] = {0};
 char wbuf[1064] = {0};
-char tmpbuf[1064]={0}; //用于转换hex
+char tmpbuf[1064]={0}; //鐢ㄤ簬杞崲hex
 
 remote_info sockinfo[MAX_SOCK_NUM];
 #if 0
@@ -119,12 +119,12 @@ int32_t nb_set_cdpserver(char* host, char* port)
 
 int32_t nb_send_psk(char* pskid, char* psk)
 {
-        char* cmds = "AT+QSECSWT";//AT+QSECSWT=1,100    OK
-        char* cmdp = "AT+QSETPSK";//AT+QSETPSK=86775942,E6F4C799   OK
-        sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
-        at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
-        sprintf(wbuf, "%s=%s,%s\r", cmdp, pskid, psk);
-        return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+    char* cmds = "AT+QSECSWT";//AT+QSECSWT=1,100    OK
+    char* cmdp = "AT+QSETPSK";//AT+QSETPSK=86775942,E6F4C799   OK
+    sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
+    at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+    sprintf(wbuf, "%s=%s,%s\r", cmdp, pskid, psk);
+    return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
 int32_t nb_send_payload(const char* buf, int len)
@@ -226,7 +226,6 @@ int nb_query_ip(void)
 {
 	char *cmd = "AT+CGPADDR\r";
     return at.cmd((int8_t*)cmd, strlen(cmd), "+CGPADDR:0,", NULL);
-
 }
 
 int32_t nb_get_netstat(void)
@@ -255,7 +254,6 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
         return socket;
     }
     return -1;
-
 }
 
 int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
@@ -433,7 +431,7 @@ int32_t nb_close(int32_t socket)
 	memset(wbuf, 0, 1064);
 	sprintf(wbuf, "%s%d\r", cmd, (int)socket);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
-	//全局存储remote信息
+	//鍏ㄥ眬瀛樺偍remote淇℃伅
 }
 
 int32_t nb_recv_cb(int32_t id)
@@ -448,9 +446,8 @@ int32_t nb_deinit(void)
 
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = USART3,
+    .usart = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,

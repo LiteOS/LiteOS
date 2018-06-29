@@ -46,9 +46,8 @@
 #define AT_CMD_PREFIX      "+NNMI:"
 
 #define AT_MODU_NAME    	"nb_neul95"
-#define AT_USART   			USART3
+#define AT_USART_PORT   	3
 #define AT_BUARDRATE   		9600
-#define AT_USART_IRQn   	USART3_IRQn
 #define AT_CMD_TIMEOUT		10000    //ms
 #define AT_MAX_LINK_NUM     4
 #define MAX_AT_USERDATA_LEN 2048

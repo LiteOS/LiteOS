@@ -210,13 +210,13 @@ void at_usart_deinit(void)
 #endif
 }
 
-void at_transmit(uint8_t * cmd, int32_t len,int flag)
+void at_transmit(uint8_t * cmd, int32_t len, int flag)
 {
     char * line_end = at_user_conf.line_end;
     (void)HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
-	if(flag == 1)
+	if(flag == 1){
     	(void)HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
-
+	}
 }
 
 int read_resp(uint8_t * buf)
@@ -249,12 +249,13 @@ int read_resp(uint8_t * buf)
 #else
     if (dma_wbi == dma_rbi){
         return 0;
-	  }
+	}
     memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);     
     len = dma_wi[dma_rbi];
     dma_rbi++;
-    if(dma_rbi >= dma_wi_coun)
-        dma_rbi = 0;			
+    if(dma_rbi >= dma_wi_coun){
+        dma_rbi = 0;
+    }
 #endif  
 #ifndef USE_USARTRX_DMA
     ri = wi;
