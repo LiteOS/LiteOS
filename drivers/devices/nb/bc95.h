@@ -45,10 +45,10 @@
 #define AT_NB_get_auto_connect    		"AT+NCONFIG?\r"
 #define AT_CMD_PREFIX      "+NNMI:"
 
-#define AT_MODU_NAME    	"nb_neul95"
-#define AT_USART_PORT   	3
-#define AT_BUARDRATE   		9600
-#define AT_CMD_TIMEOUT		10000    //ms
+#define AT_MODU_NAME        "nb_neul95"
+#define AT_USART_PORT       3
+#define AT_BUARDRATE        9600
+#define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
 #define MAX_AT_USERDATA_LEN 2048
 
@@ -62,7 +62,7 @@ typedef struct _remote_info_t
     int socket;
     unsigned short port;
     char ip[16];
-}remote_info;//后续创建socket时需要该struct保存
+}remote_info;//鍚庣画鍒涘缓socket鏃堕渶瑕佽struct淇濆瓨
 
 
 int str_to_hex(const char *bufin, int len, char *bufout);
