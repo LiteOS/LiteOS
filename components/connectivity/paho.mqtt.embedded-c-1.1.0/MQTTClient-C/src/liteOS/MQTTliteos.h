@@ -32,8 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if !defined(__MQTT_LITE_OS_)
-#define __MQTT_LITE_OS_
+#if !defined(__MQTT_LITE_OS__)
+#define __MQTT_LITE_OS__
 
 #if defined(WIN32_DLL) || defined(WIN64_DLL)
   #define DLLImport __declspec(dllimport)
@@ -52,8 +52,9 @@
 #include <string.h>
 #include <signal.h>
 #include <los_typedef.h>
-#include <los_sys.h>	
-	
+#include <los_sys.h>
+#include "atiny_adapter.h"
+
 typedef struct Timer
 {
 	unsigned long long end_time;
