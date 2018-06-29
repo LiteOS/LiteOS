@@ -114,6 +114,7 @@ static int prv_image_integrity(uint8_t* integrity)
     uint32_t check_len;
 
     ota_sha256_init(&ctx);
+    ota_sha256_starts(&ctx, 0);
 
     while (image_len > 0)
     {
