@@ -138,7 +138,7 @@ exit:
     return ret;
 }
 
-#ifdef WITH_BOOTLOADER
+#ifdef USE_BOOTLOADER
 static void prv_get_update_record(uint8_t* state, uint32_t* offset)
 {
     if (NULL != state)
@@ -255,7 +255,7 @@ int ota_default_check_update_state(ota_state* st)
 
     return OTA_ERRNO_OK;
 }
-#ifdef WITH_BOOTLOADER
+#ifdef USE_BOOTLOADER
 int ota_default_update_process(void)
 {
 /*lint -e616 */
