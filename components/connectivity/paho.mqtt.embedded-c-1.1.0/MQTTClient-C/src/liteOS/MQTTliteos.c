@@ -44,7 +44,6 @@
 #include "lwip/errno.h"
 
 #include "MQTTliteos.h"
-#include "atiny_adapter.h"
 
 //#define get_time_ms() LOS_Tick2MS(LOS_TickCountGet())
 #define get_time_ms atiny_gettime_ms
