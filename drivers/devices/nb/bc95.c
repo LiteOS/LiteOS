@@ -34,8 +34,6 @@
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
-#include "atadapter.h"
-#include "atiny_adapter.h"
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -292,7 +290,7 @@ int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
             data_len = (data_len * 10 + (*p2 - '0'));
         }
 
-        qbuf.addr = atiny_malloc(data_len + 40);//extra space for ip and port
+        qbuf.addr = at_malloc(data_len + 40);//extra space for ip and port
         if (NULL == qbuf.addr)
         {
             AT_LOG("malloc for qbuf failed!");
@@ -309,7 +307,7 @@ int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
         if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
         {
             AT_LOG("LOS_QueueWriteCopy  failed!");
-            atiny_free(qbuf.addr);
+            at_free(qbuf.addr);
             goto END;
         }
         ret = data_len;
@@ -389,7 +387,7 @@ int32_t nb_recv(int32_t id , int8_t  *buf, uint32_t len)
 
     if (rlen){
         memcpy(buf, wbuf, rlen);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return rlen;
 
@@ -419,7 +417,7 @@ int32_t nb_recv_timeout(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout
 
     if (rlen){
         memcpy(buf, wbuf, rlen);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return rlen;
 
@@ -446,7 +444,7 @@ int32_t nb_deinit(void)
 
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = AT_USART_PORT,
+    .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,

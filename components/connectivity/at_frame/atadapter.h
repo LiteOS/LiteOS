@@ -40,6 +40,9 @@
 #include "los_task.h"
 #include "los_sem.h"
 
+#include "atiny_socket.h"
+#include "at_api_interface.h"
+
 /* MACRO DEFINE */
 #define AT_INTO
 #ifdef AT_INTO

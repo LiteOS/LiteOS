@@ -34,7 +34,6 @@
 #ifndef __ESP8266_H__
 #define __ESP8266_H__
 
-#include "at_api_interface.h"
 #include "atadapter.h"
 
 #define WIFI_SSID      		"TP-LINK_80D8BE"

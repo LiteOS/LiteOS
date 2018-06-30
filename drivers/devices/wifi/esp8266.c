@@ -34,9 +34,6 @@
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
 #include "esp8266.h"
-#include "atadapter.h"
-#include "at_api_interface.h"
-#include "atiny_socket.h"
 
 extern at_task at;
 
@@ -126,12 +123,11 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
     ret = at.write((int8_t *)cmd, (int8_t *)"SEND OK\r\n", (int8_t*)buf, len);
 
     return ret;
-
 }
 
 int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
 {
-   uint32_t qlen = sizeof(QUEUE_BUFF);
+    uint32_t qlen = sizeof(QUEUE_BUFF);
 
     QUEUE_BUFF  qbuf = {0, NULL};
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, LOS_WAIT_FOREVER);
@@ -143,7 +139,7 @@ int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -162,7 +158,7 @@ int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t tim
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -223,7 +219,7 @@ int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
         }
         p2++; //over ':'
 
-        qbuf.addr = (uint8_t*)atiny_malloc((size_t)data_len);
+        qbuf.addr = at_malloc(data_len);
         if (NULL == qbuf.addr)
         {
             AT_LOG("malloc for qbuf failed!");
@@ -236,7 +232,7 @@ int32_t esp8266_data_handler(void * arg, int8_t * buf, int32_t len)
         if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[linkid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
         {
             AT_LOG("LOS_QueueWriteCopy  failed! ret = %lx", ret);
-            atiny_free(qbuf.addr);
+            at_free(qbuf.addr);
             goto END;
         }
         ret = (p2 + data_len - (char*)buf);

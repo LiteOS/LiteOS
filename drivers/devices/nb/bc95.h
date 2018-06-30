@@ -35,7 +35,7 @@
 #ifndef __NB_NEUL_BC95_H__
 #define __NB_NEUL_BC95_H__
 
-#include "at_api_interface.h"
+#include "atadapter.h"
 
 //#define CLOUD_IP  "218.4.33.71,5683"
 #define AT_NB_LINE_END 			"\r\n"

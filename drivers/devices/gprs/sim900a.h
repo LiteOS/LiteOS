@@ -34,13 +34,12 @@
 #ifndef __USART2_H
 #define	__USART2_H
 
-#include <stdio.h>
-#include "cmsis_os.h"
+#include "atadapter.h"
 
-#define AT_MODU_NAME    	"SIM900A"
+#define AT_MODU_NAME        "SIM900A"
 #define AT_USART_PORT       2
-#define AT_BUARDRATE   		115200
-#define AT_CMD_TIMEOUT		10000    //ms
+#define AT_BUARDRATE        115200
+#define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
 
 #define AT_LINE_END 		"\r"
@@ -69,7 +68,7 @@
 
 #define AT_DATAF_PREFIX      "\r\n+IPD"
 #define AT_DATAF_PREFIX_MULTI      "\r\n+RECEIVE"
-#define  SIM900A_DELAY       osDelay
+#define SIM900A_DELAY       LOS_TaskDelay
 
 #endif /* __USART2_H */
 
