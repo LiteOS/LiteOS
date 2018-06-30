@@ -60,8 +60,7 @@ typedef void (*jump_func)(void);
 
 static void set_msp(uint32_t stack)
 {
-//    __asm volatile ("MSR MSP, r0; BX r14");
-    __set_MSP(stack);
+    __asm volatile ("MSR MSP, r0; BX r14");
 }
 
 static int prv_spi2inner_copy(uint32_t addr_source,
