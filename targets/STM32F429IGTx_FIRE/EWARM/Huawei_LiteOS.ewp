@@ -382,6 +382,10 @@
                     <state>$PROJ_DIR$\..\..\..\drivers\devices\gprs</state>
                     <state>$PROJ_DIR$\..\..\..\drivers\devices\nb</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\nb_iot</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\ota</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\utility</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2105,10 +2109,22 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\agenttiny.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_api.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_log.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_rpt.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</name>
@@ -2117,7 +2133,7 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\lwm2mclient.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update\firmware_update.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\object_access_control.c</name>
@@ -2148,9 +2164,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\platform_adapter.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\system_api.c</name>
         </file>
     </group>
     <group>
@@ -2217,6 +2230,33 @@
         <name>er-coap</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</name>
+        </file>
+    </group>
+    <group>
+        <name>fota</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\ota\ota.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\utility\ota_crc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\ota\ota_default.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\utility\ota_sha256.c</name>
         </file>
     </group>
     <group>
@@ -2739,6 +2779,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\eth.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Src\fota_port.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\main.c</name>

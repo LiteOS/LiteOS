@@ -10,7 +10,7 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F767ZITx</Device>
@@ -328,9 +328,6 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
-            <v6WtE>0</v6WtE>
-            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx,LOS_KERNEL_DEBUG_OUT,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWIP,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,USE_AT_FRAMEWORK,USE_ESP8266_SPI</Define>
@@ -348,7 +345,6 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -1250,11 +1246,6 @@
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</FilePath>
             </File>
             <File>
-              <FileName>lwm2mclient.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\lwm2mclient.c</FilePath>
-            </File>
-            <File>
               <FileName>object_access_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\object_access_control.c</FilePath>
@@ -1303,11 +1294,6 @@
               <FileName>platform_adapter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\platform_adapter.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\system_api.c</FilePath>
             </File>
             <File>
               <FileName>atiny_fota_manager.c</FileName>

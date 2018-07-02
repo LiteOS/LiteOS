@@ -33,7 +33,9 @@
  *---------------------------------------------------------------------------*/
 #ifndef __AT_API_INTERFACE_H__
 #define __AT_API_INTERFACE_H__
-#include "stm32f4xx_hal.h"
+
+#include <stdint.h>
+#include <stdio.h>
 
 typedef struct {
 	int32_t  (*init)(void);  /*初始化，初始化串口、IP网络等*/
