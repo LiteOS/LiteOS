@@ -47,12 +47,14 @@ char * g_endpoint_name = "44440003";
 //char *g_endpoint_name_s = "11110006";
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x96};
 
-char *g_endpoint_name_s = "88889999";
-unsigned char g_psk_value[16] = {0x02,0x77,0x68,0xca,0x0b,0xf5,0xdf,0xba,0x46,0x43,0x25,0xdd,0x4b,0xe7,0x0a,0x9d};
+//char *g_endpoint_name_s = "88889999";
+//unsigned char g_psk_value[16] = {0x02,0x77,0x68,0xca,0x0b,0xf5,0xdf,0xba,0x46,0x43,0x25,0xdd,0x4b,0xe7,0x0a,0x9d};
 
-
-
-//char * g_endpoint_name_s = "33330003";
+char* g_endpoint_name_s = "11110001";
+char* g_endpoint_name_iots = "66667777";
+char* g_endpoint_name_bs = "22224444";
+unsigned char g_psk_iot_value[16] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
+unsigned char g_psk_bs_value[12] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
 #endif
 
@@ -132,7 +134,9 @@ void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
     atiny_param_t* atiny_params;
-    atiny_security_param_t  *security_param = NULL;
+    atiny_security_param_t  *iot_security_param = NULL;
+    atiny_security_param_t  *bs_security_param = NULL;
+
     atiny_device_info_t *device_info = &g_device_info;
 
     agent_tiny_fota_init();
@@ -150,26 +154,38 @@ void agent_tiny_entry(void)
     atiny_params->server_params.life_time = 20;
     atiny_params->server_params.storing_cnt = 0;
 
-    security_param = &(atiny_params->security_params[0]);
+    atiny_params->bootstrap_mode = BOOTSTRAP_FACTORY;
 
-    security_param->bootstrap_mode = BOOTSTRAP_FACTORY;
-    security_param->iot_server_ip = DEFAULT_SERVER_IPV4;
-    security_param->bs_server_ip = DEFAULT_SERVER_IPV4;
+    //pay attention: index 0 for iot server, index 1 for bootstrap server.
+    iot_security_param = &(atiny_params->security_params[0]);
+    bs_security_param = &(atiny_params->security_params[1]);
+
+
+    iot_security_param->server_ip = DEFAULT_SERVER_IPV4;
+    bs_security_param->server_ip = DEFAULT_SERVER_IPV4;
 
 #ifdef WITH_DTLS
-    security_param->iot_server_port = "5684";
-    security_param->bs_server_port = "5684";
+    iot_security_param->server_port = "5684";
+    bs_security_param->server_port = "5684";
 
-    security_param->psk_Id = g_endpoint_name_s;
-    security_param->psk = (char*)g_psk_value;
-    security_param->psk_len = 16;
+    iot_security_param->psk_Id = g_endpoint_name_iots;
+    iot_security_param->psk = (char*)g_psk_iot_value;
+    iot_security_param->psk_len = 16;
+
+    bs_security_param->psk_Id = g_endpoint_name_bs;
+    bs_security_param->psk = (char*)g_psk_bs_value;
+    bs_security_param->psk_len = 16;
 #else
-    security_param->iot_server_port = "5683";
-    security_param->bs_server_port = "5683";
+    iot_security_param->server_port = "5683";
+    bs_security_param->server_port = "5683";
 
-    security_param->psk_Id = NULL;
-    security_param->psk = NULL;
-    security_param->psk_len = 0;
+    iot_security_param->psk_Id = NULL;
+    iot_security_param->psk = NULL;
+    iot_security_param->psk_len = 0;
+
+    bs_security_param->psk_Id = NULL;
+    bs_security_param->psk = NULL;
+    bs_security_param->psk_len = 0;
 #endif
 
     if(ATINY_OK != atiny_init(atiny_params, &g_phandle))
