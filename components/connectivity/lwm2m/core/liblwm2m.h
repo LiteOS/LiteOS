@@ -725,7 +725,8 @@ typedef struct
 #ifdef LWM2M_CLIENT_MODE
     lwm2m_client_state_t state;
     lwm2m_bs_sequence_state_t bs_sequence_state;
-    char*                bs_server_uri;   //    coaps://     coap://malloc memory
+    //char*                bs_server_uri;   //    coaps://     coap://malloc memory
+    bool                 regist_first_flag;  //when serverlist and bootstrapServerList are all exist, we use regist or bootstrap.
     char*                endpointName;
     char*                msisdn;
     char*                altPath;

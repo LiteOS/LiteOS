@@ -41,10 +41,12 @@
 
 #include "atiny_fota_api.h"
 
+
 typedef struct fota_hardware_api_tag_s
 {
     uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
     uint32_t (*get_max_size)(struct fota_hardware_api_tag_s *thi);
+    int (*read_software)(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
 }fota_hardware_s;
 
 typedef struct
