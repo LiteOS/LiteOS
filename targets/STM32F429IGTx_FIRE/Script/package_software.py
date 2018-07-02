@@ -2,10 +2,11 @@ import zlib
 import os
 import sys
 import getopt
-import  xml.dom.minidom
+import  xml.dom.minidom as minidom
+import hashlib
+import traceback
 
 '''
-use CRC polynom 4C11DB7 to calculate the total crc32
 '''
 
 OK = 0
@@ -18,46 +19,88 @@ RET_FILE_OPERATION_ERR = 6
 RET_XML_CONFIG_ERR=7
 
 
-SOFTWARE_VERSION="LiteOsV1R2C51SPC00"
+FILE_OPERATE_SIZE = 4 * 1024
+
+TLV_SHA256_CHECKSUM = 1
+
+TLV_CRC_CHECKSUM = TLV_SHA256_CHECKSUM + 2
+
+INVALID_OFFSET = -1
+TLV_T_LEN = 2
+TLV_L_LEN = 2
+
+TLV_HEAD_LEN_POS = 4
+TLV_TOTAL_LEN_POS = 8
+DEFAULT_CONFIG_FILE_NAME = 'config.xml'
+
+def min(a, b):
+	if a <= b:
+		return a
+	else:
+		return b	
 
 def append_buffer(buffer, pos, value):
 	buffer.append(value)
 	
 def serialize_byte(buffer, value, byte_number = 4, pos = 0, callback = append_buffer):
-	if byte_number == 4:
-		mask = 0xff000000
-		shift_num = 24
-	elif byte_number == 2:
-		mask = 0x0000ff00
-		shift_num = 8
-	else:
-		return ERR	
+	max_num = 4
+	if byte_number > max_num:
+		print 'write byte_number %d err'%(byte_number)
+		raise Exception()
+		return ERR
 	
+	mask = 0xff000000
+	shift_num = 24
+	for i in range(0, max_num - byte_number):
+		mask = (mask >> 8)
+		shift_num -= 8
+
 	for i in range(0, byte_number):
 		callback(buffer, i + pos, ((mask & value) >> shift_num))
 		mask = (mask >> 8)
 		shift_num -= 8
 		
 	return OK
-	
-def write_buffer(buffer, pos, value):
-	buffer[pos] = value
-	
-def write_byte(buffer,  pos, value, byte_number = 4):	
-	serialize_byte(buffer, value, byte_number, pos, write_buffer)
-	
-def write_fd(fd, pos, value):
-	buffer = bytes(chr(value))
-	fd.write(buffer)
-	
-def write_fd_byte(fd, value, byte_number = 4):
-	serialize_byte(fd, value, byte_number, 0, write_fd)	
+
+class file_writer(object):
+	def __init__(self, file_name):
+		self.fd = open(file_name, 'w+b')
+		
+	def __del__(self):
+		self.fd.close()
+		
+	def write(self, value, byte_num = 4, offset = INVALID_OFFSET):
+		if offset != INVALID_OFFSET:
+			self.fd.seek(offset)	
+			
+		if isinstance(value, int) or isinstance(value, long):
+			buffer = bytearray()
+			serialize_byte(buffer, value, byte_num)
+		elif isinstance(value, str):
+			buffer=bytearray(value)
+		else:
+			buffer = value
+		self.fd.write(buffer)
+		
+	def read(self, size, offset = INVALID_OFFSET):
+		if offset != INVALID_OFFSET:
+			self.fd.seek(offset)		
+		return self.fd.read(size)
+		
+	def tell(self):
+		return self.fd.tell()
+		
+	def seek(self, offset):
+		self.fd.seek(offset)
+
 
 	
 class config_info(object):
-	input_file=""
-	output_file=""
-	software_version=""
+	def __init__(self):
+		self.input_file=""
+		self.output_file=""
+		self.config_file=""
+		
 	def parse_args(self):
 		try:
 			opts, args = getopt.getopt(sys.argv[1:], 'c:i:o')
@@ -65,10 +108,10 @@ class config_info(object):
 			print str(err)			
 			return RET_INVALID_ARG			
 		
-		config_file = "config.xml"
+		self.config_file = "config.xml"
 		for opt, arg in opts:
 			if opt == "-c":
-				config_file = arg
+				self.config_file = arg
 			elif opt == "-i":
 				self.input_file = arg
 			elif opt == "-o":
@@ -76,120 +119,285 @@ class config_info(object):
 			else:
 				pass
 		
-		if self.input_file == "":
-			print "must input a source bin file"
+		if not os.path.isfile(self.input_file):
+			print "{0} is not a file!".format(self.input_file)
 			return RET_INVALID_ARG
 			
-		if self.output_file == "":
-			self.output_file = self.input_file + ".out_bin"
+		if self.output_file == '':
+			self.output_file = os.path.join(os.getcwd(), os.path.basename(self.input_file) + ".out_bin")
 		
-		return self.__parse_xml__(config_file)
-	
-	def __parse_xml__(self, config_file):
-		if not os.path.isfile(config_file):
-			print "config xml file \"{}\" not exist".format(config_file)
+		if self.config_file == '':
+			self.config_file = DEFAULT_CONFIG_FILE_NAME
+		
+		if not os.path.isfile(self.config_file):
+			print "config xml file \"{}\" not exist".format(self.config_file)
 			return RET_INVALID_ARG	
 		
-		ret = RET_XML_CONFIG_ERR
-		try:
-			dom = xml.dom.minidom.parse(config_file)
-			root = dom.documentElement
-			elements = root.getElementsByTagName('software_version')
-			if len(elements) > 0:
-				#print str(elements[0].firstChild.data)
-				self.software_version = str(elements[0].firstChild.data)
-			ret =  OK
-		except Exception as err:
-			print "parse xml exception %s"%(err)			
-		except:
-			print "parse xml exception"
-		finally:
+		return OK
+	
+	def get_input_file(self):
+		return self.input_file
+	
+	def get_output_file(self):
+		return self.output_file
+	
+	def get_config_file(self):
+		return self.config_file
+	
+			
+class checksum(object):
+	def name(self):
+		return ''
+		
+	def size(self):
+		return 0
+	
+	def attribute(self):
+		return -1
+		
+	def udpate(self, buffer):
+		pass
+	
+	def get_checksum(self):
+		return ""
+		
+	def reset(self):
+		pass
+
+class sha256_checksum(checksum):
+	def __init__(self):
+		self.reset()
+		
+	def name(self):
+		return 'sha256'
+	
+	def attribute(self):
+		return TLV_SHA256_CHECKSUM
+		
+	def size(self):
+		return 32
+		
+	def update(self, buffer):
+		self.sha256.update(buffer)
+	
+	def get_checksum(self):
+		print 'sha256 checksum:%s'%(self.sha256.hexdigest())
+		return self.sha256.digest()
+	
+	def reset(self):
+		self.sha256 = hashlib.sha256('')
+		
+class crc256_checksum(checksum):
+	def name():
+		return 'crc256'
+
+	
+class tlv_type(object):
+	def set_writer(self, writer):
+		self.writer = writer
+		
+	def name(self):
+		return ''
+		
+	def get_value(self, value, tlv):
+		return [len(value), value]
+		
+	def write(self, tlv):
+		[l, v] = self.get_value(tlv.firstChild.data, tlv)
+		if 0 == l:
+			return [OK, 0]
+		if l < 0:
+			return [RET_XML_CONFIG_ERR, 0]
+		self.writer.write(v, l)
+		return [OK, l]
+		
+class string_type(tlv_type):
+	def name(self):
+		return 'string'
+		
+class integer_type(tlv_type):
+	def name(self):
+		return 'integer'
+		
+	def get_value(self, value, tlv):
+		value_len = tlv.getAttribute('value_len')
+		if value_len == '' or long(value_len, 0) > 4:
+			print 'value_len error'
+			return [RET_XML_CONFIG_ERR, '']		
+		
+		return [long(value_len, 0), long(value, 0)]
+
+class software_header(object):	
+	def __init__(self, config, writer):
+		self.writer = writer
+		self.config = config
+		self.software_checksum_offset = INVALID_OFFSET
+		self.head_len = 0	
+		self.software_checksum = ''
+		ret = self.__write_config()
+		if ret != OK:
+			return
+		self.__update_head_checksum()
+
+	
+	def __write_version(self, dom):
+		ver = dom.getElementsByTagName("version")
+		version_no = 0		
+		if 0 == len(ver):
+			print "version tag not exist,using version No.0"
+		else:
+			version_no = int(ver[0].firstChild.data, 0)
+		
+		self.writer.write(version_no)
+		
+	def __write_tlvs(self, dom):
+		tlvs = dom.getElementsByTagName("tlv")
+		types = [string_type(), integer_type()]
+		for type in types:
+			type.set_writer(self.writer)
+		
+		for tlv in tlvs:
+			values = tlv.getElementsByTagName("value")
+			if len(values) == 0:
+				print '%s has no value'%(tlv.nodeName)
+				continue
+				
+			attribute = tlv.getAttribute("attribute")
+			if attribute == '':
+				print 'attribute empty'
+				return RET_XML_CONFIG_ERR
+			
+			self.writer.write(long(attribute, 0), TLV_T_LEN)
+			len_pos = self.writer.tell()
+			self.writer.write(0, TLV_L_LEN)	
+			values_len = 0
+			for value in values:
+				ret = ERR
+				name = ''
+				value_len = 0
+				
+				for type in types:
+					name = value.getAttribute("type")
+					if name == type.name():
+						[ret, value_len] = type.write(value)
+						break
+						
+				if ret != OK:
+					print 'value type %s err'%(name)
+					return ret
+				values_len += value_len
+			pos = self.writer.tell()
+			self.writer.write(values_len, TLV_L_LEN, len_pos)
+			self.writer.seek(pos)
+		return OK
+	
+	def __init_checksum(self, dom):	
+		checksum = dom.getElementsByTagName("checksum")
+		if len(checksum) == 0:
+			print "no checksum tag in config file"
+			return RET_XML_CONFIG_ERR
+			
+		algs = [sha256_checksum(), crc256_checksum()]
+		for alg in algs:
+			if alg.name() == checksum[0].firstChild.data:
+				self.checksum_alg = alg
+				return OK
+			
+		print 'no checksum alg selected'
+		return RET_XML_CONFIG_ERR	
+		
+				
+		
+	def __write_config(self):
+		dom = minidom.parse(self.config.config_file)
+		
+		#version No.
+		self.__write_version(dom);
+		
+		#reserve header length
+		self.writer.write(0)
+		
+		#reserve total length
+		self.writer.write(0)	
+
+		#tlvs 
+		self.__write_tlvs(dom)
+		
+		ret = self.__init_checksum(dom)
+		if ret != OK:
 			return ret
-
-class software_header(object):
-	buffer = bytearray()
-	crc = 0
-	header_len = 4 + 4 + 32
-	def __init__(self, config):
-		file_len = os.path.getsize(config.input_file)
-		serialize_byte(self.buffer, self.header_len + file_len)
-		serialize_byte(self.buffer, 0)
 		
-		for i in range(0, 32):
-			if i >= len(config.software_version) or i == 31:
-				self.buffer.append(0)
-			else:
-				self.buffer.append(config.software_version[i])
-		self.crc = zlib.crc32(bytes(buffer))
+		size = self.checksum_alg.size()
+		if size > 0:			
+			self.writer.write(self.checksum_alg.attribute(), TLV_T_LEN)			
+			self.writer.write(size, TLV_L_LEN)
+			self.software_checksum_offset = self.writer.tell()	
+			self.writer.write(bytearray(size))			
+		self.head_len = self.writer.tell()
+		self.writer.write(self.head_len, 4, TLV_HEAD_LEN_POS)
+		self.writer.write(self.head_len + os.path.getsize(self.config.input_file), 4, TLV_TOTAL_LEN_POS)
+		self.writer.seek(self.head_len)
 		
-	def get_buffer(self):
-		return bytes(self.buffer)
+		return OK
 		
-	def get_crc(self):
-		return self.crc
-	def get_crc_offset(self):
-		return 4
-
-
-
+	def write_software(self, buffer):
+		if self.software_checksum_offset == INVALID_OFFSET:
+			return
+		self.checksum_alg.update(buffer)
+	
+	def write_software_end(self):
+	#write head and software sha256
+		if self.software_checksum_offset == INVALID_OFFSET:
+			return
+		software_checksum = self.checksum_alg.get_checksum()
+		self.writer.write(software_checksum, len(software_checksum), self.software_checksum_offset)
 		
+	def __update_head_checksum(self):
+		read_len = self.head_len
+		while read_len > 0:
+			tmp_len = min(read_len, FILE_OPERATE_SIZE)
+			if read_len == self.head_len:
+				buffer = self.writer.read(tmp_len, 0)
+			else:				
+				buffer = self.writer.read(tmp_len)
+			self.checksum_alg.update(buffer)
+			read_len -= tmp_len
 		
-		
-
 class software_maker(object):
 	def __init__(self):
 		pass
-	
-	def __get_info(self, input_file):
-		if not os.path.isfile(input_file):
-			print "{0} is not a file!".format(input_file)
-			return [RET_INVALID_ARG, ""]
-		return [OK, SOFTWARE_VERSION]
 
-	def make_software(self, config):			
-		input_file = config.input_file
-		output_file = config.output_file
-		
-		if not os.path.isfile(input_file):
-			print "{0} is not a file!".format(input_file)
-			return RET_INVALID_ARG
-			
-		header = software_header(config)
-
-		crc = header.get_crc();
+	def make_software(self, config):
 		ret = OK
-		try:
-			input_fd = open(input_file, 'rb')
-			output_fd = open(output_file, 'wb')
-			block_size = 4 * 1024			
-			output_fd.write(header.get_buffer())
-			
-			
+		input_fd = None
+		header = None		
+		try:			
+			writer = file_writer(config.get_output_file())			
+			header = software_header(config, writer)					
+			input_fd = open(config.input_file, 'rb')
 			while True:
-				buffer = input_fd.read(block_size)
+				buffer = input_fd.read(FILE_OPERATE_SIZE)
 				if len(buffer) == 0: # EOF or file empty. return hashes	
-					output_fd.seek(header.get_crc_offset())
-					crc &= 0xffffffff
-					write_fd_byte(output_fd, crc)
-					break					
-				crc = zlib.crc32(buffer, crc)				
-				output_fd.write(buffer)		
-			
+					header.write_software_end()
+					break
+				header.write_software(buffer)
+				writer.write(buffer)
 				
 		except IOError as e:
 			print "IOError {0}".format(str(e))	
 			ret = RET_FILE_OPERATION_ERR
+			traceback.print_exc()
 			
 		except  Exception as err:
-			print 'except hanppen' + str(err)
+			print 'except hanppen!' + str(err)
 			ret = RET_FILE_OPERATION_ERR
+			traceback.print_exc()
 
 		finally:
 			if not input_fd is None:
 				input_fd.close()			
-			if not output_fd is None:
-				output_fd.close()
-		print 'make software %s to %s ,length %d, crc 0x%x, software_version \"%s\", ret %d'%(input_file, output_file, os.path.getsize(input_file), crc, config.software_version, ret)
+
+		print 'make software %s to %s ,length %d, ret %d'%(config.input_file, config.output_file, os.path.getsize(config.input_file), ret)
 		
 		return ret
 
