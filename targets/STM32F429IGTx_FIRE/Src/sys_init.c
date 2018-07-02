@@ -171,3 +171,22 @@ void hieth_hw_init(void)
     extern void ETH_IRQHandler(void);
     (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
 }
+
+/**
+ * atiny_adapter user interface 
+ */
+void atiny_usleep(unsigned long usec)
+{
+    delayus((uint32_t)usec);
+}
+
+int atiny_random(void* output, size_t len)
+{
+    return hal_rng_generate_buffer(output, len);
+}
+
+void atiny_reboot(void)
+{
+    HAL_NVIC_SystemReset();
+}
+
