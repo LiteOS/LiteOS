@@ -33,8 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "atiny_adapter.h"
-#include "hal_rng.h"
-#include "dwt.h"
+#include "sys_init.h"
 #include "los_memory.h"
 #include "los_sys.ph"
 #include "los_sem.ph"
@@ -211,6 +210,6 @@ void atiny_mutex_unlock(void* mutex) { ((void)mutex); }
 
 void atiny_reboot(void)
 {
-    HAL_NVIC_SystemReset();
+    sys_reboot();
 }
 

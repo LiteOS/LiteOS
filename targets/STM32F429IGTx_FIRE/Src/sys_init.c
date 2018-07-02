@@ -171,3 +171,8 @@ void hieth_hw_init(void)
     extern void ETH_IRQHandler(void);
     (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
 }
+
+void sys_reboot(void)
+{
+    HAL_NVIC_SystemReset();
+}
