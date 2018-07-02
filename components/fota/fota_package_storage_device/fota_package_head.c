@@ -348,15 +348,8 @@ const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head)
 }
 
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, uint16_t head_len, fota_hardware_s *hardware, head_update_check update_check, void *param)
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param)
 {
-    if(head_len < FOTA_PACK_HEADER_MIN_LEN)
-    {
-        FOTA_LOG("invalid len %u", head_len);
-        return FOTA_ERR;
-    }
-
-    head->head_len = head_len;
     head->hardware = hardware;
     head->update_check = update_check;
     head->param = param;

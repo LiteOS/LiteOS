@@ -124,7 +124,6 @@ void agent_tiny_fota_init(void)
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
-    device_info.head_len = 40;
     device_info.head_info_notify  = NULL;
     ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
     if(ret != 0)return;

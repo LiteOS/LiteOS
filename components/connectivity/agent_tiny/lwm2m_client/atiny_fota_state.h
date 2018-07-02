@@ -54,6 +54,8 @@
 #include "atiny_fota_manager.h"
 #include "atiny_log.h"
 #include "atiny_update_info.h"
+#include "object_comm.h"
+
 
 #define ASSERT_THIS(do_something) if(thi)\
     {\
@@ -87,6 +89,8 @@ typedef struct atiny_fota_state_tag_s
 typedef struct
 {
     atiny_fota_state_s interface;
+    lwm2m_observe_info_t observe_info;
+    int report_result;
     bool report_flag;
 }atiny_fota_idle_state_s;
 
@@ -107,6 +111,9 @@ extern "C" {
 void atiny_fota_state_init(atiny_fota_state_s *thi, atiny_fota_manager_s *manager);
 
 void atiny_fota_idle_state_init(atiny_fota_idle_state_s *thi, atiny_fota_manager_s *manager);
+int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s * thi);
+
+
 
 void atiny_fota_downloading_state_init(atiny_fota_downloading_state_s *thi, atiny_fota_manager_s *manager);
 
