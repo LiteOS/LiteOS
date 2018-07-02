@@ -53,7 +53,6 @@ typedef struct
 {
     atiny_fota_storage_device_s *storage_device;
     fota_hardware_s *hardware;
-    uint32_t head_len; // must bigger than 8
     void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
 }fota_pack_device_info_s;
 

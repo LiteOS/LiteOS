@@ -177,8 +177,11 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+    int ret;
     thi->device = device;
-    return atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret = atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret |=atiny_fota_idle_state_int_report_result(&thi->idle_state);
+    return ret;
 }
 
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)

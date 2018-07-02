@@ -100,7 +100,7 @@ int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head);
 const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head);
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, uint16_t head_len, fota_hardware_s *hardware,
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware,
                                             head_update_check updat_check, void *param);
 fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
 

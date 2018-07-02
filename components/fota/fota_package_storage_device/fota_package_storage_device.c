@@ -152,19 +152,18 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
     offset += used_len;
     buffer += used_len;
 
-    ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
-                buffer, len, device->hardware);
-    if(ret != FOTA_OK)
-    {
-        FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
-        return ret;
-    }
-
     ret = fota_fmw_wr_write(&device->writer, offset - fota_pack_head_get_head_len(&device->head), buffer, len);
     if(ret != FOTA_OK)
     {
         FOTA_LOG("fota_fmw_wr_write fail %d", ret);
         return ret;
+    }
+
+    ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
+                buffer, len, device->hardware);
+    if(ret != FOTA_OK)
+    {
+        FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
     }
 
     return ret;
@@ -258,7 +257,7 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     pack_device = fota_pack_storage_get_storage_device(device);
 
-    if(fota_pack_head_set_head_info(&pack_device->head, device_info->head_len, device_info->hardware, NULL, pack_device) != FOTA_OK)
+    if(fota_pack_head_set_head_info(&pack_device->head,  device_info->hardware, NULL, pack_device) != FOTA_OK)
     {
         return FOTA_ERR;
     }
