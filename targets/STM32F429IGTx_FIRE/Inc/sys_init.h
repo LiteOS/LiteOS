@@ -82,7 +82,6 @@ uint32_t HAL_GetTick(void);
 void SystemClock_Config(void);
 void _Error_Handler(char *, int);
 void hieth_hw_init(void);
-void sys_reboot(void);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 #ifdef __cplusplus
