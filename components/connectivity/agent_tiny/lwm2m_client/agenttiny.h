@@ -150,9 +150,9 @@ void atiny_event_notify(atiny_event_e event, const char* arg, int len);
 
 typedef struct
 {
-    char* binding;               /*Ŀǰ֧��U����UQ*/
-    int   life_time;             /*��ѡ��Ĭ��50000,����̣���Ƶ������update���ģ������������״̬����ʱ�䳤*/
-    unsigned int  storing_cnt;   /*storingΪtrueʱ��lwm2m���������ֽڸ���*/
+    char* binding;               /*目前支持U或者UQ*/
+    int   life_time;             /*必选，默认50000,如过短，则频繁发送update报文，如过长，在线状态更新时间长*/
+    unsigned int  storing_cnt;   /*storing为true时，lwm2m缓存区总字节个数*/
 } atiny_server_param_t;
 
 
@@ -272,11 +272,11 @@ typedef void (*atiny_ack_callback) (atiny_report_type_e type, int cookie, data_s
 
 typedef struct _data_report_t
 {
-    atiny_report_type_e type;     /*�����ϱ�����*/
-    int cookie;                   /*����cookie,������ack�ص��У����ֲ�ͬ������*/
-    int len;                      /*���ݳ��ȣ���Ӧ����MAX_REPORT_DATA_LEN*/
-    uint8_t* buf;                 /*���ݻ������׵�ַ*/
-    atiny_ack_callback callback;  /*ack�ص�*/
+    atiny_report_type_e type;     /*数据上报类型*/
+    int cookie;                   /*数据cookie,用以在ack回调中，区分不同的数据*/
+    int len;                      /*数据长度，不应大于MAX_REPORT_DATA_LEN*/
+    uint8_t* buf;                 /*数据缓冲区首地址*/
+    atiny_ack_callback callback;  /*ack回调*/
 } data_report_t;
 
 /**
