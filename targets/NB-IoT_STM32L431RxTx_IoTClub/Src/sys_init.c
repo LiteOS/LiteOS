@@ -148,3 +148,21 @@ void assert_failed(uint8_t* file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+/**
+ * atiny_adapter user interface 
+ */
+void atiny_usleep(unsigned long usec)
+{
+    delayus((uint32_t)usec);
+}
+
+int atiny_random(void* output, size_t len)
+{
+    return hal_rng_generate_buffer(output, len);
+}
+
+void atiny_reboot(void)
+{
+    HAL_NVIC_SystemReset();
+}

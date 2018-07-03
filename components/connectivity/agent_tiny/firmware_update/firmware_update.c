@@ -54,7 +54,6 @@ typedef struct fw_update_record
 }fw_update_record_t;
 
 static char *g_ota_uri = NULL;
-// static char *g_ota_query = NULL;
 static atiny_fota_storage_device_s *g_fota_storage_device = NULL;
 static fw_update_record_t g_fw_update_record = {0};
 
@@ -102,7 +101,8 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
     if(g_fota_storage_device && g_fota_storage_device->write_software)
     {
         ret = g_fota_storage_device->write_software(g_fota_storage_device, block_offset, packet->payload, len);
-        if(ret != 0)return;
+        if(ret != 0)
+            goto failed_exit;
     }
     else if(NULL == g_fota_storage_device)
         ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
@@ -120,10 +120,18 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
             goto failed_exit;
         }
         ret = coap_set_header_uri_path(transaction->message, g_ota_uri);
-        if(ret < 0)return;
+        if(ret < 0 || NULL == transaction->message->uri_path)
+        {
+            transaction_free(transaction);
+            goto failed_exit;
+        }
         //coap_set_header_uri_query(transaction->message, query);
         ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
-        if(ret < 0)return;
+        if(ret < 0)
+        {
+            transaction_free(transaction);
+            goto failed_exit;
+        }
         ATINY_LOG(LOG_DEBUG, "get next : %lu", block_num+1);
 
         transaction->callback = firmware_download_reply;
@@ -139,21 +147,22 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
     }
     else
     {
+        ret = ATINY_ERR;
         if(g_fota_storage_device && g_fota_storage_device->write_software_end)
-            g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_OK, len);
+            ret = g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_OK, len);
         else if(NULL == g_fota_storage_device)
             ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
         else
             ATINY_LOG(LOG_ERR, "g_fota_storage_device->write_software_end NULL");
-        ATINY_LOG(LOG_INFO, "g_firmware_update_notify FIRMWARE_UPDATE_RST_SUCCESS");
+        ATINY_LOG(LOG_INFO, "g_firmware_update_notify FIRMWARE_UPDATE_RST_SUCCESS, write end ret %d", ret);
         if(g_firmware_update_notify)
-            g_firmware_update_notify(FIRMWARE_UPDATE_RST_SUCCESS, g_firmware_update_notify_param);
-        ATINY_LOG(LOG_INFO, "download %s success, total size : %lu", g_fw_update_record.uri, len);
+            g_firmware_update_notify((ret == ATINY_OK) ?  FIRMWARE_UPDATE_RST_SUCCESS : FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);
+        ATINY_LOG(LOG_INFO, "download %s success, total size : %lu, write end ret %d", g_fw_update_record.uri, len, ret);
     }
     return;
 failed_exit:
     if(g_fota_storage_device && g_fota_storage_device->write_software_end)
-        g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_FAIL, len);
+        (void)g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_FAIL, len);
     else if(NULL == g_fota_storage_device)
         ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
     else
@@ -247,9 +256,11 @@ int parse_firmware_uri(char *uri, int uri_len)
     }
     //ÔÝ²»¿¼ÂÇquery
     char_p = uri + proto_len;
-    if(char_p == NULL)
+    if(*char_p == '\0') // eg. just "coap://"
         return -1;
     path = strchr(char_p, '/');
+    if(NULL == char_p)
+        return -1;
     path_len = uri_len - (path - uri);
 
     g_ota_uri = (char *)lwm2m_malloc(path_len + 1);
@@ -318,17 +329,24 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
         return -1;
     }
     ret = coap_set_header_uri_path(transaction->message, g_ota_uri);
-    if(ret < 0)return -1;
+    if(ret < 0 || NULL == transaction->message->uri_path)
+    {
+        transaction_free(transaction);
+        return -1;
+    }
     //coap_set_header_uri_query(transaction->message, query);
     if(1 == g_fw_update_record.in_use)
     {
         ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
-        if(ret != 1)return -1;
     }
     else
     {
         ret = coap_set_header_block2(transaction->message, 0, 0, FW_BLOCK_SIZE);
-        if(ret != 1)return -1;
+    }
+    if(ret != 1)
+    {
+        transaction_free(transaction);
+        return -1;
     }
 
     transaction->callback = firmware_download_reply;

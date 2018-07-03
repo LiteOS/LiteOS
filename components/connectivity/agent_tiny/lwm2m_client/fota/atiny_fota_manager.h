@@ -81,14 +81,7 @@ enum
 
 struct atiny_fota_manager_tag_s;
 typedef struct atiny_fota_manager_tag_s atiny_fota_manager_s;
-typedef int atiny_fota_state_e;
-enum
-{
-    ATINY_FOTA_IDLE = 0,
-    ATINY_FOTA_DOWNLOADING,
-    ATINY_FOTA_DOWNLOADED,
-    ATINY_FOTA_UPDATING
-};
+
 
 #ifdef __cplusplus
     extern "C" {

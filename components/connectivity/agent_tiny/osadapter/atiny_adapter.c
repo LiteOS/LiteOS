@@ -33,8 +33,6 @@
  *---------------------------------------------------------------------------*/
 
 #include "atiny_adapter.h"
-#include "hal_rng.h"
-#include "dwt.h"
 #include "los_memory.h"
 #include "los_sys.ph"
 #include "los_sem.ph"
@@ -65,16 +63,6 @@ static uint64_t osKernelGetTickCount (void)
 uint64_t atiny_gettime_ms(void)
 {
     return osKernelGetTickCount() * (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND);
-}
-
-void atiny_usleep(unsigned long usec)
-{
-    delayus((uint32_t)usec);
-}
-
-int atiny_random(void* output, size_t len)
-{
-    return hal_rng_generate_buffer(output, len);
 }
 
 void* atiny_malloc(size_t size)
@@ -208,9 +196,4 @@ void atiny_mutex_lock(void* mutex) { ((void)mutex); }
 void atiny_mutex_unlock(void* mutex) { ((void)mutex); }
 
 #endif /* LOSCFG_BASE_IPC_SEM == YES */
-
-void atiny_reboot(void)
-{
-    HAL_NVIC_SystemReset();
-}
 

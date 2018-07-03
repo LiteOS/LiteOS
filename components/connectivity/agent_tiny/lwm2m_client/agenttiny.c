@@ -76,55 +76,89 @@ typedef struct
 } handle_data_t;
 
 void observe_handle_ack(lwm2m_transaction_t* transacP, void* message);
-static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_params);
+static int atiny_check_bootstrap_init_param(atiny_param_t* atiny_params);
 
 static handle_data_t g_atiny_handle;
 
 /*
- * add date:   2019-05-30
+ * modify date:   2018-06-20
  * description: in order to check the params for the bootstrap, expecialy for the mode and the ip/port
  * return:
  *              success: ATINY_OK
  *              fail:    ATINY_ARG_INVALID
  *
  */
-static int atiny_check_bootstrap_init_param(atiny_security_param_t *security_params)
+static int atiny_check_bootstrap_init_param(atiny_param_t* atiny_params)
 {
-    if(NULL == security_params)
+    if(NULL == atiny_params)
     {
         return ATINY_ARG_INVALID;
     }
 
-    if(BOOTSTRAP_FACTORY == security_params->bootstrap_mode)
+    if(BOOTSTRAP_FACTORY == atiny_params->bootstrap_mode)
     {
-        if((NULL == security_params->iot_server_ip)||(NULL == security_params->iot_server_port))
+        if((NULL == atiny_params->security_params[0].server_ip)||(NULL == atiny_params->security_params[0].server_port))
         {
             LOG("[bootstrap_tag]: BOOTSTRAP_FACTORY mode's params is wrong, should have iot server ip/port");
             return ATINY_ARG_INVALID;
         }
     }
-    else if(BOOTSTRAP_CLIENT_INITIATED == security_params->bootstrap_mode)
+    else if(BOOTSTRAP_CLIENT_INITIATED == atiny_params->bootstrap_mode)
     {
-        if((NULL == security_params->bs_server_ip)||(NULL == security_params->bs_server_port))
+        if((NULL == atiny_params->security_params[1].server_ip)||(NULL == atiny_params->security_params[1].server_port))
         {
             LOG("[bootstrap_tag]: BOOTSTRAP_CLIENT_INITIATED mode's params is wrong, should have bootstrap server ip/port");
             return ATINY_ARG_INVALID;
         }
     }
-    else if(BOOTSTRAP_SEQUENCE== security_params->bootstrap_mode)
+    else if(BOOTSTRAP_SEQUENCE == atiny_params->bootstrap_mode)
     {
         return ATINY_OK;
     }
     else
     {
         //it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
-        LOG("[bootstrap_tag]: BOOTSTRAP's only have three mode, should been :0,1,2");
+        LOG("[bootstrap_tag]: BOOTSTRAP only have three mode, should been :0,1,2");
         return ATINY_ARG_INVALID;
     }
 
 
     return ATINY_OK;
 }
+
+#ifdef LWM2M_BOOTSTRAP
+static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
+{
+    int i = 0;
+    int psk_id_len =0;
+    int psk_len = 0;
+
+    if(NULL == atiny_params)
+    {
+        return ATINY_ARG_INVALID;
+    }
+
+    //security_params have 2 element, we have 2 pair psk.
+    for(i=0;i<2;i++)
+    {
+        //if there are null, we could run not in security mode
+        if((atiny_params->security_params[i].psk_Id != NULL)&&(atiny_params->security_params[i].psk != NULL))
+        {
+            psk_id_len = strlen(atiny_params->security_params[i].psk_Id);
+            psk_len = strlen(atiny_params->security_params[i].psk);
+
+            //the limit of the len, please read RFC4279  or OMA-TS-LightweightM2M E.1.1
+            if((psk_id_len > 128)||(psk_len > 64))
+            {
+                LOG("[bootstrap_tag]: psk_Id len over 128 or psk len over 64");
+                return ATINY_ARG_INVALID;
+            }
+        }
+    }
+
+    return ATINY_OK;
+}
+#endif
 
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
@@ -140,11 +174,18 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
         return ATINY_ARG_INVALID;
     }
 
-    if(ATINY_OK != atiny_check_bootstrap_init_param(&(atiny_params->security_params[0])))
+    if(ATINY_OK != atiny_check_bootstrap_init_param(atiny_params))
     {
         LOG("[bootstrap_tag]: BOOTSTRAP's params are wrong");
         return ATINY_ARG_INVALID;
     }
+
+#ifdef LWM2M_BOOTSTRAP
+    if(ATINY_OK != atiny_check_psk_init_param(atiny_params))
+    {
+        LOG("[bootstrap_tag]: psk params are wrong");
+    }
+#endif
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));
 
@@ -158,15 +199,14 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
 #ifdef CONFIG_FEATURE_FOTA
-    ret = atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
-    if(ret != ATINY_OK) return ATINY_ERR;
+    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ERR;
     }
 
-    ret = atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
+    return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
                         device);
     if(ret != ATINY_OK) return ATINY_ERR;
 #endif
@@ -174,86 +214,43 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 }
 
 /*
- * add date:     2019-06-05
+ * add date:     2018-06-05
  * description:  get bootstrap info from atiny_params which from user, set bs_sequence_state and bs_server_uri for lwm2m_context.
  *
  * return:       none
  * param:
  *     in:  atiny_params
  *     out: lwm2m_context
- *     out: bs_ip
- *     out: bs_port
- *     out: need_bs_info
  */
-void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_context, char** bs_ip, char** bs_port, bool* need_bs_flag)
+void atiny_set_bootstrap_sequence_state(atiny_param_t* atiny_params, lwm2m_context_t* lwm2m_context)
 {
-    char tmp_serverUri[SERVER_URI_MAX_LEN];
-
     if((NULL == atiny_params)||(NULL == lwm2m_context))
     {
         LOG("[bootstrap_tag]: the atiny_params or lwm2m_context params are NULL for get_set_bootstrap_info ");
         return;
     }
 
-    *need_bs_flag = true;
 
     //the state is used for bootstrap sequence mode,  other mode are all marked as NO_BS_SEQUENCE_STATE
     lwm2m_context->bs_sequence_state = NO_BS_SEQUENCE_STATE;
 
-    switch(atiny_params->security_params[0].bootstrap_mode)
+    switch(atiny_params->bootstrap_mode)
     {
     case BOOTSTRAP_FACTORY:
-        *bs_ip = atiny_params->security_params[0].iot_server_ip;
-        *bs_port = atiny_params->security_params[0].iot_server_port;
-        *need_bs_flag = false;
+        lwm2m_context->regist_first_flag = true;
         break;
     case BOOTSTRAP_SEQUENCE:
-        //the ip may be null. and server initiated did not use the ip.
-        *bs_ip = atiny_params->security_params[0].bs_server_ip;
-        *bs_port = atiny_params->security_params[0].bs_server_port;
         lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_SERVER_INITIATED;
-
-        //lwm2m_context->bs_server_uri used for BS_SEQUENCE_STATE_SERVER_INITIATED to BS_SEQUENCE_STATE_CLIENT_INITIATED
-        if((*bs_ip != NULL)&&(*bs_port != NULL))
+        lwm2m_context->regist_first_flag = false;
+        //security_params[0] for iot server
+        if((atiny_params->security_params[0].server_ip != NULL)&&(atiny_params->security_params[0].server_port != NULL))
         {
-            if ((atiny_params->security_params[0].psk != NULL)&&(atiny_params->security_params[0].psk_Id))
-            {
-                (void)atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",*bs_ip, *bs_port);
-            }
-            else
-            {
-                (void)atiny_snprintf(tmp_serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",*bs_ip, *bs_port);
-            }
-
-            lwm2m_context->bs_server_uri = (char*)lwm2m_malloc(strlen(tmp_serverUri)+1); //remember free
-            if(NULL == lwm2m_context->bs_server_uri)
-            {
-                //let's go, if it is NULL,  bootstrap or regist could still have a chance to win.
-                LOG("[bootstrap_tag]: lwm2m_malloc bs_server_uri fail in get_set_bootstrap_info");
-            }
-            else
-            {
-                strncpy(lwm2m_context->bs_server_uri,tmp_serverUri,strlen(tmp_serverUri)+1);
-            }
-        }
-        else
-        {
-            lwm2m_context->bs_server_uri = NULL;
-        }
-
-        if((atiny_params->security_params[0].iot_server_ip != NULL)&&(atiny_params->security_params[0].iot_server_port != NULL))
-        {
-            //they will cover the value of above BOOTSTRAP_SEQUENCE.
-            *bs_ip = atiny_params->security_params[0].iot_server_ip;
-            *bs_port = atiny_params->security_params[0].iot_server_port;
-            *need_bs_flag = false;
-
             lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_FACTORY;
+            lwm2m_context->regist_first_flag = true;
         }
         break;
     case BOOTSTRAP_CLIENT_INITIATED:
-        *bs_ip = atiny_params->security_params[0].bs_server_ip;
-        *bs_port = atiny_params->security_params[0].bs_server_port;
+        lwm2m_context->regist_first_flag = false;
         break;
     default:
         break;
@@ -265,23 +262,15 @@ void atiny_get_set_bootstrap_info(atiny_param_t* atiny_params, lwm2m_context_t* 
 /*
 * modify info:
 *     date:    2018-05-30
-*     reason:  modify for bootstrap mode, origin code support FACTORY mode.
+*     reason:  modify for bootstrap mode, origin code only support FACTORY mode.
 */
 int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* device_info, handle_data_t* handle)
 {
     int result;
     client_data_t* pdata;
     lwm2m_context_t* lwm2m_context = NULL;
-    char serverUri[SERVER_URI_MAX_LEN];
     uint16_t serverId = SERVER_ID;
     char* epname = (char*)device_info->endpoint_name;
-
-
-    char* temp_ip = NULL;
-    char* temp_port = NULL;
-    //attention: in fact,FACTORY MODE also belong to bootstrap mode,but in function get_security_object, the param
-    //isBootstrap false for FACTORY MODE, because no need to get info from bootstrap server
-    bool b_need_bootstrap_flag = true;
 
 
     result = atiny_init_rpt();
@@ -313,21 +302,11 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
 
     handle->lwm2m_context = lwm2m_context;
 
-    atiny_get_set_bootstrap_info(atiny_params,lwm2m_context,&temp_ip,&temp_port,&b_need_bootstrap_flag);
+    //even if not in bootstrap sequence mode, still set it NO_BS_SEQUENCE_STATE
+    atiny_set_bootstrap_sequence_state(atiny_params,lwm2m_context);
 
-    if (atiny_params->security_params[0].psk != NULL)
-    {
-        (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coaps://%s:%s",temp_ip, temp_port);
-    }
-    else
-    {
-        (void)atiny_snprintf(serverUri, SERVER_URI_MAX_LEN, "coap://%s:%s",temp_ip, temp_port);
-    }
+    handle->obj_array[OBJ_SECURITY_INDEX] = get_security_object(serverId,atiny_params,lwm2m_context);
 
-
-    handle->obj_array[OBJ_SECURITY_INDEX] = get_security_object(serverId, serverUri,
-                                            atiny_params->security_params[0].psk_Id, atiny_params->security_params[0].psk,
-                                            atiny_params->security_params[0].psk_len, b_need_bootstrap_flag);//false change to b_need_bootstrap_info
     if (NULL ==  handle->obj_array[OBJ_SECURITY_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create security object");
@@ -476,9 +455,8 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
             {
                 atiny_event_notify(ATINY_REG_OK, NULL, 0);
 #ifdef CONFIG_FEATURE_FOTA
-                ret = atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
+                (void)atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
 #endif
-                if(ret == ATINY_ERR)return;
             }
             else if (code == STATE_REG_FAILED)
             {
@@ -594,8 +572,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         return ret;
     }
 #ifdef CONFIG_FEATURE_FOTA
-    ret = atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
-    if(ret != ATINY_OK)return ret;
+    (void)atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
 #endif
     lwm2m_register_observe_ack_call_back(observe_handle_ack);
     lwm2m_register_event_handler(atiny_event_handle);

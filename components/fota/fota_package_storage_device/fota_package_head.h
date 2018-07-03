@@ -43,9 +43,20 @@
 #include <string.h>
 #include <stdlib.h>
 #include <atiny_adapter.h>
+#include "fota_package_checksum.h"
 
 #define FOTA_LOG(fmt, ...) \
 (void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
+
+
+#define ASSERT_THIS(do_something) if(thi)\
+    {\
+        if(NULL == thi)\
+        {\
+            FOTA_LOG("this null pointer");\
+            do_something;\
+        }\
+    }
 
 
 #ifndef MIN
@@ -64,12 +75,16 @@ typedef int (*head_update_check)(const uint8_t *head_buff , uint16_t len, void *
 
 typedef struct fota_pack_head_tag_s
 {
-    uint8_t *buff;
-    uint16_t stored_len;
-    uint16_t head_len;
     fota_hardware_s *hardware;
     head_update_check update_check;
     void *param;
+
+    uint8_t *buff;
+    uint16_t stored_len;
+    uint16_t head_len;
+    fota_pack_checksum_s *checksum;
+    uint8_t *checksum_pos;
+    uint32_t checksum_len;
 }fota_pack_head_s;
 
 #if defined(__cplusplus)
@@ -81,11 +96,13 @@ void fota_pack_head_init(fota_pack_head_s *head);
 void fota_pack_head_destroy(fota_pack_head_s *head);
 int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len,
                     uint16_t *used_len);
-uint32_t fota_pack_head_get_crc(const fota_pack_head_s *head);
-int fota_pack_head_check_len(const fota_pack_head_s *head, uint32_t len);
+int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head);
-int fota_pack_head_set_head_info(fota_pack_head_s *head, uint16_t head_len, fota_hardware_s *hardware,
+const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head);
+
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware,
                                             head_update_check updat_check, void *param);
+fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
 
 
 #if defined(__cplusplus)

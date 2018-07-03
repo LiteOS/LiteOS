@@ -34,7 +34,6 @@
 
 #include "fota_package_storage_device.h"
 #include "fota_package_head.h"
-#include "fota_package_crc.h"
 #include "fota_firmware_writer.h"
 
 
@@ -47,7 +46,7 @@ typedef struct
 
     fota_pack_head_s head;
     fota_firmware_writer_s writer;
-    fota_pack_crc_s crc;
+    fota_pack_checksum_s *checksum;
     uint32_t total_len;
     int init_flag;
 }fota_pack_storage_device_s;
@@ -57,21 +56,25 @@ static inline fota_pack_storage_device_s * fota_pack_storage_get_storage_device(
     return (fota_pack_storage_device_s *)this;
 }
 
-static void fota_pack_storage_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
+static int fota_pack_storage_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
 {
     fota_pack_storage_device_s *device;
+    int ret = FOTA_OK;
+
     if(NULL == this)
     {
         FOTA_LOG("null pointer");
-        return;
+        return FOTA_ERR;
     }
 
     device = fota_pack_storage_get_storage_device(this);
 
     do
     {
+
         if(fota_fmw_wr_write_end(&device->writer) != FOTA_OK)
         {
+            ret = FOTA_ERR;
             break;
         }
 
@@ -80,15 +83,11 @@ static void fota_pack_storage_write_software_end(atiny_fota_storage_device_s *th
             break;
         }
 
-        if(fota_pack_head_check_len(&device->head, total_len) != FOTA_OK)
+        if(fota_pack_head_check(&device->head, total_len) != FOTA_OK)
         {
+            ret = FOTA_ERR;
             FOTA_LOG("check len err,len %u", total_len);
             break;
-        }
-
-        if(fota_pack_crc_check(&device->crc, fota_pack_head_get_crc(&device->head)) != FOTA_OK)
-        {
-            FOTA_LOG("fota_pack_crc_check err");
         }
 
     }while(0);
@@ -102,7 +101,7 @@ static void fota_pack_storage_write_software_end(atiny_fota_storage_device_s *th
         {
             notify_len = ((total_len >= head_len) ? (total_len - head_len) : 0);
         }
-        device->storage_device->write_software_end(device->storage_device, result, notify_len);
+        ret |= device->storage_device->write_software_end(device->storage_device, result, notify_len);
     }
 
     //current download finish, clear the save data
@@ -111,6 +110,8 @@ static void fota_pack_storage_write_software_end(atiny_fota_storage_device_s *th
         fota_pack_head_destroy(&device->head);
         fota_fmw_wr_destroy(&device->writer);
     }
+
+    return ret;
 }
 
 
@@ -132,6 +133,7 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
         return FOTA_ERR;
     }
 
+
     device = fota_pack_storage_get_storage_device(this);
 
     ret = fota_pack_head_parse(&device->head, offset, buffer, (uint16_t)len, &used_len);
@@ -146,13 +148,6 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
         return FOTA_OK;
     }
 
-    ret = fota_pack_crc_update(&device->crc, buffer, len);
-    if(ret != FOTA_OK)
-    {
-        FOTA_LOG("fota_pack_crc_update fail %d", ret);
-        return ret;
-    }
-
     len -= used_len;
     offset += used_len;
     buffer += used_len;
@@ -164,8 +159,12 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
         return ret;
     }
 
-
-
+    ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
+                buffer, len, device->hardware);
+    if(ret != FOTA_OK)
+    {
+        FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
+    }
 
     return ret;
 
@@ -212,13 +211,9 @@ DEFINE_PROXY_FUNC(fota_pack_storage_read_update_info, read_update_info,
 
 
 
-static fota_pack_storage_device_s g_fota_pack_storage_device;
 
-static void fota_init_pack_device(void)
+static void fota_init_pack_device(fota_pack_storage_device_s *device)
 {
-    fota_pack_storage_device_s *device  = &g_fota_pack_storage_device;
-
-
     if(device->init_flag)
     {
         return;
@@ -227,7 +222,6 @@ static void fota_init_pack_device(void)
     (void)memset(device, 0, sizeof(*device));
     fota_fmw_wr_init(&device->writer);
     fota_pack_head_init(&device->head);
-    fota_pack_crc_init(&device->crc);
 
     device->interface.write_software = fota_pack_storage_write_software;
     device->interface.write_software_end = fota_pack_storage_write_software_end;
@@ -238,29 +232,17 @@ static void fota_init_pack_device(void)
     device->init_flag = true;
 }
 
+
+static fota_pack_storage_device_s g_fota_pack_storage_device;
+
 atiny_fota_storage_device_s *fota_get_pack_device(void)
 {
-    fota_init_pack_device();
-    return &g_fota_pack_storage_device.interface;
-}
-/*
-static int fota_pack_head_update_check(const uint8_t *head_buff , uint16_t len, void *param)
-{
-    fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)param;
-    if(NULL == param)
-    {
-        FOTA_LOG("null err");
-        return FOTA_ERR;
-    }
 
-    fota_pack_crc_init(&device->crc);
-    if(fota_pack_crc_update(&device->crc, head_buff, len) != FOTA_OK)
-    {
-        return FOTA_ERR;
-    }
-    return FOTA_OK;
+    fota_pack_storage_device_s *device  = &g_fota_pack_storage_device;
+    fota_init_pack_device(device);
+    return &device->interface;
 }
-*/
+
 
 int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_info_s *device_info)
 {
@@ -275,7 +257,7 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     pack_device = fota_pack_storage_get_storage_device(device);
 
-    if(fota_pack_head_set_head_info(&pack_device->head, device_info->head_len, device_info->hardware, NULL, pack_device) != FOTA_OK)
+    if(fota_pack_head_set_head_info(&pack_device->head,  device_info->hardware, NULL, pack_device) != FOTA_OK)
     {
         return FOTA_ERR;
     }

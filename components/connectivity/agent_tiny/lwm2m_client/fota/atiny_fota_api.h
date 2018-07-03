@@ -44,6 +44,16 @@
 
 struct atiny_fota_storage_device_tag_s;
 typedef struct atiny_fota_storage_device_tag_s atiny_fota_storage_device_s;
+
+typedef int atiny_fota_state_e;
+enum //atiny_fota_state_e
+{
+    ATINY_FOTA_IDLE = 0,
+    ATINY_FOTA_DOWNLOADING,
+    ATINY_FOTA_DOWNLOADED,
+    ATINY_FOTA_UPDATING
+};
+
 typedef enum
 {
     ATINY_FOTA_DOWNLOAD_OK,
@@ -52,7 +62,7 @@ typedef enum
 struct atiny_fota_storage_device_tag_s
 {
     int (*write_software)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
-    void (*write_software_end)(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len);
+    int (*write_software_end)(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len);
     int (*active_software)(atiny_fota_storage_device_s *thi);
     int (*get_software_result)(atiny_fota_storage_device_s *thi);
     int (*write_update_info)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);

@@ -214,17 +214,19 @@ static int hal_fota_write_software(atiny_fota_storage_device_s *this, uint32_t o
     return hal_fota_write_flash(OTA_IMAGE_DOWNLOAD_ADDR + offset, buffer, len);
 }
 
-static void hal_fota_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
+static int  hal_fota_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
 {
     ota_hal_s *hal = (ota_hal_s *)this;
 
     if(NULL == this)
     {
         HAL_FOTA_LOG("null pointer");
-        return;
+        return ERR;
     }
 
     hal->total_len = (ATINY_FOTA_DOWNLOAD_OK == result) ? total_len : 0;
+
+    return OK;
 }
 
 static int hal_fota_active_software(atiny_fota_storage_device_s *this)
@@ -286,11 +288,22 @@ static uint32_t hal_fota_get_max_size(struct fota_hardware_api_tag_s *this)
     return OTA_IMAGE_DOWNLOAD_SIZE;
 }
 
+static int hal_fota_read_software(struct fota_hardware_api_tag_s *this, uint32_t offset, uint8_t *buffer, uint32_t len)
+{
+    if((offset + len) > OTA_IMAGE_DOWNLOAD_SIZE)
+    {
+        HAL_FOTA_LOG("err offset %lu, len %lu", offset, len);
+        return ERR;
+    }
+
+    return hal_spi_flash_read(buffer, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+}
+
 
 
 ota_hal_s g_hal_storage_device = {{hal_fota_write_software, hal_fota_write_software_end, hal_fota_active_software,
                                    hal_fota_get_software_result, hal_fota_write_update_info, hal_fota_read_update_info},
-                                  {hal_fota_get_block_size, hal_fota_get_max_size},
+                                  {hal_fota_get_block_size, hal_fota_get_max_size, hal_fota_read_software},
                                   0};
 
 int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware)
