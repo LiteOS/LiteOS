@@ -44,6 +44,16 @@
 
 struct atiny_fota_storage_device_tag_s;
 typedef struct atiny_fota_storage_device_tag_s atiny_fota_storage_device_s;
+
+typedef int atiny_fota_state_e;
+enum //atiny_fota_state_e
+{
+    ATINY_FOTA_IDLE = 0,
+    ATINY_FOTA_DOWNLOADING,
+    ATINY_FOTA_DOWNLOADED,
+    ATINY_FOTA_UPDATING
+};
+
 typedef enum
 {
     ATINY_FOTA_DOWNLOAD_OK,
