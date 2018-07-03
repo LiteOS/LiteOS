@@ -171,6 +171,7 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     memset((void*)&uri, 0, sizeof(uri));
     (void)lwm2m_stringToUri(uri_str, strlen(uri_str), &uri);
     lwm2m_resource_value_changed(thi->lwm2m_context, &uri);
+    atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
     return ATINY_OK;
 }
 
@@ -205,6 +206,7 @@ void atiny_fota_manager_init(atiny_fota_manager_s *thi)
     atiny_fota_updating_state_init(&thi->updating_state, thi);
     thi->current = ATINY_GET_STATE(thi->idle_state);
     set_firmware_update_notify(atiny_fota_manager_update_notify, thi);
+    atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
     thi->init_flag = true;
 }
 
