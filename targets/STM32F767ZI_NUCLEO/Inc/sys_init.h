@@ -32,24 +32,37 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_package_crc.h"
-#include <string.h>
-#include "fota_package_head.h"
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
+/* Includes ------------------------------------------------------------------*/
 
+/* Includes LiteOS------------------------------------------------------------------*/
 
-void fota_pack_crc_init(fota_pack_crc_s *crc)
-{
+#include "los_base.h"
+#include "los_config.h"
+#include "los_sys.h"
+#include "los_typedef.h"
+#include "los_task.ph"
+
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
+#include "stm32f7xx_hal.h"
+#include "usart.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+uint32_t HAL_GetTick(void);
+void SystemClock_Config(void);
+void _Error_Handler(char *, int);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+#ifdef __cplusplus
 }
-int fota_pack_crc_update(fota_pack_crc_s *crc, const uint8_t *buff, uint16_t len)
-{
-    return FOTA_OK;
-}
-int fota_pack_crc_check(fota_pack_crc_s *crc, uint32_t expect_crc)
-{
-    return FOTA_OK;
-}
+#endif
 
-
-
+#endif /* __SYS_H_ */
 

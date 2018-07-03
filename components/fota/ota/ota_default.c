@@ -114,6 +114,7 @@ static int prv_image_integrity(uint8_t* integrity)
     uint32_t check_len;
 
     ota_sha256_init(&ctx);
+    ota_sha256_starts(&ctx, 0);
 
     while (image_len > 0)
     {
@@ -137,6 +138,7 @@ exit:
     return ret;
 }
 
+#ifdef USE_BOOTLOADER
 static void prv_get_update_record(uint8_t* state, uint32_t* offset)
 {
     if (NULL != state)
@@ -148,6 +150,7 @@ static void prv_get_update_record(uint8_t* state, uint32_t* offset)
         *offset = g_ota_flag.cur_offset;
     }
 }
+
 
 static int prv_set_update_record(uint8_t state, uint32_t offset)
 {
@@ -182,7 +185,7 @@ static int prv_check_integrity_value(const uint8_t* v1, const uint8_t* v2)
 
     return 0;
 }
-
+#endif
 int ota_default_init(void)
 {
     if (prv_read_ota_default_flag() != 0)
@@ -252,7 +255,7 @@ int ota_default_check_update_state(ota_state* st)
 
     return OTA_ERRNO_OK;
 }
-
+#ifdef USE_BOOTLOADER
 int ota_default_update_process(void)
 {
 /*lint -e616 */
@@ -326,3 +329,5 @@ int ota_default_roll_back_image(void)
     }
     return prv_update_state(OTA_S_FAILED);
 }
+#endif
+

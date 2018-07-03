@@ -34,13 +34,10 @@
 
 #if defined(WITH_AT_FRAMEWORK)
 
+#include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
 
-#ifdef  USE_USARTRX_DMA
-uint8_t dma_wi_coun = 0;
-uint16_t *dma_wi = NULL;
-#endif
 /* FUNCTION */
 void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -50,13 +47,11 @@ void at_listener_list_add(at_listener * p);
 void at_listner_list_del(at_listener * p);
 int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback);
-#ifdef USE_USARTRX_DMA
-int32_t at_dmawi_init(void);
-#endif
 
 void at_deinit();
 //init function for at struct
 at_task at = {
+    .tsk_hdl = 0xFFFF,
     .recv_buf = NULL,
     .cmdresp = NULL,
     .userdata = NULL,
@@ -140,7 +135,7 @@ int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
     at_transmit((uint8_t*)cmd, len,1);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 
-    at_listner_list_del(&listener); 
+    at_listner_list_del(&listener);
     LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
@@ -168,7 +163,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 
-    at_listner_list_del(&listener); 
+    at_listner_list_del(&listener);
     LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
@@ -190,8 +185,8 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
         if(cmp != NULL)
         {
             AT_LOG("cloud send cmd:%s buf:%s",at_oob.oob[i].featurestr,buf);
-            if(at_oob.oob[i].cb != NULL)
-                ret = at_oob.oob[i].cb(at_oob.oob[i].arg,buf,len);
+            if(at_oob.oob[i].callback != NULL)
+                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,buf,len);
             return ret;
         }
     }
@@ -207,7 +202,7 @@ void at_recv_task(uint32_t p)
 
     while(1){
         LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
-        do{/*DMA方式接收消息队列最大为8，因此会循环*/
+        do{/*DMA鏂瑰紡鎺ユ敹娑堟伅闃熷垪鏈�澶т负8锛屽洜姝や細寰幆*/
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp);
 
@@ -240,7 +235,7 @@ void at_recv_task(uint32_t p)
 
             if(listener->suffix == NULL)
             {
-                
+
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
                 LOS_SemPost(at.resp_sem);
                 listener = NULL;
@@ -255,12 +250,12 @@ void at_recv_task(uint32_t p)
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t*)listener->resp, (int8_t*)p1, p2 - p1);
             }
-            else 
+            else
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
                 LOS_SemPost(at.resp_sem);
-            } 
+            }
             break;
         }
         }while(recv_len > 0);
@@ -323,45 +318,41 @@ int32_t at_struct_init(at_task * at)
         goto at_resp_sem_failed;
     }
 #ifndef USE_USARTRX_DMA
-    at->recv_buf = atiny_malloc(at_user_conf.user_buf_len);
+    at->recv_buf = at_malloc(at_user_conf.user_buf_len);
     if (NULL == at->recv_buf)
     {
         AT_LOG("malloc recv_buf failed!");
         goto malloc_recv_buf;
     }
 #else
-	at->recv_buf = atiny_malloc(at_user_conf.recv_buf_len);
+	at->recv_buf = at_malloc(at_user_conf.recv_buf_len);
     if (NULL == at->recv_buf)
     {
         AT_LOG("malloc recv_buf failed!");
         goto malloc_recv_buf;
     }
 #endif
-    memset(at->recv_buf, 0, at_user_conf.user_buf_len);
 
-    at->cmdresp = atiny_malloc(at_user_conf.user_buf_len);
+    at->cmdresp = at_malloc(at_user_conf.user_buf_len);
     if (NULL == at->cmdresp)
     {
         AT_LOG("malloc cmdresp failed!");
         goto malloc_resp_buf;
     }
-    memset(at->cmdresp, 0, at_user_conf.user_buf_len);
 
-    at->userdata = atiny_malloc(at_user_conf.user_buf_len);
+    at->userdata = at_malloc(at_user_conf.user_buf_len);
     if (NULL == at->userdata)
     {
         AT_LOG("malloc userdata failed!");
         goto malloc_userdata_buf;
     }
-    memset(at->userdata, 0, at_user_conf.user_buf_len);
 
-    at->linkid = (at_link*)atiny_malloc(at_user_conf.linkid_num * sizeof(at_link));
+    at->linkid = (at_link*)at_malloc(at_user_conf.linkid_num * sizeof(at_link));
     if (NULL == at->linkid)
     {
        AT_LOG("malloc for at linkid array failed!");
        goto malloc_linkid_failed;
     }
-    memset(at->linkid, 0, at_user_conf.linkid_num * sizeof(at_link));
 
     at->head = NULL;
     at->mux_mode = at_user_conf.mux_mode;
@@ -370,11 +361,11 @@ int32_t at_struct_init(at_task * at)
 
 //        atiny_free(at->linkid);
     malloc_linkid_failed:
-        atiny_free(at->userdata);
+        at_free(at->userdata);
     malloc_userdata_buf:
-        atiny_free(at->cmdresp);
+        at_free(at->cmdresp);
     malloc_resp_buf:
-        atiny_free(at->recv_buf);
+        at_free(at->recv_buf);
     malloc_recv_buf:
         LOS_SemDelete(at->resp_sem);
     at_resp_sem_failed:
@@ -384,21 +375,7 @@ int32_t at_struct_init(at_task * at)
     at_recv_sema_failed:
         return AT_FAILED;
 }
-#ifdef USE_USARTRX_DMA
-int32_t at_dmawi_init(void)
-{
 
-    dma_wi_coun = at_user_conf.recv_buf_len/at_user_conf.user_buf_len;
-    dma_wi = atiny_malloc(dma_wi_coun * sizeof(*dma_wi));
-    if (NULL == dma_wi)
-    {
-        AT_LOG("malloc dma_wi failed!");
-        return AT_FAILED;
-    }
-
-    return AT_OK;
-}
-#endif
 int32_t at_struct_deinit(at_task * at)
 {
     int32_t ret = AT_OK;
@@ -428,28 +405,29 @@ int32_t at_struct_deinit(at_task * at)
 
     if (NULL != at->recv_buf)
     {
-        atiny_free(at->recv_buf);
+        at_free(at->recv_buf);
         at->recv_buf = NULL;
     }
 
     if (NULL != at->cmdresp)
     {
-        atiny_free(at->cmdresp);
+        at_free(at->cmdresp);
         at->cmdresp = NULL;
     }
 
     if (NULL != at->userdata)
     {
-        atiny_free(at->userdata);
+        at_free(at->userdata);
         at->userdata = NULL;
     }
 
     if (NULL != at->linkid)
     {
-        atiny_free(at->linkid);
+        at_free(at->linkid);
         at->linkid = NULL;
     }
 
+    at->tsk_hdl = 0xFFFF;
     at->head = NULL;
     at->mux_mode = AT_MUXMODE_SINGLE;
     at->timeout = 0;
@@ -458,7 +436,7 @@ int32_t at_struct_deinit(at_task * at)
 }
 
 void at_init()
-{    
+{
     AT_LOG("Config %s......\n", at_user_conf.name);
 
     LOS_TaskDelay(200);
@@ -467,13 +445,19 @@ void at_init()
         AT_LOG("prepare AT struct failed!");
         return;
     }
-#ifdef USE_USARTRX_DMA
-    if(AT_OK != at_dmawi_init())
-        return;
-#endif
     at_init_oob();
-    at_usart_config();
-    create_at_recv_task();
+
+    if(AT_OK != at_usart_init()){
+        AT_LOG("at_usart_init failed!");
+        (void)at_struct_deinit(&at);
+        return;
+    }
+    if(LOS_OK != create_at_recv_task()){
+        AT_LOG("create_at_recv_task failed!");
+        at_usart_deinit();
+        (void)at_struct_deinit(&at);
+        return;
+    }
 
     AT_LOG("Config complete!!\n");
 }
@@ -484,6 +468,7 @@ void at_deinit()
     {
         AT_LOG("at_recv_task delete failed!");
     }
+    at_usart_deinit();
     if(AT_OK != at_struct_deinit(&at))
     {
         AT_LOG("at_struct_deinit failed!");
@@ -499,7 +484,22 @@ int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)
     oob = &(at_oob.oob[at_oob.oob_num++]);
     memcpy(oob->featurestr, featurestr, cmdlen);
     oob->len = strlen(featurestr);
-    oob->cb = callback;
+    oob->callback = callback;
     return 0;
 }
+
+void* at_malloc(size_t size)
+{
+    void *pMem = LOS_MemAlloc(m_aucSysMem0, size);
+    if(NULL != pMem){
+        memset(pMem, 0, size);
+    }
+    return pMem;
+}
+
+void at_free(void* ptr)
+{
+    (void)LOS_MemFree(m_aucSysMem0, ptr);
+}
+
 #endif

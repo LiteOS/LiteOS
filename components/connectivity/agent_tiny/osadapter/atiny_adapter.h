@@ -67,7 +67,7 @@ uint64_t atiny_gettime_ms(void);
  *@brief sleep thread itself.
  *
  *@par Description:
- *This API is used to sleep thread itself.
+ *This API is used to sleep thread itself, it could be implemented in the user file.
  *@attention none.
  *
  *@param usec           [IN] the time interval for which execution is to be suspended, in microseconds.
@@ -83,7 +83,7 @@ void atiny_usleep(unsigned long usec);
  *@brief get len bytes of entropy.
  *
  *@par Description:
- *This API is used to get len bytes of entropy.
+ *This API is used to get len bytes of entropy, it could be implemented in the user file.
  *@attention none.
  *
  *@param output         [OUT] buffer to store the entropy
@@ -256,7 +256,7 @@ void atiny_mutex_unlock(void* mutex);
  *@brief reboot.
  *
  *@par Description:
- *This API is used to reboot.
+ *This API is used to reboot, it could be implemented in the user file.
  *@attention none.
  *
  *@retval none.

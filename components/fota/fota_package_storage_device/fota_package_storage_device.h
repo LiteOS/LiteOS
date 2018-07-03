@@ -41,17 +41,18 @@
 
 #include "atiny_fota_api.h"
 
+
 typedef struct fota_hardware_api_tag_s
 {
     uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
     uint32_t (*get_max_size)(struct fota_hardware_api_tag_s *thi);
+    int (*read_software)(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
 }fota_hardware_s;
 
 typedef struct
 {
     atiny_fota_storage_device_s *storage_device;
     fota_hardware_s *hardware;
-    uint32_t head_len; // must bigger than 8
     void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
 }fota_pack_device_info_s;
 

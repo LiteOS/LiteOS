@@ -159,14 +159,17 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     ATINY_LOG(LOG_INFO, "download stat from %d to %d", thi->state, state);
     thi->state = state;
     {
-         atiny_fota_state_s *states[] = {ATINY_GET_STATE(thi->idle_state),
-                                ATINY_GET_STATE(thi->downloading_state),
-                                ATINY_GET_STATE(thi->downloaded_state),
-                                ATINY_GET_STATE(thi->updating_state)};
+    /*lint -e614 */
+        atiny_fota_state_s *states[ATINY_FOTA_UPDATING + 1];
+        states[ATINY_FOTA_IDLE] = ATINY_GET_STATE(thi->idle_state);
+        states[ATINY_FOTA_DOWNLOADING] = ATINY_GET_STATE(thi->downloading_state);
+        states[ATINY_FOTA_DOWNLOADED] = ATINY_GET_STATE(thi->downloaded_state);
+        states[ATINY_FOTA_UPDATING] = ATINY_GET_STATE(thi->updating_state);
         thi->current = states[state];
+     /*lint +e614 */
     }
     memset((void*)&uri, 0, sizeof(uri));
-    lwm2m_stringToUri(uri_str, strlen(uri_str), &uri);
+    (void)lwm2m_stringToUri(uri_str, strlen(uri_str), &uri);
     lwm2m_resource_value_changed(thi->lwm2m_context, &uri);
     return ATINY_OK;
 }
@@ -174,8 +177,11 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+    int ret;
     thi->device = device;
-    return atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret = atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret |=atiny_fota_idle_state_int_report_result(&thi->idle_state);
+    return ret;
 }
 
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
@@ -188,7 +194,7 @@ atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_ma
 void atiny_fota_manager_update_notify(firmware_update_rst_e rst, void *param)
 {
     atiny_fota_manager_s *thi = ( atiny_fota_manager_s *)param;
-   atiny_fota_manager_finish_download(thi, rst);
+   (void)atiny_fota_manager_finish_download(thi, rst);
 }
 void atiny_fota_manager_init(atiny_fota_manager_s *thi)
 {
@@ -210,7 +216,9 @@ void atiny_fota_manager_destroy(atiny_fota_manager_s *thi)
     {
         atiny_free(thi->pkg_uri);
     }
+    /*lint -e668 */
     memset(thi, 0, sizeof(*thi));
+    /*lint +e668 */
 }
 
 int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t*  lwm2m_context)

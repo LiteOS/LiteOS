@@ -10,6 +10,7 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
@@ -52,7 +53,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -124,47 +125,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>0</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>12</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>BIN\CMSIS_AGDI.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -229,6 +189,7 @@
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
@@ -365,11 +326,13 @@
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
               <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_LWIP</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -433,11 +396,6 @@
               <FilePath>..\Src\system_stm32f4xx.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\usart.c</FilePath>
-            </File>
-            <File>
               <FileName>dwt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\dwt.c</FilePath>
@@ -451,6 +409,11 @@
               <FileName>eth.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\eth.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\fota_port.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -592,6 +555,11 @@
         <Group>
           <GroupName>liteos/arch</GroupName>
           <Files>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\usart.c</FilePath>
+            </File>
             <File>
               <FileName>los_hw.c</FileName>
               <FileType>1</FileType>
@@ -1443,11 +1411,6 @@
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</FilePath>
             </File>
             <File>
-              <FileName>lwm2mclient.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\lwm2mclient.c</FilePath>
-            </File>
-            <File>
               <FileName>object_access_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\object_access_control.c</FilePath>
@@ -1498,11 +1461,6 @@
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\platform_adapter.c</FilePath>
             </File>
             <File>
-              <FileName>system_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\system_api.c</FilePath>
-            </File>
-            <File>
               <FileName>atiny_rpt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_rpt.c</FilePath>
@@ -1511,6 +1469,26 @@
               <FileName>connection.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</FilePath>
+            </File>
+            <File>
+              <FileName>firmware_update.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\firmware_update\firmware_update.c</FilePath>
+            </File>
+            <File>
+              <FileName>atiny_fota_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>atiny_fota_state.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</FilePath>
+            </File>
+            <File>
+              <FileName>atiny_update_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1556,6 +1534,51 @@
               <FileName>los_nb_api.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\nb_iot\los_nb_api.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>fota</GroupName>
+          <Files>
+            <File>
+              <FileName>ota.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\ota\ota.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_default.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\ota\ota_default.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\utility\ota_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_sha256.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\utility\ota_sha256.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_firmware_writer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_package_crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_package_head.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_package_storage_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</FilePath>
             </File>
           </Files>
         </Group>
