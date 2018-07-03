@@ -23,18 +23,19 @@
 #define I2C_RD	        1		/* ¶Á¿ØÖÆbit */
 
 #define I2C_GPIO_CLK_ENABLE()               __HAL_RCC_GPIOC_CLK_ENABLE()
-#define I2C_GPIO_PORT                       GPIOC
-#define I2C_SCL_PIN                         GPIO_PIN_11
-#define I2C_SDA_PIN                         GPIO_PIN_10
+#define I2C_GPIO_SCL_PORT                       GPIOC
+#define I2C_GPIO_SDA_PORT                       GPIOA
+#define I2C_SCL_PIN                         GPIO_PIN_12
+#define I2C_SDA_PIN                         GPIO_PIN_15
 
 
 #define HIGH    1
 #define LOW     0
 
 
-#define I2C_SCL(n) (n?HAL_GPIO_WritePin(I2C_GPIO_PORT,I2C_SCL_PIN,GPIO_PIN_SET):HAL_GPIO_WritePin(I2C_GPIO_PORT,I2C_SCL_PIN,GPIO_PIN_RESET)) //SCL
-#define I2C_SDA(n) (n?HAL_GPIO_WritePin(I2C_GPIO_PORT,I2C_SDA_PIN,GPIO_PIN_SET):HAL_GPIO_WritePin(I2C_GPIO_PORT,I2C_SDA_PIN,GPIO_PIN_RESET)) //SDA
-#define I2C_SDA_READ()               HAL_GPIO_ReadPin(I2C_GPIO_PORT,I2C_SDA_PIN)
+#define I2C_SCL(n) (n?HAL_GPIO_WritePin(I2C_GPIO_SCL_PORT,I2C_SCL_PIN,GPIO_PIN_SET):HAL_GPIO_WritePin(I2C_GPIO_SCL_PORT,I2C_SCL_PIN,GPIO_PIN_RESET)) //SCL
+#define I2C_SDA(n) (n?HAL_GPIO_WritePin(I2C_GPIO_SDA_PORT,I2C_SDA_PIN,GPIO_PIN_SET):HAL_GPIO_WritePin(I2C_GPIO_SDA_PORT,I2C_SDA_PIN,GPIO_PIN_RESET)) //SDA
+#define I2C_SDA_READ()               HAL_GPIO_ReadPin(I2C_GPIO_SDA_PORT,I2C_SDA_PIN)
 
 #define BH1750_Addr 0x46
 #define BH1750_ON   0x01
@@ -42,8 +43,8 @@
 #define BH1750_ONE  0x20
 #define BH1750_RSET 0x07
 
-#define SDA_IN()  {GPIOC->MODER&=~(3<<(10*2));GPIOC->MODER|=0<<10*2;}       //PH5????
-#define SDA_OUT() {GPIOC->MODER&=~(3<<(10*2));GPIOC->MODER|=1<<10*2;}   //PH5????
+#define SDA_IN()  {GPIOA->MODER&=~(3<<(15*2));GPIOA->MODER|=0<<15*2;}       
+#define SDA_OUT() {GPIOA->MODER&=~(3<<(15*2));GPIOA->MODER|=1<<15*2;}   
 
 
 void    I2C_Start(void);

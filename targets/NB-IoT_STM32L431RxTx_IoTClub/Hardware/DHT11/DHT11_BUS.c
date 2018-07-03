@@ -106,7 +106,6 @@ static uint8_t DHT11_ReadByte ( void )
 {
 	uint8_t i, temp=0;
 
-
 	for(i=0;i<8;i++)
 	{
 		/*每bit以50us低电平标置开始，轮询直到从机发出 的50us 低电平 结束*/
@@ -172,12 +171,16 @@ uint8_t DHT11_Read_TempAndHumidity(DHT11_Data_TypeDef *DHT11_Data)
     /*轮询直到从机发出的 80us 高电平 标置信号结束*/
     while(DHT11_Data_IN()==GPIO_PIN_SET);
 
+    unsigned int up = LOS_IntLock();
+
     /*开始接收数据*/
     DHT11_Data->humi_high8bit= DHT11_ReadByte();
     DHT11_Data->humi_low8bit = DHT11_ReadByte();
     DHT11_Data->temp_high8bit= DHT11_ReadByte();
     DHT11_Data->temp_low8bit = DHT11_ReadByte();
     DHT11_Data->check_sum    = DHT11_ReadByte();
+
+    LOS_IntRestore(up);
 
     /*读取结束，引脚改为输出模式*/
     DHT11_Mode_Out_PP();
@@ -186,14 +189,17 @@ uint8_t DHT11_Read_TempAndHumidity(DHT11_Data_TypeDef *DHT11_Data)
 
     /* 对数据进行处理 */
     humi_temp=DHT11_Data->humi_high8bit*100+DHT11_Data->humi_low8bit;
-    DHT11_Data->humidity =(float)humi_temp/100;
+    DHT11_Data->humidity =(uint32_t)humi_temp/10;
+    printf("DHT11_Data->humidity = %d\r\n", humi_temp);
 
     humi_temp=DHT11_Data->temp_high8bit*100+DHT11_Data->temp_low8bit;
-    DHT11_Data->temperature=(float)humi_temp/100;
+    DHT11_Data->temperature=(uint32_t)humi_temp/10;
+    printf("DHT11_Data->temperature = %d\r\n", humi_temp);
 
     /*检查读取的数据是否正确*/
     temp = DHT11_Data->humi_high8bit + DHT11_Data->humi_low8bit +
            DHT11_Data->temp_high8bit+ DHT11_Data->temp_low8bit;
+
     if(DHT11_Data->check_sum==temp)
     {
         return SUCCESS;

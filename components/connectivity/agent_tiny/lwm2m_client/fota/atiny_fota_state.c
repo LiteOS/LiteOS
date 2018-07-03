@@ -35,8 +35,9 @@
 #include "atiny_fota_state.h"
 #include <string.h>
 #include "object_comm.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "firmware_update.h"
-
+#endif
 
 //TODO:set the update detail result
 int atiny_fota_state_default_handle(struct atiny_fota_state_tag_s * thi)

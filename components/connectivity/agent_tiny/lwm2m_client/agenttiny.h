@@ -41,8 +41,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_api.h"
-
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -148,9 +149,9 @@ void atiny_event_notify(atiny_event_e event, const char* arg, int len);
 
 typedef struct
 {
-    char* binding;               /*Ä¿Ç°Ö§³ÖU»òÕßUQ*/
-    int   life_time;             /*±ØÑ¡£¬Ä¬ÈÏ50000,Èç¹ý¶Ì£¬ÔòÆµ·±·¢ËÍupdate±¨ÎÄ£¬Èç¹ý³¤£¬ÔÚÏß×´Ì¬¸üÐÂÊ±¼ä³¤*/
-    unsigned int  storing_cnt;   /*storingÎªtrueÊ±£¬lwm2m»º´æÇø×Ü×Ö½Ú¸öÊý*/
+    char* binding;               /*Ä¿Ç°Ö§ï¿½ï¿½Uï¿½ï¿½ï¿½ï¿½UQ*/
+    int   life_time;             /*ï¿½ï¿½Ñ¡ï¿½ï¿½Ä¬ï¿½ï¿½50000,ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½updateï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä³¤*/
+    unsigned int  storing_cnt;   /*storingÎªtrueÊ±ï¿½ï¿½lwm2mï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú¸ï¿½ï¿½ï¿½*/
 } atiny_server_param_t;
 
 
@@ -274,11 +275,11 @@ typedef void (*atiny_ack_callback) (atiny_report_type_e type, int cookie, data_s
 
 typedef struct _data_report_t
 {
-    atiny_report_type_e type;     /*Êý¾ÝÉÏ±¨ÀàÐÍ*/
-    int cookie;                   /*Êý¾Ýcookie,ÓÃÒÔÔÚack»Øµ÷ÖÐ£¬Çø·Ö²»Í¬µÄÊý¾Ý*/
-    int len;                      /*Êý¾Ý³¤¶È£¬²»Ó¦´óÓÚMAX_REPORT_DATA_LEN*/
-    uint8_t* buf;                 /*Êý¾Ý»º³åÇøÊ×µØÖ·*/
-    atiny_ack_callback callback;  /*ack»Øµ÷*/
+    atiny_report_type_e type;     /*ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½*/
+    int cookie;                   /*ï¿½ï¿½ï¿½ï¿½cookie,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ackï¿½Øµï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ö²ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+    int len;                      /*ï¿½ï¿½ï¿½Ý³ï¿½ï¿½È£ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½MAX_REPORT_DATA_LEN*/
+    uint8_t* buf;                 /*ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×µï¿½Ö·*/
+    atiny_ack_callback callback;  /*ackï¿½Øµï¿½*/
 } data_report_t;
 
 /**

@@ -32,53 +32,16 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SYS_H_
-#define __SYS_H_
+#ifndef __AT_HAL_H__
+#define __AT_HAL_H__
 
-/* Includes LiteOS------------------------------------------------------------------*/
+#include "atadapter.h"
 
-#include "los_base.h"
-#include "los_config.h"
-#include "los_sys.h"
-#include "los_typedef.h"
-#include "los_task.ph"
-#include "los_hwi.h"
-#include "los_sem.h"
-#include "los_event.h"
-#include "los_memory.h"
-#include "los_queue.ph"
+void at_transmit(uint8_t * cmd, int32_t len,int flag);
+int32_t at_usart_init(void);
+void at_usart_deinit(void);
+int read_resp(uint8_t * buf);
+//declear in device drivers
+extern at_config at_user_conf;
 
-#include "stdlib.h"
-#include "string.h"
-#include <stdio.h>
-#include "stm32l4xx_hal.h"
-#include "hal_rng.h"
-#include "stm32l4xx_it.h"
-#include "dwt.h"
-#include "adc.h"
-#include "i2c.h"
-#include "usart.h"
-#include "gpio.h"
-#include "oled.h"
-#include "neul_bc95.h"
-#include "los_dev_st_uart.h"
-#include "DHT11_BUS.h"
-#include "BH1750.h" 
-#include "gps.h"
-
-#ifdef __cplusplus
- extern "C" {
 #endif
-
-uint32_t HAL_GetTick(void);
-void SystemClock_Config(void);
-void _Error_Handler(char *, int);
-
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __SYS_H_ */
-
