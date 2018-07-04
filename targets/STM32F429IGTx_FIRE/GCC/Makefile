@@ -60,7 +60,7 @@ PERIFLIB_PATH =
 
 # Build path
 BUILD_DIR = build
-
+BUILD_DIR_MQTT = build_mqtt
 ######################################
 # source
 ######################################
@@ -129,34 +129,52 @@ MBEDTLS_PORT_SRC = \
         ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls_port/*.c}
         C_SOURCES += $(MBEDTLS_PORT_SRC)
 
+C_ATINY_LWM2M += $(C_SOURCES)
+C_ATINY_MQTT  += $(C_SOURCES) 
+
 ER_COAP_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13/er-coap-13.c}
-        C_SOURCES += $(ER_COAP_SRC)
+        C_ATINY_LWM2M += $(ER_COAP_SRC)
 
 LWM2M_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
-        C_SOURCES += $(LWM2M_SRC)
+        C_ATINY_LWM2M += $(LWM2M_SRC)
 
 OS_ADAPTER_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/osadapter/*.c}
-        C_SOURCES += $(OS_ADAPTER_SRC)
+        C_ATINY_LWM2M += $(OS_ADAPTER_SRC)
+        C_ATINY_MQTT  += $(OS_ADAPTER_SRC)
 
-ATINY_TINY_SRC = \
+ATINY_LWM2M_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/*.c}
-        C_SOURCES += $(ATINY_TINY_SRC)
+        C_ATINY_LWM2M += $(ATINY_LWM2M_SRC)
 
-AGENT_DEMO_SRC = \
+ATINY_LWM2M_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
-        C_SOURCES += $(AGENT_DEMO_SRC)
+        C_ATINY_LWM2M += $(ATINY_LWM2M_DEMO_SRC)
 
 FOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
         ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
-        C_SOURCES += $(FOTA_SRC)
+        C_ATINY_LWM2M += $(FOTA_SRC)
 
 FIRMWARE_UPDATE_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
-        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
+        C_ATINY_LWM2M += $(FIRMWARE_UPDATE_SRC)
+
+MQTT_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/*.c} \
+        $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/MQTTClient.c \
+        $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/liteOS/MQTTliteos.c
+        C_ATINY_MQTT += $(MQTT_SRC)
+
+ATINY_MQTT_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        C_ATINY_MQTT += $(ATINY_MQTT_SRC)
+
+ATINY_MQTT_DEMO_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/mqtt_demo/*.c}
+        C_ATINY_MQTT += $(ATINY_MQTT_DEMO_SRC)
 
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
@@ -165,12 +183,14 @@ USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/eth.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
-        C_SOURCES += $(USER_SRC)
+        C_ATINY_LWM2M += $(USER_SRC)
+        C_ATINY_MQTT  += $(USER_SRC)
 
+        
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c}
-    C_SOURCES += $(ATADAPTOR_SRC)
+    C_ATINY_LWM2M += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
@@ -181,11 +201,11 @@ else ifeq ($(NETWORK_TYPE), NB_NEUL95)
 	${wildcard $(TOP_DIR)/drivers/devices/nb/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
-    C_SOURCES += $(USER_DRIVERS_SRC)
+    C_ATINY_LWM2M += $(USER_DRIVERS_SRC)
 endif
 
-C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
-C_SOURCES += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
+C_ATINY_LWM2M += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
+C_ATINY_LWM2M += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -216,7 +236,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS =
 
 # C defines
-C_DEFS =  \
+C_DEFS_LWM2M =  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
         -D USE_MBED_TLS \
@@ -230,10 +250,23 @@ C_DEFS =  \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
-        C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
+        C_DEFS_LWM2M += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
 else
-        C_DEFS += -D WITH_LWIP
+        C_DEFS_LWM2M += -D WITH_LWIP
 endif
+
+C_DEFS_MQTT =  \
+        -D USE_HAL_DRIVER \
+        -D STM32F429xx \
+        -D USE_MBED_TLS \
+        -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_psk.h\" \
+        -D WITH_LWIP \
+        -D LWM2M_LITTLE_ENDIAN \
+        -D LWM2M_CLIENT_MODE \
+        -D NDEBUG \
+        -D WITH_DTLS \
+        -D LWIP_TIMEVAL_PRIVATE=0
+
 
 # AS includes
 AS_INCLUDES =
@@ -283,44 +316,65 @@ MBEDTLS_PORT_INC = \
         -I $(TOP_DIR)/components/security/mbedtls/mbedtls_port
         C_INCLUDES += $(MBEDTLS_PORT_INC)
 
+C_LWM2M_INCLUDES += $(C_INCLUDES)
+C_MQTT_INCLUDES  += $(C_INCLUDES)
+
 ER_COAP_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13
-        C_INCLUDES += $(ER_COAP_INC)
+        C_LWM2M_INCLUDES += $(ER_COAP_INC)
 
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core
-        C_INCLUDES += $(LWM2M_INC)
+        C_LWM2M_INCLUDES += $(LWM2M_INC)
 
 OS_ADAPTER_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/osadapter
-        C_INCLUDES += $(OS_ADAPTER_INC)
+        C_LWM2M_INCLUDES += $(OS_ADAPTER_INC)
+        C_MQTT_INCLUDES  += $(OS_ADAPTER_INC)
 
-ATINY_TINY_INC = \
+ATINY_LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/comm/include
-        C_INCLUDES += $(ATINY_TINY_INC)
+        C_LWM2M_INCLUDES += $(ATINY_LWM2M_INC)
 
-AGENT_DEMO_INC = \
+ATINY_LWM2M_DEMO_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/examples
-        C_INCLUDES += $(AGENT_DEMO_INC)
+        C_LWM2M_INCLUDES += $(ATINY_LWM2M_DEMO_INC)
 
 FOTA_INC = \
         -I $(TOP_DIR)/components/fota/ota \
         -I $(TOP_DIR)/components/fota/utility
-        C_INCLUDES += $(FOTA_INC)
+        C_LWM2M_INCLUDES += $(FOTA_INC)
 
 FIRMWARE_UPDATE_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update
-        C_INCLUDES += $(FIRMWARE_UPDATE_INC)
+        C_LWM2M_INCLUDES += $(FIRMWARE_UPDATE_INC)
+
+MQTT_INC = \
+	-I $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src \
+        -I $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/liteOS \
+        -I $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src
+        C_MQTT_INCLUDES += $(MQTT_INC)
+
+ATINY_MQTT_INC = \
+	-I $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/comm/include
+        C_MQTT_INCLUDES += $(ATINY_MQTT_INC)
+
+ATINY_MQTT_DEMO_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/examples/mqtt_demo
+        C_MQTT_INCLUDES += $(ATINY_MQTT_DEMO_INC)
 
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Inc \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/OS_CONFIG
-        C_INCLUDES += $(USER_INC)
+        C_LWM2M_INCLUDES += $(USER_INC)
+        C_MQTT_INCLUDES  += $(USER_INC)
 
 ATADAPTOR_INC = \
         -I $(TOP_DIR)/components/connectivity/at_frame
-        C_INCLUDES += $(ATADAPTOR_INC)
+        C_LWM2M_INCLUDES += $(ATADAPTOR_INC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ifeq ($(NETWORK_TYPE), ESP8266)
@@ -332,26 +386,28 @@ else ifeq ($(NETWORK_TYPE), NB_NEUL95)
 	-I $(TOP_DIR)/components/connectivity/nb_iot \
 	-I $(TOP_DIR)/drivers/devices/nb
 endif
-    C_INCLUDES += $(USER_DRIVERS_INC)
+    C_LWM2M_INCLUDES += $(USER_DRIVERS_INC)
 endif
 
-C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
+C_LWM2M_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
 
-C_INCLUDES += -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
+C_LWM2M_INCLUDES += -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS_ATINY_LWM2M = $(MCU) $(C_DEFS_LWM2M) $(C_LWM2M_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS_ATINY_MQTT = $(MCU) $(C_DEFS_MQTT) $(C_MQTT_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGS_ATINY_LWM2M += -g -gdwarf-2
+CFLAGS_ATINY_MQTT += -g -gdwarf-2
 endif
 
 
 # Generate dependency information
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-
+CFLAGS_ATINY_LWM2M += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+CFLAGS_ATINY_MQTT += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 
 #######################################
 # LDFLAGS
@@ -368,26 +424,54 @@ LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 LIBS = -lc -lm -lnosys
 LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS_MQTT = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR_MQTT)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
-
+mqtt:$(BUILD_DIR_MQTT)/$(TARGET).elf $(BUILD_DIR_MQTT)/$(TARGET).hex $(BUILD_DIR_MQTT)/$(TARGET).bin
+all_ver: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR_MQTT)/$(TARGET).elf $(BUILD_DIR_MQTT)/$(TARGET).hex $(BUILD_DIR_MQTT)/$(TARGET).bin
 
 #######################################
 # build the application
 #######################################
 # list of objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
-vpath %.c $(sort $(dir $(C_SOURCES)))
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_ATINY_LWM2M:.c=.o)))
+vpath %.c $(sort $(dir $(C_ATINY_LWM2M)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
+OBJECTS_MQTT = $(addprefix $(BUILD_DIR_MQTT)/,$(notdir $(C_ATINY_MQTT:.c=.o)))
+vpath %.c $(sort $(dir $(C_ATINY_MQTT)))
+# list of ASM program objects
+OBJECTS_MQTT += $(addprefix $(BUILD_DIR_MQTT)/,$(notdir $(ASM_SOURCES:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES)))
+
+
+$(BUILD_DIR_MQTT)/%.o: %.c Makefile | $(BUILD_DIR_MQTT)
+	$(CC) -c $(CFLAGS_ATINY_MQTT) -Wa,-a,-ad,-alms=$(BUILD_DIR_MQTT)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(BUILD_DIR_MQTT)/%.o: %.s Makefile | $(BUILD_DIR_MQTT)
+	$(AS) -c $(CFLAGS_ATINY_MQTT) $< -o $@
+
+$(BUILD_DIR_MQTT)/$(TARGET).elf: $(OBJECTS_MQTT) Makefile
+	$(CC) $(OBJECTS_MQTT) $(LDFLAGS_MQTT) -o $@
+	$(SZ) $@
+
+$(BUILD_DIR_MQTT)/%.hex: $(BUILD_DIR_MQTT)/%.elf | $(BUILD_DIR_MQTT)
+	$(HEX) $< $@
+
+$(BUILD_DIR_MQTT)/%.bin: $(BUILD_DIR_MQTT)/%.elf | $(BUILD_DIR_MQTT)
+	$(BIN) $< $@
+
+$(BUILD_DIR_MQTT):
+	mkdir $@	
+
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS_ATINY_LWM2M) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
+	$(AS) -c $(CFLAGS_ATINY_LWM2M) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile $(LD_FILE)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
@@ -407,6 +491,7 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR .dep $(BUILD_DIR)
+	-rm -fR .dep $(BUILD_DIR_MQTT)
 
 #######################################
 # dependencies
