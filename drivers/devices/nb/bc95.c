@@ -89,6 +89,11 @@ int32_t nb_hw_detect(void)//"AT+CFUN?\r"
     return at.cmd((int8_t*)AT_NB_hw_detect, strlen(AT_NB_hw_detect), "+CFUN:1", NULL);
 }
 
+int32_t nb_err_cue(void)//"AT+CFUN?\r"
+{
+    return at.cmd((int8_t*)"AT+CMEE=1", strlen("AT+CMEE=1"), "OK", NULL);
+}
+
 int32_t nb_set_cdpserver(char* host, char* port)
 {
     char *cmd = "AT+NCDP=";

@@ -62,7 +62,9 @@ Return     : cycle number corresponding to each tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CyclePerTickGet(VOID)
 {
+    /*lint -e40*/
     return OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;/*lint !e160*/
+    /*lint +e40*/
 }
 
 /*****************************************************************************
