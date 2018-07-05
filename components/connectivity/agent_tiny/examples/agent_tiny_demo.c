@@ -42,6 +42,8 @@
 
 #define LWM2M_LIFE_TIME     50000
 
+#define IOT_PSK_VALUE_LENGTH    12
+#define BS_PSK_VALUE_LENGTH     12
 char * g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
 //char *g_endpoint_name_s = "11110006";
@@ -53,8 +55,8 @@ char * g_endpoint_name = "44440003";
 char* g_endpoint_name_s = "11110001";
 char* g_endpoint_name_iots = "66667777";
 char* g_endpoint_name_bs = "22224444";
-unsigned char g_psk_iot_value[16] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
-unsigned char g_psk_bs_value[12] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
+unsigned char g_psk_iot_value[IOT_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};  //0x33 -> 0x32
+unsigned char g_psk_bs_value[BS_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
 #endif
 
@@ -166,11 +168,11 @@ void agent_tiny_entry(void)
 
     iot_security_param->psk_Id = g_endpoint_name_iots;
     iot_security_param->psk = (char*)g_psk_iot_value;
-    iot_security_param->psk_len = 16;
+    iot_security_param->psk_len = IOT_PSK_VALUE_LENGTH;
 
     bs_security_param->psk_Id = g_endpoint_name_bs;
     bs_security_param->psk = (char*)g_psk_bs_value;
-    bs_security_param->psk_len = 16;
+    bs_security_param->psk_len = BS_PSK_VALUE_LENGTH;
 #else
     iot_security_param->server_port = "5683";
     bs_security_param->server_port = "5683";

@@ -130,6 +130,9 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
     int i = 0;
     int psk_id_len =0;
     int psk_len = 0;
+    const int PSK_ID_LIMIT_LEN = 128;
+    const int PSK_LIMIT_LEN = 64;
+    int total_element = 0;
 
     if(NULL == atiny_params)
     {
@@ -137,7 +140,9 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
     }
 
     //security_params have 2 element, we have 2 pair psk.
-    for(i=0;i<2;i++)
+    total_element = (sizeof(atiny_params->security_params))/(sizeof(atiny_params->security_params[0]));
+
+    for(i=0;i<total_element;i++)
     {
         //if there are null, we could run not in security mode
         if((atiny_params->security_params[i].psk_Id != NULL)&&(atiny_params->security_params[i].psk != NULL))
@@ -146,7 +151,7 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
             psk_len = strlen(atiny_params->security_params[i].psk);
 
             //the limit of the len, please read RFC4279  or OMA-TS-LightweightM2M E.1.1
-            if((psk_id_len > 128)||(psk_len > 64))
+            if((psk_id_len > PSK_ID_LIMIT_LEN)||(psk_len > PSK_LIMIT_LEN))
             {
                 LOG("[bootstrap_tag]: psk_Id len over 128 or psk len over 64");
                 return ATINY_ARG_INVALID;
