@@ -704,7 +704,20 @@ next_step:
     case STATE_REGISTER_REQUIRED:
         result = registration_start(contextP);
         LOG_ARG("[bootstrap_tag]: ---the return value result = %d of registration_start-----",result);
-        if (COAP_NO_ERROR != result) return result;
+        if (COAP_NO_ERROR != result)
+        {
+            if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
+            {
+                //for the bs sequence mode, and in the state BS_SEQUENCE_STATE_FACTORY, even if fail, still have a chance
+                //to get regist info from bs server. so not return. after get into registration_getStatus, judge all server
+                //reg fail---because all server's are not in good state.
+                contextP->state = STATE_REGISTERING;
+            }
+            else
+            {
+                return result;
+            }
+        }
         contextP->state = STATE_REGISTERING;
         break;
 
