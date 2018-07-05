@@ -124,6 +124,7 @@ typedef enum
     ATINY_REG_FAIL,
     ATINY_DATA_SUBSCRIBLE,
     ATINY_DATA_UNSUBSCRIBLE,
+    ATINY_FOTA_STATE
 } atiny_event_e;
 
 /**

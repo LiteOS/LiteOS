@@ -790,7 +790,7 @@ int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contex
 
 typedef struct
 {
-    uint32_t format;
+    lwm2m_media_type_t format;
     uint8_t token[8];
     uint32_t tokenLen;
     uint32_t counter;

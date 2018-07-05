@@ -34,11 +34,6 @@
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_SIM900A)
 #include "sim900a.h"
-#include "atadapter.h"
-#include "main.h"
-#include "at_api_interface.h"
-#include "atiny_socket.h"
-
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -126,7 +121,7 @@ int32_t  sim900a_recv(int32_t id, int8_t * buf, uint32_t len)
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -142,7 +137,7 @@ int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t ti
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -170,7 +165,7 @@ void sim900a_check(void)
     {
       printf("\r\ncheck module response unnormal\r\n");
       printf("\r\nplease check the module pin connection and the power switch\r\n");
-      SIM900A_DELAY((osMs2Tick(500)));
+      SIM900A_DELAY(500);
     }
     if(AT_FAILED != at.cmd((int8_t*)AT_CMD_CPIN,strlen(AT_CMD_CPIN),"OK",NULL))
     {
@@ -247,7 +242,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
         }
         p2++; //over ':'
 
-        qbuf.addr = atiny_malloc(data_len);
+        qbuf.addr = at_malloc(data_len);
         if (NULL == qbuf.addr)
         {
             AT_LOG("malloc for qbuf failed!");
@@ -265,7 +260,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
         if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[linkid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
         {
             AT_LOG("LOS_QueueWriteCopy  failed! ret = %x", ret);
-            atiny_free(qbuf.addr);
+            at_free(qbuf.addr);
             goto END;
         }
         ret = (p2 + data_len - (char *)buf);
@@ -296,9 +291,8 @@ int32_t sim900a_ini()
 
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = USART2,
+    .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,

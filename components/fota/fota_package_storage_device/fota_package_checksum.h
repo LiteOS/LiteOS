@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,24 +32,47 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_package_crc.h"
-#include <string.h>
-#include "fota_package_head.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
+
+#ifndef _FOTA_PACKAGE_CHECKSUM_H_
+#define _FOTA_PACKAGE_CHECKSUM_H_
+
+#include "fota_package_storage_device.h"
 
 
+struct fota_pack_checksum_tag_s;
 
-void fota_pack_crc_init(fota_pack_crc_s *crc)
+struct fota_pack_checksum_tag_s;
+typedef struct fota_pack_checksum_tag_s fota_pack_checksum_s;
+
+typedef enum
 {
-}
-int fota_pack_crc_update(fota_pack_crc_s *crc, const uint8_t *buff, uint16_t len)
-{
-    return FOTA_OK;
-}
-int fota_pack_crc_check(fota_pack_crc_s *crc, uint32_t expect_crc)
-{
-    return FOTA_OK;
-}
+    FOTA_PACK_SHA_S56,
+    FOTA_PACK_MAX_CHECKSUM_TYPE
+} fota_pack_checksum_type_e;
+
+struct fota_pack_head_tag_s;
 
 
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
+fota_pack_checksum_s * fota_pack_checksum_create(fota_pack_checksum_type_e type);
+void fota_pack_checksum_delete(fota_pack_checksum_s * thi);
+int fota_pack_checksum_update_head(fota_pack_checksum_s *thi, struct fota_pack_head_tag_s *head);
+int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware);
+int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
+
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif //_FOTA_PACKAGE_CHECKSUM_H_
 
 

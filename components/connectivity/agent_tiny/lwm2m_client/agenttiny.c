@@ -162,7 +162,6 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
     atiny_fota_storage_device_s * device = NULL;
-    int ret = -1;
 
     if (NULL == atiny_params || NULL == phandle)
     {
@@ -195,19 +194,16 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
 
-    ret = atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
-    if(ret != ATINY_OK) return ATINY_ERR;
+    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ERR;
     }
 
-    ret = atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
+    return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
                         device);
-    if(ret != ATINY_OK) return ATINY_ERR;
 
-    return ATINY_OK;
 }
 
 /*
@@ -451,8 +447,7 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
             if (code == STATE_REGISTERED)
             {
                 atiny_event_notify(ATINY_REG_OK, NULL, 0);
-                ret = atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
-                if(ret == ATINY_ERR)return;
+                (void)atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
             }
             else if (code == STATE_REG_FAILED)
             {
@@ -568,8 +563,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         return ret;
     }
 
-    ret = atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
-    if(ret != ATINY_OK)return ret;
+    (void)atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
 
     lwm2m_register_observe_ack_call_back(observe_handle_ack);
     lwm2m_register_event_handler(atiny_event_handle);

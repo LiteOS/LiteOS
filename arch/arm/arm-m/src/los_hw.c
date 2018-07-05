@@ -120,44 +120,6 @@ LITE_OS_SEC_TEXT_INIT VOID *osTskStackInit(UINT32 uwTaskID, UINT32 uwStackSize, 
 
     pstContext    = (TSK_CONTEXT_S *)(((UINT32)pTopStack + uwStackSize) - sizeof(TSK_CONTEXT_S));
 
-#if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
-    pstContext->S16 = 0xAA000010;
-    pstContext->S17 = 0xAA000011;
-    pstContext->S18 = 0xAA000012;
-    pstContext->S19 = 0xAA000013;
-    pstContext->S20 = 0xAA000014;
-    pstContext->S21 = 0xAA000015;
-    pstContext->S22 = 0xAA000016;
-    pstContext->S23 = 0xAA000017;
-    pstContext->S24 = 0xAA000018;
-    pstContext->S25 = 0xAA000019;
-    pstContext->S26 = 0xAA00001A;
-    pstContext->S27 = 0xAA00001B;
-    pstContext->S28 = 0xAA00001C;
-    pstContext->S29 = 0xAA00001D;
-    pstContext->S30 = 0xAA00001E;
-    pstContext->S31 = 0xAA00001F;
-    pstContext->S0 = 0xAA000000;
-    pstContext->S1 = 0xAA000001;
-    pstContext->S2 = 0xAA000002;
-    pstContext->S3 = 0xAA000003;
-    pstContext->S4 = 0xAA000004;
-    pstContext->S5 = 0xAA000005;
-    pstContext->S6 = 0xAA000006;
-    pstContext->S7 = 0xAA000007;
-    pstContext->S8 = 0xAA000008;
-    pstContext->S9 = 0xAA000009;
-    pstContext->S10 = 0xAA00000A;
-    pstContext->S11 = 0xAA00000B;
-    pstContext->S12 = 0xAA00000C;
-    pstContext->S13 = 0xAA00000D;
-    pstContext->S14 = 0xAA00000E;
-    pstContext->S15 = 0xAA00000F;
-    pstContext->FPSCR = 0x00000000;
-    pstContext->NO_NAME = 0xAA000011;
-#endif
-
     pstContext->uwR4  = 0x04040404L;
     pstContext->uwR5  = 0x05050505L;
     pstContext->uwR6  = 0x06060606L;
@@ -166,7 +128,15 @@ LITE_OS_SEC_TEXT_INIT VOID *osTskStackInit(UINT32 uwTaskID, UINT32 uwStackSize, 
     pstContext->uwR9  = 0x09090909L;
     pstContext->uwR10 = 0x10101010L;
     pstContext->uwR11 = 0x11111111L;
+    /* The initial interruption state(PRIMASK value: 0 --- enable) of the task */
     pstContext->uwPriMask = 0;
+#if FPU_EXIST
+    /**
+     * The initial EXC_RETURN value(use 8 word stack frame, return to thread mode and use PSP).
+     * Please do not modify it.
+     */
+    pstContext->uwExcReturn = 0xFFFFFFFD;
+#endif
     pstContext->uwR0  = uwTaskID;
     pstContext->uwR1  = 0x01010101L;
     pstContext->uwR2  = 0x02020202L;

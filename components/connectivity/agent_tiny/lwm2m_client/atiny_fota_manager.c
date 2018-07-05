@@ -171,14 +171,18 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     memset((void*)&uri, 0, sizeof(uri));
     (void)lwm2m_stringToUri(uri_str, strlen(uri_str), &uri);
     lwm2m_resource_value_changed(thi->lwm2m_context, &uri);
+    atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
     return ATINY_OK;
 }
 
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+    int ret;
     thi->device = device;
-    return atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret = atiny_update_info_set(atiny_update_info_get_instance(), device);
+    ret |=atiny_fota_idle_state_int_report_result(&thi->idle_state);
+    return ret;
 }
 
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
@@ -202,6 +206,7 @@ void atiny_fota_manager_init(atiny_fota_manager_s *thi)
     atiny_fota_updating_state_init(&thi->updating_state, thi);
     thi->current = ATINY_GET_STATE(thi->idle_state);
     set_firmware_update_notify(atiny_fota_manager_update_notify, thi);
+    atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
     thi->init_flag = true;
 }
 

@@ -40,6 +40,9 @@
 #include "los_task.h"
 #include "los_sem.h"
 
+#include "atiny_socket.h"
+#include "at_api_interface.h"
+
 /* MACRO DEFINE */
 #define AT_INTO
 #ifdef AT_INTO
@@ -92,10 +95,11 @@ typedef struct _listner{
 
 #define OOB_MAX_NUM 5
 #define OOB_CMD_LEN  40
+
 typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
-	oob_callback cb;
+	oob_callback callback;
 	void* arg;
 }oob_t;
 
@@ -106,9 +110,8 @@ typedef struct at_oob_s{
 
 typedef struct __config{
 	char * name;
-	USART_TypeDef * usart;
+	uint32_t usart_port;
 	uint32_t buardrate;
-	uint32_t irqn;
 	uint32_t linkid_num;
 	uint32_t user_buf_len; /* malloc 3 block memory for intener use, len * 3 */
 #ifdef USE_USARTRX_DMA
@@ -143,5 +146,8 @@ typedef struct at_task{
 	int32_t (*oob_register)(char* featurestr,int strlen, oob_callback callback);
 	void (*deinit)();
 } at_task;
+
+void* at_malloc(size_t size);
+void at_free(void* ptr);
 
 #endif
