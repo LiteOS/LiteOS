@@ -27,6 +27,7 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 * [LiteOS接入华为云平台](https://github.com/SuYai/OceanConnectHelp)
 
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
+  * [LiteOS接入OneNET](https://github.com/LiteOS/LiteOS/tree/develop/thirdparty/OneNET)
 
 
 ## LiteOS 支持的硬件
