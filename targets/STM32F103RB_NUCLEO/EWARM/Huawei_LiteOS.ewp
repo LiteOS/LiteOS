@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.1.14181</state>
+                    <state>8.20.2.14834</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -198,6 +198,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
@@ -353,6 +357,7 @@
                     <state>$PROJ_DIR$\..\..\..\examples\include</state>
                     <state>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Inc</state>
                     <state>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy</state>
+                    <state>$PROJ_DIR$\..\Drivers\CMSIS\Device\ST\STM32F1xx\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -771,7 +776,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$PROJ_DIR$\STM32F103RB-LiteOS.icf</state>
+                    <state>$PROJ_DIR$\..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\iar\linker\stm32f103xb_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -1041,7 +1046,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1228,6 +1233,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
@@ -2216,7 +2225,10 @@
     <group>
         <name>starup</name>
         <file>
-            <name>$PROJ_DIR$\los_startup_iar.s</name>
+            <name>$PROJ_DIR$\..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\iar\startup_stm32f103xb.s</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c</name>
         </file>
     </group>
     <group>
@@ -2226,9 +2238,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\sys_init.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\Src\system_stm32f1xx.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\usart.c</name>

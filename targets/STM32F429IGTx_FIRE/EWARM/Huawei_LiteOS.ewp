@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.22.1.15696</state>
+                    <state>8.22.2.15993</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -219,12 +219,12 @@
                     <state>USE_HAL_DRIVER</state>
                     <state>USE_MBED_TLS</state>
                     <state>MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;</state>
-                    <state>WITH_LWIP</state>
                     <state>LWM2M_LITTLE_ENDIAN</state>
                     <state>LWM2M_CLIENT_MODE</state>
                     <state>NDEBUG</state>
                     <state>WITH_DTLS</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
+                    <state>WITH_LWIP</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -377,6 +377,15 @@
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\examples</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\osadapter</state>
                     <state>$PROJ_DIR$\..\Hardware\Inc</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\at_frame</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\wifi</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\gprs</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\nb</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\nb_iot</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\ota</state>
+                    <state>$PROJ_DIR$\..\..\..\components\fota\utility</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2083,9 +2092,30 @@
         </file>
     </group>
     <group>
+        <name>at_framework</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_api_interface.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_hal.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\atadapter.c</name>
+        </file>
+    </group>
+    <group>
         <name>atiny_tiny</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\agenttiny.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_api.h</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_log.c</name>
@@ -2094,13 +2124,16 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_rpt.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\lwm2mclient.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update\firmware_update.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\object_access_control.c</name>
@@ -2131,9 +2164,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\platform_adapter.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\system_api.c</name>
         </file>
     </group>
     <group>
@@ -2200,6 +2230,33 @@
         <name>er-coap</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</name>
+        </file>
+    </group>
+    <group>
+        <name>fota</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\ota\ota.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\utility\ota_crc.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\ota\ota_default.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\fota\utility\ota_sha256.c</name>
         </file>
     </group>
     <group>
@@ -2695,6 +2752,12 @@
         </file>
     </group>
     <group>
+        <name>nb_iot_api</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\nb_iot\los_nb_api.c</name>
+        </file>
+    </group>
+    <group>
         <name>os_adapter</name>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.c</name>
@@ -2715,6 +2778,12 @@
             <name>$PROJ_DIR$\..\Src\dwt.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Src\eth.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Src\fota_port.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Src\main.c</name>
         </file>
         <file>
@@ -2725,6 +2794,18 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\usart.c</name>
+        </file>
+    </group>
+    <group>
+        <name>user_drivers</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\nb\bc95.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\gprs\sim900a.c</name>
         </file>
     </group>
 </project>

@@ -93,3 +93,7 @@ time_t lwm2m_gettime(void)
     return (uint32_t)(atiny_gettime_ms()/1000);
 }
 
+int lwm2m_rand(void *output, size_t len)
+{
+    return atiny_random(output, len);
+}

@@ -537,53 +537,138 @@ void clean_security_object(lwm2m_object_t * objectP)
 
     lwm2m_free(objectP);
 }
-
-lwm2m_object_t * get_security_object(uint16_t serverId,
-                                     const char* serverUri,
-                                     char * bsPskId,
-                                     char * psk,
-                                     uint16_t pskLen,
-                                     bool isBootstrap)
+/*
+ * modify date:  2018-06-25
+ * description:  add one or two instance for security object. id 0 for iot server(uri,psk), id 1 for bs server.
+ * return:       a object: lwm2m_object_t
+ * pay attention:
+ */
+lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_params,lwm2m_context_t* lwm2m_context)
 {
-    lwm2m_object_t * securityObj;
-    securityObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
+    const int URI_MAX_LEN = 64;
+    lwm2m_object_t * securityObj = NULL;
+    char serverUri[URI_MAX_LEN];
+    security_instance_t * targetP = NULL;
+    int i = 0;
+    char * bsPskId = NULL;
+    char * psk = NULL;
+    uint16_t pskLen = 0;
 
-    if (NULL != securityObj)
+    const uint8_t INS_IOT_SERVER_FLAG = 0x01;
+    const uint8_t INS_BS_SERVER_FLAG = 0x02;
+    uint8_t  ins_flag = 0x00;
+    uint8_t total_ins = 1;
+    uint8_t security_params_index = 0;
+
+
+    switch(atiny_params->bootstrap_mode)
     {
-        security_instance_t * targetP;
+        case BOOTSTRAP_FACTORY:
+            ins_flag |= INS_IOT_SERVER_FLAG;
+            total_ins = 1;
+            break;
+        case BOOTSTRAP_SEQUENCE:
+             if(lwm2m_context->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
+             {
+                 ins_flag |= INS_IOT_SERVER_FLAG;
+                 ins_flag |= INS_BS_SERVER_FLAG;
 
-        memset(securityObj, 0, sizeof(lwm2m_object_t));
+                 total_ins = 2;
+             }
+             else
+             {
+                 ins_flag |= INS_BS_SERVER_FLAG;
+                 total_ins = 1;
+             }
+             break;
+        case BOOTSTRAP_CLIENT_INITIATED:
+            ins_flag |= INS_BS_SERVER_FLAG;
+            total_ins = 1;
+            break;
+        default:
+            return NULL;
+            break;
+    }
 
-        securityObj->objID = LWM2M_SECURITY_OBJECT_ID;
+   securityObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
+   if (NULL == securityObj)
+   {
+       return NULL;
+   }
 
-        // Manually create an hardcoded instance
+   memset(securityObj, 0, sizeof(lwm2m_object_t));
+   securityObj->objID = LWM2M_SECURITY_OBJECT_ID;
+
+
+    //at most, have two instance. in fact
+    for(i=0; i<total_ins; i++)
+    {
+        //Manually create an hardcoded instance
         targetP = (security_instance_t *)lwm2m_malloc(sizeof(security_instance_t));
         if (NULL == targetP)
         {
-            lwm2m_free(securityObj);
+            //lwm2m_free(securityObj);
+            clean_security_object(securityObj);
             return NULL;
         }
 
         memset(targetP, 0, sizeof(security_instance_t));
-        targetP->instanceId = 0;
-        targetP->uri = (char*)lwm2m_malloc(strlen(serverUri)+1);
+        if((ins_flag&INS_IOT_SERVER_FLAG)&&(ins_flag&INS_BS_SERVER_FLAG))
+        {
+            targetP->instanceId = i;   //i=0 for iot_server, i=1 for bs_server
+            targetP->isBootstrap = ((i == 0)?(false):(true));
+            security_params_index = i;
+        }
+        else
+        {
+            if(ins_flag & INS_IOT_SERVER_FLAG)
+            {
+                targetP->instanceId = 0;
+                targetP->isBootstrap = false;
+                security_params_index = 0;
+            }
+            else  //if(ins_flag & INS_BS_SERVER_FLAG)  //even if not set INS_BS_SERVER_FLAG, still run in a certain process.
+            {
+                targetP->instanceId = 1;
+                targetP->isBootstrap = true;
+                security_params_index = 1;
+            }
+        }
+
+        bsPskId = atiny_params->security_params[security_params_index].psk_Id;
+        psk = atiny_params->security_params[security_params_index].psk;
+        pskLen = atiny_params->security_params[security_params_index].psk_len;
+
+        if (psk != NULL)
+        {
+            (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coaps://%s:%s",atiny_params->security_params[security_params_index].server_ip,
+                    atiny_params->security_params[security_params_index].server_port);
+        }
+        else
+        {
+            (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coap://%s:%s",atiny_params->security_params[security_params_index].server_ip,
+                    atiny_params->security_params[security_params_index].server_port);
+        }
+
+        targetP->uri = (char*)lwm2m_strdup(serverUri);
         if (NULL == targetP->uri)
         {
-            lwm2m_free(securityObj);
-            lwm2m_free(targetP);
+            //lwm2m_free(securityObj);
+            //lwm2m_free(targetP);
+            clean_security_object(securityObj);
             return NULL;
         }
-        strncpy(targetP->uri, serverUri, strlen(serverUri)+1);
 
         targetP->securityMode = LWM2M_SECURITY_MODE_NONE;
-        targetP->publicIdentity = NULL;
-        targetP->publicIdLen = 0;
-        targetP->secretKey = NULL;
-        targetP->secretKeyLen = 0;
         if (bsPskId != NULL && psk != NULL)
         {
             targetP->securityMode = LWM2M_SECURITY_MODE_PRE_SHARED_KEY;
             targetP->publicIdentity = (char *)lwm2m_strdup(bsPskId);
+            if(targetP->publicIdentity == NULL)
+            {
+                clean_security_object(securityObj);
+                return NULL;
+            }
             targetP->publicIdLen = strlen(bsPskId);
             if (pskLen > 0)
             {
@@ -597,20 +682,21 @@ lwm2m_object_t * get_security_object(uint16_t serverId,
                 targetP->secretKeyLen = pskLen;
             }
         }
-        targetP->isBootstrap = isBootstrap;  //FACTORY MODE,isBootstrap is false
+
         targetP->shortID = serverId;
         //10? is suitable? it could be changed by the bs server. for lwm2m_server_t member lifetime.
         targetP->clientHoldOffTime = SECURITY_HOLD_OFF_TIME;
 
         securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);
+    } //end for loop
 
-        securityObj->readFunc = prv_security_read;
+
+    securityObj->readFunc = prv_security_read;
 #ifdef LWM2M_BOOTSTRAP
-        securityObj->writeFunc = prv_security_write;
-        securityObj->createFunc = prv_security_create;
-        securityObj->deleteFunc = prv_security_delete;
+    securityObj->writeFunc = prv_security_write;
+    securityObj->createFunc = prv_security_create;
+    securityObj->deleteFunc = prv_security_delete;
 #endif
-    }
 
     return securityObj;
 }

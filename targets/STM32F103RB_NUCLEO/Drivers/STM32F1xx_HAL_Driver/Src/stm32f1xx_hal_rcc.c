@@ -844,11 +844,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   SystemCoreClock = HAL_RCC_GetSysClockFreq() >> AHBPrescTable[(RCC->CFGR & RCC_CFGR_HPRE)>> RCC_CFGR_HPRE_Pos];
 
   /* Configure the source of time base considering new system clocks settings*/
-  /*
-   * Huawei LiteOS will relocate interrupt vector table and config SysTick, so you can't set it here,
-   * if set, there will be a possibility of an abnormal occurrence.
-  */
-  /* HAL_InitTick (TICK_INT_PRIORITY); */
+  HAL_InitTick (TICK_INT_PRIORITY);
 
   return HAL_OK;
 }

@@ -1,11 +1,39 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_SIM900A)
 #include "sim900a.h"
-#include "atadapter.h"
-#include "main.h"
-#include "at_api_interface.h"
-#include "atiny_socket.h"
-
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -93,7 +121,7 @@ int32_t  sim900a_recv(int32_t id, int8_t * buf, uint32_t len)
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -109,7 +137,7 @@ int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t ti
 
     if (qbuf.len){
         memcpy(buf, qbuf.addr, qbuf.len);
-        atiny_free(qbuf.addr);
+        at_free(qbuf.addr);
     }
     return qbuf.len;
 }
@@ -132,31 +160,32 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
 
 void sim900a_check(void)
 {
-	//检测模块响应是否正常
+	//check module response
     while(AT_FAILED == at.cmd((int8_t*)AT_CMD_AT,strlen(AT_CMD_AT),"OK",NULL))
     {
-      printf("\r\n模块响应测试不正常！！\r\n");
-      printf("\r\n若模块响应测试一直不正常，请检查模块的连接或是否已开启电源开关\r\n");
-      SIM900A_DELAY((osMs2Tick(500)));
+      printf("\r\ncheck module response unnormal\r\n");
+      printf("\r\nplease check the module pin connection and the power switch\r\n");
+      SIM900A_DELAY(500);
     }
     if(AT_FAILED != at.cmd((int8_t*)AT_CMD_CPIN,strlen(AT_CMD_CPIN),"OK",NULL))
     {
-      printf("检测到SIM卡\n");
+      printf("detected sim card\n");
     }
     if(AT_FAILED != at.cmd((int8_t*)AT_CMD_COPS,strlen(AT_CMD_COPS),"CHINA MOBILE",NULL))
     {
-      printf("已注册到网络\n");
+      printf("registerd to the network\n");
     }
 }
 
 int32_t sim900a_recv_cb(int32_t id)
 {
-    return -1;
+    return AT_FAILED;
 }
 
 int32_t sim900a_deinit(void)
 {
-    return AT_FAILED;
+    at.deinit();
+    return AT_OK;
 }
 int32_t sim900a_close(int32_t id)
 {
@@ -213,7 +242,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
         }
         p2++; //over ':'
 
-        qbuf.addr = atiny_malloc(data_len);
+        qbuf.addr = at_malloc(data_len);
         if (NULL == qbuf.addr)
         {
             AT_LOG("malloc for qbuf failed!");
@@ -231,7 +260,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
         if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[linkid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
         {
             AT_LOG("LOS_QueueWriteCopy  failed! ret = %x", ret);
-            atiny_free(qbuf.addr);
+            at_free(qbuf.addr);
             goto END;
         }
         ret = (p2 + data_len - (char *)buf);
@@ -262,9 +291,8 @@ int32_t sim900a_ini()
 
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
-    .usart = USART2,
+    .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .irqn = AT_USART_IRQn,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,

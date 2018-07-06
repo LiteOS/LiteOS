@@ -36,6 +36,9 @@
 #include "agent_tiny_demo.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
+#if defined USE_NB_NEUL95
+#include "los_nb_api.h"
+#endif
 #endif
 UINT32 g_TskHandle;
 
@@ -47,19 +50,49 @@ VOID HardWare_Init(VOID)
     dwt_delay_init(SystemCoreClock);
 }
 
+extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+
 VOID main_task(VOID)
 {
-
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#define AT_DTLS 1
+#if AT_DTLS
+    sec_param_s sec;
+    sec.pskid = "868744031131026";
+    sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
+#endif
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP1: Init NB Module( NB Init )");
+    printf("\r\n=====================================================\r\n");
+#if AT_DTLS
+    los_nb_init((const int8_t*)"180.101.147.208",(const int8_t*)"5684",&sec);
+#else
+    los_nb_init((const int8_t*)"218.4.33.71",(const int8_t*)"5683",NULL);
+#endif
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP2: Register Command( NB Notify )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    osDelay(3000);
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP3: Report Data to Server( NB Report )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_report("22", 2);
+    los_nb_report("23", 2);
+    los_nb_report("23", 1);
+    //los_nb_deinit();
+
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
     extern at_adaptor_api at_interface;
     at_api_register(&at_interface);
-    at_api_init();
-#else
-#endif
     agent_tiny_entry();
+#endif
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+    agent_tiny_entry();
+#endif
 }
 UINT32 creat_main_task()
 {
@@ -96,5 +129,6 @@ int main(void)
         return LOS_NOK;
     }
 
-    LOS_Start();
+    (void)LOS_Start();
+    return 0;
 }

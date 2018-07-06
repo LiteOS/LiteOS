@@ -18,6 +18,19 @@ DEBUG = 1
 # optimization
 OPT = -Og
 
+#######################################
+# network
+#######################################
+USE_AT_FRAMEWORK := no
+ifeq ($(USE_AT_FRAMEWORK), yes)
+#ESP8266   # SIM900A  # NB_NEUL95
+	NETWORK_TYPE := NB_NEUL95
+endif
+
+#######################################
+# bootloader
+#######################################
+USE_BOOTLOADER := no
 
 #######################################
 # binaries
@@ -137,31 +150,49 @@ AGENT_DEMO_SRC = \
         C_SOURCES += $(AGENT_DEMO_SRC)
 
 FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
+
+FIRMWARE_UPDATE_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
+        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
 
 USER_SRC =  \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/usart.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
+        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/eth.c \
         $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
+ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
-        ${wildcard $(TOP_DIR)/components/atadaptor/*.c}
-        C_SOURCES += $(ATADAPTOR_SRC)
+    ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c}
+    C_SOURCES += $(ATADAPTOR_SRC)
 
-USER_DRIVERS_SRC = \
-        ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c} \
-        ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
-        C_SOURCES += $(USER_DRIVERS_SRC)
+ifeq ($(NETWORK_TYPE), ESP8266)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+else ifeq ($(NETWORK_TYPE), SIM900A)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
+else ifeq ($(NETWORK_TYPE), NB_NEUL95)
+    USER_DRIVERS_SRC = \
+	${wildcard $(TOP_DIR)/drivers/devices/nb/*.c} \
+	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
+endif
+    C_SOURCES += $(USER_DRIVERS_SRC)
+endif
 
+C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
+C_SOURCES += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
 
 # ASM sources
-ASM_SOURCES =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}  \
-        ${wildcard $(PROJECTBASE)/los_dispatch_gcc.s}
+ASM_SOURCES_s =  \
+        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
+
+ASM_SOURCES_S =  \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
 
 
 ######################################
@@ -192,16 +223,19 @@ C_DEFS =  \
         -D STM32F429xx \
         -D USE_MBED_TLS \
         -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
-        -D WITH_LWIP \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0
-#       -D WITH_DTLS \   
+#       -D WITH_DTLS \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
-        
 
+ifeq ($(USE_AT_FRAMEWORK), yes)
+        C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
+else
+        C_DEFS += -D WITH_LWIP
+endif
 
 # AS includes
 AS_INCLUDES =
@@ -273,8 +307,13 @@ AGENT_DEMO_INC = \
         C_INCLUDES += $(AGENT_DEMO_INC)
 
 FOTA_INC = \
-        -I $(TOP_DIR)/components/fota/ota
+        -I $(TOP_DIR)/components/fota/ota \
+        -I $(TOP_DIR)/components/fota/utility
         C_INCLUDES += $(FOTA_INC)
+
+FIRMWARE_UPDATE_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update
+        C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
 USER_INC = \
         -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Inc \
@@ -282,13 +321,25 @@ USER_INC = \
         C_INCLUDES += $(USER_INC)
 
 ATADAPTOR_INC = \
-        -I $(TOP_DIR)/components/atadaptor
+        -I $(TOP_DIR)/components/connectivity/at_frame
         C_INCLUDES += $(ATADAPTOR_INC)
 
-USER_DRIVERS_INC = \
-        -I $(TOP_DIR)/drivers/devices/wifi \
-        -I $(TOP_DIR)/drivers/devices/gprs \
-        C_INCLUDES += $(USER_DRIVERS_INC)
+ifeq ($(USE_AT_FRAMEWORK), yes)
+ifeq ($(NETWORK_TYPE), ESP8266)
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi
+else ifeq ($(NETWORK_TYPE), SIM900A)
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/gprs
+else ifeq ($(NETWORK_TYPE), NB_NEUL95)
+    USER_DRIVERS_INC = \
+	-I $(TOP_DIR)/components/connectivity/nb_iot \
+	-I $(TOP_DIR)/drivers/devices/nb
+endif
+    C_INCLUDES += $(USER_DRIVERS_INC)
+endif
+
+C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
+
+C_INCLUDES += -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -308,7 +359,11 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LD_FILE = STM32F429IGTx_LiteOS.ld
+ifeq ($(USE_BOOTLOADER), yes)
+	LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+else
+	LD_FILE = STM32F429IGTx_LiteOS.ld
+endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries
@@ -327,8 +382,10 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_s:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES_s)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
+vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -336,7 +393,10 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
+$(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
+	$(AS) -c $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile $(LD_FILE)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 

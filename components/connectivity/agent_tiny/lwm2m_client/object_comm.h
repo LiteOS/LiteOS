@@ -113,14 +113,12 @@ typedef struct _data_node_t
  */
 lwm2m_object_t * get_object_device(atiny_param_t *atiny_params, const char* manufacturer);
 void free_object_device(lwm2m_object_t * objectP);
-uint8_t device_change(lwm2m_data_t * dataArray, lwm2m_object_t * objectP);
 void display_device_object(lwm2m_object_t * objectP);
 /*
  * object_firmware.c
  */
 lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params);
 void free_object_firmware(lwm2m_object_t * objectP);
-void display_firmware_object(lwm2m_object_t * objectP);
 /*
  * object_location.c
  */
@@ -205,16 +203,11 @@ uint8_t acc_auth_operate(lwm2m_context_t* contextP, lwm2m_uri_t* uri,
  * object_comm.c
  */
 void handle_value_changed(lwm2m_context_t* lwm2mH, lwm2m_uri_t* uri, const char * value, size_t valueLength);
-/*
- * system_api.c
- */
-void init_value_change(lwm2m_context_t * lwm2m);
-void system_reboot(void);
 
 /*
  * object_security.c
  */
-lwm2m_object_t * get_security_object(uint16_t serverId, const char* serverUri, char * bsPskId, char * psk, uint16_t pskLen, bool isBootstrap);
+lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_params,lwm2m_context_t* lwm2m_context);
 void clean_security_object(lwm2m_object_t * objectP);
 char * get_server_uri(lwm2m_object_t * objectP, uint16_t secObjInstID);
 void display_security_object(lwm2m_object_t * objectP);
@@ -222,4 +215,5 @@ void copy_security_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSr
 
 int prv_refreshServerList(lwm2m_context_t * contextP);
 void output_buffer(FILE * stream, uint8_t * buffer, int length, int indent);
+void atiny_set_reboot_flag();
 #endif /* LWM2MCLIENT_H_ */

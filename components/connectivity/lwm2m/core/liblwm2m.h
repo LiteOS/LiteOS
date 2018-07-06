@@ -142,6 +142,9 @@ int lwm2m_strncmp(const char* s1, const char* s2, size_t n);
 // Per POSIX specifications, time_t is a signed integer.
 time_t lwm2m_gettime(void);
 
+//get len of random bytes in output.
+int lwm2m_rand(void *output, size_t len);
+
 #define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
@@ -722,7 +725,8 @@ typedef struct
 #ifdef LWM2M_CLIENT_MODE
     lwm2m_client_state_t state;
     lwm2m_bs_sequence_state_t bs_sequence_state;
-    char*                bs_server_uri;   //    coaps://     coap://malloc memory
+    //char*                bs_server_uri;   //    coaps://     coap://malloc memory
+    bool                 regist_first_flag;  //when serverlist and bootstrapServerList are all exist, we use regist or bootstrap.
     char*                endpointName;
     char*                msisdn;
     char*                altPath;
@@ -730,6 +734,7 @@ typedef struct
     lwm2m_server_t*      serverList;
     lwm2m_object_t*      objectList;
     lwm2m_observed_t*    observedList;
+    void*                observe_mutex;
 #endif
 #ifdef LWM2M_SERVER_MODE
     lwm2m_client_t*         clientList;
@@ -782,6 +787,18 @@ int lwm2m_reconnect(lwm2m_context_t * context);
 //bootstrap
 int lwm2m_bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t * contextP);
 int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contextP);
+
+typedef struct
+{
+    lwm2m_media_type_t format;
+    uint8_t token[8];
+    uint32_t tokenLen;
+    uint32_t counter;
+}lwm2m_observe_info_t;
+
+uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info);
+uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state);
+
 #endif
 
 #ifdef LWM2M_SERVER_MODE

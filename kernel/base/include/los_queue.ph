@@ -55,13 +55,20 @@ typedef enum enQueueHeadTail
     OS_QUEUE_TAIL = 1,
 } QUEUE_HEAD_TAIL;
 
-#define OS_QUEUE_OPERATE_TYPE(ReadOrWrite, HeadOrTail)  (((UINT32)(HeadOrTail) << 1) | ReadOrWrite)
+typedef enum enQueuePointOrNot
+{
+    OS_QUEUE_NOT_POINT = 0,
+    OS_QUEUE_POINT = 1,
+} QUEUE_HEAD_POINT;
+
+#define OS_QUEUE_OPERATE_TYPE(ReadOrWrite, HeadOrTail, PointOrNot)  (((UINT32)(PointOrNot) << 2) | ((UINT32)(HeadOrTail) << 1) | ReadOrWrite)
 #define OS_QUEUE_READ_WRITE_GET(type)                   ((type) & 0x01)
 #define OS_QUEUE_READ_HEAD                              (OS_QUEUE_READ | (OS_QUEUE_HEAD << 1))
 #define OS_QUEUE_READ_TAIL                              (OS_QUEUE_READ | (OS_QUEUE_TAIL << 1))
 #define OS_QUEUE_WRITE_HEAD                             (OS_QUEUE_WRITE | (OS_QUEUE_HEAD << 1))
 #define OS_QUEUE_WRITE_TAIL                             (OS_QUEUE_WRITE | (OS_QUEUE_TAIL << 1))
 #define OS_QUEUE_OPERATE_GET(type)                      ((type) & 0x03)
+#define OS_QUEUE_IS_POINT(type)                         ((type) & 0x04)
 #define OS_QUEUE_IS_READ(type)                          (OS_QUEUE_READ_WRITE_GET(type) == OS_QUEUE_READ)
 #define OS_QUEUE_IS_WRITE(type)                         (OS_QUEUE_READ_WRITE_GET(type) == OS_QUEUE_WRITE)
 

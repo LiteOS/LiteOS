@@ -70,6 +70,8 @@
 
 #include "internals.h"
 #include "agenttiny.h"
+#include "atiny_fota_manager.h"
+#include "atiny_log.h"
 
 // ---- private object "Firmware" specific defines ----
 // Resource Id's:
@@ -81,13 +83,7 @@
 #define RES_M_UPDATE_RESULT             5
 #define RES_O_PKG_NAME                  6
 #define RES_O_PKG_VERSION               7
-
-typedef struct
-{
-    uint8_t state;
-    bool supported;
-    uint8_t result;
-} firmware_data_t;
+#define RES_O_FIRMWARE_UPDATE_DELIVER_METHOD               8
 
 
 static uint8_t prv_firmware_read(uint16_t instanceId,
@@ -96,9 +92,8 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
                                  lwm2m_data_cfg_t * dataCfg,
                                  lwm2m_object_t * objectP)
 {
-    int i;
+    uint32_t i;
     uint8_t result;
-    firmware_data_t * data = (firmware_data_t*)(objectP->userData);
 
     // this is a single instance object
     if (instanceId != 0)
@@ -109,12 +104,15 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
     // is the server asking for the full object ?
     if (*numDataP == 0)
     {
-        *dataArrayP = lwm2m_data_new(3);
+        uint16_t resources[] = {RES_M_PACKAGE_URI, RES_M_STATE,
+                RES_M_UPDATE_RESULT, RES_O_FIRMWARE_UPDATE_DELIVER_METHOD};
+        *dataArrayP = lwm2m_data_new(array_size(resources));
         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
-        *numDataP = 3;
-        (*dataArrayP)[0].id = 3;
-        (*dataArrayP)[1].id = 4;
-        (*dataArrayP)[2].id = 5;
+        *numDataP = array_size(resources);
+        for(i = 0 ; i < array_size(resources); ++i)
+        {
+            (*dataArrayP)[i].id = resources[i];
+        }
     }
 
     i = 0;
@@ -123,29 +121,49 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
         switch ((*dataArrayP)[i].id)
         {
         case RES_M_PACKAGE:
+            result = COAP_405_METHOD_NOT_ALLOWED;
+            break;
         case RES_M_PACKAGE_URI:
+            {
+                const char *pkg_uri;
+                pkg_uri = atiny_fota_manager_get_pkg_uri(atiny_fota_manager_get_instance());
+                if(pkg_uri == NULL)
+                {
+                    pkg_uri = "";
+                }
+                lwm2m_data_encode_nstring(pkg_uri, strlen(pkg_uri) + 1, *dataArrayP + i);
+                result = COAP_205_CONTENT;
+                break;
+            }
+
         case RES_M_UPDATE:
             result = COAP_405_METHOD_NOT_ALLOWED;
             break;
 
         case RES_M_STATE:
             // firmware update state (int)
-            lwm2m_data_encode_int(data->state, *dataArrayP + i);
-            result = COAP_205_CONTENT;
-            break;
-        case RES_O_UPDATE_SUPPORTED_OBJECTS:
-            lwm2m_data_encode_bool(data->supported, *dataArrayP + i);
-            result = COAP_205_CONTENT;
-            break;
+            {
+                int state = atiny_fota_manager_get_state(atiny_fota_manager_get_instance());
+                lwm2m_data_encode_int(state, *dataArrayP + i);
+                result = COAP_205_CONTENT;
+                break;
+            }
 
         case RES_M_UPDATE_RESULT:
-        {
-            int updateresult = 0;
-            (void)atiny_cmd_ioctl(ATINY_GET_FIRMWARE_RESULT, (char*)&updateresult, sizeof(int));
-            lwm2m_data_encode_int(updateresult, *dataArrayP + i);
-            result = COAP_205_CONTENT;
+            {
+                int updateresult = atiny_fota_manager_get_update_result(atiny_fota_manager_get_instance());
+                lwm2m_data_encode_int(updateresult, *dataArrayP + i);
+                result = COAP_205_CONTENT;
+                break;
+            }
+
+        case RES_O_FIRMWARE_UPDATE_DELIVER_METHOD:
+            {
+                int method = atiny_fota_manager_get_deliver_method(atiny_fota_manager_get_instance());
+                lwm2m_data_encode_int(method, *dataArrayP + i);
+                result = COAP_205_CONTENT;
+            }
             break;
-        }
         default:
             result = COAP_404_NOT_FOUND;
         }
@@ -163,7 +181,6 @@ static uint8_t prv_firmware_write(uint16_t instanceId,
 {
     int i;
     uint8_t result;
-    firmware_data_t * data = (firmware_data_t*)(objectP->userData);
 
     // this is a single instance object
     if (instanceId != 0)
@@ -177,26 +194,22 @@ static uint8_t prv_firmware_write(uint16_t instanceId,
     {
         switch (dataArray[i].id)
         {
-        case RES_M_PACKAGE:
-            // inline firmware binary
-            result = COAP_204_CHANGED;
-            break;
 
         case RES_M_PACKAGE_URI:
             // URL for download the firmware
-            result = COAP_204_CHANGED;
-            break;
-
-        case RES_O_UPDATE_SUPPORTED_OBJECTS:
-            if (lwm2m_data_decode_bool(&dataArray[i], &data->supported) == 1)
             {
-                result = COAP_204_CHANGED;
+                int ret;
+                if(dataArray[i].type != LWM2M_TYPE_STRING || NULL == dataArray[i].value.asBuffer.buffer)
+                {
+                    ATINY_LOG(LOG_ERR, "type ERR %d", dataArray[i].type);
+                    result = COAP_400_BAD_REQUEST;
+                    break;
+                }
+                ret = atiny_fota_manager_start_download(atiny_fota_manager_get_instance(), \
+                    (const char *)(dataArray[i].value.asBuffer.buffer), dataArray[i].value.asBuffer.length);
+                result = (ATINY_OK == ret ? COAP_204_CHANGED : COAP_405_METHOD_NOT_ALLOWED);
+                break;
             }
-            else
-            {
-                result = COAP_400_BAD_REQUEST;
-            }
-            break;
 
         default:
             result = COAP_405_METHOD_NOT_ALLOWED;
@@ -214,7 +227,6 @@ static uint8_t prv_firmware_execute(uint16_t instanceId,
                                     int length,
                                     lwm2m_object_t * objectP)
 {
-    firmware_data_t * data = (firmware_data_t*)(objectP->userData);
 
     // this is a single instance object
     if (instanceId != 0)
@@ -228,35 +240,25 @@ static uint8_t prv_firmware_execute(uint16_t instanceId,
     switch (resourceId)
     {
     case RES_M_UPDATE:
-        if (data->state == 1)
         {
-            (void)atiny_cmd_ioctl(ATINY_TRIG_FIRMWARE_UPDATE, NULL, 0);
-            // trigger your firmware download and update logic
-            data->state = 2;
-            return COAP_204_CHANGED;
-        }
-        else
-        {
-            // firmware update already running
-            return COAP_400_BAD_REQUEST;
+            int ret = atiny_fota_manager_execute_update(atiny_fota_manager_get_instance());
+            if (ATINY_OK == ret)
+            {
+                return COAP_204_CHANGED;
+            }
+            else
+            {
+                // firmware update already running
+                return COAP_400_BAD_REQUEST;
+            }
         }
     default:
         return COAP_405_METHOD_NOT_ALLOWED;
     }
+
+
 }
 
-void display_firmware_object(lwm2m_object_t * object)
-{
-#ifdef WITH_LOGS
-    firmware_data_t * data = (firmware_data_t *)object->userData;
-    fprintf(stdout, "  /%u: Firmware object:\r\n", object->objID);
-    if (NULL != data)
-    {
-        fprintf(stdout, "    state: %u, supported: %s, result: %u\r\n",
-                data->state, data->supported?"true":"false", data->result);
-    }
-#endif
-}
 
 lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params)
 {
@@ -300,23 +302,11 @@ lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params)
         firmwareObj->readFunc    = prv_firmware_read;
         firmwareObj->writeFunc   = prv_firmware_write;
         firmwareObj->executeFunc = prv_firmware_execute;
-        firmwareObj->userData    = lwm2m_malloc(sizeof(firmware_data_t));
+        firmwareObj->userData    = NULL;
 
         /*
          * Also some user data can be stored in the object with a private structure containing the needed variables
          */
-        if (NULL != firmwareObj->userData)
-        {
-            ((firmware_data_t*)firmwareObj->userData)->state = 1;
-            ((firmware_data_t*)firmwareObj->userData)->supported = false;
-            ((firmware_data_t*)firmwareObj->userData)->result = 0;
-        }
-        else
-        {
-            lwm2m_free(firmwareObj->instanceList);
-            lwm2m_free(firmwareObj);
-            firmwareObj = NULL;
-        }
     }
 
     return firmwareObj;

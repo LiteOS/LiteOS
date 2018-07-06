@@ -100,17 +100,17 @@
 
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
-#define LOG(STR) lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
-#define LOG_ARG(FMT, ...) lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
+#define LOG(STR) (void)lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
+#define LOG_ARG(FMT, ...) (void)lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
 #define LOG_URI(URI)                                                                \
 {                                                                                   \
-    if ((URI) == NULL) lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
+    if ((URI) == NULL) (void)lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
     else                                                                            \
     {                                                                               \
-        lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
-        if (LWM2M_URI_IS_SET_INSTANCE(URI)) lwm2m_printf("/%d", (URI)->instanceId); \
-        if (LWM2M_URI_IS_SET_RESOURCE(URI)) lwm2m_printf("/%d", (URI)->resourceId); \
-        lwm2m_printf("\r\n");                                                       \
+        (void)lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
+        if (LWM2M_URI_IS_SET_INSTANCE(URI)) (void)lwm2m_printf("/%d", (URI)->instanceId); \
+        if (LWM2M_URI_IS_SET_RESOURCE(URI)) (void)lwm2m_printf("/%d", (URI)->resourceId); \
+        (void)lwm2m_printf("\r\n");                                                       \
     }                                                                               \
 }
 #define UNUSEX(x)
@@ -334,10 +334,10 @@ uint8_t message_send(lwm2m_context_t * contextP, coap_packet_t * message, void *
 
 // defined in bootstrap.c
 void bootstrap_step(lwm2m_context_t * contextP, uint32_t currentTime, time_t* timeoutP);
-//uint8_t bootstrap_handleCommand(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_server_t * serverP, coap_packet_t * message, coap_packet_t * response);
+uint8_t bootstrap_handleCommand(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, lwm2m_server_t * serverP, coap_packet_t * message, coap_packet_t * response);
 uint8_t bootstrap_handleDeleteAll(lwm2m_context_t * context, void * fromSessionH);
 uint8_t bootstrap_handleFinish(lwm2m_context_t * context, void * fromSessionH);
-//uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, void * fromSessionH, coap_packet_t * message, coap_packet_t * response);
+uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, void * fromSessionH, coap_packet_t * message, coap_packet_t * response);
 void bootstrap_start(lwm2m_context_t * contextP);
 lwm2m_status_t bootstrap_getStatus(lwm2m_context_t * contextP);
 
@@ -379,5 +379,8 @@ static inline int dm_isUriOpaqueHandle(const lwm2m_uri_t * uriP)
 {
     return (19 == uriP->objectId);
 }
+
+ lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP);
+
 
 #endif

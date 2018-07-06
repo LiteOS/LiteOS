@@ -41,6 +41,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "atiny_fota_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,27 +51,27 @@ extern "C" {
 
 typedef enum
 {
-    ATINY_GET_BINDING_MODES,
+    ATINY_GET_MANUFACTURER,
     ATINY_GET_MODEL_NUMBER,
-    ATINY_DO_DEV_REBOOT,
-    ATINY_GET_MIN_VOLTAGE,
-    ATINY_GET_MAX_VOLTAGE,
     ATINY_GET_SERIAL_NUMBER,
+    ATINY_GET_FIRMWARE_VER,
+    ATINY_DO_DEV_REBOOT,
+    ATINY_DO_FACTORY_RESET,
+    ATINY_GET_POWER_SOURCE,
+    ATINY_GET_SOURCE_VOLTAGE,
+    ATINY_GET_POWER_CURRENT,
     ATINY_GET_BATERRY_LEVEL,
     ATINY_GET_MEMORY_FREE,
     ATINY_GET_DEV_ERR,
-    //ATINY_GET_CURRENT_TIME,
-    //ATINY_GET_UTC_OFFSET,
-    //ATINY_GET_TIMEZONE,
-    ATINY_GET_POWER_CURRENT_1,
-    ATINY_GET_POWER_CURRENT_2,
-    ATINY_GET_POWER_SOURCE_1,
-    ATINY_GET_POWER_SOURCE_2,
-    ATINY_DO_FACTORY_RESET,
-    ATINY_GET_FIRMWARE_VER,
-    ATINY_TRIG_FIRMWARE_UPDATE,
+    ATINY_DO_RESET_DEV_ERR,
+    ATINY_GET_CURRENT_TIME,
+    ATINY_SET_CURRENT_TIME,
+    ATINY_GET_UTC_OFFSET,
+    ATINY_SET_UTC_OFFSET,
+    ATINY_GET_TIMEZONE,
+    ATINY_SET_TIMEZONE,
+    ATINY_GET_BINDING_MODES,
     ATINY_GET_FIRMWARE_STATE,
-    ATINY_GET_FIRMWARE_RESULT,
     ATINY_GET_NETWORK_BEARER,
     ATINY_GET_SIGNAL_STRENGTH,
     ATINY_GET_CELL_ID,
@@ -85,6 +86,7 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
+    ATINY_GET_FOTA_STORAGE_DEVICE
 } atiny_cmd_e;
 
 #define MAX_VELOCITY_LEN 16
@@ -122,6 +124,7 @@ typedef enum
     ATINY_REG_FAIL,
     ATINY_DATA_SUBSCRIBLE,
     ATINY_DATA_UNSUBSCRIBLE,
+    ATINY_FOTA_STATE
 } atiny_event_e;
 
 /**
@@ -163,21 +166,12 @@ typedef enum
 
 typedef struct
 {
-    atiny_bootstrap_type_e  bootstrap_mode;
-
-    //two pairs of ip/port, because bootstrap sequence will make more try than one.
-    char* iot_server_ip;
-    char* iot_server_port;
-    char* bs_server_ip;
-    char* bs_server_port;
+    char* server_ip;
+    char* server_port;
 
     char* psk_Id;
     char* psk;
     unsigned short psk_len;
-
-    //get rid of it, now,when the pskid and psk are set (not NULL), the securityMode is LWM2M_SECURITY_MODE_PRE_SHARED_KEY, or else
-    //is LWM2M_SECURITY_MODE_NONE
-    //int securityMode;
 
 } atiny_security_param_t;
 
@@ -191,7 +185,12 @@ typedef enum
 
 typedef struct
 {
+
     atiny_server_param_t   server_params;
+
+    atiny_bootstrap_type_e  bootstrap_mode;
+
+    //both iot_server and bs_server have psk & pskID, index 0 for iot_server, and index 1 for bs_server
     atiny_security_param_t security_params[2];
 } atiny_param_t;
 
@@ -301,6 +300,29 @@ typedef struct _data_report_t
  */
 int atiny_data_report(void* phandle, data_report_t* report_data);
 
+#define DEVICE_AVL_POWER_SOURCES    "/3/0/6"
+#define DEVICE_POWER_SOURCE_VOLTAGE "/3/0/7"
+#define DEVICE_POWER_SOURCE_CURRENT "/3/0/8"
+#define DEVICE_BATTERY_LEVEL        "/3/0/9"
+#define DEVICE_MEMORY_FREE          "/3/0/10"
+
+/**
+ *@ingroup agenttiny
+ *@brief
+ *
+ *@par Description:
+ *This API is used to
+ *@attention none.
+ *
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *@param data_type      [IN] Data type of the changed resource.
+ *
+ *@retval #int          ATINY_OK if succeed or error code @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see none.
+ */
+int atiny_data_change(void* phandle, const char* data_type);
+
 typedef enum
 {
     LOG_DEBUG = 0,
@@ -372,6 +394,7 @@ typedef enum
     ATINY_RESOURCE_NOT_ENOUGH  = -6,
     ATINY_CLIENT_UNREGISTERED  = -7,
     ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_ERR                  = -9
 } atiny_error_e;
 
 

@@ -91,29 +91,9 @@
 
 #include "object_comm.h"
 
-#define PRV_MANUFACTURER      "Open Mobile Alliance"
-#define PRV_MODEL_NUMBER      "Lightweight M2M Client"
-#define PRV_SERIAL_NUMBER     "345000123"
-#define PRV_FIRMWARE_VERSION  "1.0"
-#define PRV_POWER_SOURCE_1    1
-#define PRV_POWER_SOURCE_2    5
-#define PRV_POWER_VOLTAGE_1   3800
-#define PRV_POWER_VOLTAGE_2   5000
-#define PRV_POWER_CURRENT_1   125
-#define PRV_POWER_CURRENT_2   900
-#define PRV_BATTERY_LEVEL     100
-#define PRV_MEMORY_FREE       15
-#define PRV_ERROR_CODE        0
-#define PRV_TIME_CODE        1367491215
-#define PRV_TIME_ZONE         "Europe/Berlin"
-#define PRV_BINDING_MODE      "UQS"
-#define PRV_TIME_OFFSET      "+01:00"
-
 #define PRV_OFFSET_MAXLEN   7 //+HH:MM\0 at max
 #define PRV_TIMEZONE_MAXLEN 25
-#define PRV_TLV_BUFFER_SIZE 128
 #define MAX_STRING_LEN  64
-#define DEV_MANU_NAMELEN          32
 
 // Resource Id's:
 #define RES_O_MANUFACTURER          0
@@ -139,19 +119,6 @@
 #define RES_O_SOFTWARE_VERSION      19
 #define RES_O_BATTERY_STATUS        20
 #define RES_O_MEMORY_TOTAL          21
-
-
-typedef struct
-{
-    int64_t free_memory;
-    int64_t error;
-    int64_t time;
-    uint8_t battery_level;
-    char device_manufacutre[DEV_MANU_NAMELEN];
-    char time_offset[PRV_OFFSET_MAXLEN];
-    char time_zone[PRV_TIMEZONE_MAXLEN];
-} device_data_t;
-
 
 // basic check that the time offset value is at ISO 8601 format
 // bug: +12:30 is considered a valid value by this function
@@ -194,17 +161,30 @@ static int prv_check_time_offset(char * buffer,
     return 1;
 }
 
-static uint8_t prv_set_value(lwm2m_data_t * dataP,
-                             device_data_t * devDataP)
+static uint8_t prv_set_value(lwm2m_data_t * dataP)
 {
     char str[MAX_STRING_LEN+1] = {0};
+    int64_t current_time;
+    char UTC_offset[PRV_OFFSET_MAXLEN];
+    char timezone[PRV_TIMEZONE_MAXLEN];
+    lwm2m_data_t * subTlvP;
+    int power;
+    int voltage;
+    int battery_level;
+    int free_memory;
+    int err;
     int result;
     // a simple switch structure is used to respond at the specified resource asked
     switch (dataP->id)
     {
     case RES_O_MANUFACTURER:
-        lwm2m_data_encode_string(devDataP->device_manufacutre, dataP);
-        return COAP_205_CONTENT;
+        result = atiny_cmd_ioctl(ATINY_GET_MANUFACTURER, str, MAX_STRING_LEN);
+        if(result == ATINY_OK) {
+            lwm2m_data_encode_string(str, dataP);
+            return COAP_205_CONTENT;
+        }else {
+            return COAP_400_BAD_REQUEST;
+        }
 
     case RES_O_MODEL_NUMBER:
         result = atiny_cmd_ioctl(ATINY_GET_MODEL_NUMBER, str, MAX_STRING_LEN);
@@ -241,51 +221,29 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
 
     case RES_O_AVL_POWER_SOURCES:
     {
-        lwm2m_data_t * subTlvP;
-        int power;
-
-        subTlvP = lwm2m_data_new(2);
+        subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE_1, (char*)&power, sizeof(int));
+        result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE, (char*)&power, sizeof(int));
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(power, subTlvP);
-            subTlvP[1].id = 1;
-        }else {
-           lwm2m_free(subTlvP);
-            return COAP_400_BAD_REQUEST;
-        }
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE_2, (char*)&power, sizeof(int));
-        if(result == ATINY_OK) {
-            lwm2m_data_encode_int(power, subTlvP + 1);
-            lwm2m_data_encode_instances(subTlvP, 2, dataP);
+            lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
         }else {
-            lwm2m_free(subTlvP);
-            return COAP_400_BAD_REQUEST;
+           lwm2m_free(subTlvP);
+           return COAP_400_BAD_REQUEST;
         }
     }
 
     case RES_O_POWER_SOURCE_VOLTAGE:
     {
-        lwm2m_data_t * subTlvP;
-        int voltage;
-
-        subTlvP = lwm2m_data_new(2);
+        subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_MIN_VOLTAGE, (char*)&voltage, sizeof(int));
+        result = atiny_cmd_ioctl(ATINY_GET_SOURCE_VOLTAGE, (char*)&voltage, sizeof(int));
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(voltage, subTlvP);
-            subTlvP[1].id = 1;
-        }else {
-            lwm2m_free(subTlvP);
-            return COAP_400_BAD_REQUEST;
-        }
-        result = atiny_cmd_ioctl(ATINY_GET_MAX_VOLTAGE, (char*)&voltage, sizeof(int));
-        if(result == ATINY_OK) {
-            lwm2m_data_encode_int(voltage, subTlvP + 1);
-            lwm2m_data_encode_instances(subTlvP, 2, dataP);
+            lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
         }else {
             lwm2m_free(subTlvP);
@@ -295,25 +253,13 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
 
     case RES_O_POWER_SOURCE_CURRENT:
     {
-        lwm2m_data_t * subTlvP;
-        int power;
-
-        subTlvP = lwm2m_data_new(2);
+        subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT_1, (char*)&power, sizeof(int));
+        result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT, (char*)&power, sizeof(int));
         if(result == ATINY_OK) {
             lwm2m_data_encode_int(power, &subTlvP[0]);
-            subTlvP[1].id = 1;
-        }else {
-            lwm2m_free(subTlvP);
-            return COAP_400_BAD_REQUEST;
-        }
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT_2, (char*)&power, sizeof(int));
-        if(result == ATINY_OK) {
-            lwm2m_data_encode_int(power, &subTlvP[1]);
-            lwm2m_data_encode_instances(subTlvP, 2, dataP);
+            lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
         }else {
             lwm2m_free(subTlvP);
@@ -322,8 +268,7 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
     }
 
     case RES_O_BATTERY_LEVEL:
-        {
-        int battery_level;
+    {
         result = atiny_cmd_ioctl(ATINY_GET_BATERRY_LEVEL, (char*)&battery_level, sizeof(int));
         if(result == ATINY_OK){
             lwm2m_data_encode_int(battery_level, dataP);
@@ -331,11 +276,10 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
         } else {
             return COAP_400_BAD_REQUEST;
         }
-        }
+    }
 
     case RES_O_MEMORY_FREE:
-        {
-        int free_memory;
+    {
         result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char*)&free_memory, sizeof(int));
         if(result == ATINY_OK){
             lwm2m_data_encode_int(free_memory, dataP);
@@ -343,13 +287,10 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
         } else {
             return COAP_400_BAD_REQUEST;
         }
-        }
+    }
 
     case RES_M_ERROR_CODE:
     {
-        lwm2m_data_t * subTlvP;
-        int err;
-
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
@@ -367,16 +308,31 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP,
         return COAP_405_METHOD_NOT_ALLOWED;
 
     case RES_O_CURRENT_TIME:
-        lwm2m_data_encode_int(lwm2m_gettime() + devDataP->time, dataP);
-        return COAP_205_CONTENT;
+        result = atiny_cmd_ioctl(ATINY_GET_CURRENT_TIME, (char*)&current_time, sizeof(int64_t));
+        if(result == ATINY_OK){
+            lwm2m_data_encode_int(current_time, dataP);
+            return COAP_205_CONTENT;
+        } else {
+            return COAP_400_BAD_REQUEST;
+        }
 
     case RES_O_UTC_OFFSET:
-        lwm2m_data_encode_string(devDataP->time_offset, dataP);
-        return COAP_205_CONTENT;
+        result = atiny_cmd_ioctl(ATINY_GET_UTC_OFFSET, UTC_offset, PRV_OFFSET_MAXLEN);
+        if(result == ATINY_OK){
+            lwm2m_data_encode_string(UTC_offset, dataP);
+            return COAP_205_CONTENT;
+        } else {
+            return COAP_400_BAD_REQUEST;
+        }
 
     case RES_O_TIMEZONE:
-        lwm2m_data_encode_string(devDataP->time_zone, dataP);
-        return COAP_205_CONTENT;
+        result = atiny_cmd_ioctl(ATINY_GET_TIMEZONE, timezone, PRV_TIMEZONE_MAXLEN);
+        if(result == ATINY_OK){
+            lwm2m_data_encode_string(timezone, dataP);
+            return COAP_205_CONTENT;
+        } else {
+            return COAP_400_BAD_REQUEST;
+        }
 
     case RES_M_BINDING_MODES:
         result = atiny_cmd_ioctl(ATINY_GET_BINDING_MODES, str, MAX_STRING_LEN);
@@ -442,7 +398,7 @@ static uint8_t prv_device_read(uint16_t instanceId,
     i = 0;
     do
     {
-        result = prv_set_value((*dataArrayP) + i, (device_data_t*)(objectP->userData));
+        result = prv_set_value((*dataArrayP) + i);
         i++;
     } while (i < *numDataP && result == COAP_205_CONTENT);
 
@@ -537,6 +493,7 @@ static uint8_t prv_device_write(uint16_t instanceId,
 {
     int i;
     uint8_t result;
+    int64_t current_time;
 
     // this is a single instance object
     if (instanceId != 0)
@@ -551,10 +508,14 @@ static uint8_t prv_device_write(uint16_t instanceId,
         switch (dataArray[i].id)
         {
         case RES_O_CURRENT_TIME:
-            if (1 == lwm2m_data_decode_int(dataArray + i, &((device_data_t*)(objectP->userData))->time))
+            if (1 == lwm2m_data_decode_int(dataArray + i, &current_time))
             {
-                ((device_data_t*)(objectP->userData))->time -= lwm2m_gettime();//time(NULL);
-                result = COAP_204_CHANGED;
+                result = atiny_cmd_ioctl(ATINY_SET_CURRENT_TIME, (char*)&current_time, sizeof(int64_t));
+                if(result == ATINY_OK) {
+                    return COAP_204_CHANGED;
+                } else {
+                    return COAP_400_BAD_REQUEST;
+                }
             }
             else
             {
@@ -565,9 +526,12 @@ static uint8_t prv_device_write(uint16_t instanceId,
         case RES_O_UTC_OFFSET:
             if (1 == prv_check_time_offset((char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length))
             {
-                strncpy(((device_data_t*)(objectP->userData))->time_offset, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
-                ((device_data_t*)(objectP->userData))->time_offset[dataArray[i].value.asBuffer.length] = 0;
-                result = COAP_204_CHANGED;
+                result = atiny_cmd_ioctl(ATINY_SET_UTC_OFFSET, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
+                if(result == ATINY_OK) {
+                    return COAP_204_CHANGED;
+                } else {
+                    return COAP_400_BAD_REQUEST;
+                }
             }
             else
             {
@@ -576,12 +540,13 @@ static uint8_t prv_device_write(uint16_t instanceId,
             break;
 
         case RES_O_TIMEZONE:
-            //ToDo IANA TZ Format
-            strncpy(((device_data_t*)(objectP->userData))->time_zone, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
-            ((device_data_t*)(objectP->userData))->time_zone[dataArray[i].value.asBuffer.length] = 0;
-            result = COAP_204_CHANGED;
-            //result = COAP_501_NOT_IMPLEMENTED;
-            break;
+            result = atiny_cmd_ioctl(ATINY_SET_TIMEZONE, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
+            if(result == ATINY_OK) {
+                return COAP_204_CHANGED;
+            } else {
+                return COAP_400_BAD_REQUEST;
+            }
+            //break;
 
         default:
             result = COAP_405_METHOD_NOT_ALLOWED;
@@ -611,10 +576,8 @@ static uint8_t prv_device_execute(uint16_t instanceId,
     switch (resourceId)
     {
     case RES_M_REBOOT:
-        {
         g_reboot = 1;
         return COAP_204_CHANGED;
-        }
     case RES_O_FACTORY_RESET:
         result = atiny_cmd_ioctl(ATINY_DO_FACTORY_RESET, NULL, 0);
         if(result == ATINY_OK){
@@ -623,9 +586,12 @@ static uint8_t prv_device_execute(uint16_t instanceId,
             return COAP_503_SERVICE_UNAVAILABLE;
         }
     case RES_O_RESET_ERROR_CODE:
-        fprintf(stdout, "\n\t RESET ERROR CODE\r\n\n");
-        ((device_data_t*)(objectP->userData))->error = 0;
-        return COAP_204_CHANGED;
+        result = atiny_cmd_ioctl(ATINY_DO_RESET_DEV_ERR, NULL, 0);
+        if(result == ATINY_OK){
+            return COAP_204_CHANGED;
+        }else {
+            return COAP_503_SERVICE_UNAVAILABLE;
+        }
     default:
         return COAP_405_METHOD_NOT_ALLOWED;
     }
@@ -634,13 +600,7 @@ static uint8_t prv_device_execute(uint16_t instanceId,
 void display_device_object(lwm2m_object_t * object)
 {
 #ifdef WITH_LOGS
-    device_data_t * data = (device_data_t *)object->userData;
-    fprintf(stdout, "  /%u: Device object:\r\n", object->objID);
-    if (NULL != data)
-    {
-        fprintf(stdout, "    time: %lld, time_offset: %s\r\n",
-                (long long) data->time, data->time_offset);
-    }
+
 #endif
 }
 
@@ -688,33 +648,6 @@ lwm2m_object_t * get_object_device(atiny_param_t *atiny_params, const char* manu
         deviceObj->discoverFunc = prv_device_discover;
         deviceObj->writeFunc    = prv_device_write;
         deviceObj->executeFunc  = prv_device_execute;
-        deviceObj->userData = lwm2m_malloc(sizeof(device_data_t));
-
-        /*
-         * Also some user data can be stored in the object with a private structure containing the needed variables
-         */
-        if (NULL != deviceObj->userData)
-        {
-            memset(deviceObj->userData, 0, sizeof(device_data_t));
-            ((device_data_t*)deviceObj->userData)->battery_level = PRV_BATTERY_LEVEL;
-            ((device_data_t*)deviceObj->userData)->free_memory   = PRV_MEMORY_FREE;
-            ((device_data_t*)deviceObj->userData)->error = PRV_ERROR_CODE;
-            ((device_data_t*)deviceObj->userData)->time  = PRV_TIME_CODE;
-            strncpy(((device_data_t*)deviceObj->userData)->time_offset, PRV_TIME_OFFSET, PRV_OFFSET_MAXLEN -1);
-            strncpy(((device_data_t*)deviceObj->userData)->time_zone, PRV_TIME_ZONE, PRV_TIMEZONE_MAXLEN -1);
-            strncpy(((device_data_t*)deviceObj->userData)->device_manufacutre,
-                        manufacturer,
-                        DEV_MANU_NAMELEN -1);
-            ((device_data_t*)deviceObj->userData)->time_offset[PRV_OFFSET_MAXLEN - 1] =0;
-            ((device_data_t*)deviceObj->userData)->time_zone[PRV_TIMEZONE_MAXLEN - 1]=0;
-            ((device_data_t*)deviceObj->userData)->device_manufacutre[DEV_MANU_NAMELEN - 1]=0;
-        }
-        else
-        {
-            lwm2m_list_free(deviceObj->instanceList);
-            lwm2m_free(deviceObj);
-            deviceObj = NULL;
-        }
     }
 
     return deviceObj;
@@ -734,60 +667,4 @@ void free_object_device(lwm2m_object_t * objectP)
     }
 
     lwm2m_free(objectP);
-}
-
-uint8_t device_change(lwm2m_data_t * dataArray,
-                      lwm2m_object_t * objectP)
-{
-    uint8_t result;
-
-    switch (dataArray->id)
-    {
-    case RES_O_BATTERY_LEVEL:
-            {
-                int64_t value;
-                if (1 == lwm2m_data_decode_int(dataArray, &value))
-                {
-                    if ((0 <= value) && (PRV_BATTERY_LEVEL >= value))
-                    {
-                        ((device_data_t*)(objectP->userData))->battery_level = value;
-                        result = COAP_204_CHANGED;
-                    }
-                    else
-                    {
-                        result = COAP_400_BAD_REQUEST;
-                    }
-                }
-                else
-                {
-                    result = COAP_400_BAD_REQUEST;
-                }
-            }
-            break;
-        case RES_M_ERROR_CODE:
-            if (1 == lwm2m_data_decode_int(dataArray, &((device_data_t*)(objectP->userData))->error))
-            {
-                result = COAP_204_CHANGED;
-            }
-            else
-            {
-                result = COAP_400_BAD_REQUEST;
-            }
-            break;
-        case RES_O_MEMORY_FREE:
-            if (1 == lwm2m_data_decode_int(dataArray, &((device_data_t*)(objectP->userData))->free_memory))
-            {
-                result = COAP_204_CHANGED;
-            }
-            else
-            {
-                result = COAP_400_BAD_REQUEST;
-            }
-            break;
-        default:
-            result = COAP_405_METHOD_NOT_ALLOWED;
-            break;
-        }
-
-    return result;
 }

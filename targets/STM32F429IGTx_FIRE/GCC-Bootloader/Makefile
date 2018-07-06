@@ -75,7 +75,8 @@ HARDWARE_SRC =  \
         C_SOURCES += $(HARDWARE_SRC)
 
 FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/fota/ota/*.c}
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
 
 USER_SRC = \
@@ -140,7 +141,8 @@ HARDWARE_INC = \
         C_INCLUDES += $(HARDWARE_INC)
 
 FOTA_INC = \
-        -I $(TOP_DIR)/components/fota/ota
+        -I $(TOP_DIR)/components/fota/ota \
+        -I $(TOP_DIR)/components/fota/utility
         C_INCLUDES += $(FOTA_INC)
 
 USER_INC = \

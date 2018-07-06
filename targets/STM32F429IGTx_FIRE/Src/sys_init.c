@@ -54,15 +54,15 @@ void net_init(void)
     /* IP addresses initialization */
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
-    IP_ADDRESS[2] = 3;
-    IP_ADDRESS[3] = 10;
+    IP_ADDRESS[2] = 0;
+    IP_ADDRESS[3] = 115;
     NETMASK_ADDRESS[0] = 255;
     NETMASK_ADDRESS[1] = 255;
     NETMASK_ADDRESS[2] = 255;
     NETMASK_ADDRESS[3] = 0;
     GATEWAY_ADDRESS[0] = 192;
     GATEWAY_ADDRESS[1] = 168;
-    GATEWAY_ADDRESS[2] = 3;
+    GATEWAY_ADDRESS[2] = 0;
     GATEWAY_ADDRESS[3] = 1;
 
     lwip_impl_register();
@@ -75,8 +75,9 @@ void net_init(void)
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
     IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
 
+    (void)ethernetif_api_register(&g_eth_api);/*×¢²áÌØ¶¨Íø¿¨µÄAPI*/
     /* add the network interface (IPv4/IPv6) without RTOS */
-    netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);//lint !e546
 
     /* Registers the default network interface */
     netif_set_default(&gnetif);
@@ -167,7 +168,25 @@ void SystemClock_Config(void)
 
 void hieth_hw_init(void)
 {
-    extern void HAL_ETH_IRQHandler(void);
-    //__HAL_ETH_DMA_CLEAR_FLAG(&heth, ETH_DMA_FLAG_R);
-    LOS_HwiCreate(ETH_IRQn, 1,0,HAL_ETH_IRQHandler,0);
+    extern void ETH_IRQHandler(void);
+    (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
 }
+
+/**
+ * atiny_adapter user interface 
+ */
+void atiny_usleep(unsigned long usec)
+{
+    delayus((uint32_t)usec);
+}
+
+int atiny_random(void* output, size_t len)
+{
+    return hal_rng_generate_buffer(output, len);
+}
+
+void atiny_reboot(void)
+{
+    HAL_NVIC_SystemReset();
+}
+
