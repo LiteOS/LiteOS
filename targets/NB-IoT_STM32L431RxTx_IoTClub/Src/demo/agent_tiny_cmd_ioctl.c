@@ -38,6 +38,7 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "fota_package_storage_device.h"
 #endif
+#include "main.h"
 
 #define ATINY_POWER_VOLTAGE     3800
 #define ATINY_BATTERY_LEVEL     90
@@ -242,6 +243,36 @@ int atiny_get_link_utilization(int* utilization)
 
 int atiny_write_app_write(void* user_data, int len)
 {
+    int i;
+	  uint8_t cmd_data[len];
+	  memcpy(cmd_data,user_data,len);
+	  
+			printf("################## %d",cmd_data);
+			if(cmd_data[0]==0) //����
+			{	
+					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+			}
+		  else if(cmd_data[0]==1) //�ص�
+		 	{	
+					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+			}
+			else if(cmd_data[0]==2) //����
+			{	
+					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+			}
+		  else if(cmd_data[0]==3) //�ص�
+		 	{	
+					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+			}
+			else if(cmd_data[0]==4) //����
+			{	
+					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+			}
+		  else if(cmd_data[0]==5) //�ص�
+		 	{	
+					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+			}
+			
     (void)atiny_printf("write num19 object success\r\n");
     return ATINY_OK;
 }

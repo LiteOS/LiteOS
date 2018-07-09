@@ -35,7 +35,9 @@
 #ifndef ATINY_UPDATE_INFO_H
 #define ATINY_UPDATE_INFO_H
 
+#ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_api.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

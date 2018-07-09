@@ -12,8 +12,8 @@ typedef struct
     uint8_t  temp_high8bit;	 	//原始数据：温度高8位
     uint8_t  temp_low8bit;	 	//原始数据：温度高8位
     uint8_t  check_sum;	 	    //校验和
-    float    humidity;        //实际湿度
-    float    temperature;     //实际温度
+    uint32_t    humidity;        //实际湿度
+    uint32_t    temperature;     //实际温度
 } DHT11_Data_TypeDef;
 
 

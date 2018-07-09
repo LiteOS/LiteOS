@@ -10,7 +10,8 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
@@ -53,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -323,16 +324,20 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_LWIP</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_LWIP,CONFIG_FEATURE_FOTA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -345,6 +350,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls>--diag_suppress=A1581W</MiscControls>
               <Define></Define>
@@ -1478,17 +1484,17 @@
             <File>
               <FileName>atiny_fota_manager.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</FilePath>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_manager.c</FilePath>
             </File>
             <File>
               <FileName>atiny_fota_state.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</FilePath>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_state.c</FilePath>
             </File>
             <File>
               <FileName>atiny_update_info.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</FilePath>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_update_info.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1514,11 +1520,6 @@
               <FileName>at_api_interface.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\at_frame\at_api_interface.c</FilePath>
-            </File>
-            <File>
-              <FileName>at_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\at_frame\at_hal.c</FilePath>
             </File>
             <File>
               <FileName>atadapter.c</FileName>

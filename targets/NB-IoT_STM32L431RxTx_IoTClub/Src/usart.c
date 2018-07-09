@@ -56,7 +56,7 @@ void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -98,7 +98,7 @@ void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -261,20 +261,23 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART3_MspDeInit 1 */
   }
-} 
-#ifdef __GNUC__
-int _write(int fd, char *ptr, int len)
-(
-	HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
-	return len;
-)
-#else
-int fputc(int ch, FILE *f) 
-{
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-  return ch;
 }
-#endif /* __GNUC__ */
+
+/* define fputc */
+#if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
+int fputc(int ch, FILE *f)
+{
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+    return ch;
+}
+#elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
+__attribute__((used)) int _write(int fd, char *ptr, int len)
+{
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, 0xFFFF);
+    return len;
+}
+#endif
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

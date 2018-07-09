@@ -33,15 +33,19 @@
  *---------------------------------------------------------------------------*/
 
 #include "sys_init.h"
+#include "agent_tiny_demo.h"
+#if defined WITH_AT_FRAMEWORK
+#include "at_api_interface.h"
+#endif
+
+UINT32 g_TskHandle;
 
 /****** chose a sensor for your application*****/
-
+#if 0
 #define MODULE_DHT11
 //#define MODULE_SMOKE
 //#define MODULE_GPS
 //#define MODULE_BH1750
-
-UINT32 g_TskHandle;
 
 msg_sys_type bc95_net_data;
 static char nbiot_uart[500];
@@ -67,6 +71,7 @@ static unsigned char gps_uart[1000];
 msg_for_BH1750      BH1750_send;
 #endif
 
+#endif
 
 VOID HardWare_Init(VOID)
 {
@@ -75,10 +80,11 @@ VOID HardWare_Init(VOID)
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
-    DelayInit();
+    dwt_delay_init(SystemCoreClock);
+		hal_rng_config();
     MX_GPIO_Init();
     MX_USART1_UART_Init();
-    MX_USART3_UART_Init();
+    //MX_USART3_UART_Init();
     MX_ADC1_Init();
     MX_I2C1_Init();
     printf("Welcome to IoT-Club, This is EVB-M1 Board.\r\n");
@@ -89,6 +95,7 @@ void user_hw_init(void)
     char *str = "IoT-Club good";
     OLED_Init();
     DHT11_Init();
+		Init_BH1750();
     OLED_Clear();
     OLED_ShowCHinese(0,0,0);
     OLED_ShowCHinese(18,0,1);
@@ -103,10 +110,11 @@ void user_hw_init(void)
     LOS_HwiCreate(EXTI3_IRQn, 5,0,EXTI3_IRQHandler,NULL);
     //LOS_HwiCreate(USART1_IRQn, 6,0,USART1_IRQHandler,NULL);
     LOS_HwiCreate(USART2_IRQn, 6,0,USART2_IRQHandler,NULL);
-    LOS_HwiCreate(USART3_IRQn, 7,0,USART3_IRQHandler,NULL);
-    los_dev_uart_init(LOS_STM32L431_UART2, 9600, nbiot_uart, 500);
+//    LOS_HwiCreate(USART3_IRQn, 7,0,USART3_IRQHandler,NULL);
+//    los_dev_uart_init(LOS_STM32L431_UART2, 9600, nbiot_uart, 500);
 }
 
+#if 0
 VOID data_collection_task(VOID)
 {
     UINT32 uwRet = LOS_OK;
@@ -321,6 +329,38 @@ UINT32 creat_data_report_task()
     }
     return uwRet;
 }
+#endif
+
+VOID main_task(VOID)
+{
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+    hieth_hw_init();
+    net_init();
+#elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
+    extern at_adaptor_api at_interface;
+    at_api_register(&at_interface);
+#else
+#endif
+	  user_hw_init();
+    agent_tiny_entry();
+}
+UINT32 creat_main_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
+    task_init_param.uwStackSize = 0x1000;
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
 
 int main(void)
 {
@@ -333,14 +373,8 @@ int main(void)
     {
         return LOS_NOK;
     }
-
-    uwRet = creat_data_collection_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_data_report_task();
+	
+    uwRet = creat_main_task();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
@@ -348,3 +382,4 @@ int main(void)
 
     LOS_Start();
 }
+

@@ -21,7 +21,7 @@ OPT = -Og
 #######################################
 # network
 #######################################
-USE_AT_FRAMEWORK := no
+USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
 	NETWORK_TYPE := NB_NEUL95
@@ -151,7 +151,8 @@ AGENT_DEMO_SRC = \
 
 FOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
-        ${wildcard $(TOP_DIR)/components/fota/utility/*.c}
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c} \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c} 
         C_SOURCES += $(FOTA_SRC)
 
 FIRMWARE_UPDATE_SRC = \
@@ -169,7 +170,8 @@ USER_SRC =  \
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
-    ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c}
+    ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
+     $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/at_hal.c
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
@@ -227,7 +229,8 @@ C_DEFS =  \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
-        -D LWIP_TIMEVAL_PRIVATE=0
+        -D LWIP_TIMEVAL_PRIVATE=0 \
+        -D CONFIG_FEATURE_FOTA
 #       -D WITH_DTLS \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
@@ -308,7 +311,8 @@ AGENT_DEMO_INC = \
 
 FOTA_INC = \
         -I $(TOP_DIR)/components/fota/ota \
-        -I $(TOP_DIR)/components/fota/utility
+        -I $(TOP_DIR)/components/fota/utility \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client\fota
         C_INCLUDES += $(FOTA_INC)
 
 FIRMWARE_UPDATE_INC = \

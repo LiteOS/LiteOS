@@ -40,7 +40,9 @@
 #include "atiny_log.h"
 #include "atiny_rpt.h"
 #include "atiny_adapter.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_manager.h"
+#endif
 
 #define SERVER_URI_MAX_LEN      (64)
 #define MAX_PACKET_SIZE         (1024)
@@ -166,7 +168,10 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
+#ifdef CONFIG_FEATURE_FOTA
     atiny_fota_storage_device_s * device = NULL;
+#endif
+    int ret = -1;
 
     if (NULL == atiny_params || NULL == phandle)
     {
@@ -198,7 +203,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     atiny_mutex_lock(g_atiny_handle.quit_sem);
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
-
+#ifdef CONFIG_FEATURE_FOTA
     (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
     {
@@ -208,7 +213,9 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 
     return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
                         device);
-
+    if(ret != ATINY_OK) return ATINY_ERR;
+#endif
+    return ATINY_OK;
 }
 
 /*
@@ -394,9 +401,9 @@ void atiny_destroy(void* handle)
     {
         return;
     }
-
+#ifdef CONFIG_FEATURE_FOTA
     atiny_fota_manager_destroy(atiny_fota_manager_get_instance());
-
+#endif
     if(handle_data->recv_buffer != NULL) {
         lwm2m_free(handle_data->recv_buffer);
     }
@@ -452,7 +459,9 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
             if (code == STATE_REGISTERED)
             {
                 atiny_event_notify(ATINY_REG_OK, NULL, 0);
+#ifdef CONFIG_FEATURE_FOTA
                 (void)atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
+#endif
             }
             else if (code == STATE_REG_FAILED)
             {
@@ -567,9 +576,9 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         atiny_destroy(handle);
         return ret;
     }
-
+#ifdef CONFIG_FEATURE_FOTA
     (void)atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
-
+#endif
     lwm2m_register_observe_ack_call_back(observe_handle_ack);
     lwm2m_register_event_handler(atiny_event_handle);
     lwm2m_register_connection_err_notify(atiny_connection_err_notify);

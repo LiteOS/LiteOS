@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,53 +32,42 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SYS_H_
-#define __SYS_H_
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-/* Includes LiteOS------------------------------------------------------------------*/
+#ifndef _FOTA_PORT_H_
+#define _FOTA_PORT_H_
+#include <atiny_fota_api.h>
+#include <fota_package_storage_device.h>
 
-#include "los_base.h"
-#include "los_config.h"
-#include "los_sys.h"
-#include "los_typedef.h"
-#include "los_task.ph"
-#include "los_hwi.h"
-#include "los_sem.h"
-#include "los_event.h"
-#include "los_memory.h"
-#include "los_queue.ph"
 
-#include "stdlib.h"
-#include "string.h"
-#include <stdio.h>
-#include "stm32l4xx_hal.h"
-#include "hal_rng.h"
-#include "stm32l4xx_it.h"
-#include "dwt.h"
-#include "adc.h"
-#include "i2c.h"
-#include "usart.h"
-#include "gpio.h"
-#include "oled.h"
-#include "neul_bc95.h"
-#include "los_dev_st_uart.h"
-#include "DHT11_BUS.h"
-#include "BH1750.h" 
-#include "gps.h"
-
-#ifdef __cplusplus
- extern "C" {
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-uint32_t HAL_GetTick(void);
-void SystemClock_Config(void);
-void _Error_Handler(char *, int);
+/**
+ *@ingroup atiny_adapter
+ *@brief get storage device.
+ *
+ *@par Description:
+ *This API is used to get storage device.
+ *@attention none.
+ *
+ *@param none.
+ *
+ *@retval #atiny_fota_storage_device_s *     storage device.
+ *@par Dependency: none.
+ *@see none
+ */
+int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
+int hal_init_fota(void);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
+
+#if defined(__cplusplus)
 }
 #endif
 
-#endif /* __SYS_H_ */
+#endif //_FOTA_PORT_H_
+
 

@@ -56,8 +56,12 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define LED_Pin GPIO_PIN_13
-#define LED_GPIO_Port GPIOC
+#define LED1_Pin GPIO_PIN_5
+#define LED1_GPIO_Port GPIOB
+#define LED2_Pin GPIO_PIN_6
+#define LED2_GPIO_Port GPIOB
+#define LED3_Pin GPIO_PIN_7
+#define LED3_GPIO_Port GPIOB
 #define Light_Pin GPIO_PIN_5
 #define Light_GPIO_Port GPIOA
 #define KEY1_Pin GPIO_PIN_0
@@ -154,6 +158,14 @@ typedef struct
   char Lux[5];
 }msg_for_BH1750;
 extern msg_for_BH1750 BH1750_send;
+
+/*agent tiny message*/
+typedef struct
+{
+  char buf[13];
+}msg_for_Wifi;
+extern msg_for_Wifi Wifi_send;
+
 
 /* USER CODE END Private defines */
 

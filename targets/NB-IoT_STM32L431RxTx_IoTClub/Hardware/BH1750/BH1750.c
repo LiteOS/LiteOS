@@ -13,7 +13,7 @@
 
 #include "bh1750.h"
 #include "stm32l4xx.h"
-#include "delay.h"
+#include "dwt.h"
 
 float result_lx=0;
 uint8_t BUF[2]={0};
@@ -31,12 +31,15 @@ static void I2C_InitGPIO(void)
     GPIO_InitTypeDef GPIO_InitStruct;
 
     /* 打开GPIO时钟 */
-    I2C_GPIO_CLK_ENABLE();
+//    I2C_GPIO_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOA_CLK_ENABLE();
 
     GPIO_InitStruct.Pin = I2C_SCL_PIN|I2C_SDA_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH ;
-    HAL_GPIO_Init(I2C_GPIO_PORT, &GPIO_InitStruct);
+    HAL_GPIO_Init(I2C_GPIO_SDA_PORT, &GPIO_InitStruct);
+	  HAL_GPIO_Init(I2C_GPIO_SCL_PORT, &GPIO_InitStruct);
 
     I2C_SCL(HIGH);
     I2C_SDA(HIGH);
@@ -54,9 +57,9 @@ void I2C_Start(void)
     SDA_OUT();
     I2C_SDA(HIGH);
     I2C_SCL(HIGH);
-    delay_us(4);
+    delayus(4);
     I2C_SDA(LOW);
-    delay_us(4);
+    delayus(4);
     I2C_SCL(LOW);
 }
 
@@ -72,10 +75,10 @@ void I2C_Stop(void)
     SDA_OUT();
     I2C_SCL(LOW);
     I2C_SDA(LOW);
-    delay_us(4);
+    delayus(4);
     I2C_SCL(HIGH);
     I2C_SDA(HIGH);
-    delay_us(4);
+    delayus(4);
 }
 
 /**
@@ -89,9 +92,9 @@ uint8_t I2C_WaitAck(void)
     uint8_t ucErrTime=0;
     SDA_IN();
     I2C_SDA(HIGH); 	/* CPU释放SDA总线 */
-    delay_us(4);
+    delayus(4);
     I2C_SCL(HIGH); 	/* CPU驱动SCL = 1, 此时器件会返回ACK应答 */
-    delay_us(4);
+    delayus(4);
     while (I2C_SDA_READ())	/* CPU读取SDA口线状态 */
     {
         ucErrTime++;
@@ -118,9 +121,9 @@ void I2C_Ack(void)
 	I2C_SCL(LOW);
 	SDA_OUT();
 	I2C_SDA(LOW); 	/* CPU驱动SDA = 0 */
-	delay_us(2);
+	delayus(2);
 	I2C_SCL(HIGH); 	/* CPU产生1个时钟 */
-	delay_us(2);
+	delayus(2);
 	I2C_SCL(LOW);
 }
 
@@ -136,9 +139,9 @@ void I2C_NAck(void)
 	I2C_SCL(LOW);
 	SDA_OUT();
 	I2C_SDA(HIGH); 	/* CPU驱动SDA = 1 */
-	delay_us(2);
+	delayus(2);
 	I2C_SCL(HIGH); 	/* CPU产生1个时钟 */
-	delay_us(2);
+	delayus(2);
 	I2C_SCL(LOW);
 }
 
@@ -158,11 +161,11 @@ void I2C_SendByte(uint8_t Byte)
     {
         I2C_SDA((Byte & 0x80) >> 7);
         Byte <<= 1;
-        delay_us(2);
+        delayus(2);
         I2C_SCL(HIGH);
-        delay_us(2);
+        delayus(2);
         I2C_SCL(LOW);
-        delay_us(2);
+        delayus(2);
     }
 }
 
@@ -183,12 +186,12 @@ uint8_t I2C_ReadByte(uint8_t ack)
     for (i = 0; i < 8; i++)
     {
         I2C_SCL(LOW);
-        delay_us(2);
+        delayus(2);
         I2C_SCL(HIGH);
         value <<= 1;
         if (I2C_SDA_READ() )
             value++;
-        delay_us(1);
+        delayus(1);
     }
     if (!ack)
         I2C_NAck();//发送nACK
@@ -222,12 +225,12 @@ void Cmd_Write_BH1750(uint8_t cmd)
     I2C_Start();                  //起始信号
     I2C_SendByte(BH1750_Addr+0);   //发送设备地址+写信号
 	while(I2C_WaitAck());
-	delay_us(100);
+	delayus(100);
     I2C_SendByte(cmd);    //内部寄存器地址
 	while(I2C_WaitAck());
-	delay_us(100);
+	delayus(100);
     I2C_Stop();                   //发送停止信号
-	delay_ms(5);
+	LOS_TaskDelay(5);
 }
 void Init_BH1750(void)
 {
@@ -260,16 +263,17 @@ void Read_BH1750(void)
 	 //发送NACK
 
     I2C_Stop();                          //停止信号
-    delay_ms(5);
+    LOS_TaskDelay(5);
 }
 float Convert_BH1750(void)
 {
 	Start_BH1750();
-	delay_ms(180);
+	LOS_TaskDelay(180);
 	Read_BH1750();
 	result=BUF[0];
 	result=(result<<8)+BUF[1];  //合成数据，即光照数据
 	result_lx=(float)(result/1.2);
+
     return result_lx;
 }
 

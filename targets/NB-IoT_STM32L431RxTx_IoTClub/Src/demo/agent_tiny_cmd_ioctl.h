@@ -31,17 +31,14 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __DELAY_H
-#define __DELAY_H
 
-#define  DWT_CR      *(volatile unsigned int *)0xE0001000
-#define  DWT_CYCCNT  *(volatile unsigned int *)0xE0001004
-#define  DEM_CR      *(volatile unsigned int *)0xE000EDFC
-#define  DEM_CR_TRCENA                   (1 << 24)
-#define  DWT_CR_CYCCNTENA                (1 <<  0)
-void DelayInit(void);
-void Delayus(unsigned int usec);
-#define Delayms(msec)         Delayus(msec*1000) 
-void delay_us(unsigned int us);
-void delay_ms(unsigned int ms);
+#ifndef AGENT_TINY_CMD_IOCTL_H
+#define AGENT_TINY_CMD_IOCTL_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+
 #endif
