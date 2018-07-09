@@ -1567,11 +1567,6 @@
               <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</FilePath>
             </File>
             <File>
-              <FileName>fota_package_crc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</FilePath>
-            </File>
-            <File>
               <FileName>fota_package_head.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</FilePath>
@@ -1580,6 +1575,11 @@
               <FileName>fota_package_storage_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>fota_package_checksum.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.c</FilePath>
             </File>
           </Files>
         </Group>
