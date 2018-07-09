@@ -100,7 +100,10 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>11</nTsel>
+        <bEvRecOn>1</bEvRecOn>
+        <bSchkAxf>0</bSchkAxf>
+        <bTchkAxf>0</bTchkAxf>
+        <nTsel>6</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -198,9 +201,16 @@
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
       <bLintAuto>0</bLintAuto>
-      <Lin2Executable></Lin2Executable>
-      <Lin2ConfigFile></Lin2ConfigFile>
-      <bLin2Auto>0</bLin2Auto>
+      <bAutoGenD>0</bAutoGenD>
+      <LntExFlags>0</LntExFlags>
+      <pMisraName></pMisraName>
+      <pszMrule></pszMrule>
+      <pSingCmds></pSingCmds>
+      <pMultCmds></pMultCmds>
+      <pMisraNamep></pMisraNamep>
+      <pszMrulep></pszMrulep>
+      <pSingCmdsp></pSingCmdsp>
+      <pMultCmdsp></pMultCmdsp>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -212,7 +222,7 @@
 
   <Group>
     <GroupName>startup</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -324,7 +334,7 @@
 
   <Group>
     <GroupName>liteos/cmsis</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2383,8 +2393,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</PathWithFileName>
-      <FilenameWithoutPath>atiny_fota_manager.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\firmware_update\firmware_update.c</PathWithFileName>
+      <FilenameWithoutPath>firmware_update.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2395,8 +2405,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\firmware_update\firmware_update.c</PathWithFileName>
-      <FilenameWithoutPath>firmware_update.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_manager.c</PathWithFileName>
+      <FilenameWithoutPath>atiny_fota_manager.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2407,7 +2417,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</PathWithFileName>
+      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_state.c</PathWithFileName>
       <FilenameWithoutPath>atiny_fota_state.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2419,7 +2429,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</PathWithFileName>
+      <PathWithFileName>..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_update_info.c</PathWithFileName>
       <FilenameWithoutPath>atiny_update_info.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -2460,7 +2470,7 @@
 
   <Group>
     <GroupName>Hardware</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2516,7 +2526,7 @@
 
   <Group>
     <GroupName>drivers/devices/wifi/esp8266_anylink_spi</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2560,7 +2570,7 @@
 
   <Group>
     <GroupName>fota_package_storage_device</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2583,8 +2593,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</PathWithFileName>
-      <FilenameWithoutPath>fota_package_crc.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</PathWithFileName>
+      <FilenameWithoutPath>fota_package_head.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2595,8 +2605,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</PathWithFileName>
-      <FilenameWithoutPath>fota_package_head.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</PathWithFileName>
+      <FilenameWithoutPath>fota_package_storage_device.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2607,8 +2617,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.c</PathWithFileName>
-      <FilenameWithoutPath>fota_package_storage_device.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.c</PathWithFileName>
+      <FilenameWithoutPath>fota_package_checksum.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2616,7 +2626,7 @@
 
   <Group>
     <GroupName>fota/ota</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2648,7 +2658,7 @@
 
   <Group>
     <GroupName>fota/utility</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
