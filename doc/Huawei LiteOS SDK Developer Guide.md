@@ -177,17 +177,16 @@ SDK端云互通组件针对单模组、单MCU和外置MCU+模组两种应用场�
 
 LiteOS SDK 端云互通组件软件主要由三个层次构成：
 
-+ **开放API层：**LiteOS
-    SDK端云互通组件的开放API为应用程序定义了通用接口，终端设备调用开放API能快速完成华为OceanConnect
++ **开放API层：** LiteOS SDK端云互通组件的开放API为应用程序定义了通用接口，终端设备调用开放API能快速完成华为OceanConnect
     IoT平台的接入、业务数据上报、下发命令处理等。对于外置MCU+模组的场景，LiteOS
     SDK端云互通组件还提供了AT 命令适配层，用于对AT命令做解析。
 
-+ **协议层：**LiteOS SDK端云互通组件集成了LwM2M/CoAP/DTLS/TLS/UDP等协议。
++ **协议层：** LiteOS SDK端云互通组件集成了LwM2M/CoAP/DTLS/TLS/UDP等协议。
 
 + **驱动及网络适配层：**
     LiteOS SDK端云互通组件为了方便终端设备进行集成和移植，提供了驱动及网络适配层，用户可以基于SDK提供的适配层接口列表，根据具体的硬件平台适配硬件随机数、内存管理、日志、数据存储以及网络Socket等接口。
 
-**LiteOS基础内核 ：**为用户终端设备提供RTOS特性。
+**LiteOS基础内核：** 为用户终端设备提供RTOS特性。
 
 <h3 id="3.3">3.3集成策略</h3>
 
