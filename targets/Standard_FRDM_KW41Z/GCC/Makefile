@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# FRDM_KW41Z GCC compiler Makefile
+# Standard_FRDM_KW41Z GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -76,23 +76,23 @@ EXAMPLES_SRC =  \
         C_SOURCES += $(EXAMPLES_SRC)
 
 HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_lptmr.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_lpuart.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_sim.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_clock.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_gpio.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_smc.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_flash.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_common.c
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_lptmr.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_lpuart.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_sim.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_clock.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_gpio.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_smc.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_flash.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4/fsl_common.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/main.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/board.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/clock_config.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/fsl_debug_console.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/pin_mux.c \
-        $(TOP_DIR)/targets/FRDM_KW41Z/Src/system_MKW41Z4.c
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/main.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/board.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/clock_config.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/fsl_debug_console.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/pin_mux.c \
+        $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Src/system_MKW41Z4.c
         C_SOURCES += $(USER_SRC)
 
 
@@ -130,7 +130,7 @@ AS_DEFS =
 C_DEFS =  \
         -D DEBUG \
         -D CPU_MKW41Z512VHT4 \
-        -D FRDM_KW41Z \
+        -D Standard_FRDM_KW41Z \
         -D FREEDOM \
         -D LOS_KERNEL_DEBUG_OUT
 
@@ -161,12 +161,12 @@ EXAMPLES_INC = \
         C_INCLUDES += $(EXAMPLES_INC)
 
 HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/FRDM_KW41Z/Drivers/MKW41Z512xxx4
+        -I $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Drivers/MKW41Z512xxx4
         C_INCLUDES += $(HAL_DRIVER_INC)
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/FRDM_KW41Z/Inc \
-        -I $(TOP_DIR)/targets/FRDM_KW41Z/OS_CONFIG
+        -I $(TOP_DIR)/targets/Standard_FRDM_KW41Z/Inc \
+        -I $(TOP_DIR)/targets/Standard_FRDM_KW41Z/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 

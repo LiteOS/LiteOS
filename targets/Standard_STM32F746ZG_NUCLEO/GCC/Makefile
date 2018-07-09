@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# STM32F746ZG_NUCLEO GCC compiler Makefile
+# Standard_STM32F746ZG_NUCLEO GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -76,27 +76,27 @@ EXAMPLES_SRC =  \
         C_SOURCES += $(EXAMPLES_SRC)
 
 HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Src/main.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Src/system_stm32f7xx.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Src/usart.c \
-        $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Src/sys_init.c
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Src/main.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Src/system_stm32f7xx.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Src/usart.c \
+        $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
 
@@ -163,13 +163,13 @@ EXAMPLES_INC = \
         C_INCLUDES += $(EXAMPLES_INC)
 
 HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc \
-        -I $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
+        -I $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc \
+        -I $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/Inc \
-        -I $(TOP_DIR)/targets/STM32F746ZG_NUCLEO/OS_CONFIG
+        -I $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/Inc \
+        -I $(TOP_DIR)/targets/Standard_STM32F746ZG_NUCLEO/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 

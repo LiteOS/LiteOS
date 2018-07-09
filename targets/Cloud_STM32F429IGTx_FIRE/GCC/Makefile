@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# STM32F429IGTx_FIRE GCC compiler Makefile
+# Cloud_STM32F429IGTx_FIRE GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -85,29 +85,29 @@ ARCH_SRC =  \
         C_SOURCES += $(ARCH_SRC)
 
 HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
 HARDWARE_SRC =  \
-        ${wildcard $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Src/*.c}
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Src/*.c}
         C_SOURCES += $(HARDWARE_SRC)
 
 LWIP_SRC =  \
@@ -160,18 +160,18 @@ FIRMWARE_UPDATE_SRC = \
         C_SOURCES += $(FIRMWARE_UPDATE_SRC)
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/main.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/usart.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/dwt.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/eth.c \
-        $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/sys_init.c
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/main.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/dwt.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/eth.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
-     $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/at_hal.c
+     $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
@@ -187,7 +187,7 @@ endif
 endif
 
 C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
-C_SOURCES += $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Src/fota_port.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 
 # ASM sources
 ASM_SOURCES_s =  \
@@ -262,12 +262,12 @@ ARCH_INC = \
         C_INCLUDES += $(ARCH_INC)
 
 HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
-        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
         C_INCLUDES += $(HAL_DRIVER_INC)
 
 HARDWARE_INC = \
-        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Hardware/Inc
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
         C_INCLUDES += $(HARDWARE_INC)
 
 LWIP_INC = \
@@ -320,8 +320,8 @@ FIRMWARE_UPDATE_INC = \
         C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/Inc \
-        -I $(TOP_DIR)/targets/STM32F429IGTx_FIRE/OS_CONFIG
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 ATADAPTOR_INC = \

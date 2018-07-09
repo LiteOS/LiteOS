@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# NB-IoT_STM32L431RxTx_IoTClub GCC compiler Makefile
+# Cloud_STM32L431RxTx_IoTClub GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -80,36 +80,36 @@ ARCH_SRC =  \
         C_SOURCES += $(ARCH_SRC)
 
 HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rng.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rng.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c
         C_SOURCES += $(HAL_DRIVER_SRC)
 
 HARDWARE_SRC =  \
-        ${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/BH1750/*.c} \
-        ${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/DHT11/*.c} \
-        ${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/GPS/*.c} \
-        ${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/OLED/*.c} \
-        ${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/RNG/*.c}
-		#${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/Src/*.c}
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/BH1750/*.c} \
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/DHT11/*.c} \
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/GPS/*.c} \
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/OLED/*.c} \
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/RNG/*.c}
+		#${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/Src/*.c}
         C_SOURCES += $(HARDWARE_SRC)
 
 LWIP_SRC =  \
@@ -148,7 +148,7 @@ ATINY_TINY_SRC = \
         C_SOURCES += $(ATINY_TINY_SRC)
 
 AGENT_DEMO_SRC = \
-		${wildcard $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/demo/*.c}
+		${wildcard $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/demo/*.c}
         #${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
 
@@ -163,22 +163,22 @@ FIRMWARE_UPDATE_SRC = \
         #C_SOURCES += $(FIRMWARE_UPDATE_SRC)
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/main.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/system_stm32l4xx.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/usart.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/dwt.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/sys_init.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/gpio.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/i2c.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/adc.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/stm32l4xx_it.c \
-        $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/los_dev_st_uart.c
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/main.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/system_stm32l4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/usart.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/dwt.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/sys_init.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/gpio.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/i2c.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/adc.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/stm32l4xx_it.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/los_dev_st_uart.c
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
-    $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/at_hal.c
+    $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/at_hal.c
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
@@ -194,7 +194,7 @@ endif
 endif
 
 #C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
-#C_SOURCES += $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/fota_port.c
+#C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/fota_port.c
 
 # ASM sources
 ASM_SOURCES_s =  \
@@ -268,19 +268,19 @@ ARCH_INC = \
         C_INCLUDES += $(ARCH_INC)
 
 HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Inc \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Drivers/CMSIS/Device/ST/STM32L4xx/Include
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Drivers/CMSIS/Device/ST/STM32L4xx/Include
         C_INCLUDES += $(HAL_DRIVER_INC)
 
 HARDWARE_INC = \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/BC95 \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/BH1750 \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/DHT11 \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/GPS \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/OLED \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/RNG \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Hardware/Inc
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/BC95 \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/BH1750 \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/DHT11 \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/GPS \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/OLED \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/RNG \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Hardware/Inc
         C_INCLUDES += $(HARDWARE_INC)
 
 LWIP_INC = \
@@ -319,7 +319,7 @@ ATINY_TINY_INC = \
         C_INCLUDES += $(ATINY_TINY_INC)
 
 AGENT_DEMO_INC = \
-		-I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Src/demo \
+		-I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/demo \
 		
         #-I $(TOP_DIR)/components/connectivity/agent_tiny/examples
         C_INCLUDES += $(AGENT_DEMO_INC)
@@ -335,8 +335,8 @@ FIRMWARE_UPDATE_INC = \
         #C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/Inc \
-        -I $(TOP_DIR)/targets/NB-IoT_STM32L431RxTx_IoTClub/OS_CONFIG
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 ATADAPTOR_INC = \
