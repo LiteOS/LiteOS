@@ -70,10 +70,11 @@
 
 #include "internals.h"
 #include "agenttiny.h"
+#include "atiny_log.h"
+
 #ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_manager.h"
-#endif
-#include "atiny_log.h"
+
 
 // ---- private object "Firmware" specific defines ----
 // Resource Id's:
@@ -108,16 +109,10 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
     {
         uint16_t resources[] = {RES_M_PACKAGE_URI, RES_M_STATE,
                 RES_M_UPDATE_RESULT, RES_O_FIRMWARE_UPDATE_DELIVER_METHOD};
-        int32_t resource_num = 0;
-#ifdef CONFIG_FEATURE_FOTA
-        resource_num = array_size(resources);
-#else
-        resource_num = sizeof(resources)/sizeof(*(resources));
-#endif
-        *dataArrayP = lwm2m_data_new(resource_num);
+        *dataArrayP = lwm2m_data_new(array_size(resources));
         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
-        *numDataP = resource_num;
-        for(i = 0 ; i < resource_num; ++i)
+        *numDataP = array_size(resources);
+        for(i = 0 ; i < array_size(resources); ++i)
         {
             (*dataArrayP)[i].id = resources[i];
         }
@@ -133,7 +128,6 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
             break;
         case RES_M_PACKAGE_URI:
             {
-#ifdef CONFIG_FEATURE_FOTA
                 const char *pkg_uri;
                 pkg_uri = atiny_fota_manager_get_pkg_uri(atiny_fota_manager_get_instance());
                 if(pkg_uri == NULL)
@@ -143,7 +137,6 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
                 lwm2m_data_encode_nstring(pkg_uri, strlen(pkg_uri) + 1, *dataArrayP + i);
                 result = COAP_205_CONTENT;
                 break;
-#endif
             }
 
         case RES_M_UPDATE:
@@ -153,24 +146,20 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
         case RES_M_STATE:
             // firmware update state (int)
             {
-#ifdef CONFIG_FEATURE_FOTA
-                int state = atiny_fota_manager_get_state(atiny_fota_manager_get_instance());
+                int state = atiny_fota_manager_get_rpt_state(atiny_fota_manager_get_instance());
                 lwm2m_data_encode_int(state, *dataArrayP + i);
                 result = COAP_205_CONTENT;
-#endif
                 break;
             }
 
         case RES_M_UPDATE_RESULT:
             {
-#ifdef CONFIG_FEATURE_FOTA
                 int updateresult = atiny_fota_manager_get_update_result(atiny_fota_manager_get_instance());
                 lwm2m_data_encode_int(updateresult, *dataArrayP + i);
-#endif
                 result = COAP_205_CONTENT;
                 break;
             }
-		#ifdef CONFIG_FEATURE_FOTA
+
         case RES_O_FIRMWARE_UPDATE_DELIVER_METHOD:
             {
                 int method = atiny_fota_manager_get_deliver_method(atiny_fota_manager_get_instance());
@@ -178,13 +167,17 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
                 result = COAP_205_CONTENT;
             }
             break;
-		#endif
         default:
             result = COAP_404_NOT_FOUND;
         }
 
         i++;
     } while (i < *numDataP && result == COAP_205_CONTENT);
+
+    if(dataCfg && (1 == *numDataP) && (RES_M_STATE == (*dataArrayP)[0].id))
+    {
+        atiny_fota_manager_get_data_cfg(atiny_fota_manager_get_instance(), dataCfg);
+    }
 
     return result;
 }
@@ -213,7 +206,6 @@ static uint8_t prv_firmware_write(uint16_t instanceId,
         case RES_M_PACKAGE_URI:
             // URL for download the firmware
             {
-#ifdef CONFIG_FEATURE_FOTA
                 int ret;
                 if(dataArray[i].type != LWM2M_TYPE_STRING || NULL == dataArray[i].value.asBuffer.buffer)
                 {
@@ -224,11 +216,7 @@ static uint8_t prv_firmware_write(uint16_t instanceId,
                 ret = atiny_fota_manager_start_download(atiny_fota_manager_get_instance(), \
                     (const char *)(dataArray[i].value.asBuffer.buffer), dataArray[i].value.asBuffer.length);
                 result = (ATINY_OK == ret ? COAP_204_CHANGED : COAP_405_METHOD_NOT_ALLOWED);
-#else
-                result = COAP_204_CHANGED;
-#endif
-	            break;
-
+                break;
             }
 
         default:
@@ -261,7 +249,6 @@ static uint8_t prv_firmware_execute(uint16_t instanceId,
     {
     case RES_M_UPDATE:
         {
-#ifdef CONFIG_FEATURE_FOTA
             int ret = atiny_fota_manager_execute_update(atiny_fota_manager_get_instance());
             if (ATINY_OK == ret)
             {
@@ -272,9 +259,6 @@ static uint8_t prv_firmware_execute(uint16_t instanceId,
                 // firmware update already running
                 return COAP_400_BAD_REQUEST;
             }
-#else
-			return COAP_400_BAD_REQUEST;
-#endif
         }
     default:
         return COAP_405_METHOD_NOT_ALLOWED;
@@ -350,4 +334,22 @@ void free_object_firmware(lwm2m_object_t * objectP)
     }
     lwm2m_free(objectP);
 }
+
+#else
+
+
+lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params)
+{
+    (void)atiny_params;
+    return NULL;
+}
+
+
+void free_object_firmware(lwm2m_object_t * objectP)
+{
+    (void)objectP;
+}
+
+#endif
+
 

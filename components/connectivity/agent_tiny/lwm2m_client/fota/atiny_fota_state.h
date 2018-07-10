@@ -57,14 +57,12 @@
 #include "object_comm.h"
 
 
-#define ASSERT_THIS(do_something) if(thi)\
-    {\
+#define ASSERT_THIS(do_something) \
         if(NULL == thi)\
         {\
             ATINY_LOG(LOG_ERR, "this null pointer");\
             do_something;\
-        }\
-    }
+        }
 
 #define ATINY_GET_STATE(state) (&((state).interface))
 
@@ -83,6 +81,7 @@ typedef struct atiny_fota_state_tag_s
     int (*execute_update)(struct atiny_fota_state_tag_s * thi);
     int (*finish_download)(struct atiny_fota_state_tag_s * thi, int result);
     int (*repot_result)(struct atiny_fota_state_tag_s *thi);
+    int (*recv_notify_ack)(struct atiny_fota_state_tag_s *thi, data_send_status_e status);
     atiny_fota_manager_s *manager;
 }atiny_fota_state_s;
 
