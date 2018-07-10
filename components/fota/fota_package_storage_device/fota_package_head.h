@@ -49,15 +49,12 @@
 (void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
 
 
-#define ASSERT_THIS(do_something) if(thi)\
-    {\
+#define ASSERT_THIS(do_something) \
         if(NULL == thi)\
         {\
             FOTA_LOG("this null pointer");\
             do_something;\
-        }\
-    }
-
+        }
 
 #ifndef MIN
 #define MIN(a, b) (((a) <= (b)) ? (a) : (b))

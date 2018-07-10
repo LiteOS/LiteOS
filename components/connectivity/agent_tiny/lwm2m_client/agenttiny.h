@@ -41,8 +41,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_api.h"
-
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -149,9 +150,9 @@ void atiny_event_notify(atiny_event_e event, const char* arg, int len);
 
 typedef struct
 {
-    char* binding;               /*Ä¿Ç°Ö§³ÖU»òÕßUQ*/
-    int   life_time;             /*±ØÑ¡£¬Ä¬ÈÏ50000,Èç¹ı¶Ì£¬ÔòÆµ·±·¢ËÍupdate±¨ÎÄ£¬Èç¹ı³¤£¬ÔÚÏß×´Ì¬¸üĞÂÊ±¼ä³¤*/
-    unsigned int  storing_cnt;   /*storingÎªtrueÊ±£¬lwm2m»º´æÇø×Ü×Ö½Ú¸öÊı*/
+    char* binding;               /*ç›®å‰æ”¯æŒUæˆ–è€…UQ*/
+    int   life_time;             /*å¿…é€‰ï¼Œé»˜è®¤50000,å¦‚è¿‡çŸ­ï¼Œåˆ™é¢‘ç¹å‘é€updateæŠ¥æ–‡ï¼Œå¦‚è¿‡é•¿ï¼Œåœ¨çº¿çŠ¶æ€æ›´æ–°æ—¶é—´é•¿*/
+    unsigned int  storing_cnt;   /*storingä¸ºtrueæ—¶ï¼Œlwm2mç¼“å­˜åŒºæ€»å­—èŠ‚ä¸ªæ•°*/
 } atiny_server_param_t;
 
 
@@ -271,11 +272,11 @@ typedef void (*atiny_ack_callback) (atiny_report_type_e type, int cookie, data_s
 
 typedef struct _data_report_t
 {
-    atiny_report_type_e type;     /*Êı¾İÉÏ±¨ÀàĞÍ*/
-    int cookie;                   /*Êı¾İcookie,ÓÃÒÔÔÚack»Øµ÷ÖĞ£¬Çø·Ö²»Í¬µÄÊı¾İ*/
-    int len;                      /*Êı¾İ³¤¶È£¬²»Ó¦´óÓÚMAX_REPORT_DATA_LEN*/
-    uint8_t* buf;                 /*Êı¾İ»º³åÇøÊ×µØÖ·*/
-    atiny_ack_callback callback;  /*ack»Øµ÷*/
+    atiny_report_type_e type;     /*æ•°æ®ä¸ŠæŠ¥ç±»å‹*/
+    int cookie;                   /*æ•°æ®cookie,ç”¨ä»¥åœ¨ackå›è°ƒä¸­ï¼ŒåŒºåˆ†ä¸åŒçš„æ•°æ®*/
+    int len;                      /*æ•°æ®é•¿åº¦ï¼Œä¸åº”å¤§äºMAX_REPORT_DATA_LEN*/
+    uint8_t* buf;                 /*æ•°æ®ç¼“å†²åŒºé¦–åœ°å€*/
+    atiny_ack_callback callback;  /*ackå›è°ƒ*/
 } data_report_t;
 
 /**

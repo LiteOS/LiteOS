@@ -70,8 +70,11 @@
 
 #include "internals.h"
 #include "agenttiny.h"
-#include "atiny_fota_manager.h"
 #include "atiny_log.h"
+
+#ifdef CONFIG_FEATURE_FOTA
+#include "atiny_fota_manager.h"
+
 
 // ---- private object "Firmware" specific defines ----
 // Resource Id's:
@@ -143,7 +146,7 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
         case RES_M_STATE:
             // firmware update state (int)
             {
-                int state = atiny_fota_manager_get_state(atiny_fota_manager_get_instance());
+                int state = atiny_fota_manager_get_rpt_state(atiny_fota_manager_get_instance());
                 lwm2m_data_encode_int(state, *dataArrayP + i);
                 result = COAP_205_CONTENT;
                 break;
@@ -170,6 +173,11 @@ static uint8_t prv_firmware_read(uint16_t instanceId,
 
         i++;
     } while (i < *numDataP && result == COAP_205_CONTENT);
+
+    if(dataCfg && (1 == *numDataP) && (RES_M_STATE == (*dataArrayP)[0].id))
+    {
+        atiny_fota_manager_get_data_cfg(atiny_fota_manager_get_instance(), dataCfg);
+    }
 
     return result;
 }
@@ -326,4 +334,22 @@ void free_object_firmware(lwm2m_object_t * objectP)
     }
     lwm2m_free(objectP);
 }
+
+#else
+
+
+lwm2m_object_t * get_object_firmware(atiny_param_t *atiny_params)
+{
+    (void)atiny_params;
+    return NULL;
+}
+
+
+void free_object_firmware(lwm2m_object_t * objectP)
+{
+    (void)objectP;
+}
+
+#endif
+
 
