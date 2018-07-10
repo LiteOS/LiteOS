@@ -53,10 +53,18 @@ extern "C" {
 /* type definitions */
 typedef unsigned char                                       UINT8;
 typedef unsigned short                                      UINT16;
+#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
+typedef unsigned long                                       UINT32;
+#else
 typedef unsigned int                                        UINT32;
+#endif
 typedef signed char                                         INT8;
 typedef signed short                                        INT16;
+#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
+typedef signed long                                         INT32;
+#else
 typedef signed int                                          INT32;
+#endif
 typedef float                                               FLOAT;
 typedef double                                              DOUBLE;
 typedef char                                                CHAR;
