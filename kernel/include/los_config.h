@@ -646,6 +646,61 @@ extern UINT32 g_sys_mem_addr_end;
 
 
 /*=============================================================================
+                                       LIB module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * newlib struct _reent
+ */
+#ifndef LOSCFG_LIB_LIBC_NEWLIB_REENT
+#define LOSCFG_LIB_LIBC_NEWLIB_REENT                        NO
+#endif
+
+
+/*=============================================================================
+                                       VFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS VFS
+ */
+#ifndef LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   NO
+#endif
+
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS KIFS (kernel info fs)
+ */
+#ifndef LOSCFG_ENABLE_KIFS
+#define LOSCFG_ENABLE_KIFS                                  NO
+#endif
+
+
+/*=============================================================================
+                                       DEVFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS DEVFS
+ */
+#ifndef LOSCFG_ENABLE_DEVFS
+#define LOSCFG_ENABLE_DEVFS                                 NO
+#else
+#if (LOSCFG_ENABLE_DEVFS == YES)
+#undef  LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   YES
+#undef  LOSCFG_ENABLE_KIFS
+#define LOSCFG_ENABLE_KIFS                                  YES
+#endif
+#endif
+
+
+/*=============================================================================
                                        Declaration of Huawei LiteOS module initialization functions
 =============================================================================*/
 
