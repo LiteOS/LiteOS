@@ -1,4 +1,5 @@
-# Huawei LiteOS SDK 端云互通组件 开发指南
+# Huawei LiteOS SDK 端云互通组件
+# 开发指南
 
 ## 目 录
 
