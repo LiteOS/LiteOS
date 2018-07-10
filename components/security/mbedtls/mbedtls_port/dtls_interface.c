@@ -219,12 +219,16 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     MBEDTLS_LOG("Performing the SSL/TLS handshake");
 
+    int j = 0;
     do
     {
-        ret = mbedtls_ssl_handshake(ssl);
+        ret = mbedtls_ssl_handshake(ssl);       
+        //LOS_TaskDelay(1);
+        j++;
+
     }
-    while (ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE);
+    while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
+           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 3 );
 
     if (ret != 0)
     {

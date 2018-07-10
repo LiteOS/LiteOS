@@ -790,14 +790,14 @@ int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t * contex
 
 typedef struct
 {
-    lwm2m_media_type_t format;
+    uint32_t format;
     uint8_t token[8];
     uint32_t tokenLen;
     uint32_t counter;
 }lwm2m_observe_info_t;
 
 uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info);
-uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state);
+uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state, lwm2m_data_cfg_t  *cfg);
 
 #endif
 

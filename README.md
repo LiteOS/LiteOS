@@ -17,7 +17,7 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 ## LiteOS 开发指南
 
-[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.md)
+[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide_zh.md)
 
 该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以根据该文档学习各模块的使用。
 
@@ -27,6 +27,7 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 * [LiteOS接入华为云平台](https://github.com/SuYai/OceanConnectHelp)
 
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
+  * [LiteOS接入OneNET](https://github.com/LiteOS/LiteOS/tree/develop/thirdparty/OneNET)
 
 
 ## LiteOS 支持的硬件

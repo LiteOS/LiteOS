@@ -35,7 +35,9 @@
 #include "agent_tiny_cmd_ioctl.h"
 #include "agenttiny.h"
 #include "atiny_adapter.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "fota_package_storage_device.h"
+#endif
 
 #define ATINY_POWER_VOLTAGE     3800
 #define ATINY_BATTERY_LEVEL     90
@@ -430,10 +432,12 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char* arg, int len)
         case ATINY_GET_VELOCITY:
             result = atiny_get_velocity((atiny_velocity_s*)arg);
             break;
+#ifdef CONFIG_FEATURE_FOTA
         case ATINY_GET_FOTA_STORAGE_DEVICE:
             *((atiny_fota_storage_device_s **)arg) = fota_get_pack_device();
             result = ATINY_OK;
             break;
+#endif
         default:
             break;
     }

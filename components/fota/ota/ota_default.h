@@ -54,6 +54,7 @@ typedef struct
     uint8_t cur_state;
     uint16_t rsv;
     int32_t cur_offset;
+    uint32_t old_image_length;
     uint32_t image_length;
     uint8_t image_integrity[OTA_IMAGE_INTEGRITY_LENGTH];
     uint32_t crc;
