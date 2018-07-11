@@ -80,6 +80,7 @@ class file_writer(object):
 			buffer=bytearray(value)
 		else:
 			buffer = value
+		self.fd.seek(self.fd.tell())
 		self.fd.write(buffer)
 		
 	def read(self, size, offset = INVALID_OFFSET):

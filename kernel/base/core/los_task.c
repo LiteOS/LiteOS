@@ -58,17 +58,20 @@ extern "C" {
 
 LITE_OS_SEC_BSS  LOS_TASK_CB                         *g_pstTaskCBArray;
 LITE_OS_SEC_BSS  ST_LOS_TASK                         g_stLosTask;
-LITE_OS_SEC_BSS  UINT16                                  g_usLosTaskLock;
-LITE_OS_SEC_BSS  UINT32                                  g_uwTskMaxNum;
-LITE_OS_SEC_BSS  UINT32                                  g_uwIdleTaskID;
-LITE_OS_SEC_BSS  UINT32                                  g_uwSwtmrTaskID;
-LITE_OS_SEC_BSS LOS_DL_LIST                         g_stTaskTimerList;
-LITE_OS_SEC_BSS LOS_DL_LIST                    g_stLosFreeTask;
-LITE_OS_SEC_BSS LOS_DL_LIST                    g_stTskRecyleList;
+LITE_OS_SEC_BSS  UINT16                              g_usLosTaskLock;
+LITE_OS_SEC_BSS  UINT32                              g_uwTskMaxNum;
+LITE_OS_SEC_BSS  UINT32                              g_uwIdleTaskID;
+LITE_OS_SEC_BSS  UINT32                              g_uwSwtmrTaskID;
+LITE_OS_SEC_BSS  LOS_DL_LIST                         g_stTaskTimerList;
+LITE_OS_SEC_BSS  LOS_DL_LIST                         g_stLosFreeTask;
+LITE_OS_SEC_BSS  LOS_DL_LIST                         g_stTskRecyleList;
 LITE_OS_SEC_BSS  TSK_SORTLINK_ATTRIBUTE_S            g_stTskSortLink;
 LITE_OS_SEC_BSS  BOOL                                g_bTaskScheduled;
 
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnTskSwitchImpurePtrHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
+#endif
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 LITE_OS_SEC_DATA_INIT TSKSWITCHHOOK g_pfnUsrTskSwitchHook = (TSKSWITCHHOOK)NULL; /*lint !e611*/
 #endif /* LOSCFG_BASE_CORE_TSK_MONITOR == YES */
@@ -536,6 +539,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 osTaskInit(VOID)
 #if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     osExcRegister((EXC_INFO_TYPE)OS_EXC_TYPE_TSK, (EXC_INFO_SAVE_CALLBACK)LOS_TaskInfoGet, &g_uwTskMaxNum);
 #endif
+
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+    extern LITE_OS_SEC_TEXT VOID osTaskSwitchImpurePtr(VOID);
+    g_pfnTskSwitchImpurePtrHook = osTaskSwitchImpurePtr;
+#endif
     return LOS_OK;
 }
 
@@ -806,6 +814,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARA
     pstTaskCB->uwEventMask       = 0;
     pstTaskCB->pcTaskName        = pstInitParam->pcName;
     pstTaskCB->puwMsg = NULL;
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+    /* Initialise this task's Newlib reent structure. */
+    _REENT_INIT_PTR(&(pstTaskCB->stNewLibReent));
+#endif
 
     *puwTaskID = uwTaskID;
     return LOS_OK;
@@ -1564,8 +1576,25 @@ LITE_OS_SEC_TEXT CHAR* LOS_TaskNameGet(UINT32 uwTaskID)
     return pstTaskCB->pcTaskName;
 }
 
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+/*****************************************************************************
+ Function : osTaskSwitchImpurePtr
+ Description : Switch Newlib's _impure_ptr to point to the next run task.
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT VOID osTaskSwitchImpurePtr(VOID)
+{
+    /* Switch Newlib's _impure_ptr variable to point to the _reent
+       structure specific to next run task. */
+    _impure_ptr = &(g_stLosTask.pstNewTask->stNewLibReent);
+}
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
