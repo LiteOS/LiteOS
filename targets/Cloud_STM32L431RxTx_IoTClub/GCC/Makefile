@@ -65,6 +65,7 @@ KERNEL_SRC =  \
         ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/ipc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/bestfit_little/*.c} \
+        ${wildcard $(TOP_DIR)/kernel/base/mem/membox/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/common/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/misc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/om/*.c} \
@@ -236,7 +237,7 @@ C_DEFS =  \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
         -D LWIP_TIMEVAL_PRIVATE=0 \
-        -D HAL_RNG_MODULE_ENABLED 
+        -D HAL_RNG_MODULE_ENABLED
 #        -D WITH_DTLS
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
@@ -319,8 +320,7 @@ ATINY_TINY_INC = \
         C_INCLUDES += $(ATINY_TINY_INC)
 
 AGENT_DEMO_INC = \
-		-I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/demo \
-		
+        -I $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/demo \
         #-I $(TOP_DIR)/components/connectivity/agent_tiny/examples
         C_INCLUDES += $(AGENT_DEMO_INC)
 
@@ -331,7 +331,7 @@ FOTA_INC = \
 
 FIRMWARE_UPDATE_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update \
-	-I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
         #C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
 USER_INC = \
