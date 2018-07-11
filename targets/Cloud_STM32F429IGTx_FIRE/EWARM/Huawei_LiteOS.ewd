@@ -84,11 +84,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>JLINK_ID</state>
+                    <state>CMSISDAP_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.22.2.15993</state>
+                    <state>8.20.2.14834</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -950,27 +950,6 @@
             </data>
         </settings>
         <settings>
-            <name>NULINK_ID</name>
-            <archiveVersion>2</archiveVersion>
-            <data>
-                <version>0</version>
-                <wantNonLocal>1</wantNonLocal>
-                <debug>1</debug>
-                <option>
-                    <name>OCDriverInfo</name>
-                    <state>1</state>
-                </option>
-                <option>
-                    <name>DoLogfile</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>LogFile</name>
-                    <state>$PROJ_DIR$\cspycomm.log</state>
-                </option>
-            </data>
-        </settings>
-        <settings>
             <name>PEMICRO_ID</name>
             <archiveVersion>2</archiveVersion>
             <data>
@@ -999,7 +978,7 @@
             <name>STLINK_ID</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>5</version>
+                <version>4</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -1008,7 +987,7 @@
                 </option>
                 <option>
                     <name>CCSTLinkInterfaceRadio</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCSTLinkInterfaceCmdLine</name>
@@ -1021,7 +1000,7 @@
                 </option>
                 <option>
                     <name>CCCpuClockEdit</name>
-                    <state>16.0</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCSwoClockAuto</name>
@@ -1106,10 +1085,6 @@
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkUseServerSelect</name>
                     <state>0</state>
                 </option>
             </data>
@@ -1392,10 +1367,6 @@
                 <loadFlag>0</loadFlag>
             </plugin>
             <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\FreeRtos\FreeRtosArmPlugin.ENU.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\Mbed\MbedArmPlugin.ENU.ewplugin</file>
                 <loadFlag>0</loadFlag>
             </plugin>
@@ -1405,14 +1376,6 @@
             </plugin>
             <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\SafeRTOS\SafeRTOSPlugin.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\SMX\smxAwareIarArm8.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\SMX\smxAwareIarArm8BE.ewplugin</file>
                 <loadFlag>0</loadFlag>
             </plugin>
             <plugin>
@@ -2402,27 +2365,6 @@
             </data>
         </settings>
         <settings>
-            <name>NULINK_ID</name>
-            <archiveVersion>2</archiveVersion>
-            <data>
-                <version>0</version>
-                <wantNonLocal>1</wantNonLocal>
-                <debug>0</debug>
-                <option>
-                    <name>OCDriverInfo</name>
-                    <state>1</state>
-                </option>
-                <option>
-                    <name>DoLogfile</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>LogFile</name>
-                    <state>$PROJ_DIR$\cspycomm.log</state>
-                </option>
-            </data>
-        </settings>
-        <settings>
             <name>PEMICRO_ID</name>
             <archiveVersion>2</archiveVersion>
             <data>
@@ -2451,7 +2393,7 @@
             <name>STLINK_ID</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>5</version>
+                <version>4</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -2558,10 +2500,6 @@
                 </option>
                 <option>
                     <name>CCSTLinkDebugAccessPortRadio</name>
-                    <state>0</state>
-                </option>
-                <option>
-                    <name>CCSTLinkUseServerSelect</name>
                     <state>0</state>
                 </option>
             </data>
@@ -2844,10 +2782,6 @@
                 <loadFlag>0</loadFlag>
             </plugin>
             <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\FreeRtos\FreeRtosArmPlugin.ENU.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\Mbed\MbedArmPlugin.ENU.ewplugin</file>
                 <loadFlag>0</loadFlag>
             </plugin>
@@ -2857,14 +2791,6 @@
             </plugin>
             <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\SafeRTOS\SafeRTOSPlugin.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\SMX\smxAwareIarArm8.ewplugin</file>
-                <loadFlag>0</loadFlag>
-            </plugin>
-            <plugin>
-                <file>$TOOLKIT_DIR$\plugins\rtos\SMX\smxAwareIarArm8BE.ewplugin</file>
                 <loadFlag>0</loadFlag>
             </plugin>
             <plugin>

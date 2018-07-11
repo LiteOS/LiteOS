@@ -762,7 +762,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARA
     {
         pstInitParam->uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     }
-    pstInitParam->uwStackSize = ALIGN(pstInitParam->uwStackSize , 8);
+    pstInitParam->uwStackSize = ALIGN(pstInitParam->uwStackSize , LOSCFG_STACK_POINT_ALIGN_SIZE);
 
     if (pstInitParam->uwStackSize < LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE)
     {
@@ -775,7 +775,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARA
         pstTaskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_stTskRecyleList)); /*lint !e413*/
         LOS_ListDelete(LOS_DL_LIST_FIRST(&g_stTskRecyleList));
         LOS_ListAdd(&g_stLosFreeTask, &pstTaskCB->stPendList);
-        (VOID)LOS_MemFree(m_aucSysMem0, (VOID *)pstTaskCB->uwTopOfStack);
+        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)pstTaskCB->uwTopOfStack);
         pstTaskCB->uwTopOfStack = (UINT32)NULL;
     }
 
@@ -790,7 +790,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *puwTaskID, TSK_INIT_PARA
     (VOID)LOS_IntRestore(uvIntSave);
     uwTaskID = pstTaskCB->uwTaskID;
 
-    pTopStack = (VOID *)LOS_MemAllocAlign(m_aucSysMem0, pstInitParam->uwStackSize, 8);
+    pTopStack = (VOID *)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, pstInitParam->uwStackSize, LOSCFG_STACK_POINT_ALIGN_SIZE);
 
     if (NULL == pTopStack)
     {
@@ -1065,7 +1065,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 uwTaskID)
     {
         pstTaskCB->usTaskStatus = OS_TASK_STATUS_UNUSED;
         LOS_ListAdd(&g_stLosFreeTask, &pstTaskCB->stPendList);
-        (VOID)LOS_MemFree(m_aucSysMem0, (VOID *)pstTaskCB->uwTopOfStack);
+        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)pstTaskCB->uwTopOfStack);
         pstTaskCB->uwTopOfStack = (UINT32)NULL;
     }
 
