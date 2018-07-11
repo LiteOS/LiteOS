@@ -228,7 +228,7 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     }
     while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 3 );
+           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 10 );
 
     if (ret != 0)
     {
