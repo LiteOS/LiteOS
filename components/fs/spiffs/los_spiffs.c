@@ -111,14 +111,14 @@ static int spiffs_op_open (struct file * file, const char * path_in_mp, int flag
     return 0;
 }
 
-static spiffs_file spiffs_from_file (struct file * file)
+static spiffs_file spifd_from_file (struct file * file)
 {
     return (spiffs_file) (uintptr_t) file->f_data;
 }
 
 static int spiffs_op_close (struct file *file)
 {
-    spiffs_file  s_file = spiffs_from_file (file);
+    spiffs_file  s_file = spifd_from_file (file);
     spiffs     * fs     = (spiffs *) file->f_mp->m_data;
 
     return (SPIFFS_close (fs, s_file) == SPIFFS_OK) ? LOS_OK : LOS_NOK;
@@ -126,7 +126,7 @@ static int spiffs_op_close (struct file *file)
 
 static ssize_t spiffs_op_read (struct file *file, char * buff, size_t bytes)
 {
-    spiffs_file  s_file = spiffs_from_file (file);
+    spiffs_file  s_file = spifd_from_file (file);
     spiffs     * fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_read (fs, s_file, buff, bytes);
@@ -134,7 +134,7 @@ static ssize_t spiffs_op_read (struct file *file, char * buff, size_t bytes)
 
 static ssize_t spiffs_op_write (struct file *file, const char * buff, size_t bytes)
 {
-    spiffs_file  s_file = spiffs_from_file (file);
+    spiffs_file  s_file = spifd_from_file (file);
     spiffs     * fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_write (fs, s_file, (void *) buff, bytes);
@@ -142,7 +142,7 @@ static ssize_t spiffs_op_write (struct file *file, const char * buff, size_t byt
 
 static off_t spiffs_op_lseek (struct file * file, off_t off, int whence)
 {
-    spiffs_file  s_file = spiffs_from_file (file);
+    spiffs_file  s_file = spifd_from_file (file);
     spiffs     * fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_lseek (fs, s_file, off, whence);
@@ -161,7 +161,7 @@ static int spiffs_op_rename (struct mount_point * mp, const char * path_in_mp_ol
 
 static int spiffs_op_sync (struct file * file)
 {
-    spiffs_file  s_file = spiffs_from_file (file);
+    spiffs_file  s_file = spifd_from_file (file);
     spiffs     * fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_fflush (fs, s_file);
@@ -328,13 +328,13 @@ int spiffs_mount (const char * path, u32_t phys_addr, u32_t phys_size,
 err_unmount:
     SPIFFS_unmount (fs);
 err_free:
-    if (fs == NULL)
+    if (fs != NULL)
         free (fs);
-    if (wbuf == NULL)
+    if (wbuf != NULL)
         free (wbuf);
-    if (fds == NULL)
+    if (fds != NULL)
         free (fds);
-    if (cache == NULL)
+    if (cache != NULL)
         free (cache);
 
     return ret;
