@@ -482,12 +482,12 @@
             <File>
               <FileName>los_membox.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_membox.c</FilePath>
+              <FilePath>..\..\..\kernel\base\mem\membox\los_membox.c</FilePath>
             </File>
             <File>
               <FileName>los_memcheck.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</FilePath>
+              <FilePath>..\..\..\kernel\base\mem\common\los_memcheck.c</FilePath>
             </File>
             <File>
               <FileName>los_memory.c</FileName>

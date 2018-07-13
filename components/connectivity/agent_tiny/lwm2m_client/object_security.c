@@ -545,7 +545,8 @@ void clean_security_object(lwm2m_object_t * objectP)
  */
 lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_params,lwm2m_context_t* lwm2m_context)
 {
-    const int URI_MAX_LEN = 64;
+    //const int URI_MAX_LEN = 64;
+    #define URI_MAX_LEN 64
     lwm2m_object_t * securityObj = NULL;
     char serverUri[URI_MAX_LEN];
     security_instance_t * targetP = NULL;

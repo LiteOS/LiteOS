@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.22.2.15993</state>
+                    <state>8.20.2.14834</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -225,6 +225,7 @@
                     <state>WITH_DTLS</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
                     <state>WITH_LWIP</state>
+                    <state>CONFIG_FEATURE_FOTA</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -349,7 +350,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$TOOLKIT_DIR$\CMSIS\Core\Include</state>
+                    <state>$TOOLKIT_DIR$\CMSIS\Include</state>
                     <state>$PROJ_DIR$\..\Inc</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis\1.0</state>
@@ -386,6 +387,8 @@
                     <state>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device</state>
                     <state>$PROJ_DIR$\..\..\..\components\fota\ota</state>
                     <state>$PROJ_DIR$\..\..\..\components\fota\utility</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2097,9 +2100,6 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_api_interface.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_hal.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\atadapter.c</name>
         </file>
     </group>
@@ -2112,10 +2112,10 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_api.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_manager.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_state.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_log.c</name>
@@ -2124,7 +2124,7 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_rpt.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_update_info.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</name>
@@ -2238,7 +2238,7 @@
             <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</name>
@@ -2310,10 +2310,10 @@
             <name>$PROJ_DIR$\..\..\..\kernel\los_init.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_membox.c</name>
+            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\membox\los_membox.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</name>
+            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\common\los_memcheck.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_memory.c</name>
