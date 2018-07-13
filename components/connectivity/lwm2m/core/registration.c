@@ -636,20 +636,32 @@ void registration_reset(lwm2m_context_t * contextP,
     }
     serverP->status = STATE_DEREGISTERED;
 }
- lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP)
- {
-     lwm2m_server_t * targetP = contextP->serverList;
-     while (targetP != NULL)
-     {
-         if (targetP->status == STATE_REGISTERED)
-         {
-             return targetP;
-         }
-         targetP = targetP->next;
-     }
 
-     return NULL;
- }
+lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP)
+{
+    lwm2m_server_t * targetP;
+
+    if(NULL == contextP)
+    {
+	LOG("null pointer");
+	return NULL;
+    }
+
+    targetP = contextP->serverList;
+    while (targetP != NULL)
+    {
+        if ((STATE_REGISTERED == targetP->status)
+           || (STATE_REG_UPDATE_PENDING == targetP->status)
+           || (STATE_REG_UPDATE_NEEDED == targetP->status)
+           || (STATE_REG_FULL_UPDATE_NEEDED == targetP->status))
+        {
+            return targetP;
+        }
+        targetP = targetP->next;
+    }
+
+    return NULL;
+}
 
 #endif
 
