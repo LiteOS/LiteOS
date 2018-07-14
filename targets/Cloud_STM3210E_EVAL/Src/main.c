@@ -37,7 +37,8 @@
 #if (LOSCFG_TEST == YES)
 #include "los_inspect_entry.h"
 #else
-#include "w5500_demo.h"
+#include "wiznet.h"
+#include "agent_tiny_demo.h"
 #endif
 
 
@@ -53,15 +54,9 @@ VOID HardWare_Init(VOID)
 VOID main_task(VOID)
 {
     printf("STM3210E_EVAL DEMO...\n");
-
-//    spi_flash_demo();
-//    fatfs_demo();
-//    spiffs_demo();
-    w5500_demo();
     
-    while(1){
-
-    }
+    wiznet_init();
+    agent_tiny_entry();
 }
 
 UINT32 creat_main_task()

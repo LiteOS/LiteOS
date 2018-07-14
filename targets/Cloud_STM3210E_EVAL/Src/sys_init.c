@@ -33,6 +33,8 @@
  *---------------------------------------------------------------------------*/
 
 #include "sys_init.h"
+#include <stdlib.h>
+#include <time.h>
 
 uint32_t HAL_GetTick(void)
 {
@@ -91,4 +93,41 @@ void SystemClock_Config(void)
     {
         _Error_Handler(__FILE__, __LINE__);
     }
+}
+
+/**
+ * atiny_adapter user interface 
+ */
+void atiny_usleep(unsigned long usec)
+{
+    delayus((uint32_t)usec);
+}
+
+int atiny_random(void* output, size_t len)
+{
+    size_t i;
+    uint32_t random_number;
+    uint8_t* pbuf;
+
+    if (NULL == output)
+    {
+        return -1;
+    }
+
+    pbuf = (uint8_t*)output;
+    srand(HAL_GetTick());
+
+    for (i = 0; i < len; i += sizeof(uint32_t))
+    {
+        random_number = rand();
+        memcpy(pbuf + i, &random_number,
+               sizeof(uint32_t) > len - i ? len - i : sizeof(uint32_t));
+    }
+
+    return 0;
+}
+
+void atiny_reboot(void)
+{
+    HAL_NVIC_SystemReset();
 }

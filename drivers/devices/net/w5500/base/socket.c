@@ -1,3 +1,21 @@
+/******************************************************************************
+
+  Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+
+ ******************************************************************************
+  File Name     : socket.c
+  Version       : Initial Draft
+  Author        : MAMINJIE
+  Created       : 2018/7/14
+  Last Modified :
+  Description   : 
+  Function List :
+  History       :
+  1.Date        : 2018/7/14
+    Author      : MAMINJIE
+    Modification: Created file
+
+******************************************************************************/
 /**
 ******************************************************************************
 * @file    		Socket.c

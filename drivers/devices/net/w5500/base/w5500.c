@@ -16,6 +16,8 @@
 #include "md5.h"
 #endif
 
+#define	MAX_SOCK_NUM		    8	/**< Maxmium number of socket  */
+
 uint16 SSIZE[MAX_SOCK_NUM] = {0,0,0,0,0,0,0,0}; // Max Tx buffer
 uint16 RSIZE[MAX_SOCK_NUM] = {0,0,0,0,0,0,0,0}; // Max Rx buffer
 uint8 txsize[MAX_SOCK_NUM] = {2,2,2,2,2,2,2,2}; // tx buffer set	K bits

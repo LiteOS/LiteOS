@@ -270,7 +270,7 @@ void w5500_demo(void)
 #elif (USE_TEST_TYPE == TEST_DNS)
     w5500_dns();
 #elif (USE_TEST_TYPE == TEST_SMTP)
-    w5500_dns();
+    w5500_smtp();
 #elif (USE_TEST_TYPE == TEST_HTTP_SERVER)
     w5500_http_server();
 #elif (USE_TEST_TYPE == TEST_HTTP_CLIENT)

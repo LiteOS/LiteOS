@@ -43,6 +43,8 @@ char *post[]={postH,postT};
 uint8 yeelink_server_ip[4]={42,96,164,52};							/*api.yeelink.net  的ip地址*/
 uint8 yeelink_port = 80;												/*api.yeelink.net  的端口号*/	
 
+uint8 buffer[1024]={0};
+
 /**
 *@brief		执行http client主函数
 *@param		无
@@ -52,7 +54,6 @@ void do_http_client(void)
 {	
 	static uint8 i=0;
 	uint8 ch=SOCK_HUMTEM;
-	uint8 buffer[1024]={0};
 	uint16 anyport=3000;
 	switch(getSn_SR(ch))													/*获取socket SOCK_TCPS 的状态*/
 	{

@@ -1,8 +1,6 @@
 #ifndef __TYPE_H__
 #define __TYPE_H__
 
-#define	MAX_SOCK_NUM		    8	/**< Maxmium number of socket  */
-
 typedef char                    int8;
 typedef volatile char           vint8;
 typedef unsigned char           uint8;

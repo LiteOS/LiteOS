@@ -55,6 +55,8 @@
 
 #define WIZ_INT_PIN             GPIO_PIN_9
 #define WIZ_INT_PORT            GPIOF
+#define WIZ_IRQn                EXTI9_5_IRQn
+#define WIZ_INT_PRIORITY        0
 
 #define WIZ_RESET_PIN           GPIO_PIN_8
 #define WIZ_RESET_PORT          GPIOF
@@ -106,7 +108,7 @@ SPI_HandleTypeDef g_w5500_hspi;
 
 /* Private function prototypes ----------------------------------------------*/
 /* Public functions ---------------------------------------------------------*/
-
+extern void wiznet_irq_handler(void);
 /* Private functions --------------------------------------------------------*/
 /* This function is called by inner-HAL lib, static here to prevent conflict */
 static void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
@@ -118,7 +120,6 @@ static void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
         WIZ_RCC_CLK_ENABLE();
         WIZ_GPIO_CLK_ENABLE();
         WIZ_CS_CLK_ENABLE();
-        WIZ_INT_CLK_ENABLE();
         WIZ_RESET_CLK_ENABLE();
 
         /* CS */
@@ -137,11 +138,6 @@ static void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
         GPIO_InitStruct.Pin = WIZ_RESET_PIN; 
         GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
         HAL_GPIO_Init(WIZ_RESET_PORT, &GPIO_InitStruct);	
-
-        /* INT */	
-        GPIO_InitStruct.Pin = WIZ_INT_PIN;	
-        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;	
-        HAL_GPIO_Init(WIZ_INT_PORT, &GPIO_InitStruct);
     }
 }
 
@@ -159,8 +155,27 @@ static void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     }
 }
 
+static void w5500_irq_handler(void)
+{
+    /* EXTI line interrupt detected */
+    if(__HAL_GPIO_EXTI_GET_IT(WIZ_INT_PIN) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(WIZ_INT_PIN);
+        wiznet_irq_handler();
+    }
+}
+
 /**
  * @brief   Configure w5500 gpio
+ *          SPI is divided into four modes by different states of CPOL and CPHA
+ *              MODE    CPOL    CPHA    SCL     SAMPLE
+ *          ----------------------------------------------    
+ *               0       0       0      LOW     1EDGE
+ *               1       0       1      LOW     2EDGE
+ *               2       1       0      HIGH    1EDGE
+ *               3       1       1      HIGH    2EDGE
+ *
+ *          W5500 supports SPI mode 0 and mode 3, Mode 3 is configured here.   
  * @param   none
  * @return  none
  */
@@ -187,6 +202,20 @@ void w5500_config(void)
     WIZ_CS_DISABLE();
 }
 
+void w5500_interrupt_config(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+    WIZ_INT_CLK_ENABLE();
+    
+    /* INT */
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pin = WIZ_INT_PIN;	
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    LOS_HwiCreate(WIZ_IRQn, WIZ_INT_PRIORITY, 0, w5500_irq_handler, NULL);
+    HAL_GPIO_Init(WIZ_INT_PORT, &GPIO_InitStruct);
+}
+
 /**
  * @brief   Initialize w5500
  * @param   none
@@ -195,6 +224,7 @@ void w5500_config(void)
 void w5500_init(void)
 {
     w5500_config();
+    w5500_interrupt_config();
     w5500_reset();
 }
 
@@ -208,7 +238,7 @@ void w5500_reset(void)
   HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_RESET);
   wizDelayMs(10);  
   HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_SET);
-  wizDelayMs(1600);
+  wizDelayMs(10);
 }
 
 /**

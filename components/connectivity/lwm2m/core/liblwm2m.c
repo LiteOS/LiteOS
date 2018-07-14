@@ -375,6 +375,8 @@ int lwm2m_configure(lwm2m_context_t * contextP,
 
     for (i = 0; i < numObject; i++)
     {
+        if(objectList[i] == NULL)
+            continue;
         objectList[i]->next = NULL;
         contextP->objectList = (lwm2m_object_t *)LWM2M_LIST_ADD(contextP->objectList, objectList[i]);
     }

@@ -33,6 +33,27 @@ extern "C"{
 
 #include "stm32f1xx_hal.h"
 
+/* Defines ------------------------------------------------------------------*/
+#define WIZ_MAX_SOCKET_NUM          8     // (1-8)
+#define WIZ_RX_BUFFER_SIZE          2048
+
+/* Socket port 
+ * The W5500 has one general register, eight Socket registers, and a read/write cache for each Socket.
+ * so w5500 support 8 socket port(0-8)
+ */
+#define SOCK_TCPS             0
+#define SOCK_HUMTEM			  0
+#define SOCK_PING			  0
+#define SOCK_TCPC             1
+#define SOCK_UDPS             2
+#define SOCK_WEIBO      	  2
+#define SOCK_DHCP             3
+#define SOCK_HTTPS            4
+#define SOCK_DNS              5
+#define SOCK_SMTP             6
+#define SOCK_NTP              7
+//#define NETBIOS_SOCK    6 //defined in netbios.c
+
 /* Macros -------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
 typedef  void (*pFunction)(void);

@@ -506,7 +506,7 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
 
     return result;
 }
-//serverlistºÍobjectlistÒÑ¾­¸³Öµ
+//serverlistå’Œobjectlistå·²ç»èµ‹å€¼
 uint8_t registration_start(lwm2m_context_t * contextP)
 {
     lwm2m_server_t * targetP;
