@@ -681,7 +681,7 @@ next_step:
         {
             return COAP_503_SERVICE_UNAVAILABLE;
         }
-        //break;
+        break;
 
 #ifdef LWM2M_BOOTSTRAP
     case STATE_BOOTSTRAPPING:
