@@ -88,6 +88,7 @@ static int prv_write_ota_default_flag(void)
     int ret;
     ota_default_flag flag_tmp;
 
+    memset(&flag_tmp, 0, sizeof(ota_default_flag));
     ret = prv_read_specific(OTA_FLAG_ADDR1, &flag_tmp);
     if (0 == ret)
     {

@@ -251,6 +251,7 @@ static int hal_fota_active_software(atiny_fota_storage_device_s *this)
 static int hal_fota_get_software_result(atiny_fota_storage_device_s *this)
 {
     ota_state state;
+    memset(&state, 0, sizeof(ota_state));
     if(ota_check_update_state(&state) != OK)
     {
         HAL_FOTA_LOG("ota_check_update_state fail");
