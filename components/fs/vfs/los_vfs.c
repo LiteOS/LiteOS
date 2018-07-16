@@ -851,7 +851,7 @@ static struct file_system * los_fs_find (const char * name)
 
 int los_fs_register (struct file_system * fs)
 {
-    if ((fs == NULL) || (fs->fs_fops == NULL))
+    if ((fs == NULL) || (fs->fs_fops == NULL) || (fs->fs_fops->open == NULL))
     {
         return LOS_NOK;
     }
