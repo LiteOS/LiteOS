@@ -48,7 +48,6 @@ _los_heap_end:
         .ulong  __STACK_END - LOSCFG_MSP430_IRQ_SIZE
 
         .text
-        .global RESET
         .global LOS_IntLock
         .global LOS_IntUnLock
         .global LOS_IntRestore
@@ -66,21 +65,11 @@ _los_heap_end:
         .asg    0x10, TASK_STATUS_RUNNING
 
 ;-------------------------------------------------------------------------------
-;       kernel entry
-;-------------------------------------------------------------------------------
-
-RESET:  MOV.W   #__STACK_END, sp
-        MOV.W   #WDTPW | WDTHOLD, &WDTCTL
-
-        NOP
-        BIS.W   #LPM0 | GIE, sr
-        NOP
-
-;-------------------------------------------------------------------------------
 ;       irq vectors
 ;-------------------------------------------------------------------------------
 
         .asg    0, irq
+
         .loop
 
         .if irq < 10
@@ -91,10 +80,9 @@ RESET:  MOV.W   #__STACK_END, sp
 
         .short  irq_stub:irq:
 
-        .eval   irq + 1, irq
-
-        .asg    irq + 1, irqs
         .break ($symcmp (""".int:irq:""", SYSNMI_VECTOR) = 0)
+
+        .eval   irq + 1, irq
         .endloop
 
 ;-------------------------------------------------------------------------------
@@ -103,14 +91,18 @@ RESET:  MOV.W   #__STACK_END, sp
 
         .sect   ".text:_isr"
 
+        .asg    irq + 1, irqs
         .asg    0, irq
 irq_stubs:
-    .loop   irqs
+        .loop   irqs
 irq_stub:irq:
         FCALL   #irq_handler
 
         .eval   irq + 1, irq
-    .endloop
+        .endloop
+
+        .unasg  irq
+        .unasg  irqs
 
 irq_handler:
 
@@ -282,10 +274,5 @@ __HEAP_START:
         .global __STACK_END
         .sect   .stack
 
-;-------------------------------------------------------------------------------
-;       Interrupt Vectors
-;-------------------------------------------------------------------------------
-        ;.sect   ".reset"
-        ;.short  RESET
-
         .end
+

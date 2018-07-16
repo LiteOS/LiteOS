@@ -32,7 +32,6 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-
 #include <msp430.h>
 #include <los_typedef.h>
 #include <los_hwi.h>
@@ -41,18 +40,23 @@ extern void osTickHandler (void);
 
 UINT32 osTickStart (void)
 {
-    UINT32 ret;
+    UINT32 ret = LOS_NOK;
 
-    ret = LOS_HwiCreate (WDT_VECTOR, 0, 0, (void (*) (uintptr_t)) osTickHandler, 0);
+    if (LOSCFG_BASE_CORE_TICK_PER_SECOND > 100)
+    {
+        return ret;
+    }
+
+    ret = LOS_HwiCreate (TIMER1_A0_VECTOR, 0, 0, (void (*) (uintptr_t)) osTickHandler, 0);
 
     if (ret != LOS_OK)
     {
         return ret;
     }
 
-    WDTCTL = WDT_MDLY_32;
-
-    SFRIE1 |= WDTIE;
+    TA1CCTL0 =  CCIE;                           /* capture/compare interrupt enable */
+    TA1CTL   =  TASSEL_1 + ID_0 + MC_1 + TACLR; /* select 32k clock, input divider = /1, up-mode and clear */
+    TA1CCR0  =  32768 / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
     return LOS_OK;
 }
