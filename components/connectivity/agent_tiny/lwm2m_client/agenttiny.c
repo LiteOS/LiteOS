@@ -300,6 +300,7 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     if (NULL == lwm2m_context->observe_mutex)
     {
         ATINY_LOG(LOG_FATAL, "atiny_mutex_create fail");
+        lwm2m_free(lwm2m_context);
         return ATINY_RESOURCE_NOT_ENOUGH;
     }
 

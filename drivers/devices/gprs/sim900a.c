@@ -154,7 +154,7 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
         snprintf(cmd, 64, "%s=%d,%d", AT_CMD_SEND, id, len);
     }
 
-    ret = at.write((int8_t *)cmd, (int_8*)"", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, (int8_t*)"SEND OK", (int8_t*)buf, len);
     return ret;
 }
 
@@ -281,7 +281,7 @@ int32_t sim900a_ini()
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
     at.oob_register((char*)prefix_name, strlen((char*)prefix_name), sim900a_data_handler);
-    sim900a_echo_on();
+    sim900a_echo_off();
     sim900a_check();
     sim900a_reset();
     sim900a_set_mux_mode(at.mux_mode);
