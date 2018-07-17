@@ -154,7 +154,7 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
         snprintf(cmd, 64, "%s=%d,%d", AT_CMD_SEND, id, len);
     }
 
-    ret = at.write((int8_t *)cmd, (int_8*)"", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, (int8_t*)"", (int8_t*)buf, len);
     return ret;
 }
 
