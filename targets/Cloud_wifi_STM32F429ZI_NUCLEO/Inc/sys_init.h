@@ -73,7 +73,9 @@
 #include "net.h"
 #include "ssl.h"
 #include "eth.h"
+#if defined(USE_MRVL_SDIO_WIFI)
 #include "wifi_eth.h"
+#endif
 
 #ifdef __cplusplus
  extern "C" {

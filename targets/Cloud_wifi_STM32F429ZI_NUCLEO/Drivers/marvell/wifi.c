@@ -909,7 +909,7 @@ uint8_t *WiFi_GetPacketBuffer(void)
 
 const uint8_t *WiFi_GetReceivedPacket(uint16_t *len)
 {
-    if(wifi_rx_flag & WIFI_RX_FLAG_DATA == WIFI_RX_FLAG_DATA)
+    if((wifi_rx_flag & WIFI_RX_FLAG_DATA) == WIFI_RX_FLAG_DATA)
     {
         wifi_rx_flag &= ~WIFI_RX_FLAG_DATA;
         WiFi_DataRx *data = (WiFi_DataRx *)wifi_buffer_rx; 

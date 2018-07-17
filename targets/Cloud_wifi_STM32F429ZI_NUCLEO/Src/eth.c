@@ -289,27 +289,6 @@ static int8_t eth_init(struct netif* netif)
     return 0; 
 }
 
-static int8_t eth_set_mac(struct netif* netif)
-{
-    /* set MAC hardware address */
-    netif->hwaddr[0] =  heth.Init.MACAddr[0];
-    netif->hwaddr[1] =  heth.Init.MACAddr[1];
-    netif->hwaddr[2] =  heth.Init.MACAddr[2];
-    netif->hwaddr[3] =  heth.Init.MACAddr[3];
-    netif->hwaddr[4] =  heth.Init.MACAddr[4];
-    netif->hwaddr[5] =  heth.Init.MACAddr[5];
-
-    return 0;
-}
-
-static int8_t eth_start(struct netif* netif)
-{
-    (void)netif;
-    /* Enable MAC and DMA transmission and reception */
-    (void)HAL_ETH_Start(&heth);
-    return 0;
-}
-
 static int8_t eth_output(struct netif* netif, struct pbuf* p)
 {
     err_t errval;

@@ -225,8 +225,6 @@ void SDIO_IRQHandler(void)
 
 static int8_t wifi_eth_init(struct netif* netif)
 {
-    UINT32 uwRet;
-    
     WiFi_Init();
     
     LOS_SemCreate(0, &s_uwRxSemID);

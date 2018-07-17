@@ -26,11 +26,7 @@ ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
 	NETWORK_TYPE := ESP8266
 else
-#ETHERNET  #WIFI
-	NETWORK_TYPE := WIFI
-	ifeq ($(NETWORK_TYPE), WIFI)
-		WIFI_TYPE := MRVL_SDIO_WIFI		
-	endif
+	NETWORK_TYPE = MRVL_SDIO_WIFI
 endif
 
 #######################################
@@ -117,7 +113,7 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c 
 
-ifeq ($(WIFI_TYPE), MRVL_SDIO_WIFI)
+ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
 HAL_DRIVER_SRC += \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_sd.c \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.c \
@@ -167,7 +163,13 @@ ATINY_TINY_SRC = \
 AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
-
+        
+ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
+WIFI_SRC = \
+        $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/wifi_eth.c \
+        $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/wifi_lowlevel.c 
+    	C_SOURCES += $(WIFI_SRC)
+endif
 
 USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/main.c \
@@ -177,15 +179,6 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/eth.c \
         $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/sys_init.c 
         C_SOURCES += $(USER_SRC)
-
-
-ifeq ($(WIFI_TYPE), MRVL_SDIO_WIFI)
-WIFI_SRC = \
-        $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/wifi_eth.c \
-        $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/wifi_lowlevel.c \
-        $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/wifi_sdio_demo.c
-    	C_SOURCES += $(WIFI_SRC)
-endif
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
@@ -222,14 +215,13 @@ C_SOURCES += $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Src/fota_port.c
 endif
 
 
-ifeq ($(WIFI_TYPE), MRVL_SDIO_WIFI)
+ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
 MRVL_DRIVERS_SRC = \
 	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/wifi.c \
 	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/tiny_aes.c \
 	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/wpa.c
 	C_SOURCES += $(MRVL_DRIVERS_SRC)
 endif
-
 
 # ASM sources
 ASM_SOURCES_s =  \
@@ -276,7 +268,7 @@ C_DEFS =  \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
         
 ifeq ($(USE_AT_FRAMEWORK), yes)
-        C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
+        C_DEFS += -D WITH_AT_FRAMEWORK -D USE_$(NETWORK_TYPE)
 else
         C_DEFS += -D WITH_LWIP
 endif
@@ -285,8 +277,8 @@ ifeq ($(USE_FOTA), yes)
 	C_DEFS += -DCONFIG_FEATURE_FOTA
 endif
 
-ifeq ($(NETWORK_TYPE), WIFI)
-	C_DEFS += -DUSE_$(WIFI_TYPE)
+ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
+	C_DEFS += -D USE_$(NETWORK_TYPE)
 endif
 
 # AS includes
@@ -394,8 +386,7 @@ endif
     C_INCLUDES += $(USER_DRIVERS_INC)
 endif
 
-
-ifeq ($(WIFI_TYPE), MRVL_SDIO_WIFI)
+ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
 MRVL_DRIVERS_INC = \
         -I $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell
         C_INCLUDES += $(MRVL_DRIVERS_INC)
