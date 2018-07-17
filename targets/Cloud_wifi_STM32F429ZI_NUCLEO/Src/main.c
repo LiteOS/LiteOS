@@ -37,9 +37,6 @@
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
 #endif
-#ifdef USE_MRVL_SDIO_WIFI
-#include "wifi_sdio_demo.h"
-#endif
 
 UINT32 g_TskHandle;
 
@@ -53,12 +50,10 @@ VOID HardWare_Init(VOID)
 
 VOID main_task(VOID)
 {
-#if defined(USE_MRVL_SDIO_WIFI) && defined(WITH_LWIP)
-    net_init();
-    wifi_sdio_demo();
-#else
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
+    #if !defined(USE_MRVL_SDIO_WIFI)
     hieth_hw_init();
+    #endif
     net_init();
 #elif defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
     extern at_adaptor_api at_interface;
@@ -67,7 +62,6 @@ VOID main_task(VOID)
     // TODO
 #endif
     agent_tiny_entry();
-#endif
 }
 UINT32 creat_main_task()
 {

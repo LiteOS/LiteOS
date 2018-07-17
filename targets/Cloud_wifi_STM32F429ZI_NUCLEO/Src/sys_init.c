@@ -34,7 +34,6 @@
 
 #include "sys_init.h"
 
-#ifndef USE_MRVL_SDIO_WIFI 
 struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
@@ -42,7 +41,6 @@ ip4_addr_t gw;
 uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
-#endif
 
 static void lwip_impl_register(void)
 {
@@ -52,8 +50,7 @@ static void lwip_impl_register(void)
 }
 
 void net_init(void)
-{
-#ifndef USE_MRVL_SDIO_WIFI    
+{  
     /* IP addresses initialization */
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
@@ -67,11 +64,9 @@ void net_init(void)
     GATEWAY_ADDRESS[1] = 168;
     GATEWAY_ADDRESS[2] = 1;
     GATEWAY_ADDRESS[3] = 1;
-#endif
 
     lwip_impl_register();
 
-#ifndef USE_MRVL_SDIO_WIFI
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
     printf("lwip test init ok\n");
@@ -79,8 +74,12 @@ void net_init(void)
     IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
     IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
-    
+
+#ifdef USE_MRVL_SDIO_WIFI
+    (void)ethernetif_api_register(&g_wifi_eth_api);
+#else
     (void)ethernetif_api_register(&g_eth_api);
+#endif
 
     /* add the network interface (IPv4/IPv6) without RTOS */
     netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
@@ -98,7 +97,6 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
-#endif
 }
 
 uint32_t HAL_GetTick(void)
@@ -191,11 +189,9 @@ void SystemClock_Config(void)
 }
 
 void hieth_hw_init(void)
-{
-#ifndef USE_MRVL_SDIO_WIFI    
+{   
     extern void ETH_IRQHandler(void);
     LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
-#endif
 }
 
 /**

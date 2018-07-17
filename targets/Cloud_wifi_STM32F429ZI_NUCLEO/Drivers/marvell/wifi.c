@@ -48,6 +48,11 @@
 
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
+typedef enum
+{
+    WIFI_RX_FLAG_NONE = 0x00,
+    WIFI_RX_FLAG_DATA = 0x01
+}WiFi_RxFlag;
 /* Macros -------------------------------------------------------------------*/
 /* Local variables ----------------------------------------------------------*/
 static uint8_t      wifi_buffer_command[256]; 
@@ -63,6 +68,7 @@ static WiFi_SSIDInfo wifi_ssid_info = {0};
 static WiFi_TxBuffer wifi_tx_command = {0}; 
 static WiFi_TxBuffer wifi_tx_packet = {0}; 
 
+static uint8_t wifi_rx_flag = WIFI_RX_FLAG_NONE;
 /* Extern variables ---------------------------------------------------------*/
 
 extern uint32_t sys_now(void);
@@ -93,7 +99,6 @@ static void WiFi_SetKeyMaterial(WiFi_KeyType key_type, uint8_t key_num, WiFi_Cal
 static void WiFi_StartADHOCEx_Callback(void *arg, void *data, WiFi_Status status);
 
 /* Public functions ---------------------------------------------------------*/
-
 void WiFi_DumpData(const void *data, uint32_t len)
 {
     uint32_t i = 0;
@@ -904,11 +909,15 @@ uint8_t *WiFi_GetPacketBuffer(void)
 
 const uint8_t *WiFi_GetReceivedPacket(uint16_t *len)
 {
-    WiFi_DataRx *data = (WiFi_DataRx *)wifi_buffer_rx;
-    if (data->header.type == WIFI_SDIOFRAME_DATA)
+    if(wifi_rx_flag & WIFI_RX_FLAG_DATA == WIFI_RX_FLAG_DATA)
     {
-        *len = data->rx_packet_length;
-        return data->payload;
+        wifi_rx_flag &= ~WIFI_RX_FLAG_DATA;
+        WiFi_DataRx *data = (WiFi_DataRx *)wifi_buffer_rx; 
+        if (data->header.type == WIFI_SDIOFRAME_DATA)
+        {
+            *len = data->rx_packet_length;
+            return data->payload;
+        }
     }
     return NULL;
 }
@@ -1013,6 +1022,7 @@ void WiFi_Input(void)
                 if (rx_packet->rx_packet_length >= 14 && rx_packet->payload[12] == 0x88 && rx_packet->payload[13] == 0x8e){
                     WiFi_EAPOLProcess(rx_packet); // Handles EAPOL authentication frames of type 0x888e
                 }else{
+                    wifi_rx_flag |= WIFI_RX_FLAG_DATA;
                     WiFi_PacketHandler(rx_packet);
                 }
                 break;

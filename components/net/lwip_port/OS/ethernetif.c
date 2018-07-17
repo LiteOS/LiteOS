@@ -196,7 +196,7 @@ void ethernetif_input( void* pvParameters )
 
         if (p == NULL)
         {
-            continue;
+            return;
         }
 
         err = s_pxNetIf->input(p, s_pxNetIf);

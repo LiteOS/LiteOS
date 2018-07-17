@@ -73,6 +73,7 @@
 #include "net.h"
 #include "ssl.h"
 #include "eth.h"
+#include "wifi_eth.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -84,6 +85,7 @@ void _Error_Handler(char *, int);
 void hieth_hw_init(void);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+
 #ifdef __cplusplus
 }
 #endif
