@@ -155,6 +155,7 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
     }
 
     ret = at.write((int8_t *)cmd, (int8_t*)"SEND OK", (int8_t*)buf, len);
+
     return ret;
 }
 
