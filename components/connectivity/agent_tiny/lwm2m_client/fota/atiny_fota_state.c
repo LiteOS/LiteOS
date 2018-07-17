@@ -121,6 +121,7 @@ int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s * thi)
     ASSERT_THIS(return ATINY_ARG_INVALID);
 
     thi->report_flag = false;
+    memset(&observe_info, 0, sizeof(lwm2m_observe_info_t));
     if(atiny_update_info_read(atiny_update_info_get_instance(), TOCKEN_INFO, (uint8_t *)&observe_info, sizeof(observe_info)) != ATINY_OK)
     {
         ATINY_LOG(LOG_ERR, "lwm2m_get_observe_info fail");
