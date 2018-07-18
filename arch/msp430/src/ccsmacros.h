@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,56 +32,44 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_base.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_hwi.h"
+#ifndef _CCSMACROS_H
+#define _CCSMACROS_H
 
-LITE_OS_SEC_TEXT UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary)
-{
-    if (uwAddr + uwBoundary - 1 > uwAddr) {
-        return (uwAddr + uwBoundary - 1) & ~(uwBoundary - 1);
-    } else {
-        return uwAddr & ~(uwBoundary - 1);
-    }
-}
+#if __LARGE_DATA_MODEL__ == 1
+#define PTR_SIZE        4
+#define PCMP            CMPX.A
+#define PMOV            MOVA
+#define PSUB            SUBX.A
+#else
+#define PTR_SIZE        2
+#define PCMP            CMP.W
+#define PMOV            MOV.W
+#define PSUB            SUB.W
+#endif
 
-LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 uwMsecs)
-{
-    UINT32 uwInterval = 0;
+#if __LARGE_CODE_MODEL__ == 1
+#define FRET            RETA
+#define FCALL           CALLA
+#else
+#define FRET            RET
+#define FCALL           CALL
+#endif
 
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    if (uwMsecs == 0)
-    {
-        uwInterval = 0;
-    }
-    else
-    {
-        uwInterval = LOS_MS2Tick(uwMsecs);
-        if (uwInterval == 0)
-        {
-             uwInterval = 1;
-        }
-    }
-
-    (VOID)LOS_TaskDelay(uwInterval);
-}
-
-#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
-static const uint8_t clz_table_4bit[16] = { 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-int __clz ( unsigned long x )
-{
-  int n;
-  if ((x & 0xFFFF0000) == 0) {n  = 16; x <<= 16;} else {n = 0;}
-  if ((x & 0xFF000000) == 0) {n +=  8; x <<=  8;}
-  if ((x & 0xF0000000) == 0) {n +=  4; x <<=  4;}
-  n += (int)clz_table_4bit[x >> (32-4)];
-  return n;
-}
+#if (__LARGE_DATA_MODEL__ == 1) || (__LARGE_CODE_MODEL__ == 1)
+#define REG_SIZE        4
+#define XMOV            MOVA
+#define XPUSH           PUSH.A
+#define XPUSHM          PUSHM.A
+#define XPOP            POP.A
+#define XPOPM           POPM.A
+#else
+#define REG_SIZE        2
+#define XMOV            MOV.W
+#define XPUSH           PUSH.W
+#define XPUSHM          PUSHM.W
+#define XPOP            POP.W
+#define XPOPM           POPM.W
+#endif
 
 #endif
 

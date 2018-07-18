@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,56 +32,32 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_base.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_hwi.h"
+#include <msp430.h>
+#include <los_typedef.h>
+#include <los_hwi.h>
 
-LITE_OS_SEC_TEXT UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary)
+extern void osTickHandler (void);
+
+UINT32 osTickStart (void)
 {
-    if (uwAddr + uwBoundary - 1 > uwAddr) {
-        return (uwAddr + uwBoundary - 1) & ~(uwBoundary - 1);
-    } else {
-        return uwAddr & ~(uwBoundary - 1);
-    }
-}
+    UINT32 ret = LOS_NOK;
 
-LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 uwMsecs)
-{
-    UINT32 uwInterval = 0;
-
-    if (OS_INT_ACTIVE)
+    if (LOSCFG_BASE_CORE_TICK_PER_SECOND > 100)
     {
-        return;
+        return ret;
     }
 
-    if (uwMsecs == 0)
+    ret = LOS_HwiCreate (TIMER1_A0_VECTOR, 0, 0, (void (*) (uintptr_t)) osTickHandler, 0);
+
+    if (ret != LOS_OK)
     {
-        uwInterval = 0;
-    }
-    else
-    {
-        uwInterval = LOS_MS2Tick(uwMsecs);
-        if (uwInterval == 0)
-        {
-             uwInterval = 1;
-        }
+        return ret;
     }
 
-    (VOID)LOS_TaskDelay(uwInterval);
-}
+    TA1CCTL0 =  CCIE;                           /* capture/compare interrupt enable */
+    TA1CTL   =  TASSEL_1 + ID_0 + MC_1 + TACLR; /* select 32k clock, input divider = /1, up-mode and clear */
+    TA1CCR0  =  32768 / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
-#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
-static const uint8_t clz_table_4bit[16] = { 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-int __clz ( unsigned long x )
-{
-  int n;
-  if ((x & 0xFFFF0000) == 0) {n  = 16; x <<= 16;} else {n = 0;}
-  if ((x & 0xFF000000) == 0) {n +=  8; x <<=  8;}
-  if ((x & 0xF0000000) == 0) {n +=  4; x <<=  4;}
-  n += (int)clz_table_4bit[x >> (32-4)];
-  return n;
+    return LOS_OK;
 }
-
-#endif
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,56 +32,81 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_base.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_hwi.h"
+/**@defgroup los_printf Printf
+ * @ingroup kernel
+ */
 
-LITE_OS_SEC_TEXT UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary)
-{
-    if (uwAddr + uwBoundary - 1 > uwAddr) {
-        return (uwAddr + uwBoundary - 1) & ~(uwBoundary - 1);
-    } else {
-        return uwAddr & ~(uwBoundary - 1);
-    }
-}
+#ifndef _LOS_PRINTF_H
+#define _LOS_PRINTF_H
+//#ifdef LOSCFG_LIB_LIBC
+#include "stdarg.h"
+//#endif
+#ifdef LOSCFG_LIB_LIBCMINI
+#include "libcmini.h"
+#endif
+#include "los_typedef.h"
+#include "los_config.h"
+#include "stdio.h"
 
-LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 uwMsecs)
-{
-    UINT32 uwInterval = 0;
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
+#define LOS_EMG_LEVEL           (0)
 
-    if (uwMsecs == 0)
-    {
-        uwInterval = 0;
-    }
-    else
-    {
-        uwInterval = LOS_MS2Tick(uwMsecs);
-        if (uwInterval == 0)
-        {
-             uwInterval = 1;
-        }
-    }
+#define LOS_COMMOM_LEVEL        (LOS_EMG_LEVEL + 1)
+#define LOS_ERR_LEVEL           (LOS_COMMOM_LEVEL + 1)
+#define LOS_WARN_LEVEL          (LOS_ERR_LEVEL + 1)
+#define LOS_INFO_LEVEL          (LOS_WARN_LEVEL + 1)
+#define LOS_DEBUG_LEVEL         (LOS_INFO_LEVEL + 1)
 
-    (VOID)LOS_TaskDelay(uwInterval);
-}
+#define PRINT_LEVEL             (0)
 
-#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
-static const uint8_t clz_table_4bit[16] = { 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-int __clz ( unsigned long x )
-{
-  int n;
-  if ((x & 0xFFFF0000) == 0) {n  = 16; x <<= 16;} else {n = 0;}
-  if ((x & 0xFF000000) == 0) {n +=  8; x <<=  8;}
-  if ((x & 0xF0000000) == 0) {n +=  4; x <<=  4;}
-  n += (int)clz_table_4bit[x >> (32-4)];
-  return n;
-}
-
+#if PRINT_LEVEL < LOS_DEBUG_LEVEL
+#define PRINT_DEBUG(...)
+#else
+#define PRINT_DEBUG(...)        do{(printf("[DEBUG] "), printf(__VA_ARGS__));}while(0)
 #endif
 
+#if PRINT_LEVEL < LOS_INFO_LEVEL
+#define PRINT_INFO(...)
+#else
+#define PRINT_INFO(...)         do{(printf("[INFO] "), printf(__VA_ARGS__));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_WARN_LEVEL
+#define PRINT_WARN(args, ...)
+#else
+#define PRINT_WARN(...)         do{(printf("[WARN] "), printf(__VA_ARGS__));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_ERR_LEVEL
+#define PRINT_ERR(...)
+#else
+#define PRINT_ERR(...)          do{(printf("[ERR] "), printf(__VA_ARGS__));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_COMMOM_LEVEL
+#define PRINTK(...)
+#else
+#define PRINTK(...)             printf(__VA_ARGS__)
+#endif
+
+#if PRINT_LEVEL < LOS_EMG_LEVEL
+#define PRINT_EMG(args, ...)
+#else
+#define PRINT_EMG(...)          do{(printf("[EMG] "), printf(__VA_ARGS__));}while(0)
+#endif
+
+#define PRINT_RELEASE(...)      printf(__VA_ARGS__)
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _LOS_PRINTF_H */
