@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 /*******
- * Notics:
+ * Notice:
  * The parts of this file refer to https://blog.csdn.net/zlk1214/article/details/76177336
  * Originator: ZLK1214
  *******/
