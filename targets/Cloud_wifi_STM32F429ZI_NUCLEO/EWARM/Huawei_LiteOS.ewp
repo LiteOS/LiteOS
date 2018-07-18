@@ -379,10 +379,10 @@
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\osadapter</state>
                     <state>$PROJ_DIR$\..\Hardware\Inc</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\at_frame</state>
-                    <state>$PROJ_DIR$\..\..\..\drivers\wifi</state>
-                    <state>$PROJ_DIR$\..\..\..\drivers\gprs</state>
-                    <state>$PROJ_DIR$\..\..\..\drivers\nb</state>
-                    <state>$PROJ_DIR$\..\Drivers\marvell</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\wifi</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\gprs</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\nb</state>
+                    <state>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2769,13 +2769,13 @@
     <group>
         <name>wifi</name>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\tiny_aes.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\tiny_aes.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\wifi.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\wifi.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\wpa.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\wpa.c</name>
         </file>
     </group>
 </project>

@@ -2842,7 +2842,7 @@
 
   <Group>
     <GroupName>wifi</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2853,8 +2853,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drivers\marvell\wifi.c</PathWithFileName>
-      <FilenameWithoutPath>wifi.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\drivers\devices\wifi\marvell\tiny_aes.c</PathWithFileName>
+      <FilenameWithoutPath>tiny_aes.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2865,8 +2865,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drivers\marvell\wpa.c</PathWithFileName>
-      <FilenameWithoutPath>wpa.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\drivers\devices\wifi\marvell\wifi.c</PathWithFileName>
+      <FilenameWithoutPath>wifi.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2877,8 +2877,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drivers\marvell\tiny_aes.c</PathWithFileName>
-      <FilenameWithoutPath>tiny_aes.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\drivers\devices\wifi\marvell\wpa.c</PathWithFileName>
+      <FilenameWithoutPath>wpa.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

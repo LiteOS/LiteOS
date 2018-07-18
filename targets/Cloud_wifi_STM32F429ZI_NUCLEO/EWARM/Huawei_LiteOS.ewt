@@ -3059,13 +3059,13 @@
     <group>
         <name>wifi</name>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\tiny_aes.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\tiny_aes.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\wifi.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\wifi.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Drivers\marvell\wpa.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\marvell\wpa.c</name>
         </file>
     </group>
 </project>

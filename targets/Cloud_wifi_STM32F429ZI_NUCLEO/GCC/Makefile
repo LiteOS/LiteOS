@@ -217,9 +217,9 @@ endif
 
 ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
 MRVL_DRIVERS_SRC = \
-	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/wifi.c \
-	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/tiny_aes.c \
-	$(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell/wpa.c
+	$(TOP_DIR)/drivers/devices/wifi/marvell/wifi.c \
+	$(TOP_DIR)/drivers/devices/wifi/marvell/tiny_aes.c \
+	$(TOP_DIR)/drivers/devices/wifi/marvell/wpa.c
 	C_SOURCES += $(MRVL_DRIVERS_SRC)
 endif
 
@@ -388,7 +388,7 @@ endif
 
 ifeq ($(NETWORK_TYPE), MRVL_SDIO_WIFI)
 MRVL_DRIVERS_INC = \
-        -I $(TOP_DIR)/targets/Cloud_wifi_STM32F429ZI_NUCLEO/Drivers/marvell
+        -I $(TOP_DIR)/drivers/devices/wifi/marvell
         C_INCLUDES += $(MRVL_DRIVERS_INC)
 endif
 
