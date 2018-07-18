@@ -31,6 +31,12 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+/*******
+ * Notics:
+ * The parts of this file refer to https://blog.csdn.net/zlk1214/article/details/76177336
+ * Originator: ZLK1214
+ *******/
+ 
 #ifndef __WPA_H__
 #define __WPA_H__
 
