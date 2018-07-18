@@ -32,25 +32,52 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
- */
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
+/* Includes ------------------------------------------------------------------*/
 
-#include "target_config.h"
+/* Includes LiteOS------------------------------------------------------------------*/
+
+#include "los_base.h"
+#include "los_config.h"
+#include "los_sys.h"
 #include "los_typedef.h"
-#include <string.h>
+#include "los_task.ph"
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
+#include "lwip/netif.h"
+#if defined ( __CC_ARM )  /* MDK ARM Compiler */
+#include "lwip/sio.h"
+#endif /* MDK ARM Compiler */
+#include "lwip/opt.h"
+#include "lwip/mem.h"
+#include "lwip/memp.h"
+#include "netif/etharp.h"
+#include "lwip/sockets.h"
+#include "lwip/tcpip.h"
+#include "lwip/init.h"
+#include "lwip/dhcp.h"
+#include "lwip/netif.h"
+#include "lwip/ip_addr.h"
+#include "lwip/timeouts.h"
+#include "ethernetif.h"
 
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
-#else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
+#include "net.h"
+#include "ssl.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+void net_init(void);
+uint32_t HAL_GetTick(void);
+
+#ifdef __cplusplus
+}
 #endif
 
-#endif
+#endif /* __SYS_H_ */
+

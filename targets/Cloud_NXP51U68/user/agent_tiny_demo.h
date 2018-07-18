@@ -32,25 +32,16 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
- */
+#ifndef __AGENT_TINY_DEMO_H_
+#define __AGENT_TINY_DEMO_H_
 
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
-
-#include "target_config.h"
+#include "los_base.h"
+#include "los_task.ph"
 #include "los_typedef.h"
-#include <string.h>
+#include "los_sys.h"
+#include "agenttiny.h"
+#include "atiny_adapter.h"
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
+void agent_tiny_entry(void);
 
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
-#else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
-#endif
-
-#endif
+#endif 
