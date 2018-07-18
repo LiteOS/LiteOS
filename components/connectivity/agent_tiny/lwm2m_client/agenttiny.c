@@ -40,7 +40,9 @@
 #include "atiny_log.h"
 #include "atiny_rpt.h"
 #include "atiny_adapter.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_manager.h"
+#endif
 
 #define SERVER_URI_MAX_LEN      (64)
 #define MAX_PACKET_SIZE         (1024)
@@ -130,6 +132,9 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
     int i = 0;
     int psk_id_len =0;
     int psk_len = 0;
+    const int PSK_ID_LIMIT_LEN = 128;
+    const int PSK_LIMIT_LEN = 64;
+    int total_element = 0;
 
     if(NULL == atiny_params)
     {
@@ -137,7 +142,9 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
     }
 
     //security_params have 2 element, we have 2 pair psk.
-    for(i=0;i<2;i++)
+    total_element = (sizeof(atiny_params->security_params))/(sizeof(atiny_params->security_params[0]));
+
+    for(i=0;i<total_element;i++)
     {
         //if there are null, we could run not in security mode
         if((atiny_params->security_params[i].psk_Id != NULL)&&(atiny_params->security_params[i].psk != NULL))
@@ -146,7 +153,7 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
             psk_len = strlen(atiny_params->security_params[i].psk);
 
             //the limit of the len, please read RFC4279  or OMA-TS-LightweightM2M E.1.1
-            if((psk_id_len > 128)||(psk_len > 64))
+            if((psk_id_len > PSK_ID_LIMIT_LEN)||(psk_len > PSK_LIMIT_LEN))
             {
                 LOG("[bootstrap_tag]: psk_Id len over 128 or psk len over 64");
                 return ATINY_ARG_INVALID;
@@ -161,8 +168,9 @@ static int atiny_check_psk_init_param(atiny_param_t* atiny_params)
 
 int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 {
+#ifdef CONFIG_FEATURE_FOTA
     atiny_fota_storage_device_s * device = NULL;
-    int ret = -1;
+#endif
 
     if (NULL == atiny_params || NULL == phandle)
     {
@@ -195,19 +203,19 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
 
-    ret = atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
-    if(ret != ATINY_OK) return ATINY_ERR;
+#ifdef CONFIG_FEATURE_FOTA
+    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ERR;
     }
-
-    ret = atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
+    return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
                         device);
-    if(ret != ATINY_OK) return ATINY_ERR;
-
+#else
     return ATINY_OK;
+#endif
+
 }
 
 /*
@@ -292,6 +300,7 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     if (NULL == lwm2m_context->observe_mutex)
     {
         ATINY_LOG(LOG_FATAL, "atiny_mutex_create fail");
+        lwm2m_free(lwm2m_context);
         return ATINY_RESOURCE_NOT_ENOUGH;
     }
 
@@ -327,11 +336,13 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     }
 
     handle->obj_array[OBJ_FIRMWARE_INDEX] = get_object_firmware(atiny_params);
+#ifdef CONFIG_FEATURE_FOTA
     if (NULL == handle->obj_array[OBJ_FIRMWARE_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create firmware object");
         return ATINY_MALLOC_FAILED;
     }
+#endif
 
     handle->obj_array[OBJ_CONNECT_INDEX] = get_object_conn_m(atiny_params);
     if (NULL == handle->obj_array[OBJ_CONNECT_INDEX])
@@ -393,9 +404,9 @@ void atiny_destroy(void* handle)
     {
         return;
     }
-
+#ifdef CONFIG_FEATURE_FOTA
     atiny_fota_manager_destroy(atiny_fota_manager_get_instance());
-
+#endif
     if(handle_data->recv_buffer != NULL) {
         lwm2m_free(handle_data->recv_buffer);
     }
@@ -443,7 +454,6 @@ void atiny_destroy(void* handle)
 
 void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_len)
 {
-    int ret = -1;
     switch (type)
     {
         case MODULE_LWM2M:
@@ -451,8 +461,9 @@ void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_l
             if (code == STATE_REGISTERED)
             {
                 atiny_event_notify(ATINY_REG_OK, NULL, 0);
-                ret = atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
-                if(ret == ATINY_ERR)return;
+#ifdef CONFIG_FEATURE_FOTA
+                (void)atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());
+#endif
             }
             else if (code == STATE_REG_FAILED)
             {
@@ -567,10 +578,9 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         atiny_destroy(handle);
         return ret;
     }
-
-    ret = atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
-    if(ret != ATINY_OK)return ret;
-
+#ifdef CONFIG_FEATURE_FOTA
+    (void)atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle->lwm2m_context);
+#endif
     lwm2m_register_observe_ack_call_back(observe_handle_ack);
     lwm2m_register_event_handler(atiny_event_handle);
     lwm2m_register_connection_err_notify(atiny_connection_err_notify);

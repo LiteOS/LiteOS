@@ -51,6 +51,7 @@ extern "C" {
  * @ingroup los_hwi
  * Maximum number of used hardware interrupts.
  */
+/*lint -e553*/
 #ifndef OS_HWI_MAX_NUM
 #if (__CORTEX_M == 0U)
 /* Cortex-m0 and Cortex-m0plus default 32 */
@@ -60,6 +61,7 @@ extern "C" {
 #define OS_HWI_MAX_NUM              240
 #endif
 #endif
+/*lint +e553*/
 
 /**
  * @ingroup los_hwi

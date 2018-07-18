@@ -33,15 +33,19 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "fota_port.h"
-
+#endif
 //#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
 //#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
 //#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
-#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
+//#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
+#define DEFAULT_SERVER_IPV4 "192.168.1.100" /*mj*/
 
 #define LWM2M_LIFE_TIME     50000
 
+#define IOT_PSK_VALUE_LENGTH    12
+#define BS_PSK_VALUE_LENGTH     12
 char * g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
 //char *g_endpoint_name_s = "11110006";
@@ -53,8 +57,8 @@ char * g_endpoint_name = "44440003";
 char* g_endpoint_name_s = "11110001";
 char* g_endpoint_name_iots = "66667777";
 char* g_endpoint_name_bs = "22224444";
-unsigned char g_psk_iot_value[16] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
-unsigned char g_psk_bs_value[12] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
+unsigned char g_psk_iot_value[IOT_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};  //0x33 -> 0x32
+unsigned char g_psk_bs_value[BS_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
 #endif
 
@@ -99,7 +103,7 @@ UINT32 creat_report_task()
     task_init_param.usTaskPrio = 1;
     task_init_param.pcName = "app_data_report";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
-    task_init_param.uwStackSize = 0x400;
+    task_init_param.uwStackSize = 0x1000;
 
     uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
     if(LOS_OK != uwRet)
@@ -110,25 +114,23 @@ UINT32 creat_report_task()
 
 }
 
+#ifdef CONFIG_FEATURE_FOTA
 void agent_tiny_fota_init(void)
 {
     atiny_fota_storage_device_s *storage_device = NULL ;
     fota_hardware_s *hardware = NULL;
     fota_pack_device_info_s device_info;
 
-    int ret = hal_init_fota();
-    if(ret != 0)return;
+    (void)hal_init_fota();
 
-    ret = hal_get_fota_device(&storage_device, &hardware);
-    if(ret != 0)return;
+    (void)hal_get_fota_device(&storage_device, &hardware);
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
-    device_info.head_len = 40;
     device_info.head_info_notify  = NULL;
-    ret = fota_set_pack_device(fota_get_pack_device(), &device_info);
-    if(ret != 0)return;
+    (void)fota_set_pack_device(fota_get_pack_device(), &device_info);
 }
+#endif
 
 void agent_tiny_entry(void)
 {
@@ -139,7 +141,9 @@ void agent_tiny_entry(void)
 
     atiny_device_info_t *device_info = &g_device_info;
 
+#ifdef CONFIG_FEATURE_FOTA
     agent_tiny_fota_init();
+#endif
 
 #ifdef WITH_DTLS
     device_info->endpoint_name = g_endpoint_name_s;
@@ -170,11 +174,11 @@ void agent_tiny_entry(void)
 
     iot_security_param->psk_Id = g_endpoint_name_iots;
     iot_security_param->psk = (char*)g_psk_iot_value;
-    iot_security_param->psk_len = 16;
+    iot_security_param->psk_len = IOT_PSK_VALUE_LENGTH;
 
     bs_security_param->psk_Id = g_endpoint_name_bs;
     bs_security_param->psk = (char*)g_psk_bs_value;
-    bs_security_param->psk_len = 16;
+    bs_security_param->psk_len = BS_PSK_VALUE_LENGTH;
 #else
     iot_security_param->server_port = "5683";
     bs_security_param->server_port = "5683";

@@ -88,6 +88,7 @@ static int prv_write_ota_default_flag(void)
     int ret;
     ota_default_flag flag_tmp;
 
+    memset(&flag_tmp, 0, sizeof(ota_default_flag));
     ret = prv_read_specific(OTA_FLAG_ADDR1, &flag_tmp);
     if (0 == ret)
     {
@@ -195,6 +196,7 @@ int ota_default_init(void)
         g_ota_flag.cur_state = 0;
         g_ota_flag.cur_offset = 0;
         g_ota_flag.image_length = 0;
+        g_ota_flag.old_image_length = OTA_IMAGE_DOWNLOAD_SIZE;
         memset(g_ota_flag.image_integrity, 0, OTA_IMAGE_INTEGRITY_LENGTH);
         if (prv_write_ota_default_flag() != 0)
         {
@@ -246,6 +248,10 @@ int ota_default_check_update_state(ota_state* st)
     {
         g_ota_flag.state = OTA_S_IDLE;
         g_ota_flag.restart_cnt = 0;
+        if (OTA_S_SUCCEED == g_ota_flag.state)
+        {
+            g_ota_flag.old_image_length = g_ota_flag.image_length;
+        }
         if (prv_write_ota_default_flag() != 0)
         {
             OTA_LOG("write ota flag failed");
@@ -282,7 +288,7 @@ int ota_default_update_process(void)
         }
     case OTA_S_UPDATING:
         (void)prv_update_state(OTA_S_UPDATING);
-        ret = board_update_copy(g_ota_flag.image_length,
+        ret = board_update_copy(g_ota_flag.old_image_length, g_ota_flag.image_length,
                                 prv_get_update_record, prv_set_update_record);
         if (OTA_ERRNO_OK != ret)
         {
@@ -321,8 +327,8 @@ int ota_default_jump_to_application(void)
 int ota_default_roll_back_image(void)
 {
     int ret;
-    if ((ret = board_rollback_copy(g_ota_flag.image_length,
-                                      prv_get_update_record, prv_set_update_record)) != 0)
+    if ((ret = board_rollback_copy(g_ota_flag.old_image_length,
+                                   prv_get_update_record, prv_set_update_record)) != 0)
     {
         OTA_LOG("image rollback failed");
         return ret;
