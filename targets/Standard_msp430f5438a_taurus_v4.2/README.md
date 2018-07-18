@@ -60,23 +60,27 @@ TI CCS的安装比较简单，这里就不详细介绍了。
 
    > D:\LiteOS\targets\Standard_msp430f5438a_taurus_v4.2\SRC
 
-### 添加”include“目录
+## 添加”include“目录
 
-邮件点击工程名，然后选择”Properites“。找到”Build“->”MSP430 Compiler“->”Include Options“，在弹出的对话框中依次添加如下头文件目录：
+右键点击工程名，然后选择”Properites“。找到”Build“->”MSP430 Compiler“->”Include Options“，在弹出的对话框中依次添加如下头文件目录：
 
 > ${PROJECT_ROOT}/../../../kernel/include
+>
 > ${PROJECT_ROOT}/../../../kernel/base/include
+>
 > ${PROJECT_ROOT}/../OS_CONFIG
+>
 > ${PROJECT_ROOT}/../../../arch/msp430/include
+>
 > ${PROJECT_ROOT}/../../../kernel/extended/include
 
 最后点击”Apply and Close“
 
-## 编译及下载
+# 编译及下载
 
 完成前面的步骤后编译工程以及连接仿真器下载调试了。在这里不再赘述。
 
-## 注意事项
+# 注意事项
 
 Huawei LiteOS的中断管理会接管所有的外部中断，请使用标准API注册中断处理函数，比如：
 
@@ -88,4 +92,4 @@ Huawei LiteOS的中断管理会接管所有的外部中断，请使用标准API�
 
 
 
-目前Huawei LiteOS仅支持基本的设备：timer a用作系统时钟，简单的uart驱动支持。
+目前Huawei LiteOS仅支持基本的设备：timer a用作系统时钟，异步中断输入输出的uart驱动支持。
