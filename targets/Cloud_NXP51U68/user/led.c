@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -31,26 +32,53 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+/* Freescale includes. */
+#include "fsl_device_registers.h"
+#include "board.h"
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
- */
-
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
-
-#include "target_config.h"
+#include "pin_mux.h"
+#include <stdbool.h>
+#include "los_inspect_entry.h"
+#include "los_base.h" 
+#include "los_task.h"
 #include "los_typedef.h"
-#include <string.h>
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+#define APP_BOARD_TEST_LED_PORT 0U
+#define APP_BOARD_TEST_LED_PIN  29U
+#define APP_SW_PORT BOARD_SW1_GPIO_PORT
+#define APP_SW_PIN BOARD_SW1_GPIO_PIN
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
+void *fnLedFlash(UINT32 arg)
+{
+    /* Define the init structure for the output LED pin*/
+    gpio_pin_config_t led_config = {
+        kGPIO_DigitalOutput, 0,
+    };
+    /* Print a note to terminal. */
+    printf("\r\n GPIO Driver example\r\n");
+    printf("\r\n The LED is taking turns to shine.\r\n");
 
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
-#else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
-#endif
+    /* Init output LED GPIO. */
+    GPIO_PortInit(GPIO, APP_BOARD_TEST_LED_PORT);
+    GPIO_PinInit(GPIO, APP_BOARD_TEST_LED_PORT, APP_BOARD_TEST_LED_PIN, &led_config);
+    GPIO_PinWrite(GPIO, APP_BOARD_TEST_LED_PORT, APP_BOARD_TEST_LED_PIN, 1);
+    GPIO_PortInit(GPIO, APP_BOARD_TEST_LED_PORT);
+    
+   /* Port masking */
+    GPIO_PortMaskedSet(GPIO, APP_BOARD_TEST_LED_PORT, 0x0000FFFF);
+    GPIO_PortMaskedWrite(GPIO, APP_BOARD_TEST_LED_PORT, 0xFFFFFFFF);
+    GPIO_PortRead(GPIO, APP_BOARD_TEST_LED_PORT);
+    GPIO_PortMaskedRead(GPIO, APP_BOARD_TEST_LED_PORT);
+	while (1)
+    {
+        GPIO_PortRead(GPIO, APP_BOARD_TEST_LED_PORT);
+        GPIO_PortToggle(GPIO, APP_BOARD_TEST_LED_PORT, 1u << APP_BOARD_TEST_LED_PIN);
+		LOS_TaskDelay(1000);
+    }
+    return NULL;
+}
 
-#endif
+
+

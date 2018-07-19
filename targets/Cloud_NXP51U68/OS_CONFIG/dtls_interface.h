@@ -32,25 +32,54 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
+/*
+ *  Simple DTLS client demonstration program
+ *
+ *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  SPDX-License-Identifier: Apache-2.0
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *  not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
-
-#include "target_config.h"
-#include "los_typedef.h"
-#include <string.h>
-
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
-
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "los_mbedtls_config.h"
 #else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
+#include MBEDTLS_CONFIG_FILE
 #endif
 
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#else
+#include <stdio.h>
+#define mbedtls_printf     printf
 #endif
+
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/ssl.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/error.h"
+#include "mbedtls/timing.h"
+
+mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* psk_identity);
+
+int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port);
+
+void dtls_ssl_destroy(mbedtls_ssl_context* ssl);
+
+int dtls_write(mbedtls_ssl_context* ssl, const unsigned char* buf, size_t len);
+
+int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t timeout);
+

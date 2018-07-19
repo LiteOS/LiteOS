@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,25 +32,42 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
  */
 
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
+#ifndef _FOTA_PORT_H_
+#define _FOTA_PORT_H_
+#include <atiny_fota_api.h>
+#include <fota_package_storage_device.h>
 
-#include "target_config.h"
-#include "los_typedef.h"
-#include <string.h>
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
-
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
-#else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
+/**
+ *@ingroup atiny_adapter
+ *@brief get storage device.
+ *
+ *@par Description:
+ *This API is used to get storage device.
+ *@attention none.
+ *
+ *@param none.
+ *
+ *@retval #atiny_fota_storage_device_s *     storage device.
+ *@par Dependency: none.
+ *@see none
+ */
+int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
+int hal_init_fota(void);
+
+
+#if defined(__cplusplus)
+}
 #endif
+
+#endif //_FOTA_PORT_H_
+
+

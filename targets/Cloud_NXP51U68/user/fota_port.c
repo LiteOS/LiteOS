@@ -32,25 +32,69 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup los_demo_entry System configuration items
- * @ingroup kernel
- */
-
-#ifndef _LOS_DEMO_DEBUG_H
-#define _LOS_DEMO_DEBUG_H
-
-#include "target_config.h"
-#include "los_typedef.h"
+#include "fota_port.h"
+#include "ota.h"
 #include <string.h>
+#include <stdlib.h>
+#include <atiny_adapter.h>
+#include <board.h>
 
-//#define LOS_KERNEL_TEST_KEIL_SWSIMU
-//#define LOS_KERNEL_DEBUG_OUT
 
-#ifdef LOS_KERNEL_DEBUG_OUT
-    #define dprintf (VOID)printf
-#else
-    extern INT32 dprintf_none(const CHAR *format,...);
-    #define dprintf (VOID)dprintf_none
-#endif
 
-#endif
+
+#define FLASH_BLOCK_SIZE 0x1000
+#define FLASH_BLOCK_MASK 0xfff
+#define HAL_FOTA_LOG(fmt, ...) \
+(void)printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t) atiny_gettime_ms(),  ##__VA_ARGS__)
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b)? (a) : (b))
+#endif /* MIN */
+
+#define OK 0
+#define ERR -1
+
+
+typedef struct
+{
+    atiny_fota_storage_device_s device;
+    fota_hardware_s hardware;
+    uint32_t total_len;
+}ota_hal_s;
+
+ota_hal_s g_hal_storage_device ;
+
+
+int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware)
+{
+    if((NULL == storage_device)
+        || (NULL == hardware))
+    {
+        HAL_FOTA_LOG("null pointer");
+        return ERR;
+    }
+    *storage_device = &g_hal_storage_device.device;
+    *hardware = &g_hal_storage_device.hardware;
+    return OK;
+}
+
+int hal_init_fota(void)
+{
+    ota_assist assist;
+    int ret;
+
+    assist.func_printf = printf;
+    assist.func_ota_read = NULL;
+    assist.func_ota_write = NULL;
+    ota_register_assist(&assist);
+
+    ret = ota_init();
+    if (ret != OK)
+    {
+        OTA_LOG("read/write boot information failed");
+    }
+
+    return ret;
+}
+
+
