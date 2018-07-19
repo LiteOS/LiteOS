@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "internals.h"
+#include "agenttiny.h"
 #include "atiny_log.h"
 #include "atiny_update_info.h"
 #include "firmware_update.h"
