@@ -54,6 +54,7 @@
 
 #include "agenttiny.h"
 #include "liblwm2m.h"
+#include "atiny_fota_api.h"
 
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
 

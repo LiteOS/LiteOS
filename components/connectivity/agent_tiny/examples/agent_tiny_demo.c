@@ -40,7 +40,7 @@
 //#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
 //#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
 //#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
-#define DEFAULT_SERVER_IPV4 "192.168.0.106" /*mj*/
+#define DEFAULT_SERVER_IPV4 "192.168.1.100" /*mj*/
 
 #define LWM2M_LIFE_TIME     50000
 
@@ -103,7 +103,7 @@ UINT32 creat_report_task()
     task_init_param.usTaskPrio = 1;
     task_init_param.pcName = "app_data_report";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
-    task_init_param.uwStackSize = 0x400;
+    task_init_param.uwStackSize = 0x1000;
 
     uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
     if(LOS_OK != uwRet)

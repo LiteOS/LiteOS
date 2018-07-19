@@ -300,6 +300,7 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     if (NULL == lwm2m_context->observe_mutex)
     {
         ATINY_LOG(LOG_FATAL, "atiny_mutex_create fail");
+        lwm2m_free(lwm2m_context);
         return ATINY_RESOURCE_NOT_ENOUGH;
     }
 
@@ -608,6 +609,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 void atiny_deinit(void* phandle)
 {
     handle_data_t* handle;
+    void *sem = NULL;
 
     if (phandle == NULL)
     {
@@ -616,8 +618,9 @@ void atiny_deinit(void* phandle)
 
     handle = (handle_data_t*)phandle;
     handle->atiny_quit = 1;
-    atiny_mutex_lock(handle->quit_sem);
-    atiny_mutex_destroy(handle->quit_sem);
+    sem = handle->quit_sem;
+    atiny_mutex_lock(sem);
+    atiny_mutex_destroy(sem);
 }
 
 int atiny_data_report(void* phandle, data_report_t* report_data)

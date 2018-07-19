@@ -588,6 +588,7 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
             break;
         default:
             return NULL;
+            //break;
     }
 
    securityObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));

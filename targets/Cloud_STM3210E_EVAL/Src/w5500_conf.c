@@ -1,21 +1,37 @@
-/******************************************************************************
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
-  Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
-
- ******************************************************************************
-  File Name     : w5500_conf.c
-  Version       : V1.1
-  Author        : MAMINJIE
-  Created       : 2018/7/8
-  Last Modified :
-  Description   : 
-  Function List :
-  History       :
-  1.Date        : 2018/7/8
-    Author      : MAMINJIE
-    Modification: Created file
-
-******************************************************************************/
 /*
 **************************************************************************************************
 * @file         w5500_conf.c
@@ -69,6 +85,7 @@
 #define WIZ_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
 #define WIZ_CS_CLK_ENABLE()         __HAL_RCC_GPIOF_CLK_ENABLE()
 #define WIZ_INT_CLK_ENABLE()        __HAL_RCC_GPIOF_CLK_ENABLE()
+#define WIZ_INT_CLK_DISABLE()       __HAL_RCC_GPIOF_CLK_DISABLE();
 #define WIZ_RESET_CLK_ENABLE()      __HAL_RCC_GPIOF_CLK_ENABLE()
 
 #define WIZ_CS_ENABLE()             HAL_GPIO_WritePin(WIZ_SPIx_SCS_PORT, WIZ_SPIx_SCS_PIN, GPIO_PIN_RESET)
@@ -226,6 +243,12 @@ void w5500_init(void)
     w5500_config();
     w5500_interrupt_config();
     w5500_reset();
+}
+
+
+void w5500_deinit(void)
+{
+    WIZ_INT_CLK_DISABLE();
 }
 
 /**
@@ -455,7 +478,7 @@ uint16 wiz_read_buf(uint32 addrbsb, uint8* buf,uint16 len)
  */
 void write_config_to_eeprom(void)
 {
-	uint16 dAddr=0;
+	uint16 dAddr = 0;
 //	eeprom_WriteBytes(ConfigMsg.mac,dAddr,(uint8)EEPROM_MSG_LEN);				
 	wizDelayMs(10);																							
 }

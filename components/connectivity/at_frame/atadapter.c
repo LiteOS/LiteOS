@@ -106,8 +106,9 @@ int32_t at_get_unuse_linkid()
         }
     }
 
-    if (i >= 0 && i < at_user_conf.linkid_num)
+    if (i < at_user_conf.linkid_num)
         at.linkid[i].usable = AT_LINK_INUSE;
+    
     return i;
 }
 

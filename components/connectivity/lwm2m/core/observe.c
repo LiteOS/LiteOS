@@ -998,7 +998,7 @@ uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *obse
     uri.resourceId = RES_M_STATE;
     uri.flag = (LWM2M_URI_FLAG_OBJECT_ID | LWM2M_URI_FLAG_INSTANCE_ID | LWM2M_URI_FLAG_RESOURCE_ID);
 
-    format = observe_info->format;
+    format = (lwm2m_media_type_t)observe_info->format;
     memset(&data, 0, sizeof(data));
     data.id = uri.resourceId;
     lwm2m_data_encode_int(firmware_update_state, &data);

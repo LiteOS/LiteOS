@@ -1,21 +1,36 @@
-/******************************************************************************
-
-  Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
-
- ******************************************************************************
-  File Name     : wiznet.c
-  Version       : Initial Draft
-  Author        : MAMINJIE
-  Created       : 2018/7/13
-  Last Modified :
-  Description   : wiznet
-  Function List :
-  History       :
-  1.Date        : 2018/7/13
-    Author      : MAMINJIE
-    Modification: Created file
-
-******************************************************************************/
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
 #include "wiznet.h"
@@ -154,7 +169,6 @@ void wiznet_recv_task(void)
     while(1)
     {
         LOS_SemPend(g_wizConfig.recv_sem, LOS_WAIT_FOREVER);
-        printf("%s handle data\n",__func__);
 
         for(i = 0; i < WIZ_MAX_SOCKET_NUM; i++)
         {
@@ -183,7 +197,7 @@ uint32_t wiznet_create_recv_task(void)
     return uwRet;
 }
 
-static int wiz_init_data(void)
+static int wiznet_init_data(void)
 {
     int i, ret;
         
@@ -218,15 +232,51 @@ create_recv_sem_failed:
     return WIZ_FAILED;
 }
 
+static void wiznet_deinit_data(void)
+{
+    // delete task
+    if(g_wizConfig.tsk_hdl != LOS_ERRNO_TSK_NOT_CREATED){
+        if(LOS_OK != LOS_TaskDelete(g_wizConfig.tsk_hdl)){
+            WIZ_LOG("LOS_TaskDelete(%d) failed!", g_wizConfig.tsk_hdl);
+        }
+        g_wizConfig.tsk_hdl = LOS_ERRNO_TSK_NOT_CREATED;
+    }
+    // delete semaphore
+    if(g_wizConfig.recv_sem != LOS_ERRNO_SEM_INVALID){
+        if(LOS_OK != LOS_SemDelete(g_wizConfig.recv_sem)){
+            WIZ_LOG("LOS_SemDelete(%d) failed!", g_wizConfig.recv_sem);
+        }
+        g_wizConfig.recv_sem = LOS_ERRNO_SEM_INVALID;
+    }
+    memset(rx_buffer, 0, sizeof(rx_buffer));
+    memset(&wiz_link, 0, WIZ_MAX_SOCKET_NUM*sizeof(WizLink_t));
+}
+
 void wiznet_init(void)
 {
-    wiz_init_data();
+    wiznet_init_data();
     
     w5500_init();
     w5500_set_mac();   
     w5500_set_ip();
 
     socket_buf_init(txsize, rxsize);
+}
+
+void wiznet_deinit(void)
+{
+    int id = 0;
+
+    for(id = 0; id < WIZ_MAX_SOCKET_NUM; id++)
+    {
+        if(wiz_link[id].usable == WIZ_LINK_INUSE){
+            if(WIZ_OK != wiznet_close(id)){
+                WIZ_LOG("wiznet_close(%d) failed!", id);
+            }
+        }
+    }
+    w5500_deinit();
+    wiznet_deinit_data();
 }
 
 int32_t wiznet_connect(const char* host, const char* port, int protocol)
@@ -332,6 +382,7 @@ int32_t wiznet_recv(int32_t id, unsigned char* buf, size_t len)
 int32_t wiznet_recv_timeout(int32_t id, unsigned char* buf, size_t len, uint32_t timeout)
 {
     uint32_t qlen = sizeof(WizQueueBuf_t);
+    uint32_t rxlen = 0;
     
     WIZ_ASSERT_ID(id);
     
@@ -344,23 +395,39 @@ int32_t wiznet_recv_timeout(int32_t id, unsigned char* buf, size_t len, uint32_t
     }
 
     if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
+        rxlen = (len < qbuf.len) ? len : qbuf.len;
+        memcpy(buf, qbuf.addr, rxlen);
         wiz_free(qbuf.addr);
     }
-    return qbuf.len;
+    return rxlen;
 }
 
 int32_t wiznet_close(int32_t id)
 {
     int timeout = 0;
     WIZ_ASSERT_ID(id);
+
+    if(wiz_link[id].usable == WIZ_LINK_UNUSE){
+        WIZ_LOG("linkid=%d is unused!", id);
+        return WIZ_FAILED;
+    }
     
     close(id);
     wiz_link[id].id = 0;
     wiz_link[id].usable = WIZ_LINK_UNUSE;
     
     // delete queue
-    if(wiz_link[id].qid != LOS_ERRNO_QUEUE_NOT_CREATE){
+    if(wiz_link[id].qid != LOS_ERRNO_QUEUE_NOT_CREATE)
+    {
+        uint32_t qlen = sizeof(WizQueueBuf_t);
+        WizQueueBuf_t qbuf = {0, NULL};
+        // clear queue data
+        while(LOS_OK == LOS_QueueReadCopy(wiz_link[id].qid, (void*)&qbuf, (UINT32*)&qlen, 10)){
+            if (qbuf.len){
+                wiz_free(qbuf.addr);
+                memset(&qbuf, 0, sizeof(WizQueueBuf_t)); // don't use qlen
+            }
+        }
         while(LOS_OK != LOS_QueueDelete(wiz_link[id].qid) || timeout > 10){
             WIZ_ERROR("LOS_QueueDelete() failed, qid=%d", wiz_link[id].qid); 
             timeout++;

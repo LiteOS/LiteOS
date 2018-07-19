@@ -271,6 +271,12 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         return -2;
     }
 
+    if(ret < 0)
+    {
+        SOCKET_LOG("select error ret=%d,err 0x%x", ret, errno);
+        return -1;
+    }
+
     ret = atiny_net_recv(ctx, buf, len);
     
 #elif defined(WITH_AT_FRAMEWORK)

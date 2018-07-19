@@ -113,33 +113,29 @@ int32_t sim900a_connect(const int8_t * host, const int8_t * port, int proto)
 
 int32_t  sim900a_recv(int32_t id, int8_t * buf, uint32_t len)
 {
-    uint32_t qlen = sizeof(QUEUE_BUFF);
-
-    QUEUE_BUFF  qbuf = {0, NULL};
-    int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, LOS_WAIT_FOREVER);
-    AT_LOG("ret = %x, len = %d", ret, qbuf.len);
-
-    if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
-        at_free(qbuf.addr);
-    }
-    return qbuf.len;
+    return sim900a_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
 }
 
 int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t timeout)
 {
     uint32_t qlen = sizeof(QUEUE_BUFF);
+    uint32_t rxlen = 0;
 
     QUEUE_BUFF  qbuf = {0, NULL};
     printf("****at.linkid[id].qid=%d***\n",at.linkid[id].qid);
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, timeout);
     AT_LOG("ret = %x, len = %d, id = %d", ret, qbuf.len, id);
+    if (ret != LOS_OK)
+    {
+        return AT_FAILED;
+    }
 
     if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
+        rxlen = (len < qbuf.len) ? len : qbuf.len;
+        memcpy(buf, qbuf.addr, rxlen);
         at_free(qbuf.addr);
     }
-    return qbuf.len;
+    return rxlen;
 }
 int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
@@ -154,7 +150,8 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
         snprintf(cmd, 64, "%s=%d,%d", AT_CMD_SEND, id, len);
     }
 
-    ret = at.write((int8_t *)cmd, (int_8*)"", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, (int8_t*)"SEND OK", (int8_t*)buf, len);
+
     return ret;
 }
 
@@ -184,6 +181,19 @@ int32_t sim900a_recv_cb(int32_t id)
 
 int32_t sim900a_deinit(void)
 {
+    int id = 0;
+    
+    for(id = 0; id < AT_MAX_LINK_NUM; id++)
+    {
+        if(AT_LINK_INUSE == at.linkid[id].usable)
+        {
+            if(AT_OK != sim900a_close(id))
+            {
+                AT_LOG("sim900a_close(%d) failed", id);
+            }
+        }
+    }
+    
     at.deinit();
     return AT_OK;
 }
@@ -196,6 +206,15 @@ int32_t sim900a_close(int32_t id)
     }
     else
     {
+        uint32_t qlen = sizeof(QUEUE_BUFF);
+        QUEUE_BUFF  qbuf = {0, NULL};
+        while(LOS_OK == LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, 10))
+        {
+            if (qbuf.len){
+                at_free(qbuf.addr);
+                memset(&qbuf, 0, sizeof(QUEUE_BUFF)); // don't use qlen
+            }
+        }
         LOS_QueueDelete(at.linkid[id].qid);
         at.linkid[id].usable = 0;
         snprintf(cmd, 64, "%s=%d", AT_CMD_CLOSE, id);
@@ -281,7 +300,7 @@ int32_t sim900a_ini()
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
     at.oob_register((char*)prefix_name, strlen((char*)prefix_name), sim900a_data_handler);
-    sim900a_echo_on();
+    sim900a_echo_off();
     sim900a_check();
     sim900a_reset();
     sim900a_set_mux_mode(at.mux_mode);

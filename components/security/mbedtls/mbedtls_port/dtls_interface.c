@@ -189,6 +189,7 @@ exit_fail:
 int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 {
     int ret;
+    int j = 0;
     mbedtls_net_context* server_fd = NULL;
     mbedtls_timing_delay_context* timer = NULL;
 
@@ -219,7 +220,6 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     MBEDTLS_LOG("Performing the SSL/TLS handshake");
 
-    int j = 0;
     do
     {
         ret = mbedtls_ssl_handshake(ssl);       
