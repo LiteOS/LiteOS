@@ -67,7 +67,6 @@
 #define __CC_H__
 
 #include "cpu.h"
-#include "usart.h"
 
 typedef unsigned   char    u8_t;
 typedef signed     char    s8_t;
@@ -126,7 +125,10 @@ typedef u32_t mem_ptr_t;
 
 #endif
 
-#define LWIP_RAND() g_stlwIPSspCallbacks.pfRand()
+#include <stdio.h>  //use the printf
+#include <stdlib.h>
+
+#define LWIP_RAND() ((u32_t)rand())
 #define LWIP_PLATFORM_DIAG(x)  {printf x;}
 
 #define LWIP_PLATFORM_ASSERT(x) do { printf("Assertion \"%s\" failed at  \

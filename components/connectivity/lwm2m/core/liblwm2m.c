@@ -333,6 +333,8 @@ int lwm2m_configure(lwm2m_context_t * contextP,
     found = 0;
     for (i = 0 ; i < numObject ; i++)
     {
+        if(objectList[i] == NULL) // happens when undef CONFIG_FEATURE_FOTA
+            continue;
         if (objectList[i]->objID == LWM2M_SECURITY_OBJECT_ID) found |= 0x01;
         if (objectList[i]->objID == LWM2M_SERVER_OBJECT_ID) found |= 0x02;
         if (objectList[i]->objID == LWM2M_DEVICE_OBJECT_ID) found |= 0x04;
