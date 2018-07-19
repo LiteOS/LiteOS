@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.22.2.15993</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -358,6 +358,7 @@
                     <state>$PROJ_DIR$\..\..\..\kernel\base\include</state>
                     <state>$PROJ_DIR$\..\..\..\kernel\include</state>
                     <state>$PROJ_DIR$\..\OS_CONFIG</state>
+                    <state>$PROJ_DIR$\..\..\..\arch\arm\common\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\arch\arm\arm-m\include</state>
                     <state>$PROJ_DIR$\..\..\..\arch\arm\arm-m\cortex-m4</state>
                     <state>$PROJ_DIR$\..\..\..\examples\include</state>
@@ -2774,6 +2775,9 @@
     </group>
     <group>
         <name>user</name>
+        <file>
+            <name>$PROJ_DIR$\..\Src\at_hal.c</name>
+        </file>
         <file>
             <name>$PROJ_DIR$\..\Src\dwt.c</name>
         </file>
