@@ -165,7 +165,7 @@ static void low_level_init(struct netif* netif)
     netif->flags |= NETIF_FLAG_BROADCAST;
 #endif /* LWIP_ARP */
     /* create the task that handles the ETH_MAC */
-    sys_thread_new((char*)"ethernetif_input", ethernetif_input, netif, 0x800, 5);
+    sys_thread_new((char*)"ethernetif_input", ethernetif_input, netif, 0x400, 5);
 #endif /* LWIP_ARP || LWIP_ETHERNET */
 }
 

@@ -87,7 +87,7 @@
 #define MBEDTLS_SSL_CLI_C
 //#define MBEDTLS_SSL_SRV_C
 #define MBEDTLS_SSL_TLS_C
-#define MBEDTLS_DEBUG_C
+//#define MBEDTLS_DEBUG_C
 
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
@@ -117,7 +117,7 @@
  * both ends of the connection!  (See comments in "mbedtls/ssl.h".)
  * The optimal size here depends on the typical size of records.
  */
-#define MBEDTLS_SSL_MAX_CONTENT_LEN             1000
+#define MBEDTLS_SSL_MAX_CONTENT_LEN             512
 #define MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
 #define MBEDTLS_SSL_DTLS_ANTI_REPLAY
 #define MBEDTLS_SSL_ALL_ALERT_MESSAGES

@@ -55,6 +55,15 @@ for NO_SYS=1 systems or called inside lwIP core thread for NO_SYS=0 systems.
 #include "netif/ppp/pppapi.h"
 #include "netif/ppp/pppos.h"
 
+u32_t sys_jiffies(void)
+{
+    UINT32 ret;
+    extern UINT64      g_ullTickCount;
+    
+    ret = (UINT32)g_ullTickCount;
+    return ret;
+}
+
 /* The PPP control block */
 ppp_pcb *ppp;
 
@@ -195,6 +204,9 @@ static u32_t output_cb(ppp_pcb *pcb, u8_t *data, u32_t len, void *ctx)
 }
 VOID *main_ppp(UINT32  args)
 {
+    /* Initilialize the LwIP stack without RTOS */
+    tcpip_init(NULL, NULL);
+    
     ppp = pppos_create(&ppp_netif,output_cb, status_cb, NULL);
     if(NULL != ppp)
     {
@@ -210,7 +222,11 @@ VOID *main_ppp(UINT32  args)
         ppp_free(ppp);
 
     }
-    return NULL;
-    
+    return NULL;  
 }
+
+
+
+
+
 

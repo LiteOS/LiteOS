@@ -33,8 +33,6 @@ int uart_write(unsigned char *buf,int len)
     USART_WriteBlocking(BOARD_UART,buf,len);
     return len;
 }
-
-
 void TaskDelay(int time) //unit:TICKS
 {
     LOS_TaskDelay(time);
@@ -62,45 +60,6 @@ UINT32 creat_maintask(const char *taskname,TSK_ENTRY_FUNC fnTask,UINT32 stackisi
 
 
 
-UINT32 sys_jiffies()
-{
-    UINT32 ret;
-    extern UINT64      g_ullTickCount;
-    
-    ret = (UINT32)g_ullTickCount;
-    return ret;
-}
-/*
-#include "los_memory.h"   //here we make the memory for the lwip
-#include "target_config.h"
-
-#define POOL_ADDR   OS_SYS_MEM_ADDR
-
-void *malloc(int size)
-{
-    void *ret = NULL;
-    ret = LOS_MemAlloc(POOL_ADDR,size);
-    return ret;
-}
-
-void free(void *addr)
-{
-    LOS_MemFree(POOL_ADDR,addr);
-    return;
-}
-void *calloc(int count, int size)
-{
-  void *p;
-
-  p = malloc(count * size);
-  if (p) {
-    memset(p, 0, (size_t)count * (size_t)size);
-  }
-  return p;
-}
-*/
-
-
 int fputc(int ch, FILE *f)
 {
     int ret = 0;
@@ -111,14 +70,19 @@ int fputc(int ch, FILE *f)
 int fgetc(FILE *f)
 {
     char ch;
-    uart_read((unsigned char *)&ch,1,0xFFFFFF);
+    //uart_read((unsigned char *)&ch,1,0xFFFFFF);
     return ch;
 }
- int gRamSize = 0x8000;
+volatile int gRamSize = 0;
+volatile int gRamMax = 0;
 
 VOID osTaskMemUsedInc(UINT32 uwUsedSize)
 {
     gRamSize += uwUsedSize;
+    if(gRamSize > gRamMax)
+    {
+        gRamMax = gRamSize;
+    }
 }
 VOID osTaskMemUsedDec(UINT32 uwUsedSize)
 {

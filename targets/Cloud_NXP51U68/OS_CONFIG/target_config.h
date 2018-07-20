@@ -113,25 +113,25 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of tasks except the idle task rather than the number of usable tasks
  */
-#define LOSCFG_BASE_CORE_TSK_LIMIT                          15              // max num task
+#define LOSCFG_BASE_CORE_TSK_LIMIT                          7              // max num task
 
 /**
  * @ingroup los_config
  * Size of the idle task stack
  */
-#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                (0x130U)        // IDLE task stack
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                (0x80U)        // IDLE task stack
 
 /**
  * @ingroup los_config
  * Default task stack size
  */
-#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x400U)        // default stack
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (768)        // default stack
 
 /**
  * @ingroup los_config
  * Minimum stack size.
  */
-#define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x100U)
+#define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x50U)
 
 /**
  * @ingroup los_config
@@ -282,9 +282,15 @@ extern "C" {
  * as LiteOS`s heap, User must config the start address and size of the board`s memory, Because in
  * KEIL and IAR compiler, the program can`t get the end address of SRAM.
  */
+ //use the main memory
 #define BOARD_SRAM_START_ADDR     0x20000000    //this is our main heap
 #define BOARD_SRAM_SIZE_KB        64
 #define BOARD_SRAM_END_ADDR       (BOARD_SRAM_START_ADDR + 1024 * BOARD_SRAM_SIZE_KB)
+
+ //use the second part memory here
+//#define BOARD_SRAM_START_ADDR     0x4000000    //this is our main heap
+//#define BOARD_SRAM_SIZE_KB        32
+//#define BOARD_SRAM_END_ADDR       (BOARD_SRAM_START_ADDR + 1024 * BOARD_SRAM_SIZE_KB)
 
 
 /**
@@ -371,18 +377,12 @@ extern "C" {
     #error "Unknown compiler"
 #endif
 
-/**
- * @ingroup los_config
- * Starting address of the LiteOS heap memory
- */
+//use the main memory here
 #define OS_SYS_MEM_ADDR                                     (VOID *)BOARD_SRAM_START_ADDR
-
-/**
- * @ingroup los_config
- * Size of LiteOS heap memory
- */
 #define OS_SYS_MEM_SIZE                                     (UINT32)(BOARD_SRAM_END_ADDR - BOARD_SRAM_START_ADDR )
-
+//use the memory behind the  bss    
+//#define OS_SYS_MEM_ADDR                                     (VOID *)LOS_HEAP_MEM_BEGIN
+//#define OS_SYS_MEM_SIZE                                     (UINT32)(LOS_HEAP_MEM_END - (UINT32)LOS_HEAP_MEM_BEGIN )    
 
 /**
  * @ingroup los_config
@@ -414,7 +414,7 @@ extern "C" {
  * @ingroup los_config
  * Configuration module tailoring of slab memory
  */
-#define LOSCFG_KERNEL_MEM_SLAB                              YES
+#define LOSCFG_KERNEL_MEM_SLAB                              NO
 
 
 /*=============================================================================
@@ -481,11 +481,11 @@ extern "C" {
  * @ingroup los_config
  * Max count of track items
  */
-#define LOSCFG_BASE_MISC_TRACK_MAX_COUNT                    1024
+#define LOSCFG_BASE_MISC_TRACK_MAX_COUNT                    128
 
 
 
-#define LOS_KERNEL_DEBUG_OUT   1 //enable the dprintf to printf
+#define LOS_KERNEL_DEBUG_OUT   1   //enable the dprintf to printf
 #define LOSCFG_MEM_TASK_USED_STATISTICS  YES
 #define LOSCFG_HEAP_MEMORY_PEAK_STATISTICS  YES
 
