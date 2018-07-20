@@ -117,7 +117,7 @@
  * both ends of the connection!  (See comments in "mbedtls/ssl.h".)
  * The optimal size here depends on the typical size of records.
  */
-#define MBEDTLS_SSL_MAX_CONTENT_LEN             5000
+#define MBEDTLS_SSL_MAX_CONTENT_LEN             1024
 #define MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
 #define MBEDTLS_SSL_DTLS_ANTI_REPLAY
 #define MBEDTLS_SSL_ALL_ALERT_MESSAGES

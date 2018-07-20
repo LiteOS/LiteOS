@@ -46,7 +46,7 @@
 
 #define IOT_PSK_VALUE_LENGTH    12
 #define BS_PSK_VALUE_LENGTH     12
-char * g_endpoint_name = "power07";
+char * g_endpoint_name = "power08";
 #ifdef WITH_DTLS
 //char *g_endpoint_name_s = "power07";
 //unsigned char g_psk_value[16]={ 0xb7, 0xed, 0x6c, 0xd8, 0x6b, 0x78, 0x29, 0x3f, 0x35, 0x11, 0x6d, 0x8b, 0x18, 0x87, 0x6b, 0x10};
@@ -107,7 +107,7 @@ UINT32 creat_report_task()
     task_init_param.usTaskPrio = 1;
     task_init_param.pcName = "app_data_report";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
-    task_init_param.uwStackSize = 0x400;
+    task_init_param.uwStackSize = 768;
 
     uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
     if(LOS_OK != uwRet)

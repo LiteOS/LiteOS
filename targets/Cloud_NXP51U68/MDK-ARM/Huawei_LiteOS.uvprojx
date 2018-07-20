@@ -298,20 +298,20 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x20000000</StartAddress>
-                <Size>0x10000</Size>
+                <StartAddress>0x4000000</StartAddress>
+                <Size>0x8000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
-                <StartAddress>0x4000000</StartAddress>
-                <Size>0x8000</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x10000</Size>
               </OCR_RVCT10>
             </OnChipMemories>
             <RvctStartVector></RvctStartVector>
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -335,7 +335,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--library_interface=armcc --library_type=standardlib  --diag_suppress=66,1296,186</MiscControls>
-              <Define>USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_LWIP,WITH_DTLS</Define>
+              <Define>MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_LWIP,WITH_DTLS</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m0;..\..\..\examples\include;..\..\..\test\include;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\board;..\cmsis;..\startup;..\utilities;..\drivers;..\user;..\utilities;..\stupid;..\..\..\examples\include;..\..\..\kernel\base\mem\common</IncludePath>
             </VariousControls>
@@ -359,7 +359,7 @@
             </VariousControls>
           </Aads>
           <LDads>
-            <umfTarg>0</umfTarg>
+            <umfTarg>1</umfTarg>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
@@ -1422,6 +1422,16 @@
               <FileType>5</FileType>
               <FilePath>..\user\osport.h</FilePath>
             </File>
+            <File>
+              <FileName>ring.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\user\ring.h</FilePath>
+            </File>
+            <File>
+              <FileName>atcmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\atcmd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1676,6 +1686,21 @@
               <FileName>target_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\OS_CONFIG\target_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>los_mbedtls_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\OS_CONFIG\los_mbedtls_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>los_mbedtls_config_psk.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\OS_CONFIG\los_mbedtls_config_psk.h</FilePath>
+            </File>
+            <File>
+              <FileName>timing_alt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\OS_CONFIG\timing_alt.h</FilePath>
             </File>
           </Files>
         </Group>
