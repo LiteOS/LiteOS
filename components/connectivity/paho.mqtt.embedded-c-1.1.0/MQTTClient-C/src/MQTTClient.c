@@ -78,7 +78,7 @@ void MQTTClientInit(MQTTClient* c, Network* network, unsigned int command_timeou
 #ifdef __MQTT_LITE_OS__
     c->mutex = atiny_mutex_create();
     if(NULL == c->mutex)
-        printf("[%s][%d] atiny_mutex_create failed\n", __FUNCTION__, __LINE__);
+        ATINY_LOG(LOG_ERR, "[%s][%d] atiny_mutex_create failed");
 #endif
 }
 

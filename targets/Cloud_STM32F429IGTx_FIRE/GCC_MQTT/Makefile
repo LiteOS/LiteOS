@@ -125,6 +125,10 @@ LWM2M_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
         C_SOURCES += $(LWM2M_SRC)
 
+ATINY_LOG_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/atiny_log.c}
+        C_SOURCES += $(ATINY_LOG_SRC)
+
 MQTT_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/*.c} \
         $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/MQTTClient.c \
