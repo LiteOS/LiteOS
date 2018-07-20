@@ -271,7 +271,7 @@ int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t* data)
         if (atiny_list_empty(&rpt_list->rpt_list))
         {
 
-            ATINY_LOG(LOG_ERR, "dequeue empty rpt list");
+            ATINY_LOG(LOG_INFO, "dequeue empty rpt list");
             break;
         }
 
@@ -311,14 +311,14 @@ int atiny_queue_rpt_data(const lwm2m_uri_t* uri, const data_report_t* data)
 
         if (NULL == rpt_list)
         {
-            ATINY_LOG(LOG_ERR, "uri rpt list not exit," URI_FORMAT, URI_LOG_PARAM(uri));
+            ATINY_LOG(LOG_INFO, "uri rpt list not exit," URI_FORMAT, URI_LOG_PARAM(uri));
             ret = ATINY_RESOURCE_NOT_FOUND;
             break;
         }
 
         if (rpt_list->rpt_node_cnt >= rpt_list->max_cnt)
         {
-            ATINY_LOG(LOG_ERR, "uri rpt exceed rpt cnt %d max cnt %d," URI_FORMAT,
+            ATINY_LOG(LOG_INFO, "uri rpt exceed rpt cnt %d max cnt %d," URI_FORMAT,
                       rpt_list->rpt_node_cnt, rpt_list->max_cnt, URI_LOG_PARAM(uri));
             ret = ATINY_RESOURCE_NOT_ENOUGH;
             break;

@@ -117,7 +117,7 @@ int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t ti
     uint32_t rxlen = 0;
 
     QUEUE_BUFF  qbuf = {0, NULL};
-    printf("****at.linkid[id].qid=%d***\n",at.linkid[id].qid);
+    AT_LOG("****at.linkid[id].qid=%d***\n",at.linkid[id].qid);
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, timeout);
     AT_LOG("ret = %x, len = %ld, id = %ld", ret, qbuf.len, id);
     if (ret != LOS_OK)
