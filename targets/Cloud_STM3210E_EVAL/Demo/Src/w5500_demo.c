@@ -269,7 +269,7 @@ void w5500_demo(void)
 
     w5500_init();
     w5500_set_mac();
-#if (USE_TEST_TYPE != TEST_DHCP_CLIENT || USE_TEST_TYPE != TEST_NETBIOS)    
+#if (USE_TEST_TYPE != TEST_DHCP_CLIENT && USE_TEST_TYPE != TEST_NETBIOS)    
     w5500_set_ip();
 #endif
 
