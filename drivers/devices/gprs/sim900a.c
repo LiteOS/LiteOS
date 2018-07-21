@@ -62,7 +62,7 @@ int32_t sim900a_set_mux_mode(int32_t m)
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
 }
 
-int32_t sim900a_connect(const int8_t * host, const int8_t * port, int proto)
+int32_t sim900a_connect(const int8_t * host, const int8_t * port, int32_t proto)
 {
     int32_t ret = AT_FAILED;
     int32_t id = at.get_id();

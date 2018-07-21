@@ -44,7 +44,7 @@
 
 #define AT_LINE_END 		"\r"
 #define AT_CMD_BEGIN		"\r\n"
-#define MAX_AT_USERDATA_LEN 2048
+#define MAX_AT_USERDATA_LEN (1024*5)
 
 #define AT_CMD_AT    		"AT"
 #define AT_CMD_CPIN         "AT+CPIN?"//check sim card

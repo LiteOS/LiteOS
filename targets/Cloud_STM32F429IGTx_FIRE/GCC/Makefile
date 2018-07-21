@@ -242,9 +242,9 @@ C_DEFS =  \
         -D LWIP_TIMEVAL_PRIVATE=0 \
         -D WITH_DTLS \
         -D ATINY_DEBUG \
-#       -D LWM2M_WITH_LOGS \
-#       -D AT_INTO \
-#       -D AT_INTO \
+        -D LWM2M_WITH_LOGS \
+        -D AT_INTO \
+        -D AT_DEBUG \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
 ifeq ($(USE_AT_FRAMEWORK), yes)

@@ -456,10 +456,10 @@ int transaction_send(lwm2m_context_t * contextP,
         }
         else
         {
-            if(transacP->retrans_counter <= 5 )
+            if(transacP->retrans_counter <= 4 )
                 timeout = COAP_RESPONSE_TIMEOUT << (transacP->retrans_counter - 1);
             else
-                timeout = COAP_RESPONSE_TIMEOUT << (5 - 1);
+                timeout = COAP_RESPONSE_TIMEOUT << (4 - 1);
         }
 
         if (COAP_MAX_RETRANSMIT + 1 >= transacP->retrans_counter)
@@ -467,8 +467,9 @@ int transaction_send(lwm2m_context_t * contextP,
             ret=lwm2m_buffer_send(transacP->peerH, transacP->buffer, transacP->buffer_len, contextP->userData);
             output_buffer(stderr, (uint8_t *)(transacP->buffer), transacP->buffer_len, 0);
             transacP->retrans_time += timeout;
-            transacP->retrans_counter += 1;
             LOG_ARG("send result is %d, retrans_counter:%d", ret,transacP->retrans_counter);
+            transacP->retrans_counter += 1;
+            
             UNUSEX(ret);
         }
         else

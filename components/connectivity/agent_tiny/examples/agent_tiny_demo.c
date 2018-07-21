@@ -61,7 +61,7 @@ static atiny_param_t g_atiny_params;
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
-    ATINY_LOG(LOG_INFO,"type:%d cookie:%d status:%d\n", type,cookie, status);
+    ATINY_LOG(LOG_DEBUG,"type:%d cookie:%d status:%d\n", type,cookie, status);
 }
 
 void app_data_report(void)

@@ -153,7 +153,7 @@ static uint8_t prv_read_data(plat_instance_t * targetP,
                     }
                     else
                     {
-                        ATINY_LOG(LOG_INFO, "atiny_dequeue_rpt_data sucessfully");
+                        ATINY_LOG(LOG_DEBUG, "atiny_dequeue_rpt_data sucessfully");
                     }
 
                     dataArrayP[i].id = 0;
