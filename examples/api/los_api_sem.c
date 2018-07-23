@@ -128,7 +128,7 @@ UINT32 Example_Semphore(VOID)
     memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
     stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
     stTask1.pcName       = "MutexTsk1";
-    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask1.usTaskPrio   = TASK_PRIO_TEST;
     uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
     if (uwRet != LOS_OK)
@@ -141,7 +141,7 @@ UINT32 Example_Semphore(VOID)
     memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
     stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
     stTask2.pcName       = "MutexTsk2";
-    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
     uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
     if (uwRet != LOS_OK)

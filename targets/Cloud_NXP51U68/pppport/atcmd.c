@@ -6,58 +6,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CN_IODEV_WTIMEOUT   100
-#define CN_IODEV_RTIMEOUT   10
+#include "osport.h"
 
+#define CN_IODEV_WTIMEOUT   100
+#define CN_IODEV_RTIMEOUT   100
 #ifndef bool_t 
 #define bool_t int
 #define false 0
 #define true  1   
-
 #endif
 
-
-//we do some port here:we port the uart
-int iodevopen(const char *name)
-{
-    int fd =1;
-    return fd;
-}
-
-int iodevread(int fd,char *buf,int len,int timeout)
-{
-    int ret;
-    ret =uart_read(buf,len,timeout);
-    return ret;
-}
-int iodevwrite(int fd,char *buf,int len,int timeout)
-{
-    int ret;
-    
-    ret = uart_write(buf,len,timeout);
-    return ret;
-}
-int iodevclose(int fd)
-{
-    int ret = 0;;
-    
-    return 0;
-}
-int iodevflush(int fd)
-{
-    char buf;
-    int ret;
-    do{
-        ret = iodevread(fd,&buf,1,0);
-    }while(ret > 0);
-    return 0;
-}
-
-void taskdelay(int ms)
-{
-    LOS_TaskDelay(ms);
-}
-
+#define CN_AT_LEN  128
 
 //we use this for the at command
 //usage:we use this function to deal the at result as the args format
@@ -105,7 +64,6 @@ static int __getpara(char *text,char *seperate,char *argv[],int argc)
 }
 
 ////////////////////////////////DO THE AT COMMAND HERE//////////////////////////////////////
-char gAtDevName[64];
 //-----------------------------------------------------------------------------
 //??:use this function to do the at command and analyze
 //??:devname, the at device name,cmd:at command buf/buflen:storage the reply result(argc and argv in args mode)
@@ -113,7 +71,6 @@ char gAtDevName[64];
 //??:
 //??:zhangqf@??10:51:51/2017?3?23?
 //-----------------------------------------------------------------------------
-#define CN_AT_LEN  128
 //usage:send the at command to the serial device
 int AtCmd(const char *devname,char *cmd,char *buf,int buflen,int argc,char *argv[])
 {
@@ -124,20 +81,20 @@ int AtCmd(const char *devname,char *cmd,char *buf,int buflen,int argc,char *argv
 	int    offset;
 	int    dev;
 	//open the at command device
-	dev = iodevopen(devname);
+	dev = iodev_open(devname,0,0);
 	if(-1 == dev)
 	{
 		printf("%s:open %s dev failed \n\r",__FUNCTION__,devname);
 		goto EXIT_OPENFAILED;
 	}
 	//flush the device
-	iodevflush(dev);
+	iodev_flush(dev);
 	//initialize the buf with the specified at command
 	memset(cmdbuf,0,CN_AT_LEN);
 	snprintf(cmdbuf,CN_AT_LEN,"%s\r",cmd);
 	//write the command to the device
 	len = strlen(cmdbuf);
-	result = iodevwrite(dev,cmdbuf,len,CN_IODEV_WTIMEOUT);
+	result = iodev_write(dev,(unsigned char *)cmdbuf,len,CN_IODEV_WTIMEOUT);
 	if(result != len)
 	{
 		printf("%s:only write %d/%d to %s \n\r",__FUNCTION__,result,len,devname);
@@ -153,7 +110,7 @@ int AtCmd(const char *devname,char *cmd,char *buf,int buflen,int argc,char *argv
 		lenleft = buflen;
 		while(1)
 		{
-			len = iodevread(dev,&buf[offset],lenleft, CN_IODEV_RTIMEOUT);
+			len = iodev_read(dev,(unsigned char *)&buf[offset],lenleft, CN_IODEV_RTIMEOUT);
 			if(len > 0)
 			{
 				offset += len;
@@ -197,40 +154,17 @@ int AtCmd(const char *devname,char *cmd,char *buf,int buflen,int argc,char *argv
 		}
 	}
 	//close the device and return
-	iodevclose(dev);
+	iodev_close(dev);
 	return result;
 
 EXIT_GETPARA:
 EXIT_READFAILED:
 EXIT_WRITEFAILED:
-	iodevclose(dev);
+	iodev_close(dev);
 EXIT_OPENFAILED:
 	return  result;
 }
 
-
-char gAtRcvBuf[CN_AT_LEN];
-int AtCmdShell(char *cmd)
-{
-    int ret = -1;
-	int result;
-	int argc = 10;
-	char *argv[10];
-	if(NULL == cmd)
-	{
-		printf("atcommand NULL\n\r");
-		return ret;
-	}
-	result = AtCmd(gAtDevName,cmd,gAtRcvBuf,CN_AT_LEN,argc,argv);
-	if(result > 0)
-	{
-		for(int i = 0;i <result;i++)
-		{
-			printf("args:%d:%s\n\r",i,argv[i]);
-		}
-	}
-	return ret;
-}
 
 //usage:use this function to check if the string is in the argv
 //      if exit then return the position it in
@@ -278,6 +212,8 @@ tagImsi gAtcimi[]={\
 static bool_t checkmi(char *devname,int times)
 {
 	bool_t result = false;
+    char atrcvbuf[CN_AT_LEN];
+
 	char *argv[6];
 	int   argc;
 	int   i = 0;
@@ -289,8 +225,8 @@ static bool_t checkmi(char *devname,int times)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cgmi",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cgmi",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			position = strinargs(argc,argv,"OK");
@@ -300,7 +236,7 @@ static bool_t checkmi(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 	}
 	if(result)
 	{
@@ -320,6 +256,7 @@ static bool_t checkmm(char *devname,int times)
 	int   argc;
 	int   i = 0;
 	int  position;
+    char atrcvbuf[CN_AT_LEN];
 
 	//first we should check if the sim card inserted:at+cpin?
 	printf("checkcgmm:");
@@ -327,8 +264,8 @@ static bool_t checkmm(char *devname,int times)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cgmm",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cgmm",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			position = strinargs(argc,argv,"OK");
@@ -338,7 +275,7 @@ static bool_t checkmm(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 	}
 	if(result)
 	{
@@ -358,15 +295,15 @@ static bool_t checksn(char *devname,int times)
 	int   argc;
 	int   i = 0;
 	int  position;
-
+    char atrcvbuf[CN_AT_LEN];
 	//first we should check if the sim card inserted:at+cpin?
 	printf("checkcgsn:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cgsn",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cgsn",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			position = strinargs(argc,argv,"OK");
@@ -376,7 +313,7 @@ static bool_t checksn(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 
 	}
 	if(result)
@@ -397,15 +334,15 @@ static bool_t checkmr(char *devname,int times)
 	int   argc;
 	int   i = 0;
 	int  position;
-
+    char atrcvbuf[CN_AT_LEN];
 	//first we should check if the sim card inserted:at+cpin?
 	printf("checkcgmr:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cgmr",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cgmr",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			position = strinargs(argc,argv,"OK");
@@ -415,7 +352,7 @@ static bool_t checkmr(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 
 	}
 	if(result)
@@ -435,6 +372,7 @@ static tagImsi* checkcimi(char *devname,int times,char *simapn)
 	int   argc;
 	int   i = 0,tmp =0;
 	int  position =-1;
+    char atrcvbuf[CN_AT_LEN];
 	//find the mnc here
 	tagImsi* result = NULL;
 	//first we should check if the sim card inserted:at+cpin?
@@ -443,8 +381,8 @@ static tagImsi* checkcimi(char *devname,int times,char *simapn)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cimi",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cimi",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			position = strinargs(argc,argv,"OK");
@@ -472,7 +410,7 @@ static tagImsi* checkcimi(char *devname,int times,char *simapn)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 
 	}
 	if((position == 0)||(position == -1))
@@ -488,15 +426,15 @@ static bool_t checkcpin(char *devname,int times)
 	char *argv[6];
 	int   argc;
 	int   i = 0;
-
+    char atrcvbuf[CN_AT_LEN];
 	//first we should check if the sim card inserted:at+cpin?
 	printf("checkcpin:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cpin?",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cpin?",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			if(-1!=strinargs(argc,argv,"READY"))
@@ -505,7 +443,7 @@ static bool_t checkcpin(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 	}
 	if(result)
 	{
@@ -525,15 +463,15 @@ static bool_t  checkcgreg(char *devname,int times)
 	char *argv[6];
 	int   argc;
 	int   i = 0;
-
+    char atrcvbuf[CN_AT_LEN];
 	//first we should check if the sim card inserted:at+cpin?
 	printf("checkcreg:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"at+cgreg?",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"at+cgreg?",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			if((-1!=strinargs(argc,argv,",1"))||(-1!=strinargs(argc,argv,",5")))
@@ -553,25 +491,24 @@ static bool_t  checkcgreg(char *devname,int times)
 	}
 	return result;
 }
-//usage:used to set the apn
+//usage:used to set the apn:set the apn
 static bool_t  setnetapn(char *devname,char *apn,int times)
 {
 	bool_t result = false;
 	char *argv[6];
 	int   argc;
 	int   i = 0;
-
-	//first we should check if the sim card inserted:at+cpin?
+    char atrcvbuf[CN_AT_LEN];
 	printf("setapn:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
 		char cgdcont[64];
 		memset(cgdcont,0,64);
 		snprintf(cgdcont,63,"%s%s%s%s","at+cgdcont=1,\"ip\",","\"",apn,"\"");
-		argc = AtCmd(devname,cgdcont,gAtRcvBuf,CN_AT_LEN,6,argv);
+		argc = AtCmd(devname,cgdcont,atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			if((-1!=strinargs(argc,argv,"OK"))||(-1!=strinargs(argc,argv,"ok")))
@@ -580,7 +517,7 @@ static bool_t  setnetapn(char *devname,char *apn,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 	}
 	if(result)
 	{
@@ -593,22 +530,21 @@ static bool_t  setnetapn(char *devname,char *apn,int times)
 	return result;
 }
 
-//usage:used to call the data connection
+//usage:used to call the data connection,form now on, we will change to data mode,any at command will be invalid
 static bool_t  atdcall(char *devname,int times)
 {
 	bool_t result = false;
 	char *argv[6];
 	int   argc;
 	int   i = 0;
-
-	//first we should check if the sim card inserted:at+cpin?
+    char atrcvbuf[CN_AT_LEN];
 	printf("atdcall:");
 	for(i =0;i<times;i++)
 	{
 		printf("%d->",i);
 		memset(argv,0,sizeof(argv));
-		memset(gAtRcvBuf,0,sizeof(gAtRcvBuf));
-		argc = AtCmd(devname,"atd*99#",gAtRcvBuf,CN_AT_LEN,6,argv);
+		memset(atrcvbuf,0,sizeof(atrcvbuf));
+		argc = AtCmd(devname,"atd*99***1#",atrcvbuf,CN_AT_LEN,6,argv);
 		if(argc > 0)
 		{
 			if((-1!=strinargs(argc,argv,"CONNECT"))||(-1!=strinargs(argc,argv,"connect")))
@@ -617,7 +553,7 @@ static bool_t  atdcall(char *devname,int times)
 				break;
 			}
 		}
-        taskdelay(1000);
+        task_sleepms(1000);
 	}
 	if(result)
 	{
@@ -630,17 +566,17 @@ static bool_t  atdcall(char *devname,int times)
 	return result;
 }
 
-static bool_t AtGetSignal(char *devname,int *signal)
+static bool_t atgetsignal(char *devname,int *signal)
 {
     bool_t ret = false;
 	char *argv[6];
 	int   argc;
 	int   position =-1;
-	char    buf[32];
-	int   result = -1;
+    char atrcvbuf[CN_AT_LEN];	
+    int   result = -1;
 	memset(argv,0,sizeof(argv));
-	memset(buf,0,sizeof(buf));
-	argc = AtCmd(devname,"at+csq",buf,32,6,argv);
+	memset(atrcvbuf,0,sizeof(atrcvbuf));
+	argc = AtCmd(devname,"at+csq",atrcvbuf,CN_AT_LEN,6,argv);
 	if(argc > 0)
 	{
 		position = strinargs(argc,argv,"OK");
@@ -663,13 +599,11 @@ static bool_t AtGetSignal(char *devname,int *signal)
     }
 	return ret;
 }
-
-
-//usage:use this functiont to make the device to the ppp mode
-bool_t AtDial(char *devname,char *apn)
+//usage:this function used to check the modem state and change the modem state from at to data
+int AtDial(char *devname,char *apn)
 {
 	bool_t result = false;
-
+    int  ret = -1; 
 	char  *simapn;
 	simapn = apn;
 	printf("ATCMD CALL BEGIN:\n\r");
@@ -677,38 +611,38 @@ bool_t AtDial(char *devname,char *apn)
 	result = checkmi(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
     //check the signal
-   	result = AtGetSignal(devname,NULL);
+   	result = atgetsignal(devname,NULL);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	} 
     
 	//check the mm
 	result = checkmm(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
 	//check the mr
 	result = checkmr(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
 	//check the sn
 	result = checksn(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
 	//first we should check if the sim card inserted:at+cpin?
 	result = checkcpin(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
 	//check the apn here
 	if((NULL == simapn)||(simapn[0]=='\0'))
@@ -719,7 +653,7 @@ bool_t AtDial(char *devname,char *apn)
 		if(NULL == imsi)
 		{
 			result = false ;
-			return result;
+			return ret;
 		}
 		else
 		{
@@ -746,22 +680,13 @@ bool_t AtDial(char *devname,char *apn)
 	result = atdcall(devname,32);
 	if(result == false)
 	{
-		return result;
+		return ret;
 	}
 	//for the end
-	return result;
+    ret = 0;
+	return ret;
 }
 
-void *main_pppinput(unsigned int args)
-{
-    bool_t ret = false;
-    ret =AtDial(gAtDevName,NULL);
-    if(ret == true)
-    {
-        printf("DIAL SUCCESS!\n\r");
-    }
-    return NULL;
-}
 
 
 

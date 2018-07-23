@@ -94,7 +94,7 @@ void app_data_report(void)
         printf("report ret: %d\n",ret);
         ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
         printf("data change ret: %d\n",ret);
-        (void)LOS_TaskDelay(250*8*10);
+        (void)LOS_TaskDelay(1000*10);
     }
 }
 
