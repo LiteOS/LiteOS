@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.1.14181</state>
+                    <state>8.20.2.14834</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -200,6 +200,10 @@
                     <name>DSPExtension</name>
                     <state>0</state>
                 </option>
+                <option>
+                    <name>TrustZone</name>
+                    <state>0</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -217,6 +221,7 @@
                     <state>FREEDOM</state>
                     <state>LOS_KERNEL_DEBUG_OUT</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
+                    <state>ARM_MATH_CM0PLUS</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1041,7 +1046,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1228,6 +1233,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
