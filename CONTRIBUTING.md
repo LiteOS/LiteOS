@@ -11,10 +11,10 @@ For bug reports,we suggest the community to use following template to report all
 >
 > * **To Reproduce**
 > *Steps to reproduce the behavior*:
->  - step 1
->  - step 2
->  - step 3
->  - step 4
+>  	- step 1
+>  	- step 2
+>  	- step 3
+>  	- step 4
 >
 > * **Expected behavior**
 > *A clear and concise description of what you expected to happen.*
@@ -23,9 +23,9 @@ For bug reports,we suggest the community to use following template to report all
 > *A clear and concise description of what happens currently.*
 >
 > * **Please tell us about your environment:**
->  - LiteOS Version: 
->  - Chip Architecture:
->  - Board: 
+>  	- LiteOS Version: 
+>  	- Chip Architecture:
+>  	- Board: 
 >
 > * **Other information** (*e.g. detailed explanation, stacktraces, related issues, suggestions how to fix, links for us to have context, eg. stackoverflow, gitter, etc*)
 
