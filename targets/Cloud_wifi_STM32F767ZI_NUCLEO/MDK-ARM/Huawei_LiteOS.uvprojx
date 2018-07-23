@@ -1381,6 +1381,11 @@
               <FileType>4</FileType>
               <FilePath>..\..\..\drivers\devices\wifi\esp8266_anylink_spi\Cortex-M7_lib\M8266WIFIDrv_STM32F7xx.lib</FilePath>
             </File>
+            <File>
+              <FileName>M8266_WIFI_SPI_HAL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\drivers\devices\wifi\esp8266_anylink_spi\Cortex-M7_lib\M8266_WIFI_SPI_HAL.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

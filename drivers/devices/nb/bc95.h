@@ -50,7 +50,7 @@
 #define AT_BUARDRATE        9600
 #define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
-#define MAX_AT_USERDATA_LEN 2048
+#define MAX_AT_USERDATA_LEN (1024*5)
 
 #define NB_STAT_LOCALPORT 56
 #define AT_LINE_END 		"\r\n"

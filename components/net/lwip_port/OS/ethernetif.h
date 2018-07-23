@@ -40,24 +40,16 @@
 #include "lwip/netif.h"
 #include "lwip/pbuf.h"
 
-typedef int8_t (*eth_init_fn)(struct netif* netif);
-typedef int8_t (*eth_set_mac_fn)(struct netif* netif);
-typedef int8_t (*eth_start_fn)(struct netif* netif);
-typedef int8_t (*eth_output_fn)(struct netif* netif,struct pbuf *p);
-typedef struct pbuf* (*eth_input_fn)(struct netif* netif);
-
-
-struct eth_api{
-    eth_init_fn     init;
-    eth_set_mac_fn  set_mac;
-    eth_start_fn    start;
-    eth_output_fn   output;
-    eth_input_fn    input;
+struct ethernet_api
+{
+    int8_t          (*init)     (struct netif* netif);
+    int8_t          (*output)   (struct netif* netif, struct pbuf *p);
+    struct pbuf*    (*input)    (struct netif* netif);
 };
 
-int8_t ethernetif_api_register(struct eth_api *api);
-void ethernetif_rxcb(void);
+int8_t ethernetif_api_register(struct ethernet_api *api);
 
 err_t ethernetif_init(struct netif *netif);
 void ethernetif_input( void * pvParameters );
-#endif
+
+#endif /* __ETHERNETIF_H__ */

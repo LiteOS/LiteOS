@@ -148,8 +148,12 @@ static uint8_t prv_read_data(plat_instance_t * targetP,
                     ret = atiny_dequeue_rpt_data((targetP->header), &data);
                     if (ret != ATINY_OK)
                     {
-                        ATINY_LOG(LOG_ERR, "atiny_dequeue_rpt_data fail,ret=%d", ret);
+                        ATINY_LOG(LOG_INFO, "atiny_dequeue_rpt_data fail,ret=%d", ret);
                         return COAP_404_NOT_FOUND;
+                    }
+                    else
+                    {
+                        ATINY_LOG(LOG_DEBUG, "atiny_dequeue_rpt_data sucessfully");
                     }
 
                     dataArrayP[i].id = 0;

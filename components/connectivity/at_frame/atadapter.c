@@ -37,7 +37,7 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
-
+extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -106,8 +106,9 @@ int32_t at_get_unuse_linkid()
         }
     }
 
-    if (i >= 0 && i < at_user_conf.linkid_num)
+    if (i < at_user_conf.linkid_num)
         at.linkid[i].usable = AT_LINK_INUSE;
+    
     return i;
 }
 
@@ -219,7 +220,7 @@ void at_recv_task(uint32_t p)
 
         int32_t data_len = 0;
         char * p1, * p2;
-        AT_LOG_DEBUG("recv len = %lu buf = %s", recv_len, tmp);
+        AT_LOG_DEBUG("recv len = %lu buf = %s buff_full = %d", recv_len, tmp, buff_full);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
@@ -445,7 +446,7 @@ int32_t at_struct_deinit(at_task * at)
 
 void at_init()
 {
-    AT_LOG("Config %s......\n", at_user_conf.name);
+    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name,at_user_conf.user_buf_len);
 
     LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))

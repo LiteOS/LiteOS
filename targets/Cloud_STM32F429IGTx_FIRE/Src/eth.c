@@ -1,6 +1,52 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
+
 #include "eth.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_eth.h"
+#include "lwip/timeouts.h"
+#include "netif/etharp.h"
+#include <string.h>
 
 
+#define netifINTERFACE_TASK_STACK_SIZE              ( 4096u )
+#define netifINTERFACE_TASK_PRIORITY                ( 6u   )
+/* The time to block waiting for input. */
+#define TIME_WAITING_FOR_INPUT                      ( 500u )
+
+/* Semaphore to signal incoming packets */
+static sys_sem_t s_xSemaphore;
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -34,7 +80,6 @@ void ETH_IRQHandler(void)
     HAL_ETH_IRQHandler(&heth);
 }
 
-
 /**
   * @brief  Ethernet Rx Transfer completed callback
   * @param  heth: ETH handle
@@ -43,7 +88,7 @@ void ETH_IRQHandler(void)
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *pheth)
 {
     (void)pheth;
-	ethernetif_rxcb();
+	sys_sem_signal(&s_xSemaphore);
 }
 
 /* Private functions ---------------------------------------------------------*/
@@ -159,6 +204,15 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
     }
 }
 
+static void eth_thread(void *arg)
+{
+    while (1)
+    {
+        sys_arch_sem_wait(&s_xSemaphore, TIME_WAITING_FOR_INPUT);
+        ethernetif_input(arg);
+    }
+}
+
 static int8_t eth_init(struct netif* netif)
 {
     HAL_StatusTypeDef hal_eth_init_status;
@@ -194,12 +248,11 @@ static int8_t eth_init(struct netif* netif)
     /* Initialize Rx Descriptors list: Chain Mode  */
     (void)HAL_ETH_DMARxDescListInit(&heth, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
 
-    return 0;
+#if LWIP_ARP || LWIP_ETHERNET
     
-}
+    /* set MAC hardware address length */
+    netif->hwaddr_len = ETH_HWADDR_LEN;
 
-static int8_t eth_set_mac(struct netif* netif)
-{
     /* set MAC hardware address */
     netif->hwaddr[0] =  heth.Init.MACAddr[0];
     netif->hwaddr[1] =  heth.Init.MACAddr[1];
@@ -208,15 +261,30 @@ static int8_t eth_set_mac(struct netif* netif)
     netif->hwaddr[4] =  heth.Init.MACAddr[4];
     netif->hwaddr[5] =  heth.Init.MACAddr[5];
 
-    return 0;
-}
+    /* maximum transfer unit */
+    netif->mtu = 1500;
 
-static int8_t eth_start(struct netif* netif)
-{
-    (void)netif;
+    /* Accept broadcast address and ARP traffic */
+    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
+#if LWIP_ARP
+    netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+#else
+    netif->flags |= NETIF_FLAG_BROADCAST;
+#endif /* LWIP_ARP */
+
+    if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
+    {
+        return -1;    
+    }
+    /* create the task that handles the ETH_MAC */
+    sys_thread_new((char*)"Eth_if", eth_thread, netif, netifINTERFACE_TASK_STACK_SIZE, netifINTERFACE_TASK_PRIORITY);
+
     /* Enable MAC and DMA transmission and reception */
     (void)HAL_ETH_Start(&heth);
-    return 0;
+    
+#endif /* LWIP_ARP || LWIP_ETHERNET */
+
+    return 0; 
 }
 
 static int8_t eth_output(struct netif* netif, struct pbuf* p)
@@ -382,10 +450,8 @@ static struct pbuf* eth_input(struct netif* netif)
     return p;
 }
 
-struct eth_api g_eth_api = {
+struct ethernet_api g_eth_api = {
     .init     = eth_init,
-    .set_mac  = eth_set_mac,
-    .start    = eth_start,
     .output   = eth_output,
     .input    = eth_input
 };

@@ -35,9 +35,6 @@
 #include "los_tick.h"
 #include "los_task.ph"
 #include "los_config.h"
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
-#include "los_sr.h"
-#endif
 
 #if (LOSCFG_PLATFORM_EXC == YES)
 #include "los_exc.ph"

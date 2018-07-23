@@ -52,7 +52,10 @@
 #include "lwip/errno.h"
 #elif defined(WITH_AT_FRAMEWORK)
 #include "at_api_interface.h"
+#elif defined(WITH_WIZNET)
+#include "wiznet.h"
 #else
+// TODO
 #endif
 
 #define SOCKET_DEBUG
@@ -178,6 +181,21 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
         atiny_free(ctx);
         ctx = NULL;
     }
+#elif defined(WITH_WIZNET)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }    
+
+    ctx->fd = wiznet_connect(host, port, proto);
+    if (ctx->fd < 0)
+    {
+        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        atiny_free(ctx);
+        ctx = NULL;
+    }
 #else
 #endif  
     return ctx;
@@ -190,7 +208,9 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = recv(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
-    ret = at_api_recv(fd,buf,len);
+    ret = at_api_recv(fd, buf, len);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_recv(fd, buf, len);
 #else
     (void)fd; //clear unuse warning
 #endif
@@ -251,10 +271,18 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         return -2;
     }
 
+    if(ret < 0)
+    {
+        SOCKET_LOG("select error ret=%d,err 0x%x", ret, errno);
+        return -1;
+    }
+
     ret = atiny_net_recv(ctx, buf, len);
     
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_recv_timeout(fd, buf, len, timeout);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_recv_timeout(fd, buf, len, timeout);
 #else
     (void)fd; //clear unuse warning
 #endif
@@ -276,6 +304,8 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     ret = send(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_send(fd, buf, len);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_send(fd, buf, len);
 #else
 #endif
 
@@ -308,6 +338,8 @@ void atiny_net_close(void* ctx)
         close(fd);
 #elif defined(WITH_AT_FRAMEWORK)
         at_api_close(fd);
+#elif defined(WITH_WIZNET)
+        wiznet_close(fd);
 #endif
     }
 

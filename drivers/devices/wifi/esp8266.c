@@ -125,28 +125,10 @@ int32_t esp8266_send(int32_t id , const uint8_t  *buf, uint32_t len)
     return ret;
 }
 
-int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
-{
-    uint32_t qlen = sizeof(QUEUE_BUFF);
-
-    QUEUE_BUFF  qbuf = {0, NULL};
-    int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, LOS_WAIT_FOREVER);
-    AT_LOG("ret = %x, len = %ld", ret, qbuf.len);
-    if (ret != LOS_OK)
-    {
-        return AT_FAILED;
-    }
-
-    if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
-        at_free(qbuf.addr);
-    }
-    return qbuf.len;
-}
-
 int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t timeout)
 {
    uint32_t qlen = sizeof(QUEUE_BUFF);
+   uint32_t rxlen = 0;
 
     QUEUE_BUFF  qbuf = {0, NULL};
     int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, timeout);
@@ -157,10 +139,16 @@ int32_t esp8266_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t tim
     }
 
     if (qbuf.len){
-        memcpy(buf, qbuf.addr, qbuf.len);
+        rxlen = (len < qbuf.len) ? len : qbuf.len;
+        memcpy(buf, qbuf.addr, rxlen);
         at_free(qbuf.addr);
     }
-    return qbuf.len;
+    return rxlen;
+}
+
+int32_t esp8266_recv(int32_t id, int8_t * buf, uint32_t len)
+{
+    return esp8266_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
 }
 
 int32_t esp8266_close(int32_t id)
@@ -172,6 +160,15 @@ int32_t esp8266_close(int32_t id)
     }
     else
     {
+        uint32_t qlen = sizeof(QUEUE_BUFF);
+        QUEUE_BUFF  qbuf = {0, NULL};
+        while(LOS_OK == LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, 10))
+        {
+            if (qbuf.len){
+                at_free(qbuf.addr);
+                memset(&qbuf, 0, sizeof(QUEUE_BUFF)); // don't use qlen
+            }
+        }
         LOS_QueueDelete(at.linkid[id].qid);
         at.linkid[id].usable = 0;
         snprintf(cmd, 64, "%s=%ld", AT_CMD_CLOSE, id);
@@ -304,6 +301,19 @@ int32_t esp8266_recv_cb(int32_t id)
 
 int32_t esp8266_deinit(void)
 {
+    int id = 0;
+    
+    for(id = 0; id < AT_MAX_LINK_NUM; id++)
+    {
+        if(AT_LINK_INUSE == at.linkid[id].usable)
+        {
+            if(AT_OK != esp8266_close(id))
+            {
+                AT_LOG("esp8266_close(%d) failed", id);
+            }
+        }
+    }
+    
     at.deinit();
     return AT_OK;
 }

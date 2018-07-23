@@ -34,7 +34,7 @@
 
 #include "atiny_log.h"
 
-static atiny_log_e g_atiny_log_level = LOG_INFO;
+static atiny_log_e g_atiny_log_level = LOG_ERR;
 
 static const char* g_log_names[] =
 {
