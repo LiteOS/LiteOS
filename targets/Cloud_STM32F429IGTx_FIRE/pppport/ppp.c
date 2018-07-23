@@ -43,17 +43,15 @@ Supported compression or miscellaneous protocols, for serial links only:
 
 */
 
+#if USE_PPPOS
 
-/*  //2 Raw API PPP example for all protocols
-=======================================
-
-As usual, raw API for lwIP means the lightweight API which *MUST* only be used
-for NO_SYS=1 systems or called inside lwIP core thread for NO_SYS=0 systems.
-
-*/
 #include "netif/ppp/ppp.h"
 #include "netif/ppp/pppapi.h"
 #include "netif/ppp/pppos.h"
+
+
+int gPppRcvMode = 0;
+int gConnect = 0;
 
 u32_t sys_jiffies(void)
 {
@@ -63,6 +61,8 @@ u32_t sys_jiffies(void)
     ret = (UINT32)g_ullTickCount;
     return ret;
 }
+#include "osport.h"
+
 
 /* The PPP control block */
 ppp_pcb *ppp;
@@ -101,6 +101,7 @@ static void status_cb(ppp_pcb *pcb, int err_code, void *ctx)
               printf("   dns1        = %s\n", ipaddr_ntoa(ns));
               ns = dns_getserver(1);
               printf("   dns2        = %s\n", ipaddr_ntoa(ns));
+              gConnect =1;
         #endif /* LWIP_DNS */
         #endif /* PPP_IPV4_SUPPORT */
         #if PPP_IPV6_SUPPORT
@@ -200,16 +201,44 @@ pppif, 0)));
 }
 static u32_t output_cb(ppp_pcb *pcb, u8_t *data, u32_t len, void *ctx) 
 {
-  return uart_write(data, len);
+  return iodev_write(0,data, len,100);
+}
+
+
+void *main_pppinput(unsigned int args)
+{
+    int ret;
+    unsigned char buf[256];
+    while(1)
+    {
+        if(gPppRcvMode)
+        {
+            iodev_debugmode(2,2);
+            ret = iodev_read(0,buf,256,10);
+            if(ret >0)
+            {
+                pppos_input(ppp,(unsigned char *)buf,ret);
+            }
+        }
+    }
 }
 VOID *main_ppp(UINT32  args)
 {
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
     
+    //here we make the modem to data mode
+    iodev_debugmode(2,1);
+    extern int AtDial(char *devname,char *apn);
+    while(0 != AtDial("uart3",NULL))
+    {
+    }
     ppp = pppos_create(&ppp_netif,output_cb, status_cb, NULL);
     if(NULL != ppp)
     {
+        extern void *main_pppinput(unsigned int args);
+        task_create("main_pppinput",main_pppinput,0x800,NULL,NULL,0);
+        
         /* Set this interface as default route */
         ppp_set_default(ppp);
         /* Ask the peer for up to 2 DNS server addresses. */
@@ -217,14 +246,22 @@ VOID *main_ppp(UINT32  args)
 
         /* Auth configuration, this is pretty self-explanatory */
         ppp_set_auth(ppp, PPPAUTHTYPE_ANY, "login", "password");
+        gPppRcvMode =1;
         u16_t holdoff = 0;
         ppp_connect(ppp, holdoff);
+        while(gConnect == 0) //wait to do the connect
+        {
+            LOS_TaskDelay(10);
+        }
+        extern void agent_tiny_entry(void);
+        agent_tiny_entry();    
         ppp_free(ppp);
-
     }
+    
+
     return NULL;  
 }
-
+#endif
 
 
 

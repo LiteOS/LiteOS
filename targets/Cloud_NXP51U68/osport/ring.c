@@ -1,10 +1,10 @@
 #include <string.h>
-#include "ring.h"
+#include "osport.h"
 //ring:which to be initialized
 //buf:you supplied for the ring
 //len:the buf length
 //return:0 means ok while -1 failed
-int RingInit(tagRingBuf *ring,char *buf, int buflen,int offset,int datalen)
+s32_t ring_init(tagRingBuf *ring,u8_t *buf, s32_t buflen,s32_t offset,s32_t datalen)
 {
     int ret = -1;
     if((NULL == ret))
@@ -18,11 +18,10 @@ int RingInit(tagRingBuf *ring,char *buf, int buflen,int offset,int datalen)
     ret = 0;
     return ret;
 }
-
 //write len bytes data to the ring
 //return:how many bytes has been written while -1 means something err
 //write only changes the datalen and  data in  the ring
-int RingWrite(tagRingBuf *ring,char *buf,unsigned int len)
+s32_t ring_write(tagRingBuf *ring,u8_t *buf, s32_t len)
 {
 	int ret = -1;
 	int cpylen;  //the current time we should move
@@ -77,7 +76,7 @@ int RingWrite(tagRingBuf *ring,char *buf,unsigned int len)
 //read len bytes data from the ring
 //return:how many bytes has been read while -1 means something err
 //read effect the offset datalen and data in the ring
-int RingRead(tagRingBuf *ring,char *buf,unsigned int len)
+s32_t ring_read(tagRingBuf *ring,u8_t *buf, s32_t len)
 {
 	int ret = -1;
 	int cpylen;  //the current time we should move
@@ -122,7 +121,7 @@ int RingRead(tagRingBuf *ring,char *buf,unsigned int len)
 	return ret;
 }
 
-int RingDataLen(tagRingBuf *ring)
+s32_t ring_datalen(tagRingBuf *ring)
 {
 	int ret = -1;
 	if(NULL != ring)
@@ -131,7 +130,7 @@ int RingDataLen(tagRingBuf *ring)
 	}
 	return ret;
 }
-int RingReset(tagRingBuf *ring)
+s32_t ring_reset(tagRingBuf *ring)
 {
 	int ret = -1;
 	if(NULL != ring)
