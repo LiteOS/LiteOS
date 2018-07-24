@@ -191,21 +191,69 @@ int main(void)
 </tr>
 <tr>
 	<td></td>
+	<td>Cloud_STM3210E_EVAL</td>
+	<td></td>
+	<td>STM3210E（ARM Cortex M3）W5500 以太网LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Cloud_wifi_STM32F429ZI_NUCLEO</td>
+	<td></td>
+	<td>STM32F429（ARM Cortex M4）marvell SDIO wifi LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Cloud_wifi_STM32F767ZI_NUCLEO</td>
+	<td></td>
+	<td>STM32F767（ARM Cortex M7）esp8266 spi wifi LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Demo_Tutorial_STM32F103VC_TAIBI</td>
+	<td></td>
+	<td>STM32F103_TAIBI（ARM Cortex M3）LiteOS入门demo，最简单的LED点灯示例程序</td>
+</tr>
+<tr>
+	<td></td>
 	<td>Standard_FRDM_KW41Z</td>
 	<td></td>
-	<td>FRDM（ARM Cortex M0+）板端工程代码（含原厂芯片驱动）</td>
+	<td>FRDM（ARM Cortex M0+）Standard前缀命名的工程仅为内核移植demo，下同（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_IMXRT1052_FIRE</td>
+	<td></td>
+	<td>IMXRT1052（ARM Cortex M7）跨界处理器NXP IMXRT1052内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_msp430f5438a_taurus_v4.2</td>
+	<td></td>
+	<td>MSP430（TI 16位低功耗单片机）LiteOS首个16位单片机内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_NRF51822_BLE</td>
+	<td></td>
+	<td>NRF51822（ARM Cortex M0）NRF51822蓝牙芯片内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_STM32F0Discovery</td>
+	<td></td>
+	<td>STM32F0Discovery（ARM Cortex M0）STM32F0 内核移植demo，RAM 8KB，资源裁剪可参考该工程配置（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
 	<td>Standard_STM32F103RB_NUCLEO</td>
 	<td></td>
-	<td>F103（ARM Cortex M3）板端工程代码（含原厂芯片驱动）</td>
+	<td>F103（ARM Cortex M3）STM32F103内核移植demo（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
-	<td>Cloud_STM32F429IGTx_FIREL</td>
+	<td>Standard_STM32F103VC_TAIBI</td>
 	<td></td>
-	<td>F429（ARM Cortex M4）板端工程代码（含原厂芯片驱动）</td>
+	<td>STM32F103VC_TAIBI（ARM Cortex M3）钛比STM32F103开发板内核移植demo（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
