@@ -165,7 +165,18 @@ int main(void)
 	<td>tickless</td>
 	<td>低功耗框架代码</td>
 </tr>
-
+<tr>
+	<td>targets</td>
+	<td>Cloud_NB-IoT_STM32F103RE_OneNET</td>
+	<td></td>
+	<td>中国移动OneNet NB-IoT 端云demo工程</td>
+</tr>
+<tr>
+	<td>targets</td>
+	<td>Cloud_NXP51U68</td>
+	<td></td>
+	<td>NXP ARM Cortex M0 ENC28J60以太网LiteOS SDK端云demo</td>
+</tr>
 <tr>
 	<td>targets</td>
 	<td>Standard_FRDM_KW41Z</td>
