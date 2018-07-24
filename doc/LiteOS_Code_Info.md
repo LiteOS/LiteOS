@@ -89,7 +89,22 @@ int main(void)
 	<tr>
 	<td></td>
 	<td>fota</td>
+	<td></td>
 	<td>固件升级代码</td>
+</tr>
+</tr>
+	<tr>
+	<td></td>
+	<td>fs</td>
+	<td></td>
+	<td>文件系统，含VFS、spiffs、ramfs、kifs、devfs</td>
+</tr>
+</tr>
+	<tr>
+	<td></td>
+	<td>lib</td>
+	<td>libc</td>
+	<td>LiteOS libc优化</td>
 </tr>
 <tr>
 	<td></td>
