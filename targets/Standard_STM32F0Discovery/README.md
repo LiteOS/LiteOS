@@ -123,7 +123,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 ### 加入内核源码  
 
-加入内核源码之前，请将之前生成的裸机工程放入targets目录下，保持和LiteOS目录一致。将arc和components\cmsis两个目录下的源码加入工程，最终目录结构应为如下格式：
+加入内核源码之前，请将之前生成的裸机工程放入targets目录下，保持和LiteOS目录一致。将arc和components\cmsis两个目录下的源码也加入工程，后续操作涉及到的目录如下，其他不涉及的暂不列举：
 
 ```c
 LiteOS
@@ -132,6 +132,7 @@ LiteOS
 ├─ kernel
 ├─ targets
    └─ Standard_STM32F0Discovery    // “使用CubeMX新建STM32裸机工程”步骤构建的裸机工程
+···
 ```  
 
 1. 添加cmsis os代码
