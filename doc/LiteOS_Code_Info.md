@@ -71,8 +71,26 @@ int main(void)
 <tr>
 	<td></td>
 	<td></td>
+	<td>at_frame</td>
+	<td>LiteOS AT框架实现</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
 	<td>lwm2m</td>
 	<td>lwm2m协议实现</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>nbiot</td>
+	<td>LiteOS NB-IoT API</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>paho.mqtt.embedded-c-1.1.0</td>
+	<td>MQTT开源协议实现 API</td>
 </tr>
 <tr>
 	<td></td>
