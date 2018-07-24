@@ -115,7 +115,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osCpuTick2MS(CPU_TICK *pstCpuTick, UINT32 *puwMsHi,
     }
 
     ullCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
-    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_MS_PER_SECOND); /*lint !e160 !e653*/
+    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_MS_PER_SECOND); /*lint !e160 !e653 !e40*/
     ullCpuTick = (UINT64)dTemp;
 
     *puwMsLo = (UINT32)ullCpuTick;
@@ -143,7 +143,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osCpuTick2US(CPU_TICK *pstCpuTick, UINT32 *puwUsHi,
     }
 
     ullCpuTick = ((UINT64)pstCpuTick->uwCntHi << OS_SYS_MV_32_BIT) | pstCpuTick->uwCntLo;
-    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_US_PER_SECOND); /*lint !e160 !e653*/
+    dTemp = ullCpuTick / (((double)OS_SYS_CLOCK) / OS_SYS_US_PER_SECOND); /*lint !e160 !e653 !e40*/
     ullCpuTick = (UINT64)dTemp;
 
     *puwUsLo = (UINT32)ullCpuTick;

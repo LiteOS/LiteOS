@@ -158,7 +158,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrInit(VOID)
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0, LOSCFG_BASE_CORE_SWTMR_LIMIT);
+    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0, LOSCFG_BASE_CORE_SWTMR_LIMIT * sizeof(UINT32));
  #endif
 
     m_pstSwtmrSortList = (SWTMR_CTRL_S *)NULL;
