@@ -297,6 +297,6 @@ int main(void)
 	<td></td>
 	<td>Standard_STM32F746ZG_NUCLEO</td>
 	<td></td>
-	<td>F746（ARM Cortex M7）板端工程代码（含原厂芯片驱动）</td>
+	<td>F746（ARM Cortex M7）STM32F746内核移植demo（含原厂芯片驱动）</td>
 </tr>
 </table>
