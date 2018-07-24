@@ -68,13 +68,14 @@ void app_data_report(void)
 {
     uint8_t buf[5] = {0,1,6,5,9};
     data_report_t report_data;
-    int ret;
+    int ret = 0;
     int cnt = 0;
     report_data.buf = buf;
     report_data.callback = ack_callback;
     report_data.cookie = 0;
     report_data.len = sizeof(buf);
     report_data.type = APP_DATA;
+    (void)ret;
     while(1)
     {
         report_data.cookie = cnt;

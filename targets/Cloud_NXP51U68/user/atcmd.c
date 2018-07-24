@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "los_task.h"
+
 #define CN_IODEV_WTIMEOUT   100
 #define CN_IODEV_RTIMEOUT   10
 
@@ -39,8 +41,6 @@ int iodevwrite(int fd,char *buf,int len,int timeout)
 }
 int iodevclose(int fd)
 {
-    int ret = 0;;
-    
     return 0;
 }
 int iodevflush(int fd)
