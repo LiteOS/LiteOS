@@ -90,7 +90,7 @@ int main(void)
 	<td></td>
 	<td></td>
 	<td>paho.mqtt.embedded-c-1.1.0</td>
-	<td>MQTT开源协议实现 API</td>
+	<td>MQTT开源协议实现</td>
 </tr>
 <tr>
 	<td></td>
