@@ -677,13 +677,13 @@ next_step:
             bootstrap_start(contextP);
             contextP->state = STATE_BOOTSTRAPPING;
             bootstrap_step(contextP, tv_sec, timeoutP);
+						break;
         }
         else
 #endif
         {
             return COAP_503_SERVICE_UNAVAILABLE;
         }
-        break;
 
 #ifdef LWM2M_BOOTSTRAP
     case STATE_BOOTSTRAPPING:
