@@ -4,7 +4,8 @@
 
 ### 硬件环境
 
-- 开发板：可选STM32F0、STM32F1、STM32F4、STM32F7全系列芯片，本教程将使用STM32官方demo开发板 STM32F0Discovery开发板进行移植，其他STM32开发板移植方法类似。
+- 开发板：可选STM32F0、STM32F1、STM32F4、STM32F7全系列芯片，本教程将使用STM32官方demo开发板 STM32F0Discovery开发板进行移植，其他STM32开发板移植方法类似。  
+
 - 仿真器：J-Link或者ST-Link
 
 ### 软件环境
@@ -62,9 +63,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 ### 使用CubeMX新建STM32裸机工程
 
-::: tip
-非STM32芯片请自行构建对应的裸机工程
-:::
+以下步骤以STM32芯片为例，非STM32芯片请自行构建对应的裸机工程。
 
 1. 启动CubeMX后，首先新建工程：
 
@@ -82,7 +81,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 3. 配置引脚信息
 
-![](./pic/cubems-pin-config.png)
+![](./pic/cubemx-pin-config.png)
 
     如上图中标识序号
     - 5：选择Pinout标签页
@@ -90,29 +89,27 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 4. 配置时钟频率信息
 
-![](./pic/cubems-clock-rate.PNG)
+![](./pic/cubemx-clock-rate.PNG)
  
 5. 选择功能模块的参数配置
 
-![](./pic/cubems-func-param1.png)
+![](./pic/cubemx-func-param1.png)  
 
-![](./pic/cubems-func-param2.png)
+![](./pic/cubemx-func-param2.png)
 
 6. 配置生成的工程参数和路径
 
-![](./pic/cubems-project-config.png)
+![](./pic/cubemx-project-config.png)
 
 7. 代码生成配置
 
-![](./pic/cubems-code-generation.png)
+![](./pic/cubemx-code-generation.png)
 
-::: warning
-注意勾选图示选项，对应组件的代码（如串口）分别写在单独的.c和.h文件中，否则将全生成在main.c文件中。
-:::
+**注意：** 需勾选对相应选项如图示，对应组件的代码（如串口）分别写在单独的.c和.h文件中，否则将全生成在main.c文件中。
 
 8. 生成裸机工程
 
-![](./pic/cubems-baremach.png)
+![](./pic/cubemx-baremach.png)
 
 点击图示按钮即可生成STM32F051 discovery的裸机工程。
 
@@ -120,7 +117,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 点击OK，生成工程效果如下：
 
-![](./pic/cubems-keil-view.png)
+![](./pic/cubemx-keil-view.png)
  
 至此STM32F051 discovery裸机工程生成成功，该工程可直接编译并烧写在板子上运行。
 
@@ -143,13 +140,11 @@ LiteOS
 
 2. 添加内核代码
 
-![](./pic/addcode-kernel1.png)
+![](./pic/addcode-kernel1.png)  
 
 ![](./pic/addcode-kernel2.png)
 
-::: tip
 按照以上标注的源码路径添加LiteOS内核代码，需要注意的是，LiteOS提供了3套动态内存分配算法，位于 `LiteOS\kernel\base\mem` 目录下，分别是bestfit、bestfit_little、tlsf，这三套动态内存算法只需要添加其中一套就行了，对于资源有限的芯片，建议选bestfit_little，上面示例也是添加了这一套动态内存算法；另外 `LiteOS\kernel\base\mem\membox` 目录下是LiteOS提供的静态内存算法，与动态内存算法不冲突，需要添加； `LiteOS\kernel\base\mem\common` 目录的内容需要全部添加。
-:::
 
 3. 添加arch（平台相关）代码
 
@@ -262,33 +257,22 @@ LiteOS内核的板级配置均在target_config.h中完成，target_config.h配�
 
 ```c 
 #define    OS_SYS_CLOCK     (SystemCoreClock)   //配置CPU主频，需要用户更改
-
 #define    LOSCFG_PLATFORM_HWI     NO           //配置OS是否接管中断
-
-#define    LOSCFG_PLATFORM_HWI_LIMIT    32      // 配置外部中断数目
-
-#define    LOSCFG_BASE_CORE_TSK_LIMIT	3	     //配置支持的最大任务数量
-
-#define    LOSCFG_BASE_IPC_SEM_LIMIT     2	     //配置支持的最大信号量数量
-
-#define    LOSCFG_BASE_IPC_MUX_LIMIT     2       //配置支持的最大互斥锁数量
-
+#define    LOSCFG_PLATFORM_HWI_LIMIT    32      //配置外部中断数目
+#define    LOSCFG_BASE_CORE_TSK_LIMIT	3	//配置支持的最大任务数量
+#define    LOSCFG_BASE_IPC_SEM_LIMIT     2	//配置支持的最大信号量数量
+#define    LOSCFG_BASE_IPC_MUX_LIMIT     2      //配置支持的最大互斥锁数量
 #define    LOSCFG_BASE_IPC_QUEUE_LIMIT   2      //配置支持的最大队列数量
-
 #define    LOSCFG_BASE_CORE_SWTMR_LIMIT  2      //配置支持的最大软件定时器数量
-
-#define    BOARD_SRAM_START_ADDR     0x20000000 // 配置目标芯片RAM起始地址
-
+#define    BOARD_SRAM_START_ADDR     0x20000000 //配置目标芯片RAM起始地址
 #define    BOARD_SRAM_SIZE_KB        8	        //配置目标芯片RAM大小，单位KB
-
-#define    CMSIS_OS_VER                 2       // 配置CMSIS OS版本，支持V1和V2
+#define    CMSIS_OS_VER                 2       //配置CMSIS OS版本，支持V1和V2
 ```
 
-::: warning 注意
+**注意：**
 - 用户根据自身硬件情况修改上述配置，特别是CPU主频和RAM尺寸要根据情况修改；
 - 本教程要求OS不接管中断，接管中断的方式需要自行修改sct文件，所以推荐初级用户先不要使能接管中断的方式；
 - 最大任务数、信号量数、互斥锁数、队列数、软件定时器数建议用户根据实际需要配置合理的数量，数量太多会占用额外的RAM资源；
-:::
 
 ### 编译下载LiteOS
 
