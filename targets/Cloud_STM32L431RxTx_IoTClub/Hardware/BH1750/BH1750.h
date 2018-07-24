@@ -43,8 +43,8 @@
 #define BH1750_ONE  0x20
 #define BH1750_RSET 0x07
 
-#define SDA_IN()  {GPIOA->MODER&=~(3<<(15*2));GPIOA->MODER|=0<<15*2;}       
-#define SDA_OUT() {GPIOA->MODER&=~(3<<(15*2));GPIOA->MODER|=1<<15*2;}   
+#define SDA_IN()  {GPIOA->MODER&=~((unsigned int)3<<(15*2));GPIOA->MODER|=0<<15*2;}       
+#define SDA_OUT() {GPIOA->MODER&=~((unsigned int)3<<(15*2));GPIOA->MODER|=1<<15*2;}   
 
 
 void    I2C_Start(void);
