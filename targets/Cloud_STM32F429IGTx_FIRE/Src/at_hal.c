@@ -46,7 +46,7 @@ static USART_TypeDef* s_pUSART = USART2;
 static uint32_t s_uwIRQn = USART2_IRQn;
 
 //uint32_t list_mux;
-
+uint8_t buff_full = 0;
 #ifndef USE_USARTRX_DMA
 uint32_t wi = 0;
 uint32_t wi_bak= 0;
@@ -133,6 +133,7 @@ void at_irq_handler(void)
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
         at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
+        if(wi == ri)buff_full = 1;
         if (wi >= at_user_conf.user_buf_len)wi = 0;
     }
     else 

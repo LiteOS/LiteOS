@@ -60,8 +60,13 @@ extern "C" {
 
 #include "lwip/prot/etharp.h"
 
+#ifdef USE_MRVL_SDIO_WIFI
+/** 5 seconds period */
+#define ARP_TMR_INTERVAL 5000
+#else
 /** 1 seconds period */
 #define ARP_TMR_INTERVAL 1000
+#endif
 
 #if ARP_QUEUEING
 /** struct for queueing outgoing packets for unknown address

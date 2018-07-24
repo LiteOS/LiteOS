@@ -171,7 +171,6 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 #ifdef CONFIG_FEATURE_FOTA
     atiny_fota_storage_device_s * device = NULL;
 #endif
-    int ret = -1;
 
     if (NULL == atiny_params || NULL == phandle)
     {
@@ -203,6 +202,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     atiny_mutex_lock(g_atiny_handle.quit_sem);
     g_atiny_handle.atiny_params = *atiny_params;
     *phandle = &g_atiny_handle;
+
 #ifdef CONFIG_FEATURE_FOTA
     (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
     if (NULL == device)
@@ -210,12 +210,12 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ERR;
     }
-
     return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
                         device);
-    if(ret != ATINY_OK) return ATINY_ERR;
-#endif
+#else
     return ATINY_OK;
+#endif
+
 }
 
 /*
@@ -300,6 +300,7 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     if (NULL == lwm2m_context->observe_mutex)
     {
         ATINY_LOG(LOG_FATAL, "atiny_mutex_create fail");
+        lwm2m_free(lwm2m_context);
         return ATINY_RESOURCE_NOT_ENOUGH;
     }
 
@@ -335,11 +336,13 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     }
 
     handle->obj_array[OBJ_FIRMWARE_INDEX] = get_object_firmware(atiny_params);
+#ifdef CONFIG_FEATURE_FOTA
     if (NULL == handle->obj_array[OBJ_FIRMWARE_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create firmware object");
         return ATINY_MALLOC_FAILED;
     }
+#endif
 
     handle->obj_array[OBJ_CONNECT_INDEX] = get_object_conn_m(atiny_params);
     if (NULL == handle->obj_array[OBJ_CONNECT_INDEX])
@@ -451,7 +454,6 @@ void atiny_destroy(void* handle)
 
 void atiny_event_handle(module_type_t type, int code, const char* arg, int arg_len)
 {
-    int ret = -1;
     switch (type)
     {
         case MODULE_LWM2M:
@@ -588,6 +590,12 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         ATINY_LOG(LOG_FATAL, "memory not enough");
         return ATINY_MALLOC_FAILED;
     }
+#ifdef WITH_DTLS
+    ATINY_LOG(LOG_ERR, "security device, endpoint_name is %s\n",device_info->endpoint_name);
+#else
+    ATINY_LOG(LOG_ERR, "non security device, endpoint_name is %s\n",device_info->endpoint_name);
+#endif
+
     while (!handle->atiny_quit)
     {
         timeout = BIND_TIMEOUT;
@@ -607,6 +615,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
 void atiny_deinit(void* phandle)
 {
     handle_data_t* handle;
+    void *sem = NULL;
 
     if (phandle == NULL)
     {
@@ -615,8 +624,9 @@ void atiny_deinit(void* phandle)
 
     handle = (handle_data_t*)phandle;
     handle->atiny_quit = 1;
-    atiny_mutex_lock(handle->quit_sem);
-    atiny_mutex_destroy(handle->quit_sem);
+    sem = handle->quit_sem;
+    atiny_mutex_lock(sem);
+    atiny_mutex_destroy(sem);
 }
 
 int atiny_data_report(void* phandle, data_report_t* report_data)

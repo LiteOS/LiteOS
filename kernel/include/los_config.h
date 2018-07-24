@@ -253,6 +253,14 @@ extern "C" {
 #define LOS_TASK_PRIORITY_LOWEST                            31
 #endif
 
+/**
+ * @ingroup los_config
+ * SP align size.
+ */
+#ifndef LOSCFG_STACK_POINT_ALIGN_SIZE
+#define LOSCFG_STACK_POINT_ALIGN_SIZE                       8
+#endif
+
 
 /*=============================================================================
                                        Semaphore module configuration
@@ -399,6 +407,14 @@ extern UINT8 *m_aucSysMem0;
  */
 #ifndef OS_SYS_MEM_ADDR
 #define OS_SYS_MEM_ADDR                                     (&m_aucSysMem0[0])
+#endif
+
+/**
+ * @ingroup los_config
+ * Starting address of the task stack
+ */
+#ifndef OS_TASK_STACK_ADDR
+#define OS_TASK_STACK_ADDR                                   OS_SYS_MEM_ADDR
 #endif
 
 /**
@@ -642,6 +658,61 @@ extern UINT32 g_sys_mem_addr_end;
  */
 #ifndef CMSIS_OS_VER
 #define CMSIS_OS_VER                                        1
+#endif
+
+
+/*=============================================================================
+                                       LIB module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * newlib struct _reent
+ */
+#ifndef LOSCFG_LIB_LIBC_NEWLIB_REENT
+#define LOSCFG_LIB_LIBC_NEWLIB_REENT                        NO
+#endif
+
+
+/*=============================================================================
+                                       VFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS VFS
+ */
+#ifndef LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   NO
+#endif
+
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS KIFS (kernel info fs)
+ */
+#ifndef LOSCFG_ENABLE_KIFS
+#define LOSCFG_ENABLE_KIFS                                  NO
+#endif
+
+
+/*=============================================================================
+                                       DEVFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS DEVFS
+ */
+#ifndef LOSCFG_ENABLE_DEVFS
+#define LOSCFG_ENABLE_DEVFS                                 NO
+#else
+#if (LOSCFG_ENABLE_DEVFS == YES)
+#undef  LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   YES
+#undef  LOSCFG_ENABLE_KIFS
+#define LOSCFG_ENABLE_KIFS                                  YES
+#endif
 #endif
 
 

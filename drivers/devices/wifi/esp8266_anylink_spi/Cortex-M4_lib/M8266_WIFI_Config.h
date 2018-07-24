@@ -101,8 +101,8 @@
 
 /*---for compile consideration: the lib used here is from third party---*/
 /*if you use other STM32 chips choose among: MCU_IS_STM32F2XX ; MCU_IS_STM32F3XX ; MCU_IS_STM32F4XX ; MCU_IS_STM32F7XX */
- #ifndef  MCU_IS_STM32F1XX
- #define  MCU_IS_STM32F1XX
+ #ifndef  MCU_IS_STM32F4XX
+ #define  MCU_IS_STM32F4XX
  #endif
  
  #define M8266WIFI_SPI_nCS_GPIO													M8266WIFI_SPI_nCS_GPIO_PORT

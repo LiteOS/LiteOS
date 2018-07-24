@@ -43,6 +43,20 @@
 
 #define MAX_RESTART_CNT 5
 #define OTA_INTEGRITY_BUF_SIZE 0x1000
+#define OTA_IMAGE_INTEGRITY_LENGTH 32
+
+typedef struct
+{
+    ota_state state;
+    uint8_t restart_cnt;
+    uint8_t cur_state;
+    uint16_t rsv;
+    int32_t cur_offset;
+    uint32_t old_image_length;
+    uint32_t image_length;
+    uint8_t image_integrity[OTA_IMAGE_INTEGRITY_LENGTH];
+    uint32_t crc;
+} ota_default_flag;
 
 static ota_default_flag g_ota_flag;
 
@@ -88,6 +102,7 @@ static int prv_write_ota_default_flag(void)
     int ret;
     ota_default_flag flag_tmp;
 
+    memset(&flag_tmp, 0, sizeof(ota_default_flag));
     ret = prv_read_specific(OTA_FLAG_ADDR1, &flag_tmp);
     if (0 == ret)
     {

@@ -37,21 +37,6 @@
 
 #include "los_membox.h"
 
-#define OS_MEMBOX_NEXT(addr, uwBlkSize) (LOS_MEMBOX_NODE *)((UINT8 *)(addr) + (uwBlkSize))
-
-#ifdef LOS_MEMBOX_CHECK
-#define OS_MEMBOX_MAGIC 0xa55a5aa5
-#define OS_MEMBOX_SET_MAGIC(addr) *((UINT32 *)(addr)) = OS_MEMBOX_MAGIC
-#define OS_MEMBOX_CHECK_MAGIC(addr) ((*((UINT32 *)(addr)) == OS_MEMBOX_MAGIC) ? LOS_OK : LOS_NOK)
-#else
-#define OS_MEMBOX_SET_MAGIC(addr)
-#define OS_MEMBOX_CHECK_MAGIC(addr) LOS_OK
-#endif
-
-#define OS_MEMBOX_USER_ADDR(addr) ((VOID *)((UINT8 *)(addr) + LOS_MEMBOX_MAGIC_SIZE))
-#define OS_MEMBOX_NODE_ADDR(addr) ((LOS_MEMBOX_NODE *)((UINT8 *)(addr) - LOS_MEMBOX_MAGIC_SIZE))
-
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

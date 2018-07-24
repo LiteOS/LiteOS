@@ -42,6 +42,7 @@
 #endif
 UINT32 g_TskHandle;
 
+void USART3_UART_Init(void);
 VOID HardWare_Init(VOID)
 {
     SystemClock_Config();
@@ -94,6 +95,8 @@ VOID main_task(VOID)
     agent_tiny_entry();
 #endif
 }
+
+
 UINT32 creat_main_task()
 {
     UINT32 uwRet = LOS_OK;
@@ -111,7 +114,6 @@ UINT32 creat_main_task()
     }
     return uwRet;
 }
-
 int main(void)
 {
     UINT32 uwRet = LOS_OK;
@@ -123,12 +125,17 @@ int main(void)
         return LOS_NOK;
     }
 
+#if  USE_PPPOS   
+    USART3_UART_Init();    
+    extern VOID *main_ppp(UINT32  args);
+    task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
+#else
     uwRet = creat_main_task();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
-
+#endif
     (void)LOS_Start();
     return 0;
 }

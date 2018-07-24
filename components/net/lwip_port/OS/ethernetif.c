@@ -85,11 +85,6 @@
 #include "ethernetif.h"
 #include <string.h>
 
-#define netifINTERFACE_TASK_STACK_SIZE              ( 4096u )
-#define netifINTERFACE_TASK_PRIORITY                ( 6u   )
-/* The time to block waiting for input. */
-#define TIME_WAITING_FOR_INPUT                      ( 500u )
-
 
 /* Define those to better describe your network interface. */
 #define IFNAME0 's'
@@ -97,30 +92,20 @@
 
 
 static struct netif* s_pxNetIf = NULL;
-static struct eth_api s_eth_api;
-
-/* Semaphore to signal incoming packets */
-static sys_sem_t s_xSemaphore;
-
+static struct ethernet_api s_eth_api;
 
 //void ethernetif_input( void * pvParameters );
 static void arp_timer(void* arg);
 
-int8_t ethernetif_api_register(struct eth_api *api)
+int8_t ethernetif_api_register(struct ethernet_api *api)
 {
     if(api == NULL)
     {
         return ERR_ARG;
     }
-    memcpy(&s_eth_api, api, sizeof(struct eth_api));
+    memcpy(&s_eth_api, api, sizeof(struct ethernet_api));
 
     return ERR_OK;
-}
-
-
-void ethernetif_rxcb(void)
-{
-    sys_sem_signal(&s_xSemaphore);
 }
 
 /**
@@ -132,41 +117,11 @@ void ethernetif_rxcb(void)
 */
 static void low_level_init(struct netif* netif)
 {
-
-    if(s_eth_api.init!=NULL)
-        (void)s_eth_api.init(netif);
-
-#if LWIP_ARP || LWIP_ETHERNET
-
-    /* set MAC hardware address length */
-    netif->hwaddr_len = ETH_HWADDR_LEN;
-    /* maximum transfer unit */
-    netif->mtu = 1500;
-    if(s_eth_api.set_mac)
-        (void)s_eth_api.set_mac(netif);
-
-    /* Accept broadcast address and ARP traffic */
-    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-#if LWIP_ARP
-    netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-#else
-    netif->flags |= NETIF_FLAG_BROADCAST;
-#endif /* LWIP_ARP */
-
-    s_pxNetIf = netif;
-
-    if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
+    if(s_eth_api.init)
     {
-	    return;
+        (void)s_eth_api.init(netif);
+        s_pxNetIf = netif;
     }
-    /* create the task that handles the ETH_MAC */
-    sys_thread_new((char*)"Eth_if", ethernetif_input, netif, netifINTERFACE_TASK_STACK_SIZE, netifINTERFACE_TASK_PRIORITY);
-
-    if(s_eth_api.start)
-        (void)s_eth_api.start(netif);
-
-#endif /* LWIP_ARP || LWIP_ETHERNET */
-
 }
 
 /**
@@ -207,12 +162,12 @@ static err_t low_level_output(struct netif* netif, struct pbuf* p)
 static struct pbuf* low_level_input(struct netif* netif)
 {
     struct pbuf *p = NULL;
+    
     if(s_eth_api.input)
     {
         p = s_eth_api.input(netif);
     }
     return p;
-
 }
 
 /**
@@ -227,37 +182,32 @@ static struct pbuf* low_level_input(struct netif* netif)
 void ethernetif_input( void* pvParameters )
 {
     struct pbuf* p;
-    //UINT32   uwInterval = 0;
-    //UINT32   uwRet = 0;
     err_t err;
 
+    LWIP_ASSERT("s_pxNetIf != NULL", (s_pxNetIf != NULL));
     /* move received packet into a new pbuf */
-    while (1)
+    do
     {
-        sys_arch_sem_wait(&s_xSemaphore, TIME_WAITING_FOR_INPUT);
-        do
+        SYS_ARCH_DECL_PROTECT(sr);
+
+        SYS_ARCH_PROTECT(sr);
+        p = low_level_input(s_pxNetIf);
+        SYS_ARCH_UNPROTECT(sr);
+
+        if (p == NULL)
         {
-            SYS_ARCH_DECL_PROTECT(sr);
+            return;
+        }
 
-            SYS_ARCH_PROTECT(sr);
-            p = low_level_input(s_pxNetIf);
-            SYS_ARCH_UNPROTECT(sr);
+        err = s_pxNetIf->input(p, s_pxNetIf);
 
-            if (p == NULL)
-            {
-                continue;
-            }
-
-            err = s_pxNetIf->input(p, s_pxNetIf);
-
-            if (err != ERR_OK)
-            {
-                LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-                pbuf_free(p);
-                p = NULL;
-            }
-        }while(p != NULL);
-    }
+        if (err != ERR_OK)
+        {
+            LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+            pbuf_free(p);
+            p = NULL;
+        }
+    }while(p != NULL);
 }
 
 /**

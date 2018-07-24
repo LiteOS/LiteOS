@@ -57,6 +57,7 @@ KERNEL_SRC =  \
         ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/ipc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/bestfit_little/*.c} \
+        ${wildcard $(TOP_DIR)/kernel/base/mem/membox/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/common/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/misc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/om/*.c} \
@@ -123,6 +124,10 @@ ER_COAP_SRC = \
 LWM2M_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
         C_SOURCES += $(LWM2M_SRC)
+
+ATINY_LOG_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/atiny_log.c}
+        C_SOURCES += $(ATINY_LOG_SRC)
 
 MQTT_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/*.c} \

@@ -24,13 +24,18 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := SIM900A
 endif
 
 #######################################
 # bootloader
 #######################################
 USE_BOOTLOADER := no
+
+#######################################
+# fota
+#######################################
+USE_FOTA := yes
 
 #######################################
 # binaries
@@ -70,6 +75,7 @@ KERNEL_SRC =  \
         ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/ipc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/bestfit_little/*.c} \
+        ${wildcard $(TOP_DIR)/kernel/base/mem/membox/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/mem/common/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/misc/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/om/*.c} \
@@ -149,15 +155,6 @@ AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/examples/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
 
-FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
-        ${wildcard $(TOP_DIR)/components/fota/utility/*.c} \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c} 
-        C_SOURCES += $(FOTA_SRC)
-
-FIRMWARE_UPDATE_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
-        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
 
 USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/main.c \
@@ -186,8 +183,21 @@ endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
 
+ifeq ($(USE_FOTA), yes)
+FOTA_SRC = \
+        ${wildcard $(TOP_DIR)/components/fota/ota/*.c} \
+        ${wildcard $(TOP_DIR)/components/fota/utility/*.c} \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c} 
+        C_SOURCES += $(FOTA_SRC)
+
+FIRMWARE_UPDATE_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
+        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
+		
 C_SOURCES += ${wildcard  $(TOP_DIR)/components/fota/fota_package_storage_device/*.c}
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
+endif
 
 # ASM sources
 ASM_SOURCES_s =  \
@@ -230,14 +240,21 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0 \
-        -D CONFIG_FEATURE_FOTA
-#       -D WITH_DTLS \
+        -D WITH_DTLS \
+        -D ATINY_DEBUG \
+        -D LWM2M_WITH_LOGS \
+        -D AT_INTO \
+        -D AT_DEBUG \
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
 else
         C_DEFS += -D WITH_LWIP
+endif
+
+ifeq ($(USE_FOTA), yes)
+		C_DEFS += -DCONFIG_FEATURE_FOTA
 endif
 
 # AS includes
@@ -309,20 +326,26 @@ AGENT_DEMO_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/examples
         C_INCLUDES += $(AGENT_DEMO_INC)
 
+USER_INC = \
+		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
+		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
+		C_INCLUDES += $(USER_INC)
+		
+ifeq ($(USE_FOTA), yes)
+
 FOTA_INC = \
         -I $(TOP_DIR)/components/fota/ota \
         -I $(TOP_DIR)/components/fota/utility \
-        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client\fota
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
         C_INCLUDES += $(FOTA_INC)
-
+		
 FIRMWARE_UPDATE_INC = \
         -I $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update
         C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
-USER_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
-        C_INCLUDES += $(USER_INC)
+
+C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
+endif
 
 ATADAPTOR_INC = \
         -I $(TOP_DIR)/components/connectivity/at_frame
@@ -341,9 +364,6 @@ endif
     C_INCLUDES += $(USER_DRIVERS_INC)
 endif
 
-C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
-
-C_INCLUDES += -I $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/fota
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

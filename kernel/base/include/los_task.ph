@@ -37,6 +37,10 @@
 
 #include "los_task.h"
 
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+#include <reent.h>
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -284,6 +288,9 @@ typedef struct tagTaskCB
     UINT32                      uwEventMask;                /**< Event mask                  */
     UINT32                      uwEventMode;                /**< Event mode                  */
     VOID                        *puwMsg;                    /**< Memory allocated to queues  */
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+    struct _reent stNewLibReent;                            /**< NewLib _reent struct        */
+#endif
 } LOS_TASK_CB;
 
 typedef struct stLosTask

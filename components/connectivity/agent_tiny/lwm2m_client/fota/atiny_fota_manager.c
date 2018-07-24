@@ -49,10 +49,16 @@ struct atiny_fota_manager_tag_s
     atiny_fota_state_s *current;
     atiny_fota_storage_device_s *device;
     lwm2m_context_t*  lwm2m_context;
+    uint32_t cookie;
+    bool wait_ack_flag;
+    atiny_fota_state_e rpt_state;
     bool init_flag;
 };
 
 #define PULL_ONLY 0
+
+static uint32_t g_firmware_cookie = 0;
+
 
 char * atiny_fota_manager_get_pkg_uri(const atiny_fota_manager_s *thi)
 {
@@ -64,6 +70,13 @@ int atiny_fota_manager_get_state(const atiny_fota_manager_s *thi)
     ASSERT_THIS(return ATINY_FOTA_IDLE);
     return thi->state;
 }
+
+int atiny_fota_manager_get_rpt_state(const atiny_fota_manager_s *thi)
+{
+    ASSERT_THIS(return ATINY_FOTA_IDLE);
+    return thi->rpt_state;
+}
+
 int atiny_fota_manager_get_update_result(const atiny_fota_manager_s *thi)
 {
     ASSERT_THIS(return ATINY_FIRMWARE_UPDATE_NULL);
@@ -83,6 +96,13 @@ int atiny_fota_manager_start_download(atiny_fota_manager_s *thi, const char *uri
 {
 
     ASSERT_THIS(return ATINY_ARG_INVALID);
+    if(thi->state != thi->rpt_state)
+    {
+        ATINY_LOG(LOG_ERR, "start download busy state %u rpt state %u",
+            thi->state, thi->rpt_state);
+        return ATINY_ERR;
+    }
+
     if(NULL == thi->current || uri == NULL)
     {
         ATINY_LOG(LOG_ERR, "null pointer");
@@ -108,6 +128,14 @@ int atiny_fota_manager_start_download(atiny_fota_manager_s *thi, const char *uri
 int atiny_fota_manager_execute_update(atiny_fota_manager_s *thi)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+
+    if(thi->state != thi->rpt_state)
+    {
+        ATINY_LOG(LOG_ERR, "execute update busy state %u rpt state %u",
+            thi->state, thi->rpt_state);
+        return ATINY_ERR;
+    }
+
     if(NULL == thi->current)
     {
         ATINY_LOG(LOG_ERR, "current null pointer");
@@ -121,6 +149,14 @@ int atiny_fota_manager_execute_update(atiny_fota_manager_s *thi)
 int atiny_fota_manager_finish_download(atiny_fota_manager_s *thi, int result)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+
+    if(thi->state != thi->rpt_state)
+    {
+        ATINY_LOG(LOG_ERR, "finish download busy state %u rpt state %u",
+            thi->state, thi->rpt_state);
+        return ATINY_ERR;
+    }
+
     if(NULL == thi->current)
     {
         ATINY_LOG(LOG_ERR, "current null pointer");
@@ -133,6 +169,7 @@ int atiny_fota_manager_finish_download(atiny_fota_manager_s *thi, int result)
 int atiny_fota_manager_repot_result(atiny_fota_manager_s *thi)
 {
     ASSERT_THIS(return ATINY_ARG_INVALID);
+
     if(NULL == thi->current)
     {
         ATINY_LOG(LOG_ERR, "current null pointer");
@@ -145,9 +182,6 @@ int atiny_fota_manager_repot_result(atiny_fota_manager_s *thi)
 
 int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e state)
 {
-    lwm2m_uri_t uri;
-    const char *uri_str = "/5/0/3";
-
     ASSERT_THIS(return ATINY_ARG_INVALID);
 
     if(state > ATINY_FOTA_UPDATING)
@@ -157,7 +191,7 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     }
 
     ATINY_LOG(LOG_INFO, "download stat from %d to %d", thi->state, state);
-    thi->state = state;
+    if(thi->state != state)
     {
     /*lint -e614 */
         atiny_fota_state_s *states[ATINY_FOTA_UPDATING + 1];
@@ -166,14 +200,39 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
         states[ATINY_FOTA_DOWNLOADED] = ATINY_GET_STATE(thi->downloaded_state);
         states[ATINY_FOTA_UPDATING] = ATINY_GET_STATE(thi->updating_state);
         thi->current = states[state];
+        thi->state = state;
+        thi->wait_ack_flag = false;
      /*lint +e614 */
     }
+    thi->rpt_state = state;
+	atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
+    return ATINY_OK;
+}
+
+int atiny_fota_manager_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state)
+{
+    lwm2m_uri_t uri;
+    const char *uri_str = "/5/0/3";
+    ASSERT_THIS(return ATINY_ARG_INVALID);
+
+    atiny_fota_manager_save_rpt_state(thi, rpt_state);
     memset((void*)&uri, 0, sizeof(uri));
     (void)lwm2m_stringToUri(uri_str, strlen(uri_str), &uri);
     lwm2m_resource_value_changed(thi->lwm2m_context, &uri);
-    atiny_event_notify(ATINY_FOTA_STATE, (const char*)&thi->state, sizeof(thi->state));
     return ATINY_OK;
 }
+
+void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state)
+{
+
+    ASSERT_THIS(return);
+
+    ATINY_LOG(LOG_INFO, "rpt download state %d", rpt_state);
+    thi->rpt_state = rpt_state;
+    thi->wait_ack_flag = true;
+    thi->cookie = g_firmware_cookie++;
+}
+
 
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
@@ -234,6 +293,48 @@ lwm2m_context_t* atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi)
     ASSERT_THIS(return NULL);
     return thi->lwm2m_context;
 }
+
+static int atiny_fota_manager_rcv_notify_ack(atiny_fota_manager_s *thi, data_send_status_e status)
+{
+    ASSERT_THIS(return ATINY_ARG_INVALID);
+
+    if(NULL == thi->current)
+    {
+        ATINY_LOG(LOG_ERR, "current null pointer");
+        return ATINY_ERR;
+    }
+
+    return thi->current->recv_notify_ack(thi->current, status);
+}
+
+static void atiny_fota_manager_notify_ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
+{
+    ATINY_LOG(LOG_INFO, "download state ack type %d rev cookie %u expect cookie %u status %d, rpt stat %d", type,  (uint32_t)cookie, atiny_fota_manager_get_instance()->cookie,  status,
+                atiny_fota_manager_get_instance()->rpt_state);
+    if((atiny_fota_manager_get_instance()->wait_ack_flag) && atiny_fota_manager_get_instance()->cookie == cookie)
+    {
+        atiny_fota_manager_rcv_notify_ack(atiny_fota_manager_get_instance(), status);
+        atiny_fota_manager_get_instance()->wait_ack_flag = false;
+    }
+
+}
+
+
+void atiny_fota_manager_get_data_cfg(const atiny_fota_manager_s *thi, lwm2m_data_cfg_t *data_cfg)
+{
+    ASSERT_THIS(return);
+    if(NULL == data_cfg)
+    {
+        ATINY_LOG(LOG_ERR, "current null pointer");
+        return;
+    }
+
+    data_cfg->callback = (lwm2m_data_process)atiny_fota_manager_notify_ack_callback;
+    data_cfg->cookie = thi->cookie;
+   // ATINY_LOG(LOG_INFO, "download cookie %d", data_cfg->cookie);
+    data_cfg->type = FIRMWARE_UPDATE_STATE;
+}
+
 
 
 static atiny_fota_manager_s g_fota_manager;

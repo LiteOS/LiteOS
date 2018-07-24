@@ -54,6 +54,7 @@
 
 #include "agenttiny.h"
 #include "liblwm2m.h"
+#include "atiny_fota_api.h"
 
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
 
@@ -82,7 +83,6 @@ enum
 struct atiny_fota_manager_tag_s;
 typedef struct atiny_fota_manager_tag_s atiny_fota_manager_s;
 
-
 #ifdef __cplusplus
     extern "C" {
 #endif
@@ -100,8 +100,17 @@ int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t*  lwm2m_context);
 lwm2m_context_t* atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi);
+void atiny_fota_manager_get_data_cfg(const atiny_fota_manager_s *thi, lwm2m_data_cfg_t *data_cfg);
 
 void atiny_fota_manager_destroy(atiny_fota_manager_s *thi);
+int atiny_fota_manager_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state);
+void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state);
+
+
+atiny_fota_state_e atiny_fota_manager_get_rpt_state(const atiny_fota_manager_s *thi);
+
+
+
 atiny_fota_manager_s * atiny_fota_manager_get_instance(void);
 
 #ifdef __cplusplus

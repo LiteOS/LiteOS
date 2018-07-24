@@ -45,21 +45,6 @@
 extern "C" {
 #endif
 
-#define OTA_IMAGE_INTEGRITY_LENGTH 32
-
-typedef struct
-{
-    ota_state state;
-    uint8_t restart_cnt;
-    uint8_t cur_state;
-    uint16_t rsv;
-    int32_t cur_offset;
-    uint32_t old_image_length;
-    uint32_t image_length;
-    uint8_t image_integrity[OTA_IMAGE_INTEGRITY_LENGTH];
-    uint32_t crc;
-} ota_default_flag;
-
 int ota_default_init(void);
 
 int ota_default_set_reboot(int32_t image_len);
