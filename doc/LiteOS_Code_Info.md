@@ -86,6 +86,11 @@ int main(void)
 	<td>lwip-2.0.3</td>
 	<td>lwip协议实现</td>
 </tr>
+	<tr>
+	<td></td>
+	<td>fota</td>
+	<td>固件升级代码</td>
+</tr>
 <tr>
 	<td></td>
 	<td>security</td>
