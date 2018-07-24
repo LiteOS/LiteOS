@@ -168,25 +168,25 @@ int main(void)
 
 <tr>
 	<td>targets</td>
-	<td>FRDM_KW41Z</td>
+	<td>Standard_FRDM_KW41Z</td>
 	<td></td>
 	<td>FRDM（ARM Cortex M0+）板端工程代码（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F103RB_NUCLEO</td>
+	<td>Standard_STM32F103RB_NUCLEO</td>
 	<td></td>
 	<td>F103（ARM Cortex M3）板端工程代码（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F429IGTx_FIREL</td>
+	<td>Cloud_STM32F429IGTx_FIREL</td>
 	<td></td>
 	<td>F429（ARM Cortex M4）板端工程代码（含原厂芯片驱动）</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F746ZG_NUCLEO</td>
+	<td>Standard_STM32F746ZG_NUCLEO</td>
 	<td></td>
 	<td>F746（ARM Cortex M7）板端工程代码（含原厂芯片驱动）</td>
 </tr>
