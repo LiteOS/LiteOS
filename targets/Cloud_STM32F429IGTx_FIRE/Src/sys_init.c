@@ -92,7 +92,7 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
-    
+#if    0
     #include "lwip/dhcp.h"
     struct dhcp *dhcp;
     dhcp_start(&gnetif);
@@ -107,6 +107,7 @@ void net_init(void)
         }
         LOS_TaskDelay(1000);
     }
+#endif
 }
 
 uint32_t HAL_GetTick(void)
