@@ -185,6 +185,12 @@ int main(void)
 </tr>
 <tr>
 	<td></td>
+	<td>Cloud_STM32L431RxTx_IoTClub</td>
+	<td></td>
+	<td>物联网俱乐部EVB-M1 STM32L431（ARM Cortex M4）ESP8266WiFi/NB-IoT BC95两种连接方式的LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
 	<td>Standard_FRDM_KW41Z</td>
 	<td></td>
 	<td>FRDM（ARM Cortex M0+）板端工程代码（含原厂芯片驱动）</td>
