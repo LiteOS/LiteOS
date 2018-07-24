@@ -76,18 +76,6 @@ int main(void)
 </tr>
 <tr>
 	<td></td>
-	<td>net</td>
-	<td>lwip_port</td>
-	<td>lwip驱动及OS适配代码</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td>lwip-2.0.3</td>
-	<td>lwip协议实现</td>
-</tr>
-	<tr>
-	<td></td>
 	<td>fota</td>
 	<td></td>
 	<td>固件升级代码</td>
@@ -105,6 +93,18 @@ int main(void)
 	<td>lib</td>
 	<td>libc</td>
 	<td>LiteOS libc优化</td>
+</tr>
+<tr>
+	<td></td>
+	<td>net</td>
+	<td>lwip_port</td>
+	<td>lwip驱动及OS适配代码</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>lwip-2.0.3</td>
+	<td>lwip协议实现</td>
 </tr>
 <tr>
 	<td></td>
