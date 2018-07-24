@@ -10,9 +10,9 @@
 
 ### 软件环境
 
-- MDK：本移植指南使用的微控制器集成开发环境为MDK5.25，下载地址：https://www.keil.com/demo/eval/arm.htm。  
+- MDK：本移植指南使用的微控制器集成开发环境为MDK5.25，下载地址：https://www.keil.com/demo/eval/arm.htm
 
-- 芯片器件支持包：MDK安装完成后，要支持具体芯片的开发，还需要安装相应芯片器件支持包，比如STM32F0Discovery需要安装Keil.STM32F0xx_DFP.2.0.0.pack，下载地址：http://www.keil.com/dd2/Pack/ #/eula-container。下载完成后直接双击即可安装。  
+- 芯片器件支持包：MDK安装完成后，要支持具体芯片的开发，还需要安装相应芯片器件支持包，比如STM32F0Discovery需要安装Keil.STM32F0xx_DFP.2.0.0.pack，下载地址：http://www.keil.com/dd2/Pack/#/eula-container ；下载完成后直接双击即可安装。  
 
 - 开发板对应裸机工程：LiteOS移植需要提供开发板对应的裸机工程
 
