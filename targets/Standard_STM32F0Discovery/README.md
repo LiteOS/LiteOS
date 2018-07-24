@@ -62,7 +62,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 ### 使用CubeMX新建STM32裸机工程
 
-:::tip
+::: tip
 非STM32芯片请自行构建对应的裸机工程
 :::
 
@@ -106,7 +106,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 ![](./pic/cubems-code-generation.png)
 
-:::warning
+::: warning
 注意勾选图示选项，对应组件的代码（如串口）分别写在单独的.c和.h文件中，否则将全生成在main.c文件中。
 :::
 
@@ -147,7 +147,7 @@ LiteOS
 
 ![](./pic/addcode-kernel2.png)
 
-:::tip
+::: tip
 按照以上标注的源码路径添加LiteOS内核代码，需要注意的是，LiteOS提供了3套动态内存分配算法，位于 `LiteOS\kernel\base\mem` 目录下，分别是bestfit、bestfit_little、tlsf，这三套动态内存算法只需要添加其中一套就行了，对于资源有限的芯片，建议选bestfit_little，上面示例也是添加了这一套动态内存算法；另外 `LiteOS\kernel\base\mem\membox` 目录下是LiteOS提供的静态内存算法，与动态内存算法不冲突，需要添加； `LiteOS\kernel\base\mem\common` 目录的内容需要全部添加。
 :::
 
@@ -284,7 +284,7 @@ LiteOS内核的板级配置均在target_config.h中完成，target_config.h配�
 #define    CMSIS_OS_VER                 2       // 配置CMSIS OS版本，支持V1和V2
 ```
 
-:::warning 注意
+::: warning 注意
 - 用户根据自身硬件情况修改上述配置，特别是CPU主频和RAM尺寸要根据情况修改；
 - 本教程要求OS不接管中断，接管中断的方式需要自行修改sct文件，所以推荐初级用户先不要使能接管中断的方式；
 - 最大任务数、信号量数、互斥锁数、队列数、软件定时器数建议用户根据实际需要配置合理的数量，数量太多会占用额外的RAM资源；
