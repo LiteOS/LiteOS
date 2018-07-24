@@ -181,7 +181,7 @@ int main(void)
 	<td></td>
 	<td>Cloud_STM32F429IGTx_FIRE</td>
 	<td></td>
-	<td>野火STM32F429 ARM Cortex M4 以太网/ESP8266串口WiFi/SIM900A/NB-IoT BC95 LiteOS SDK端云demo</td>
+	<td>野火STM32F429(ARM Cortex M4)以太网/ESP8266串口WiFi/SIM900A GPRS/NB-IoT BC95四种连接方式的LiteOS SDK端云demo，内部用编译宏区分，其中wifi、gprs、NB-IOT使用LiteOS SDK的AT框架实现</td>
 </tr>
 <tr>
 	<td></td>
