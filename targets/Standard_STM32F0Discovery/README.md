@@ -89,7 +89,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 4. 配置时钟频率信息
 
-![](./pic/cubemx-clock-rate.PNG)
+![](./pic/cubemx-clock-rate.png)
  
 5. 选择功能模块的参数配置
 
@@ -123,7 +123,7 @@ Huawei LiteOS开源代码托管在GitHub的LiteOS工程目录下，下载地址�
 
 ### 加入内核源码  
 
-加入内核源码之前，请将之前生成的裸机工程放入targets目录下，保持和LiteOS目录一致。将[源码准备](/home "源码准备")提到的2个目录下的源码加入工程：
+加入内核源码之前，请将之前生成的裸机工程放入targets目录下，保持和LiteOS目录一致。将arc和components\cmsis两个目录下的源码加入工程，最终目录结构应为如下格式：
 
 ```c
 LiteOS
