@@ -46,7 +46,7 @@
 #include "wpa.h"
 #include "wifi.h"
 
-#ifndef WIFI_FIRMWAREAREA_ADDR 
+#ifndef WIFI_FIRMWAREAREA_ADDR
 #include "sd8686.c"
 #include "helper_sd.c"
 #endif
@@ -60,18 +60,18 @@ typedef enum
 }WiFi_RxFlag;
 /* Macros -------------------------------------------------------------------*/
 /* Local variables ----------------------------------------------------------*/
-static uint8_t      wifi_buffer_command[256]; 
-static uint8_t      wifi_buffer_packet[1792]; 
+static uint8_t      wifi_buffer_command[256];
+static uint8_t      wifi_buffer_packet[1792];
 static uint8_t      wifi_buffer_rx[2048];
 static uint8_t      wifi_psk[32]; // preshared-key
 static uint8_t      wifi_snonce[32];
 static uint32_t     wifi_port;
-static uint32_t     wifi_input_time = 0; 
+static uint32_t     wifi_input_time = 0;
 static WiFi_GTK     wifi_gtk;
 static WiFi_PTK     wifi_ptk;
-static WiFi_SSIDInfo wifi_ssid_info = {0}; 
-static WiFi_TxBuffer wifi_tx_command = {0}; 
-static WiFi_TxBuffer wifi_tx_packet = {0}; 
+static WiFi_SSIDInfo wifi_ssid_info = {0};
+static WiFi_TxBuffer wifi_tx_command = {0};
+static WiFi_TxBuffer wifi_tx_packet = {0};
 
 static uint8_t wifi_rx_flag = WIFI_RX_FLAG_NONE;
 /* Extern variables ---------------------------------------------------------*/
@@ -98,7 +98,7 @@ static void WiFi_JoinADHOCEx_Callback(void *arg, void *data, WiFi_Status status)
 static void WiFi_TxBufferComplete(WiFi_TxBuffer *tbuf, void *data, WiFi_Status status);
 static void WiFi_Scan_Callback(void *arg, void *data, WiFi_Status status);
 static void WiFi_ScanSSID_Callback(void *arg, void *data, WiFi_Status status);
-static void WiFi_SendEAPOLResponse(const WiFi_EAPOLKeyFrame *packet_rx, uint16_t key_info, 
+static void WiFi_SendEAPOLResponse(const WiFi_EAPOLKeyFrame *packet_rx, uint16_t key_info,
                         const void *key_data, uint16_t key_data_len, WiFi_Callback callback, void *arg);
 static void WiFi_SetKeyMaterial(WiFi_KeyType key_type, uint8_t key_num, WiFi_Callback callback, void *arg);
 static void WiFi_StartADHOCEx_Callback(void *arg, void *data, WiFi_Status status);
@@ -159,16 +159,16 @@ void WiFi_OutputBuffer(const uint8_t *buffer, int length)
 
 
 /* Associate AP */
-// The mac_addr parameter, used to receive the MAC address of the hotspot, can be NULL, 
+// The mac_addr parameter, used to receive the MAC address of the hotspot, can be NULL,
 // but cannot point to a local variable
 void WiFi_Associate(const char *ssid, WiFi_AuthenticationType auth_type, WiFi_Callback callback, void *arg)
 {
     void **p;
     if (WiFi_CheckCommandBusy(callback, arg))
         return;
-    
+
     // The last member is not a pointer, but the actual data
-    p = malloc(2 * sizeof(void *) + sizeof(WiFi_AuthenticationType)); 
+    p = malloc(2 * sizeof(void *) + sizeof(WiFi_AuthenticationType));
     if (p == NULL)
     {
         printf("WiFi_Associate: malloc failed!\n");
@@ -254,7 +254,7 @@ static void WiFi_Associate_Callback(void *arg, void *data, WiFi_Status status)
             cmd_size += TLV_STRUCTLEN(wifi_ssid_info.rsn);
         }
 
-        WiFi_SendCommand(CMD_802_11_ASSOCIATE, wifi_buffer_command, cmd_size, WiFi_Associate_Callback, 
+        WiFi_SendCommand(CMD_802_11_ASSOCIATE, wifi_buffer_command, cmd_size, WiFi_Associate_Callback,
                         arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
         // Keep arg memory until the association is successful
         break;
@@ -263,14 +263,14 @@ static void WiFi_Associate_Callback(void *arg, void *data, WiFi_Status status)
         // Now you need to check if the association is successful
         free(arg);
         resp = (WiFi_CmdResponse_Associate *)data;
-//        printf("capability=0x%04x, status_code=0x%04x, aid=0x%04x\n", 
+//        printf("capability=0x%04x, status_code=0x%04x, aid=0x%04x\n",
 //                resp->capability, resp->status_code, resp->association_id);
         if (app_callback)
         {
             if (resp->association_id == 0xffff){
-                // Association failure (check the resp->capability and resp->status_code values 
+                // Association failure (check the resp->capability and resp->status_code values
                 // in the callback function data to see why)
-                app_callback(app_arg, data, WIFI_STATUS_FAIL); 
+                app_callback(app_arg, data, WIFI_STATUS_FAIL);
             }else if (security == WIFI_SECURITYTYPE_WPA || security == WIFI_SECURITYTYPE_WPA2){
                 app_callback(app_arg, data, WIFI_STATUS_INPROGRESS); // Waiting for the certification
             }else{
@@ -284,7 +284,7 @@ static void WiFi_Associate_Callback(void *arg, void *data, WiFi_Status status)
 /* Associate a hotspot and enter a password */
 // When connecting a WPA type hotspot, the security member simply assigns WIFI_SECURITYTYPE_WPA
 // without specifying the WPA version number
-void WiFi_AssociateEx(const WiFi_Connection *conn, WiFi_AuthenticationType auth_type, 
+void WiFi_AssociateEx(const WiFi_Connection *conn, WiFi_AuthenticationType auth_type,
                             int8_t max_retry, WiFi_Callback callback, void *arg)
 {
     int8_t *pmax_retry;
@@ -309,7 +309,7 @@ void WiFi_AssociateEx(const WiFi_Connection *conn, WiFi_AuthenticationType auth_
     *pauth = auth_type;
     pmax_retry = (int8_t *)(pauth + 1);
     // The maximum number of attempts to reconnect, -1 is an infinite number of attempts, and 0 is no retry
-    *pmax_retry = max_retry; 
+    *pmax_retry = max_retry;
     memcpy(pmax_retry + 1, conn->ssid, ssid_len + 1);
 
     if (conn->security == WIFI_SECURITYTYPE_WEP)
@@ -368,7 +368,7 @@ static void WiFi_AssociateEx_Callback(void *arg, void *data, WiFi_Status status)
     switch (cmd_code)
     {
     case CMD_802_11_SET_WEP:
-        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX, 
+        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX,
                         WiFi_AssociateEx_Callback, arg);
         break;
     case CMD_MAC_CONTROL:
@@ -376,7 +376,7 @@ static void WiFi_AssociateEx_Callback(void *arg, void *data, WiFi_Status status)
     }
 }
 
-/* If a new command is requested before the previous command is finished, 
+/* If a new command is requested before the previous command is finished,
  * the callback function is called directly to report an error */
 static uint8_t WiFi_CheckCommandBusy(WiFi_Callback callback, void *arg)
 {
@@ -432,7 +432,7 @@ void WiFi_CheckTimeout(void)
     // When sending data frames, data is always the content sent
     if (WiFi_CheckTxBufferRetry(&wifi_tx_command, wifi_buffer_command))
     {
-        WiFi_SendCommand(0, NULL, 0, wifi_tx_command.callback, wifi_tx_command.arg, 
+        WiFi_SendCommand(0, NULL, 0, wifi_tx_command.callback, wifi_tx_command.arg,
                         wifi_tx_command.timeout, wifi_tx_command.retry - 1);
         printf("WiFi Command 0x%04x Timeout! Resend...\n", cmd->cmd_code);
     }
@@ -443,7 +443,7 @@ void WiFi_CheckTimeout(void)
 // Data is the data that needs to be passed to the callback function when an error is reported
 static uint8_t WiFi_CheckTxBufferRetry(WiFi_TxBuffer *tbuf, void *data)
 {
-    if (tbuf->busy && sys_now() > tbuf->start_time + tbuf->timeout) 
+    if (tbuf->busy && sys_now() > tbuf->start_time + tbuf->timeout)
     {
         if (tbuf->retry != 0)
         {
@@ -451,7 +451,7 @@ static uint8_t WiFi_CheckTxBufferRetry(WiFi_TxBuffer *tbuf, void *data)
             return 1;
         }
         // Report an error to the callback function over the maximum retry
-        WiFi_TxBufferComplete(tbuf, data, WIFI_STATUS_NORESP); 
+        WiFi_TxBufferComplete(tbuf, data, WIFI_STATUS_NORESP);
     }
     return 0;
 }
@@ -486,7 +486,7 @@ void WiFi_Deauthenticate(uint16_t reason, WiFi_Callback callback, void *arg)
     p[1] = (void*)callback;
 
     cmd->reason_code = reason;
-    WiFi_SendCommand(CMD_802_11_DEAUTHENTICATE, wifi_buffer_command, sizeof(WiFi_Cmd_Deauthenticate), 
+    WiFi_SendCommand(CMD_802_11_DEAUTHENTICATE, wifi_buffer_command, sizeof(WiFi_Cmd_Deauthenticate),
                     WiFi_Deauthenticate_Callback, p, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -520,16 +520,16 @@ static void WiFi_DownloadHelper(void)
     {
         // Download up to 60 bytes of firmware at a time
         curr = (len > 60) ? 60 : len;
-        memcpy(helper_buf, &curr, 4); // The first 4 bytes are the amount of data actually downloaded
+        memcpy(helper_buf, &curr, 4);/*lint -e420*/ // The first 4 bytes are the amount of data actually downloaded
         memcpy(helper_buf + 4, data, curr);
-        
+
         if (len != WIFI_HELPER_SIZE) // There is no waiting until the data is sent for the first time
             (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
         (void)WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf));
         len -= curr;
         data += curr;
     }
-    
+
     // End with an empty packet
     memset(helper_buf, 0, 4);
     (void)WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf));
@@ -542,14 +542,14 @@ static void WiFi_DownloadReal(void)
     const uint8_t *data;
     uint16_t curr;
     uint32_t len;
-    
+
     // Download the real firmware
     data = WIFI_FIRMWARE_ADDR; // This address must be 4-byte aligned, or it will cause a transfer error
     len = WIFI_FIRMWARE_SIZE;
     while (len)
     {
         // Gets the number of bytes that should be downloaded this time
-        // Each time n>=curr bytes of data can be sent, only one CMD53 command can be sent, 
+        // Each time n>=curr bytes of data can be sent, only one CMD53 command can be sent,
         // and the WiFi module only recognizes the prior curr bytes of data
         (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0); // You must wait for Download Ready before sending
         while ((curr = WiFi_LowLevel_ReadReg(1, WIFI_SQREADBASEADDR0) | (WiFi_LowLevel_ReadReg(1, WIFI_SQREADBASEADDR1) << 8)) == 0);
@@ -557,7 +557,7 @@ static void WiFi_DownloadReal(void)
 
         if (curr & 1)
         {
-            // If curr is odd (such as 17), it indicates that CRC validation error occurred at the receiving end 
+            // If curr is odd (such as 17), it indicates that CRC validation error occurred at the receiving end
             // and the previous content should be retransmitted (omitted in this part of the code).
             printf("Error: an odd size is invalid!\n");
             while (1);
@@ -565,16 +565,16 @@ static void WiFi_DownloadReal(void)
         if (curr > len)
             curr = len;
 
-        /* Avoid the firmware header address not on the boundary address 
-         * Omits adding compiler pseudo-instructions to the firmware array, 
+        /* Avoid the firmware header address not on the boundary address
+         * Omits adding compiler pseudo-instructions to the firmware array,
          * eg: __attribute__((aligned))
          */
-        memcpy(tmp_buffer, data, curr);
+        memcpy(tmp_buffer, data, curr);/*lint -e669*/
 
         // Send firmware data
-        // You cannot use multi-byte transport mode in high speed mode, 
+        // You cannot use multi-byte transport mode in high speed mode,
         // you can only use block transport mode, so the buffer should be large enough
-#ifdef WIFI_HIGHSPEED 
+#ifdef WIFI_HIGHSPEED
         if (len < 32) // Len is the buffer residual size
         {
             (void)WiFi_LowLevel_WriteData(1, wifi_port, tmp_buffer, curr, sizeof(tmp_buffer));
@@ -594,7 +594,7 @@ static void WiFi_DownloadFirmware(void)
 {
     WiFi_DownloadHelper();
     WiFi_DownloadReal();
-    
+
     // Wait for Firmware to start
     (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
     while (WiFi_GetDataLength() != 0xfedc);
@@ -638,7 +638,7 @@ static void WiFi_EAPOLProcess(WiFi_DataRx *data)
     }
 
     // Removes bits that are independent of the first six parameters of the EAPOL-Key frame notation
-    switch (key_info & 0x23c8) 
+    switch (key_info & 0x23c8)
     {
     case 0x88:
         /* 4-way handshake Message 1: EAPOL-Key(0,0,1,0,P,0,...), P=1 */
@@ -654,31 +654,31 @@ static void WiFi_EAPOLProcess(WiFi_DataRx *data)
         ret = PRF(random_k, sizeof(random_k), "Init Counter", random_b, sizeof(random_b), wifi_snonce, sizeof(wifi_snonce)); // PRF-256
         if (!ret)
         {
-            // In the case of insufficient memory, 
+            // In the case of insufficient memory,
             // you only need to increase the Heap_Size of the heap space in the STM32 startup file (.s) to solve the problem
-            printf("PRF: out of memory!\n"); 
+            printf("PRF: out of memory!\n");
             break;
         }
 
         /* Generate PTK */
         // Smaller MAC addresses are in the front, bigger ones are in the back
         if (memcmp(packet_rx->dest, packet_rx->src, sizeof(packet_rx->src)) < 0)
-            memcpy(ptkb.MAC, packet_rx->dest, sizeof(ptkb.MAC));
+            memcpy(ptkb.MAC, packet_rx->dest, sizeof(ptkb.MAC));/*lint -e420*/
         else
         {
             memcpy(ptkb.MAC[0], packet_rx->src, sizeof(packet_rx->src));
-            memcpy(ptkb.MAC[1], packet_rx->dest, sizeof(packet_rx->dest));
+            memcpy(ptkb.MAC[1], packet_rx->dest, sizeof(packet_rx->dest));/*lint -e420*/
         }
         // Smaller random Numbers come first, bigger Numbers come last
         if (memcmp(packet_rx->key_nonce, wifi_snonce, sizeof(wifi_snonce)) < 0)
         {
-            memcpy(ptkb.nonce[0], packet_rx->key_nonce, sizeof(packet_rx->key_nonce));
-            memcpy(ptkb.nonce[1], wifi_snonce, sizeof(wifi_snonce));
+            memcpy(ptkb.nonce[0], packet_rx->key_nonce, sizeof(packet_rx->key_nonce));/*lint -e420*/
+            memcpy(ptkb.nonce[1], wifi_snonce, sizeof(wifi_snonce));/*lint -e420*/
         }
         else
         {
-            memcpy(ptkb.nonce[0], wifi_snonce, sizeof(wifi_snonce));
-            memcpy(ptkb.nonce[1], packet_rx->key_nonce, sizeof(packet_rx->key_nonce));
+            memcpy(ptkb.nonce[0], wifi_snonce, sizeof(wifi_snonce));/*lint -e420*/
+            memcpy(ptkb.nonce[1], packet_rx->key_nonce, sizeof(packet_rx->key_nonce));/*lint -e420*/
         }
         // wifi_psk is generated when the password is set
         ret = PRF(wifi_psk, sizeof(wifi_psk), "Pairwise key expansion", &ptkb, sizeof(ptkb), &wifi_ptk, sizeof(wifi_ptk)); // PRF-512
@@ -731,7 +731,7 @@ static void WiFi_EAPOLProcess(WiFi_DataRx *data)
             break;
         }
         // If the command send buffer is occupied, the Msg3 discarded this time will not respond and wait for the next Msg3
-        if (WiFi_IsCommandBusy()) 
+        if (WiFi_IsCommandBusy())
             break;
 
         // When WPA is certified, PTK is only sent to the firmware
@@ -756,8 +756,8 @@ static void WiFi_EAPOLProcess(WiFi_DataRx *data)
             printf("Extracting GTK failed!\n");
             break;
         }
-        // Send both PTK and GTK at the same time, not just GTK, otherwise the key in the firmware cannot be updated 
-        WiFi_SetKeyMaterial(key_type, 2, WiFi_EAPOLProcess_Callback, (void *)1); 
+        // Send both PTK and GTK at the same time, not just GTK, otherwise the key in the firmware cannot be updated
+        WiFi_SetKeyMaterial(key_type, 2, WiFi_EAPOLProcess_Callback, (void *)1);
 
         /* Send Message 2: EAPOL-Key(1,1,0,0,G,0,...) */
         WiFi_SendEAPOLResponse(packet_rx, 0x300 | key_type, NULL, 0, WiFi_EAPOLProcess_Callback, (void *)2);
@@ -825,18 +825,18 @@ static uint8_t WiFi_ExtractGTK(const WiFi_EAPOLKeyFrame *packet_rx)
     }
     else
     {
-        // If the authentication type is WPA2, the decrypted keydata content is some KDE structured data, 
+        // If the authentication type is WPA2, the decrypted keydata content is some KDE structured data,
         // with GTK in one of the KDE
-        while (kde->length != 0) 
+        while (kde->length != 0)
         {
             if (kde->type == 0xdd && kde->data_type == 1 && kde->length - 6 == key_len) // GTK KDE
             {
-                memcpy(wifi_gtk.TK, kde->data + 2, key_len);
+                memcpy(wifi_gtk.TK, kde->data + 2, key_len);/*lint -e416*/
                 return 1;
             }
             kde = (WiFi_KDE *)((uint8_t *)kde + kde->length + 2);
             // Ensure that the key->length falls within the valid data area
-            if (((uint8_t *)kde - wifi_buffer_command) >= keydata_len - 1) 
+            if (((uint8_t *)kde - wifi_buffer_command) >= keydata_len - 1)
                 break;
         }
     }
@@ -930,9 +930,9 @@ const uint8_t *WiFi_GetReceivedPacket(uint16_t *len)
 
 
 /**
-  * @brief  Get the AP Security Type. 
+  * @brief  Get the AP Security Type.
   * @param  info pointer to a WiFi_SSIDInfo structure that contains
-  *         the SSID information for the specified AP.  
+  *         the SSID information for the specified AP.
   * @retval Security Type
   */
 WiFi_SecurityType WiFi_GetSecurityType(const WiFi_SSIDInfo *info)
@@ -962,16 +962,16 @@ void WiFi_Init(void)
     WiFi_ShowCIS();
 
     // Initializes the Function 1 through of Function 0 (CIA)
-    WiFi_LowLevel_WriteReg(0, SDIO_CCCR_IOEN, SDIO_CCCR_IOEN_IOE1); // IOE1=1 (Enable Function)
+    (void)WiFi_LowLevel_WriteReg(0, SDIO_CCCR_IOEN, SDIO_CCCR_IOEN_IOE1); // IOE1=1 (Enable Function)
     while ((WiFi_LowLevel_ReadReg(0, SDIO_CCCR_IORDY) & SDIO_CCCR_IORDY_IOR1) == 0); // Wait IOR1=1 (I/O Function Ready)
-    WiFi_LowLevel_WriteReg(0, SDIO_CCCR_INTEN, SDIO_CCCR_INTEN_IENM | SDIO_CCCR_INTEN_IEN1); // Open SDIO interrupt request
+    (void)WiFi_LowLevel_WriteReg(0, SDIO_CCCR_INTEN, SDIO_CCCR_INTEN_IENM | SDIO_CCCR_INTEN_IEN1); // Open SDIO interrupt request
 
     // enable SDU to SD host interrupt of Function 1
     // Using interrupt flag bits to determine whether there is data to read is more reliable than card status bit
-    WiFi_LowLevel_WriteReg(1, WIFI_INTMASK, WIFI_INTMASK_HOSTINTMASK); 
-                                                                        
+    (void)WiFi_LowLevel_WriteReg(1, WIFI_INTMASK, WIFI_INTMASK_HOSTINTMASK);
+
     // download firmware
-    wifi_port = WiFi_LowLevel_ReadReg(1, WIFI_IOPORT0) | (WiFi_LowLevel_ReadReg(1, WIFI_IOPORT1) << 8) 
+    wifi_port = WiFi_LowLevel_ReadReg(1, WIFI_IOPORT0) | (WiFi_LowLevel_ReadReg(1, WIFI_IOPORT1) << 8)
                     | (WiFi_LowLevel_ReadReg(1, WIFI_IOPORT2) << 16);
     WiFi_LowLevel_SetBlockSize(1, 32);
     WiFi_DownloadFirmware();
@@ -992,7 +992,7 @@ void WiFi_Input(void)
     if (status == 0)
         return;
     // These flag bits must be cleared before they can be processed to avoid removing new interrupts from the process
-    WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status); 
+    (void)WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status);
 
     if (status & WIFI_INTSTATUS_DNLD)
     {
@@ -1025,7 +1025,7 @@ void WiFi_Input(void)
             {
             case WIFI_SDIOFRAME_DATA:
                 // Receive Ethernet data frames
-                if (rx_packet->rx_packet_length >= 14 && rx_packet->payload[12] == 0x88 && rx_packet->payload[13] == 0x8e){
+                if (rx_packet->rx_packet_length >= 14 && rx_packet->payload[12] == 0x88 && rx_packet->payload[13] == 0x8e){ /*lint -e416*//*lint -e415*/
                     WiFi_EAPOLProcess(rx_packet); // Handles EAPOL authentication frames of type 0x888e
                 }else{
                     wifi_rx_flag |= WIFI_RX_FLAG_DATA;
@@ -1102,7 +1102,7 @@ static void WiFi_JoinADHOC_Callback(void *arg, void *data, WiFi_Status status)
         cmd->bss_type = WIFI_BSS_ANY; // recommended for use when joining Ad-Hoc networks
         cmd->bcn_period = wifi_ssid_info.bcn_period;
         cmd->dtim_period = 1;
-        memset(cmd->timestamp, 0, sizeof(cmd->timestamp) + sizeof(cmd->start_ts));
+        memset(cmd->timestamp, 0, sizeof(cmd->timestamp) + sizeof(cmd->start_ts));/*lint -e419*/
         cmd->ds_param_set.header.type = WIFI_MRVLIETYPES_PHYPARAMDSSET;
         cmd->ds_param_set.header.length = TLV_PAYLOADLEN(cmd->ds_param_set);
         cmd->ds_param_set.channel = wifi_ssid_info.channel;
@@ -1114,7 +1114,7 @@ static void WiFi_JoinADHOC_Callback(void *arg, void *data, WiFi_Status status)
         cmd->cap_info = wifi_ssid_info.cap_info;
         memcpy(cmd->data_rates, wifi_ssid_info.rates.rates, sizeof(cmd->data_rates));
         cmd->reserved3 = 0;
-        WiFi_SendCommand(CMD_802_11_AD_HOC_JOIN, wifi_buffer_command, sizeof(WiFi_Cmd_ADHOCJoin), 
+        WiFi_SendCommand(CMD_802_11_AD_HOC_JOIN, wifi_buffer_command, sizeof(WiFi_Cmd_ADHOCJoin),
                             WiFi_JoinADHOC_Callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
         break;
     case CMD_802_11_AD_HOC_JOIN:
@@ -1137,8 +1137,8 @@ void WiFi_JoinADHOCEx(const WiFi_Connection *conn, int8_t max_retry, WiFi_Callba
 
     if (conn->security == WIFI_SECURITYTYPE_WPA || conn->security == WIFI_SECURITYTYPE_WPA2)
     {
-        // 88W8686 can connect to the WPA2 authentication type Ad-Hoc hotspot created by the computer 
-        // and complete the EAPOL authentication, 
+        // 88W8686 can connect to the WPA2 authentication type Ad-Hoc hotspot created by the computer
+        // and complete the EAPOL authentication,
         // but it will also create a WEP - type Ad-Hoc hotspot of the same name, making the communication impossible
         printf("WiFi_JoinADHOCEx: WPA is not supported!\n");
         if (callback)
@@ -1209,7 +1209,7 @@ static void WiFi_JoinADHOCEx_Callback(void *arg, void *data, WiFi_Status status)
     switch (cmd_code)
     {
     case CMD_802_11_SET_WEP:
-        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX, 
+        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX,
                         WiFi_JoinADHOCEx_Callback, arg);
         break;
     case CMD_MAC_CONTROL:
@@ -1218,7 +1218,7 @@ static void WiFi_JoinADHOCEx_Callback(void *arg, void *data, WiFi_Status status)
 }
 
 /* Gets or sets the WPA key */
-void WiFi_KeyMaterial(WiFi_CommandAction action, MrvlIETypes_KeyParamSet_t *key, uint8_t key_count, 
+void WiFi_KeyMaterial(WiFi_CommandAction action, MrvlIETypes_KeyParamSet_t *key, uint8_t key_count,
                             WiFi_Callback callback, void *arg)
 {
     uint8_t i;
@@ -1238,7 +1238,7 @@ void WiFi_KeyMaterial(WiFi_CommandAction action, MrvlIETypes_KeyParamSet_t *key,
             pkey = (MrvlIETypes_KeyParamSet_t *)TLV_NEXT(pkey);
         }
     }
-    WiFi_SendCommand(CMD_802_11_KEY_MATERIAL, wifi_buffer_command, (uint8_t *)pkey - wifi_buffer_command, 
+    WiFi_SendCommand(CMD_802_11_KEY_MATERIAL, wifi_buffer_command, (uint8_t *)pkey - wifi_buffer_command,
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1253,7 +1253,7 @@ void WiFi_MACAddr(const uint8_t newaddr[6], WiFi_CommandAction action, WiFi_Call
         memcpy(cmd->mac_addr, newaddr, 6);
     else
         memset(cmd->mac_addr, 0, 6);
-    WiFi_SendCommand(CMD_802_11_MAC_ADDR, wifi_buffer_command, sizeof(WiFi_Cmd_MACAddr), 
+    WiFi_SendCommand(CMD_802_11_MAC_ADDR, wifi_buffer_command, sizeof(WiFi_Cmd_MACAddr),
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1265,7 +1265,7 @@ void WiFi_MACControl(uint16_t action, WiFi_Callback callback, void *arg)
         return;
     cmd->action = action;
     cmd->reserved = 0;
-    WiFi_SendCommand(CMD_MAC_CONTROL, wifi_buffer_command, sizeof(WiFi_Cmd_MACCtrl), 
+    WiFi_SendCommand(CMD_MAC_CONTROL, wifi_buffer_command, sizeof(WiFi_Cmd_MACCtrl),
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1276,7 +1276,7 @@ void WiFi_Scan(WiFi_Callback callback, void *arg)
     void **p;
     WiFi_CmdRequest_Scan *cmd = (WiFi_CmdRequest_Scan *)wifi_buffer_command; // The command to send
     // The +1 here refers to the forward sizeof(pointer type) address cells, not just the forward one
-    MrvlIETypes_ChanListParamSet_t *chanlist = (MrvlIETypes_ChanListParamSet_t *)(cmd + 1); 
+    MrvlIETypes_ChanListParamSet_t *chanlist = (MrvlIETypes_ChanListParamSet_t *)(cmd + 1);
     if (WiFi_CheckCommandBusy(callback, arg))
         return;
 
@@ -1297,16 +1297,18 @@ void WiFi_Scan(WiFi_Callback callback, void *arg)
     // The basic parameters of the channel
     chanlist->header.type = WIFI_MRVLIETYPES_CHANLISTPARAMSET;
     chanlist->header.length = 4 * sizeof(chanlist->channels);
+    /*lint -e661*//*lint -e662*/
     for (i = 0; i < 4; i++) // Scan the first 4 channels first (i is the index, I +1 is the channel number)
     {
         chanlist->channels[i].band_config_type = 0; // 2.4GHz band, 20MHz channel width (2.4 - 2.4835GHz)
-        chanlist->channels[i].chan_number = i + 1;  
+        chanlist->channels[i].chan_number = i + 1;
         chanlist->channels[i].scan_type = 0;
         chanlist->channels[i].min_scan_time = 0;
         chanlist->channels[i].max_scan_time = 100;
     }
+    /*lint +e661*//*lint +e662*/
 
-    WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, sizeof(WiFi_CmdRequest_Scan) + TLV_STRUCTLEN(*chanlist), 
+    WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, sizeof(WiFi_CmdRequest_Scan) + TLV_STRUCTLEN(*chanlist),
                     WiFi_Scan_Callback, p, 3000, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1350,7 +1352,7 @@ static void WiFi_Scan_Callback(void *arg, void *data, WiFi_Status status)
         chanlist->header.length = n * sizeof(chanlist->channels);
         for (i = 0; i < n; i++)
             chanlist->channels[i].chan_number = i + j;
-        WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, sizeof(WiFi_CmdRequest_Scan) + TLV_STRUCTLEN(*chanlist), 
+        WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, sizeof(WiFi_CmdRequest_Scan) + TLV_STRUCTLEN(*chanlist),
                         WiFi_Scan_Callback, arg, 3000, WIFI_DEFAULT_MAXRETRY);
     }
     else
@@ -1393,12 +1395,12 @@ static void WiFi_Scan_Callback(void *arg, void *data, WiFi_Status status)
             }
             if ((bss_desc_set->cap_info & WIFI_CAPABILITY_PRIVACY) == 0)
                 security = WIFI_SECURITYTYPE_NONE;
-            
+
 #ifdef WIFI_DISPLAY_SCANNED_SSID
             printf("SSID '%s', ", ssid); // Hot name
-            printf("MAC %02X:%02X:%02X:%02X:%02X:%02X, ", 
+            printf("MAC %02X:%02X:%02X:%02X:%02X:%02X, ",
                             bss_desc_set->bssid[0], bss_desc_set->bssid[1],
-                            bss_desc_set->bssid[2], bss_desc_set->bssid[3], 
+                            bss_desc_set->bssid[2], bss_desc_set->bssid[3],
                             bss_desc_set->bssid[4], bss_desc_set->bssid[5]); // MAC
             printf("RSSI %d, Channel %d\n", bss_desc_set->rssi, channel); // Signal strength and channel number
             //printf("  Timestamp %lld, Beacon Interval %d\n", bss_desc_set->pkt_time_stamp, bss_desc_set->bcn_interval);
@@ -1480,7 +1482,7 @@ void WiFi_ScanSSID(const char *ssid, WiFi_SSIDInfo *info, WiFi_Callback callback
     p[0] = arg;
     p[1] = (void*)callback;
     p[2] = info;
-    memset(info, 0, sizeof(WiFi_SSIDInfo)); 
+    memset(info, 0, sizeof(WiFi_SSIDInfo));
 
     cmd->bss_type = WIFI_BSS_ANY;
     memset(cmd->bss_id, 0, sizeof(cmd->bss_id));
@@ -1490,12 +1492,12 @@ void WiFi_ScanSSID(const char *ssid, WiFi_SSIDInfo *info, WiFi_Callback callback
     info->ssid.header.length = strlen(ssid);
     memcpy(info->ssid.ssid, ssid, info->ssid.header.length);
     // Copy the info->ssid into the command content to be sent
-    memcpy(cmd + 1, &info->ssid, TLV_STRUCTLEN(info->ssid)); 
+    memcpy(cmd + 1, &info->ssid, TLV_STRUCTLEN(info->ssid));
 
     chan_list = (MrvlIETypes_ChanListParamSet_t *)((uint8_t *)(cmd + 1) + TLV_STRUCTLEN(info->ssid));
     chan_list->header.type = WIFI_MRVLIETYPES_CHANLISTPARAMSET;
     chan_list->header.length = 14 * sizeof(chan_list->channels); // Scan 14 channels at a time
-    for (i = 0; i < 14; i++) 
+    for (i = 0; i < 14; i++)
     {
         chan_list->channels[i].band_config_type = 0;
         chan_list->channels[i].chan_number = i + 1;
@@ -1504,7 +1506,7 @@ void WiFi_ScanSSID(const char *ssid, WiFi_SSIDInfo *info, WiFi_Callback callback
         chan_list->channels[i].max_scan_time = 100;
     }
 
-    WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, ((uint8_t *)chan_list - wifi_buffer_command) + TLV_STRUCTLEN(*chan_list), 
+    WiFi_SendCommand(CMD_802_11_SCAN, wifi_buffer_command, ((uint8_t *)chan_list - wifi_buffer_command) + TLV_STRUCTLEN(*chan_list),
                     WiFi_ScanSSID_Callback, p, 3000, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1545,26 +1547,26 @@ static void WiFi_ScanSSID_Callback(void *arg, void *data, WiFi_Status status)
     info->cap_info = bss_desc_set->cap_info;
     info->bcn_period = bss_desc_set->bcn_interval;
 
-    // If info->xxx.header.type=0, 
-    // it indicates that there is no information of this item (except for the SSID structure, 
+    // If info->xxx.header.type=0,
+    // it indicates that there is no information of this item (except for the SSID structure,
     // because the type of SSID =WIFI_MRVLIETYPES_SSIDPARAMSET=0).
     ie_params = &bss_desc_set->ie_parameters;
     // The total size of all IEEE_Type data
-    ie_size = bss_desc_set->ie_length - (sizeof(WiFi_BssDescSet) - sizeof(bss_desc_set->ie_length) - sizeof(bss_desc_set->ie_parameters)); 
+    ie_size = bss_desc_set->ie_length - (sizeof(WiFi_BssDescSet) - sizeof(bss_desc_set->ie_length) - sizeof(bss_desc_set->ie_parameters));
     while (ie_size > 0)
     {
         switch (ie_params->header.type)
         {
         case WIFI_MRVLIETYPES_RATESPARAMSET:
             // rate
-            WiFi_TranslateTLV((MrvlIEType *)&info->rates, ie_params, sizeof(info->rates.rates));
+            (void)WiFi_TranslateTLV((MrvlIEType *)&info->rates, ie_params, sizeof(info->rates.rates));
             break;
         case WIFI_MRVLIETYPES_PHYPARAMDSSET:
             info->channel = ie_params->data[0];
             break;
         case WIFI_MRVLIETYPES_RSNPARAMSET:
             // Usually there is only one RSN information (related to WPA2)
-            WiFi_TranslateTLV((MrvlIEType *)&info->rsn, ie_params, sizeof(info->rsn.rsn));
+            (void)WiFi_TranslateTLV((MrvlIEType *)&info->rsn, ie_params, sizeof(info->rsn.rsn));
             break;
         case WIFI_MRVLIETYPES_VENDORPARAMSET:
             // There are usually multiple VENDOR information (wpa-related)
@@ -1575,16 +1577,16 @@ static void WiFi_ScanSSID_Callback(void *arg, void *data, WiFi_Status status)
                 {
                 case 0x01:
                     // wpa_oui
-                    WiFi_TranslateTLV((MrvlIEType *)&info->wpa, ie_params, sizeof(info->wpa.vendor));
+                    (void)WiFi_TranslateTLV((MrvlIEType *)&info->wpa, ie_params, sizeof(info->wpa.vendor));
                     break;
                 case 0x02:
                     // wmm_oui
                     if (ie_params->header.length == 24) // Legal size
-                        WiFi_TranslateTLV((MrvlIEType *)&info->wwm, ie_params, sizeof(info->wwm.vendor));
+                        (void)WiFi_TranslateTLV((MrvlIEType *)&info->wwm, ie_params, sizeof(info->wwm.vendor));
                     break;
                 case 0x04:
                     // wps_oui
-                    WiFi_TranslateTLV((MrvlIEType *)&info->wps, ie_params, sizeof(info->wps.vendor));
+                    (void)WiFi_TranslateTLV((MrvlIEType *)&info->wps, ie_params, sizeof(info->wps.vendor));
                     break;
                 }
             }
@@ -1601,29 +1603,29 @@ static void WiFi_ScanSSID_Callback(void *arg, void *data, WiFi_Status status)
 }
 
 /* Send the WiFi command and call the callback function when a response or timeout is received */
-// size=0 means that data contains complete command data, and code and size can be obtained directly 
+// size=0 means that data contains complete command data, and code and size can be obtained directly
 // from data (for resending)
-// retry can be 0(call the callback function directly the first time you fail, no more retries), 
+// retry can be 0(call the callback function directly the first time you fail, no more retries),
 // but timeout cannot be 0(otherwise you will be mistaken for a timeout and call the callback function before receiving the response)
 //
-// Only non-blocking WiFi commands can be executed in an no-operating system environment, 
-// and the results of the command execution can be notified by the callback function 
+// Only non-blocking WiFi commands can be executed in an no-operating system environment,
+// and the results of the command execution can be notified by the callback function
 // (the callback function should be guaranteed to be invoked and called only once).
-// 
-// If there is a operating system, a task to execute the WiFi in blocking the way command, 
-// you can add a send in the function before the command block waiting for the result 
+//
+// If there is a operating system, a task to execute the WiFi in blocking the way command,
+// you can add a send in the function before the command block waiting for the result
 // indicates that the command channel availability of semaphores code 0 and 1
-// When command channel is available, the semaphore value is 1 and awaken one waiting to send command task, 
-// after sending command continue to block waiting for the response, 
+// When command channel is available, the semaphore value is 1 and awaken one waiting to send command task,
+// after sending command continue to block waiting for the response,
 // the callback function and (success or failure) according to the results of the command execution decision function return values
-void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size, 
+void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size,
                             WiFi_Callback callback, void *arg, uint32_t timeout, uint8_t max_retry)
 {
     static uint16_t seq_num = 0;
     WiFi_CommandHeader *cmdhdr = (WiFi_CommandHeader *)wifi_buffer_command;
 
     // You must make sure that the previous command has been sent before you send the command
-    if (WiFi_CheckCommandBusy(callback, arg)) 
+    if (WiFi_CheckCommandBusy(callback, arg))
         return;
 
     // Direct command: WiFi_SendCommand(0, data, 0, ...)
@@ -1631,7 +1633,7 @@ void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size,
     // Retry the last command: WiFi_SendCommand(0, NULL, 0, ...)
     if (data != NULL && data != wifi_buffer_command){
         // The command content to be sent is copied to the buffer to be reissued when an error occurs
-        memmove(wifi_buffer_command, data, (size != 0) ? size : cmdhdr->frame_header.length); 
+        memmove(wifi_buffer_command, data, (size != 0) ? size : cmdhdr->frame_header.length);
     }
 
     if (size != 0)
@@ -1647,7 +1649,7 @@ void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size,
         size = cmdhdr->frame_header.length; // Do not fill in cmdhdr when reissuing a command
     WiFi_LowLevel_WriteData(1, wifi_port, wifi_buffer_command, size, sizeof(wifi_buffer_command));
     // The WriteData function has a low probability of error, so I won't judge its return value for simplicity
-    // Even if something goes wrong (such as a CRC validation error), 
+    // Even if something goes wrong (such as a CRC validation error),
     // the WiFi_CheckTimeout function repasses the command because the command response is not received
 
     wifi_tx_command.arg = arg;
@@ -1660,7 +1662,7 @@ void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size,
 }
 
 /* Send an EAPOL response frame */
-static void WiFi_SendEAPOLResponse(const WiFi_EAPOLKeyFrame *packet_rx, uint16_t key_info, const void *key_data, 
+static void WiFi_SendEAPOLResponse(const WiFi_EAPOLKeyFrame *packet_rx, uint16_t key_info, const void *key_data,
                                     uint16_t key_data_len, WiFi_Callback callback, void *arg)
 {
     uint8_t ret;
@@ -1687,7 +1689,7 @@ static void WiFi_SendEAPOLResponse(const WiFi_EAPOLKeyFrame *packet_rx, uint16_t
     if (key_data)
         memcpy(packet_tx->key_data, key_data, key_data_len);
 
-    // The MIC was obtained by KCK on the EAPOL frame to be sent 
+    // The MIC was obtained by KCK on the EAPOL frame to be sent
     // (the Ethernet frame took off two MAC address fields and the rest of the type/length=0x888e field)
     len = sizeof(WiFi_EAPOLKeyFrame) - sizeof(packet_tx->key_data) + key_data_len; // Total frame length
     memset(packet_tx->key_mic, 0, sizeof(packet_tx->key_mic)); // clear the MIC field
@@ -1728,7 +1730,7 @@ void WiFi_SendPacket(void *data, uint16_t size, WiFi_Callback callback, void *ar
 
     WiFi_WaitForLastTask();
     if (data != packet->payload)
-        memmove(packet->payload, data, size); 
+        memmove(packet->payload, data, size);
 
     if (size != 0)
     {
@@ -1871,7 +1873,7 @@ void WiFi_SetWEP(WiFi_CommandAction action, const WiFi_WEPKey *key, WiFi_Callbac
             callback(arg, NULL, WIFI_STATUS_INVALID);
         return;
     }
-    WiFi_SendCommand(CMD_802_11_SET_WEP, wifi_buffer_command, cmd_size, 
+    WiFi_SendCommand(CMD_802_11_SET_WEP, wifi_buffer_command, cmd_size,
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -1896,7 +1898,7 @@ void WiFi_ShowCIS(void)
     {
         // Gets the address of the CIS
         cis_ptr = (func << 8) | 0x9;
-        cis_ptr  = WiFi_LowLevel_ReadReg(0, cis_ptr) | (WiFi_LowLevel_ReadReg(0, cis_ptr + 1) << 8) 
+        cis_ptr  = WiFi_LowLevel_ReadReg(0, cis_ptr) | (WiFi_LowLevel_ReadReg(0, cis_ptr + 1) << 8)
                     | (WiFi_LowLevel_ReadReg(0, cis_ptr + 2) << 16);
         printf("[CIS] func=%d, ptr=0x%08lx\n", func, cis_ptr);
 
@@ -1953,7 +1955,7 @@ void WiFi_ShowCIS(void)
             }
             // When TPL_LINK is 0xff, the current node is the tail node
             if (tpl_link == 0xff)
-                break; 
+                break;
             cis_ptr += tpl_link;
         }
     }
@@ -1982,7 +1984,7 @@ void WiFi_StartADHOC(const char *ssid, uint16_t cap_info, WiFi_Callback callback
     cmd->cap_info = WIFI_CAPABILITY_IBSS | cap_info;
     memset(cmd->data_rate, 0, sizeof(cmd->data_rate));
     *(uint32_t *)cmd->data_rate = 0x968b8482;
-    WiFi_SendCommand(CMD_802_11_AD_HOC_START, wifi_buffer_command, sizeof(WiFi_Cmd_ADHOCStart), 
+    WiFi_SendCommand(CMD_802_11_AD_HOC_START, wifi_buffer_command, sizeof(WiFi_Cmd_ADHOCStart),
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -2045,7 +2047,7 @@ static void WiFi_StartADHOCEx_Callback(void *arg, void *data, WiFi_Status status
     switch (WiFi_GetCommandCode(data))
     {
     case CMD_802_11_SET_WEP:
-        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX, 
+        WiFi_MACControl(WIFI_MACCTRL_ETHERNET2 | WIFI_MACCTRL_WEP | WIFI_MACCTRL_TX | WIFI_MACCTRL_RX,
                         WiFi_StartADHOCEx_Callback, arg);
         break;
     case CMD_MAC_CONTROL:
@@ -2064,7 +2066,7 @@ static void WiFi_StartADHOCEx_Callback(void *arg, void *data, WiFi_Status status
 
 void WiFi_StopADHOC(WiFi_Callback callback, void *arg)
 {
-    WiFi_SendCommand(CMD_802_11_AD_HOC_STOP, wifi_buffer_command, sizeof(WiFi_CommandHeader), 
+    WiFi_SendCommand(CMD_802_11_AD_HOC_STOP, wifi_buffer_command, sizeof(WiFi_CommandHeader),
                     callback, arg, WIFI_DEFAULT_TIMEOUT_CMDRESP, WIFI_DEFAULT_MAXRETRY);
 }
 
@@ -2075,7 +2077,7 @@ static void WiFi_TxBufferComplete(WiFi_TxBuffer *tbuf, void *data, WiFi_Status s
     {
         tbuf->busy = 0;
         if (tbuf->callback)
-            tbuf->callback(tbuf->arg, data, status); 
+            tbuf->callback(tbuf->arg, data, status);
     }
 }
 
@@ -2085,17 +2087,17 @@ uint8_t WiFi_TranslateTLV(MrvlIEType *mrvlie_tlv, const IEEEType *ieee_tlv, uint
     mrvlie_tlv->header.type = ieee_tlv->header.type;
     if (ieee_tlv->header.length > mrvlie_payload_size){
         // If the source data size exceeds the maximum buffer capacity, the remaining data is discarded
-        mrvlie_tlv->header.length = mrvlie_payload_size; 
+        mrvlie_tlv->header.length = mrvlie_payload_size;
     }else{
         mrvlie_tlv->header.length = ieee_tlv->header.length;
     }
-    memset(mrvlie_tlv->data, 0, mrvlie_payload_size); 
+    memset(mrvlie_tlv->data, 0, mrvlie_payload_size);
     memcpy(mrvlie_tlv->data, ieee_tlv->data, mrvlie_tlv->header.length); // Copy the data
     // The return value indicates whether the buffer size is sufficient
-    return mrvlie_tlv->header.length == ieee_tlv->header.length; 
+    return mrvlie_tlv->header.length == ieee_tlv->header.length;
 }
 
-/* Within the specified timeout period, wait for the specified card status location bit 
+/* Within the specified timeout period, wait for the specified card status location bit
  * and clear the corresponding interrupt flag bit */
 // Return 1 on success
 uint8_t WiFi_Wait(uint8_t status, uint32_t timeout)
@@ -2114,7 +2116,7 @@ uint8_t WiFi_Wait(uint8_t status, uint32_t timeout)
 
     // Clear the corresponding interrupt flag bit
     // The bits that do not need to be cleared must be 1
-    WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status); 
+    WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status);
     // Can't remove the SDIOIT bit! Otherwise it may cause the position to never be placed
     return 1;
 }
@@ -2127,7 +2129,7 @@ void WiFi_WaitForLastTask(void)
     WiFi_CommandHeader *tx_cmd = (WiFi_CommandHeader *)wifi_buffer_command;
 #endif
 
-    // Before executing the CMD53 command to send data, 
+    // Before executing the CMD53 command to send data,
     // you must wait for the previously sent data to be confirmed by DNLDRDY
     // Note: CMDBUSY=DATABUSY=1 and CMDRDY=0 are impossible
     while ((wifi_tx_command.busy && wifi_tx_command.ready == 0) || wifi_tx_packet.busy)
@@ -2145,8 +2147,8 @@ void WiFi_WaitForLastTask(void)
                 }
             }
             wifi_tx_command.ready = 1;
-            
-            // Now that the command either timeout or has been confirmed, 
+
+            // Now that the command either timeout or has been confirmed,
             // it is not responsible for repassing the command
         }
 
@@ -2155,24 +2157,24 @@ void WiFi_WaitForLastTask(void)
             // Just wait for the download ready position bit, no matter the new data frame (upload ready)
 
             // The remaining time +1 (less than or equal to 0 indicates the timeout)
-            remaining = wifi_tx_packet.start_time + wifi_tx_packet.timeout - sys_now() + 1; 
+            remaining = wifi_tx_packet.start_time + wifi_tx_packet.timeout - sys_now() + 1;
             // Wait for the flag position within the remaining time +1 and clear the interrupt position
-            if (remaining > 0 && WiFi_Wait(WIFI_INTSTATUS_DNLD, remaining)) 
+            if (remaining > 0 && WiFi_Wait(WIFI_INTSTATUS_DNLD, remaining))
             {
 #ifdef WIFI_DISPLAY_RESPTIME
                 printf("-- Packet ACK at %ldms\n", sys_now() - wifi_tx_packet.start_time);
 #endif
-                // If DNLDRDY is set, the data frame is sent successfully, 
+                // If DNLDRDY is set, the data frame is sent successfully,
                 // the busy is reset and the corresponding callback function is called
-                WiFi_TxBufferComplete(&wifi_tx_packet, wifi_buffer_packet, WIFI_STATUS_OK); 
+                WiFi_TxBufferComplete(&wifi_tx_packet, wifi_buffer_packet, WIFI_STATUS_OK);
 
-                // If a new frame is sent in the callback function, then busy is still equal to 1 
+                // If a new frame is sent in the callback function, then busy is still equal to 1
                 // and you need to keep waiting, so you can't write break here
             }
             else
             {
                 // Notifies the callback function of timeout
-                WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet); 
+                WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet);
             }
         }
     }

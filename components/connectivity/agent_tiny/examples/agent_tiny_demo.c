@@ -63,7 +63,7 @@ void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e statu
 {
     ATINY_LOG(LOG_DEBUG,"type:%d cookie:%d status:%d\n", type,cookie, status);
 }
-
+/*lint -e550*/
 void app_data_report(void)
 {
     uint8_t buf[5] = {0,1,6,5,9};
@@ -87,6 +87,7 @@ void app_data_report(void)
         (void)LOS_TaskDelay(250*8);
     }
 }
+/*lint +e550*/
 
 UINT32 creat_report_task()
 {
