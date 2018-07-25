@@ -436,7 +436,7 @@ void WiFi_CheckTimeout(void)
                         wifi_tx_command.timeout, wifi_tx_command.retry - 1);
         printf("WiFi Command 0x%04x Timeout! Resend...\n", cmd->cmd_code);
     }
-    WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet);
+    (void)WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet);
 }
 
 /* Check if the send buffer needs to be retransmitted */
@@ -524,15 +524,15 @@ static void WiFi_DownloadHelper(void)
         memcpy(helper_buf + 4, data, curr);
         
         if (len != WIFI_HELPER_SIZE) // There is no waiting until the data is sent for the first time
-            WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
-        WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf));
+            (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
+        (void)WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf));
         len -= curr;
         data += curr;
     }
     
     // End with an empty packet
     memset(helper_buf, 0, 4);
-    WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf)); 
+    (void)WiFi_LowLevel_WriteData(1, wifi_port, helper_buf, sizeof(helper_buf), sizeof(helper_buf));
 
 }
 
@@ -551,7 +551,7 @@ static void WiFi_DownloadReal(void)
         // Gets the number of bytes that should be downloaded this time
         // Each time n>=curr bytes of data can be sent, only one CMD53 command can be sent, 
         // and the WiFi module only recognizes the prior curr bytes of data
-        WiFi_Wait(WIFI_INTSTATUS_DNLD, 0); // You must wait for Download Ready before sending
+        (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0); // You must wait for Download Ready before sending
         while ((curr = WiFi_LowLevel_ReadReg(1, WIFI_SQREADBASEADDR0) | (WiFi_LowLevel_ReadReg(1, WIFI_SQREADBASEADDR1) << 8)) == 0);
         //printf("Required: %d bytes, Remaining: %d bytes\n", curr, len);
 
@@ -577,11 +577,11 @@ static void WiFi_DownloadReal(void)
 #ifdef WIFI_HIGHSPEED 
         if (len < 32) // Len is the buffer residual size
         {
-            WiFi_LowLevel_WriteData(1, wifi_port, tmp_buffer, curr, sizeof(tmp_buffer));
+            (void)WiFi_LowLevel_WriteData(1, wifi_port, tmp_buffer, curr, sizeof(tmp_buffer));
         }
         else
 #endif
-            WiFi_LowLevel_WriteData(1, wifi_port, tmp_buffer, curr, len);
+            (void)WiFi_LowLevel_WriteData(1, wifi_port, tmp_buffer, curr, len);
 
         len -= curr;
         data += curr;
@@ -596,7 +596,7 @@ static void WiFi_DownloadFirmware(void)
     WiFi_DownloadReal();
     
     // Wait for Firmware to start
-    WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
+    (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
     while (WiFi_GetDataLength() != 0xfedc);
     printf("Firmware is successfully downloaded!\n");
 }
@@ -914,11 +914,12 @@ uint8_t *WiFi_GetPacketBuffer(void)
 
 const uint8_t *WiFi_GetReceivedPacket(uint16_t *len)
 {
+    WiFi_DataRx *data = NULL;
     if((wifi_rx_flag & WIFI_RX_FLAG_DATA) == WIFI_RX_FLAG_DATA)
     {
+        data = (WiFi_DataRx *)wifi_buffer_rx;
         wifi_rx_flag &= ~WIFI_RX_FLAG_DATA;
-        WiFi_DataRx *data = (WiFi_DataRx *)wifi_buffer_rx; 
-        if (data->header.type == WIFI_SDIOFRAME_DATA)
+        if (data->header.type == (uitn16_t)WIFI_SDIOFRAME_DATA)
         {
             *len = data->rx_packet_length;
             return data->payload;

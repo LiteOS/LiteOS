@@ -68,8 +68,7 @@ void arc4_crypt_raw( arc4_context *ctx, unsigned char *buf, int buflen )
         m[x] = (unsigned char) b;
         m[y] = (unsigned char) a;
 
-        buf[i] = (unsigned char)
-            ( buf[i] ^ m[(unsigned char)( a + b )] );
+        buf[i] = (unsigned char)( buf[i] ^ m[(unsigned char)( a + b )] );
     }
 
     ctx->x = x;
@@ -89,9 +88,9 @@ void ARC4_decrypt_keydata(const uint8_t *KEK, const uint8_t *key_iv, const uint8
     memcpy(newkey[1], KEK, sizeof(newkey[1]));
 
     arc4_setup(&ctx, newkey[0], sizeof(newkey));
-    arc4_crypt_raw(&ctx, dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
+    arc4_crypt_raw(&ctx, (unsigned char*)dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
     memcpy(output, data, datalen);
-    arc4_crypt_raw(&ctx, output, datalen);
+    arc4_crypt_raw(&ctx, (unsigned char*)output, datalen);
 }
 
 /* AES Key Wrap decryption algorithm decrypts AES Key Data packets */
@@ -261,7 +260,7 @@ uint8_t PRF(const void *k, uint16_t klen, const char *a, const void *b, uint16_t
         return 0;
 
     q = (uint8_t *)output;
-    strcpy((char *)p, a); // application-specific text (including '\0')
+    strcnpy((char *)p, a, alen); // application-specific text (including '\0')
     memcpy(p + alen + 1, b, blen); // special data
     for (i = 0; n; i++)
     {
