@@ -12,6 +12,19 @@ static tagIOCB  gIOCB;
 extern s32_t uart_read(u8_t *buf,s32_t len,s32_t timeout);
 extern s32_t uart_write(u8_t *buf,s32_t len,s32_t timeout);
 
+
+#pragma weak uart_read
+s32_t uart_read(u8_t *buf,s32_t len,s32_t timeout)
+{
+    return 0;
+}
+#pragma weak uart_write
+s32_t uart_write(u8_t *buf,s32_t len,s32_t timeout)
+{
+    return 0;
+}
+
+
 //we do some port here:we port the uart
 s32_t iodev_open(const char *name,s32_t flags,s32_t mode)
 {

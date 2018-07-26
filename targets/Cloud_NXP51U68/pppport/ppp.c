@@ -43,6 +43,7 @@ Supported compression or miscellaneous protocols, for serial links only:
 
 */
 
+#if USE_PPPOS
 
 #include "netif/ppp/ppp.h"
 #include "netif/ppp/pppapi.h"
@@ -232,7 +233,7 @@ VOID *main_ppp(UINT32  args)
     while(0 != AtDial("uart3",NULL))
     {
     }
-    ppp = pppos_create(&ppp_netif,output_cb, status_cb, NULL);
+    ppp = pppos_create(&ppp_netif,(pppos_output_cb_fn)output_cb, status_cb, NULL);
     if(NULL != ppp)
     {
         extern void *main_pppinput(unsigned int args);
@@ -260,7 +261,7 @@ VOID *main_ppp(UINT32  args)
 
     return NULL;  
 }
-
+#endif
 
 
 

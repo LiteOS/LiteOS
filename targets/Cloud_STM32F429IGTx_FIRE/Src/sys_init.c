@@ -92,7 +92,7 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
-#if    0
+#if  0
     #include "lwip/dhcp.h"
     struct dhcp *dhcp;
     dhcp_start(&gnetif);

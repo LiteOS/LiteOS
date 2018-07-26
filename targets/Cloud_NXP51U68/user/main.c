@@ -41,17 +41,14 @@
 #include "los_base.h" 
 #include "los_task.h"
 #include "los_typedef.h"
-
 #include "osport.h"
 
 
-#define USE_NET_PPP         0
-#define USE_NET_ETHERNET    1
 //import the uart here
 extern void uart_init(void);
 extern s32_t uart_read(u8_t *buf,s32_t len,s32_t timeout);
 extern s32_t uart_write(u8_t *buf,s32_t len,s32_t timeout);
-#if USE_NET_PPP
+#if USE_PPPOS
 //the uart is used as the pppos interface
 int fputc(int ch, FILE *f)
 {
@@ -69,14 +66,14 @@ int fgetc(FILE *f)
 int fputc(int ch, FILE *f)
 {
     int ret = 0;
-    ret =uart_write(( char *)&ch,1,0);
+    ret =uart_write((unsigned char *)&ch,1,0);
     return ret;
 }
 
 int fgetc(FILE *f)
 {
     char ch;
-    uart_read((char *)&ch,1,0xFFFFFF);
+    uart_read((unsigned char *)&ch,1,0xFFFFFF);
     return ch;
 }
 #endif
@@ -127,22 +124,14 @@ int main(void)
     {
         return LOS_NOK;
     }
-    //we want to add a new mem here
-    //printf("LITEOS FOR LPCEXPRESS51U68--sytem start begin\n\r");
-
-#if USE_NET_PPP
+#if USE_PPPOS 
     extern VOID *main_ppp(UINT32  args);
     task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
     
-#elif  USE_NET_ETHERNET
+#else  
     extern void * main_network(unsigned int args);
     task_create("main_network",main_network,0x800,NULL,NULL,0);
-#else 
-    extern void *fnLedFlash(UINT32 arg);
-    task_create("fnLedFlash",fnLedFlash,0x400,NULL,NULL,7);        //do the test 
-    LOS_Inspect_Entry();  //do the system check here
 #endif
-    //printf("LITEOS FOR LPCEXPRESS51U68 --sytem start done\n\r");
     LOS_Start();
 }
 
