@@ -510,7 +510,7 @@ static void WiFi_DownloadHelper(void)
 {
     uint8_t helper_buf[64];
     const uint8_t *data;
-    uint16_t curr;
+    uint32_t curr;
     uint32_t len;
 
     // Download the helper firmware
@@ -520,7 +520,7 @@ static void WiFi_DownloadHelper(void)
     {
         // Download up to 60 bytes of firmware at a time
         curr = (len > 60) ? 60 : len;
-        memcpy(helper_buf, &curr, 4);/*lint -e420*/ // The first 4 bytes are the amount of data actually downloaded
+        memcpy(helper_buf, &curr, 4); // The first 4 bytes are the amount of data actually downloaded
         memcpy(helper_buf + 4, data, curr);
 
         if (len != WIFI_HELPER_SIZE) // There is no waiting until the data is sent for the first time
@@ -569,7 +569,8 @@ static void WiFi_DownloadReal(void)
          * Omits adding compiler pseudo-instructions to the firmware array,
          * eg: __attribute__((aligned))
          */
-        memcpy(tmp_buffer, data, curr);/*lint -e669*/
+        curr = (curr > 512) ? 512 : curr;
+        memcpy(tmp_buffer, data, curr);
 
         // Send firmware data
         // You cannot use multi-byte transport mode in high speed mode,
@@ -598,7 +599,7 @@ static void WiFi_DownloadFirmware(void)
     // Wait for Firmware to start
     (void)WiFi_Wait(WIFI_INTSTATUS_DNLD, 0);
     while (WiFi_GetDataLength() != 0xfedc);
-    printf("Firmware is successfully downloaded!\n");
+    printf("Firmware is downloaded successfully!\n");
 }
 
 /* Discard received data or commands that have not been processed due to a program error */
@@ -919,7 +920,7 @@ const uint8_t *WiFi_GetReceivedPacket(uint16_t *len)
     {
         data = (WiFi_DataRx *)wifi_buffer_rx;
         wifi_rx_flag &= ~WIFI_RX_FLAG_DATA;
-        if (data->header.type == (uitn16_t)WIFI_SDIOFRAME_DATA)
+        if (data->header.type == (uint16_t)WIFI_SDIOFRAME_DATA)
         {
             *len = data->rx_packet_length;
             return data->payload;
@@ -1040,6 +1041,10 @@ void WiFi_Input(void)
                     printf("CMDRESP 0x%04x at %ldms\n", rx_cmd->cmd_code, sys_now() - wifi_tx_command.start_time);
 #endif
                     WiFi_TxBufferComplete(&wifi_tx_command, wifi_buffer_rx, WIFI_STATUS_OK);
+                }
+                else
+                {
+                    WiFi_TxBufferComplete(&wifi_tx_command, wifi_buffer_rx, WIFI_STATUS_BUSY);
                 }
                 break;
             case WIFI_SDIOFRAME_EVENT:
@@ -1647,7 +1652,7 @@ void WiFi_SendCommand(uint16_t code, const void *data, uint16_t size,
     }
     else
         size = cmdhdr->frame_header.length; // Do not fill in cmdhdr when reissuing a command
-    WiFi_LowLevel_WriteData(1, wifi_port, wifi_buffer_command, size, sizeof(wifi_buffer_command));
+    (void)WiFi_LowLevel_WriteData(1, wifi_port, wifi_buffer_command, size, sizeof(wifi_buffer_command));
     // The WriteData function has a low probability of error, so I won't judge its return value for simplicity
     // Even if something goes wrong (such as a CRC validation error),
     // the WiFi_CheckTimeout function repasses the command because the command response is not received
@@ -1748,7 +1753,7 @@ void WiFi_SendPacket(void *data, uint16_t size, WiFi_Callback callback, void *ar
         packet->pkt_delay_2ms = 0;
         packet->reserved2 = 0;
     }
-    WiFi_LowLevel_WriteData(1, wifi_port, wifi_buffer_packet, packet->header.length, sizeof(wifi_buffer_packet));
+    (void)WiFi_LowLevel_WriteData(1, wifi_port, wifi_buffer_packet, packet->header.length, sizeof(wifi_buffer_packet));
 
     // Next, you need to wait for the Download Ready position 1 to indicate that the data frame was sent successfully
     wifi_tx_packet.arg = arg;
@@ -2116,7 +2121,7 @@ uint8_t WiFi_Wait(uint8_t status, uint32_t timeout)
 
     // Clear the corresponding interrupt flag bit
     // The bits that do not need to be cleared must be 1
-    WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status);
+    (void)WiFi_LowLevel_WriteReg(1, WIFI_INTSTATUS, WIFI_INTSTATUS_ALL & ~status); 
     // Can't remove the SDIOIT bit! Otherwise it may cause the position to never be placed
     return 1;
 }
@@ -2174,7 +2179,7 @@ void WiFi_WaitForLastTask(void)
             else
             {
                 // Notifies the callback function of timeout
-                WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet);
+                (void)WiFi_CheckTxBufferRetry(&wifi_tx_packet, wifi_buffer_packet); 
             }
         }
     }
