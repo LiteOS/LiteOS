@@ -37,6 +37,7 @@
 #include "pin_mux.h"
 #include <stdbool.h>
 #include "osport.h"
+#include "los_task.h"
 
 
 #define BOARD_UART          USART0
@@ -65,7 +66,7 @@ void uart_irqhandler(void)
     if(status & kUSART_RxFifoNotEmptyFlag)
     {
         data = USART_ReadByte(BOARD_UART);
-        ring_write(&gUartRcvRing,(char *)&data,1);
+        ring_write(&gUartRcvRing,(unsigned char *)&data,1);
     }
 }
 void uart_init(void)
@@ -78,7 +79,7 @@ void uart_init(void)
     usart_config.enableTx = true;
     usart_config.enableRx = true;
     USART_Init(BOARD_UART, &usart_config, srcFreq);
-    ring_init(&gUartRcvRing,gUartRcvBuf,CN_UART_RINGBUF_LEN,0,0);  
+    ring_init(&gUartRcvRing,(unsigned char*)gUartRcvBuf,CN_UART_RINGBUF_LEN,0,0);  
    /* Enable RX interrupt. */
     USART_EnableInterrupts(BOARD_UART, kUSART_RxLevelInterruptEnable | kUSART_RxErrorInterruptEnable);
     //USART_EnableInterrupts(BOARD_UART, kUSART_RxLevelInterruptEnable);
@@ -95,7 +96,7 @@ int uart_read(char *buf,int len,int timeout)
     }while((ret < len)&&(timeout-- > 0));
     if(ret > 0)
     {
-        ret = ring_read(&gUartRcvRing,buf,len);
+        ret = ring_read(&gUartRcvRing,(unsigned char*)buf,len);
     }
     return ret;
 }
