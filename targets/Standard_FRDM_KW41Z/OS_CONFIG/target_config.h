@@ -45,10 +45,6 @@
 #include "system_MKW41Z4.h"
 #include "fsl_device_registers.h"
 
-#if defined (__ICCARM__)
-#include "arm_math.h"     /* fix IAR no definition for __CLZ bug */
-#endif
-
 
 #ifdef __cplusplus
 #if __cplusplus
