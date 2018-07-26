@@ -233,7 +233,7 @@ void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_sta
     thi->cookie = g_firmware_cookie++;
 }
 
-
+/*lint -e42 -e63*/
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
     int ret;
@@ -243,6 +243,7 @@ int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_
     ret |=atiny_fota_idle_state_int_report_result(&thi->idle_state);
     return ret;
 }
+/*lint +e42 +e63*/
 
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
 {

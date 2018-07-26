@@ -50,6 +50,15 @@
 #include "Legacy/stm32_hal_legacy.h"
 #endif
 #include <stdio.h>
+typedef unsigned          char uint8_t;
+typedef unsigned short    int  uint16_t;
+typedef unsigned          int  uint32_t;
+typedef   signed          char sint8_t;
+
+typedef uint32_t  				u32;
+typedef uint16_t 					u16;
+typedef uint8_t  					u8;
+typedef sint8_t           s8;
 
 /* Exported types ------------------------------------------------------------*/
 
