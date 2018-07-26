@@ -226,7 +226,6 @@
                     <state>FREEDOM</state>
                     <state>LOS_KERNEL_DEBUG_OUT</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
-                    <state>ARM_MATH_CM0PLUS</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -266,7 +265,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pa082,Pa050,Pe167,Pe181,Pe186,Pe177,Pe223</state>
+                    <state>Pa082,Pa182,Pe186</state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -351,7 +350,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$TOOLKIT_DIR$\CMSIS\Include</state>
+                    <state>$TOOLKIT_DIR$\CMSIS\Core\Include</state>
                     <state>$PROJ_DIR$\..\Inc</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis\1.0</state>
@@ -363,7 +362,6 @@
                     <state>$PROJ_DIR$\..\..\..\examples\include</state>
                     <state>$PROJ_DIR$\..\Drivers\MKW41Z512xxx4</state>
                     <state>$PROJ_DIR$\..\..\..\kernel\extended\include</state>
-                    <state>$PROJ_DIR$\..\..\..\arch\arm\common\cmsis</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
