@@ -246,7 +246,7 @@ void at_recv_task(uint32_t p)
             {
 
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
                 listener = NULL;
                 break;
             }
@@ -263,7 +263,7 @@ void at_recv_task(uint32_t p)
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
             }
             break;
         }

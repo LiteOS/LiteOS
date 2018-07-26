@@ -52,7 +52,8 @@
 /*
  * ARC4 cipher function
  */
-void arc4_crypt_raw( arc4_context *ctx, unsigned char *buf, int buflen )
+/*lint -e10*//*lint -e409*/
+void arc4_crypt_raw(arc4_context *ctx, unsigned char *buf, int buflen)
 {
     int i, x, y, a, b;
     unsigned char *m;
@@ -77,6 +78,7 @@ void arc4_crypt_raw( arc4_context *ctx, unsigned char *buf, int buflen )
     ctx->x = x;
     ctx->y = y;
 }
+/*lint +e10*//*lint +e409*/
 
 /* ARC4 decrypts the TKIP Key Data packet */
 // The encryption and decryption algorithm for ARC4 is the same, but the arc4_setup function must be called once every time
@@ -147,7 +149,7 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
     uint8_t i, *p;
     uint8_t *obuf = (uint8_t *)malloc(blocksize + outputsize); // Store the converted key in the first blocksize byte
     if (obuf == NULL)
-        return 0; 
+        return 0;
 
     // Keys longer than blockSize are shortened by hashing them
     if (keylen > blocksize)
@@ -167,7 +169,7 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
     if (p == NULL)
     {
         free(obuf);
-        return 0; 
+        return 0;
     }
     for (i = 0; i < blocksize; i++)
         p[i] = obuf[i] ^ 0x36;
@@ -182,7 +184,7 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
 
     hash(obuf, blocksize + outputsize, (uint8_t *)output);
     free(obuf);
-    return 1; 
+    return 1;
 }
 
 /* Using the md5 function provided by lwip to implement the HMAC_MD5 algorithm */
