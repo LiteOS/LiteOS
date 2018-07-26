@@ -111,7 +111,7 @@ int32_t sim900a_connect(const int8_t * host, const int8_t * port, int32_t proto)
     return id;
 }
 
-int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t timeout)
+int32_t  sim900a_recv_timeout(int32_t id, uint8_t * buf, uint32_t len, int32_t timeout)
 {
     uint32_t qlen = sizeof(QUEUE_BUFF);
     uint32_t rxlen = 0;
@@ -133,7 +133,7 @@ int32_t  sim900a_recv_timeout(int32_t id, int8_t * buf, uint32_t len, int32_t ti
     return rxlen;
 }
 
-int32_t  sim900a_recv(int32_t id, int8_t * buf, uint32_t len)
+int32_t  sim900a_recv(int32_t id, uint8_t * buf, uint32_t len)
 {
     return sim900a_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
 }
