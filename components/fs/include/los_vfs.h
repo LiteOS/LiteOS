@@ -49,10 +49,10 @@ struct mount_point;
 struct dir;
 struct dirent;
 
-#ifdef __CC_ARM
+//#ifdef __CC_ARM
 typedef int                                 ssize_t;
 typedef long                                off_t;
-#endif
+//#endif
 
 #ifdef __GNUC__
 #define VFS_ERRNO_SET(err)                  (errno = (-err))
