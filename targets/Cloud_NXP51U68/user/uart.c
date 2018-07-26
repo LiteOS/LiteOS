@@ -37,7 +37,6 @@
 #include "pin_mux.h"
 #include <stdbool.h>
 #include "osport.h"
-#include "los_task.h"
 
 
 #define BOARD_UART          USART0
@@ -45,7 +44,7 @@
 #define BOARD_UART_CLK_FREQ CLOCK_GetFreq(kCLOCK_Flexcomm0)
 #define BOARD_UART_IRQ      FLEXCOMM0_IRQn
 #define CN_UART_RINGBUF_LEN 512 
-static char gUartRcvBuf[CN_UART_RINGBUF_LEN];
+static unsigned char gUartRcvBuf[CN_UART_RINGBUF_LEN];
 static tagRingBuf  gUartRcvRing;
 
 #define uart_irqhandler FLEXCOMM0_IRQHandler
@@ -66,7 +65,7 @@ void uart_irqhandler(void)
     if(status & kUSART_RxFifoNotEmptyFlag)
     {
         data = USART_ReadByte(BOARD_UART);
-        ring_write(&gUartRcvRing,(unsigned char *)&data,1);
+        ring_write(&gUartRcvRing,&data,1);
     }
 }
 void uart_init(void)
@@ -79,7 +78,7 @@ void uart_init(void)
     usart_config.enableTx = true;
     usart_config.enableRx = true;
     USART_Init(BOARD_UART, &usart_config, srcFreq);
-    ring_init(&gUartRcvRing,(unsigned char*)gUartRcvBuf,CN_UART_RINGBUF_LEN,0,0);  
+    ring_init(&gUartRcvRing,gUartRcvBuf,CN_UART_RINGBUF_LEN,0,0);  
    /* Enable RX interrupt. */
     USART_EnableInterrupts(BOARD_UART, kUSART_RxLevelInterruptEnable | kUSART_RxErrorInterruptEnable);
     //USART_EnableInterrupts(BOARD_UART, kUSART_RxLevelInterruptEnable);
@@ -87,20 +86,20 @@ void uart_init(void)
     
     return ;
 }
-int uart_read(char *buf,int len,int timeout)
+int uart_read(unsigned char *buf,int len,int timeout)
 {
     int ret = 0;
     do{
         ret = ring_datalen(&gUartRcvRing);
-        LOS_TaskDelay(1);
+        task_sleepms(1);
     }while((ret < len)&&(timeout-- > 0));
     if(ret > 0)
     {
-        ret = ring_read(&gUartRcvRing,(unsigned char*)buf,len);
+        ret = ring_read(&gUartRcvRing,buf,len);
     }
     return ret;
 }
-int uart_write(char *buf,int len,int timeout)
+int uart_write(unsigned char *buf,int len,int timeout)
 {
     USART_WriteBlocking(BOARD_UART,(unsigned char *)buf,len);
     return len;
@@ -110,17 +109,17 @@ int uart_write(char *buf,int len,int timeout)
 void *main_uart(unsigned int args)
 {
     int ret;
-    char rcvbuf[64];
+    unsigned char rcvbuf[64];
     char *wel="welcome to the uart receive mode\n\r";
     char *index="lpc51u58>>";
     //do the uart test here
-    uart_write((char *)wel,strlen(wel),0);
+    uart_write((unsigned char *)wel,strlen(wel),0);
     while(1)
     {
         ret = uart_read(rcvbuf,64,100);
         if(ret > 0)
         {
-              uart_write((char *)index,strlen(index),0);
+              uart_write((unsigned char *)index,strlen(index),0);
               uart_write(rcvbuf,ret,100);
         }
     }
