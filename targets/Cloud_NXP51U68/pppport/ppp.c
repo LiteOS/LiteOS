@@ -232,7 +232,7 @@ VOID *main_ppp(UINT32  args)
     while(0 != AtDial("uart3",NULL))
     {
     }
-    ppp = pppos_create(&ppp_netif,output_cb, status_cb, NULL);
+    ppp = pppos_create(&ppp_netif, output_cb, status_cb, NULL);
     if(NULL != ppp)
     {
         extern void *main_pppinput(unsigned int args);

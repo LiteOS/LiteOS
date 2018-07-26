@@ -363,6 +363,7 @@
                     <state>$PROJ_DIR$\..\..\..\examples\include</state>
                     <state>$PROJ_DIR$\..\Drivers\MKW41Z512xxx4</state>
                     <state>$PROJ_DIR$\..\..\..\kernel\extended\include</state>
+                    <state>$PROJ_DIR$\..\..\..\arch\arm\common\cmsis</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>

@@ -69,14 +69,14 @@ int fgetc(FILE *f)
 int fputc(int ch, FILE *f)
 {
     int ret = 0;
-    ret =uart_write(( char *)&ch,1,0);
+    ret = uart_write((unsigned char *)&ch,1,0);
     return ret;
 }
 
 int fgetc(FILE *f)
 {
     char ch;
-    uart_read((char *)&ch,1,0xFFFFFF);
+    uart_read((unsigned char *)&ch,1,0xFFFFFF);
     return ch;
 }
 #endif
