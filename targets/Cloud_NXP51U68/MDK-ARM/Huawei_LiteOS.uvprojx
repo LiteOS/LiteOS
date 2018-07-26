@@ -10,7 +10,8 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>LPC51U68JBD64</Device>
@@ -53,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -323,6 +324,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -335,7 +337,7 @@
               <MiscControls>--library_interface=armcc --library_type=standardlib  --diag_suppress=66,1296,186</MiscControls>
               <Define>MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_LWIP,WITH_DTLS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m0;..\..\..\examples\include;..\..\..\test\include;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\board;..\cmsis;..\startup;..\utilities;..\drivers;..\user;..\utilities;..\stupid;..\..\..\examples\include;..\..\..\kernel\base\mem\common;..\osport</IncludePath>
+              <IncludePath>..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m0;..\..\..\examples\include;..\..\..\test\include;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\board;..\cmsis;..\startup;..\utilities;..\drivers;..\user;..\utilities;..\stupid;..\..\..\examples\include;..\..\..\kernel\base\mem\common;..\..\..\components\net\ppp_port\osport</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1390,26 +1392,6 @@
               <FileType>5</FileType>
               <FilePath>..\user\hal_spi_flash.h</FilePath>
             </File>
-            <File>
-              <FileName>agent_tiny_cmd_ioctl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\agent_tiny_cmd_ioctl.c</FilePath>
-            </File>
-            <File>
-              <FileName>agent_tiny_cmd_ioctl.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\agent_tiny_cmd_ioctl.h</FilePath>
-            </File>
-            <File>
-              <FileName>agent_tiny_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\agent_tiny_demo.c</FilePath>
-            </File>
-            <File>
-              <FileName>agent_tiny_demo.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user\agent_tiny_demo.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -2008,37 +1990,57 @@
             <File>
               <FileName>atcmd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\pppport\atcmd.c</FilePath>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\atcmd.c</FilePath>
             </File>
             <File>
-              <FileName>ppp.c</FileName>
+              <FileName>demo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\pppport\ppp.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>osport</GroupName>
-          <Files>
-            <File>
-              <FileName>kernel.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\osport\kernel.c</FilePath>
-            </File>
-            <File>
-              <FileName>osport.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\osport\osport.h</FilePath>
-            </File>
-            <File>
-              <FileName>ring.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\osport\ring.c</FilePath>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\demo.c</FilePath>
             </File>
             <File>
               <FileName>iodev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\osport\iodev.c</FilePath>
+              <FilePath>..\..\..\components\net\ppp_port\osport\iodev.c</FilePath>
+            </File>
+            <File>
+              <FileName>kernel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\kernel.c</FilePath>
+            </File>
+            <File>
+              <FileName>osport.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\osport.h</FilePath>
+            </File>
+            <File>
+              <FileName>ring.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\ring.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>agent_demo</GroupName>
+          <Files>
+            <File>
+              <FileName>agent_tiny_cmd_ioctl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\examples\agent_tiny_cmd_ioctl.c</FilePath>
+            </File>
+            <File>
+              <FileName>agent_tiny_cmd_ioctl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\examples\agent_tiny_cmd_ioctl.h</FilePath>
+            </File>
+            <File>
+              <FileName>agent_tiny_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\examples\agent_tiny_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>agent_tiny_demo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\connectivity\agent_tiny\examples\agent_tiny_demo.h</FilePath>
             </File>
           </Files>
         </Group>

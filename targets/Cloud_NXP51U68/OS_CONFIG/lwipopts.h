@@ -156,7 +156,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
-//#define CHECKSUM_BY_HARDWARE 
+//#define CHECKSUM_BY_HARDWARE //no checksum for the spi ethernet interface
 
 
 #ifdef CHECKSUM_BY_HARDWARE
@@ -235,11 +235,13 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_COMPAT_MUTEX_ALLOWED 1
 #define LWIP_COMPAT_MUTEX  1
 
-/**/
-//for the ppp support
-#define  PPP_SUPPORT  1
-#define  PAP_SUPPORT  1
+#if USE_PPPOS              //for the ppp support
+
+#define  PPP_SUPPORT       1
+#define  PAP_SUPPORT       1
 #define  PPP_IPV4_SUPPORT  1
+
+#endif
 
 
 #endif /* __LWIPOPTS_H__ */
