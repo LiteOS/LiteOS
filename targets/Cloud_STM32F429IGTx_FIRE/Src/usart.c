@@ -155,13 +155,13 @@ int fputc(int ch, FILE *f)
 #if USE_PPPOS
 
 #include "osport.h"
+#include "los_hwi.h"
 
-void USART3_UART_Init(void);
 int uart3_send(unsigned char *buf,int len);
 int uart3_recv(unsigned char *buf,int len,int timeout);
 tagRingBuf  gRcvRing;
 #define CN_RING_lEN 1500
-char gRcvBuf[CN_RING_lEN];
+unsigned char gRcvBuf[CN_RING_lEN];
 UART_HandleTypeDef huart3;
 
 
@@ -174,10 +174,10 @@ void uart3_irq()
     if(flags & USART_SR_RXNE)
     {
         data = (uint8_t)(huart3.Instance->DR & (uint8_t)0x00FF);
-        ring_write(&gRcvRing,(char *)&data,1);
+        ring_write(&gRcvRing,&data,1);
     }   
 }
-void USART3_UART_Init(void)
+void uart3_init(void)
 {
     huart3.Instance = USART3;
     huart3.Init.BaudRate = 9600;
@@ -221,7 +221,7 @@ int uart3_recv(unsigned char *buf,int len,int timeout)
     unsigned char value;
     do{
         datalen = ring_datalen(&gRcvRing);
-        LOS_TaskDelay(1);
+        task_sleepms(1);
     }while((timeout-- >0)&&(datalen < len));
     if(datalen > 0)
     {
@@ -230,9 +230,10 @@ int uart3_recv(unsigned char *buf,int len,int timeout)
     return ret;
 }
 
-
-
-
+void uart_init(void)
+{
+    uart3_init();
+}
 int uart_write(char *buf,int len,int timeout)
 {
     return uart3_send((unsigned char *)buf,len);

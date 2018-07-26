@@ -125,8 +125,10 @@ int main(void)
         return LOS_NOK;
     }
 
-#if  USE_PPPOS   
-    USART3_UART_Init();    
+#if  USE_PPPOS
+    #include "osport.h"
+    extern void uart_init(void);  //this uart used for the pppos interface
+    uart_init();
     extern VOID *main_ppp(UINT32  args);
     task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
 #else

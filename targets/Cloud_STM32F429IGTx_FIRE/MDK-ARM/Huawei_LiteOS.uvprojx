@@ -337,7 +337,7 @@
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
               <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_LWIP,CONFIG_FEATURE_FOTA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\osport</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\..\..\components\net\ppp_port\osport</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1589,46 +1589,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>pppport</GroupName>
-          <Files>
-            <File>
-              <FileName>atcmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\pppport\atcmd.c</FilePath>
-            </File>
-            <File>
-              <FileName>ppp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\pppport\ppp.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>osport</GroupName>
-          <Files>
-            <File>
-              <FileName>iodev.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\osport\iodev.c</FilePath>
-            </File>
-            <File>
-              <FileName>kernel.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\osport\kernel.c</FilePath>
-            </File>
-            <File>
-              <FileName>osport.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\osport\osport.h</FilePath>
-            </File>
-            <File>
-              <FileName>ring.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\osport\ring.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>pppif</GroupName>
           <Files>
             <File>
@@ -1800,6 +1760,41 @@
               <FileName>target_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\OS_CONFIG\target_config.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ppp</GroupName>
+          <Files>
+            <File>
+              <FileName>atcmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\atcmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>iodev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\iodev.c</FilePath>
+            </File>
+            <File>
+              <FileName>kernel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\kernel.c</FilePath>
+            </File>
+            <File>
+              <FileName>osport.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\osport.h</FilePath>
+            </File>
+            <File>
+              <FileName>ring.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\ring.c</FilePath>
             </File>
           </Files>
         </Group>
