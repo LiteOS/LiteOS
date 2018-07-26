@@ -597,7 +597,7 @@ uint8_t SPI_MasterTransferBlockingByte(SPI_Type *base, spi_transfer_t *xfer)
     uint8_t value = 0;
     uint32_t tx_ctrl = 0, last_ctrl = 0;
     uint32_t tmp32,dataWidth;
-    volatile SPI_Type  *spibase;
+    SPI_Type  *spibase;
 
 
     spibase = base;

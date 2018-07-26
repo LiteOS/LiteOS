@@ -10,12 +10,13 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.11.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.7.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -53,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -323,6 +324,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -335,7 +337,7 @@
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
               <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_LWIP,CONFIG_FEATURE_FOTA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\..\..\test\include;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\net\lwip-2.0.3\src\include;..\..\..\components\net\lwip_port;..\..\..\components\net\lwip_port\OS;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\Hardware\Inc;..\..\..\components\connectivity\at_frame;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\gprs;..\..\..\drivers\devices\nb;..\..\..\components\connectivity\nb_iot;..\..\..\components\fota\fota_package_storage_device;..\..\..\components\fota\ota;..\..\..\components\fota\utility;..\..\..\components\connectivity\agent_tiny\firmware_update;..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota;..\..\..\components\net\ppp_port\osport</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1578,6 +1580,186 @@
               <FileName>fota_package_checksum.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ppp</GroupName>
+          <Files>
+            <File>
+              <FileName>auth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\auth.c</FilePath>
+            </File>
+            <File>
+              <FileName>ccp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\ccp.c</FilePath>
+            </File>
+            <File>
+              <FileName>chap_ms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\chap_ms.c</FilePath>
+            </File>
+            <File>
+              <FileName>chap-md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\chap-md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>chap-new.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\chap-new.c</FilePath>
+            </File>
+            <File>
+              <FileName>demand.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\demand.c</FilePath>
+            </File>
+            <File>
+              <FileName>eap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\eap.c</FilePath>
+            </File>
+            <File>
+              <FileName>ecp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\ecp.c</FilePath>
+            </File>
+            <File>
+              <FileName>eui64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\eui64.c</FilePath>
+            </File>
+            <File>
+              <FileName>fsm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\fsm.c</FilePath>
+            </File>
+            <File>
+              <FileName>ipcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\ipcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>ipv6cp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\ipv6cp.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\lcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>magic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\magic.c</FilePath>
+            </File>
+            <File>
+              <FileName>mppe.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\mppe.c</FilePath>
+            </File>
+            <File>
+              <FileName>multilink.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\multilink.c</FilePath>
+            </File>
+            <File>
+              <FileName>ppp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\ppp.c</FilePath>
+            </File>
+            <File>
+              <FileName>pppapi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\pppapi.c</FilePath>
+            </File>
+            <File>
+              <FileName>pppcrypt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\pppcrypt.c</FilePath>
+            </File>
+            <File>
+              <FileName>pppos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\pppos.c</FilePath>
+            </File>
+            <File>
+              <FileName>upap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\upap.c</FilePath>
+            </File>
+            <File>
+              <FileName>utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>vj.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\vj.c</FilePath>
+            </File>
+            <File>
+              <FileName>arc4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\polarssl\arc4.c</FilePath>
+            </File>
+            <File>
+              <FileName>des.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\polarssl\des.c</FilePath>
+            </File>
+            <File>
+              <FileName>md4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\polarssl\md4.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\polarssl\md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>sha1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip-2.0.3\src\netif\ppp\polarssl\sha1.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>pppport</GroupName>
+          <Files>
+            <File>
+              <FileName>iodev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\iodev.c</FilePath>
+            </File>
+            <File>
+              <FileName>kernel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\kernel.c</FilePath>
+            </File>
+            <File>
+              <FileName>osport.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\osport.h</FilePath>
+            </File>
+            <File>
+              <FileName>ring.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\osport\ring.c</FilePath>
+            </File>
+            <File>
+              <FileName>atcmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\atcmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\ppp_port\ppppos\demo.c</FilePath>
             </File>
           </Files>
         </Group>
