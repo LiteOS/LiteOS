@@ -184,7 +184,7 @@ void ethernetif_input( void* pvParameters )
     struct pbuf* p;
     err_t err;
 
-    LWIP_ASSERT("s_pxNetIf != NULL", (s_pxNetIf != NULL));
+    //LWIP_ASSERT("s_pxNetIf != NULL", (s_pxNetIf != NULL));
     /* move received packet into a new pbuf */
     do
     {
