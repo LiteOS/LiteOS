@@ -39,6 +39,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "tiny_aes.h"
 
 // base on mbedtls
@@ -51,10 +52,13 @@
 /*
  * ARC4 cipher function
  */
-void arc4_crypt_raw( arc4_context *ctx, unsigned char *buf, int buflen )
+/*lint -e10*//*lint -e409*/
+void arc4_crypt_raw(arc4_context *ctx, unsigned char *buf, int buflen)
 {
     int i, x, y, a, b;
     unsigned char *m;
+
+    if(NULL == ctx || buf == NULL) return;
 
     x = ctx->x;
     y = ctx->y;
@@ -68,13 +72,13 @@ void arc4_crypt_raw( arc4_context *ctx, unsigned char *buf, int buflen )
         m[x] = (unsigned char) b;
         m[y] = (unsigned char) a;
 
-        buf[i] = (unsigned char)
-            ( buf[i] ^ m[(unsigned char)( a + b )] );
+        buf[i] = (unsigned char)( buf[i] ^ m[(unsigned char)( a + b )] );
     }
 
     ctx->x = x;
     ctx->y = y;
 }
+/*lint +e10*//*lint +e409*/
 
 /* ARC4 decrypts the TKIP Key Data packet */
 // The encryption and decryption algorithm for ARC4 is the same, but the arc4_setup function must be called once every time
@@ -85,13 +89,15 @@ void ARC4_decrypt_keydata(const uint8_t *KEK, const uint8_t *key_iv, const uint8
     uint8_t dummy[256] = {0};
     uint8_t newkey[2][16];
 
+    if(NULL == KEK || NULL == key_iv || NULL == data || NULL == output) return;
+
     memcpy(newkey[0], key_iv, sizeof(newkey[0]));
     memcpy(newkey[1], KEK, sizeof(newkey[1]));
 
     arc4_setup(&ctx, newkey[0], sizeof(newkey));
-    arc4_crypt_raw(&ctx, dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
+    arc4_crypt_raw(&ctx, (unsigned char*)dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
     memcpy(output, data, datalen);
-    arc4_crypt_raw(&ctx, output, datalen);
+    arc4_crypt_raw(&ctx, (unsigned char*)output, datalen);
 }
 
 /* AES Key Wrap decryption algorithm decrypts AES Key Data packets */
@@ -104,6 +110,9 @@ uint16_t AES_unwrap(const uint8_t *key, const uint8_t *data, uint16_t datalen, u
     uint8_t *r;
     uint16_t i, j, n, t;
     struct AES_ctx ctx;
+
+    if(NULL == key || NULL == data || NULL == output) return 0;
+    
     AES_init_ctx(&ctx, key);
 
     /* Initialize variables */
@@ -113,7 +122,7 @@ uint16_t AES_unwrap(const uint8_t *key, const uint8_t *data, uint16_t datalen, u
     memcpy(r, data + 8, datalen - 8);
 
     /* Compute intermediate values */
-    for (j = 5; j <= 5; j--)
+    for (j = 5; j >= 0; j--)
     {
         r = output + (n - 1) * 8;
         for (i = n; i >= 1; i--)
@@ -140,7 +149,7 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
     uint8_t i, *p;
     uint8_t *obuf = (uint8_t *)malloc(blocksize + outputsize); // Store the converted key in the first blocksize byte
     if (obuf == NULL)
-        return 0; 
+        return 0;
 
     // Keys longer than blockSize are shortened by hashing them
     if (keylen > blocksize)
@@ -160,7 +169,7 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
     if (p == NULL)
     {
         free(obuf);
-        return 0; 
+        return 0;
     }
     for (i = 0; i < blocksize; i++)
         p[i] = obuf[i] ^ 0x36;
@@ -175,18 +184,20 @@ uint8_t hmac(const void *key, uint16_t keylen, const void *msg, uint16_t msglen,
 
     hash(obuf, blocksize + outputsize, (uint8_t *)output);
     free(obuf);
-    return 1; 
+    return 1;
 }
 
 /* Using the md5 function provided by lwip to implement the HMAC_MD5 algorithm */
 uint8_t hmac_md5(const void *key, uint16_t keylen, const void *msg, uint16_t msglen, uint8_t output[HMAC_MD5_OUTPUTSIZE])
 {
+    if(NULL == key || NULL == msg) return 0;
     return hmac(key, keylen, msg, msglen, (HashFunction)md5, HMAC_MD5_BLOCKSIZE, output, HMAC_MD5_OUTPUTSIZE);
 }
 
 /* The HMAC_SHA1 algorithm is implemented using the sha1 function provided by lwip */
 uint8_t hmac_sha1(const void *key, uint16_t keylen, const void *msg, uint16_t msglen, uint8_t output[HMAC_SHA1_OUTPUTSIZE])
 {
+    if(NULL == key || NULL == msg) return 0;
     return hmac(key, keylen, msg, msglen, (HashFunction)sha1, HMAC_SHA1_BLOCKSIZE, output, HMAC_SHA1_OUTPUTSIZE);
 }
 
@@ -200,13 +211,15 @@ uint8_t pbkdf2_hmac_sha1(const void *password, uint16_t pwdlen, const void *salt
     uint16_t i;
     uint32_t j;
 
+    if(NULL == password || NULL == salt || NULL == dk) return 0;
+
     p = (uint8_t *)malloc(saltlen + 4);
     if (p == NULL)
         return 0;
     memcpy(p, salt, saltlen);
     memset(p + saltlen, 0, 2);
 
-    for (i = 1; dklen; i++)
+    for (i = 1; dklen > 0; i++)
     {
         // INT_32_BE(i)
         p[saltlen + 2] = i >> 8;
@@ -252,21 +265,24 @@ uint8_t pbkdf2_hmac_sha1(const void *password, uint16_t pwdlen, const void *salt
 // The parameter n is n over 8 in PRF-n
 uint8_t PRF(const void *k, uint16_t klen, const char *a, const void *b, uint16_t blen, void *output, uint8_t n)
 {
-    uint8_t alen = strlen(a);
+    uint8_t alen = 0;
     uint8_t buf[HMAC_SHA1_OUTPUTSIZE];
     uint8_t curr, i, *p, *q;
 
+    if(NULL == k || NULL == a || NULL == output) return 0;
+
+    alen = strlen(a);
     p = (uint8_t *)malloc(alen + blen + 2);
     if (p == NULL)
         return 0;
 
     q = (uint8_t *)output;
-    strcpy((char *)p, a); // application-specific text (including '\0')
+    strncpy((char *)p, a, alen+1); // application-specific text (including '\0')
     memcpy(p + alen + 1, b, blen); // special data
-    for (i = 0; n; i++)
+    for (i = 0; n > 0; i++)
     {
         p[alen + blen + 1] = i; // single byte counter
-        hmac_sha1(k, klen, p, alen + blen + 2, buf);
+        (void)hmac_sha1(k, klen, p, alen + blen + 2, buf);
 
         curr = (n < HMAC_SHA1_OUTPUTSIZE) ? n : HMAC_SHA1_OUTPUTSIZE;
         memcpy(q, buf, curr);

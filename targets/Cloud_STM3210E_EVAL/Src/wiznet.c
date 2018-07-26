@@ -303,7 +303,7 @@ int32_t wiznet_connect(const char* host, const char* port, int protocol)
     }
     
     id = wiz_get_unuse_linkid();
-    if(id < 0 || id > WIZ_MAX_SOCKET_NUM)
+    if(id < 0 || id >= WIZ_MAX_SOCKET_NUM)
     {
         WIZ_LOG("no vaild linkid for use(id = %ld)", id);
         return WIZ_FAILED;

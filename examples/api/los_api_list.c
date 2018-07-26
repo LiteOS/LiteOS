@@ -58,6 +58,11 @@ UINT32 Example_list(VOID)
     dprintf("initial......\n");
     LOS_DL_LIST *head;
     head = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    if (head == NULL)
+    {
+        dprintf("malloc failed\n");
+        return LOS_NOK;
+    }
 
     LOS_ListInit(head);
     if (!LOS_ListEmpty(head))
