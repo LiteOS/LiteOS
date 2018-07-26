@@ -180,7 +180,7 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
         return FOTA_OK;
     }
 
-     if((NULL == hardware) || (NULL == hardware->read_software))
+    if((NULL == hardware) || (NULL == hardware->read_software))
     {
         FOTA_LOG("hardware null");
         return FOTA_ERR;
