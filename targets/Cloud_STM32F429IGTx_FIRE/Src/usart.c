@@ -151,6 +151,101 @@ int fputc(int ch, FILE *f)
     (void)HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
     return ch;
 }
+
+#if USE_PPPOS
+
+#include "osport.h"
+#include "los_hwi.h"
+
+int uart3_send(unsigned char *buf,int len);
+int uart3_recv(unsigned char *buf,int len,int timeout);
+tagRingBuf  gRcvRing;
+#define CN_RING_lEN 1500
+unsigned char gRcvBuf[CN_RING_lEN];
+UART_HandleTypeDef huart3;
+
+
+void uart3_irq()
+{
+    unsigned char data;
+    unsigned int flags;
+    
+    flags = huart3.Instance->SR;
+    if(flags & USART_SR_RXNE)
+    {
+        data = (uint8_t)(huart3.Instance->DR & (uint8_t)0x00FF);
+        ring_write(&gRcvRing,&data,1);
+    }   
+}
+void uart3_init(void)
+{
+    huart3.Instance = USART3;
+    huart3.Init.BaudRate = 9600;
+    huart3.Init.WordLength = UART_WORDLENGTH_8B;
+    huart3.Init.StopBits = UART_STOPBITS_1;
+    huart3.Init.Parity = UART_PARITY_NONE;
+    huart3.Init.Mode = UART_MODE_TX_RX;
+    huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+    if (HAL_UART_Init(&huart3) != HAL_OK)
+    {
+        _Error_Handler(__FILE__, __LINE__);
+    }
+    ring_init(&gRcvRing,gRcvBuf,CN_RING_lEN,0,0);
+    
+    
+    LOS_HwiCreate(39,4,0,uart3_irq,0);
+        /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+    SET_BIT(huart3.Instance->CR3, USART_CR3_EIE);
+
+    /* Enable the UART Parity Error and Data Register not empty Interrupts */
+    SET_BIT(huart3.Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+}
+
+
+
+int uart3_send(unsigned char *buf,int len)
+{
+    int ret = 0;
+    
+    if(HAL_OK == HAL_UART_Transmit(&huart3, buf, len, 0xFFFF))
+    {
+        ret= len;
+    }
+    return ret;
+}
+int uart3_recv(unsigned char *buf,int len,int timeout)
+{
+    int datalen = 0;
+    int ret = 0;
+    unsigned char value;
+    do{
+        datalen = ring_datalen(&gRcvRing);
+        task_sleepms(1);
+    }while((timeout-- >0)&&(datalen < len));
+    if(datalen > 0)
+    {
+        ret = ring_read(&gRcvRing,buf,len);
+    }
+    return ret;
+}
+
+void uart_init(void)
+{
+    uart3_init();
+}
+int uart_write(char *buf,int len,int timeout)
+{
+    return uart3_send((unsigned char *)buf,len);
+}
+int uart_read(char *buf,int len,int timeout)
+{
+    return uart3_recv((unsigned char *)buf,len,timeout);
+}
+
+#endif
+
+
 #elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
 __attribute__((used)) int _write(int fd, char *ptr, int len)
 {
@@ -161,14 +256,5 @@ __attribute__((used)) int _write(int fd, char *ptr, int len)
 
 /* USER CODE BEGIN 1 */
 
-/* USER CODE END 1 */
 
-/**
-  * @}
-  */
 
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

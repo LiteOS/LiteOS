@@ -77,7 +77,7 @@ void *fnLedFlash(UINT32 arg)
         GPIO_PortToggle(GPIO, APP_BOARD_TEST_LED_PORT, 1u << APP_BOARD_TEST_LED_PIN);
 		LOS_TaskDelay(1000);
     }
-    return NULL;
+
 }
 
 

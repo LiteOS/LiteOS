@@ -590,6 +590,12 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         ATINY_LOG(LOG_FATAL, "memory not enough");
         return ATINY_MALLOC_FAILED;
     }
+#ifdef WITH_DTLS
+    ATINY_LOG(LOG_INFO, "security device, endpoint_name is %s\n",device_info->endpoint_name);
+#else
+    ATINY_LOG(LOG_INFO, "non security device, endpoint_name is %s\n",device_info->endpoint_name);
+#endif
+
     while (!handle->atiny_quit)
     {
         timeout = BIND_TIMEOUT;

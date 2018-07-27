@@ -41,32 +41,42 @@
 #include "los_base.h" 
 #include "los_task.h"
 #include "los_typedef.h"
-
 #include "osport.h"
 
 
-
-void *fnTsk1(unsigned int args)
+//import the uart here
+extern void uart_init(void);
+extern s32_t uart_read(u8_t *buf,s32_t len,s32_t timeout);
+extern s32_t uart_write(u8_t *buf,s32_t len,s32_t timeout);
+#if USE_PPPOS
+//the uart is used as the pppos interface
+int fputc(int ch, FILE *f)
 {
-	while(1)
-	{
-		printf("HELLO TASK1\n\r");
-	
-		LOS_TaskDelay(1000);
-	}
-	return NULL;
+    int ret = 0;
+   // ret =uart_write(( char *)&ch,1,0);
+    return ret;
 }
-void *fnTsk2(unsigned int args)
+int fgetc(FILE *f)
 {
-	while(1)
-	{
-		printf("HELLO TASK2\n\r");
-	
-		LOS_TaskDelay(1000);
-	}
-	return NULL;
+    char ch;
+    //uart_read((char *)&ch,1,0xFFFFFF);
+    return ch;
+}
+#else
+int fputc(int ch, FILE *f)
+{
+    int ret = 0;
+    ret =uart_write((unsigned char *)&ch,1,0);
+    return ret;
 }
 
+int fgetc(FILE *f)
+{
+    char ch;
+    uart_read((unsigned char *)&ch,1,0xFFFFFF);
+    return ch;
+}
+#endif
 VOID HardWare_Init(VOID)
 {
     /* Init board hardware. */
@@ -90,7 +100,20 @@ VOID HardWare_Init(VOID)
     uart_init();
 }
 
-
+volatile int gRamSize = 0;
+volatile int gRamMax = 0;
+VOID osTaskMemUsedInc(UINT32 uwUsedSize)
+{
+    gRamSize += uwUsedSize;
+    if(gRamSize > gRamMax)
+    {
+        gRamMax = gRamSize;
+    }
+}
+VOID osTaskMemUsedDec(UINT32 uwUsedSize)
+{
+    gRamSize -= uwUsedSize;
+}
 
 int main(void)
 {
@@ -101,40 +124,15 @@ int main(void)
     {
         return LOS_NOK;
     }
-    //we want to add a new mem here
-    printf("LITEOS FOR LPCEXPRESS51U68--sytem start begin\n\r");
-    //do the test 
-    //LOS_Inspect_Entry();  //do the system check here
-//	extern void *fnLedFlash(UINT32 arg);
-  //creat_maintask("fnLedFlash",fnLedFlash,0x400,0,7);
-	//extern void *fnGpioFlash(UINT32 arg);
-  //creat_maintask("fnGpioFlash",fnGpioFlash,0x400,0,7);
-    //extern status_t uart_init(VOID);
-   // uart_init();
+#if USE_PPPOS 
+    extern VOID *main_ppp(UINT32  args);
+    task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
     
-    
-//  creat_maintask("fnTsk1",fnTsk1,0x400,0,7);
-//  creat_maintask("fnTsk2",fnTsk2,0x400,0,8);
-    //make the bin size
-    /* Initilialize the LwIP stack without RTOS */
-    //tcpip_init(NULL, NULL);
-    //agent_tiny_entry();
-
-    //extern void * main_spi(unsigned int args);
-    //creat_maintask("main_spi",main_spi,0x400,0,7);
+#else  
     extern void * main_network(unsigned int args);
-    creat_maintask("main_network",main_network,0x1000,0,0);
-    
-  //  extern VOID *main_ppp(UINT32  args);
-   // creat_maintask("main_ppp",main_ppp,0x1000,0,0);
-
-    
-    //
-  //extern void* eth_task( void* pvParameters );
-  //creat_maintask("eth_task",eth_task,0x1000,0,0);
-    printf("LITEOS FOR LPCEXPRESS51U68 --sytem start done\n\r");
+    task_create("main_network",main_network,0x800,NULL,NULL,0);
+#endif
     LOS_Start();
-
 }
 
 

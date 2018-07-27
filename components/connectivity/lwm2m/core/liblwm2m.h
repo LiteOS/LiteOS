@@ -145,7 +145,7 @@ time_t lwm2m_gettime(void);
 //get len of random bytes in output.
 int lwm2m_rand(void *output, size_t len);
 
-#define LWM2M_WITH_LOGS
+//#define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
 #define lwm2m_printf atiny_printf

@@ -35,7 +35,6 @@
 #include "stm32l4xx.h"
 #include "stm32l4xx_it.h"
 #include "main.h"
-#include "los_dev_st_uart.h"
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -274,7 +273,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
 //  HAL_UART_IRQHandler(&huart2);
-		los_dev_uart_irqhandler(LOS_STM32L431_UART2);
+		//los_dev_uart_irqhandler(LOS_STM32L431_UART2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */

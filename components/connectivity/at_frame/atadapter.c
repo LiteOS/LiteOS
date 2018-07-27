@@ -37,7 +37,7 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
-
+extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
 int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -106,8 +106,9 @@ int32_t at_get_unuse_linkid()
         }
     }
 
-    if (i >= 0 && i < at_user_conf.linkid_num)
+    if (i < at_user_conf.linkid_num)
         at.linkid[i].usable = AT_LINK_INUSE;
+    
     return i;
 }
 
@@ -161,7 +162,7 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
 #if 0
     LOS_TaskDelay(200);
 #else
-    LOS_SemPend(at.resp_sem, 200);
+    (void)LOS_SemPend(at.resp_sem, 200);
     listener.suffix = (int8_t *)suffix;
 
     at_listner_list_del(&listener);
@@ -209,7 +210,7 @@ void at_recv_task(uint32_t p)
     at_listener * listener = NULL;
 
     while(1){
-        LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
+        (void)LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
         do{/*DMA方式接收消息队列最大为8，因此会循环*/
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp);
@@ -219,7 +220,7 @@ void at_recv_task(uint32_t p)
 
         int32_t data_len = 0;
         char * p1, * p2;
-        AT_LOG_DEBUG("recv len = %lu buf = %s", recv_len, tmp);
+        AT_LOG_DEBUG("recv len = %lu buf = %s buff_full = %d", recv_len, tmp, buff_full);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
@@ -245,7 +246,7 @@ void at_recv_task(uint32_t p)
             {
 
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
                 listener = NULL;
                 break;
             }
@@ -262,7 +263,7 @@ void at_recv_task(uint32_t p)
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
             }
             break;
         }
@@ -375,11 +376,11 @@ int32_t at_struct_init(at_task * at)
     malloc_resp_buf:
         at_free(at->recv_buf);
     malloc_recv_buf:
-        LOS_SemDelete(at->resp_sem);
+        (void)LOS_SemDelete(at->resp_sem);
     at_resp_sem_failed:
-        LOS_MuxDelete(at->cmd_mux);
+        (void)LOS_MuxDelete(at->cmd_mux);
     at_cmd_mux_failed:
-        LOS_SemDelete(at->recv_sem);
+        (void)LOS_SemDelete(at->recv_sem);
     at_recv_sema_failed:
         return AT_FAILED;
 }
@@ -445,7 +446,7 @@ int32_t at_struct_deinit(at_task * at)
 
 void at_init()
 {
-    AT_LOG("Config %s......\n", at_user_conf.name);
+    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name,at_user_conf.user_buf_len);
 
     LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
