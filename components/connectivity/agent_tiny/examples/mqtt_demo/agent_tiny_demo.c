@@ -58,7 +58,7 @@ static void* g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
 
-atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] = 
+atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] =
 {
     {
         .uri = AGENT_TINY_DEMO_SUB_TOPIC,
@@ -71,7 +71,7 @@ void message_cb(cloud_msg_t *msg)
 {
     ATINY_LOG(LOG_DEBUG, "%.*s : %.*s", msg->uri_len, msg->uri, msg->payload_len,  (char *)msg->payload);
 }
-
+/*lint -e550*/
 void app_data_report(void)
 {
     cloud_msg_t report_data;
@@ -94,6 +94,7 @@ void app_data_report(void)
         (void)LOS_TaskDelay(250*2);
     }
 }
+/*lint +e550*/
 
 UINT32 creat_report_task()
 {

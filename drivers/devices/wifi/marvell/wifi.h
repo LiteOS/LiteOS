@@ -50,6 +50,30 @@ extern "C"{
 /* Includes -----------------------------------------------------------------*/
 #include <stdint.h>
 #include "wifi_config.h"
+#ifndef uint8_t
+typedef unsigned          char uint8_t;
+#endif
+#ifndef uint16_t
+typedef unsigned short    int  uint16_t;
+#endif
+#ifndef uint32_t
+typedef unsigned          int  uint32_t;
+#endif
+#ifndef sint8_t
+typedef   signed          char sint8_t;
+#endif
+#ifndef u32
+typedef uint32_t  				u32;
+#endif
+#ifndef u16
+typedef uint16_t 					u16;
+#endif
+#ifndef u8
+typedef uint8_t  					u8;
+#endif
+#ifndef s8
+typedef sint8_t           s8;
+#endif
 
 /* Defines ------------------------------------------------------------------*/
 
