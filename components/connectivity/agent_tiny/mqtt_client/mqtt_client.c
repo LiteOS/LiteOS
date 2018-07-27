@@ -744,6 +744,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
             ATINY_LOG(LOG_INFO, "reconnect delay : %d", conn_failed_cnt);
             (void)LOS_TaskDelay(MQTT_CONN_FAILED_BASE_DELAY<<conn_failed_cnt);
         }
+        ATINY_LOG(LOG_DEBUG, "tcp connect to %s:%s", atiny_params->server_ip, atiny_params->server_port);
         rc = NetworkConnect(&n, atiny_params->server_ip, atoi(atiny_params->server_port));
         ATINY_LOG(LOG_DEBUG, "NetworkConnect : %d", rc);
         if(rc != 0)
