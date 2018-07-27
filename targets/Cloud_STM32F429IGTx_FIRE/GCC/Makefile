@@ -140,7 +140,8 @@ ER_COAP_SRC = \
         C_SOURCES += $(ER_COAP_SRC)
 
 LWM2M_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c} \
+		${wildcard $(TOP_DIR)/components/connectivity/lwm2m/examples/shared/*.c}
         C_SOURCES += $(LWM2M_SRC)
 
 OS_ADAPTER_SRC = \
@@ -172,7 +173,7 @@ ATADAPTOR_SRC = \
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/esp8266/*.c}
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
@@ -310,7 +311,8 @@ ER_COAP_INC = \
         C_INCLUDES += $(ER_COAP_INC)
 
 LWM2M_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core
+        -I $(TOP_DIR)/components/connectivity/lwm2m/core \
+		-I $(TOP_DIR)/components/connectivity/lwm2m//examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
 OS_ADAPTER_INC = \

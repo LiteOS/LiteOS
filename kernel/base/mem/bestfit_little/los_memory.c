@@ -275,7 +275,9 @@ LITE_OS_SEC_TEXT_MINOR VOID *LOS_MemRealloc(VOID *pPool, VOID *pPtr, UINT32 uwSi
     UINTPTR uvIntSave;
     struct LOS_HEAP_NODE *pstNode;
     UINT32 uwCpySize = 0;
+#if (LOSCFG_KERNEL_MEM_SLAB == YES)	
     UINT32 uwOldSize = (UINT32)-1;
+#endif
     UINT32 uwGapSize = 0;
 
     if ((int)uwSize < 0)
