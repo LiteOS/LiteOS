@@ -38,7 +38,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
-
+#include "atiny_socket.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
@@ -616,20 +616,12 @@ int NetworkConnect(Network* n, char* addr, int port)
 
 static void los_mqtt_disconnect(void* ctx)
 {
-    int fd;
-
     if(NULL == ctx)
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return;
     }
-    fd = ((mqtt_context_t *)ctx)->fd;
-    if(fd > 0)
-    {
-        close(fd);
-        ((mqtt_context_t *)ctx)->fd = -1;
-    }
-    atiny_free(ctx);
+    atiny_net_close(ctx);
 
     return;
 }

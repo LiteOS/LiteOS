@@ -63,7 +63,7 @@ int32_t at_api_connect(const char* host, const char* port, int proto)
 	return ret;
 }
 
-int32_t at_api_send(int32_t id , const uint8_t  *buf, uint32_t len)
+int32_t at_api_send(int32_t id , const unsigned char* buf, uint32_t len)
 {
 	if (gp_at_adaptor_api && gp_at_adaptor_api->send)
 	{
@@ -76,7 +76,7 @@ int32_t at_api_recv(int32_t id, unsigned char* buf, size_t len)
 {
 	if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
 	{
-		return gp_at_adaptor_api->recv(id, (int8_t*)buf, len);
+		return gp_at_adaptor_api->recv(id, buf, len);
 	}
 	return AT_FAILED;
 }
@@ -85,7 +85,7 @@ int32_t at_api_recv_timeout(int32_t id, unsigned char* buf, size_t len, uint32_t
 {
 	if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
 	{
-		return gp_at_adaptor_api->recv_timeout(id, (int8_t*)buf, len, timeout);
+		return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
 	}
 	return AT_FAILED;
 }

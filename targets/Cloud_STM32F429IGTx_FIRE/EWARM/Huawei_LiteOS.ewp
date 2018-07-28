@@ -270,7 +270,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pe177,Pe181,Pa181,Pe186,Pe223,Pa089,Pa084,Pa093,Pa134</state>
+                    <state>Pa089,Pa134,Pe186,Pa182,Pa084,Pa093</state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -355,7 +355,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$TOOLKIT_DIR$\CMSIS\Include</state>
+                    <state>$TOOLKIT_DIR$\CMSIS\Core\Include</state>
                     <state>$PROJ_DIR$\..\Inc</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\components\cmsis\1.0</state>
@@ -363,7 +363,6 @@
                     <state>$PROJ_DIR$\..\..\..\kernel\base\include</state>
                     <state>$PROJ_DIR$\..\..\..\kernel\include</state>
                     <state>$PROJ_DIR$\..\OS_CONFIG</state>
-                    <state>$PROJ_DIR$\..\..\..\arch\arm\common\cmsis</state>
                     <state>$PROJ_DIR$\..\..\..\arch\arm\arm-m\include</state>
                     <state>$PROJ_DIR$\..\..\..\arch\arm\arm-m\cortex-m4</state>
                     <state>$PROJ_DIR$\..\..\..\examples\include</state>
@@ -395,6 +394,7 @@
                     <state>$PROJ_DIR$\..\..\..\components\fota\utility</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update</state>
                     <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\examples\shared</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2146,9 +2146,6 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_update_info.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</name>
         </file>
         <file>
@@ -2497,6 +2494,9 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\bootstrap.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\data.c</name>
         </file>
         <file>
@@ -2824,7 +2824,7 @@
             <name>$PROJ_DIR$\..\..\..\drivers\devices\nb\bc95.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266\esp8266.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\drivers\devices\gprs\sim900a.c</name>

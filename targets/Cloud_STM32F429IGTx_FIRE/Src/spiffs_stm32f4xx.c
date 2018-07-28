@@ -57,28 +57,28 @@
 
 static s32_t stm32f4xx_spiffs_read (struct spiffs_t * fs, u32_t addr, u32_t size, u8_t * buff)
 {
-    hal_spi_flash_read ((void *) buff, size, addr);
+    (void)hal_spi_flash_read ((void *) buff, size, addr);
 
     return SPIFFS_OK;
 }
 
 static s32_t stm32f4xx_spiffs_write (struct spiffs_t * fs, u32_t addr, u32_t size, u8_t * buff)
 {
-    hal_spi_flash_write ((void *) buff, size, &addr);
+    (void)hal_spi_flash_write ((void *) buff, size, &addr);
 
     return SPIFFS_OK;
 }
 
 static s32_t stm32f4xx_spiffs_erase (struct spiffs_t * fs, u32_t addr, u32_t size)
 {
-    hal_spi_flash_erase (addr, size);
+    (void)hal_spi_flash_erase (addr, size);
 
     return SPIFFS_OK;
 }
 
 int stm32f4xx_spiffs_init (void)
 {
-    spiffs_init ();
+    (void)spiffs_init ();
 
     if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
                       LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,

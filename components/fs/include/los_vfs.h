@@ -49,17 +49,17 @@ struct mount_point;
 struct dir;
 struct dirent;
 
-#ifdef __CC_ARM
+//#ifdef __CC_ARM
 typedef int                                 ssize_t;
 typedef long                                off_t;
-#endif
+//#endif
 
 #ifdef __GNUC__
 #define VFS_ERRNO_SET(err)                  (errno = (-err))
 #else
 #define VFS_ERRNO_SET(err)
 #endif
-
+/*lint -e145*/
 struct file_ops
 {
     int     (*open)     (struct file *, const char *, int);
@@ -77,6 +77,7 @@ struct file_ops
     int     (*closedir) (struct dir *);
     int     (*mkdir)    (struct mount_point *, const char *);
 };
+/*lint +e145*/
 
 struct file_system
 {

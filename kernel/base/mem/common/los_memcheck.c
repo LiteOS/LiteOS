@@ -47,7 +47,7 @@ extern "C" {
 #endif /* __cpluscplus */
 UINT32 memexc_count = 0;
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
 LITE_OS_SEC_BSS UINT8 g_aucMemMang[MEM_INFO_SIZE];
 /*****************************************************************************
  Function	 : LOS_MemExcInfoGet
