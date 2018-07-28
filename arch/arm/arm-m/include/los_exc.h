@@ -195,143 +195,154 @@ void LOS_Panic(const char * fmt, ...);
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器入栈时发生错误
+ *Cortex-M异常具体类型:总线状态寄存器入栈时发生错误
  */
 #define OS_EXC_BF_STKERR           1
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器出栈时发生错误
+ *Cortex-M异常具体类型:总线状态寄存器出栈时发生错误
  */
 #define OS_EXC_BF_UNSTKERR         2
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器不精确的数据访问违例
+ *Cortex-M异常具体类型:总线状态寄存器不精确的数据访问违例
  */
 #define OS_EXC_BF_IMPRECISERR      3
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器精确的数据访问违例
+ *Cortex-M异常具体类型:总线状态寄存器精确的数据访问违例
  */
 #define OS_EXC_BF_PRECISERR        4
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器取指时的访问违例
+ *Cortex-M异常具体类型:总线状态寄存器取指时的访问违例
  */
 #define OS_EXC_BF_IBUSERR          5
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器入栈时发生错误
+ *Cortex-M异常具体类型:存储器管理状态寄存器入栈时发生错误
  */
 #define OS_EXC_MF_MSTKERR          6
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器出栈时发生错误
+ *Cortex-M异常具体类型:存储器管理状态寄存器出栈时发生错误
  */
 #define OS_EXC_MF_MUNSTKERR        7
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器数据访问违例
+ *Cortex-M异常具体类型:存储器管理状态寄存器数据访问违例
  */
 #define OS_EXC_MF_DACCVIOL         8
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器取指访问违例
+ *Cortex-M异常具体类型:存储器管理状态寄存器取指访问违例
  */
 #define OS_EXC_MF_IACCVIOL         9
 
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，表示除法运算时除数为零
+ *Cortex-M异常具体类型:用法错误，表示除法运算时除数为零
  */
 #define OS_EXC_UF_DIVBYZERO        10
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，未对齐访问导致的错误
+ *Cortex-M异常具体类型:用法错误，未对齐访问导致的错误
  */
 #define OS_EXC_UF_UNALIGNED        11
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图执行协处理器相关指令
+ *Cortex-M异常具体类型:用法错误，试图执行协处理器相关指令
  */
 #define OS_EXC_UF_NOCP             12
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
+ *Cortex-M异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
  */
 #define OS_EXC_UF_INVPC            13
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图切入ARM状态
+ *Cortex-M异常具体类型:用法错误，试图切入ARM状态
  */
 #define OS_EXC_UF_INVSTATE         14
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
+ *Cortex-M异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
  */
 #define OS_EXC_UF_UNDEFINSTR       15
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:NMI中断
+ *Cortex-M异常具体类型:NMI中断
  */
-
 #define OS_EXC_CAUSE_NMI           16
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:硬fault
+ *Cortex-M异常具体类型:硬fault
  */
 #define OS_EXC_CAUSE_HARDFAULT     17
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:任务处理函数退出
+ *Cortex-M异常具体类型:任务处理函数退出
  */
 #define OS_EXC_CAUSE_TASK_EXIT     18
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:致命错误
+ *Cortex-M异常具体类型:致命错误
  */
 #define OS_EXC_CAUSE_FATAL_ERR     19
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:调试事件导致的硬fault
+ *Cortex-M异常具体类型:调试事件导致的硬fault
  */
 #define OS_EXC_CAUSE_DEBUGEVT      20
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:取向量时发生的硬fault
+ *Cortex-M异常具体类型:取向量时发生的硬fault
  */
 #define OS_EXC_CAUSE_VECTBL        21
 
 /**
  *@ingroup los_exc
+ *Cortex-M异常具体类型:总线错误，浮点惰性压栈错误，具有浮点单元的cortex-m4及cortex-m7中存在
+ */
+#define OS_EXC_BF_LSPERR           22
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:存储器管理错误，浮点惰性压栈错误，具有浮点单元的cortex-m4及cortex-m7中存在
+ */
+#define OS_EXC_MF_MLSPERR          23
+
+/**
+ *@ingroup los_exc
  * 异常信息结构体
  *
- * 描述:M4平台下的异常触发时保存的异常信息
+ * 描述:Cortex-M平台下的异常触发时保存的异常信息
  *
  */
 typedef struct tagExcInfo
 {
     UINT16 usPhase;              /**< 异常发生阶段： 0表示异常发生在初始化中，1表示异常发生在任务中，2表示异常发生在中断中 */
-    UINT16 usType;               /**< 异常类型,出异常时对照上面列出的1-19号 */
+    UINT16 usType;               /**< 异常类型，分高低两字节，出异常时高低字节分别对照上面列出的异常编号 */
     UINT32 uwFaultAddr;          /**< 若为精确地址访问错误表示异常发生时的错误访问地址 */
     UINT32 uwThrdPid;            /**< 在中断中发生异常，表示中断号。在任务中发生异常，表示任务id，如果发生在初始化中，则为0xffffffff */
     UINT16 usNestCnt;            /**< 异常嵌套个数，目前仅支持第一次进入异常时执行注册的钩子函数 */
@@ -343,7 +354,6 @@ extern UINT32 g_uwCurNestCount;
 extern UINT32 g_vuwIntCount;
 extern EXC_INFO_S m_stExcInfo;
 
-static VOID osExcSave2DDR(VOID);
 VOID osExcInfoDisplay(EXC_INFO_S *pstExc);
 
 extern OS_TASK_SWITCH_INFO g_astTskSwitchInfo;

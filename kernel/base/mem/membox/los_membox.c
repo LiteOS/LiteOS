@@ -159,7 +159,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemboxInit(VOID *pBoxMem, UINT32 uwBoxSize, UIN
     }
     pstNode->pstNext = (LOS_MEMBOX_NODE *)NULL;  /* The last node */
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     osMemInfoUpdate(pBoxMem, uwBoxSize, MEM_MANG_MEMBOX);
 #endif
 

@@ -139,7 +139,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize)
     ((struct LOS_HEAP_MANAGER *)pPool)->pNextPool = NULL;
 #endif
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     osMemInfoUpdate(pPool, uwSize, MEM_MANG_MEMORY);
 #endif
 
@@ -195,7 +195,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemDeInit(VOID *pPool)
         }
     }while(0);
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
     if (uvRet == LOS_OK)
         osMemInfoUpdate(pPool, 0, MEM_MANG_EMPTY);
 #endif
