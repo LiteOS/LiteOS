@@ -371,32 +371,7 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 
 int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len)
 {
-    int rlen = 0;
-    int rskt = -1;
-    int port = 0;
-    int readleft = 0;
-    int ret;
-    QUEUE_BUFF	qbuf = {0, NULL};
-    UINT32 qlen = sizeof(QUEUE_BUFF);
-
-    memset(rbuf, 0, 1064);
-    memset(tmpbuf, 0, 1064);
-
-    ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, LOS_WAIT_FOREVER);
-    if (ret != LOS_OK)
-    {
-        return -1;
-    }
-
-    sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
-    AT_LOG("ret = %x, len = %d", ret, rlen);
-
-    if (rlen){
-        memcpy(buf, wbuf, rlen);
-        at_free(qbuf.addr);
-    }
-    return rlen;
-
+    return nb_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
 }
 
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout)
@@ -419,11 +394,16 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeou
     }
 
     sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
-    AT_LOG("ret = %x, len = %d", ret, rlen);
+    AT_LOG("ret = %x, len = %d, rxlen = %d, qbuf.len = %d", ret, len, rlen, qbuf.len);
 
-    if (rlen){
+    if (qbuf.len){
+        rlen = (len < qbuf.len) ? len : qbuf.len;
         memcpy(buf, wbuf, rlen);
         at_free(qbuf.addr);
+    }
+    else
+    {
+        rlen = 0;
     }
     return rlen;
 
@@ -435,7 +415,7 @@ int32_t nb_close(int32_t socket)
 	memset(wbuf, 0, 1064);
 	sprintf(wbuf, "%s%d\r", cmd, (int)socket);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
-	//全局存储remote信息
+	
 }
 
 int32_t nb_recv_cb(int32_t id)
