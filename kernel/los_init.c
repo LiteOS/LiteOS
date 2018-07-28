@@ -48,7 +48,7 @@ extern "C" {
 
 LITE_OS_SEC_BSS UINT8* m_aucSysMem0;
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
 LITE_OS_SEC_BSS UINT8 m_aucTaskArray[MAX_EXC_MEM_SIZE];
 #endif
 
