@@ -52,7 +52,7 @@
 /*
  * ARC4 cipher function
  */
-/*lint -e10*//*lint -e409*/
+/*lint -e10 -e409 -e101 -e63*/
 void arc4_crypt_raw(arc4_context *ctx, unsigned char *buf, int buflen)
 {
     int i, x, y, a, b;
@@ -78,7 +78,7 @@ void arc4_crypt_raw(arc4_context *ctx, unsigned char *buf, int buflen)
     ctx->x = x;
     ctx->y = y;
 }
-/*lint +e10*//*lint +e409*/
+/*lint +e10 +e409 +e101 +e63*/
 
 /* ARC4 decrypts the TKIP Key Data packet */
 // The encryption and decryption algorithm for ARC4 is the same, but the arc4_setup function must be called once every time

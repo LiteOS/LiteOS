@@ -161,7 +161,7 @@ int32_t nb_get_auto_connect(void)
 {
     return at.cmd((int8_t*)AT_NB_get_auto_connect, strlen(AT_NB_get_auto_connect), "AUTOCONNECT,TRUE", NULL);//"AUTOCONNECT,TRUE"
 }
-
+#if 0
 int32_t nb_send_coap_payload(int32_t id ,const uint8_t *buf, uint32_t len)
 {
 	char *cmd1 = "AT+NMGS=";
@@ -218,6 +218,7 @@ int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode)
 
     return rlen;
 }
+#endif
 
 int32_t nb_check_csq(void)
 {
@@ -258,7 +259,7 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
     }
     return -1;
 }
-
+#if 0
 int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
@@ -320,7 +321,7 @@ int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
     END:
     return ret;
 }
-
+#endif
 
 
 int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
@@ -337,7 +338,7 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 	localport--;
 	if(ret >= MAX_SOCK_NUM)
 	{
-		AT_LOG_DEBUG("sock num exceeded");
+		AT_LOG_DEBUG("sock num exceeded,ret is %d",ret);
 		return -1;
 	}
 	memcpy(sockinfo[ret].ip, (const char*)host,strlen((const char*)host));
@@ -346,7 +347,7 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
     if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
     {
-        AT_LOG("init dataQueue failed!");
+        AT_LOG("init dataQueue failed, ret is %d!",ret);
         at.linkid[ret].usable = AT_LINK_UNUSE;//adapter other module.
         return -1;
     }
@@ -368,7 +369,7 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
-int32_t nb_recv(int32_t id , int8_t  *buf, uint32_t len)
+int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len)
 {
     int rlen = 0;
     int rskt = -1;
@@ -398,7 +399,7 @@ int32_t nb_recv(int32_t id , int8_t  *buf, uint32_t len)
 
 }
 
-int32_t nb_recv_timeout(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout)
+int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout)
 {
     int rlen = 0;
     int rskt = -1;

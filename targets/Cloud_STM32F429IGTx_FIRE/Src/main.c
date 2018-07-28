@@ -125,7 +125,7 @@ int main(void)
         return LOS_NOK;
     }
 
-#if  USE_PPPOS
+#if defined(USE_PPPOS)
     #include "osport.h"
     extern void uart_init(void);  //this uart used for the pppos interface
     uart_init();
