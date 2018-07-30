@@ -38,11 +38,17 @@ extern "C"
 
 #include "sim900a.h"
     
+    #define TEST_STATE_OK   0
+    #define TEST_STATE_ERR  1
+
+    char g_state = TEST_STATE_OK;
+    
     extern at_task at;
     extern at_config at_user_conf;
 
     int QUEUE_WRITE = 0;
-    int CMD_TIMES = 0;
+    
+	extern void at_init();
 
     extern int32_t sim900a_echo_off(void);
     extern int32_t sim900a_ini();
@@ -105,6 +111,19 @@ extern "C"
     	return 0;
     }
 
+    static UINT32 stub_LOS_QueueReadCopyFail(UINT32  uwQueueID,
+                        VOID *  pBufferAddr,
+                        UINT32 * puwBufferSize,
+                        UINT32  uwTimeOut)
+    {
+    	static int i = 0;
+		i++;
+		if(i>10)
+    	    return 1;
+		else
+	        return 0;
+    }
+
     static UINT32 stub_LOS_QueueCreate(CHAR *pcQueueName, UINT16 usLen, UINT32 *puwQueueID,
             UINT32 uwFlags,UINT16 usMaxMsgSize )
     {
@@ -117,12 +136,17 @@ extern "C"
     }
     static int32_t stub_at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
     {
-        CMD_TIMES++;
-        if(CMD_TIMES > 2)
-            return 1;
-        else
-            return -1;
+        char *tmp = NULL;
 
+        if(g_state == TEST_STATE_ERR){
+            return AT_FAILED;
+        }
+		tmp = (char*)"+CIPSTA_CUR:ip:\"192.168.1.10\",gateway:\"192.168.1.1\",netmask:\"255.255.255.0\"";
+
+		if(NULL != rep_buf)
+			memcpy(rep_buf, tmp, strlen(tmp));
+
+        return AT_OK;
     }
     static void* stub_at_malloc(size_t size)
     {
@@ -134,19 +158,27 @@ extern "C"
 void TestSim900a::test_sim900a_echo_off()
 {
    int32_t ret  = -1;
+   stubInfo stub_cmd;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd);
    ret = sim900a_echo_off();
+   cleanStub(&stub_cmd);
    TEST_ASSERT_MSG(( ret != -1), "Test sim900a_echo_off() Failed");
+
 }
 
 void TestSim900a::test_sim900a_ini()
 {  
    //single connect
    int ret = -1;
+   stubInfo stub_cmd;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd);
    at_user_conf.mux_mode = 0;
    sim900a_deinit();
    ret = sim900a_ini();
    TEST_ASSERT_MSG(( ret == AT_OK), "Test sim900a_ini() Failed");
    at_user_conf.mux_mode = 1;
+   cleanStub(&stub_cmd);
+
 }
 
 void TestSim900a::test_sim900a_connect()
@@ -155,6 +187,8 @@ void TestSim900a::test_sim900a_connect()
    const int8_t host[20] = "192.168.1.101";
    const int8_t port[10] = "5683";
    int proto = 0;
+   stubInfo stub_cmd22;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd22);
    ret = sim900a_connect(host,port,proto);
    TEST_ASSERT_MSG(( ret != -1), "Test sim900a_connect() Failed");
    
@@ -173,6 +207,10 @@ void TestSim900a::test_sim900a_connect()
    at.mux_mode = 1;
    ret = sim900a_connect(host,port,proto);
    TEST_ASSERT_MSG(( ret != -1), "Test sim900a_connect() Failed");
+
+   cleanStub(&stub_cmd22);
+
+   
 }
 
 void TestSim900a::test_sim900a_recv()
@@ -207,6 +245,9 @@ void TestSim900a::test_sim900a_send()
    int32_t id = 0;
    const uint8_t  buf[100] = "helloworld";
    uint32_t len = strlen((const char *)buf);
+   stubInfo stub_cmd22;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd22);
+   
    ret = sim900a_send(id, buf, len);
    TEST_ASSERT_MSG(( ret == len), "Test sim900a_send() Failed");
    
@@ -214,6 +255,10 @@ void TestSim900a::test_sim900a_send()
    ret = sim900a_send(id, buf, len);
    TEST_ASSERT_MSG(( ret == len), "Test sim900a_send() Failed");
    at.mux_mode = 1;
+
+   cleanStub(&stub_cmd22);
+
+   
 }
 
 void TestSim900a::test_sim900a_check()
@@ -234,24 +279,28 @@ void TestSim900a::test_sim900a_recv_cb()
    TEST_ASSERT_MSG(( ret == -1), "Test sim900a_recv_cb() Failed");
 }
 
-void TestSim900a::test_sim900a_deinit()
-{
-   int32_t ret  = -1;
-   ret = sim900a_deinit();
-   TEST_ASSERT_MSG(( ret == AT_OK), "Test sim900a_deinit) Failed");
-}
+
 
 void TestSim900a::test_sim900a_close()
 {
    int32_t ret  = -1;
    int32_t id = 0;
+   
+   stubInfo stub_cmd;
+   stubInfo stub_cmd22;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd22);
+   
+   setStub((void *)LOS_QueueReadCopy,(void *)stub_LOS_QueueReadCopyFail,&stub_cmd);
    ret = sim900a_close(id);
-   TEST_ASSERT_MSG(( ret != -1), "Test sim900a_close() Failed");
+   TEST_ASSERT_MSG(( ret == 0), "Test sim900a_close() Failed");
    
    at.mux_mode = 0;
    ret = sim900a_close(id);
    TEST_ASSERT_MSG(( ret != -1), "Test sim900a_close() Failed");
    at.mux_mode = 1;
+   cleanStub(&stub_cmd);
+   cleanStub(&stub_cmd22);
+   
 }
 
 void TestSim900a::test_sim900a_data_handler()
@@ -292,8 +341,18 @@ void TestSim900a::test_sim900a_data_handler()
    TEST_ASSERT_MSG(( ret == 0), "Test6 sim900a_data_handler() Failed");
 }
 
+void TestSim900a::test_sim900a_deinit()
+{
+   int32_t ret  = -1;
+   ret = sim900a_deinit();
+   TEST_ASSERT_MSG(( ret == AT_OK), "Test sim900a_deinit) Failed");
+   
+}
+
+
 TestSim900a::TestSim900a()
 {
+   at_init();
    TEST_ADD(TestSim900a::test_sim900a_echo_off);
    TEST_ADD(TestSim900a::test_sim900a_ini);
    TEST_ADD(TestSim900a::test_sim900a_connect);
@@ -302,14 +361,14 @@ TestSim900a::TestSim900a()
    TEST_ADD(TestSim900a::test_sim900a_send);
    TEST_ADD(TestSim900a::test_sim900a_check);//enter while(1) cycle forever
    TEST_ADD(TestSim900a::test_sim900a_recv_cb);
-   TEST_ADD(TestSim900a::test_sim900a_deinit);
    TEST_ADD(TestSim900a::test_sim900a_close);
    TEST_ADD(TestSim900a::test_sim900a_data_handler);
+   TEST_ADD(TestSim900a::test_sim900a_deinit);
 }
 
 TestSim900a::~TestSim900a()
 {
-    test_sim900a_deinit();
+    
 }
 
 
