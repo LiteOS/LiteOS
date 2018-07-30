@@ -69,7 +69,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
         ret = nb_hw_detect();
         if(ret == AT_OK)
             break;
-        LOS_TaskDelay(1000);
+        //LOS_TaskDelay(1000);
     }
     //nb_get_auto_connect();
     //nb_connect(NULL, NULL, NULL);
@@ -83,7 +83,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 			ret = nb_query_ip();
 			break;
 		}
-		LOS_TaskDelay(1000);
+		//LOS_TaskDelay(1000);
 		timecnt++;
 	}
 	if(ret != AT_FAILED)

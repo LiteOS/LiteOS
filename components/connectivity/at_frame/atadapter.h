@@ -149,5 +149,6 @@ typedef struct at_task{
 
 void* at_malloc(size_t size);
 void at_free(void* ptr);
-
+extern int at_update_result_send(void);
+extern uint16_t at_fota_timer;
 #endif

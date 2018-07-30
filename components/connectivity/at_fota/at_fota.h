@@ -31,48 +31,103 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef __AT_FOTA_H__
+#define __AT_FOTA_H__
 
-#ifndef __NB_NEUL_BC95_H__
-#define __NB_NEUL_BC95_H__
+typedef enum{
+    OTA_GET_VER,
+    OTA_NOTIFY_NEW_VER,
+    OTA_WRITE_BLOCK,
+    OTA_UPDATE_EXC,
+    //OTA_WRITE_INFO,
+    //OTA_GET_TIME_OUT,
+    //OTA_NOTIFY_STATE
+}OTA_CMD_E;
 
-#include "atadapter.h"
+typedef enum{
+    MSG_GET_VER=19,
+    MSG_NOTIFY_NEW_VER,
+    MSG_GET_BLOCK,
+    MSG_UPDATE_STATE,
+    MSG_EXC_UPDATE,
+    MSG_NOTIFY_STATE=24
+}MSG_CODE;
 
-//#define CLOUD_IP  "218.4.33.71,5683"
-#define AT_NB_LINE_END 			"\r\n"
+typedef  unsigned char   BYTE;
+typedef  unsigned short   WORD;
 
-#define AT_NB_reboot    		"AT+NRB\r"
-#define AT_NB_hw_detect    		"AT+CFUN?\r"
-#define AT_NB_get_auto_connect    		"AT+NCONFIG?\r"
-#define AT_CMD_PREFIX      "+NNMI:"
+int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
 
-#define AT_MODU_NAME        "nb_neul95"
-#define AT_USART_PORT       3
-#define AT_BUARDRATE        9600
-#define AT_CMD_TIMEOUT      10000    //ms
-#define AT_MAX_LINK_NUM     4
-#define MAX_AT_USERDATA_LEN (1024*5)
+#define MIN_PKT_LEN 4
 
-#define NB_STAT_LOCALPORT 56
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
-#define AT_DATAF_PREFIX      "+NSONMI"
-#define MAX_SOCK_NUM 5
-typedef struct _remote_info_t
+typedef struct ota_pcp_head_t
 {
-    int socket;
-    unsigned short port;
-    char ip[16];
-}remote_info;//struct to save socket info
+    WORD ori_id;
+    BYTE ver_num;
+    BYTE msg_code;
+    WORD chk_code;
+    WORD data_len;
+    //BYTE* data;
+}ota_pcp_head_s;
 
+typedef struct ota_ver_notify
+{
+    BYTE ver[16];
+    WORD block_size;
+    WORD block_totalnum;
+    WORD ver_chk_code;
+}ota_ver_notify_t;
 
-int str_to_hex(const char *bufin, int len, char *bufout);
-int32_t nb_set_cdpserver(char* host, char* port);
-int32_t nb_hw_detect(void);
-int32_t nb_get_netstat(void);
-int nb_query_ip(void);
-int32_t nb_send_payload(const char* buf, int len);
-int32_t nb_send_psk(char* pskid, char* psk);
-int32_t nb_reboot(void);
-int32_t nb_err_cue(void);
-int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout);
+typedef struct ota_get_block//send to cloud
+{
+    BYTE ver[16];
+    WORD block_seq;
+}ota_get_block_t;
+
+typedef struct ota_update_exc_t
+{
+    BYTE ver[16];
+    WORD ver_chk_code;
+    WORD len;
+}ota_update_exc_s;
+
+typedef struct ota_ret_t
+{
+    BYTE ret;
+    BYTE ver[16];
+}ota_ret;
+
+typedef struct ota_block
+{
+    BYTE errcode;
+    WORD block_seq;
+    BYTE* data;
+}ota_block_t;
+
+typedef enum{
+    IDLE=0,
+    DOWNLOADING,
+    DOWNLOADED,
+    UPDATING,
+    UPDATED,
+}at_fota_state;
+
+typedef enum
+{
+    OTA_OK = 0X0,
+    OTA_BUSY = 0X1,
+    OTA_DOWNLOAD_OVERTIME = 0X6,
+    OTA_CHK_FAILED = 0X7,
+    OTA_ERR,
+}OTA_ERROR_E;
+
+extern void atiny_reboot(void);
+extern int nb_send_str(const char* buf, int len);
+extern int str_to_hex(const char *bufin, int len, char *bufout);
+int ver_to_hex(const char *bufin, int len, char *bufout);
+
+int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
+int at_ota_init(char* featurestr,int cmdlen);
+int ota_process_main(void* arg,char* buf, int buflen);
+
 #endif
