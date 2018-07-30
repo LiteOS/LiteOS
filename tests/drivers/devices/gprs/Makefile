@@ -29,7 +29,7 @@ SRC:= $(wildcard $(HW_LITEOSDIR)/drivers/devices/gprs/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/at_api_interface.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/atadapter.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/tests/common/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/tests/stub/*.c)
 
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
@@ -68,7 +68,7 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/tests/common/ \
+	-I$(HW_LITEOSDIR)/tests/stub/ \
     -I$(HW_LITEOSDIR)/drivers/devices/gprs/ 
     
 CPP_SRC := $(wildcard *.cpp)

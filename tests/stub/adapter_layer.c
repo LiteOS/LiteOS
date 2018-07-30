@@ -234,9 +234,28 @@ int hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location)
 {
     return 0;
 }
+int board_jump2app(void)
+{
+    return 0;
+}
+
+int board_update_copy(int32_t image_len,
+                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                      int (*func_set_update_record)(uint8_t state, uint32_t offset))
+{
+    return 0;
+}
+
+int board_rollback_copy(int32_t image_len,
+                        void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                        int (*func_set_update_record)(uint8_t state, uint32_t offset))
+{
+    return 0;
+}
+
 
 /*###################################     DTLS    #######################################*/
-
+#ifndef TEST_WITH_DTLS
 mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity)
 {
     return NULL;
@@ -257,7 +276,7 @@ int dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len)
 {
     return 0;
 }
-
+#endif
 /*###################################     LWIP    #######################################*/
 
 int lwip_fcntl(int s, int cmd, int val)

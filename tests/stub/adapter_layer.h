@@ -104,6 +104,14 @@ extern int read_resp(uint8_t * buf);
 extern void hal_spi_flash_config(void);
 extern int hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
 extern int hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
+extern int board_jump2app(void);
+extern int board_update_copy(int32_t image_len,
+                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                      int (*func_set_update_record)(uint8_t state, uint32_t offset));
+extern int board_rollback_copy(int32_t image_len,
+                        void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                        int (*func_set_update_record)(uint8_t state, uint32_t offset));
+
 
 /*###################################     DTLS    #######################################*/
 extern int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t timeout);

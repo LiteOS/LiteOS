@@ -29,7 +29,7 @@ GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 #SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/at_api_interface.c) 
 #SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/atadapter.c) 
 SRC+= $(HW_LITEOSDIR)/drivers/devices/wifi/esp8266_anylink_spi/Cortex-M7_lib/M8266_WIFI_SPI.c 
-SRC+= $(HW_LITEOSDIR)/tests/common/stub.c
+SRC+= $(HW_LITEOSDIR)/tests/stub/stub.c
 
 
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
@@ -68,7 +68,7 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_wifi_STM32F767ZI_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_wifi_STM32F767ZI_NUCLEO/Drivers/STM32F7xx_HAL_Driver/Inc/Legacy/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_wifi_STM32F767ZI_NUCLEO/Drivers/osadapter/ \
-	-I$(HW_LITEOSDIR)/tests/common/ \
+	-I$(HW_LITEOSDIR)/tests/stub/ \
     -I$(HW_LITEOSDIR)/drivers/devices/wifi/esp8266_anylink_spi/ \
     -I$(HW_LITEOSDIR)/drivers/devices/wifi/esp8266_anylink_spi/Cortex-M7_lib/ \
     -I$(HW_LITEOSDIR)/targets/Cloud_wifi_STM32F767ZI_NUCLEO/Inc/ 

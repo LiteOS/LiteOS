@@ -54,12 +54,12 @@ extern "C" {
         return AT_OK;
     }
 
-    int32_t demo_recv(int32_t id , int8_t  *buf, uint32_t len)
+    int32_t demo_recv(int32_t id , uint8_t  *buf, uint32_t len)
     {
         return AT_OK;
     }
 
-    int32_t demo_recv_timeout(int32_t id , int8_t  *buf, uint32_t len, int32_t timeout)
+    int32_t demo_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout)
     {
         return AT_OK;
     }

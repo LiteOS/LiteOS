@@ -34,12 +34,13 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/tests/common/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/tests/stub/*.c)
 #SRC+= $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
@@ -61,7 +62,6 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
-    -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/client \
     -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/ \
     -I$(HW_LITEOSDIR)/components/fota/ota/ \
     -I$(HW_LITEOSDIR)/components/fota/utility/ \
@@ -79,7 +79,7 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/tests/common/
+	-I$(HW_LITEOSDIR)/tests/stub/
 	
 
 CPP_SRC := $(wildcard *.cpp)
