@@ -37,10 +37,11 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
+#include "at_fota.h"
 extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
-int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
+//int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener * p);
@@ -188,14 +189,19 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     int32_t ret = 0;
     char* cmp = NULL;
     int i;
+    int rlen;
+    extern unsigned char wbuf[1064];
+    memset(wbuf, 0, 1064);
 
     for(i=0;i<at_oob.oob_num;i++){
         cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
         if(cmp != NULL)
         {
-            AT_LOG("cloud send cmd:%s buf:%s",at_oob.oob[i].featurestr,buf);
+            AT_LOG("cloud send cmd:%s",at_oob.oob[i].featurestr);
+            cmp+=at_oob.oob[i].len;
+            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,buf,len);
+                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,wbuf,rlen);
             return ret;
         }
     }
@@ -483,6 +489,8 @@ void at_deinit()
         AT_LOG("at_struct_deinit failed!");
     }
     at_init_oob();
+    //if(at_fota_timer!=-1)
+    //    LOS_SwtmrDelete(at_fota_timer);
 }
 
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)

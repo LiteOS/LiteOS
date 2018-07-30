@@ -59,7 +59,7 @@ VOID main_task(VOID)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-#define AT_DTLS 1
+#define AT_DTLS 0
 #if AT_DTLS
     sec_param_s sec;
     sec.pskid = "868744031131026";
@@ -69,20 +69,19 @@ VOID main_task(VOID)
     printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
 #if AT_DTLS
-    los_nb_init((const int8_t*)"180.101.147.208",(const int8_t*)"5684",&sec);
+    los_nb_init((const int8_t*)"180.101.147.115",(const int8_t*)"5684",&sec);
 #else
-    los_nb_init((const int8_t*)"218.4.33.71",(const int8_t*)"5683",NULL);
+    los_nb_init((const int8_t*)"180.101.147.115",(const int8_t*)"5683",NULL);//"139.159.140.34"
 #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-    osDelay(3000);
+    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
     los_nb_report("22", 2);
-    los_nb_report("23", 2);
     los_nb_report("23", 1);
     //los_nb_deinit();
 
@@ -114,6 +113,7 @@ UINT32 creat_main_task()
     }
     return uwRet;
 }
+
 int main(void)
 {
     UINT32 uwRet = LOS_OK;
