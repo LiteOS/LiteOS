@@ -110,8 +110,9 @@ int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
 
 int los_nb_deinit(void)
 {
-    at.deinit();
-    return nb_reboot();
+    nb_reboot();
+	at.deinit();
+	return 0;
 }
 
 #endif
