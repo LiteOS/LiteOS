@@ -477,7 +477,7 @@ void TestAgenttiny::test_atiny_get_log_level(void)
     int ret = 0;
 
     ori_logLevel = logLevel = atiny_get_log_level();
-    TEST_ASSERT_MSG((LOG_INFO == logLevel), "atiny_get_log_level() failed");
+    TEST_ASSERT_MSG((LOG_ERR == logLevel), "atiny_get_log_level() failed");
 
     logLevel = LOG_DEBUG;
     atiny_set_log_level(logLevel);

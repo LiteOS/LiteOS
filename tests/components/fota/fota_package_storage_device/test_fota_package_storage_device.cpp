@@ -37,9 +37,78 @@
 #include "fota_package_head.h"
 #include "fota_firmware_writer.h"
 
+typedef struct
+{
+    atiny_fota_storage_device_s interface;
+    atiny_fota_storage_device_s *storage_device;
+    fota_hardware_s *hardware;
+
+    fota_pack_head_s head;
+    fota_firmware_writer_s writer;
+    fota_pack_checksum_s *checksum;
+    uint32_t total_len;
+    int init_flag;
+}fota_pack_storage_device_s;
+
+extern int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_info_s *device_info);
+
+static int test_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
+{
+    return FOTA_OK;
+}
+
+void TestFotaPackageStorageDivice::test_fota_set_pack_device()
+{
+  
+    atiny_fota_storage_device_s * device = NULL;
+    fota_pack_device_info_s * device_info = NULL;
+    int ret = 0;
+    
+    device = fota_get_pack_device();
+    ret = fota_set_pack_device(device, device_info);
+
+    device_info = (fota_pack_device_info_s *)malloc(sizeof(fota_pack_device_info_s));
+    memset(device_info, 0 ,sizeof(fota_pack_device_info_s));
+    ret = fota_set_pack_device(device, device_info);
+    TEST_ASSERT_MSG(FOTA_ERR == ret, "fota_set_pack_device() is failed");
+
+    device_info->hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
+    memset(device_info->hardware, 0, sizeof(fota_hardware_s));
+    device_info->storage_device = (atiny_fota_storage_device_s *)malloc(sizeof(atiny_fota_storage_device_s));
+    memset(device_info->storage_device, 0, sizeof(atiny_fota_storage_device_s));
+    ret = fota_set_pack_device(device, device_info);
+    TEST_ASSERT_MSG(FOTA_OK == ret, "fota_set_pack_device() is failed");
+
+    free(device_info->hardware);
+    free(device_info->storage_device);
+    free(device_info);
+}
+
+void TestFotaPackageStorageDivice::test_fota_pack_storage_write_software_end()
+{
+    int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+    interface = fota_get_pack_device();
+    interface->write_software_end(NULL, ATINY_FOTA_DOWNLOAD_OK, 0);
+    TEST_ASSERT(0 == ret);
+
+    fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)malloc(sizeof(fota_pack_storage_device_s));
+    memset(device, 0, sizeof(fota_pack_storage_device_s));
+    device->storage_device = (atiny_fota_storage_device_s *)malloc(sizeof(atiny_fota_storage_device_s));
+    memset(device->storage_device, 0, sizeof(atiny_fota_storage_device_s));
+    device->storage_device->write_software_end = test_write_software_end;
+    device->writer.buffer_stored_len = 0;
+
+    interface->write_software_end(device->storage_device, ATINY_FOTA_DOWNLOAD_FAIL, 0);
+
+    free(device->storage_device);
+    free(device);
+}
+
 TestFotaPackageStorageDivice::TestFotaPackageStorageDivice()
 {
-    
+    TEST_ADD(TestFotaPackageStorageDivice::test_fota_set_pack_device);
+    TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_write_software_end);
 }
 
 

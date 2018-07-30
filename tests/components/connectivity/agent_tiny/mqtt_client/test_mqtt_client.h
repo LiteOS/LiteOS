@@ -32,22 +32,56 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __TEST_MQTT_CLIENT_H__
+#define __TEST_MQTT_CLIENT_H__
 
+/* Includes -----------------------------------------------------------------*/
 #include <cpptest.h>
 #include "stub.h"
+#include "MQTTClient.h"
+#include "MQTTliteos.h"
+#include "mqtt_client.h"
+#include "adapter_layer.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+/* Defines ------------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+class TestMQTT_Client : public Test::Suite
+{
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    
-    TestFotaPackageStorageDivice();
-    
+    TestMQTT_Client();
+    ~TestMQTT_Client();
+
+    void test_atiny_param_member_free(void);
+	void test_atiny_param_dup(void);
+	void test_atiny_init(void);
+	void test_atiny_deinit(void);
+	void test_mqtt_add_interest_topic(void);
+	void test_mqtt_is_topic_subscribed(void);
+	void test_mqtt_del_interest_topic(void);
+	void test_mqtt_is_topic_subscribed_same(void);
+	void test_mqtt_topic_subscribe(void);
+	void test_mqtt_topic_unsubscribe(void);
+	void test_mqtt_message_publish(void);
+	void test_mqtt_message_arrived(void);
+	void test_mqtt_subscribe_interest_topics(void);
+	void test_will_options_member_free(void);
+	void test_device_info_member_free(void);
+	void test_device_info_dup(void);
+	void test_atiny_isconnected(void);
+	void test_atiny_bind(void);
+	void test_atiny_data_send(void);
+	
+
+
+protected:
+    void setup();
+    void tear_down();
 };
 
 
 
-#endif
-
+#endif /* __TEST_AGENTTINY_H__ */

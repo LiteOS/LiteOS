@@ -49,10 +49,12 @@ class TestFotaPackageHead:public Test::Suite{
 public:
     void test_fota_pack_head_parse_head_len();
     void test_fota_pack_head_destroy();
+    void test_fota_pack_parse_checksum();
     void test_fota_pack_head_parse();
     void test_fota_pack_head_check();
     void test_fota_pack_head_set_head_info();
     void test_fota_pack_head_get_checksum();
+    void test_fota_pack_head_init();
 
     TestFotaPackageHead();
 };

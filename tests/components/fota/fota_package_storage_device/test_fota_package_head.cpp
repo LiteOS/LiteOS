@@ -55,6 +55,37 @@ extern "C"
     extern int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
     extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param);
     extern fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
+    extern void fota_pack_head_init(fota_pack_head_s *head);
+}
+
+static int flag_test_get_block_size;
+static uint32_t test_get_block_size(struct fota_hardware_api_tag_s *thi, uint32_t offset)
+{
+    if (flag_test_get_block_size == 0)
+        return 0;
+    if (flag_test_get_block_size == 1)
+        return 10;
+}
+
+
+static int flag_head_len;
+int si_fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
+                                 uint16_t len, uint16_t *used_len)
+{
+    if(flag_head_len == 0)
+        return 0;    
+}
+
+static int test_update_check(const uint8_t *head_buff , uint16_t len, void *param)
+{
+    return FOTA_ERR;
+}
+
+void TestFotaPackageHead::test_fota_pack_head_init()
+{
+    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    fota_pack_head_init(head);
+    TEST_ASSERT_MSG((NULL != head), "fota_pack_head_init() is failed");
 }
 
 void TestFotaPackageHead::test_fota_pack_head_parse_head_len()
@@ -109,6 +140,56 @@ void TestFotaPackageHead::test_fota_pack_head_destroy()
     free(head);
 }
 
+void TestFotaPackageHead::test_fota_pack_parse_checksum()
+{
+    stubInfo si_head_len;
+    setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
+
+    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    memset(head, 0, sizeof(fota_pack_head_s));
+    uint32_t offset = 0;
+    uint8_t buff[20] = {0};
+    uint16_t len = 0;
+    uint16_t used_len = 0;
+    int ret = 0;
+
+    flag_head_len = 0;
+    offset = 5;
+    len = 12;
+    head->head_len = 14;
+    head->stored_len = 15;
+    head->buff = (uint8_t *)malloc(15 * sizeof(uint8_t));
+    memset(head->buff, 0, 15 * sizeof(uint8_t));
+    buff[11 - offset] = 15;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);  
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_parse_checksum() is failed");
+
+    head->head_len = 17;
+    buff[11 - offset] = 18;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_parse_checksum() is failed");
+
+//    head->head_len = 14;
+//    buff[11 - offset] = 15;
+    buff[8] = 1;
+    head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));  
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
+
+    buff[10] = 1;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
+
+    head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
+
+    free(head->checksum_pos);
+    free(head->buff);
+    free(head);
+    cleanStub(&si_head_len);
+}
+
 void TestFotaPackageHead::test_fota_pack_head_parse()
 {
     fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
@@ -117,10 +198,11 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
     uint8_t buff[12] = {0};
     uint16_t len = 0;
     uint16_t used_len = 0;
+    int ret = 0;
 
     offset = 10;
     head->stored_len = 5;
-    int ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
 
     offset = 0;
@@ -130,18 +212,44 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
 
     len = 12;
     head->stored_len = 10;
-//    head->head_len = 12; 
     buff[4] = buff[5] = 1;
-//    buff[7] = 12;
     buff[8] = buff[9] = buff[10] = buff[11] = 1;
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
 
-//    head->buff = (uint8_t *)malloc(12 * sizeof(uint8_t));
-//    head->buff[7] = 13;
-//    printf("************************************************\n");
-//    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    memset(head, 0, sizeof(fota_pack_head_s));
+    head->head_len = 12;
+    head->stored_len = 15;
+    len = 12;
+    head->buff = (uint8_t *)malloc(15 * sizeof(uint8_t));
+    memset(head->buff, 0, 15 * sizeof(uint8_t));
+    stubInfo si_head_len;
+    setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);     //stored_len = 12;
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
 
+//    memset(buff, 0, sizeof(buff));
+//    buff[11] = 10;
+//    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+//    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");    //â†
+
+    head->update_check = test_update_check;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+
+    memset(buff, 0, sizeof(buff));
+    buff[11] = 10;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");     //â†
+
+//    buff[11] = 15;
+//    head->hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
+//    memset(head->hardware, 0, sizeof(fota_hardware_s));
+//    head->hardware->get_block_size = test_get_block_size;
+//    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+//    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+ 
+    cleanStub(&si_head_len);
     free(head->buff);
     free(head);
 }
@@ -192,10 +300,12 @@ TestFotaPackageHead::TestFotaPackageHead()
 {
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_parse_head_len);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_destroy);
+    TEST_ADD(TestFotaPackageHead::test_fota_pack_parse_checksum);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_parse);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_check);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_set_head_info);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_get_checksum);
+    TEST_ADD(TestFotaPackageHead::test_fota_pack_head_init)
 }
 
 

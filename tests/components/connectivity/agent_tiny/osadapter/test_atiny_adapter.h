@@ -32,22 +32,47 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __TEST_ATINY_ADAPTER_H__
+#define __TEST_ATINY_ADAPTER_H__
 
+/* Includes -----------------------------------------------------------------*/
 #include <cpptest.h>
 #include "stub.h"
+//#include "MQTTClient.h"
+//#include "MQTTliteos.h"
+//#include "mqtt_client.h"
+#include "adapter_layer.h"
+#include "los_sem.ph"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+/* Defines ------------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+class TestAtiny_Adapter : public Test::Suite
+{
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    
-    TestFotaPackageStorageDivice();
-    
+    TestAtiny_Adapter();
+    ~TestAtiny_Adapter();
+
+    void test_osKernelGetTickCount(void);
+	void test_atiny_gettime_ms(void);
+	void test_atiny_malloc(void);
+	void test_atiny_free(void);
+	void test_atiny_snprintf(void);
+	void test_atiny_printf(void);
+	void test_atiny_strdup(void);
+	void test_atiny_mutex_create(void);
+	void test_atiny_mutex_destroy(void);
+	void test_atiny_mutex_lock(void);
+	void test_atiny_mutex_unlock(void);
+
+protected:
+    void setup();
+    void tear_down();
 };
 
 
 
-#endif
-
+#endif /* __TEST_AGENTTINY_H__ */

@@ -32,22 +32,42 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __TEST_ATINY_SOCKET_H__
+#define __TEST_ATINY_SOCKET_H__
 
+/* Includes -----------------------------------------------------------------*/
 #include <cpptest.h>
 #include "stub.h"
+//#include "MQTTClient.h"
+//#include "MQTTliteos.h"
+//#include "mqtt_client.h"
+#include "adapter_layer.h"
+#include "los_sem.ph"
+#include "atiny_socket.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+/* Defines ------------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+class TestAtiny_Socket : public Test::Suite
+{
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    
-    TestFotaPackageStorageDivice();
-    
+    TestAtiny_Socket();
+    ~TestAtiny_Socket();
+
+    void test_atiny_net_connect(void);
+	void test_atiny_net_recv(void);
+	void test_atiny_net_recv_timeout(void);
+	void test_atiny_net_send(void);
+	void test_atiny_net_close(void);
+
+protected:
+    void setup();
+    void tear_down();
 };
 
 
 
-#endif
-
+#endif /* __TEST_AGENTTINY_H__ */

@@ -66,6 +66,7 @@ void    *g_pstAllSem;
 /************************************* interrupt ***********************************/
 UINTPTR LOS_IntLock(VOID)
 {
+    g_ullTickCount++;
     return 0;
 }
 VOID LOS_IntRestore(UINTPTR uvIntSave)
@@ -224,7 +225,7 @@ int read_resp(uint8_t * buf)
 
 void hal_spi_flash_config(void)
 {
-    return 0;
+    return;
 }
 int hal_spi_flash_read(void* buf, int32_t len, uint32_t location)
 {

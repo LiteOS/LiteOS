@@ -570,3 +570,13 @@ void TestEsp8266::test_esp8266_recv_cb(void)
 
 /* Private functions --------------------------------------------------------*/
 
+void TestEsp8266::setup()
+{
+    static int i = 0;
+    printf("[%s:%d] ******** %d ************\n",__func__, __LINE__, ++i);
+}
+
+void TestEsp8266::tear_down()
+{
+    
+}
