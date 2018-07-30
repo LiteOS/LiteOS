@@ -224,7 +224,7 @@ DLLExport int MQTTYield(MQTTClient* client, int time);
  *  @param client - the client object to use
  *  @return truth value indicating whether the client is connected to the server
  */
-inline DLLExport int MQTTIsConnected(MQTTClient* client)
+static inline DLLExport int MQTTIsConnected(MQTTClient* client)
 {
   return client->isconnected;
 }
