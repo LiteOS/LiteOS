@@ -39,31 +39,10 @@ extern at_task at;
 at_adaptor_api at_interface;
 
 char rbuf[1064] = {0};
-char wbuf[1064] = {0};
-char tmpbuf[1064]={0}; //用于转换hex
+unsigned char wbuf[1064] = {0};
+char tmpbuf[1064]={0}; //transform to hex
 
 remote_info sockinfo[MAX_SOCK_NUM];
-#if 0
-int hex_to_str(const char *bufin, int len, char *bufout)
-{
-    int i = 0;
-    unsigned char tmp2 = 0x0;
-    unsigned int tmp = 0;
-    if (NULL == bufin || len <= 0 || NULL == bufout)
-    {
-        return -1;
-    }
-    for(i = 0; i < len; i = i+2)
-    {
-        tmp2 =  bufin[i];
-        tmp2 =  tmp2 <= '9'?tmp2-0x30:tmp2-0x37;
-        tmp =  bufin[i+1];
-        tmp =  tmp <= '9'?tmp-0x30:tmp-0x37;
-        bufout[i/2] =(tmp2<<4)|(tmp&0x0F);
-    }
-    return 0;
-}
-#endif
 int str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
@@ -130,20 +109,45 @@ int32_t nb_send_psk(char* pskid, char* psk)
     return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
-int32_t nb_send_payload(const char* buf, int len)
+int32_t nb_send_str(const char* buf, int len)
 {
     char *cmd1 = "AT+NMGS=";
     char *cmd2 = "AT+NQMGS\r";
-    char tmpbuf[1064] = {0};
-    char cmd[1064] = {0};
     int ret;
     char* str = NULL;
     int curcnt = 0;
     static int sndcnt = 0;
+    memset(wbuf, 0, 1064);
+    memset(rbuf, 0, 1064);
+    sprintf(wbuf, "%s%d,%s%c",cmd1,(int)len/2,buf,'\r');
+    ret = at.cmd((int8_t*)wbuf, strlen(wbuf), NULL, NULL);
+    if(ret < 0)
+        return -1;
+    ret = at.cmd((int8_t*)cmd2, strlen(cmd2), "SENT=", rbuf);
+    if(ret < 0)
+        return -1;
+    str = strstr(rbuf,"SENT=");
+    sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
+    if(curcnt == sndcnt)
+        return -1;
+    sndcnt = curcnt;
+    return ret;
+}
+
+int32_t nb_send_payload(const char* buf, int len)
+{
+    char *cmd1 = "AT+NMGS=";
+    char *cmd2 = "AT+NQMGS\r";
+    int ret;
+    char* str = NULL;
+    int curcnt = 0;
+    static int sndcnt = 0;
+    memset(tmpbuf, 0, 1064);
+    memset(wbuf, 0, 1064);
     str_to_hex(buf, len, tmpbuf);
     memset(rbuf, 0, 1064);
-    sprintf(cmd, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
-    ret = at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    sprintf(wbuf, "%s%d,%s%c",cmd1,(int)len,tmpbuf,'\r');
+    ret = at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
     if(ret < 0)
         return -1;
     ret = at.cmd((int8_t*)cmd2, strlen(cmd2), "SENT=", rbuf);
@@ -161,7 +165,7 @@ int32_t nb_get_auto_connect(void)
 {
     return at.cmd((int8_t*)AT_NB_get_auto_connect, strlen(AT_NB_get_auto_connect), "AUTOCONNECT,TRUE", NULL);//"AUTOCONNECT,TRUE"
 }
-#if 0
+
 int32_t nb_send_coap_payload(int32_t id ,const uint8_t *buf, uint32_t len)
 {
 	char *cmd1 = "AT+NMGS=";
@@ -218,7 +222,6 @@ int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode)
 
     return rlen;
 }
-#endif
 
 int32_t nb_check_csq(void)
 {
@@ -259,7 +262,7 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
     }
     return -1;
 }
-#if 0
+
 int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
@@ -321,7 +324,7 @@ int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len)
     END:
     return ret;
 }
-#endif
+
 
 
 int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
