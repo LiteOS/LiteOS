@@ -68,6 +68,9 @@ public:
     void test_esp8266_get_localmac(void);
     void test_esp8266_recv_cb(void);
 
+protected:
+    void setup();
+    void tear_down();
 };
 
 

@@ -200,12 +200,22 @@ TestEsp8266::TestEsp8266()
 
 TestEsp8266::~TestEsp8266()
 {
+    g_state = TEST_STATE_ERR;
+    stubInfo si_queue;
+    setStub((void *)LOS_QueueReadCopy,(void *)stub_LOS_QueueReadCopy,&si_queue);
+    
     esp8266_deinit();
+    
+    cleanStub(&si_queue);
 }
 
 void TestEsp8266::test_esp8266_init(void)
 {
     uint32_t ret = AT_OK;
+    
+    g_state = TEST_STATE_ERR;
+    stubInfo si_queue;
+    setStub((void *)LOS_QueueReadCopy,(void *)stub_LOS_QueueReadCopy,&si_queue);
     
     stubInfo stub_info;
     setStub((void *)esp8266_joinap,(void *)stub_esp8266_joinap,&stub_info);
@@ -222,6 +232,7 @@ void TestEsp8266::test_esp8266_init(void)
     TEST_ASSERT_MSG((ret == AT_OK), "esp8266_init() failed");
     cleanStub(&stub_info);
     g_state = TEST_STATE_OK;
+    cleanStub(&si_queue);
 }
 void TestEsp8266::test_esp8266_deinit(void)
 {
@@ -434,6 +445,10 @@ void TestEsp8266::test_esp8266_close(void)
     uint32_t tmp;
     uint32_t ret = AT_OK;
     
+    g_state = TEST_STATE_ERR;
+    stubInfo si_queue;
+    setStub((void *)LOS_QueueReadCopy,(void *)stub_LOS_QueueReadCopy,&si_queue);
+    
     tmp = at.mux_mode;
     at.mux_mode = AT_MUXMODE_SINGLE;
     ret = esp8266_close(0);
@@ -451,6 +466,8 @@ void TestEsp8266::test_esp8266_close(void)
     TEST_ASSERT_MSG((ret == AT_FAILED), "esp8266_close(1) failed");
     cleanStub(&stub_info);
     g_state = TEST_STATE_OK;
+
+    cleanStub(&si_queue);
 }
 void TestEsp8266::test_esp8266_data_handler(void)
 {
