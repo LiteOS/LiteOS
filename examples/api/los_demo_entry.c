@@ -157,7 +157,7 @@ VOID LOS_Demo_Entry(VOID)
 
     if (uwRet != LOS_OK)
     {
-        dprintf("Api demo test task create failed\n");
+        dprintf("Api demo test task create failed \r\n");
         return;
     }
     return;
