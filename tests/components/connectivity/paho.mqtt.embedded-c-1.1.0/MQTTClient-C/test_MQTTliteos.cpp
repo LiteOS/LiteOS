@@ -36,6 +36,9 @@
 #include "ssl.h"
 #include "ctr_drbg.h"
 #include "net_sockets.h"
+#include "sys/socket.h"
+#include "unistd.h"
+
 extern "C"
 {   
     #include "MQTTliteos.h"
@@ -84,6 +87,29 @@ extern "C"
     {
         return MBEDTLS_ERR_SSL_FEATURE_UNAVAILABLE;
     }
+    
+    int stub_connect(int s, void *name, int namelen)
+    {
+        return 1;
+    }
+    int stub_recv(int s, void *mem, size_t len, int flags)
+    {
+        return 0;
+    }
+    int stub_recv_err(int s, void *mem, size_t len, int flags)
+    {
+        return -1;
+    }
+    int stub_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
+                struct timeval *timeout)
+    {
+        return 1;
+    }
+    int stub_write(int s, const void *data, size_t size, int flags)
+    {
+        return sizeof(data);
+    }
+
 }
 
 void TestMQTTLiteos::test_TimerInit()
@@ -176,12 +202,23 @@ void TestMQTTLiteos::test_los_read()
     n.proto = MQTT_PROTO_NONE;
     ctx.fd = 3;
     n.ctx = &ctx;
+    stubInfo si1;
+    stubInfo si2;
+    stubInfo si3;
+    setStub((void *)select, (void *)stub_select, &si1);
+    setStub((void *)recv, (void *)stub_recv_err, &si3);
     ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
     TEST_ASSERT(ret == -1);
+    cleanStub(&si3);
+    setStub((void *)recv, (void *)stub_recv, &si2);
+    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
+    TEST_ASSERT(ret == 0);
 
     timeout_ms = -100;
     ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
+    TEST_ASSERT(ret == 0);
+    cleanStub(&si2);
+    cleanStub(&si1);
 
     n.proto = MQTT_PROTO_TLS_PSK;
     timeout_ms = 100;
@@ -226,8 +263,11 @@ void TestMQTTLiteos::test_los_write()
     n.proto = MQTT_PROTO_NONE;
     ctx.fd = 3;
     n.ctx = &ctx;
+    stubInfo si;
+    setStub((void *)write, (void *)stub_write, &si);
     ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
     TEST_ASSERT(ret == sizeof(buffer));
+    cleanStub(&si);
 
     timeout_ms = -100;
     ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
@@ -248,15 +288,17 @@ void TestMQTTLiteos::test_NetworkConnect()
     ret = NetworkConnect(NULL, addr, port);
     TEST_ASSERT(ret == -1);
 
+    stubInfo si1;
+    setStub((void *)connect, (void *)stub_connect, &si1);
     n.proto = MQTT_PROTO_NONE;
     ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == -1);
+    TEST_ASSERT(ret == 1);
     NetworkDisconnect(&n);
     
     ctx->fd = 2;
     n.ctx = ctx;
     ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == -1);
+    TEST_ASSERT(ret == 1);
     NetworkDisconnect(&n);
 
     n.proto = MQTT_PROTO_TLS_PSK;
@@ -267,22 +309,22 @@ void TestMQTTLiteos::test_NetworkConnect()
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == -1);
     
-    stubInfo si;
-    setStub((void *)mbedtls_ctr_drbg_seed, (void *)stub_mbedtls_ctr_drbg_seed, &si);
+    stubInfo si2;
+    setStub((void *)mbedtls_ctr_drbg_seed, (void *)stub_mbedtls_ctr_drbg_seed, &si2);
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == -1);
     
-    stubInfo si1;
-    stubInfo si2;
     stubInfo si3;
     stubInfo si4;
-    setStub((void *)mbedtls_mqtt_connect, (void *)stub_mbedtls_mqtt_connect, &si1);
-    setStub((void *)mbedtls_net_set_block, (void *)stub_mbedtls_net_set_block, &si2);
-    setStub((void *)mbedtls_ssl_handshake_step, (void *)stub_mbedtls_ssl_handshake_step, &si4);
+    stubInfo si5;
+    stubInfo si6;
+    setStub((void *)mbedtls_mqtt_connect, (void *)stub_mbedtls_mqtt_connect, &si3);
+    setStub((void *)mbedtls_net_set_block, (void *)stub_mbedtls_net_set_block, &si4);
+    setStub((void *)mbedtls_ssl_handshake_step, (void *)stub_mbedtls_ssl_handshake_step, &si5);
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == -1);
-    cleanStub(&si4);
-    setStub((void *)mbedtls_ssl_handshake, (void *)stub_mbedtls_ssl_handshake, &si3);
+    cleanStub(&si5);
+    setStub((void *)mbedtls_ssl_handshake, (void *)stub_mbedtls_ssl_handshake, &si6);
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == 0);
     
@@ -290,15 +332,16 @@ void TestMQTTLiteos::test_NetworkConnect()
     stream = fopen("fprintf.out","w");
     ((mbedtls_ssl_context *)n.ctx)->conf->f_dbg(stream, 2, "/home/protocols/wsy/LiteOS/tests/components/connectivity/paho.mqtt.embedded-c-1.1./MQTTClient-C/src/liteOS/test_MQTTliteos.cpp", 288, "err"); 
 
+    cleanStub(&si6);
+    cleanStub(&si4);
     cleanStub(&si3);
     cleanStub(&si2);
-    cleanStub(&si1);
-    cleanStub(&si);
     NetworkDisconnect(&n);
 
     n.proto = MQTT_PROTO_MAX;
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == -1);
+    cleanStub(&si1);
 
 }
 void TestMQTTLiteos::test_mbedtls_net_set_block()
