@@ -53,46 +53,46 @@ UINT32 Example_StaticMem(VOID)
     uwRet = LOS_MemboxInit(&pBoxMem[0], uwBoxSize, uwBlkSize);
     if (uwRet != LOS_OK)
     {
-        dprintf("Mem box init failed\n");
+        dprintf("Mem box init failed .\r\n");
         return LOS_NOK;
     }
     else
     {
-        dprintf("Mem box init ok!\n");
+        dprintf("Mem box init ok! .\r\n");
     }
 
     /* membox alloc */
     p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
     if (NULL == p_num)
     {
-        dprintf("Mem box alloc failed!\n");
+        dprintf("Mem box alloc failed! .\r\n");
         return LOS_NOK;
     }
-    dprintf("Mem box alloc ok\n");
+    dprintf("Mem box alloc ok .\r\n");
     /* assignment */
     *p_num = 828;
-    dprintf("*p_num = %d\n", *p_num);
+    dprintf("*p_num = %d .\r\n", *p_num);	
     /* clear mem context */
     LOS_MemboxClr(pBoxMem, p_num);
-    dprintf("clear data ok\n *p_num = %d\n", *p_num);
+    dprintf("clear data ok \r\n *p_num = %d .\r\n", *p_num);
     /* membox free */
     uwRet = LOS_MemboxFree(pBoxMem, p_num);
     if (LOS_OK == uwRet)
     {
-        dprintf("Mem box free ok!\n");
+        dprintf("Mem box free ok! .\r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_SUCCESS);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err .\r\n");
         }
     }
     else
     {
-        dprintf("Mem box free failed!\n");
+        dprintf("Mem box free failed! .\r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err .\r\n");
         }
     }
 

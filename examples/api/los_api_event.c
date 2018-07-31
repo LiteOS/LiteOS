@@ -65,25 +65,25 @@ VOID Example_Event(VOID)
      * timeout, WAITMODE to read event, timeout is 100 ticks,
      * if timeout, wake task directly
      */
-    dprintf("Example_Event wait event 0x%x \n",event_wait);
+    dprintf("Example_Event wait event 0x%x . \r\n",event_wait);
 
     uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
     if(uwEvent == event_wait)
     {
-        dprintf("Example_Event,read event :0x%x\n",uwEvent);
+        dprintf("Example_Event,read event :0x%x . \r\n",uwEvent);
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_SUCCESS);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err. \r\n");
         }
     }
     else
     {
-        dprintf("Example_Event,read event timeout\n");
+        dprintf("Example_Event,read event timeout. \r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err. \r\n");
         }
     }
     return;
@@ -98,7 +98,7 @@ UINT32 Example_SndRcvEvent(VOID)
     uwRet = LOS_EventInit(&example_event);
     if(uwRet != LOS_OK)
     {
-        dprintf("init event failed .\n");
+        dprintf("init event failed .\r\n");
         return LOS_NOK;
     }
 
@@ -111,23 +111,23 @@ UINT32 Example_SndRcvEvent(VOID)
     uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
     if(uwRet != LOS_OK)
     {
-        dprintf("task create failed .\n");
+        dprintf("task create failed .\r\n");
         return LOS_NOK;
     }
 
     /* write event */
-    dprintf("Example_TaskEntry_Event write event .\n");
+    dprintf("Example_TaskEntry_Event write event .\r\n");
     uwRet = LOS_EventWrite(&example_event, event_wait);
     if(uwRet != LOS_OK)
     {
-        dprintf("event write failed .\n");
+        dprintf("event write failed .\r\n");
         return LOS_NOK;
     }
 
     /* clear event flag */
-    dprintf("EventMask:%d\n", example_event.uwEventID);
+    dprintf("EventMask:%d \r\n", example_event.uwEventID);
     LOS_EventClear(&example_event, ~example_event.uwEventID);
-    dprintf("EventMask:%d\n", example_event.uwEventID);
+    dprintf("EventMask:%d \r\n", example_event.uwEventID);
 
     return LOS_OK;
 }
