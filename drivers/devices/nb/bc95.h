@@ -64,7 +64,6 @@ typedef struct _remote_info_t
     char ip[16];
 }remote_info;//struct to save socket info
 
-
 int str_to_hex(const char *bufin, int len, char *bufout);
 int32_t nb_set_cdpserver(char* host, char* port);
 int32_t nb_hw_detect(void);

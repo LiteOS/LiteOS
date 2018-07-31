@@ -95,7 +95,7 @@ typedef struct _listner{
 
 #define OOB_MAX_NUM 5
 #define OOB_CMD_LEN  40
-
+#define AT_DATA_LEN 1024
 typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
