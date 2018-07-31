@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := SIM900A
+	NETWORK_TYPE := NB_NEUL95
 endif
 
 #######################################
@@ -167,6 +167,9 @@ USER_SRC =  \
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
+SOTA_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/at_fota/*.c}
+        C_SOURCES += $(SOTA_SRC)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
      $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c
@@ -353,6 +356,9 @@ ATADAPTOR_INC = \
         -I $(TOP_DIR)/components/connectivity/at_frame
         C_INCLUDES += $(ATADAPTOR_INC)
 
+SOTA_INC = \
+        -I $(TOP_DIR)/components/connectivity/at_fota
+        C_INCLUDES += $(SOTA_INC)
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi
