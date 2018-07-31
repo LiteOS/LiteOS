@@ -32,24 +32,30 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef TEST_OTA_H_
+#define TEST_OTA_H_
 
 #include <cpptest.h>
 #include "stub.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+
+class TestOta:public Test::Suite {
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
-    
-    TestFotaPackageStorageDivice();
-    
+    void test_ota_register_module();
+    void test_ota_register_assist();
+    void test_ota_init();
+    void test_ota_update_process();
+    void test_ota_jump_to_application();
+    void test_ota_roll_back_image();
+    //void test_prv_get_update_record();
+
+    TestOta();
+    ~TestOta();
+
+protected:
+    void tear_down();
+    void setup();
 };
 
 
-
 #endif
-

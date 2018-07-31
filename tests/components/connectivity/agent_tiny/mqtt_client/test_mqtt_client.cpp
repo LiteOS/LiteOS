@@ -58,6 +58,11 @@ extern "C"
 #define MQTT_TOPIC_SUBSCRIBED_TRUE (1)
 #define MQTT_TOPIC_SUBSCRIBED_FALSE (0)
 
+static int g_random = 0;
+
+static int i = 0;
+
+stubInfo si_atiny_strdup;
 
 typedef struct
 {
@@ -120,22 +125,41 @@ TestMQTT_Client::~TestMQTT_Client()
 {
 
 }
-
-
-//int stub_los_write(Network* n, unsigned char *buffer, int len, int timeout_ms)
-//{
-//	return 10;
-//}
-
-/*int stub_los_read(Network* n, unsigned char *buffer, int len, int timeout_ms)
+int stub_NetworkConnect(Network *n, char *addr, int port)
 {
-	return 10;
-}*/
-
+	return 1;
+}
 void fun_atiny_rsp_cb(cloud_msg_t *msg)
 {
 	return;
 }
+
+char *stub_atiny_strdup_fail_random(const char *ch)
+{
+    char * p;
+    printf("come in,i is %d random is %d, in stub_atiny_strdup_fail_random\n",i,g_random);
+    if(i++ < g_random)
+    {
+        cleanStub(&si_atiny_strdup);
+        p = atiny_strdup(ch);
+		
+		printf("p is %p,%s in stub_atiny_strdup_fail_random\n",p,p);
+		setStub((void *)atiny_strdup, (void *)stub_atiny_strdup_fail_random, &si_atiny_strdup);
+		printf("will return from stub_atiny_strdup_fail_random\n");
+		return p;
+    }
+	
+	printf("i is %d,random is %d, in stub_atiny_strdup_fail_random\n",i,g_random);
+	return NULL;
+}
+
+void* stub_atiny_malloc_fail(size_t size)
+{
+    printf("call stub_atiny_malloc_fail\n");
+    return NULL;
+}
+
+
 void TestMQTT_Client::test_atiny_param_member_free(void)
 {
 	int result = 0;
@@ -172,7 +196,7 @@ void TestMQTT_Client::test_atiny_param_dup(void)
 {
 	int result;
 	result = atiny_param_dup(NULL, NULL);
-	TEST_ASSERT_MSG((result == -1), "atiny_init(...) failed");
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
 	
 	atiny_param_t *para_dest, test_dest;
 	atiny_param_t *para_src, test_src;
@@ -184,19 +208,87 @@ void TestMQTT_Client::test_atiny_param_dup(void)
 	test_src.u.psk.psk_id = (unsigned char *)"110";
 	test_src.u.psk.psk_len = 10;
 	test_src.u.psk.psk = (unsigned char *)"psk";
+	
+    
+	
+    setStub((void *)atiny_strdup, (void *)stub_atiny_strdup_fail_random, &si_atiny_strdup);
+    i = 0;
+	g_random = 0;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
 	result = atiny_param_dup(para_dest, para_src);
-	TEST_ASSERT_MSG((result == 0), "atiny_init(...) failed");
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+
+    i = 0;
+	g_random = 1;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+
+
+	i = 0;
+	g_random = 2;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+    cleanStub(&si_atiny_strdup);
+
+	
+    
+
+	
+    memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == 0), "atiny_param_dup(...) failed");
 	test_dest.security_type = CLOUD_SECURITY_TYPE_PSK;
 	atiny_param_member_free(para_dest);
+
+    
 	
 	test_src.security_type = CLOUD_SECURITY_TYPE_CA;
 	test_src.u.ca.ca_crt = (char *)"ca_crt";
 	test_src.u.ca.server_crt = (char *)"server_crt";
 	test_src.u.ca.server_key = (char *)"server_key";
+
+	setStub((void *)atiny_strdup, (void *)stub_atiny_strdup_fail_random, &si_atiny_strdup);
+    i = 0;
+	g_random = 2;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
 	result = atiny_param_dup(para_dest, para_src);
-	TEST_ASSERT_MSG((result == 0), "atiny_init(...) failed");
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+    
+	i = 0;
+	g_random = 3;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+    
+
+	i = 0;
+	g_random = 4;
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == -1), "atiny_param_dup(...) failed");
+    cleanStub(&si_atiny_strdup);
+	
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == 0), "atiny_param_dup(...) failed");
 	test_dest.security_type = CLOUD_SECURITY_TYPE_CA;
 	atiny_param_member_free(para_dest);
+
+
+	test_src.security_type = CLOUD_SECURITY_TYPE_MAX;
+	test_src.u.ca.ca_crt = (char *)"ca_crt";
+	test_src.u.ca.server_crt = (char *)"server_crt";
+	test_src.u.ca.server_key = (char *)"server_key";
+
+	memset((uint8_t *)para_dest,0,sizeof(atiny_param_t));
+	result = atiny_param_dup(para_dest, para_src);
+	TEST_ASSERT_MSG((result == 0), "atiny_param_dup(...) failed");
+    atiny_param_member_free(para_dest);
+
+
+	
 }
 
 
@@ -233,6 +325,19 @@ void TestMQTT_Client::test_atiny_init(void)
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_init(...) failed");
 	(**test_g_atiny_handle).atiny_params.security_type = CLOUD_SECURITY_TYPE_CA;
 	atiny_param_member_free(&((**test_g_atiny_handle).atiny_params));
+
+
+    setStub((void *)atiny_strdup, (void *)stub_atiny_strdup_fail_random, &si_atiny_strdup);
+    i = 0;
+	g_random = 0;
+
+	result = atiny_init(para_atiny_params, (void **)test_g_atiny_handle);
+    TEST_ASSERT_MSG((result == ATINY_MALLOC_FAILED), "atiny_init(...) failed");
+	
+    cleanStub(&si_atiny_strdup);
+	
+	
+	
 }
 
 void TestMQTT_Client::test_atiny_deinit(void)
@@ -287,29 +392,12 @@ void TestMQTT_Client::test_atiny_deinit(void)
 	//device_info_member_free(&(test1->device_info));
 	//memset(&test_devicedest, 0, sizeof(atiny_device_info_t));
 	//memset(&test_atinydest, 0, sizeof(atiny_param_t));
-	/*printf("test_handle.atiny_params.server_ip is %p\n", test_handle.atiny_params.server_ip);
-	printf("test_atinydest.server_ip is %p\n", test_atinydest.server_ip);*/
+	//printf("test_handle.atiny_params.server_ip is %p\n", test_handle.atiny_params.server_ip);
+	//printf("test_atinydest.server_ip is %p\n", test_atinydest.server_ip);
 	//printf("test_handle.device_info.client_id is %p\n", test_handle.device_info.client_id);
 	atiny_deinit(para_handle);
 	TEST_ASSERT_MSG((result == 0), "test_atiny_deinit(...) failed");
 
-	
-	/* typedef struct test_t
-	{
-		//char name1[10];
-		char *p;
-		int flag;
-	}test;
-	test para1, para2;
-	para2.p = (char *)"ttttt";
-	//strcmp(para1.name1, "hello_world");
-	para1.p = (char *)"hahahahha";
-	para1.flag = 1;
-	para2 = para1;
-	printf("para1.p is %p\n", para1.p);
-	//printf("para2.name2 is %s\n", para2.name1);
-	printf("para2.p is %p\n", para2.p);
-	printf("para2.flag is %d\n", para2.flag); */
 }
 
 void TestMQTT_Client::test_mqtt_add_interest_topic(void)
@@ -386,9 +474,10 @@ void TestMQTT_Client::test_mqtt_topic_subscribe()
 	TEST_ASSERT_MSG((result == -1), "mqtt_topic_subscribe(...) failed");
 	
 	MQTTClient test_client;
+	memset(&test_client, 0, sizeof(MQTTClient));
 	cloud_qos_level_e test_qos = CLOUD_QOS_LEAST_ONCE;
 	atiny_rsp_cb test_atiny_rsp_cb;
-	char **para_topic_dup, *para_topic;
+	char **para_topic_dup = NULL, *para_topic = NULL;
 	para_topic_dup = &para_topic;
 	test_atiny_rsp_cb = fun_atiny_rsp_cb;
 	mqtt_add_interest_topic((char *)"www.baidu.com", test_qos, test_atiny_rsp_cb, para_topic_dup);
@@ -411,7 +500,8 @@ void TestMQTT_Client::test_mqtt_topic_unsubscribe()
 	result = mqtt_topic_unsubscribe(NULL, NULL);
 	TEST_ASSERT_MSG((result == -1), "mqtt_topic_unsubscribe(...) failed");
 	
-	MQTTClient *para_client, test_client;
+	MQTTClient *para_client = NULL, test_client;
+	memset(&test_client, 0 ,sizeof(MQTTClient));
 	para_client = &test_client;
 	result = mqtt_topic_unsubscribe(para_client, (char *)"www.baidu.com");
 	TEST_ASSERT_MSG((result == MQTT_TOPIC_SUBSCRIBED_FALSE), "mqtt_topic_unsubscribe(...) failed");
@@ -419,7 +509,7 @@ void TestMQTT_Client::test_mqtt_topic_unsubscribe()
 	cloud_qos_level_e test_qos = CLOUD_QOS_LEAST_ONCE;
 	atiny_rsp_cb test_atiny_rsp_cb;
 	test_atiny_rsp_cb = fun_atiny_rsp_cb;
-	char **para_topic_dup, *para_topic;
+	char **para_topic_dup = NULL, *para_topic = NULL;
 	para_topic_dup = &para_topic;
 	test_client.isconnected = 0;
 	test_client.mutex = NULL;
@@ -435,8 +525,8 @@ void TestMQTT_Client::test_mqtt_message_publish()
 	result = mqtt_message_publish(NULL, NULL);
 	TEST_ASSERT_MSG((result == -1), "mqtt_message_public(...) failed");
 	
-	MQTTClient *para_client, test_client;
-	cloud_msg_t *para_senddata, test_senddata;
+	MQTTClient *para_client = NULL, test_client;
+	cloud_msg_t *para_senddata = NULL, test_senddata;
 	memset(&test_client, 0, sizeof(MQTTClient));
 	memset(&test_senddata, 0, sizeof(cloud_msg_t));
 	para_client = &test_client;
@@ -463,13 +553,14 @@ void TestMQTT_Client::test_mqtt_message_arrived()
 	mqtt_message_arrived(NULL);
 	TEST_ASSERT_MSG((result == 0), "mqtt_message_public(...) failed");
 	
-	MessageData *para_messagedata, test_messagedata;
+	MessageData *para_messagedata = NULL, test_messagedata;
+	memset(&test_messagedata, 0, sizeof(MessageData));
 	para_messagedata = &test_messagedata;
 	test_messagedata.topic_sub = NULL;
 	mqtt_message_arrived(para_messagedata);
 	TEST_ASSERT_MSG((result == 0), "mqtt_message_public(...) failed");
 	
-	atiny_rsp_cb test_atiny_rsp_cb;
+	atiny_rsp_cb test_atiny_rsp_cb = NULL;
 	cloud_qos_level_e test_qos = CLOUD_QOS_LEAST_ONCE;
 	char **para_topic_dup, *test_topic;
 	para_topic_dup = &test_topic;
@@ -477,6 +568,8 @@ void TestMQTT_Client::test_mqtt_message_arrived()
 	mqtt_add_interest_topic((char *)"www.baidu.com", test_qos, test_atiny_rsp_cb, para_topic_dup);
 	MQTTMessage test_mqttmessage;
 	MQTTString test_mqttstring;
+	memset(&test_mqttmessage, 0, sizeof(MQTTMessage));
+	memset(&test_mqttstring, 0, sizeof(MQTTString));
 	test_messagedata.message = &test_mqttmessage;
 	test_messagedata.topicName = &test_mqttstring;
 	test_messagedata.topic_sub = (char *)"www.baidu.com";
@@ -503,6 +596,7 @@ void TestMQTT_Client::test_mqtt_subscribe_interest_topics()
 	for(i=0; i< ATINY_INTEREST_URI_MAX_NUM; i++)
 		memset(&test_interest[i], 0, sizeof(atiny_interest_uri_t));
 	MQTTClient *para_client, test_client;
+	memset(&test_client, 0, sizeof(MQTTClient));
 	para_client = &test_client;
 	result = mqtt_subscribe_interest_topics(para_client, test_interest);
 	TEST_ASSERT_MSG((result == ATINY_ARG_INVALID), "mqtt_subscribe_interest_topics(...) failed");
@@ -525,6 +619,7 @@ void TestMQTT_Client::test_will_options_member_free()
 	TEST_ASSERT_MSG((result == 0), "will_options_member_free(...) failed");
 	
 	cloud_will_options_t *para_willoptions, test_willoptions;
+	memset(&test_willoptions, 0, sizeof(cloud_will_options_t));
 	para_willoptions = &test_willoptions;
 	test_willoptions.topic_name = NULL;
 	test_willoptions.topic_msg = NULL;
@@ -589,15 +684,15 @@ void TestMQTT_Client::test_device_info_member_free()
 	
 	for(int i=0; i<ATINY_INTEREST_URI_MAX_NUM; i++)
     {
-		printf("*********** %p\n",test_src.interest_uris[i].uri);
+		//printf("*********** %p\n",test_src.interest_uris[i].uri);
     }
 	#if 1
 	result = device_info_dup(para_dest, para_src);
 	//result = device_info_dup(NULL, NULL);
 	#endif
-	printf("result = %d\n", result);
-	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-	printf("fdsfdsfdsfdsfdsf\n");
+	//printf("result = %d\n", result);
+	//printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	//printf("fdsfdsfdsfdsfdsf\n");
 	device_info_member_free(para_dest);
 	TEST_ASSERT_MSG((result == 0), "device_info_member_free(...) failed");
 	mqtt_del_interest_topic((char *)"www.baidu.com");
@@ -616,6 +711,7 @@ void TestMQTT_Client::test_device_info_dup()
 	memset(&test_dest, 0, sizeof(atiny_device_info_t));
 	
 	cloud_will_options_t test_willoptions;
+	memset(&test_willoptions, 0, sizeof(cloud_will_options_t));
 	test_willoptions.topic_name = (char *)"topic_name";
 	test_willoptions.topic_msg = (char *)"topic_msg";
 	test_willoptions.retained = 'q';
@@ -626,7 +722,7 @@ void TestMQTT_Client::test_device_info_dup()
 	test_src.will_flag = MQTT_WILL_FLAG_TRUE;
 	test_src.will_options = &test_willoptions;
 	
-	printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+	//printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 	
 	atiny_rsp_cb test_atiny_rsp_cb;
 	cloud_qos_level_e test_qos = CLOUD_QOS_LEAST_ONCE;
@@ -649,10 +745,10 @@ void TestMQTT_Client::test_device_info_dup()
 	result = device_info_dup(para_dest, para_src);
 	//result = device_info_dup(NULL, NULL);
 	#endif
-	printf("result = %d\n", result);
-	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	//printf("result = %d\n", result);
+	//printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	TEST_ASSERT_MSG((result == 0), "device_info_dup(...) failed");
-	printf("fdsfdsfdsfdsfdsf\n");
+	//printf("fdsfdsfdsfdsfdsf\n");
 	device_info_member_free(para_dest);
 	mqtt_del_interest_topic((char *)"www.baidu.com");
 }
@@ -664,6 +760,7 @@ void TestMQTT_Client::test_atiny_isconnected()
 	TEST_ASSERT_MSG((result == ATINY_ARG_INVALID), "atiny_isconnected(...) failed");
 	
 	handle_data_t *para_phandle, test_phandle;
+	memset(&test_phandle, 0, sizeof(test_phandle));
 	test_phandle.client.isconnected = 1;
 	para_phandle = &test_phandle;
 	result = atiny_isconnected(para_phandle);
@@ -713,55 +810,53 @@ void TestMQTT_Client::test_atiny_bind()
 	memset(&test_params, 0, sizeof(atiny_param_t));
 	test_phandle.atiny_params = test_params;
 	test_phandle.client = test_client;
-	//stubInfo si_write;
-	//setStub((void *)los_write,(void *)stub_los_write,&si_write);
-	//stubInfo si_read;
-	//setStub((void *)los_read, (void *)stub_los_read, &si_read);
+
 	test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_NONE;
-	atiny_device_info_t test_atinydevice;
-	memset(&test_atinydevice, 0, sizeof(atiny_device_info_t));
-	test_atinydevice.will_flag = 'a';
-	test_atinydevice.client_id = (char *)"123";
-	test_atinydevice.user_name = (char *)"username";
-	test_atinydevice.password = (char *)"password";
-	test_atinydevice.will_flag = MQTT_WILL_FLAG_TRUE;
+	memset(&test_device_info, 0, sizeof(atiny_device_info_t));
+	test_device_info.will_flag = 'a';
+	test_device_info.client_id = (char *)"12345";
+	test_device_info.user_name = (char *)"username";
+	test_device_info.password = (char *)"password";
+	test_device_info.will_flag = MQTT_WILL_FLAG_TRUE;
 	cloud_will_options_t test_cloudwill;
 	memset(&test_cloudwill, 0 ,sizeof(cloud_will_options_t));
-	test_atinydevice.will_options = &test_cloudwill;
+	test_device_info.will_options = &test_cloudwill;
 	test_cloudwill.topic_name = (char *)"name";
 	test_cloudwill.topic_msg  = (char *)"message";
 	test_cloudwill.qos = CLOUD_QOS_LEAST_ONCE;
-	test_phandle.device_info = test_atinydevice;
-	//test_phandle.device_info.will_options->topic_msg = (char *)"message";
-	//test_phandle.device_info.will_options->qos = CLOUD_QOS_LEAST_ONCE;
-	//test_phandle.device_info.will_options->retained = 'b';
+	test_phandle.device_info = test_device_info;
 	test_phandle.atiny_quit = 1;
 	result = atiny_bind(para_device_info, para_phandle);
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_bind(...) failed");
-	device_info_member_free(&test_phandle.device_info);//释放内存
+	device_info_member_free(&test_phandle.device_info);
 	
 	test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_PSK;
 	result = atiny_bind(para_device_info, para_phandle);
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_bind(...) failed");
-	device_info_member_free(&test_phandle.device_info);//释放内存
+	device_info_member_free(&test_phandle.device_info);
 	
 	test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_CA;
 	result = atiny_bind(para_device_info, para_phandle);
 	TEST_ASSERT_MSG((result == ATINY_ARG_INVALID), "atiny_bind(...) failed");
-	device_info_member_free(&test_phandle.device_info);//释放内存
+	device_info_member_free(&test_phandle.device_info);
 	
 	test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_MAX;
 	result = atiny_bind(para_device_info, para_phandle);
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_bind(...) failed");
-	device_info_member_free(&test_phandle.device_info);//释放内存
+	device_info_member_free(&test_phandle.device_info);
 	
-	test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_NONE;
-	test_phandle.atiny_quit = 0;
+	//test_phandle.atiny_params.security_type = CLOUD_SECURITY_TYPE_NONE;
+	//test_device_info.server_ip = "192.168.1.100";
+	//test_device_info.server_port = "2440";
+	//stubInfo si_networkconnect;
+	//setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &si_networkconnect);
+	//test_phandle.atiny_quit = 0;
 	
 	
 	
-	//cleanStub(&si_write);
-	//cleanStub(&si_read);
+	
+
+	//cleanStub(&si_networkconnect);
 }
 void TestMQTT_Client::test_atiny_data_send()
 {
@@ -772,8 +867,11 @@ void TestMQTT_Client::test_atiny_data_send()
 	TEST_ASSERT_MSG((result == ATINY_ARG_INVALID), "atiny_data_send(...) failed");
 	
 	atiny_interest_uri_t *para_atiny_interest_uri, test_atiny_interest_uri;
+	memset(&test_atiny_interest_uri, 0, sizeof(atiny_interest_uri_t));
 	handle_data_t *para_handle, test_handle;
 	cloud_msg_t *para_send_data, test_send_data;
+	memset(&test_handle, 0, sizeof(handle_data_t));
+	memset(&test_send_data, 0, sizeof(cloud_msg_t));
 	para_handle = &test_handle;
 	para_send_data = &test_send_data;
 	test_send_data.method = CLOUD_METHOD_GET;
@@ -797,22 +895,34 @@ void TestMQTT_Client::test_atiny_data_send()
 	
 	test_send_data.method = CLOUD_METHOD_POST;
 	//test_send_data.qos = CLOUD_QOS_MOST_ONCE;
-	MQTTClient *para_client;
-	cloud_msg_t *para_senddata, test_senddata;
-	para_send_data = para_senddata;
 	memset(&test_client, 0, sizeof(MQTTClient));
-	memset(&test_senddata, 0, sizeof(cloud_msg_t));
-	para_client = &test_client;
-	para_senddata = &test_senddata;
-	test_senddata.qos = CLOUD_QOS_LEAST_ONCE;
-	test_senddata.payload = (void *)"hello_world";
-	test_senddata.payload_len = 15;
-	test_client.isconnected = 0;
+	test_send_data.qos = CLOUD_QOS_LEAST_ONCE;
+	test_send_data.payload = (void *)"hello_world";
+	test_send_data.payload_len = 10;
+	test_client.isconnected = 1;
 	test_client.cleansession = 0;
 	test_client.mutex = 0;
 	test_handle.client = test_client;
 	result = atiny_data_send(para_handle, para_send_data, test_atiny_rsp_cb);
-	TEST_ASSERT_MSG((result == FAILURE), "mqtt_message_public(...) failed");
+	TEST_ASSERT_MSG((result == -1), "mqtt_message_public(...) failed");
+	
+	test_send_data.payload_len = 128;
+	test_handle.client = test_client;
+	printf("test_handle.client.isconnected is %d\n", test_handle.client.isconnected);
+	printf("test_handle.client.cleansession is %d\n", test_handle.client.cleansession);
+	result = atiny_data_send(para_handle, para_send_data, test_atiny_rsp_cb);
+	TEST_ASSERT_MSG((result == -1), "mqtt_message_public(...) failed");
+
+	
+	test_send_data.payload_len = 16384;
+	test_handle.client = test_client;
+	result = atiny_data_send(para_handle, para_send_data, test_atiny_rsp_cb);
+	TEST_ASSERT_MSG((result == -1), "mqtt_message_public(...) failed");
+	
+	test_send_data.payload_len = 2097151;
+	test_handle.client = test_client;
+	result = atiny_data_send(para_handle, para_send_data, test_atiny_rsp_cb);
+	TEST_ASSERT_MSG((result == -1), "mqtt_message_public(...) failed");
 	
 	
 	test_send_data.method = CLOUD_METHOD_DEL;

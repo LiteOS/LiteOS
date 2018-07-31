@@ -6,13 +6,13 @@ AR=ar
 
 BUILD_DIR=build
 
-FILE_PATTERN = "*mqtt_client*.c"
+FILE_PATTERN = "*utility*.c"
 
 FOR32 := true
 BIN:= bin
 LIB:= $(BUILD_DIR)/libliteos.a
 	
-HW_LITEOSDIR:=../../../../..
+HW_LITEOSDIR:=../../../../
 ifeq ($(FOR32), true)
 CFLAGS := -m32  -march=i386 -mtune=i386
 else
@@ -21,23 +21,26 @@ endif
 
 
 CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS
+CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
+CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -DUSE_BOOTLOADER
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
-SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client/*.c)
+SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/tests/stub/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/liteOS/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/atiny_log.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c)
-
-
+#SRC+= $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
@@ -68,7 +71,6 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/ \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls/ \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/ \
 	-I$(HW_LITEOSDIR)/kernel/base/include/ \
 	-I$(HW_LITEOSDIR)/kernel/include/ \
 	-I$(HW_LITEOSDIR)/kernel/extended/include/ \
@@ -77,10 +79,7 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/tests/stub/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C/src/liteOS/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/ 
+	-I$(HW_LITEOSDIR)/tests/stub/
 	
 
 CPP_SRC := $(wildcard *.cpp)

@@ -49,6 +49,14 @@ extern "C"
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "atiny_adapter.h"
+#include "los_hwi.h"
+
+extern unsigned int  g_vuwIntCount;
+extern unsigned int  g_semCrt;
+
+
+	
+
 //#include "atiny_adatper.h"
 //#include "mqtt_client.h"
 #define MQTT_VERSION_3_1 (3)
@@ -59,6 +67,12 @@ extern "C"
 #define MQTT_TOPIC_SUBSCRIBED_FALSE (0)
 
 #define LSOCFG_BASE_IPC_SEM		YES
+
+void * stub_atiny_malloc_fail(size_t size)
+{
+    return NULL;
+}
+
 
 extern uint64_t atiny_gettime_ms(void);
 extern void *atiny_malloc(size_t size);
@@ -104,26 +118,35 @@ void TestAtiny_Adapter::test_osKernelGetTickCount(void)
 void TestAtiny_Adapter::test_atiny_gettime_ms(void)
 {
 	int result = 0;
+	unsigned int oldvuwIntCount;
+	oldvuwIntCount = g_vuwIntCount;
+	
+    g_vuwIntCount = 1;
 	result = atiny_gettime_ms();
-	//printf("result is %d\n", result);
+	printf("++++++++++++++++++result is %d\n", result);
 	TEST_ASSERT_MSG((result == 0), "atiny_gettime_ms(...) failed");
+	
+	extern UINT64 g_ullTickCount;
+	g_vuwIntCount = 0;
+	result = atiny_gettime_ms();
+	printf("++++++++++++++++++result is %d\n", result);
+	TEST_ASSERT_MSG((result == g_ullTickCount), "atiny_gettime_ms(...) failed");
+
+	g_vuwIntCount = oldvuwIntCount;
 }
 
 void TestAtiny_Adapter::test_atiny_malloc(void)
 {
-	int result = 0;
 	char *p = NULL;
 	p = (char *)atiny_malloc(100);
+	TEST_ASSERT_MSG((p != 0), "atiny_malloc(...) failed");
 	atiny_free((void *)p);
-	TEST_ASSERT_MSG((result == 0), "atiny_malloc(...) failed");
 }
 
 void TestAtiny_Adapter::test_atiny_free(void)
 {
 	int result = 0;
-	char *p = NULL;
-	p = (char *)atiny_malloc(100);
-	atiny_free((void *)p);
+	//test in test_atiny_malloc
 	TEST_ASSERT_MSG((result == 0), "atiny_free(...) failed");
 }
 
@@ -146,51 +169,93 @@ void TestAtiny_Adapter::test_atiny_printf(void)
 
 void TestAtiny_Adapter::test_atiny_strdup(void)
 {
-	int result = 0;
-	char *p = NULL;
-	atiny_strdup(NULL);
-	TEST_ASSERT_MSG((result == 0), "atiny_strdup(...) failed");
 	
+	char *p = NULL;
 	char test[20] = "hello_world";
+	p = atiny_strdup(NULL);
+	TEST_ASSERT_MSG((p == NULL), "atiny_strdup(...) failed");
+	stubInfo stub;
+    setStub((void *)atiny_malloc, (void *)stub_atiny_malloc_fail, &stub);
+	
 	p = atiny_strdup(test);
-	TEST_ASSERT_MSG((result == 0), "atiny_strdup(...) failed");
+	TEST_ASSERT_MSG((p == NULL), "atiny_strdup(...) failed");
+	
+    cleanStub(&stub); 
+	
+	
+	p = atiny_strdup(test);
+	TEST_ASSERT_MSG((p != NULL), "atiny_strdup(...) failed");
 	atiny_free(p);
 }
 
 void TestAtiny_Adapter::test_atiny_mutex_create(void)
 {
-	int result = 0;
-	atiny_mutex_create();
-	TEST_ASSERT_MSG((result == 0), "atiny_mutex_create(...) failed");
+	void* p = NULL;
+	unsigned int oldsemCrt,oldvuwIntCount;
+	oldsemCrt = g_semCrt;
+	oldvuwIntCount = g_vuwIntCount;
+	
+	g_vuwIntCount = 1;
+	p = atiny_mutex_create();
+	TEST_ASSERT_MSG((p == NULL), "atiny_mutex_create(...) failed");
+
+	g_vuwIntCount = 0;
+    
+	g_semCrt = 1;
+	p = atiny_mutex_create();
+	TEST_ASSERT_MSG((p == NULL), "atiny_mutex_create(...) failed");
+	g_semCrt = 0;
+	p = atiny_mutex_create();
+	TEST_ASSERT_MSG((p != NULL), "atiny_mutex_create(...) failed");
+
+	g_semCrt = oldsemCrt;
+	g_vuwIntCount = oldvuwIntCount;
 }
 
 void TestAtiny_Adapter::test_atiny_mutex_destroy(void)
 {
 	int result = 0;
+	unsigned int oldvuwIntCount;
+
+	oldvuwIntCount = g_vuwIntCount;
+
+	g_vuwIntCount = 1;
+	atiny_mutex_destroy(NULL);
+	
+	g_vuwIntCount = 0;
 	atiny_mutex_destroy(NULL);
 	TEST_ASSERT_MSG((result == 0), "atiny_mutex_destroy(...) failed");
 	
-	SEM_CB_S para_mutex, *test_mutex = 	NULL;
-	memset(&para_mutex, 0, sizeof(SEM_CB_S));
-	test_mutex = &para_mutex;
+	SEM_CB_S  test_mutex;
 	
-	para_mutex.usSemID = 10;
-	atiny_mutex_destroy(test_mutex);
+	test_mutex.usSemID = 1;
+	
+	atiny_mutex_destroy(&test_mutex);
 	TEST_ASSERT_MSG((result == 0), "atiny_mutex_destroy(...) failed");
+
+	g_vuwIntCount = oldvuwIntCount;
 }
 
 void TestAtiny_Adapter::test_atiny_mutex_lock(void)
 {
 	int result = 0;
+    unsigned int oldvuwIntCount;
+
+	oldvuwIntCount = g_vuwIntCount;
+	
 	atiny_mutex_lock(NULL);
 	TEST_ASSERT_MSG((result == 0), "atiny_mutex_lock(...) failed");
 	
-	SEM_CB_S para_mutex, *test_mutex = 	NULL;
-	memset(&para_mutex, 0, sizeof(SEM_CB_S));
-	test_mutex = &para_mutex;
+	g_vuwIntCount = 1;
+	SEM_CB_S  test_mutex;
 	
-	para_mutex.usSemID = 10;
-	atiny_mutex_destroy(test_mutex);
+	test_mutex.usSemID = 1;
+    atiny_mutex_lock(&test_mutex);
+	TEST_ASSERT_MSG((result == 0), "atiny_mutex_lock(...) failed");
+	
+	g_vuwIntCount = 0;
+	test_mutex.usSemID = 1;
+	atiny_mutex_lock(&test_mutex);
 	TEST_ASSERT_MSG((result == 0), "atiny_mutex_lock(...) failed");
 }
 

@@ -23,6 +23,7 @@
 // zk
 #include "test_object_access_control.h"
 #include "test_atiny_fota_manager.h"
+#include "test_platform_adapter.h"
 
 int main()
 {
@@ -46,6 +47,7 @@ int main()
 
     ts.add(std::auto_ptr<Test::Suite>(new TestObjectAccessControl));
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyFotaManager));   //mce7
+    ts.add(std::auto_ptr<Test::Suite>(new Test_Platform_Adapter));
 
     std::ofstream html;
     html.open("Result.htm");

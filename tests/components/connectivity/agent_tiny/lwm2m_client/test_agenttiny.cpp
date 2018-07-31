@@ -189,6 +189,12 @@ extern "C"
     {
         return NULL;
     }
+
+    static int stub_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
+                struct timeval *timeout)
+    {
+        return 0;
+    }
 }
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
@@ -320,9 +326,12 @@ void TestAgenttiny::test_atiny_bind(void)
     stubInfo si_cmd_ioctl;
     setStub((void *)atiny_mutex_create, (void *)stub_atiny_mutex_create, &si_mutex_create);
     setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_cmd_ioctl);
+    stubInfo si_select;
+    setStub((void *)select, (void *)stub_select, &si_select);
     ret = atiny_bind(&device_info, pHandle);
     cleanStub(&si_mutex_create);
     cleanStub(&si_cmd_ioctl);
+    cleanStub(&si_select);
     g_reboot = false;
     TEST_ASSERT_MSG((ATINY_OK == ret), "atiny_bind(NULL, NULL) failed");
 

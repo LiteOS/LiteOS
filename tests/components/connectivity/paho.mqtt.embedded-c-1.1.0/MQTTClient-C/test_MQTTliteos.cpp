@@ -38,7 +38,7 @@
 #include "net_sockets.h"
 #include "sys/socket.h"
 #include "unistd.h"
-
+static int i;
 extern "C"
 {   
     #include "MQTTliteos.h"
@@ -180,10 +180,10 @@ void TestMQTTLiteos::test_los_read()
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
-    memset(&n, sizeof(Network), 0);
-    memset(&ctx, sizeof(mqtt_context_t), 0);
-    memset(&ssl, sizeof(mbedtls_ssl_context), 0);
-    memset(&conf, sizeof(mbedtls_ssl_config), 0);
+    memset(&n, 0, sizeof(Network));
+    memset(&ctx, 0, sizeof(mqtt_context_t));
+    memset(&ssl, 0, sizeof(mbedtls_ssl_context));
+    memset(&conf, 0, sizeof(mbedtls_ssl_config));
 
     NetworkInit(&n);
     ret = n.mqttread(NULL, buffer, sizeof(buffer), timeout_ms);
@@ -242,10 +242,10 @@ void TestMQTTLiteos::test_los_write()
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
-    memset(&n, sizeof(Network), 0);
-    memset(&ctx, sizeof(mqtt_context_t), 0);
-    memset(&ssl, sizeof(mbedtls_ssl_context), 0);
-    memset(&conf, sizeof(mbedtls_ssl_config), 0);
+    memset(&n, 0, sizeof(Network));
+    memset(&ctx,  0, sizeof(mqtt_context_t));
+    memset(&ssl,  0, sizeof(mbedtls_ssl_context));
+    memset(&conf,  0, sizeof(mbedtls_ssl_config));
     NetworkInit(&n);
     ret = n.mqttwrite(NULL, buffer, sizeof(buffer), timeout_ms);
     TEST_ASSERT(ret == -1);
@@ -282,7 +282,7 @@ void TestMQTTLiteos::test_NetworkConnect()
     int ret = 0;
     mqtt_context_t *ctx;
     
-    memset(&n, sizeof(Network), 0);
+    memset(&n,  0, sizeof(Network));
     ctx = (mqtt_context_t *)malloc(sizeof(mqtt_context_t));
     NetworkInit(&n);
     ret = NetworkConnect(NULL, addr, port);
@@ -306,7 +306,9 @@ void TestMQTTLiteos::test_NetworkConnect()
     n.psk.psk_len = strlen((char *)n.psk.psk);
     n.psk.psk_id = (unsigned char *)"123455";
     n.psk.psk_id_len = strlen((char *)n.psk.psk_id);
+	printf("before call NetworkConnect\n");
     ret = NetworkConnect(&n, addr, port);
+	printf("afer call NetworkConnect, ret is %d\n",ret);
     TEST_ASSERT(ret == -1);
     
     stubInfo si2;
@@ -331,7 +333,8 @@ void TestMQTTLiteos::test_NetworkConnect()
     FILE *stream;
     stream = fopen("fprintf.out","w");
     ((mbedtls_ssl_context *)n.ctx)->conf->f_dbg(stream, 2, "/home/protocols/wsy/LiteOS/tests/components/connectivity/paho.mqtt.embedded-c-1.1./MQTTClient-C/src/liteOS/test_MQTTliteos.cpp", 288, "err"); 
-
+    fclose(stream);
+	
     cleanStub(&si6);
     cleanStub(&si4);
     cleanStub(&si3);
@@ -341,7 +344,10 @@ void TestMQTTLiteos::test_NetworkConnect()
     n.proto = MQTT_PROTO_MAX;
     ret = NetworkConnect(&n, addr, port);
     TEST_ASSERT(ret == -1);
+
     cleanStub(&si1);
+
+	
 
 }
 void TestMQTTLiteos::test_mbedtls_net_set_block()
@@ -349,7 +355,7 @@ void TestMQTTLiteos::test_mbedtls_net_set_block()
     mbedtls_net_context ctx;
     int ret = 0;
 
-    memset(&ctx, sizeof(mbedtls_net_context), 0);
+    memset(&ctx,  0, sizeof(mbedtls_net_context));
     ctx.fd = 3;
     ret = mbedtls_net_set_block(&ctx);
     TEST_ASSERT(ret == 0);
@@ -359,7 +365,7 @@ void TestMQTTLiteos:: test_mbedtls_net_set_nonblock()
     mbedtls_net_context ctx;
     int ret = 0;
 
-    memset(&ctx, sizeof(mbedtls_net_context), 0);
+    memset(&ctx,  0, sizeof(mbedtls_net_context));
     ctx.fd = 3;
     ret = mbedtls_net_set_nonblock(&ctx);
     TEST_ASSERT(ret == 0);
@@ -369,7 +375,7 @@ void TestMQTTLiteos::test_NetworkDisconnect()
     Network n;
     int ret = 0;
     
-    memset(&n, sizeof(Network), 0);
+    memset(&n, 0, sizeof(Network));
     NetworkDisconnect(NULL);
 
     n.proto = MQTT_PROTO_MAX;
@@ -396,10 +402,12 @@ TestMQTTLiteos::TestMQTTLiteos()
 
 void TestMQTTLiteos::setup()
 {
+    printf("TestMQTTLiteos:come into test func %d\n",++i);
     return;
 }
 void TestMQTTLiteos::tear_down()
 {
+    printf("TestMQTTLiteos:exit from test func %d\n",i);
     return ;
 }
 

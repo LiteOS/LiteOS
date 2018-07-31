@@ -53,6 +53,8 @@ extern "C"
 #include <sys/types.h>
 #define WITH_LINUX	1
 
+#define RECV_NUM  25
+int g_select,g_send;
 typedef struct
 {
 	int fd;
@@ -66,9 +68,7 @@ extern void atiny_net_close(void *ctx);
 extern int getaddrinfo(const char *nodename, const char *servername, const struct addrinfo *hints, struct addrinfo **res);
 extern int fcntl(int s, int cmd, int val);
 
-int getaddrinfo_flag = 0;
-int atiny_malloc_flag = 0;
-int fcntl_flag = 0;
+
 int recv_flag = 0;
 }
 
@@ -88,19 +88,18 @@ TestAtiny_Socket::TestAtiny_Socket()
 
 int stub_getaddrinfo(const char *nodename, const char *servername, const struct addrinfo *hints, struct addrinfo **res)
 {
-	if(getaddrinfo_flag == 1)
 		return 1;
 }       
 
 void* stub_atiny_malloc(size_t size)
 {
-	if(atiny_malloc_flag == 1)
 		return NULL;
+
 }
 int stub_fcntl(int s, int cmd, int val)
 {
-	if(fcntl_flag == 1)
 	return -1;
+	
 }
 int stub_recv(int s, void *mem, size_t len, int flags)
 {
@@ -112,6 +111,32 @@ int stub_recv(int s, void *mem, size_t len, int flags)
 		errno = EAGAIN;
 		return -1;
 	}
+	else if(recv_flag == 2)
+	{
+		errno = EBADSLT;
+		return -2;
+	}
+	else if(recv_flag == 3)
+	{
+		errno = 0;
+		return RECV_NUM;
+	}
+}
+
+int stub_connect(int s, const struct sockaddr *name, int namelen)
+{
+    return 0;
+}
+
+int stub_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
+                struct timeval *timeout)
+{
+    return g_select;
+}
+
+int stub_send(int s, const void *data, size_t size, int flags)
+{
+    return g_send;
 }
 
 
@@ -122,38 +147,47 @@ TestAtiny_Socket::~TestAtiny_Socket(void)
 
 void TestAtiny_Socket::test_atiny_net_connect(void)
 {	
-	int result = 0;
-	atiny_net_connect(NULL, NULL, 2);
-	TEST_ASSERT_MSG("result == 0", "atiny_net_connect(...) failed");
+	
+	void *param_ctx;
+	printf("+++++++++++++++++++++++++++++++++++\n");
+	param_ctx = atiny_net_connect(NULL, NULL, 2);
+	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
 	
 	char *test_host = (char *)"192.168.1.100";
 	char *test_port = (char *)"2440";
-	atiny_net_context *param_ctx;
-	int test_proto = ATINY_PROTO_UDP;
-	param_ctx = (atiny_net_context *)atiny_net_connect(test_host, test_port, test_proto);
-	TEST_ASSERT_MSG((result == 0), "atiny_net_connect(...) failed");
-	atiny_free(param_ctx);
+	
+	
+    param_ctx = (atiny_net_context *)atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP+1);
+	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
+	
+	param_ctx = (atiny_net_context *)atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP);
+	TEST_ASSERT_MSG((param_ctx != NULL), "atiny_net_connect(...) failed");
+	atiny_net_close(param_ctx);
+
+    stubInfo si_connect;
+    setStub((void *)connect, (void *)stub_connect, &si_connect);
+	param_ctx = (atiny_net_context *)atiny_net_connect(test_host, test_port, ATINY_PROTO_TCP);
+	TEST_ASSERT_MSG((param_ctx != NULL), "atiny_net_connect(...) failed");
+	atiny_net_close(param_ctx);
 	
 	stubInfo si_getaddrinfo;
     setStub((void *)getaddrinfo, (void *)stub_getaddrinfo, &si_getaddrinfo);
-	getaddrinfo_flag = 1;
-	atiny_net_connect(test_host, test_port, test_proto);
-	TEST_ASSERT_MSG((result == 0), "atiny_net_connect(...) failed");
+	param_ctx = atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP);
+	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
 	cleanStub(&si_getaddrinfo);
 	
 	stubInfo si_atiny_malloc;
 	setStub((void *)atiny_malloc, (void *)stub_atiny_malloc, &si_atiny_malloc);
-	atiny_malloc_flag = 1;
-	atiny_net_connect(test_host, test_port, test_proto);
-	TEST_ASSERT_MSG((result == 0), "atiny_net_connect(...) failed");
+	param_ctx = atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP);
+	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
 	cleanStub(&si_atiny_malloc);
 	
 	stubInfo si_fcntl;
 	setStub((void *)fcntl, (void *)stub_fcntl, &si_fcntl);
-	fcntl_flag = 1;
-	atiny_net_connect(test_host, test_port, test_proto);
-	TEST_ASSERT_MSG((result == 0), "atiny_net_connect(...) failed");
+	param_ctx = atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP);
+	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
 	cleanStub(&si_fcntl);
+	printf("++++++EXIT from -------------------\n");
 }
  
 void TestAtiny_Socket::test_atiny_net_recv(void)
@@ -163,21 +197,24 @@ void TestAtiny_Socket::test_atiny_net_recv(void)
 	memset(&test_context, 0, sizeof(atiny_net_context));
 	test_context.fd = 10;
 	unsigned char test_buf[100] = {0};
-	result = atiny_net_recv(&test_context, test_buf, 100);
-	//printf("result1 = %d\n", result);
-	TEST_ASSERT_MSG((result == -1), "atiny_net_recv(...) failed");
+	
 	
 	stubInfo si_recv;
 	setStub((void *)recv, (void *)stub_recv, &si_recv);
 	recv_flag = 0;
 	result = atiny_net_recv(&test_context, test_buf, 100);
-	//printf("result2 = %d\n", result);
+
 	TEST_ASSERT_MSG((result == -1), "atiny_net_recv(...) failed");
-	
 	recv_flag = 1;
 	result = atiny_net_recv(&test_context, test_buf, 100);
-	//printf("result3 = %d\n", result);
 	TEST_ASSERT_MSG((result == 0), "atiny_net_recv(...) failed");
+    recv_flag = 2;
+	result = atiny_net_recv(&test_context, test_buf, 100);
+	TEST_ASSERT_MSG((result == -1), "atiny_net_recv(...) failed");
+
+	recv_flag = 3;
+	result = atiny_net_recv(&test_context, test_buf, 100);
+	TEST_ASSERT_MSG((result == RECV_NUM), "atiny_net_recv(...) failed");
 	cleanStub(&si_recv);
 }
 
@@ -191,10 +228,33 @@ void TestAtiny_Socket::test_atiny_net_recv_timeout(void)
 	result = atiny_net_recv_timeout(para_context, buf, 100, 0);
 	//printf("result is %d\n", result);
 	TEST_ASSERT_MSG((result == -1), "atiny_net_recv_timeout(...) failed");
+
+	stubInfo si_select;
+	setStub((void *)select, (void *)stub_select, &si_select);
 	
 	test_context.fd = 1;
+	g_select = 0;
 	result = atiny_net_recv_timeout(para_context, buf, 100, 1000);
 	TEST_ASSERT_MSG((result == -2), "atiny_net_recv_timeout(...) failed");
+
+	g_select = -1;
+
+	result = atiny_net_recv_timeout(para_context, buf, 100, 1000);
+    TEST_ASSERT_MSG((result == -1), "atiny_net_recv_timeout(...) failed");
+
+    stubInfo si_recv;
+	setStub((void *)recv, (void *)stub_recv, &si_recv);
+    g_select = 1;
+    recv_flag = 3;
+
+	result = atiny_net_recv_timeout(para_context, buf, 100, 1000);
+    TEST_ASSERT_MSG((result == RECV_NUM), "atiny_net_recv_timeout(...) failed");
+	
+
+	cleanStub(&si_recv);
+	cleanStub(&si_select);
+
+	
 }
 
 void TestAtiny_Socket::test_atiny_net_send(void)
@@ -207,11 +267,23 @@ void TestAtiny_Socket::test_atiny_net_send(void)
 	test_context.fd = -1;
 	result = atiny_net_send(param_context, buf, 100);
 	TEST_ASSERT_MSG((result == -1), "atiny_net_recv_timeout(...) failed");
-	
+    
+	stubInfo si_send;
+	setStub((void *)send, (void *)stub_send, &si_send);
+	g_send = -1;
+	errno = EAGAIN;
 	test_context.fd = 1;
 	result = atiny_net_send(param_context, buf, 100);
-	//printf("test_atiny_net_send result is %d\n", result);
+	TEST_ASSERT_MSG((result == 0), "atiny_net_recv_timeout(...) failed");
+	errno = EBADSLT;
+	result = atiny_net_send(param_context, buf, 100);  
 	TEST_ASSERT_MSG((result == -1), "atiny_net_recv_timeout(...) failed");
+	
+    g_send = 20;
+	result = atiny_net_send(param_context, buf, 20);  
+	TEST_ASSERT_MSG((result == 20), "atiny_net_recv_timeout(...) failed");
+    cleanStub(&si_send);
+	
 }
 
 void TestAtiny_Socket::test_atiny_net_close(void)

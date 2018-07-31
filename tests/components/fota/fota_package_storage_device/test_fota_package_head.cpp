@@ -84,8 +84,11 @@ static int test_update_check(const uint8_t *head_buff , uint16_t len, void *para
 void TestFotaPackageHead::test_fota_pack_head_init()
 {
     fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    memset(head, 0, sizeof(fota_pack_head_s));
     fota_pack_head_init(head);
     TEST_ASSERT_MSG((NULL != head), "fota_pack_head_init() is failed");
+
+    free(head);
 }
 
 void TestFotaPackageHead::test_fota_pack_head_parse_head_len()
@@ -130,9 +133,13 @@ void TestFotaPackageHead::test_fota_pack_head_parse_head_len()
 void TestFotaPackageHead::test_fota_pack_head_destroy()
 {
     fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    memset(head, 0, sizeof(fota_pack_head_s));
     head->buff = (uint8_t *)malloc(sizeof(uint8_t));
+    memset(head->buff, 0, sizeof(uint8_t));
     head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));
+    memset(head->checksum_pos, 0, sizeof(uint8_t));
     head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
+    memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
 
     fota_pack_head_destroy(head);
     TEST_ASSERT_MSG((NULL == head->buff), "fota_pack_head_destroy() is failed");
@@ -148,7 +155,8 @@ void TestFotaPackageHead::test_fota_pack_parse_checksum()
     fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
     memset(head, 0, sizeof(fota_pack_head_s));
     uint32_t offset = 0;
-    uint8_t buff[20] = {0};
+//        uint8_t buff[20] = {0};
+    uint8_t buff[12] = {0};
     uint16_t len = 0;
     uint16_t used_len = 0;
     int ret = 0;
@@ -169,10 +177,10 @@ void TestFotaPackageHead::test_fota_pack_parse_checksum()
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_parse_checksum() is failed");
 
-//    head->head_len = 14;
-//    buff[11 - offset] = 15;
+
     buff[8] = 1;
     head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));  
+    memset(head->checksum_pos, 0, sizeof(uint8_t));
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
 
@@ -180,10 +188,13 @@ void TestFotaPackageHead::test_fota_pack_parse_checksum()
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
 
+    free(head->checksum);
     head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
+    memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
 
+    free(head->checksum);
     free(head->checksum_pos);
     free(head->buff);
     free(head);
@@ -209,6 +220,7 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
     head->buff = NULL;
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
+//    free(head->buff);
 
     len = 12;
     head->stored_len = 10;
@@ -216,6 +228,7 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
     buff[8] = buff[9] = buff[10] = buff[11] = 1;
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+    free(head->buff);
 
     memset(head, 0, sizeof(fota_pack_head_s));
     head->head_len = 12;
@@ -227,11 +240,13 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
     setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);     //stored_len = 12;
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
-
-//    memset(buff, 0, sizeof(buff));
-//    buff[11] = 10;
-//    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-//    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");    //â†
+    
+#if 0
+    memset(buff, 0, sizeof(buff));
+    buff[11] = 10;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");    //â†
+#endif
 
     head->update_check = test_update_check;
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
@@ -241,14 +256,16 @@ void TestFotaPackageHead::test_fota_pack_head_parse()
     buff[11] = 10;
     ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");     //â†
+    
+#if 0
+    buff[11] = 15;
+    head->hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
+    memset(head->hardware, 0, sizeof(fota_hardware_s));
+    head->hardware->get_block_size = test_get_block_size;
+    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+#endif 
 
-//    buff[11] = 15;
-//    head->hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
-//    memset(head->hardware, 0, sizeof(fota_hardware_s));
-//    head->hardware->get_block_size = test_get_block_size;
-//    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-//    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
- 
     cleanStub(&si_head_len);
     free(head->buff);
     free(head);
@@ -280,6 +297,7 @@ void TestFotaPackageHead::test_fota_pack_head_check()
 void TestFotaPackageHead::test_fota_pack_head_set_head_info()
 {
     fota_pack_head_s *head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    memset(head, 0, sizeof(fota_pack_head_s));
     int ret = fota_pack_head_set_head_info(head, NULL, 0, NULL);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_set_head_info() is failed");
 
@@ -289,6 +307,7 @@ void TestFotaPackageHead::test_fota_pack_head_set_head_info()
 void TestFotaPackageHead::test_fota_pack_head_get_checksum()
 {
     fota_pack_head_s *head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
+    memset(head, 0, sizeof(fota_pack_head_s));
     head->checksum = NULL;
     fota_pack_checksum_s * cheksum = fota_pack_head_get_checksum(head);
     TEST_ASSERT_MSG((NULL == cheksum), "fota_pack_head_get_checksum() is failed");

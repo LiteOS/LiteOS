@@ -11,7 +11,7 @@ SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C \
 	$(TOP_DIR)/drivers/devices/gprs \
 	$(TOP_DIR)/drivers/devices/wifi/esp8266 \
-	$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
+	#$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
 	$(TOP_DIR)/drivers/devices/nb \
 	$(TOP_DIR)/components/fota/ota \
 	$(TOP_DIR)/components/fota/utility \

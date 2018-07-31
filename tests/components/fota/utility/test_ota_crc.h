@@ -31,25 +31,20 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef TEST_OTA_CRC_H_
+#define TEST_OTA_CRC_H_
 
 #include <cpptest.h>
 #include "stub.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+class TestOtaCrc:public Test::Suite {
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
-    
-    TestFotaPackageStorageDivice();
-    
+    void test_calc_crc32();
+
+    TestOtaCrc();
 };
 
 
 
-#endif
 
+#endif

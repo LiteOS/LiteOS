@@ -54,7 +54,9 @@ UINT32  g_vuwIntCount = 0;
 UINT64  g_ullTickCount = 0;
 UINT8   sysMem0[OS_SYS_MEM_SIZE];
 UINT8   *m_aucSysMem0 = sysMem0; 
-void    *g_pstAllSem;
+UINT8   AllSem[1024];
+
+void    *g_pstAllSem = AllSem;
 
 /* Extern variables ---------------------------------------------------------*/
 /* Global variables ---------------------------------------------------------*/

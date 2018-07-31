@@ -49,6 +49,7 @@ public:
     void test_fota_fmw_wr_write_buffer_data();
     void test_fota_fmw_wr_write();
     void test_fota_fmw_wr_write_stored_data();
+    void test_fota_fmw_wr_write_end();
     
     TestFotaFirmwareWrite();
     ~TestFotaFirmwareWrite();

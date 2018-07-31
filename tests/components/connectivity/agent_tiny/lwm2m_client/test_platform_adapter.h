@@ -32,24 +32,28 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+/* Define to prevent recursive inclusion ------------------------------------*/
 
+#ifndef __TEST_PLATFORM_ADAPTER_H__
+#define __TEST_PLATFORM_ADAPTER_H__
+
+/* Includes -----------------------------------------------------------------*/
 #include <cpptest.h>
 #include "stub.h"
-
-class TestFotaPackageStorageDivice:public Test::Suite {
+/* Defines ------------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+class Test_Platform_Adapter : public Test::Suite
+{
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
-    
-    TestFotaPackageStorageDivice();
+    Test_Platform_Adapter();
+    ~Test_Platform_Adapter();
+
+    void test_lwm2m_strncmp(void);
     
 };
 
 
-
-#endif
-
+#endif /* __TEST_PLATFORM_ADAPTER_H__ */

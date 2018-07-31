@@ -114,12 +114,14 @@ extern int board_rollback_copy(int32_t image_len,
 
 
 /*###################################     DTLS    #######################################*/
+#ifndef TEST_WITH_DTLS
+
 extern int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t timeout);
 extern int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port);
 extern void dtls_ssl_destroy(mbedtls_ssl_context *ssl);
 extern mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity);
 extern int dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len);
-
+#endif
 /*###################################     LWIP    #######################################*/
 extern int lwip_fcntl(int s, int cmd, int val);
 extern int lwip_shutdown(int s, int how);

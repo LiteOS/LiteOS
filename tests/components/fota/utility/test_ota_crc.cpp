@@ -32,24 +32,57 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#include <stdio.h>
+#include "ota_crc.h"
+#include "test_ota_crc.h"
+#include "ota.h"
 
-#include <cpptest.h>
-#include "stub.h"
+#define OTA_IMAGE_INTEGRITY_LENGTH 32
 
-class TestFotaPackageStorageDivice:public Test::Suite {
-public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
+typedef struct
+{
+    ota_state state;
+    uint8_t restart_cnt;
+    uint8_t cur_state;
+    uint16_t rsv;
+    int32_t cur_offset;
+    uint32_t old_image_length;
+    uint32_t image_length;
+    uint8_t image_integrity[OTA_IMAGE_INTEGRITY_LENGTH];
+    uint32_t crc;
+} ota_default_flag;
+
+static void init_assist()
+{
+    static ota_assist assist;
+    assist.func_printf = printf;
+    ota_register_assist(&assist);
+}
+
+static ota_default_flag test_g_ota_flag;
+
+
+extern uint32_t calc_crc32(uint32_t origin, const void* buf, int32_t len);
+
+void TestOtaCrc::test_calc_crc32()
+{
+    uint32_t ret = 0;
+
+    calc_crc32(0, NULL, 0);
+    TEST_ASSERT_MSG(0 == ret, "calc_crc32() is failed");
     
-    TestFotaPackageStorageDivice();
-    
-};
+    init_assist();
+    test_g_ota_flag.state = OTA_S_IDLE;
+    test_g_ota_flag.restart_cnt = 0;
+    test_g_ota_flag.cur_state = 0;
+    test_g_ota_flag.cur_offset = 0;
+    test_g_ota_flag.image_length = 0;
+    calc_crc32(0, &test_g_ota_flag, sizeof(ota_default_flag) - sizeof(uint32_t));
+}
 
+TestOtaCrc::TestOtaCrc()
+{
+    TEST_ADD(TestOtaCrc::test_calc_crc32);
+}
 
-
-#endif
 

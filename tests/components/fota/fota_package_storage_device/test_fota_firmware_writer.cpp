@@ -46,6 +46,14 @@ extern "C"
     extern int fota_fmw_wr_write_buffer_data(fota_firmware_writer_s *writer, uint32_t offset,
                                               const uint8_t *buff, uint16_t len);
     extern int fota_fmw_wr_write_stored_data(fota_firmware_writer_s *writer);
+    extern int fota_fmw_wr_write_end(fota_firmware_writer_s *writer);
+}
+
+static int test_fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
+                                 uint16_t len, uint16_t *used_len)
+{
+    *used_len = len;
+    return 0;
 }
 
 static int flag;
@@ -55,6 +63,16 @@ static uint32_t get_block_size(struct fota_hardware_api_tag_s *thi, uint32_t off
         return 0;
     if (flag == 1)
         return 10;
+}
+
+static int flag_write_software;
+static int write_software(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
+{   
+    if (flag_write_software == 1);
+    {
+        len = 0;printf("**********  %d  *********\n",__LINE__);
+    }
+    return FOTA_OK;
 }
 
 static fota_firmware_writer_s test_writer;
@@ -149,11 +167,12 @@ void TestFotaFirmwareWrite::test_fota_fmw_wr_write_combined_data()
 
 void TestFotaFirmwareWrite::test_fota_fmw_wr_write_buffer_data()
 {
+    int ret = 0;
     fota_fmw_wr_init(&test_writer);
     test_writer.hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
     test_writer.hardware->get_block_size = get_block_size;
     flag = 0;
-    int ret = fota_fmw_wr_write_buffer_data(&test_writer, 0, NULL, 1);
+    ret = fota_fmw_wr_write_buffer_data(&test_writer, 0, NULL, 1);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_fmw_wr_check() is failed");
 
     flag = 1;
@@ -162,19 +181,67 @@ void TestFotaFirmwareWrite::test_fota_fmw_wr_write_buffer_data()
     test_writer.buffer = (uint8_t *)malloc(10 * sizeof(uint8_t));
     ret = fota_fmw_wr_write_buffer_data(&test_writer, 10, buff, 1);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_check() is failed");
-    
+
+    flag = 1;
+    flag_write_software = 1;
+    test_writer.storage_device = (atiny_fota_storage_device_s *)malloc(sizeof(atiny_fota_storage_device_s));
+    test_writer.storage_device->write_software = write_software;
+    uint8_t buf[] = {1,2};printf("**********  %d  *********\n",__LINE__);
+    ret = fota_fmw_wr_write_buffer_data(&test_writer, 2, buf, 10);printf("**********  %d  *********\n",__LINE__);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_check() is failed");
+
+    free(test_writer.storage_device);
     free(test_writer.buffer);
     free(test_writer.hardware);
 }
 
 void TestFotaFirmwareWrite::test_fota_fmw_wr_write()
 {
-    
+    fota_fmw_wr_init(&test_writer);
+    test_writer.hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
+    test_writer.hardware->get_block_size = get_block_size;
+    test_writer.storage_device = (atiny_fota_storage_device_s *)malloc(sizeof(atiny_fota_storage_device_s));
+    test_writer.storage_device->write_software = NULL;
+    int ret = fota_fmw_wr_write(&test_writer, 0, NULL, 0);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_fmw_wr_write() is failed");
+
+    test_writer.storage_device->write_software = write_software;
+    ret = fota_fmw_wr_write(&test_writer, 0, NULL, 0);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_write() is failed");
+
+    free(test_writer.hardware);
+    free(test_writer.storage_device);
 }
 
 void TestFotaFirmwareWrite::test_fota_fmw_wr_write_stored_data()
 {   
+    fota_fmw_wr_init(&test_writer);
+    test_writer.storage_device = fota_get_pack_device();
+    int ret = fota_fmw_wr_write_stored_data(&test_writer);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_fmw_wr_write_stored_data() is failed");
 
+//    stubInfo si_fota_pack_head_parse;
+//    setStub((void *)fota_pack_head_parse, (void *)test_fota_pack_head_parse, &si_fota_pack_head_parse);
+//    test_writer.buffer_stored_len = 12;
+//    ret = fota_fmw_wr_write_stored_data(&test_writer);
+//    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_write_stored_data() is failed");
+
+//    cleanStub(&si_fota_pack_head_parse);
+}
+
+void TestFotaFirmwareWrite::test_fota_fmw_wr_write_end()
+{
+    fota_fmw_wr_init(&test_writer);
+    int ret = fota_fmw_wr_write_end(&test_writer);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_write_end() is failed");
+
+    test_writer.buffer_stored_len = 12; 
+    test_writer.storage_device = (atiny_fota_storage_device_s*)malloc(sizeof(atiny_fota_storage_device_s));
+    test_writer.storage_device->write_software = write_software;
+    ret = fota_fmw_wr_write_end(&test_writer);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_fmw_wr_write_end() is failed");
+
+    free(test_writer.storage_device);
 }
 
 TestFotaFirmwareWrite::TestFotaFirmwareWrite()
@@ -189,6 +256,7 @@ TestFotaFirmwareWrite::TestFotaFirmwareWrite()
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_write_buffer_data);
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_write);
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_write_stored_data);
+    TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_write_end);
 }
 
 TestFotaFirmwareWrite::~TestFotaFirmwareWrite()

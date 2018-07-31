@@ -32,23 +32,49 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef TEST_OTA_DEFAULT_H_
+#define TEST_OTA_DEFAULT_H_
 
 #include <cpptest.h>
 #include "stub.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
-public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
-    
-    TestFotaPackageStorageDivice();
-    
-};
+extern int test_hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
+extern int test_hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
 
+class TestOtaDefault:public Test::Suite {
+public:
+    void test_ota_default_init();
+    void test_ota_default_set_reboot();
+    void test_ota_default_check_update_state();
+    
+//  USE_BOOTLOADER
+    void test_ota_default_update_process();
+    void test_ota_default_jump_to_application();
+    void test_ota_default_roll_back_image();
+    void test_prv_get_update_record();
+
+//  test ota.c
+    void test_ota_register_module();
+    void test_ota_register_assist();
+    //void test_ota_init();
+    void test_ota_update_process();
+    void test_ota_jump_to_application();
+    void test_ota_roll_back_image();
+//  USE_BOOTLOADER NO!
+//    void test_ota_set_reboot();
+//    void test_ota_check_update_state()
+
+    // test ota_crc.c
+//    void test_calc_crc32();
+
+
+    TestOtaDefault();
+    ~TestOtaDefault();
+    
+protected:
+    void tear_down();
+    void setup();
+};
 
 
 #endif

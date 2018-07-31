@@ -32,24 +32,43 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+/* Includes -----------------------------------------------------------------*/
+#include "test_platform_adapter.h"
+/* Defines ------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Local variables ----------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+extern "C"
+{
 
-#include <cpptest.h>
-#include "stub.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
-public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
+extern int lwm2m_strncmp(const char * s1,
+                     const char * s2,
+                     size_t n);    
+}
+/* Global variables ---------------------------------------------------------*/
+/* Private function prototypes ----------------------------------------------*/
+/* Public functions ---------------------------------------------------------*/
+Test_Platform_Adapter::Test_Platform_Adapter()
+{
+    TEST_ADD(Test_Platform_Adapter::test_lwm2m_strncmp);
     
-    TestFotaPackageStorageDivice();
-    
-};
+}
+Test_Platform_Adapter::~Test_Platform_Adapter()
+{
 
+}
 
+void Test_Platform_Adapter::test_lwm2m_strncmp(void)
+{
+	int ret;
+    ret = lwm2m_strncmp("abc","dfe",3);
+    TEST_ASSERT_MSG((ret != 0), "lwm2m_strncmp(...) failed");	
+	
+	ret = lwm2m_strncmp("abc","abc",3);
+    TEST_ASSERT_MSG((ret == 0), "lwm2m_strncmp(...) failed");	
+}
 
-#endif
+/* Private functions --------------------------------------------------------*/
 
