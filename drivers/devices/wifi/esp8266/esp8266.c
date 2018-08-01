@@ -302,14 +302,17 @@ int32_t esp8266_recv_cb(int32_t id)
 int32_t esp8266_deinit(void)
 {
     int id = 0;
-    
-    for(id = 0; id < AT_MAX_LINK_NUM; id++)
+
+    if(NULL != at.linkid)
     {
-        if(AT_LINK_INUSE == at.linkid[id].usable)
+        for(id = 0; id < AT_MAX_LINK_NUM; id++)
         {
-            if(AT_OK != esp8266_close(id))
+            if(AT_LINK_INUSE == at.linkid[id].usable)
             {
-                AT_LOG("esp8266_close(%d) failed", id);
+                if(AT_OK != esp8266_close(id))
+                {
+                    AT_LOG("esp8266_close(%d) failed", id);
+                }
             }
         }
     }

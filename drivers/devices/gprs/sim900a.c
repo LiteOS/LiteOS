@@ -295,13 +295,16 @@ int32_t sim900a_deinit(void)
 {
     int id = 0;
 
-    for(id = 0; id < AT_MAX_LINK_NUM; id++)
+    if(NULL != at.linkid)
     {
-        if(AT_LINK_INUSE == at.linkid[id].usable)
+        for(id = 0; id < AT_MAX_LINK_NUM; id++)
         {
-            if(AT_OK != sim900a_close(id))
+            if(AT_LINK_INUSE == at.linkid[id].usable)
             {
-                AT_LOG("sim900a_close(%d) failed", id);
+                if(AT_OK != sim900a_close(id))
+                {
+                    AT_LOG("sim900a_close(%d) failed", id);
+                }
             }
         }
     }

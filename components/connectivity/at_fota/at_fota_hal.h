@@ -23,7 +23,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
@@ -31,77 +31,14 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef __AT_FOTA_HAL_H__
+#define __AT_FOTA_HAL_H__
 
-#include <stdlib.h>
-#include "los_config.h"
-#include "los_memory.h"
-#include "los_api_dynamic_mem.h"
-#include "los_inspect_entry.h"
+int at_fota_write(int offset, char *buffer, int len);
+int crc_check(unsigned char *message,int len);
+int sota_str_to_hex(const char *bufin, int len, unsigned char *bufout);
+void HexStrToByte(const unsigned char* source, unsigned char* dest, int sourceLen);
+int do_crc(int reg_init,unsigned char *massage,int len);
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
-#define MEM_DYN_SIZE  256
-static UINT32 pDynMem[MEM_DYN_SIZE/4];
-extern UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize);
-
-UINT32 Example_Dyn_Mem(VOID)
-{
-    UINT32 *p_num = NULL;
-    UINT32 uwRet;
-    uwRet = LOS_MemInit(pDynMem, MEM_DYN_SIZE);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mempool init ok! \r\n");
-    }
-    else
-    {
-        dprintf("mempool init failed! \r\n");
-        return LOS_NOK;
-    }
-
-    /* mem alloc */
-    p_num = (UINT32 *)LOS_MemAlloc(pDynMem, 4);
-    if (NULL == p_num)
-    {
-        dprintf("mem alloc failed! \r\n");
-        return LOS_NOK;
-    }
-    dprintf("mem alloc ok \r\n");
-
-    /* assignment */
-    *p_num = 828;
-    dprintf("*p_num = %d \r\n", *p_num);
-
-    /* mem free */
-    uwRet = LOS_MemFree(pDynMem, p_num);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mem free ok!\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
-        }
-    }
-    else
-    {
-        dprintf("mem free failed! \r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
-        }
-        return LOS_NOK;
-    }
-    return LOS_OK;
-}
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif

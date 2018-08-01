@@ -23,7 +23,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
@@ -31,77 +31,103 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef __AT_FOTA_H__
+#define __AT_FOTA_H__
 
-#include <stdlib.h>
-#include "los_config.h"
-#include "los_memory.h"
-#include "los_api_dynamic_mem.h"
-#include "los_inspect_entry.h"
+typedef enum{
+    OTA_GET_VER,
+    OTA_NOTIFY_NEW_VER,
+    OTA_WRITE_BLOCK,
+    OTA_UPDATE_EXC,
+    //OTA_WRITE_INFO,
+    //OTA_GET_TIME_OUT,
+    //OTA_NOTIFY_STATE
+}OTA_CMD_E;
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+typedef enum{
+    MSG_GET_VER=19,
+    MSG_NOTIFY_NEW_VER,
+    MSG_GET_BLOCK,
+    MSG_UPDATE_STATE,
+    MSG_EXC_UPDATE,
+    MSG_NOTIFY_STATE=24
+}MSG_CODE;
 
-#define MEM_DYN_SIZE  256
-static UINT32 pDynMem[MEM_DYN_SIZE/4];
-extern UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize);
+typedef  unsigned char   BYTE;
+typedef  unsigned short   WORD;
 
-UINT32 Example_Dyn_Mem(VOID)
+int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
+
+#define MIN_PKT_LEN 4
+
+typedef struct ota_pcp_head_t
 {
-    UINT32 *p_num = NULL;
-    UINT32 uwRet;
-    uwRet = LOS_MemInit(pDynMem, MEM_DYN_SIZE);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mempool init ok! \r\n");
-    }
-    else
-    {
-        dprintf("mempool init failed! \r\n");
-        return LOS_NOK;
-    }
+    WORD ori_id;
+    BYTE ver_num;
+    BYTE msg_code;
+    WORD chk_code;
+    WORD data_len;
+    //BYTE* data;
+}ota_pcp_head_s;
 
-    /* mem alloc */
-    p_num = (UINT32 *)LOS_MemAlloc(pDynMem, 4);
-    if (NULL == p_num)
-    {
-        dprintf("mem alloc failed! \r\n");
-        return LOS_NOK;
-    }
-    dprintf("mem alloc ok \r\n");
+typedef struct ota_ver_notify
+{
+    BYTE ver[16];
+    WORD block_size;
+    WORD block_totalnum;
+    WORD ver_chk_code;
+}ota_ver_notify_t;
 
-    /* assignment */
-    *p_num = 828;
-    dprintf("*p_num = %d \r\n", *p_num);
+typedef struct ota_get_block//send to cloud
+{
+    BYTE ver[16];
+    WORD block_seq;
+}ota_get_block_t;
 
-    /* mem free */
-    uwRet = LOS_MemFree(pDynMem, p_num);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mem free ok!\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
-        }
-    }
-    else
-    {
-        dprintf("mem free failed! \r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
-        }
-        return LOS_NOK;
-    }
-    return LOS_OK;
-}
+typedef struct ota_update_exc_t
+{
+    BYTE ver[16];
+    WORD ver_chk_code;
+    WORD len;
+}ota_update_exc_s;
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+typedef struct ota_ret_t
+{
+    BYTE ret;
+    BYTE ver[16];
+}ota_ret;
+
+typedef struct ota_block
+{
+    BYTE errcode;
+    WORD block_seq;
+    BYTE* data;
+}ota_block_t;
+
+typedef enum{
+    IDLE=0,
+    DOWNLOADING,
+    DOWNLOADED,
+    UPDATING,
+    UPDATED,
+}at_fota_state;
+
+typedef enum
+{
+    OTA_OK = 0X0,
+    OTA_BUSY = 0X1,
+    OTA_DOWNLOAD_OVERTIME = 0X6,
+    OTA_CHK_FAILED = 0X7,
+    OTA_ERR,
+}OTA_ERROR_E;
+
+extern void atiny_reboot(void);
+extern int nb_send_str(const char* buf, int len);
+extern int str_to_hex(const char *bufin, int len, char *bufout);
+int ver_to_hex(const char *bufin, int len, char *bufout);
+
+int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
+int at_ota_init(char* featurestr,int cmdlen);
+int ota_process_main(void* arg,char* buf, int buflen);
+
+#endif
