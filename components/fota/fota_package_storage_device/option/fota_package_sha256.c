@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,68 +32,57 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
- * @ingroup agent
- */
+#include "fota_package_sha256.h"
+#include <string.h>
+#include "fota_package_head.h"
 
-#ifndef _FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define _FOTA_PACKAGE_STORAGE_DEVICE_H_
-
-#include "atiny_fota_api.h"
-
-#define FOTA_PACK_SHA256_RSA2048 0
-#define FOTA_PACK_SHA256 1
-
-#define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
-
-typedef struct fota_hardware_api_tag_s
+static void fota_pack_sha256_reset(fota_pack_checksum_alg_s *thi)
 {
-    uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
-    uint32_t (*get_max_size)(struct fota_hardware_api_tag_s *thi);
-    int (*read_software)(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
-}fota_hardware_s;
-
-typedef struct
-{
-    const char *rsa_N; /* RSA public key N, should valid all the time */
-    const char *rsa_E; /* RSA public key E, should valid all the time */
-}fota_pack_key_s;
-
-
-typedef struct
-{
-    atiny_fota_storage_device_s *storage_device;
-    fota_hardware_s *hardware;
-    void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
-    fota_pack_key_s key;
-}fota_pack_device_info_s;
-
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-atiny_fota_storage_device_s *fota_get_pack_device(void);
-int fota_set_pack_device(atiny_fota_storage_device_s *device, fota_pack_device_info_s *device_info);
-
-#if defined(__cplusplus)
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_init(&sha256->sha256_context);
+    mbedtls_sha256_starts(&sha256->sha256_context, false);
 }
-#endif
+static int fota_pack_sha256_update(fota_pack_checksum_alg_s *thi, const uint8_t *buff, uint16_t len)
+{
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_update(&sha256->sha256_context, buff, len);
+    return FOTA_OK;
+}
+static int fota_pack_sha256_check(fota_pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
+{
+    uint8_t real_value[32];
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
 
-#endif //_FOTA_PACKAGE_STORAGE_DEVICE_H_
+    ASSERT_THIS(return FOTA_ERR);
+
+    if(sizeof(real_value) != checksum_len)
+    {
+       FOTA_LOG("len %d not the same", checksum_len);
+       return FOTA_ERR;
+    }
+    mbedtls_sha256_finish(&sha256->sha256_context, real_value);
+    if(memcmp(real_value, checksum, checksum_len) != 0)
+    {
+       FOTA_LOG("checksum err");
+       return FOTA_ERR;
+    }
+    return FOTA_OK;
+}
+
+static void fota_pack_sha256_destroy(struct fota_pack_checksum_alg_tag_s *thi)
+{
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_free(&sha256->sha256_context);
+}
+
+int fota_pack_sha256_init(fota_pack_sha256_s *thi)
+{
+    thi->base.reset = fota_pack_sha256_reset;
+    thi->base.update = fota_pack_sha256_update;
+    thi->base.check = fota_pack_sha256_check;
+    thi->base.destroy = fota_pack_sha256_destroy;
+    fota_pack_sha256_reset(&thi->base);
+    return FOTA_OK;
+}
 
 

@@ -36,64 +36,30 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define _FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef _FOTA_PACKAGE_SHA256_RSA2048_H_
+#define _FOTA_PACKAGE_SHA256_RSA2048_H_
 
-#include "atiny_fota_api.h"
-
-#define FOTA_PACK_SHA256_RSA2048 0
-#define FOTA_PACK_SHA256 1
-
-#define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
-
-typedef struct fota_hardware_api_tag_s
-{
-    uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
-    uint32_t (*get_max_size)(struct fota_hardware_api_tag_s *thi);
-    int (*read_software)(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
-}fota_hardware_s;
+#include "fota_package_sha256.h"
+#include "fota_package_head.h"
 
 typedef struct
 {
-    const char *rsa_N; /* RSA public key N, should valid all the time */
-    const char *rsa_E; /* RSA public key E, should valid all the time */
-}fota_pack_key_s;
-
-
-typedef struct
-{
-    atiny_fota_storage_device_s *storage_device;
-    fota_hardware_s *hardware;
-    void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
-    fota_pack_key_s key;
-}fota_pack_device_info_s;
+    fota_pack_sha256_s sha256;
+    fota_pack_head_s *head;
+}fota_pack_sha256_rsa2048_s;
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-atiny_fota_storage_device_s *fota_get_pack_device(void);
-int fota_set_pack_device(atiny_fota_storage_device_s *device, fota_pack_device_info_s *device_info);
+int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_head_s *head);
+
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#endif //_FOTA_PACKAGE_SHA256_RSA2048_H_
 
 

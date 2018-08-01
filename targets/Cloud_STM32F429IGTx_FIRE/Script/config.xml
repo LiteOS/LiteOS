@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 	   <version>0x0</version>
-	   <!--checksum>sha256/none/crc</checksum-->
-	   <checksum>sha256</checksum>
+	   <!--checksum>sha256/none/crc/sha256_rsa2048</checksum-->
+	   <checksum>sha256_rsa2048</checksum>
 	   <!-- tlv name="user defined name" attribute="greater or equal than 100,should be a different id">
 		<value name="user defined name" type="string/integer"  value_len="less or equal than 8, only used for integer type">value</value>
 	   </tlv-->
