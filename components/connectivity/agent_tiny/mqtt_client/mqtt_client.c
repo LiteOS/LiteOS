@@ -594,14 +594,14 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
     if(NULL == dest->client_id)
         goto device_info_dup_failed;
 
-    if(NULL != dest->user_name)
+    if(NULL != src->user_name)
     {
         dest->user_name = atiny_strdup((const char *)(src->user_name));
         if(NULL == dest->user_name)
             goto device_info_dup_failed;
     }
 
-    if(NULL != dest->password)
+    if(NULL != src->password)
     {
         dest->password = atiny_strdup((const char *)(src->password));
         if(NULL == dest->password)
@@ -610,7 +610,7 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
 
     dest->will_flag = src->will_flag;
 
-    if(MQTT_WILL_FLAG_TRUE == dest->will_flag && NULL != src->will_options)
+    if(MQTT_WILL_FLAG_TRUE == src->will_flag && NULL != src->will_options)
     {
         dest->will_options = (cloud_will_options_t *)atiny_malloc(sizeof(cloud_will_options_t));
         if(NULL == dest->will_options)
