@@ -179,7 +179,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     }
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));
-    g_atiny_handle.atiny_params = *atiny_params;
+    
     if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
         return ATINY_MALLOC_FAILED;
 
