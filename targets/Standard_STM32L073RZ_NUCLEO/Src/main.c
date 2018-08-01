@@ -70,7 +70,6 @@ extern UART_HandleTypeDef huart2;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-//static void SystemPower_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -114,9 +113,8 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */  
-  /* Configure the system Power */
-  //SystemPower_Config();
+  /* USER CODE BEGIN SysInit */
+
 
   /* USER CODE END SysInit */
 
@@ -316,18 +314,7 @@ void Test_Task(void)
 	{
         nCount = LOS_TickCountGet();
         printf("This is Test_Task. OS tick count is %d .\r\n", nCount);
-		LOS_TaskDelay(5000);
-
-		if (1000 == g_nPeriod)
-		{
-			printf("Test_Task. Enter into STOP Mode. \r\n");
-			/* Enable Power Control clock */
-			__HAL_RCC_PWR_CLK_ENABLE();    
-			/* Enter Stop Mode */
-		    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-			/* Configures system clock after wake-up from STOP */
-		    SystemClock_Config();		
-		}
+		LOS_TaskDelay(5000);		
 	}
 }
 
@@ -358,66 +345,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	}else{
 		g_nPeriod = 1000;
 	}    
-}
-
-/**
-  * @brief  System Power Configuration
-  *         The system Power is configured as follow : 
-  *            + Regulator in LP mode
-  *            + VREFINT OFF, with fast wakeup enabled
-  *            + MSI as SysClk after Wake Up
-  *            + No IWDG
-  *            + Wakeup using EXTI Line (User push-button PC.13)
-  * @param  None
-  * @retval Nonec
-  */
-static void SystemPower_Config(void)
-{
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-	/* Enable Power Control clock */
-	__HAL_RCC_PWR_CLK_ENABLE();
-
-	/* Enable Ultra low power mode */
-	HAL_PWREx_EnableUltraLowPower();
-
-	/* Enable the fast wake up from Ultra low power mode */
-	HAL_PWREx_EnableFastWakeUp();
-
-	/* Select MSI as system clock source after Wake Up from Stop mode */
-	__HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-
-	/* Enable GPIOs clock */
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	__HAL_RCC_GPIOD_CLK_ENABLE();
-	__HAL_RCC_GPIOH_CLK_ENABLE();
-	__HAL_RCC_GPIOE_CLK_ENABLE();
-
-	/* Configure all GPIO port pins in Analog Input mode (floating input trigger OFF) */
-	/* Note: Debug using ST-Link is not possible during the execution of this   */
-	/*	   example because communication between ST-link and the device 	  */
-	/*	   under test is done through UART. All GPIO pins are disabled (set   */
-	/*	   to analog input mode) including	UART I/O pins.			 */
-	GPIO_InitStructure.Pin = GPIO_PIN_All;
-	GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStructure.Pull = GPIO_NOPULL;
-
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
-	HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStructure);
-
-	/* Disable GPIOs clock */
-	__HAL_RCC_GPIOA_CLK_DISABLE();
-	__HAL_RCC_GPIOB_CLK_DISABLE();
-	__HAL_RCC_GPIOC_CLK_DISABLE();
-	__HAL_RCC_GPIOD_CLK_DISABLE();
-	__HAL_RCC_GPIOH_CLK_DISABLE();
-	__HAL_RCC_GPIOE_CLK_DISABLE();
 }
 
 /**************************************************************/
