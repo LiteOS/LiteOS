@@ -130,6 +130,7 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return -1;
     }
+	dest->security_type = src->security_type;
     dest->server_ip = atiny_strdup((const char *)(src->server_ip));
     if(NULL == dest->server_ip)
         goto atiny_param_dup_failed;
