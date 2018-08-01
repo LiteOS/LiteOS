@@ -67,6 +67,8 @@ at_task at = {
     .get_id = at_get_unuse_linkid,
 };
 at_oob_t at_oob;
+char rbuf[AT_DATA_LEN] = {0};
+char wbuf[AT_DATA_LEN] = {0};
 
 //add p to tail;
 void at_listener_list_add(at_listener * p)
@@ -109,7 +111,7 @@ int32_t at_get_unuse_linkid()
 
     if (i < at_user_conf.linkid_num)
         at.linkid[i].usable = AT_LINK_INUSE;
-    
+
     return i;
 }
 
@@ -190,8 +192,7 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     char* cmp = NULL;
     int i;
     int rlen;
-    extern unsigned char wbuf[1064];
-    memset(wbuf, 0, 1064);
+    memset(wbuf, 0, AT_DATA_LEN);
 
     for(i=0;i<at_oob.oob_num;i++){
         cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
