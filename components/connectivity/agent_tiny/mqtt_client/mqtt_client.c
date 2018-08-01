@@ -586,24 +586,20 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return -1;
     }
+    
+    device_info_member_free(dest);
 
     dest->client_id = atiny_strdup((const char *)(src->client_id));
     if(NULL == dest->client_id)
         goto device_info_dup_failed;
 
-    if(NULL != dest->user_name)
-    {
-        dest->user_name = atiny_strdup((const char *)(src->user_name));
-        if(NULL == dest->user_name)
-            goto device_info_dup_failed;
-    }
+    dest->user_name = atiny_strdup((const char *)(src->user_name));
+    if(NULL == dest->user_name)
+        goto device_info_dup_failed;
 
-    if(NULL != dest->password)
-    {
-        dest->password = atiny_strdup((const char *)(src->password));
-        if(NULL == dest->password)
-            goto device_info_dup_failed;
-    }
+    dest->password = atiny_strdup((const char *)(src->password));
+    if(NULL == dest->password)
+        goto device_info_dup_failed;
 
     dest->will_flag = src->will_flag;
 

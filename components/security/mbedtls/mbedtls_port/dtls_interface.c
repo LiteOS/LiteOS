@@ -292,6 +292,7 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
     {
         mbedtls_ssl_config_free(conf);
         mbedtls_free(conf);
+        ssl->conf = NULL; //  need by mbedtls_debug_print_msg(), see mbedtls_ssl_free(ssl)
     }
 
     if (ctr_drbg)
