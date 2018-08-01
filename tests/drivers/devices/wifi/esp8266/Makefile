@@ -50,6 +50,7 @@ INCLUDES:= \
     -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client/ \
 	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/ \
     -I$(HW_LITEOSDIR)/components/connectivity/at_frame/ \
+    -I$(HW_LITEOSDIR)/components/connectivity/at_fota/ \
 	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \

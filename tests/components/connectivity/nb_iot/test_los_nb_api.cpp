@@ -66,7 +66,7 @@ void TestNBApi::test_nb_data_ioctl()
     
     
     ret = nb_data_ioctl(arg,buf,50);
-    TEST_ASSERT_MSG((ret == 0), "test nb_data_ioctl failed!");
+    TEST_ASSERT_MSG((ret == -1), "test nb_data_ioctl failed!");
     printf("exit test_nb_data_ioctl\n");
     return;
 }

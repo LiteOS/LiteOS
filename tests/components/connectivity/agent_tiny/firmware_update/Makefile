@@ -6,13 +6,16 @@ AR=ar
 
 BUILD_DIR=build
 
-FILE_PATTERN = "*ota*.c"
+# file match pattern
+# eg: "*wifi*.c" -- match the file that contains *wifi*.c in the path
+# if not use this, please define as "*"
+FILE_PATTERN = "*firmware_update*.c"
 
 FOR32 := true
 BIN:= bin
 LIB:= $(BUILD_DIR)/libliteos.a
 	
-HW_LITEOSDIR:=../../../../
+HW_LITEOSDIR:=../../../../..
 ifeq ($(FOR32), true)
 CFLAGS := -m32  -march=i386 -mtune=i386
 else
@@ -22,10 +25,9 @@ endif
 
 CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
 CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
-CFLAGS += -DWITH_LOGS
+CFLAGS += -DWITH_LOGS -DLWM2M_WITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
-CFLAGS += -DUSE_BOOTLOADER
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
@@ -62,7 +64,6 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
-    -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/client \
     -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/ \
     -I$(HW_LITEOSDIR)/components/fota/ota/ \
     -I$(HW_LITEOSDIR)/components/fota/utility/ \
@@ -80,7 +81,7 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/tests/stub/
+	-I$(HW_LITEOSDIR)/tests/stub/ 
 	
 
 CPP_SRC := $(wildcard *.cpp)

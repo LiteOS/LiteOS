@@ -2,7 +2,7 @@
 TOP_DIR := .
 
 SUB_DIR := \
-	#$(TOP_DIR)/connectivity/agent_tiny/firmware_update \
+	$(TOP_DIR)/components/connectivity/agent_tiny/firmware_update \
 	$(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
 	$(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client \
 	$(TOP_DIR)/components/connectivity/agent_tiny/osadapter \
@@ -11,11 +11,12 @@ SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C \
 	$(TOP_DIR)/drivers/devices/gprs \
 	$(TOP_DIR)/drivers/devices/wifi/esp8266 \
-	#$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
 	$(TOP_DIR)/drivers/devices/nb \
 	$(TOP_DIR)/components/fota/ota \
 	$(TOP_DIR)/components/fota/utility \
-	#$(TOP_DIR)/components/fota/fota_package_storage_device \
+	$(TOP_DIR)/components/fota/fota_package_storage_device \
+#	$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
+#	$(TOP_DIR)/drivers/devices/wifi/mavell \
 
 GCOV_INFO_SUFFIX := /gcov/gcov.info 
 	

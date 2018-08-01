@@ -32,21 +32,65 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __FIRMWARE_UPDATE_H__
-#define __FIRMWARE_UPDATE_H__
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __TEST_MARVELL_WIFI_H__
+#define __TEST_MARVELL_WIFI_H__
 
-typedef enum firmware_update_rst
+/* Includes -----------------------------------------------------------------*/
+#include <cpptest.h>
+#include "stub.h"
+/* Defines ------------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+
+class TestMarvellWifi : public Test::Suite
 {
-    FIRMWARE_UPDATE_RST_SUCCESS = 0,
-    FIRMWARE_UPDATE_RST_FAILED,
-    FIRMWARE_UPDATE_RST_MAX
-}firmware_update_rst_e;
+public:
+    TestMarvellWifi();
+    ~TestMarvellWifi();
 
-typedef void (*firmware_update_notify)(firmware_update_rst_e rst, void *param);
+    void test_WiFi_Associate(void);
+    void test_WiFi_AssociateEx(void);
+    void test_WiFi_CheckTimeout(void);
+    void test_WiFi_Deauthenticate(void);
+    void test_WiFi_DiscardData(void);
+    void test_WiFi_GetBSSID(void);
+    void test_WiFi_GetDataLength(void);
+    void test_WiFi_GetMACAddress(void);
+    void test_WiFi_GetPacketBuffer(void);
+    void test_WiFi_GetReceivedPacket(void);
+    void test_WiFi_GetSecurityType(void);
+    void test_WiFi_Init(void);
+    void test_WiFi_Input(void);
+    void test_WiFi_IsCommandBusy(void);
+    void test_WiFi_JoinADHOC(void);
+    void test_WiFi_JoinADHOCEx(void);
+    void test_WiFi_KeyMaterial(void);
+    void test_WiFi_MACAddr(void);
+    void test_WiFi_MACControl(void);
+    void test_WiFi_Scan(void);
+    void test_WiFi_ScanSSID(void);
+    void test_WiFi_SendCommand(void);
+    void test_WiFi_SendPacket(void);
+    void test_WiFi_SetWEP(void);
+    void test_WiFi_SetWPA(void);
+    void test_WiFi_ShowCIS(void);
+    void test_WiFi_StartADHOC(void);
+    void test_WiFi_StartADHOCEx(void);
+    void test_WiFi_StopADHOC(void);
+    void test_WiFi_TranslateTLV(void);
+    void test_WiFi_Wait(void);
+    void test_WiFi_WaitForLastTask(void);
+    void test_WiFi_EAPOL(void);
+    void test_WiFi_DumpData(void);
+    void test_WiFi_OutputBuffer(void);
 
-void set_firmware_update_notify(firmware_update_notify notify_cb, void *param);
-int start_firmware_download(lwm2m_context_t *contextP, char *uri, atiny_fota_storage_device_s *storage_device_p);
-void clean_firmware_record(void);
+protected:
+    void setup();
+    void tear_down();
+};
 
-#endif /* __FIRMWARE_UPDATE_H__ */
 
+#endif /* __TEST_MARVELL_WIFI_H__ */

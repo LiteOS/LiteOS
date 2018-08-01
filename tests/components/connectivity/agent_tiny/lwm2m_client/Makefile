@@ -101,20 +101,20 @@ TEST_GCNO+=$(patsubst %.o, %.gcno, $(C_OBJ))
 TEST_GCNO+=$(patsubst %.o, %.gcno, $(LIB_OBJ))
 	
 $(BIN):$(C_OBJ) $(CPP_OBJ)
-	$(CPP) $(CFLAGS) $(INCLUDES) -o $@ $^ -lliteos -L$(BUILD_DIR) -lcpptest -lpthread
+	@$(CPP) $(CFLAGS) $(INCLUDES) -o $@ $^ -lliteos -L$(BUILD_DIR) -lcpptest -lpthread
 
 $(CPP_OBJ):$(BUILD_DIR)/%.o:%.cpp
-	$(CPP) -c $< $(INCLUDES) $(CFLAGS) -o $@
+	@$(CPP) -c $< $(INCLUDES) $(CFLAGS) -o $@
 
 $(C_OBJ):$(BUILD_DIR)/%.o:%.c
-	$(CC) -c $< $(INCLUDES) $(CFLAGS) -o $@
+	@$(CC) -c $< $(INCLUDES) $(CFLAGS) -o $@
 
 $(LIB):$(LIB_OBJ)
 #	$(CPP) -shared -o $@ $^
-	$(AR) -r $@ $^
+	@$(AR) -r $@ $^
 
 $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
-	$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

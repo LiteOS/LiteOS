@@ -63,6 +63,16 @@ extern "C"
 	extern void at_init();
 	extern void at_deinit();
 
+    extern int32_t nb_get_auto_connect(void);
+    extern int32_t nb_check_csq(void);
+    extern int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto);
+    extern int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto);
+    extern int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len);
+    extern int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len);
+    extern int32_t nb_recv_cb(int32_t id);
+    extern int32_t nb_deinit(void);
+    extern int32_t nb_close(int32_t socket);
+
     // in liteos queue
     extern UINT32 LOS_QueueCreate(CHAR *pcQueueName, UINT16 usLen, UINT32 *puwQueueID,
                             UINT32 uwFlags,UINT16 usMaxMsgSize );
@@ -80,7 +90,7 @@ extern "C"
 		return 1;
     }
 	
-    char *g_buf = "\r14,22,+abc , 44";
+    char *g_buf = (char*)"\r14,22,+abc , 44";
     uint32_t g_len  = strlen(g_buf)+1;
     UINT32 stub_LOS_QueueReadCopy(UINT32  uwQueueID, VOID *  pBufferAddr,
                             UINT32 * puwBufferSize, UINT32  uwTimeOut)
@@ -292,10 +302,10 @@ void TestBC95::test_nb_set_cdpserver(void)
     stubInfo stub_info;
 	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
 	g_state = TEST_STATE_ERR;
-	ret = nb_set_cdpserver("10.0.0.1","5683");
+	ret = nb_set_cdpserver((char*)"10.0.0.1",(char*)"5683");
 	TEST_ASSERT_MSG((ret == AT_FAILED), "test_nb_set_cdpserver failed");
 	g_state = TEST_STATE_OK;
-	ret = nb_set_cdpserver("10.0.0.1","5683");
+	ret = nb_set_cdpserver((char*)"10.0.0.1",(char*)"5683");
 	TEST_ASSERT_MSG((ret == AT_OK), "test_nb_set_cdpserver failed");
 	cleanStub(&stub_info);
     
@@ -305,7 +315,7 @@ void TestBC95::test_nb_send_psk(void)
 	int32_t ret = AT_OK;
     stubInfo stub_info;
 	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
-	ret = nb_send_psk("123456","654321");
+	ret = nb_send_psk((char*)"123456",(char*)"654321");
 	cleanStub(&stub_info);
     TEST_ASSERT_MSG((ret == AT_OK), "test_nb_send_psk failed");
 }
