@@ -198,12 +198,13 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
         thi->offset = offset + len;
         return FOTA_OK;
     }
-
-     if((NULL == hardware) || (NULL == hardware->read_software))
+    /*lint -e525*/
+    if((NULL == hardware) || (NULL == hardware->read_software))
     {
         FOTA_LOG("hardware null");
         return FOTA_ERR;
     }
+    /*lint +e525*/
 
     ret = fota_pack_checksum_init_head_data(thi);
     if(ret != FOTA_OK)
