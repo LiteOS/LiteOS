@@ -438,17 +438,18 @@ lwm2m_object_t * get_binary_app_data_object(atiny_param_t* atiny_params)
             {
                 break;
             }
-            appObj->instanceList = LWM2M_LIST_ADD(appObj->instanceList, targetP); // to add first
             memset(targetP, 0, sizeof(plat_instance_t));
             get_resource_uri(BINARY_APP_DATA_OBJECT_ID, i, BINARY_APP_DATA_RES_ID, &uri);
             ret = atiny_add_rpt_uri(&uri, &targetP->header);
             if(ret != ATINY_OK)
             {
                 ATINY_LOG(LOG_ERR, "atiny_add_rpt_uri fail %d", ret);
+                lwm2m_free(targetP);
                 break;
             }
             (void)atiny_set_max_rpt_cnt(&uri, MAX(MIN_SAVE_CNT, atiny_params->server_params.storing_cnt));
             targetP->shortID = i;
+            appObj->instanceList = LWM2M_LIST_ADD(appObj->instanceList, targetP);
         }
 
         if(i < BINARY_APP_DATA_OBJECT_INSTANCE_NUM)
