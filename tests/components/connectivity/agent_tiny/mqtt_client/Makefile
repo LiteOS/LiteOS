@@ -21,9 +21,9 @@ endif
 
 
 CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS
+CFLAGS += -DCONFIG_FEATURE_FOTA -DTEST_WITH_DTLS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage -g
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	

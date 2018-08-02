@@ -21,7 +21,7 @@ endif
 
 
 CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
+CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA
 CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
@@ -38,8 +38,11 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/tests/stub/*.c)
 #SRC+= $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 

@@ -53,7 +53,8 @@ extern "C"
     extern int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *used_len);
     extern int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *used_len);
     extern int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
-    extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param);
+    //extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param);
+    extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info);
     extern fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
     extern void fota_pack_head_init(fota_pack_head_s *head);
 }
@@ -296,12 +297,13 @@ void TestFotaPackageHead::test_fota_pack_head_check()
 
 void TestFotaPackageHead::test_fota_pack_head_set_head_info()
 {
-    fota_pack_head_s *head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(head, 0, sizeof(fota_pack_head_s));
-    int ret = fota_pack_head_set_head_info(head, NULL, 0, NULL);
+    fota_pack_head_s head;
+    fota_pack_device_info_s device_info;
+    memset(&head, 0, sizeof(fota_pack_head_s));
+    memset(&device_info, 0, sizeof(fota_pack_device_info_s));
+    int ret = fota_pack_head_set_head_info(&head, &device_info);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_set_head_info() is failed");
 
-    free(head);
 }
 
 void TestFotaPackageHead::test_fota_pack_head_get_checksum()

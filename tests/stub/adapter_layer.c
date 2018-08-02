@@ -179,6 +179,18 @@ UINT64 LOS_TickCountGet (VOID)
     return 0;
 }
 
+typedef VOID (*SWTMR_PROC_FUNC)(UINT32 uwPar);
+
+UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SWTMR_PROC_FUNC pfnHandler, UINT16 *pusSwTmrID, UINT32 uwArg
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+                    , UINT8 ucRouses, UINT8 ucSensitive
+#endif
+                    )
+{
+    return 0;
+}
+
+
 /*###################################   Agent Tiny   #######################################*/
 
 void atiny_log(const char* fmt, ...)

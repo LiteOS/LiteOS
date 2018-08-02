@@ -18,16 +18,25 @@ CFLAGS := -m32  -march=i386 -mtune=i386
 else
 CFLAGS := 
 endif
-CFLAGS += -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DWITH_AT_FRAMEWORK -DUSE_SIM900A -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
+CFLAGS += -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DWITH_AT_FRAMEWORK -DUSE_NB_NEUL95 -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0 -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA
 CFLAGS += -fprofile-arcs -ftest-coverage
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 #compile dynamic library of agenttiny.c
 
-SRC:= $(wildcard $(HW_LITEOSDIR)/drivers/devices/gprs/*.c)
+#SRC:= $(wildcard $(HW_LITEOSDIR)/drivers/devices/gprs/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/at_api_interface.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/atadapter.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_fota/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/drivers/devices/nb/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/tests/stub/*.c)
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
@@ -51,6 +60,7 @@ INCLUDES:= \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/client \
     -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/ \
+    -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option/ \
     -I$(HW_LITEOSDIR)/components/fota/ota/ \
     -I$(HW_LITEOSDIR)/components/fota/utility/ \
 	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include/ \
