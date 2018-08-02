@@ -112,7 +112,7 @@ EXIT:
 
 int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_head_s *head)
 {
-    fota_pack_sha256_init(&thi->sha256);
+    (void)fota_pack_sha256_init(&thi->sha256);
     thi->sha256.base.check = fota_pack_sha256_rsa2048_check;
     thi->head = head;
     return FOTA_OK;
