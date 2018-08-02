@@ -253,6 +253,14 @@ extern "C" {
 #define LOS_TASK_PRIORITY_LOWEST                            31
 #endif
 
+/**
+ * @ingroup los_config
+ * SP align size.
+ */
+#ifndef LOSCFG_STACK_POINT_ALIGN_SIZE
+#define LOSCFG_STACK_POINT_ALIGN_SIZE                       8
+#endif
+
 
 /*=============================================================================
                                        Semaphore module configuration
@@ -399,6 +407,14 @@ extern UINT8 *m_aucSysMem0;
  */
 #ifndef OS_SYS_MEM_ADDR
 #define OS_SYS_MEM_ADDR                                     (&m_aucSysMem0[0])
+#endif
+
+/**
+ * @ingroup los_config
+ * Starting address of the task stack
+ */
+#ifndef OS_TASK_STACK_ADDR
+#define OS_TASK_STACK_ADDR                                   OS_SYS_MEM_ADDR
 #endif
 
 /**
@@ -634,7 +650,7 @@ extern UINT32 g_sys_mem_addr_end;
  * @ingroup los_config
  * Version number
  */
-#define LITEOS_VER                                          "Huawei LiteOS Kernel V100R001c00B021"
+#define LITEOS_VER                                          "Huawei LiteOS Kernel V200R001c50"
 
 /**
  * @ingroup los_config

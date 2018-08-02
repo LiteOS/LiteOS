@@ -89,6 +89,10 @@
 #define MBEDTLS_SSL_TLS_C
 #define MBEDTLS_DEBUG_C
 
+#define MBEDTLS_ARC4_C
+#define MBEDTLS_MD5_C
+#define MBEDTLS_SHA1_C
+
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #define MBEDTLS_NO_PLATFORM_ENTROPY
@@ -134,6 +138,14 @@
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_SSL_CIPHERSUITES                        \
         MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256
+#endif
+
+#ifdef CONFIG_FEATURE_FOTA
+#define MBEDTLS_RSA_C
+#define MBEDTLS_BIGNUM_C
+#define MBEDTLS_OID_C
+#define MBEDTLS_PKCS1_V15
+#define MBEDTLS_ASN1_PARSE_C
 #endif
 
 #include "mbedtls/check_config.h"

@@ -455,7 +455,7 @@ sys_thread_new(char* name, lwip_thread_fn function, void* arg, int stacksize, in
 
     /* Create host Task */
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)function;
-    task.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    task.uwStackSize  = stacksize;
     task.pcName = (char*)name;
     task.usTaskPrio = prio;
     task.uwArg = (UINT32)arg;

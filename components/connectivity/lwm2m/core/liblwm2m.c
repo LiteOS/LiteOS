@@ -333,6 +333,8 @@ int lwm2m_configure(lwm2m_context_t * contextP,
     found = 0;
     for (i = 0 ; i < numObject ; i++)
     {
+        if(objectList[i] == NULL) // happens when undef CONFIG_FEATURE_FOTA
+            continue;
         if (objectList[i]->objID == LWM2M_SECURITY_OBJECT_ID) found |= 0x01;
         if (objectList[i]->objID == LWM2M_SERVER_OBJECT_ID) found |= 0x02;
         if (objectList[i]->objID == LWM2M_DEVICE_OBJECT_ID) found |= 0x04;
@@ -375,6 +377,8 @@ int lwm2m_configure(lwm2m_context_t * contextP,
 
     for (i = 0; i < numObject; i++)
     {
+        if(objectList[i] == NULL) // happens when undef CONFIG_FEATURE_FOTA
+            continue;
         objectList[i]->next = NULL;
         contextP->objectList = (lwm2m_object_t *)LWM2M_LIST_ADD(contextP->objectList, objectList[i]);
     }
@@ -664,7 +668,7 @@ next_step:
             contextP->state = STATE_BOOTSTRAP_REQUIRED;
         }
         goto next_step;
-        break;
+        //break;
 
     case STATE_BOOTSTRAP_REQUIRED:
 #ifdef LWM2M_BOOTSTRAP
@@ -673,13 +677,13 @@ next_step:
             bootstrap_start(contextP);
             contextP->state = STATE_BOOTSTRAPPING;
             bootstrap_step(contextP, tv_sec, timeoutP);
+			break;
         }
         else
 #endif
         {
             return COAP_503_SERVICE_UNAVAILABLE;
         }
-        break;
 
 #ifdef LWM2M_BOOTSTRAP
     case STATE_BOOTSTRAPPING:

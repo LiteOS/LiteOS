@@ -200,10 +200,6 @@
       <pszMrule></pszMrule>
       <pSingCmds></pSingCmds>
       <pMultCmds></pMultCmds>
-      <pMisraNamep></pMisraNamep>
-      <pszMrulep></pszMrulep>
-      <pSingCmdsp></pSingCmdsp>
-      <pMultCmdsp></pMultCmdsp>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -558,7 +554,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\base\mem\bestfit_little\los_membox.c</PathWithFileName>
+      <PathWithFileName>..\..\..\kernel\base\mem\membox\los_membox.c</PathWithFileName>
       <FilenameWithoutPath>los_membox.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -570,7 +566,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</PathWithFileName>
+      <PathWithFileName>..\..\..\kernel\base\mem\common\los_memcheck.c</PathWithFileName>
       <FilenameWithoutPath>los_memcheck.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

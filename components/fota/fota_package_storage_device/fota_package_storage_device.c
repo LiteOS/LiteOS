@@ -35,6 +35,7 @@
 #include "fota_package_storage_device.h"
 #include "fota_package_head.h"
 #include "fota_firmware_writer.h"
+#include "dtls_interface.h"
 
 
 
@@ -86,7 +87,7 @@ static int fota_pack_storage_write_software_end(atiny_fota_storage_device_s *thi
         if(fota_pack_head_check(&device->head, total_len) != FOTA_OK)
         {
             ret = FOTA_ERR;
-            FOTA_LOG("check len err,len %u", total_len);
+            FOTA_LOG("check err,len %u", total_len);
             break;
         }
 
@@ -248,6 +249,8 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 {
     fota_pack_storage_device_s *pack_device;
 
+    dtls_int();
+
     if((NULL == device) || (NULL == device_info)
         || (NULL == device_info->storage_device) || (NULL == device_info->hardware))
     {
@@ -257,7 +260,7 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     pack_device = fota_pack_storage_get_storage_device(device);
 
-    if(fota_pack_head_set_head_info(&pack_device->head,  device_info->hardware, NULL, pack_device) != FOTA_OK)
+    if(fota_pack_head_set_head_info(&pack_device->head,  device_info) != FOTA_OK)
     {
         return FOTA_ERR;
     }

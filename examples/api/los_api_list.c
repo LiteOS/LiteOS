@@ -55,19 +55,24 @@ UINT32 Example_list(VOID)
     UINT32 uwRet = LOS_OK;
 
     /* init */
-    dprintf("initial......\n");
+    dprintf("initial...... \r\n");
     LOS_DL_LIST *head;
     head = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
+    if (head == NULL)
+    {
+        dprintf("malloc failed \r\n");
+        return LOS_NOK;
+    }
 
     LOS_ListInit(head);
     if (!LOS_ListEmpty(head))
     {
-        dprintf("initial failed\n");
+        dprintf("initial failed \r\n");
         return LOS_NOK;
     }
 
     /* tail insert node*/
-    dprintf("node add and tail add......\n");
+    dprintf("node add and tail add......\r\n");
 
     LOS_DL_LIST *node1 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
     if (node1 == NULL)
@@ -79,7 +84,7 @@ UINT32 Example_list(VOID)
     LOS_DL_LIST *node2 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
     if (node2 == NULL)
     {
-        dprintf("malloc failed\n");
+        dprintf("malloc failed \r\n");
         LOS_MemFree(m_aucSysMem0, node1);
         return LOS_NOK;
     }
@@ -87,7 +92,7 @@ UINT32 Example_list(VOID)
     LOS_DL_LIST *tail = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
     if (tail == NULL)
     {
-        dprintf("malloc failed\n");
+        dprintf("malloc failed \r\n");
         LOS_MemFree(m_aucSysMem0, node1);
         LOS_MemFree(m_aucSysMem0, node2);
         return LOS_NOK;
@@ -98,35 +103,35 @@ UINT32 Example_list(VOID)
     LOS_ListAdd(node1,node2);
     if ((node1->pstPrev == head) || (node2->pstPrev == node1))
     {
-        dprintf("add node success\n");
+        dprintf("add node success \r\n");
     }
 
     LOS_ListTailInsert(head, tail);
     if (tail->pstPrev == node2)
     {
-        dprintf("add tail success\n");
+        dprintf("add tail success \r\n");
     }
 
     /* delete node */
-    dprintf("delete node......\n");
+    dprintf("delete node......\r\n");
     LOS_ListDelete(node1);
     LOS_MemFree(m_aucSysMem0, node1);
     if (head->pstNext == node2)
     {
-        dprintf("delete node success\n");
+        dprintf("delete node success\r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST, LOS_INSPECT_STU_SUCCESS);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err\r\n");
         }
     }
     else
     {
-        dprintf("delete node error\n");
+        dprintf("delete node error\r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err\r\n");
         }
     }
 

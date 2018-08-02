@@ -73,7 +73,13 @@
 
 static void* atiny_calloc(size_t n, size_t size)
 {
-    return atiny_malloc(n * size);
+    void *p = atiny_malloc(n * size);
+    if(p)
+    {
+        memset(p, 0, n * size);
+    }
+
+    return p;
 }
 
 mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* psk_identity)
@@ -86,9 +92,7 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
 
     const char* pers = "dtls_client";
 
-    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
-    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
-    (void)mbedtls_platform_set_printf(atiny_printf);
+    dtls_int();
 
     ssl       = mbedtls_calloc(1, sizeof(mbedtls_ssl_context));
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
@@ -189,6 +193,7 @@ exit_fail:
 int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 {
     int ret;
+    int j = 0;
     mbedtls_net_context* server_fd = NULL;
     mbedtls_timing_delay_context* timer = NULL;
 
@@ -219,7 +224,6 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     MBEDTLS_LOG("Performing the SSL/TLS handshake");
 
-    int j = 0;
     do
     {
         ret = mbedtls_ssl_handshake(ssl);       
@@ -228,7 +232,7 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     }
     while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 3 );
+           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 10 );
 
     if (ret != 0)
     {
@@ -292,6 +296,7 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
     {
         mbedtls_ssl_config_free(conf);
         mbedtls_free(conf);
+        ssl->conf = NULL; //  need by mbedtls_debug_print_msg(), see mbedtls_ssl_free(ssl)
     }
 
     if (ctr_drbg)
@@ -353,5 +358,12 @@ int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t
     }
 
     return ret;
+}
+
+void dtls_int(void)
+{
+    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
+    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
+    (void)mbedtls_platform_set_printf(atiny_printf);
 }
 

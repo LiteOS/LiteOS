@@ -236,8 +236,8 @@ void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_sta
 
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
 {
-    ASSERT_THIS(return ATINY_ARG_INVALID);
     int ret;
+    ASSERT_THIS(return ATINY_ARG_INVALID);
     thi->device = device;
     ret = atiny_update_info_set(atiny_update_info_get_instance(), device);
     ret |=atiny_fota_idle_state_int_report_result(&thi->idle_state);
@@ -313,7 +313,7 @@ static void atiny_fota_manager_notify_ack_callback(atiny_report_type_e type, int
                 atiny_fota_manager_get_instance()->rpt_state);
     if((atiny_fota_manager_get_instance()->wait_ack_flag) && atiny_fota_manager_get_instance()->cookie == cookie)
     {
-        atiny_fota_manager_rcv_notify_ack(atiny_fota_manager_get_instance(), status);
+        (void)atiny_fota_manager_rcv_notify_ack(atiny_fota_manager_get_instance(), status);
         atiny_fota_manager_get_instance()->wait_ack_flag = false;
     }
 

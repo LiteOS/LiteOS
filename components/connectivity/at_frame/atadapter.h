@@ -44,14 +44,14 @@
 #include "at_api_interface.h"
 
 /* MACRO DEFINE */
-#define AT_INTO
+//#define AT_INTO
 #ifdef AT_INTO
 #define AT_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
 #else
 #define AT_LOG(fmt, arg...)
 #endif
 
-#define AT_DEBUG
+//#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%s:%d][D]"fmt"\n", __func__, __LINE__, ##arg)
 #else
@@ -95,7 +95,7 @@ typedef struct _listner{
 
 #define OOB_MAX_NUM 5
 #define OOB_CMD_LEN  40
-
+#define AT_DATA_LEN 1024
 typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
@@ -149,5 +149,6 @@ typedef struct at_task{
 
 void* at_malloc(size_t size);
 void at_free(void* ptr);
-
+extern int at_update_result_send(void);
+extern uint16_t at_fota_timer;
 #endif

@@ -13,7 +13,7 @@ typedef struct _neul_dev_operation_t
 
 typedef struct _remote_info_t
 {
-    unsigned short port;
+    unsigned char port;
     int socket;
     char ip[16];
 }remote_info;

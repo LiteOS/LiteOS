@@ -37,10 +37,11 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
-
+#include "at_fota.h"
+extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
-int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
+//int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener * p);
@@ -66,6 +67,8 @@ at_task at = {
     .get_id = at_get_unuse_linkid,
 };
 at_oob_t at_oob;
+char rbuf[AT_DATA_LEN] = {0};
+char wbuf[AT_DATA_LEN] = {0};
 
 //add p to tail;
 void at_listener_list_add(at_listener * p)
@@ -106,8 +109,9 @@ int32_t at_get_unuse_linkid()
         }
     }
 
-    if (i >= 0 && i < at_user_conf.linkid_num)
+    if (i < at_user_conf.linkid_num)
         at.linkid[i].usable = AT_LINK_INUSE;
+
     return i;
 }
 
@@ -151,14 +155,22 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listener listener;
     int ret = AT_FAILED;
 
-    listener.suffix = (int8_t *)suffix;
+    listener.suffix = (int8_t *)">";
     listener.resp = NULL;
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
     at_listener_list_add(&listener);
 
     at_transmit((uint8_t*)cmd, strlen((char*)cmd), 1);
+#if 0
     LOS_TaskDelay(200);
+#else
+    (void)LOS_SemPend(at.resp_sem, 200);
+    listener.suffix = (int8_t *)suffix;
+
+    at_listner_list_del(&listener);
+    at_listener_list_add(&listener);
+#endif
 
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
@@ -179,14 +191,18 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     int32_t ret = 0;
     char* cmp = NULL;
     int i;
+    int rlen;
+    memset(wbuf, 0, AT_DATA_LEN);
 
     for(i=0;i<at_oob.oob_num;i++){
         cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
         if(cmp != NULL)
         {
-            AT_LOG("cloud send cmd:%s buf:%s",at_oob.oob[i].featurestr,buf);
+            AT_LOG("cloud send cmd:%s",at_oob.oob[i].featurestr);
+            cmp+=at_oob.oob[i].len;
+            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,buf,len);
+                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,wbuf,rlen);
             return ret;
         }
     }
@@ -201,7 +217,7 @@ void at_recv_task(uint32_t p)
     at_listener * listener = NULL;
 
     while(1){
-        LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
+        (void)LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
         do{/*DMA方式接收消息队列最大为8，因此会循环*/
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp);
@@ -211,7 +227,7 @@ void at_recv_task(uint32_t p)
 
         int32_t data_len = 0;
         char * p1, * p2;
-        AT_LOG_DEBUG("recv len = %lu buf = %s", recv_len, tmp);
+        AT_LOG_DEBUG("recv len = %lu buf = %s buff_full = %d", recv_len, tmp, buff_full);
 
         p1 = (char *)tmp;
         p2 = (char *)(tmp + recv_len);
@@ -237,7 +253,7 @@ void at_recv_task(uint32_t p)
             {
 
                 //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
                 listener = NULL;
                 break;
             }
@@ -254,7 +270,7 @@ void at_recv_task(uint32_t p)
             {
                 if(NULL != listener->resp)
                     store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, suffix + strlen((char*)listener->suffix) - p1);
-                LOS_SemPost(at.resp_sem);
+                (void)LOS_SemPost(at.resp_sem);
             }
             break;
         }
@@ -367,11 +383,11 @@ int32_t at_struct_init(at_task * at)
     malloc_resp_buf:
         at_free(at->recv_buf);
     malloc_recv_buf:
-        LOS_SemDelete(at->resp_sem);
+        (void)LOS_SemDelete(at->resp_sem);
     at_resp_sem_failed:
-        LOS_MuxDelete(at->cmd_mux);
+        (void)LOS_MuxDelete(at->cmd_mux);
     at_cmd_mux_failed:
-        LOS_SemDelete(at->recv_sem);
+        (void)LOS_SemDelete(at->recv_sem);
     at_recv_sema_failed:
         return AT_FAILED;
 }
@@ -437,7 +453,7 @@ int32_t at_struct_deinit(at_task * at)
 
 void at_init()
 {
-    AT_LOG("Config %s......\n", at_user_conf.name);
+    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name,at_user_conf.user_buf_len);
 
     LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
@@ -474,6 +490,8 @@ void at_deinit()
         AT_LOG("at_struct_deinit failed!");
     }
     at_init_oob();
+    //if(at_fota_timer!=-1)
+    //    LOS_SwtmrDelete(at_fota_timer);
 }
 
 int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback)

@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
+#include "atiny_log.h"
 
 void message_cb(cloud_msg_t *msg);
 
@@ -57,7 +58,7 @@ static void* g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
 
-atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] = 
+atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] =
 {
     {
         .uri = AGENT_TINY_DEMO_SUB_TOPIC,
@@ -68,9 +69,9 @@ atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] =
 
 void message_cb(cloud_msg_t *msg)
 {
-    printf("[%s][%d] %.*s : %.*s\n", __FUNCTION__, __LINE__, msg->uri_len, msg->uri, msg->payload_len,  (char *)msg->payload);
+    ATINY_LOG(LOG_DEBUG, "%.*s : %.*s", msg->uri_len, msg->uri, msg->payload_len,  (char *)msg->payload);
 }
-
+/*lint -e550*/
 void app_data_report(void)
 {
     cloud_msg_t report_data;
@@ -89,10 +90,11 @@ void app_data_report(void)
         payload[report_data.payload_len] = '\0';
         cnt++;
         ret = atiny_data_send(g_phandle, &report_data, NULL);
-        printf("report ret:%d\n",ret);
-        (void)LOS_TaskDelay(250*8);
+        ATINY_LOG(LOG_DEBUG, "report ret:%d", ret);
+        (void)LOS_TaskDelay(250*2);
     }
 }
+/*lint +e550*/
 
 UINT32 creat_report_task()
 {

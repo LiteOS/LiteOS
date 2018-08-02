@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>30</version>
+                <version>31</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.22.2.15993</state>
+                    <state>8.30.1.17146</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -112,7 +112,7 @@
                 </option>
                 <option>
                     <name>RTConfigPath2</name>
-                    <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Full.h</state>
+                    <state>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
@@ -204,6 +204,11 @@
                     <name>TrustZone</name>
                     <state>0</state>
                 </option>
+                <option>
+                    <name>TrustZoneModes</name>
+                    <version>0</version>
+                    <state>0</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -225,6 +230,7 @@
                     <state>WITH_DTLS</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
                     <state>WITH_LWIP</state>
+                    <state>CONFIG_FEATURE_FOTA</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -264,7 +270,7 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state>Pe177,Pe181,Pa181,Pe186,Pe223,Pa089,Pa084,Pa093,Pa134</state>
+                    <state>Pa089,Pa134,Pe186,Pa182,Pa084,Pa093</state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
@@ -386,6 +392,9 @@
                     <state>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device</state>
                     <state>$PROJ_DIR$\..\..\..\components\fota\ota</state>
                     <state>$PROJ_DIR$\..\..\..\components\fota\utility</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\firmware_update</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota</state>
+                    <state>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\examples\shared</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -723,7 +732,7 @@
             <name>ILINK</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>20</version>
+                <version>21</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -1035,6 +1044,10 @@
                     <name>IlinkLocaleSelect</name>
                     <state>1</state>
                 </option>
+                <option>
+                    <name>IlinkTrustzoneImportLibraryOut</name>
+                    <state>Huawei_LiteOS_import_lib.o</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -1074,7 +1087,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>30</version>
+                <version>31</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1265,6 +1278,11 @@
                 </option>
                 <option>
                     <name>TrustZone</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZoneModes</name>
+                    <version>0</version>
                     <state>0</state>
                 </option>
             </data>
@@ -1741,7 +1759,7 @@
             <name>ILINK</name>
             <archiveVersion>0</archiveVersion>
             <data>
-                <version>20</version>
+                <version>21</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -2053,6 +2071,10 @@
                     <name>IlinkLocaleSelect</name>
                     <state>1</state>
                 </option>
+                <option>
+                    <name>IlinkTrustzoneImportLibraryOut</name>
+                    <state>###Unitialized###</state>
+                </option>
             </data>
         </settings>
         <settings>
@@ -2097,9 +2119,6 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_api_interface.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\at_hal.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\at_frame\atadapter.c</name>
         </file>
     </group>
@@ -2112,10 +2131,10 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_api.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_manager.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_manager.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_fota_state.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_state.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_log.c</name>
@@ -2124,10 +2143,7 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_rpt.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\atiny_update_info.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\commandline.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_update_info.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\agent_tiny\lwm2m_client\connection.c</name>
@@ -2238,7 +2254,7 @@
             <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_crc.c</name>
+            <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\fota\fota_package_storage_device\fota_package_head.c</name>
@@ -2310,10 +2326,10 @@
             <name>$PROJ_DIR$\..\..\..\kernel\los_init.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_membox.c</name>
+            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\membox\los_membox.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</name>
+            <name>$PROJ_DIR$\..\..\..\kernel\base\mem\common\los_memcheck.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\base\mem\bestfit_little\los_memory.c</name>
@@ -2476,6 +2492,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\bootstrap.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\data.c</name>
@@ -2775,6 +2794,9 @@
     <group>
         <name>user</name>
         <file>
+            <name>$PROJ_DIR$\..\Src\at_hal.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Src\dwt.c</name>
         </file>
         <file>
@@ -2802,7 +2824,7 @@
             <name>$PROJ_DIR$\..\..\..\drivers\devices\nb\bc95.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266.c</name>
+            <name>$PROJ_DIR$\..\..\..\drivers\devices\wifi\esp8266\esp8266.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\drivers\devices\gprs\sim900a.c</name>

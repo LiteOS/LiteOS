@@ -78,7 +78,7 @@ void MQTTClientInit(MQTTClient* c, Network* network, unsigned int command_timeou
 #ifdef __MQTT_LITE_OS__
     c->mutex = atiny_mutex_create();
     if(NULL == c->mutex)
-        printf("[%s][%d] atiny_mutex_create failed\n", __FUNCTION__, __LINE__);
+        ATINY_LOG(LOG_ERR, "[%s][%d] atiny_mutex_create failed");
 #endif
 }
 
@@ -352,7 +352,7 @@ int keepalive(MQTTClient* c)
     if (c->keepAliveInterval == 0)
         goto exit;
 
-    if (TimerIsExpired(&c->last_sent) || TimerIsExpired(&c->last_received))
+    if (TimerIsExpired(&c->last_sent) && TimerIsExpired(&c->last_received))
     {
         if (c->ping_outstanding)
             rc = FAILURE; /* PINGRESP not received in keepalive interval */
@@ -394,6 +394,7 @@ int cycle(MQTTClient* c, Timer* timer)
 {
     int len = 0,
         rc = MQTT_SUCCESS;
+    Timer send_timer;
 
     int packet_type = readPacket(c, timer);     /* read the socket, see what work is due */
 
@@ -430,7 +431,11 @@ int cycle(MQTTClient* c, Timer* timer)
                 if (len <= 0)
                     rc = FAILURE;
                 else
-                    rc = sendPacket(c, len, timer);
+                {
+                    TimerInit(&send_timer);
+                    TimerCountdownMS(&send_timer, 1000);
+                    rc = sendPacket(c, len, &send_timer);
+                }
                 if (rc == FAILURE)
                     goto exit; // there was a problem
             }
@@ -446,8 +451,14 @@ int cycle(MQTTClient* c, Timer* timer)
             else if ((len = MQTTSerialize_ack(c->buf, c->buf_size,
                 (packet_type == PUBREC) ? PUBREL : PUBCOMP, 0, mypacketid)) <= 0)
                 rc = FAILURE;
-            else if ((rc = sendPacket(c, len, timer)) != MQTT_SUCCESS) // send the PUBREL packet
-                rc = FAILURE; // there was a problem
+            else
+            {
+                TimerInit(&send_timer);
+                TimerCountdownMS(&send_timer, 1000);
+                rc = sendPacket(c, len, &send_timer);
+                if(rc != MQTT_SUCCESS)
+                    rc = FAILURE; // there was a problem
+            }
             if (rc == FAILURE)
                 goto exit; // there was a problem
             break;
@@ -797,7 +808,10 @@ int MQTTPublish(MQTTClient* c, const char* topicName, MQTTMessage* message)
         goto exit;
 
     TimerInit(&timer);
-    TimerCountdownMS(&timer, c->command_timeout_ms);
+    if(message->qos == QOS2)
+        TimerCountdownMS(&timer, c->command_timeout_ms * 2);
+    else
+        TimerCountdownMS(&timer, c->command_timeout_ms);
 
     if (message->qos == QOS1 || message->qos == QOS2)
         message->id = getNextPacketId(c);

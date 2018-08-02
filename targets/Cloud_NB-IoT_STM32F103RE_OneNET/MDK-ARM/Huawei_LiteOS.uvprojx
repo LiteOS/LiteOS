@@ -10,8 +10,7 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F103RE</Device>
@@ -578,12 +577,12 @@
             <File>
               <FileName>los_membox.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_membox.c</FilePath>
+              <FilePath>..\..\..\kernel\base\mem\membox\los_membox.c</FilePath>
             </File>
             <File>
               <FileName>los_memcheck.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memcheck.c</FilePath>
+              <FilePath>..\..\..\kernel\base\mem\common\los_memcheck.c</FilePath>
             </File>
             <File>
               <FileName>los_memory.c</FileName>

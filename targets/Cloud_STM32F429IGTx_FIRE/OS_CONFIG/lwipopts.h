@@ -5,7 +5,7 @@
   * @version V1.1.0
   * @date    31-July-2013
   * @brief   lwIP Options Configuration.
-  *          This file is based on Utilities\lwip_v1.4.1\src\include\lwip\opt.h 
+  *          This file is based on Utilities\lwip_v1.4.1\src\include\lwip\opt.h
   *          and contains the lwIP configuration for the STM32F4x7 demonstration.
   ******************************************************************************
   * @attention
@@ -18,8 +18,8 @@
   *
   *        http://www.st.com/software_license_agreement_liberty_v2
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
@@ -151,12 +151,21 @@ a lot of data that needs to be copied, this should be set high. */
    --------------------------------------
 */
 
-/* 
+/*
 The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
-#define CHECKSUM_BY_HARDWARE 
+#if defined(USE_PPPOS) && (USE_PPPOS == 1)
+//for the ppp support
+#define  PPP_SUPPORT       1
+#define  PAP_SUPPORT       1
+#define  PPP_IPV4_SUPPORT  1
+#else
+#define CHECKSUM_BY_HARDWARE
+
+#endif
+
 
 
 #ifdef CHECKSUM_BY_HARDWARE
@@ -165,7 +174,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
   /* CHECKSUM_GEN_UDP==0: Generate checksums by hardware for outgoing UDP packets.*/
   #define CHECKSUM_GEN_UDP                0
   /* CHECKSUM_GEN_TCP==0: Generate checksums by hardware for outgoing TCP packets.*/
-  #define CHECKSUM_GEN_TCP                0 
+  #define CHECKSUM_GEN_TCP                0
   /* CHECKSUM_CHECK_IP==0: Check checksums by hardware for incoming IP packets.*/
   #define CHECKSUM_CHECK_IP               0
   /* CHECKSUM_CHECK_UDP==0: Check checksums by hardware for incoming UDP packets.*/
@@ -213,7 +222,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_SOCKET                     1
 
 /**
- * LWIP_DNS==1: Enable Domain Name System 
+ * LWIP_DNS==1: Enable Domain Name System
  */
 #define LWIP_DNS                        1
 
@@ -234,6 +243,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define LWIP_COMPAT_MUTEX_ALLOWED 1
 #define LWIP_COMPAT_MUTEX  1
+
 
 
 #endif /* __LWIPOPTS_H__ */

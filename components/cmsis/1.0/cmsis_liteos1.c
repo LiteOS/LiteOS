@@ -773,12 +773,12 @@ void *osMailCAlloc(osMailQId queue_id, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     void *mem = NULL;
-    OS_MEMBOX_S *pool = (OS_MEMBOX_S *)NULL;
+    LOS_MEMBOX_INFO *pool = (LOS_MEMBOX_INFO *)NULL;
     mem = osMailAlloc(queue_id, millisec);
 
     if (mem != NULL)
     {
-        pool = (OS_MEMBOX_S*)(*(((void **)queue_id) + 1));
+        pool = (LOS_MEMBOX_INFO*)(*(((void **)queue_id) + 1));
         (VOID)memset(mem, 0, pool->uwBlkSize);
     }
 

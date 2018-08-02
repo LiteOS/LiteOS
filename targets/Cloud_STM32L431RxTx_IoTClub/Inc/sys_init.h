@@ -62,7 +62,6 @@
 #include "gpio.h"
 #include "oled.h"
 #include "neul_bc95.h"
-#include "los_dev_st_uart.h"
 #include "DHT11_BUS.h"
 #include "BH1750.h" 
 #include "gps.h"

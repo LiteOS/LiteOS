@@ -545,7 +545,8 @@ void clean_security_object(lwm2m_object_t * objectP)
  */
 lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_params,lwm2m_context_t* lwm2m_context)
 {
-    const int URI_MAX_LEN = 64;
+    //const int URI_MAX_LEN = 64;
+    #define URI_MAX_LEN 64
     lwm2m_object_t * securityObj = NULL;
     char serverUri[URI_MAX_LEN];
     security_instance_t * targetP = NULL;
@@ -587,7 +588,7 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
             break;
         default:
             return NULL;
-            break;
+            //break;
     }
 
    securityObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
@@ -634,6 +635,8 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
                 security_params_index = 1;
             }
         }
+        // After instance id is initialized
+        securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);
 
         bsPskId = atiny_params->security_params[security_params_index].psk_Id;
         psk = atiny_params->security_params[security_params_index].psk;
@@ -686,8 +689,6 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
         targetP->shortID = serverId;
         //10? is suitable? it could be changed by the bs server. for lwm2m_server_t member lifetime.
         targetP->clientHoldOffTime = SECURITY_HOLD_OFF_TIME;
-
-        securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);
     } //end for loop
 
 

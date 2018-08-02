@@ -35,39 +35,53 @@
 #include "fota_package_checksum.h"
 #include <string.h>
 #include "fota_package_head.h"
-#include "ota_sha256.h"
+
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+#include "option/fota_package_sha256_rsa2048.h"
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+#include "option/fota_package_sha256.h"
+#else
+#error FOTA_PACK_CHECKSUM not define
+#endif
+
+
+
 
 struct fota_pack_checksum_tag_s
 {
-    ota_sha256_context sha256_context;
     uint32_t offset;
     bool offset_flag;
     fota_pack_head_s *head;
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+    fota_pack_sha256_rsa2048_s alg;
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    fota_pack_sha256_s alg;
+#endif
+
 };
 
+static inline fota_pack_checksum_alg_s *fota_pack_checksum_get_alg(fota_pack_checksum_s *thi)
+{
+    #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+    return &thi->alg.sha256.base;
+    #elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    return &thi->alg.base;
+    #endif
+}
 
-static void fota_pack_checksum_init(fota_pack_checksum_s *thi)
+static void fota_pack_checksum_init(fota_pack_checksum_s *thi, fota_pack_head_s *head)
 {
     memset(thi, 0, sizeof(*thi));
+    thi->head = head;
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+    (void)fota_pack_sha256_rsa2048_init(&thi->alg, thi->head);
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    (void)fota_pack_sha256_init(&thi->alg);
+#endif
 }
 
 
-fota_pack_checksum_s * fota_pack_checksum_create(fota_pack_checksum_type_e type)
-{
-    if(FOTA_PACK_SHA_S56 == type)
-    {
-        fota_pack_checksum_s *thi = atiny_malloc(sizeof(fota_pack_checksum_s));
-        if(NULL == thi)
-        {
-            FOTA_LOG("atiny_malloc fail");
-            return NULL;
-        }
-        fota_pack_checksum_init(thi);
-        return thi;
-    }
-    FOTA_LOG("checksum type %d invalid", type);
-    return NULL;
-}
+
 
 void fota_pack_checksum_delete(fota_pack_checksum_s *thi)
 {
@@ -75,7 +89,7 @@ void fota_pack_checksum_delete(fota_pack_checksum_s *thi)
     {
         return;
     }
-    ota_sha256_free(&thi->sha256_context);
+    fota_pack_checksum_get_alg(thi)->destroy(fota_pack_checksum_get_alg(thi));
     atiny_free(thi);
 }
 
@@ -84,10 +98,7 @@ static int fota_pack_checksum_init_head_data(fota_pack_checksum_s *thi)
     int len;
     const uint8_t *buff;
 
-    ota_sha256_init(&thi->sha256_context);
-    ota_sha256_starts(&thi->sha256_context, false);
-
-
+    fota_pack_checksum_get_alg(thi)->reset(fota_pack_checksum_get_alg(thi));
     len = fota_pack_head_get_head_len(thi->head);
     if(0 == len)
     {
@@ -101,20 +112,20 @@ static int fota_pack_checksum_init_head_data(fota_pack_checksum_s *thi)
         return FOTA_ERR;
     }
 
-    ota_sha256_update(&thi->sha256_context, buff, len);
-
-    return FOTA_OK;
+    return fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, len);
 }
-
-int fota_pack_checksum_update_head(fota_pack_checksum_s *thi, fota_pack_head_s *head)
+fota_pack_checksum_s * fota_pack_checksum_create(fota_pack_head_s *head)
 {
-    ASSERT_THIS(return FOTA_ERR);
-
-    thi->head = head;
-
-    return fota_pack_checksum_init_head_data(thi);
+    fota_pack_checksum_s *thi = atiny_malloc(sizeof(fota_pack_checksum_s));
+    if(NULL == thi)
+    {
+        FOTA_LOG("atiny_malloc fail");
+        return NULL;
+    }
+    fota_pack_checksum_init(thi, head);
+    (void)fota_pack_checksum_init_head_data(thi);
+    return thi;
 }
-
 
 static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32_t offset, fota_hardware_s *hardware)
 {
@@ -126,13 +137,14 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
     int ret = FOTA_ERR;
 
     buff = atiny_malloc(max_size);
+    if(NULL ==buff)
+    {
+        FOTA_LOG("malloc null");
+        return FOTA_ERR;
+    }
     do
     {
-        if(NULL ==buff)
-        {
-            FOTA_LOG("malloc null");
-            break;
-        }
+	    ret = FOTA_ERR;
         left_size = offset - total_size;
         read_size = MIN(left_size, max_size);
         ret = hardware->read_software(hardware, total_size, buff, read_size);
@@ -141,7 +153,11 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
             FOTA_LOG("read_software fail, ret %d, offset %d, read_size %d", ret, total_size, read_size);
             break;
         }
-        ota_sha256_update(&thi->sha256_context, buff, read_size);
+        ret = fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, read_size);
+        if(ret != FOTA_OK)
+        {
+            break;
+        }
         total_size += read_size;
     }while(total_size < offset);
 
@@ -150,7 +166,7 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
         atiny_free(buff);
     }
 
-    return FOTA_OK;
+    return ret;
 }
 
 int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff,
@@ -174,17 +190,21 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
     if(((thi->offset_flag) && (thi->offset == offset))
         || (fota_pack_head_get_head_len(thi->head) == offset))
     {
-        ota_sha256_update(&thi->sha256_context, buff, len);
+        if(fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, len) != FOTA_OK)
+        {
+            return FOTA_ERR;
+        }
         thi->offset_flag = true;
         thi->offset = offset + len;
         return FOTA_OK;
     }
-
-     if((NULL == hardware) || (NULL == hardware->read_software))
+    /*lint -e525*/
+    if((NULL == hardware) || (NULL == hardware->read_software))
     {
         FOTA_LOG("hardware null");
         return FOTA_ERR;
     }
+    /*lint +e525*/
 
     ret = fota_pack_checksum_init_head_data(thi);
     if(ret != FOTA_OK)
@@ -197,7 +217,11 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
     {
         return ret;
     }
-    ota_sha256_update(&thi->sha256_context, buff, len);
+
+    if(fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, len) != FOTA_OK)
+    {
+        return FOTA_ERR;
+    }
 
     thi->offset_flag = true;
     thi->offset = offset + len;
@@ -206,22 +230,15 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
 
 int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len)
 {
-    uint8_t real_value[32];
-
     ASSERT_THIS(return FOTA_ERR);
-
-    if(sizeof(real_value) != len)
-    {
-        FOTA_LOG("len %d not the same", len);
-        return FOTA_ERR;
-    }
-    ota_sha256_finish(&thi->sha256_context, real_value);
-    if(memcmp(real_value, expected_value, len) != 0)
-    {
-        FOTA_LOG("checksum err");
-        return FOTA_ERR;
-    }
-    return FOTA_OK;
+    return fota_pack_checksum_get_alg(thi)->check(fota_pack_checksum_get_alg(thi), expected_value, len);
 }
+#define INCLUDE_FOTA_PACK_OPTION_FILE
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+#include "option/fota_package_sha256.c"
+#include "option/fota_package_sha256_rsa2048.c"
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+#include "option/fota_package_sha256.c"
+#endif
 
 

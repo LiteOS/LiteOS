@@ -36,29 +36,21 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "fota_port.h"
 #endif
-//#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
-//#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
-//#define DEFAULT_SERVER_IPV4 "192.168.1.106"/*sjn */
-#define DEFAULT_SERVER_IPV4 "192.168.1.113" /*czr*/
+
+#define DEFAULT_SERVER_IPV4 "180.101.147.115" /*dianxin*/
 
 #define LWM2M_LIFE_TIME     50000
 
-#define IOT_PSK_VALUE_LENGTH    12
-#define BS_PSK_VALUE_LENGTH     12
 char * g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
-//char *g_endpoint_name_s = "11110006";
-//unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x96};
 
-//char *g_endpoint_name_s = "88889999";
-//unsigned char g_psk_value[16] = {0x02,0x77,0x68,0xca,0x0b,0xf5,0xdf,0xba,0x46,0x43,0x25,0xdd,0x4b,0xe7,0x0a,0x9d};
-
-char* g_endpoint_name_s = "11110001";
-char* g_endpoint_name_iots = "66667777";
-char* g_endpoint_name_bs = "22224444";
-unsigned char g_psk_iot_value[IOT_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};  //0x33 -> 0x32
-unsigned char g_psk_bs_value[BS_PSK_VALUE_LENGTH] = {0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33};
+char* g_endpoint_name_s = "55555002";
+char* g_endpoint_name_iots = "55555002";
+char* g_endpoint_name_bs = "55555002";
+unsigned char g_psk_iot_value[] = {0xb4,0x72,0x8f,0x8d,0x70,0xbd,0xfc,0x35,0xf1,0xed,0xf5,0x2b,0xf6,0xa1,0x98,0xf7};  //0x33 -> 0x32
+unsigned char g_psk_bs_value[] = {0xb4,0x72,0x8f,0x8d,0x70,0xbd,0xfc,0x35,0xf1,0xed,0xf5,0x2b,0xf6,0xa1,0x98,0xf7};
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
+
 #endif
 
 static void* g_phandle = NULL;
@@ -67,31 +59,33 @@ static atiny_param_t g_atiny_params;
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
-    printf("type:%d cookie:%d status:%d\n", type,cookie, status);
+    ATINY_LOG(LOG_DEBUG,"type:%d cookie:%d status:%d\n", type,cookie, status);
 }
-
+/*lint -e550*/
 void app_data_report(void)
 {
     uint8_t buf[5] = {0,1,6,5,9};
     data_report_t report_data;
-    int ret;
+    int ret = 0;
     int cnt = 0;
     report_data.buf = buf;
     report_data.callback = ack_callback;
     report_data.cookie = 0;
     report_data.len = sizeof(buf);
     report_data.type = APP_DATA;
+    (void)ret;
     while(1)
     {
         report_data.cookie = cnt;
         cnt++;
         ret = atiny_data_report(g_phandle, &report_data);
-        printf("report ret: %d\n",ret);
+        ATINY_LOG(LOG_DEBUG,"data report ret: %d\n",ret);
         ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
-        printf("data change ret: %d\n",ret);
+        ATINY_LOG(LOG_DEBUG,"data change ret: %d\n",ret);
         (void)LOS_TaskDelay(250*8);
     }
 }
+/*lint +e550*/
 
 UINT32 creat_report_task()
 {
@@ -102,7 +96,7 @@ UINT32 creat_report_task()
     task_init_param.usTaskPrio = 1;
     task_init_param.pcName = "app_data_report";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)app_data_report;
-    task_init_param.uwStackSize = 0x400;
+    task_init_param.uwStackSize = 0x1000;
 
     uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
     if(LOS_OK != uwRet)
@@ -119,6 +113,8 @@ void agent_tiny_fota_init(void)
     atiny_fota_storage_device_s *storage_device = NULL ;
     fota_hardware_s *hardware = NULL;
     fota_pack_device_info_s device_info;
+    const char *rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    const char *rsa_E = "10001";
 
     (void)hal_init_fota();
 
@@ -126,7 +122,9 @@ void agent_tiny_fota_init(void)
 
     device_info.hardware = hardware;
     device_info.storage_device = storage_device;
-    device_info.head_info_notify  = NULL;
+    device_info.head_info_notify = NULL;
+    device_info.key.rsa_N = rsa_N;
+    device_info.key.rsa_E = rsa_E;
     (void)fota_set_pack_device(fota_get_pack_device(), &device_info);
 }
 #endif
@@ -149,8 +147,12 @@ void agent_tiny_entry(void)
 #else
     device_info->endpoint_name = g_endpoint_name;
 #endif
+#ifdef CONFIG_FEATURE_FOTA
+    device_info->manufacturer = "Lwm2mFota";
+    device_info->dev_type = "Lwm2mFota";
+#else
     device_info->manufacturer = "Agent_Tiny";
-
+#endif
     atiny_params = &g_atiny_params;
     atiny_params->server_params.binding = "UQ";
     //atiny_params->server_params.life_time = LWM2M_LIFE_TIME;
@@ -173,11 +175,11 @@ void agent_tiny_entry(void)
 
     iot_security_param->psk_Id = g_endpoint_name_iots;
     iot_security_param->psk = (char*)g_psk_iot_value;
-    iot_security_param->psk_len = IOT_PSK_VALUE_LENGTH;
+    iot_security_param->psk_len = sizeof(g_psk_iot_value);
 
     bs_security_param->psk_Id = g_endpoint_name_bs;
     bs_security_param->psk = (char*)g_psk_bs_value;
-    bs_security_param->psk_len = BS_PSK_VALUE_LENGTH;
+    bs_security_param->psk_len = sizeof(g_psk_bs_value);
 #else
     iot_security_param->server_port = "5683";
     bs_security_param->server_port = "5683";
