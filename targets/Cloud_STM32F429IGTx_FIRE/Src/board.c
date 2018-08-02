@@ -198,13 +198,13 @@ int board_jump2app(void)
         }
         else
         {
-            OTA_LOG("stack value(%d) of the image is ilegal", stack);
+            OTA_LOG("stack value(%04X) of the image is ilegal", stack);
             return OTA_ERRNO_ILEGAL_STACK;
         }
     }
     else
     {
-        OTA_LOG("PC value(%d) of the image is ilegal", pc);
+        OTA_LOG("PC value(%04X) of the image is ilegal", pc);
         return OTA_ERRNO_ILEGAL_PC;
     }
 

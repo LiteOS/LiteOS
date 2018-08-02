@@ -38,17 +38,6 @@
 //#include "atiny_socket.h"
 #include "bc95.h"
 
-int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
-{
-    if (NULL == buf || len <= 0)
-    {
-        AT_LOG("param invailed!");
-        return -1;
-    }
-    AT_LOG("cmd in:%s",buf);
-	return 0;
-}
-
 int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {
     int ret;
@@ -69,7 +58,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
         ret = nb_hw_detect();
         if(ret == AT_OK)
             break;
-        LOS_TaskDelay(1000);
+        //LOS_TaskDelay(1000);
     }
     //nb_get_auto_connect();
     //nb_connect(NULL, NULL, NULL);
@@ -83,7 +72,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 			ret = nb_query_ip();
 			break;
 		}
-		LOS_TaskDelay(1000);
+		//LOS_TaskDelay(1000);
 		timecnt++;
 	}
 	if(ret != AT_FAILED)

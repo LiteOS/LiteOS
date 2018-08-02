@@ -612,8 +612,6 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
             clean_security_object(securityObj);
             return NULL;
         }
-        // Add targetP to the list first, otherwise the next call to clean_security_object() will cause a memory leak
-        securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);
 
         memset(targetP, 0, sizeof(security_instance_t));
         if((ins_flag&INS_IOT_SERVER_FLAG)&&(ins_flag&INS_BS_SERVER_FLAG))
@@ -637,6 +635,8 @@ lwm2m_object_t * get_security_object(uint16_t serverId,atiny_param_t* atiny_para
                 security_params_index = 1;
             }
         }
+        // After instance id is initialized
+        securityObj->instanceList = LWM2M_LIST_ADD(securityObj->instanceList, targetP);
 
         bsPskId = atiny_params->security_params[security_params_index].psk_Id;
         psk = atiny_params->security_params[security_params_index].psk;

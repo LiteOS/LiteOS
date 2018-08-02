@@ -67,7 +67,7 @@ static VOID *send_Entry(UINT32 uwParam)
         uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
         if(uwRet != LOS_OK)
         {
-            dprintf("send message failure,error:%x\n",uwRet);
+            dprintf("send message failure,error:%x \r\n",uwRet);
         }
 
         LOS_TaskDelay(5);
@@ -89,12 +89,12 @@ static VOID *recv_Entry(UINT32 uwParam)
         uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 24, 0);
         if (uwRet != LOS_OK)
         {
-            dprintf("recv message failure,error:%x\n",uwRet);
+            dprintf("recv message failure,error:%x \r\n",uwRet);
             break;
         }
         else
         {
-            dprintf("recv message:%s\n", (CHAR *)uwReadbuf);
+            dprintf("recv message:%s \r\n", (CHAR *)uwReadbuf);
             uwMsgCount++;
         }
 
@@ -107,14 +107,14 @@ static VOID *recv_Entry(UINT32 uwParam)
         (VOID)LOS_TaskDelay(1);
     }
 
-    dprintf("delete the queue success!\n");
+    dprintf("delete the queue success! \r\n");
 
     if (API_MSG_NUM == uwMsgCount)
     {
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_SUCCESS);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err \r\n");
         }
     }
     else
@@ -122,7 +122,7 @@ static VOID *recv_Entry(UINT32 uwParam)
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MSG, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err \r\n");
         }
     }
 
@@ -144,7 +144,7 @@ UINT32 Example_MsgQueue(VOID)
     uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
     if (uwRet != LOS_OK)
     {
-        dprintf("create task1 failed!,error:%x\n",uwRet);
+        dprintf("create task1 failed!,error:%x \r\n",uwRet);
         return uwRet;
     }
 
@@ -153,7 +153,7 @@ UINT32 Example_MsgQueue(VOID)
     uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
     if (uwRet != LOS_OK)
     {
-        dprintf("create task2 failed!,error:%x\n",uwRet);
+        dprintf("create task2 failed!,error:%x \r\n",uwRet);
         return uwRet;
     }
 
@@ -161,10 +161,10 @@ UINT32 Example_MsgQueue(VOID)
     uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 24);
     if (uwRet != LOS_OK)
     {
-        dprintf("create queue failure!,error:%x\n",uwRet);
+        dprintf("create queue failure!,error:%x \r\n",uwRet);
     }
 
-    dprintf("create the queue success!\n");
+    dprintf("create the queue success! \r\n");
     LOS_TaskUnlock();//unlock task schedue
 
     return LOS_OK;

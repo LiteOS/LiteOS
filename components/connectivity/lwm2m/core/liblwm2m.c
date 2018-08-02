@@ -677,7 +677,7 @@ next_step:
             bootstrap_start(contextP);
             contextP->state = STATE_BOOTSTRAPPING;
             bootstrap_step(contextP, tv_sec, timeoutP);
-						break;
+			break;
         }
         else
 #endif
