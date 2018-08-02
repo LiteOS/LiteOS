@@ -327,11 +327,8 @@ at_config at_user_conf = {
 
 at_adaptor_api at_interface = {
     .init = sim900a_ini,
-//    .get_id = NULL, /*get connect id, only in multiconnect*/
-    /*TCP or UDP connect*/
-    .connect = sim900a_connect,
-    /*send data, if no response, retrun error*/
-    .send = sim900a_send,
+    .connect = sim900a_connect, /*TCP or UDP connect*/
+    .send = sim900a_send, /*send data, if no response, retrun error*/
     .recv_timeout = sim900a_recv_timeout,
     .recv = sim900a_recv,
     .close = sim900a_close,/*close connect*/
