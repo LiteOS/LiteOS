@@ -316,7 +316,7 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 		return -1;
 	}
 	memcpy(sockinfo[ret].ip, (const char*)host,strlen((const char*)host));
-	sockinfo[ret].port = (unsigned char)port;
+	sockinfo[ret].port = *(unsigned short*)port;
 	localport++;
 
     if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
@@ -368,7 +368,7 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeou
     }
 
     sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
-    AT_LOG("ret = %x, len = %d, rxlen = %d, qbuf.len = %d", ret, len, rlen, (int)qbuf.len);
+    AT_LOG("ret = %x, len = %d, rxlen = %d, qbuf.len = %d", ret, (int)len, rlen, (int)qbuf.len);
 
     if (qbuf.len){
         rlen = (len < qbuf.len) ? len : qbuf.len;

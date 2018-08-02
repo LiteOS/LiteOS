@@ -182,12 +182,12 @@ int ver_to_hex(const char *bufin, int len, char *bufout)
     return 0;
 }
 
-int ota_process_main(void* arg,char* buf, int buflen)
+int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
 {
     uint8_t* pbuf;
     int ret = 0;
 
-    if(valid_check(buf,buflen)!=0)
+    if(valid_check((char*)buf,buflen)!=0)
     {
         AT_LOG("valid_check wrong");
         return -1;
@@ -398,7 +398,7 @@ int at_ota_init(char* featurestr,int cmdlen)
         AT_LOG("create stmr failed");
         return -1;
     }//deinit:delete timer.
-    LOS_SwtmrStart(at_fota_timer);
+    //LOS_SwtmrStart(at_fota_timer);
     memset(&g_at_update_record,0,sizeof(at_update_record_t));
     memcpy(g_at_update_record.ver,"V0.0",strlen("V0.0"));
     hal_spi_flash_config();

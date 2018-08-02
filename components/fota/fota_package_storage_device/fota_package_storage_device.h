@@ -41,6 +41,10 @@
 
 #include "atiny_fota_api.h"
 
+#define FOTA_PACK_SHA256_RSA2048 0
+#define FOTA_PACK_SHA256 1
+
+#define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
 
 typedef struct fota_hardware_api_tag_s
 {
@@ -51,9 +55,17 @@ typedef struct fota_hardware_api_tag_s
 
 typedef struct
 {
+    const char *rsa_N; /* RSA public key N, should valid all the time */
+    const char *rsa_E; /* RSA public key E, should valid all the time */
+}fota_pack_key_s;
+
+
+typedef struct
+{
     atiny_fota_storage_device_s *storage_device;
     fota_hardware_s *hardware;
     void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
+    fota_pack_key_s key;
 }fota_pack_device_info_s;
 
 
