@@ -34,7 +34,7 @@
 #ifdef INCLUDE_FOTA_PACK_OPTION_FILE
 #include "fota_package_sha256.h"
 #include <string.h>
-#include "fota_package_head.h"/*lint -e451/
+#include "fota_package_head.h"/*lint -e451*/
 
 static void fota_pack_sha256_reset(fota_pack_checksum_alg_s *thi)
 {
