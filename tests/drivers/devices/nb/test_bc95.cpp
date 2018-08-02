@@ -55,7 +55,6 @@ extern "C"
 	
 
     extern at_task at;
-
     // in atadapter.c
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
@@ -72,12 +71,15 @@ extern "C"
     extern int32_t nb_recv_cb(int32_t id);
     extern int32_t nb_deinit(void);
     extern int32_t nb_close(int32_t socket);
-
+    extern int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode);
+    extern int32_t nb_send_str(const char* buf, int len);
+    extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+    
     // in liteos queue
     extern UINT32 LOS_QueueCreate(CHAR *pcQueueName, UINT16 usLen, UINT32 *puwQueueID,
                             UINT32 uwFlags,UINT16 usMaxMsgSize );
-    extern UINT32 LOS_QueueWriteCopy( UINT32 uwQueueID, VOID * pBufferAddr,
-                            UINT32 uwBufferSize, UINT32 uwTimeOut );
+//    extern UINT32 LOS_QueueWriteCopy( UINT32 uwQueueID, VOID * pBufferAddr,
+//                            UINT32 uwBufferSize, UINT32 uwTimeOut );
     extern UINT32 LOS_QueueReadCopy(UINT32  uwQueueID, VOID *  pBufferAddr,
                             UINT32 * puwBufferSize, UINT32  uwTimeOut);
     // in atadapter.c
@@ -244,6 +246,10 @@ TestBC95::TestBC95()
 	TEST_ADD(TestBC95::test_nb_close);
 	TEST_ADD(TestBC95::test_nb_recv_cb);
 	TEST_ADD(TestBC95::test_nb_deinit);
+    TEST_ADD(TestBC95::test_nb_send_str);
+    TEST_ADD(TestBC95::test_neul_bc95_udp_read);
+    TEST_ADD(TestBC95::test_nb_data_ioctl);
+    
 }
 
 TestBC95::~TestBC95()
@@ -409,12 +415,6 @@ void TestBC95::test_nb_connect(void)
 	
 	cleanStub(&stub_info2);
 	cleanStub(&stub_info);
-	
-	
-	
-	
-	
-	
 }
 void TestBC95::test_nb_send(void)
 {
@@ -441,9 +441,6 @@ void TestBC95::test_nb_recv(void)
 	ret = nb_recv(0,buf,100);
 	TEST_ASSERT_MSG((ret == -1), "test_nb_recv failed");
 	cleanStub(&stub_info);
-    
-	
-    
 }
 void TestBC95::test_nb_recv_timeout(void)
 {
@@ -476,11 +473,8 @@ void TestBC95::test_nb_recv_cb(void)
 {
     int32_t ret = AT_OK;
 	
-	
-	
 	ret = nb_recv_cb(1);
 	TEST_ASSERT_MSG((ret == -1), "test_nb_recv_cb failed");
-	
 }
 
 void TestBC95::test_nb_deinit(void)
@@ -491,6 +485,65 @@ void TestBC95::test_nb_deinit(void)
 	ret = nb_deinit();
 	cleanStub(&stub_info);
     TEST_ASSERT_MSG((ret == 0), "test_nb_deinit failed");
+}
+void TestBC95::test_nb_send_str(void)
+{
+    char* buf = (char *)"send ok"; 
+    int len = strlen(buf);
+    int ret = 0;
+        
+    stubInfo stub_info;
+	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
+	ret = nb_send_str(buf, len);
+	cleanStub(&stub_info);
+    TEST_ASSERT(ret == 0);
+}
+void TestBC95::test_neul_bc95_udp_read(void)
+{
+    int socket = 0;
+    char *buf = NULL;
+    int maxrlen = 100;
+    int mode = 0;
+    int ret = -1;
+
+    buf = (char *)malloc(AT_DATA_LEN);
+    stubInfo stub_info;
+	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
+    ret = neul_bc95_udp_read(socket, buf, maxrlen, mode);
+    TEST_ASSERT(ret == 2);
+    cleanStub(&stub_info);
+
+    free(buf);
+}
+
+void TestBC95::test_nb_data_ioctl(void)
+{
+    void* arg = NULL;
+    int8_t *buf = NULL;
+    int32_t len = 0;
+    char *para = (char *)"+NSONMI,";
+    int ret = -1;
+    
+
+    ret = nb_data_ioctl(arg, buf, len);
+    TEST_ASSERT(ret == -1);
+
+    buf = (int8_t *)para;
+    len = 100;
+    
+    stubInfo stub_info;
+    stubInfo si;
+    setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
+    setStub((void *)LOS_QueueWriteCopy,(void *)stub_LOS_QueueWriteCopy,&si);
+    ret = nb_data_ioctl(arg, buf, len);
+    TEST_ASSERT(ret == 0);
+
+    para = (char *)"+NSONMI,12,120";
+    g_state = TEST_STATE_ERR;
+    ret = nb_data_ioctl(arg, buf, len);
+    TEST_ASSERT(ret == 1);
+    cleanStub(&stub_info);
+    cleanStub(&si);
 }
 
 

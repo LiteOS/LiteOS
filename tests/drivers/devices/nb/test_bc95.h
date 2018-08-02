@@ -70,6 +70,9 @@ public:
 	void test_nb_close(void);
 	void test_nb_recv_cb(void);
 	void test_nb_deinit(void);
+    void test_nb_send_str(void);
+    void test_neul_bc95_udp_read(void);
+    void test_nb_data_ioctl(void);
 
 };
 

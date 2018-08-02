@@ -100,7 +100,7 @@ $(C_OBJ):$(BUILD_DIR)/%.o:%.c
 
 $(LIB):$(LIB_OBJ)
 #	$(CPP) -shared -o $@ $^
-	$(AR) -r $@ $^
+	@$(AR) -r $@ $^
 
 $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
