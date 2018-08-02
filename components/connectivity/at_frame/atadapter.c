@@ -202,7 +202,7 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
             cmp+=at_oob.oob[i].len;
             sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,wbuf,rlen);
+                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,(int8_t*)wbuf,(int32_t)rlen);
             return ret;
         }
     }
@@ -474,6 +474,7 @@ void at_init()
         (void)at_struct_deinit(&at);
         return;
     }
+    at_ota_init("+NNMI:",strlen("+NNMI:"));
 
     AT_LOG("Config complete!!\n");
 }

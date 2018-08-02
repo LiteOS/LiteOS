@@ -365,7 +365,7 @@ int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos,
     rc = MQTTSubscribe(client, topic_dup, (enum QoS)qos, mqtt_message_arrived);
     if(0 != rc)
     {
-        mqtt_del_interest_topic(topic);/*del topic when fail*/
+        (void)mqtt_del_interest_topic(topic);/*del topic when fail*/
         ATINY_LOG(LOG_ERR, "MQTTSubscribe %s[%d]", topic, rc);
     }
 
