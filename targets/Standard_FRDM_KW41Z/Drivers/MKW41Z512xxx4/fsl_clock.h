@@ -59,7 +59,7 @@
 
 #ifndef _FSL_CLOCK_H_
 #define _FSL_CLOCK_H_
-
+/*lint -e* */
 #include "fsl_common.h"
 
 /*! @addtogroup clock */
