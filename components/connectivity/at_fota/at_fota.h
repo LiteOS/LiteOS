@@ -34,6 +34,8 @@
 #ifndef __AT_FOTA_H__
 #define __AT_FOTA_H__
 
+#include<stdint.h>
+
 typedef enum{
     OTA_GET_VER,
     OTA_NOTIFY_NEW_VER,
@@ -128,6 +130,6 @@ int ver_to_hex(const char *bufin, int len, char *bufout);
 
 int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
 int at_ota_init(char* featurestr,int cmdlen);
-int ota_process_main(void* arg,char* buf, int buflen);
+int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen);
 
 #endif

@@ -37,7 +37,7 @@
 
 #ifdef CONFIG_FEATURE_FOTA
 #endif
-#include "atiny_fota_api.h"/*lint -e451*/
+#include "atiny_fota_api.h"/*lint !e451*/
 
 #ifdef __cplusplus
 extern "C" {
