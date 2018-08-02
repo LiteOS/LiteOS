@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#ifdef INCLUDE_FOTA_PACK_OPTION_FILE
 #include "fota_package_sha256_rsa2048.h"
 #include <string.h>
 #include "rsa.h"
@@ -117,5 +117,6 @@ int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_hea
     thi->head = head;
     return FOTA_OK;
 }
+#endif
 
 

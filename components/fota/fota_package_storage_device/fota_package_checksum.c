@@ -232,7 +232,7 @@ int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_
     ASSERT_THIS(return FOTA_ERR);
     return fota_pack_checksum_get_alg(thi)->check(fota_pack_checksum_get_alg(thi), expected_value, len);
 }
-
+#define INCLUDE_FOTA_PACK_OPTION_FILE
 #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
 #include "option/fota_package_sha256.c"
 #include "option/fota_package_sha256_rsa2048.c"
