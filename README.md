@@ -44,7 +44,7 @@ Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经
 
 ## LiteOS Git入门必读
 
-- [LiteOS Commit Message规则](./doc/LiteOS_Commit_rules.md)
+- [LiteOS Commit Message规则](./doc/LiteOS_Commit_Message.md)
 
 该文档描述如何提交commit到LiteOS仓库，这是LiteOS开发必须遵守的commit规则，否则提交的commit会被驳回。请点链接了解详细信息。
 
