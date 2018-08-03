@@ -192,7 +192,7 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     char* cmp = NULL;
     int i;
     int rlen;
-    memset(wbuf, 0, AT_DATA_LEN);
+//    memset(wbuf, 0, AT_DATA_LEN);
 
     for(i=0;i<at_oob.oob_num;i++){
         cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
@@ -200,9 +200,9 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
         {
             AT_LOG("cloud send cmd:%s",at_oob.oob[i].featurestr);
             cmp+=at_oob.oob[i].len;
-            sscanf(cmp,"%d,%s",&rlen,wbuf);
+//            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,(int8_t*)wbuf,(int32_t)rlen);
+            	 ret = at_oob.oob[i].callback(at_oob.oob[i].arg,buf,len);
             return ret;
         }
     }
