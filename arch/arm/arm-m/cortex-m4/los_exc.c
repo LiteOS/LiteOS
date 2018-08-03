@@ -473,6 +473,7 @@ LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
     *(volatile UINT32 *)OS_NVIC_SHCSR |= 0x70000;
 
     /* Enable DIV 0(BIT_4) exception, unaligned(BIT_3) disable */
+
     *(volatile UINT32 *)OS_NVIC_CCR |= 0x10;
 
 #if (LOSCFG_SAVE_EXC_INFO == YES)
