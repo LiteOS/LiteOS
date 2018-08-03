@@ -202,7 +202,7 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
             cmp+=at_oob.oob[i].len;
 //            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-            	 ret = at_oob.oob[i].callback(at_oob.oob[i].arg,buf,len);
+            	ret = at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t*)buf, (int32_t)len);
             return ret;
         }
     }
