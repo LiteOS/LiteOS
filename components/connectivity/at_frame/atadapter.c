@@ -474,7 +474,7 @@ void at_init()
         (void)at_struct_deinit(&at);
         return;
     }
-    at_ota_init("+NNMI:",strlen("+NNMI:"));
+    //at_ota_init("+NNMI:",strlen("+NNMI:"));
 
     AT_LOG("Config complete!!\n");
 }
