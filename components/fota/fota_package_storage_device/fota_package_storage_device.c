@@ -128,7 +128,7 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
         FOTA_LOG("null pointer");
         return FOTA_ERR;
     }
-    if(0 == len)
+    if(0 == len || buffer == NULL)
     {
         FOTA_LOG("write 0 len");
         return FOTA_ERR;
