@@ -64,11 +64,15 @@
 *                                  EQU
 ****************************************************************************************/
 
-.equ    OS_EXC_CAUSE_NMI,            16
-.equ    OS_EXC_CAUSE_HARDFAULT,      17
+.equ    OS_EXC_CAUSE_NMI,            18
+.equ    OS_EXC_CAUSE_HARDFAULT,      19
+.equ    OS_EXC_CAUSE_MEMFAULT,       20
+.equ    OS_EXC_CAUSE_BUSFAULT,       21
+.equ    OS_EXC_CAUSE_USAGEFAULT,     22
+.equ    OS_EXC_CAUSE_SVC,            23
 
-.equ    HF_DEBUGEVT,                 20
-.equ    HF_VECTBL,                   21
+.equ    HF_DEBUGEVT,                 24
+.equ    HF_VECTBL,                   25
 
 .equ    FLAG_ADDR_VALID,             0x10000       /* bit 16 */
 .equ    FLAG_HWI_ACTIVE,             0x20000       /* bit 17 */
@@ -262,6 +266,7 @@ _SvcLoop:
 osExcBusFault:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
+    LDR  R2, =OS_EXC_CAUSE_BUSFAULT
 
     TST  R0, #0x8000                   /* BFSR->BFARVALID */
     BEQ  _ExcBusNoADDR
@@ -287,6 +292,7 @@ _ExcBusNoADDR:
 osExcMemFault:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
+    LDR  R2, =OS_EXC_CAUSE_MEMFAULT
 
     TST  R0, #0x80                     /* MFSR->MMARVALID */
     BEQ  _ExcMemNoADDR
@@ -312,6 +318,7 @@ _ExcMemNoADDR:
 osExcUsageFault:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
+    LDR  R2, =OS_EXC_CAUSE_USAGEFAULT
 
     LDR  R1, =#0x030F
     LSL  R1, R1, #16
@@ -326,9 +333,9 @@ osExcUsageFault:
      * +-------------------+-----------------+------------------+------------------------+
      * |       31-17       |        16       |        15-8      |          7-0           |
      * +-------------------+-----------------+------------------+------------------------+
-     * |        ---        | FLAG_ADDR_VALID | Error state code |       0(invalid)       |
-     * |                   |        or       |       in         |                        |
-     * |                   |   0(invalid)    | table g_uwExcTbl |                        |
+     * |        ---        | FLAG_ADDR_VALID | Error state code |OS_EXC_CAUSE_BUSFAULT or|
+     * |                   |        or       |       in         |OS_EXC_CAUSE_MEMFAULT or|
+     * |                   |   0(invalid)    | table g_uwExcTbl |OS_EXC_CAUSE_USAGEFAULT |
      * +-------------------+-----------------+------------------+------------------------+
      * < R1 >: The value of BFAR or MMFAR if the bit16(FLAG_ADDR_VALID) of R0 is set to 1,
      *         else invalid.
@@ -339,6 +346,7 @@ osExcCommonBMU:
     ADD  R3, R3, R0
     LDRB R0, [R3]
     LSL  R0, R0, #0x8
+    ORR  R0, R0, R2
     ORR  R0, R0, R12
 
     /****************************************************************************************
@@ -355,9 +363,10 @@ osExcCommonBMU:
      * |     31-17      |        16       |         15-8        |          7-0           |
      * +----------------+-----------------+---------------------+------------------------+
      * |                | FLAG_ADDR_VALID | Error state code in | OS_EXC_CAUSE_HARDFAULT |
-     * |      ---       |       or        | table g_uwExcTbl    | or    OS_EXC_CAUSE_NMI |
-     * |                |   0(invalid)    | or      HF_DEBUGEVT | or     0(invalid)      |
-     * |                |                 | or      HF_VECTBL   |                        |
+     * |      ---       |       or        | table g_uwExcTbl    |or OS_EXC_CAUSE_MEMFAULT|
+     * |                |   0(invalid)    | or      HF_DEBUGEVT |or OS_EXC_CAUSE_BUSFAULT|
+     * |                |                 | or      HF_VECTBL   |or OS_EXC_CAUSE_NMI  or |
+     * |                |                 |                     | OS_EXC_CAUSE_USAGEFAULT|
      * +----------------+-----------------+---------------------+------------------------+
      * b17: FLAG_HWI_ACTIVE
      * b28: FLAG_NO_FLOAT
@@ -423,7 +432,7 @@ _ExcInMSP:
      *
      */
 _NoFloatInMsp:
-    ADD   R3, R13, #32                 /* #32: skip [R0-R3,R12,LR,PC] */
+    ADD   R3, R13, #32                 /* #32: skip [R0-R3,R12,LR,PC,xPSR] */
     PUSH  {R3}                         /* push [SAVED_SP]: MSP+32 = Stack pointer in MSP before entering the exception */
     MRS   R12, PRIMASK
     PUSH  {R4-R12}                     /* push R4-R11,PRIMASK to MSP */
@@ -465,18 +474,19 @@ _hwiActiveCheckNext:
      * MSP:
      *                                                                              High addr--->|
      * +--------------------------------------------------------------------------------+---------
-     *                   | S16-S31,R4-R11,PRIMASK,TASK_SP | R0-R3,R12,LR,PC,xPSR,S0-S15 |
+     *     | S16-S31,R4-R11,PRIMASK,TASK_SP | R0-R3,R12,LR,PC,xPSR,S0-S15,FPSCR,NO_NAME |
      * +--------------------------------------------------------------------------------+---------
-     *            R13--->|                                |<---         #96         --->|<---Initial R13
-     *                                                    |       (copied from PSP)     |
-     *                                                    |<---R2(no use)
+     *     |<---R13                         |<---                #104               --->|<---Initial R13
+     *                                      |              (copied from PSP)            |
+     *                                                                    R2(no use)--->|
      *
-     * NOTE: stack frame: R0-R3,R12,LR,PC,xPSR,S0-S15, not include FPSCR and NO_NAME.
+     * NOTE: stack frame: R0-R3,R12,LR,PC,xPSR,S0-S15,FPSCR,NO_NAME.
      */
-    MOV   R2,  R13
-    SUB   R13, #96                     /* #96: MSP reserved, used to store stack frame in PSP */
+    MOV   R2, R13
+    SUB   R2, R2, #8                   /* #8: reserved for [FPSCR,NO_NAME] */
+    SUB   R13, #104                    /* #104: MSP reserved, used to store stack frame in PSP */
 
-    MRS   R3,  PSP
+    MRS   R3, PSP
     ADD   R12, R3, #104                /* PSP+104 = Stack pointer of the task before entering the exception */
     PUSH  {R12}                        /* push task SP to MSP */
     MRS   R12, PRIMASK
@@ -488,6 +498,9 @@ _hwiActiveCheckNext:
     VLDMIA  R3!, {D8-D15}              /* restore stack frame[D0-D7] of PSP to D8-D15 */
     VSTMDB  R2!, {D8-D15}              /* save stack frame[D0-D7] to MSP */
     STMFD R2!, {R4-R11}                /* save stack frame[R0-xPSR] to MSP */
+    LDMFD R3, {R4-R5}                  /* restore stack frame[FPSCR,NO_NAME] to R4-R5 */
+    ADD   R2, R2, #104                 /* skip stack frame */
+    STMFD R2, {R4-R5}                  /* save stack frame[FPSCR,NO_NAME] to MSP */
     B     _handleEntry
 
     /**
@@ -504,15 +517,15 @@ _hwiActiveCheckNext:
      * NOTE: stack frame: R0-R3,R12,LR,PC,xPSR.
      */
 _NoFloatInPsp:
-    MOV   R2,  R13
+    MOV   R2, R13
     SUB   R13, #32                     /* #32: MSP reserved, used to store stack frame in PSP */
 
-    MRS   R3,  PSP
+    MRS   R3, PSP
     ADD   R12, R3, #32                 /* PSP+32 = Stack pointer of the task before entering the exception */
     PUSH  {R12}                        /* push task SP to MSP */
 
     MRS   R12, PRIMASK
-    PUSH {R4-R12}                      /* push R4-R11,PRIMASK of the current running task to MSP */
+    PUSH  {R4-R12}                     /* push R4-R11,PRIMASK of the current running task to MSP */
 
     /* Copy stack frame from the stack of the current running task to MSP */
     LDMFD R3, {R4-R11}                 /* restore stack frame of PSP to R4-R11 */
@@ -525,7 +538,8 @@ _NoFloatInPsp:
      *                b17:    FLAG_HWI_ACTIVE.
      *                b16:    FLAG_ADDR_VALID.
      *                b15-b8: Error state code in table g_uwExcTbl or HF_DEBUGEVT or HF_VECTBL.
-     *                b7-b0:  OS_EXC_CAUSE_HARDFAULT or OS_EXC_CAUSE_NMI or invalid.
+     *                b7-b0:  OS_EXC_CAUSE_HARDFAULT or OS_EXC_CAUSE_NMI or OS_EXC_CAUSE_MEMFAULT
+     *                        or OS_EXC_CAUSE_BUSFAULT or OS_EXC_CAUSE_USAGEFAULT.
      * param2: R1 --- The value of BFAR or MMFAR if R0[b16] = 1, otherwise invalid.
      * param3: R2 --- external interrupt number(0-239) if R0[b17] = 1, otherwise invalid.
      * param4: R3 --- Point to the top of the stack(R4 or S16) that the exception stack frame in MSP.
