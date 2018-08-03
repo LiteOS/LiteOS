@@ -149,6 +149,8 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
             if(NULL == dest->u.psk.psk)
                 goto atiny_param_dup_failed;
             memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
+            dest->u.psk.psk_id_len = src->u.psk.psk_id_len;
+            dest->u.psk.psk_len = src->u.psk.psk_len;
             break;
         case CLOUD_SECURITY_TYPE_CA:
             dest->u.ca.ca_crt = atiny_strdup((const char *)(src->u.ca.ca_crt));
