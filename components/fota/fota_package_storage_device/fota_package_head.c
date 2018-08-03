@@ -54,6 +54,7 @@
 #define FOTA_PACK_TLV_L_LEN 2
 
 #define FOTA_PACK_TLV_T_SHA256 1
+#define FOTA_PACK_TLV_T_SHA256_RSA2048 3
 
 #define VERSION_NO 0
 
@@ -159,11 +160,21 @@ int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const
     return FOTA_OK;
 }
 
+static int fota_pack_head_check_checksum_attribute(uint32_t attribute)
+{
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+    return (FOTA_PACK_TLV_T_SHA256_RSA2048 == attribute) ? FOTA_OK : FOTA_ERR;
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    return (FOTA_PACK_TLV_T_SHA256 == attribute) ? FOTA_OK : FOTA_ERR;
+#else
+    return FOTA_ERR;
+#endif
+}
+
 static int fota_pack_parse_checksum(fota_pack_head_s *head, uint8_t *buff, uint32_t len)
 {
     uint32_t attribute;
     uint32_t tlv_len;
-    fota_pack_checksum_type_e checksum_type = FOTA_PACK_MAX_CHECKSUM_TYPE;
     uint8_t *cur = buff + FOTA_TLV_START_POS;
     uint32_t left_len = len - FOTA_TLV_START_POS;
 
@@ -178,9 +189,8 @@ static int fota_pack_parse_checksum(fota_pack_head_s *head, uint8_t *buff, uint3
             FOTA_LOG("tvl err attribute %d, tlv_len %d", attribute, tlv_len);
             return FOTA_ERR;
         }
-        if(FOTA_PACK_TLV_T_SHA256 == attribute)
+        if(fota_pack_head_check_checksum_attribute(attribute) == FOTA_OK)
         {
-            checksum_type = FOTA_PACK_SHA_S56;
             if(head->checksum_pos)
             {
                 atiny_free(head->checksum_pos);
@@ -207,24 +217,22 @@ static int fota_pack_parse_checksum(fota_pack_head_s *head, uint8_t *buff, uint3
         left_len -= (FOTA_PACK_TLV_T_LEN  + FOTA_PACK_TLV_L_LEN + tlv_len);
     }
 
-    if(head->checksum_pos)
+    if(NULL == head->checksum_pos)
     {
-        if(head->checksum)
-        {
-            fota_pack_checksum_delete(head->checksum);
-            head->checksum = NULL;
-        }
-        head->checksum = fota_pack_checksum_create(checksum_type);
-        if(head->checksum == NULL)
-        {
-            FOTA_LOG("fota_pack_checksum_create fail");
-            return FOTA_ERR;
-        }
-        if(fota_pack_checksum_update_head(head->checksum, head) != FOTA_OK)
-        {
-            FOTA_LOG("fota_pack_checksum_update_head fail");
-            return FOTA_ERR;
-        }
+        FOTA_LOG("head empty checksum info");
+        return FOTA_ERR;
+    }
+
+    if(head->checksum)
+    {
+        fota_pack_checksum_delete(head->checksum);
+        head->checksum = NULL;
+    }
+    head->checksum = fota_pack_checksum_create(head);
+    if(head->checksum == NULL)
+    {
+        FOTA_LOG("fota_pack_checksum_create fail");
+        return FOTA_ERR;
     }
     return FOTA_OK;
 
@@ -348,12 +356,12 @@ const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head)
 }
 
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param)
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info)
 {
-    head->hardware = hardware;
-    head->update_check = update_check;
-    head->param = param;
-
+    head->hardware = device_info->hardware;
+    head->update_check = NULL;
+    head->param = NULL;
+    (void)memcpy(&head->key, &device_info->key, sizeof(head->key));
     return FOTA_OK;
 }
 
@@ -361,5 +369,11 @@ fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head)
 {
     return head->checksum;
 }
+
+fota_pack_key_s  *fota_pack_head_get_key(fota_pack_head_s *head)
+{
+    return &head->key;
+}
+
 
 

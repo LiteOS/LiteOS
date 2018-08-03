@@ -31,8 +31,8 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __USART2_H
-#define	__USART2_H
+#ifndef __SIM900A_H__
+#define __SIM900A_H__
 
 #include "atadapter.h"
 
@@ -70,5 +70,5 @@
 #define AT_DATAF_PREFIX_MULTI      "\r\n+RECEIVE"
 #define SIM900A_DELAY       LOS_TaskDelay
 
-#endif /* __USART2_H */
+#endif /* __SIM900A_H__ */
 
