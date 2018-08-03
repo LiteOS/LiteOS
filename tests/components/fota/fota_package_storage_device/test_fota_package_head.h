@@ -57,6 +57,12 @@ public:
     void test_fota_pack_head_init();
 
     TestFotaPackageHead();
+
+    ~TestFotaPackageHead();
+
+protected:
+    void tear_down();
+    void setup();
 };
 
 

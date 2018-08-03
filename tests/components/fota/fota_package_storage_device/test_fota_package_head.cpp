@@ -35,28 +35,126 @@
 #include "test_fota_package_head.h"
 #include "fota_package_head.h"
 #include "fota_firmware_writer.h"
+#include "fota_package_storage_device.h"
+
 #include "stddef.h"
 #include "ota_sha256.h"
+
+static int funcno;
+
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+#include "fota_package_sha256_rsa2048.h"
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+#include "fota_package_sha256.h"
+#else
+#endif
+
+
 
 
 struct fota_pack_checksum_tag_s
 {
-    ota_sha256_context sha256_context;
     uint32_t offset;
     bool offset_flag;
     fota_pack_head_s *head;
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+
+    fota_pack_sha256_rsa2048_s alg;
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    fota_pack_sha256_s alg;
+#endif
+
 };
 
 
 extern "C"
 {
+    #include "adapter_layer.h"
+	#include "ota.h"
+	#include "atiny_fota_api.h"
+	
+	typedef struct
+    {
+    atiny_fota_storage_device_s interface;
+    atiny_fota_storage_device_s *storage_device;
+    fota_hardware_s *hardware;
+
+    fota_pack_head_s head;
+    fota_firmware_writer_s writer;
+    fota_pack_checksum_s *checksum;
+    uint32_t total_len;
+    int init_flag;
+    }fota_pack_storage_device_s;
     extern int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *used_len);
     extern int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *used_len);
     extern int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
     //extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware, head_update_check update_check, void *param);
     extern int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info);
-    extern fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
+	extern fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
     extern void fota_pack_head_init(fota_pack_head_s *head);
+
+
+	
+	#if 1
+	static int test_hal_fota_write_software(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
+	{
+		return 0;
+	}
+	static int	test_hal_fota_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
+	{
+		return 0;
+	}
+	
+	static int test_hal_fota_active_software(atiny_fota_storage_device_s *thi)
+	{
+		return 0;
+	}
+	
+	static int test_hal_fota_get_software_result(atiny_fota_storage_device_s *thi)
+	{
+		return 0;
+	}
+	
+	static int test_hal_fota_write_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
+	{
+		return 0;
+	}
+	
+	static int test_hal_fota_read_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
+	{
+		return 0;
+	}
+	
+	static uint32_t test_hal_fota_get_block_size(struct fota_hardware_api_tag_s *thi, uint32_t offset)
+	{
+		return 0x1000;/*4096*/
+	}
+	
+	static uint32_t test_hal_fota_get_max_size(struct fota_hardware_api_tag_s *thi)
+	{
+		return 0x00040000;
+	}
+	
+	static int test_hal_fota_read_software(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
+	{
+		return 0;
+	}
+	
+	
+	static atiny_fota_storage_device_s storage_device = {test_hal_fota_write_software, test_hal_fota_write_software_end, test_hal_fota_active_software,
+									   test_hal_fota_get_software_result, test_hal_fota_write_update_info, test_hal_fota_read_update_info};
+
+
+
+	static fota_hardware_s hardware = {test_hal_fota_get_block_size, test_hal_fota_get_max_size, test_hal_fota_read_software};
+
+
+
+	#endif
+
+	
+
+	
 }
 
 static int flag_test_get_block_size;
@@ -133,15 +231,17 @@ void TestFotaPackageHead::test_fota_pack_head_parse_head_len()
 
 void TestFotaPackageHead::test_fota_pack_head_destroy()
 {
+
+     printf("come here1, test_fota_pack_head_destroy\n");
     fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
     memset(head, 0, sizeof(fota_pack_head_s));
     head->buff = (uint8_t *)malloc(sizeof(uint8_t));
     memset(head->buff, 0, sizeof(uint8_t));
     head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));
     memset(head->checksum_pos, 0, sizeof(uint8_t));
-    head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
-    memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
-
+    //head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
+    //memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
+    printf("come here2, test_fota_pack_head_destroy\n");
     fota_pack_head_destroy(head);
     TEST_ASSERT_MSG((NULL == head->buff), "fota_pack_head_destroy() is failed");
 
@@ -150,56 +250,22 @@ void TestFotaPackageHead::test_fota_pack_head_destroy()
 
 void TestFotaPackageHead::test_fota_pack_parse_checksum()
 {
+    int ret; 
+
+	
     stubInfo si_head_len;
+	uint8_t buff[]={0,0,0,0,0,0,0,64,0,0,0,128};
+	uint16_t used_len = 0;
     setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
-
-    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(head, 0, sizeof(fota_pack_head_s));
-    uint32_t offset = 0;
-//        uint8_t buff[20] = {0};
-    uint8_t buff[12] = {0};
-    uint16_t len = 0;
-    uint16_t used_len = 0;
-    int ret = 0;
-
-    flag_head_len = 0;
-    offset = 5;
-    len = 12;
-    head->head_len = 14;
-    head->stored_len = 15;
-    head->buff = (uint8_t *)malloc(15 * sizeof(uint8_t));
-    memset(head->buff, 0, 15 * sizeof(uint8_t));
-    buff[11 - offset] = 15;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);  
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_parse_checksum() is failed");
-
-    head->head_len = 17;
-    buff[11 - offset] = 18;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_parse_checksum() is failed");
-
-
-    buff[8] = 1;
-    head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));  
-    memset(head->checksum_pos, 0, sizeof(uint8_t));
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
-
-    buff[10] = 1;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
-
-    free(head->checksum);
-    head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
-    memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_parse_checksum() is failed");
-
-    free(head->checksum);
-    free(head->checksum_pos);
-    free(head->buff);
-    free(head);
+    flag_head_len = 1;
+	fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
+    ret = fota_pack_head_parse(&device->head, 0, buff, 12, &used_len); 
     cleanStub(&si_head_len);
+	TEST_ASSERT_MSG((ret == flag_head_len), "test_fota_pack_parse_checksum() is failed");
+	
+	//ret = fota_pack_head_parse(head, 0, buff, 12, &used_len); 
+    //TEST_ASSERT_MSG((ret == 0), "test_fota_pack_parse_checksum() is failed");
+    
 }
 
 void TestFotaPackageHead::test_fota_pack_head_parse()
@@ -300,7 +366,7 @@ void TestFotaPackageHead::test_fota_pack_head_set_head_info()
     fota_pack_head_s head;
     fota_pack_device_info_s device_info;
     memset(&head, 0, sizeof(fota_pack_head_s));
-    memset(&device_info, 0, sizeof(fota_pack_device_info_s));
+	memset(&device_info, 0, sizeof(fota_pack_device_info_s));
     int ret = fota_pack_head_set_head_info(&head, &device_info);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_set_head_info() is failed");
 
@@ -319,6 +385,26 @@ void TestFotaPackageHead::test_fota_pack_head_get_checksum()
 
 TestFotaPackageHead::TestFotaPackageHead()
 {
+    ota_assist assist;
+	assist.func_printf = printf;
+    assist.func_ota_read = hal_spi_flash_read;
+    assist.func_ota_write = hal_spi_flash_erase_write;
+    ota_register_assist(&assist);
+
+	ota_init();
+
+	fota_pack_device_info_s device_info;
+	
+    const char *rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    const char *rsa_E = "10001";
+
+    device_info.hardware = &hardware;
+    device_info.storage_device = &storage_device;
+    device_info.head_info_notify = NULL;
+    device_info.key.rsa_N = rsa_N;
+    device_info.key.rsa_E = rsa_E;
+    (void)fota_set_pack_device(fota_get_pack_device(), &device_info);
+	
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_parse_head_len);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_destroy);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_parse_checksum);
@@ -327,6 +413,21 @@ TestFotaPackageHead::TestFotaPackageHead()
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_set_head_info);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_get_checksum);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_init)
+}
+
+TestFotaPackageHead::~TestFotaPackageHead()
+{  
+}
+
+
+void TestFotaPackageHead::setup()
+{
+    printf("come into test funcno %d,%s\n", ++funcno,__FILE__);
+}
+
+void TestFotaPackageHead::tear_down()
+{
+    printf("exit from funcno %d,%s\n", funcno,__FILE__);
 }
 
 

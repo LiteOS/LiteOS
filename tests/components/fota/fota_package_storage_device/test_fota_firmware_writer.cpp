@@ -35,6 +35,8 @@
 #include "fota_firmware_writer.h"
 #include "fota_package_head.h"
 
+static int funcno;
+
 extern "C"
 {
     extern void fota_fmw_wr_free_save_buffer(fota_firmware_writer_s *writer);
@@ -265,12 +267,12 @@ TestFotaFirmwareWrite::~TestFotaFirmwareWrite()
 
 void TestFotaFirmwareWrite::setup()
 {
-    std::cout << "setup\n";
+    printf("come into test funcno %d,%s\n", ++funcno,__FILE__);
 }
 
 void TestFotaFirmwareWrite::tear_down()
 {
-    std::cout << "test_down\n";
+    printf("exit from funcno %d,%s\n", funcno,__FILE__);
 }
 
 

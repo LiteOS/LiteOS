@@ -46,6 +46,11 @@ public:
     void test_fota_pack_checksum_check();
 
     TestFotaPackageCheckSum();
+    ~TestFotaPackageCheckSum();
+
+protected:
+    void tear_down();
+    void setup();
 };
 
 

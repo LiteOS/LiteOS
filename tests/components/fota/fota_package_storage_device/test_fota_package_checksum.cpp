@@ -34,17 +34,34 @@
 
 #include "test_fota_package_checksum.h"
 #include "fota_package_checksum.h"
+#include "fota_package_storage_device.h"
 #include <string.h>
 #include "fota_package_head.h"
 #include "ota_sha256.h"
 
+static int funcno;
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+#include "fota_package_sha256_rsa2048.h"
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+#include "fota_package_sha256.h"
+#endif
+
+
 struct fota_pack_checksum_tag_s
 {
-    ota_sha256_context sha256_context;
     uint32_t offset;
     bool offset_flag;
     fota_pack_head_s *head;
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+
+    fota_pack_sha256_rsa2048_s alg;
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+    fota_pack_sha256_s alg;
+#else
+#endif
+
 };
+
 
 static int read_software(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
 {
@@ -141,6 +158,21 @@ TestFotaPackageCheckSum::TestFotaPackageCheckSum()
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_update_head);
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_update_data);
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_check);
+}
+
+TestFotaPackageCheckSum::~TestFotaPackageCheckSum()
+{  
+}
+
+
+void TestFotaPackageCheckSum::setup()
+{
+    printf("come into test funcno %d,%s\n", ++funcno,__FILE__);
+}
+
+void TestFotaPackageCheckSum::tear_down()
+{
+    printf("exit from funcno %d,%s\n", funcno,__FILE__);
 }
 
 

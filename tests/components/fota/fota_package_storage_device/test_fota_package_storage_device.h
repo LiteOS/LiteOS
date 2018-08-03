@@ -46,7 +46,11 @@ public:
     void test_fota_pack_storage_active_software();
     
     TestFotaPackageStorageDivice();
+    ~TestFotaPackageStorageDivice();
     
+protected:
+    void tear_down();
+    void setup();
 };
 
 
