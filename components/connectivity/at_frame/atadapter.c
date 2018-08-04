@@ -191,7 +191,7 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     int32_t ret = 0;
     char* cmp = NULL;
     int i;
-    int rlen;
+//    int rlen;
 //    memset(wbuf, 0, AT_DATA_LEN);
 
     for(i=0;i<at_oob.oob_num;i++){

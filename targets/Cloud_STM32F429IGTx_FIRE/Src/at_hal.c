@@ -150,7 +150,7 @@ void at_irq_handler(void)
 #else
         wi_bak = wi;
 #endif   
-        LOS_SemPost(at.recv_sem);
+        (void)LOS_SemPost(at.recv_sem);
         
 #ifdef USE_USARTRX_DMA		
         HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*dma_wbi],at_user_conf.user_buf_len);

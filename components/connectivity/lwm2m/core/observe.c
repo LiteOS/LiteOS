@@ -1021,7 +1021,7 @@ uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *obse
     watcherP.counter = observe_info->counter;
     watcherP.server = server;
 
-    return observe_send_transaction(contextP, cfg, &watcherP, buffer, res);
+    return (uint8_t)observe_send_transaction(contextP, cfg, &watcherP, buffer, res);
 }
 
 #endif
