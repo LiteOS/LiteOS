@@ -162,16 +162,11 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listener_list_add(&listener);
 
     at_transmit((uint8_t*)cmd, strlen((char*)cmd), 1);
-#if 0
-    LOS_TaskDelay(200);
-#else
     (void)LOS_SemPend(at.resp_sem, 200);
     listener.suffix = (int8_t *)suffix;
 
     at_listner_list_del(&listener);
     at_listener_list_add(&listener);
-#endif
-
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 

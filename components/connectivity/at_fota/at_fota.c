@@ -184,7 +184,7 @@ int ver_to_hex(const char *bufin, int len, char *bufout)
 
 int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
 {
-    uint8_t* pbuf= NULL;
+    uint8_t* pbuf = NULL;
     int ret = 0;
 
     if(valid_check((char*)buf,buflen)!=0)
