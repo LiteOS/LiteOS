@@ -22,6 +22,7 @@
 
 extern "C"
 {
+#include <stdio.h>
 #include <string.h>    
 #include "at_fota_hal.h"
 

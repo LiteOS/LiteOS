@@ -117,7 +117,7 @@ int valid_check(char* buf, int32_t buflen)
      pbuf->chk_code = htons_ota(pbuf->chk_code);
      pbuf->data_len = htons_ota(pbuf->data_len);
      if(pbuf->ori_id != 0XFFFE || (pbuf->ver_num & 0xf) != 1 || \
-        (pbuf->msg_code < MSG_GET_VER && pbuf->msg_code > MSG_NOTIFY_STATE))
+        (pbuf->msg_code < MSG_GET_VER || pbuf->msg_code > MSG_NOTIFY_STATE))
      {
          AT_LOG("head wrong");
          return -1;
@@ -341,7 +341,7 @@ int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
         }
     case UPDATED:
         AT_LOG("update success");
-        if(pbuf == OTA_OK)
+        if(*pbuf == OTA_OK)
         {
             memset(&g_at_update_record,0,sizeof(at_update_record_t));
         }

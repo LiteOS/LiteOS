@@ -38,6 +38,7 @@ public:
     void test_ver_to_hex(void);
     void test_ota_cmd_ioctl(void);
     void test_at_ota_init(void);
+    void test_ota_report_result(void);
     void test_ota_process_main(void);
 
 protected:
