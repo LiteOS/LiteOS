@@ -127,6 +127,8 @@ int32_t nb_send_str(const char* buf, int len)
     if(ret < 0)
         return -1;
     str = strstr(rbuf,"SENT=");
+    if(str == NULL)
+        return -1;
     sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
     if(curcnt == sndcnt)
         return -1;
@@ -154,6 +156,8 @@ int32_t nb_send_payload(const char* buf, int len)
     if(ret < 0)
         return -1;
     str = strstr(rbuf,"SENT=");
+    if(str == NULL)
+        return -1;
     sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
     if(curcnt == sndcnt)
         return -1;
