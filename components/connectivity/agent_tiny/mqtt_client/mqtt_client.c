@@ -599,17 +599,17 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
         goto device_info_dup_failed;
 	
     if(NULL != src->user_name)
-	{
+    {
         dest->user_name = atiny_strdup((const char *)(src->user_name));
         if(NULL == dest->user_name)
             goto device_info_dup_failed;
-	}
+    }
     if(NULL != src->password)
-	{
+    {
         dest->password = atiny_strdup((const char *)(src->password));
         if(NULL == dest->password)
             goto device_info_dup_failed;
-	}
+    }
 
     dest->will_flag = src->will_flag;
 

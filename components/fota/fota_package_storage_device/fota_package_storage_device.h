@@ -46,6 +46,12 @@
 
 #define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
 
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
 typedef struct fota_hardware_api_tag_s
 {
     uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
@@ -69,9 +75,6 @@ typedef struct
 }fota_pack_device_info_s;
 
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
 
 /**
  *@ingroup atiny_adapter
