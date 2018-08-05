@@ -37,7 +37,9 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "at_fota.h"
+#endif
 extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
