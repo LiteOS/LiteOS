@@ -70,7 +70,7 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
         return FOTA_ERR;
     }
 
-    mbedtls_rsa_init(dtls_rsa, MBEDTLS_RSA_PKCS_V15, 0);
+    mbedtls_rsa_init(dtls_rsa, MBEDTLS_RSA_PKCS_V21, 0);
     dtls_rsa->len = FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN;
     if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != FOTA_OK)
     {
