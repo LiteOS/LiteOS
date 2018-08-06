@@ -13,16 +13,16 @@
       <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>GD32F450IK</Device>
+          <Device>GD32F103VC</Device>
           <Vendor>GigaDevice</Vendor>
-          <PackID>GigaDevice.GD32F4xx_DFP.1.0.1</PackID>
-          <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4</PackURL>
-          <Cpu>IRAM(0x20000000,0x030000) IRAM2(0x10000000,0x010000) IROM(0x08000000,0x0300000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
+          <PackID>GigaDevice.GD32F10x_DFP.2.0.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
+          <Cpu>IRAM(0x20000000,0x0000C000) IROM(0x08000000,0x00040000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0GD32F4xx_3MB -FS08000000 -FL0300000 -FP0($$Device:GD32F450IK$Flash\GD32F4xx_3MB.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0GD32F10x_HD -FS08000000 -FL040000 -FP0($$Device:GD32F103VC$Flash\GD32F10x_HD.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:GD32F450IK$Device\Include\gd32f4xx.h</RegisterFile>
+          <RegisterFile>$$Device:GD32F103VC$Device\Include\gd32f10x.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:GD32F450IK$SVD\GD32F4xx.svd</SFDFile>
+          <SFDFile>$$Device:GD32F103VC$SVD\GD32F10x\GD32F10x_HD.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -109,13 +109,13 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments> -REMAP -MPU</SimDllArguments>
+          <SimDllArguments> -REMAP</SimDllArguments>
           <SimDlgDll>DCM.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pCM4</SimDlgDllArguments>
+          <SimDlgDllArguments>-pCM3</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
-          <TargetDllArguments> -MPU</TargetDllArguments>
+          <TargetDllArguments></TargetDllArguments>
           <TargetDlgDll>TCM.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pCM4</TargetDlgDllArguments>
+          <TargetDlgDllArguments>-pCM3</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -132,12 +132,12 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>1</Capability>
-            <DriverSelection>4096</DriverSelection>
+            <Capability>0</Capability>
+            <DriverSelection>-1</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -173,7 +173,7 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M4"</AdsCpuType>
+            <AdsCpuType>"Cortex-M3"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
             <uocRom>0</uocRom>
@@ -182,8 +182,8 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>2</RvdsVP>
-            <hadIRAM2>1</hadIRAM2>
+            <RvdsVP>0</RvdsVP>
+            <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>1</useUlib>
@@ -191,7 +191,7 @@
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
-            <RwSelD>4</RwSelD>
+            <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
             <OptFeed>0</OptFeed>
             <NoZi1>0</NoZi1>
@@ -243,12 +243,12 @@
               <IRAM>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x30000</Size>
+                <Size>0xc000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x300000</Size>
+                <Size>0x40000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -273,7 +273,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x300000</Size>
+                <Size>0x40000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -298,12 +298,12 @@
               <OCR_RVCT9>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x30000</Size>
+                <Size>0xc000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
-                <StartAddress>0x10000000</StartAddress>
-                <Size>0x10000</Size>
+                <StartAddress>0x0</StartAddress>
+                <Size>0x0</Size>
               </OCR_RVCT10>
             </OnChipMemories>
             <RvctStartVector></RvctStartVector>
@@ -332,10 +332,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--diag_suppress=1,186</MiscControls>
-              <Define>USE_HAL_DRIVER,NDEBUG</Define>
+              <MiscControls>--diag_suppress=186</MiscControls>
+              <Define>GD32F10X_HD,NDEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\Drivers\GD32F4xx_standard_peripheral\Include;..\Hardware\Inc;..\..\..\arch\arm\common\cmsis</IncludePath>
+              <IncludePath>..\Inc;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\OS_CONFIG;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m3;..\..\..\examples\include;..\Drivers\GD32F10x_standard_peripheral\Include;..\Hardware\Inc;..\..\..\arch\arm\common\cmsis</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -366,7 +366,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\GD32F450IK-LiteOS.sct</ScatterFile>
+            <ScatterFile>.\GD32F103VC_LiteOS.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -390,34 +390,29 @@
           <GroupName>user</GroupName>
           <Files>
             <File>
-              <FileName>dwt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\dwt.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_gd32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\system_gd32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f450i_eval.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\gd32f450i_eval.c</FilePath>
+              <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
               <FileName>sys_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\sys_init.c</FilePath>
+              <FilePath>..\src\sys_init.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
+              <FileName>system_gd32f10x.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\usart.c</FilePath>
+              <FilePath>..\src\system_gd32f10x.c</FilePath>
+            </File>
+            <File>
+              <FileName>dwt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\dwt.c</FilePath>
+            </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\led.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -495,6 +490,16 @@
               <FilePath>..\..\..\kernel\base\mem\bestfit_little\los_memory.c</FilePath>
             </File>
             <File>
+              <FileName>los_memcheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\base\mem\common\los_memcheck.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_memstat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\base\mem\common\los_memstat.c</FilePath>
+            </File>
+            <File>
               <FileName>los_slab.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\base\mem\common\los_slab.c</FilePath>
@@ -503,6 +508,11 @@
               <FileName>los_slabmem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\base\mem\common\los_slabmem.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_membox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\base\mem\membox\los_membox.c</FilePath>
             </File>
             <File>
               <FileName>los_misc.c</FileName>
@@ -515,24 +525,9 @@
               <FilePath>..\..\..\kernel\base\om\los_err.c</FilePath>
             </File>
             <File>
-              <FileName>los_tickless.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\extended\tickless\los_tickless.c</FilePath>
-            </File>
-            <File>
               <FileName>los_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\los_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_membox.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\membox\los_membox.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_memcheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\base\mem\common\los_memcheck.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -557,147 +552,132 @@
             <File>
               <FileName>los_dispatch_keil.S</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\arch\arm\arm-m\cortex-m4\keil\los_dispatch_keil.S</FilePath>
+              <FilePath>..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_keil.S</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers/GD32F4xx_standard_peripheral</GroupName>
+          <GroupName>Drivers/GD32F10x_standard_peripheral</GroupName>
           <Files>
             <File>
-              <FileName>gd32f4xx_ctc.c</FileName>
+              <FileName>gd32f10x_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_ctc.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_adc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_dac.c</FileName>
+              <FileName>gd32f10x_bkp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_dac.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_bkp.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_dbg.c</FileName>
+              <FileName>gd32f10x_can.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_dbg.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_can.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_dci.c</FileName>
+              <FileName>gd32f10x_crc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_dci.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_crc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_dma.c</FileName>
+              <FileName>gd32f10x_dac.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_dma.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_dac.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_enet.c</FileName>
+              <FileName>gd32f10x_dbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_enet.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_dbg.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_exmc.c</FileName>
+              <FileName>gd32f10x_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_exmc.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_dma.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_exti.c</FileName>
+              <FileName>gd32f10x_enet.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_exti.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_enet.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_fmc.c</FileName>
+              <FileName>gd32f10x_exmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_fmc.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_exmc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_fwdgt.c</FileName>
+              <FileName>gd32f10x_exti.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_fwdgt.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_exti.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_gpio.c</FileName>
+              <FileName>gd32f10x_fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_gpio.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_fmc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_i2c.c</FileName>
+              <FileName>gd32f10x_fwdgt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_i2c.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_fwdgt.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_ipa.c</FileName>
+              <FileName>gd32f10x_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_ipa.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_iref.c</FileName>
+              <FileName>gd32f10x_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_iref.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_misc.c</FileName>
+              <FileName>gd32f10x_misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_misc.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_misc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_pmu.c</FileName>
+              <FileName>gd32f10x_pmu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_pmu.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_pmu.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_rcu.c</FileName>
+              <FileName>gd32f10x_rcu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_rcu.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_rcu.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_rtc.c</FileName>
+              <FileName>gd32f10x_rtc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_rtc.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_rtc.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_syscfg.c</FileName>
+              <FileName>gd32f10x_sdio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_syscfg.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_sdio.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_timer.c</FileName>
+              <FileName>gd32f10x_spi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_timer.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_spi.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_tli.c</FileName>
+              <FileName>gd32f10x_timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_tli.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_timer.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_trng.c</FileName>
+              <FileName>gd32f10x_usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_trng.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_usart.c</FilePath>
             </File>
             <File>
-              <FileName>gd32f4xx_wwdgt.c</FileName>
+              <FileName>gd32f10x_wwdgt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_wwdgt.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_sdio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_sdio.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>gd32f4xx_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\GD32F4xx_standard_peripheral\Source\gd32f4xx_usart.c</FilePath>
+              <FilePath>..\Drivers\GD32F10x_standard_peripheral\Source\gd32f10x_wwdgt.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>examples</GroupName>
+          <GroupName>example</GroupName>
           <Files>
             <File>
               <FileName>los_api_dynamic_mem.c</FileName>
@@ -773,50 +753,7 @@
   <RTE>
     <apis/>
     <components/>
-    <files>
-      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f4xx_sdio.c" version="1.0.1">
-        <instance index="0" removed="1">RTE\Device\GD32F450IK\gd32f4xx_sdio.c</instance>
-        <component Cclass="Device" Cgroup="GD32F4xx_StdPeripherals" Csub="SDIO" Cvendor="GigaDevice" Cversion="1.0.1" condition="GD32F4xx STDPERIPHERALS RCU"/>
-        <package name="GD32F4xx_DFP" schemaVersion="1.1" url="http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4" vendor="GigaDevice" version="1.0.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f4xx_spi.c" version="1.0.1">
-        <instance index="0" removed="1">RTE\Device\GD32F450IK\gd32f4xx_spi.c</instance>
-        <component Cclass="Device" Cgroup="GD32F4xx_StdPeripherals" Csub="SPI_I2S" Cvendor="GigaDevice" Cversion="1.0.1" condition="GD32F4xx STDPERIPHERALS RCU"/>
-        <package name="GD32F4xx_DFP" schemaVersion="1.1" url="http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4" vendor="GigaDevice" version="1.0.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f4xx_usart.c" version="1.0.1">
-        <instance index="0" removed="1">RTE\Device\GD32F450IK\gd32f4xx_usart.c</instance>
-        <component Cclass="Device" Cgroup="GD32F4xx_StdPeripherals" Csub="USART" Cvendor="GigaDevice" Cversion="1.0.1" condition="GD32F4xx STDPERIPHERALS RCU"/>
-        <package name="GD32F4xx_DFP" schemaVersion="1.1" url="http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4" vendor="GigaDevice" version="1.0.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" condition="Compiler ARMCC" name="Device\Source\ARM\startup_gd32f450.s" version="1.0.1">
-        <instance index="0" removed="1">RTE\Device\GD32F450IK\startup_gd32f450.s</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="GigaDevice" Cversion="1.0.1" condition="GD32F450"/>
-        <package name="GD32F4xx_DFP" schemaVersion="1.1" url="http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4" vendor="GigaDevice" version="1.0.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" name="Device\Source\system_gd32f4xx.c" version="1.0.1">
-        <instance index="0" removed="1">RTE\Device\GD32F450IK\system_gd32f4xx.c</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="GigaDevice" Cversion="1.0.1" condition="GD32F450"/>
-        <package name="GD32F4xx_DFP" schemaVersion="1.1" url="http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4" vendor="GigaDevice" version="1.0.1"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" name="Network\Config\Net_Config_ETH.h" version="7.0.0">
-        <instance index="0" removed="1">RTE\Network\Net_Config_ETH_0.h</instance>
-        <component Cbundle="MDK-Pro" Cclass="Network" Cgroup="Interface" Csub="ETH" Cvendor="Keil" Cversion="7.4.0" condition="Network Driver ETH" maxInstances="1"/>
-        <package name="MDK-Middleware" schemaVersion="1.4" url="http://www.keil.com/pack/" vendor="Keil" version="7.4.0"/>
-        <targetInfos/>
-      </file>
-      <file attr="config" category="source" name="Network\Config\Net_Config_UDP.h" version="5.0.0">
-        <instance index="0" removed="1">RTE\Network\Net_Config_UDP.h</instance>
-        <component Cbundle="MDK-Pro" Cclass="Network" Cgroup="Socket" Csub="UDP" Cvendor="Keil" Cversion="7.4.0" condition="Network Interface"/>
-        <package name="MDK-Middleware" schemaVersion="1.4" url="http://www.keil.com/pack/" vendor="Keil" version="7.4.0"/>
-        <targetInfos/>
-      </file>
-    </files>
+    <files/>
   </RTE>
 
 </Project>
