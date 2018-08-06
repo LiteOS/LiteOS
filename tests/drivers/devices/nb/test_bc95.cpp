@@ -62,8 +62,7 @@ extern "C"
 	extern void at_init();
 	extern void at_deinit();
 
-    extern int32_t nb_get_auto_connect(void);
-    extern int32_t nb_check_csq(void);
+    
     extern int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto);
     extern int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto);
     extern int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len);
@@ -71,7 +70,6 @@ extern "C"
     extern int32_t nb_recv_cb(int32_t id);
     extern int32_t nb_deinit(void);
     extern int32_t nb_close(int32_t socket);
-    extern int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode);
     extern int32_t nb_send_str(const char* buf, int len);
     extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
     
@@ -229,12 +227,9 @@ TestBC95::TestBC95()
     TEST_ADD(TestBC95::test_str_to_hex);
     TEST_ADD(TestBC95::test_nb_reboot);
     TEST_ADD(TestBC95::test_nb_hw_detect);
-    TEST_ADD(TestBC95::test_nb_err_cue);
     TEST_ADD(TestBC95::test_nb_set_cdpserver);
     TEST_ADD(TestBC95::test_nb_send_psk);
     TEST_ADD(TestBC95::test_nb_send_payload);
-    TEST_ADD(TestBC95::test_nb_get_auto_connect);
-    TEST_ADD(TestBC95::test_nb_check_csq);
     TEST_ADD(TestBC95::test_nb_query_ip);
     TEST_ADD(TestBC95::test_nb_get_netstat);
     TEST_ADD(TestBC95::test_nb_create_udpsock);
@@ -247,7 +242,6 @@ TestBC95::TestBC95()
 	TEST_ADD(TestBC95::test_nb_recv_cb);
 	TEST_ADD(TestBC95::test_nb_deinit);
     TEST_ADD(TestBC95::test_nb_send_str);
-    TEST_ADD(TestBC95::test_neul_bc95_udp_read);
     TEST_ADD(TestBC95::test_nb_data_ioctl);
     
 }
@@ -291,16 +285,8 @@ void TestBC95::test_nb_hw_detect(void)
     TEST_ASSERT_MSG((ret == AT_OK), "test_nb_hw_detect failed");
 }
 
-void TestBC95::test_nb_err_cue(void)
-{
-    int32_t ret = AT_OK;
 	
-    stubInfo stub_info;
-	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
-	ret = nb_err_cue();
-	cleanStub(&stub_info);
-    TEST_ASSERT_MSG((ret == AT_OK), "test_nb_err_cue failed");
-}
+
 void TestBC95::test_nb_set_cdpserver(void)
 {
     int32_t ret = AT_OK;
@@ -342,24 +328,10 @@ void TestBC95::test_nb_send_payload(void)
     TEST_ASSERT_MSG((ret == AT_OK), "test_nb_send_payload failed");
 	
 }
-void TestBC95::test_nb_get_auto_connect(void)
-{
-	int32_t ret = AT_OK;
-    stubInfo stub_info;
-	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
-	ret = nb_get_auto_connect();
-	cleanStub(&stub_info);
-    TEST_ASSERT_MSG((ret == AT_OK), "test_nb_get_auto_connect failed");
-}
-void TestBC95::test_nb_check_csq(void)
-{
-	int32_t ret = AT_OK;
-    stubInfo stub_info;
-	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
-	ret = nb_check_csq();
-	cleanStub(&stub_info);
-    TEST_ASSERT_MSG((ret == AT_OK), "test_nb_check_csq failed");
-}
+
+
+
+
 void TestBC95::test_nb_query_ip(void)
 {
     int32_t ret = AT_OK;
@@ -498,23 +470,8 @@ void TestBC95::test_nb_send_str(void)
 	cleanStub(&stub_info);
     TEST_ASSERT(ret == 0);
 }
-void TestBC95::test_neul_bc95_udp_read(void)
-{
-    int socket = 0;
-    char *buf = NULL;
-    int maxrlen = 100;
-    int mode = 0;
-    int ret = -1;
 
-    buf = (char *)malloc(AT_DATA_LEN);
-    stubInfo stub_info;
-	setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
-    ret = neul_bc95_udp_read(socket, buf, maxrlen, mode);
-    TEST_ASSERT(ret == 2);
-    cleanStub(&stub_info);
 
-    free(buf);
-}
 
 void TestBC95::test_nb_data_ioctl(void)
 {

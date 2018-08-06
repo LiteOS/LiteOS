@@ -54,12 +54,9 @@ public:
     void test_str_to_hex(void);
     void test_nb_reboot(void);
     void test_nb_hw_detect(void);
-    void test_nb_err_cue(void);
     void test_nb_set_cdpserver(void);
     void test_nb_send_psk(void);
     void test_nb_send_payload(void);
-    void test_nb_get_auto_connect(void);
-    void test_nb_check_csq(void);
     void test_nb_query_ip(void);
     void test_nb_get_netstat(void);
     void test_nb_create_udpsock(void);
@@ -71,7 +68,6 @@ public:
 	void test_nb_recv_cb(void);
 	void test_nb_deinit(void);
     void test_nb_send_str(void);
-    void test_neul_bc95_udp_read(void);
     void test_nb_data_ioctl(void);
 
 };

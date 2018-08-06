@@ -87,34 +87,37 @@ static int test_fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, co
         return FOTA_ERR;
 }
 
+int g_fota_result = 0;
 
 static int test_hal_fota_write_software(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
-    return 0;
+    return g_fota_result;
 }
 static int  test_hal_fota_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
 {
-    return 0;
+    return g_fota_result;
 }
+
+
 
 static int test_hal_fota_active_software(atiny_fota_storage_device_s *thi)
 {
-    return 0;
+    return g_fota_result;
 }
 
 static int test_hal_fota_get_software_result(atiny_fota_storage_device_s *thi)
 {
-    return 0;
+    return g_fota_result;
 }
 
 static int test_hal_fota_write_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
-    return 0;
+    return g_fota_result;
 }
 
 static int test_hal_fota_read_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
 {
-    return 0;
+    return g_fota_result;
 }
 
 static uint32_t test_hal_fota_get_block_size(struct fota_hardware_api_tag_s *thi, uint32_t offset)
@@ -129,7 +132,7 @@ static uint32_t test_hal_fota_get_max_size(struct fota_hardware_api_tag_s *thi)
 
 static int test_hal_fota_read_software(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
 {
-    return 0;
+    return g_fota_result;
 }
 
 static atiny_fota_storage_device_s storage_device = {test_hal_fota_write_software, test_hal_fota_write_software_end, test_hal_fota_active_software,
@@ -189,6 +192,12 @@ void TestFotaPackageStorageDivice::test_fota_pack_storage_write_software_end()
     ret = interface->write_software_end(interface, ATINY_FOTA_DOWNLOAD_FAIL, 0);
     TEST_ASSERT(FOTA_OK == ret);
 
+	g_fota_result = 1;
+	device->writer.buffer_stored_len = 1;
+    ret = interface->write_software_end(interface, ATINY_FOTA_DOWNLOAD_OK, 0);
+    TEST_ASSERT(FOTA_ERR == ret);
+	g_fota_result = 0;
+
     stubInfo si_fota_pack_head_check;
     setStub((void *)fota_pack_head_check, (void *)test_fota_pack_head_check, &si_fota_pack_head_check);
     
@@ -205,6 +214,10 @@ void TestFotaPackageStorageDivice::test_fota_pack_storage_write_software()
     uint32_t len = 0;
     uint32_t offset = 0;
     atiny_fota_storage_device_s * interface = NULL;
+    
+    uint8_t buff[20] = {0,0,0,0,0,0,0,20,0,0,0,22};
+    uint16_t used_len;
+
     
     interface = fota_get_pack_device();
     ret = interface->write_software(NULL, offset, NULL, len);
@@ -231,20 +244,108 @@ void TestFotaPackageStorageDivice::test_fota_pack_storage_write_software()
 
     cleanStub(&si_fota_fmw_wr_write);
     cleanStub(&si_fota_pack_head_parse);
+    
+    buff[13] = 3;
+    buff[15] = 4;
+    ret = interface->write_software(interface, 0, buff, 20);
+    TEST_ASSERT(FOTA_OK == ret);
+	
+
+    //printf("start here test_fota_pack_storage_write_software\n");
+    buff[13] = 3;
+    buff[15] = 4;
+    ret = interface->write_software(interface, 13, buff, 20);
+    TEST_ASSERT(FOTA_OK == ret);
+    //printf("over here test_fota_pack_storage_write_software\n");
+	
+	
 #endif
 }
 
 void TestFotaPackageStorageDivice::test_fota_pack_storage_active_software()
 {
+    int ret = 0;
     atiny_fota_storage_device_s * interface = NULL;
-    fota_pack_storage_device_s *device = NULL;
     interface = fota_get_pack_device();
-    device = (fota_pack_storage_device_s *)interface;
-    interface->active_software(interface);
-    interface->get_software_result(interface);
-    interface->read_update_info(interface, 0, NULL, 0);
-    interface->write_update_info(interface, 0, NULL, 0);
+   
+	
+	ret = interface->active_software(NULL);
+	TEST_ASSERT(FOTA_ERR == ret);
+    g_fota_result = 1;
+	ret = interface->active_software(interface);
+	TEST_ASSERT(FOTA_ERR == ret);
+	g_fota_result = 0;
+	ret = interface->active_software(interface);
+	TEST_ASSERT(FOTA_OK == ret);
 }
+
+
+void TestFotaPackageStorageDivice::test_fota_pack_storage_get_software_result()
+{
+    int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+  
+    interface = fota_get_pack_device();
+	
+
+	ret = interface->get_software_result(NULL);
+	TEST_ASSERT(FOTA_ERR == ret);
+    g_fota_result = 1;
+	ret = interface->get_software_result(interface);
+	TEST_ASSERT(FOTA_ERR == ret);
+	g_fota_result = 0;
+	ret = interface->get_software_result(interface);
+	TEST_ASSERT(FOTA_OK == ret);
+
+	
+    
+}
+
+void TestFotaPackageStorageDivice::test_fota_pack_storage_write_update_info()
+{
+    int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+	uint8_t sbuff[16] = {0};
+
+    interface = fota_get_pack_device();
+
+
+	ret = interface->write_update_info(NULL,0,NULL,0);
+	TEST_ASSERT(FOTA_ERR == ret);
+    g_fota_result = 1;
+	ret = interface->write_update_info(interface,0,sbuff,16);
+	TEST_ASSERT(FOTA_ERR == ret);
+	g_fota_result = 0;
+	ret = interface->write_update_info(interface,0,sbuff,16);
+	TEST_ASSERT(FOTA_OK == ret);
+}
+
+void TestFotaPackageStorageDivice::test_fota_pack_storage_read_update_info()
+{
+    int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+    uint8_t sbuff[16] = {0};
+	
+    interface = fota_get_pack_device();
+    interface->read_update_info(interface, 0, NULL, 0);
+
+    ret = interface->write_update_info(NULL,0,NULL,0);
+    TEST_ASSERT(FOTA_ERR == ret);
+    g_fota_result = 1;
+    ret = interface->write_update_info(interface,0,sbuff,16);
+    TEST_ASSERT(FOTA_ERR == ret);
+     g_fota_result = 0;
+    ret = interface->write_update_info(interface,0,sbuff,16);
+    TEST_ASSERT(FOTA_OK == ret);
+    
+}
+
+
+
+
+
+
+
 
 TestFotaPackageStorageDivice::TestFotaPackageStorageDivice()
 { 
@@ -254,10 +355,25 @@ TestFotaPackageStorageDivice::TestFotaPackageStorageDivice()
     TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_write_software_end);
     TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_write_software);
     TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_active_software);
+    TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_get_software_result);
+    TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_write_update_info);
+    TEST_ADD(TestFotaPackageStorageDivice::test_fota_pack_storage_read_update_info);
+	
 }
 
 TestFotaPackageStorageDivice::~TestFotaPackageStorageDivice()
 {
+    atiny_fota_storage_device_s * interface = NULL;
+    fota_pack_storage_device_s *device = NULL;
+
+    interface = fota_get_pack_device();
+
+    device = (fota_pack_storage_device_s *)interface;
+	
+   
+	
+    fota_pack_head_destroy(&device->head);
+    fota_fmw_wr_destroy(&device->writer);
 }
 
 void TestFotaPackageStorageDivice::setup()
@@ -272,4 +388,5 @@ void TestFotaPackageStorageDivice::tear_down()
 {
     printf("exit from funcno %d,%s\n", funcno,__FILE__);
 }
+
 

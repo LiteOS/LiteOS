@@ -20,7 +20,7 @@ CFLAGS :=
 endif
 
 
-CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
 CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
 CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
@@ -89,6 +89,7 @@ C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
+	@echo "	ota utility OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
@@ -115,7 +116,7 @@ $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
     
 clean:
 	rm -rf $(BUILD_DIR) bin gcov *.htm *.log

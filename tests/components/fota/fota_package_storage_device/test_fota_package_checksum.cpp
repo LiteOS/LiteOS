@@ -63,23 +63,130 @@ struct fota_pack_checksum_tag_s
 };
 
 
-static int read_software(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
-{
-    return 0;
-}
+
 
 extern "C"
 {
+    #include "adapter_layer.h"
+    #include "ota.h"
+	#include "atiny_fota_api.h"
+	#include "fota_firmware_writer.h"
+    typedef struct
+    {
+    atiny_fota_storage_device_s interface;
+    atiny_fota_storage_device_s *storage_device;
+    fota_hardware_s *hardware;
+
+    fota_pack_head_s head;
+    fota_firmware_writer_s writer;
+    fota_pack_checksum_s *checksum;
+    uint32_t total_len;
+    int init_flag;
+    }fota_pack_storage_device_s;
+	static int g_result = 0;
+	static int test_hal_fota_write_software(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
+    {
+			return 0;
+    }
+		static int	test_hal_fota_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
+		{
+			return 0;
+		}
+		
+		static int test_hal_fota_active_software(atiny_fota_storage_device_s *thi)
+		{
+			return 0;
+		}
+		
+		static int test_hal_fota_get_software_result(atiny_fota_storage_device_s *thi)
+		{
+			return 0;
+		}
+		
+		static int test_hal_fota_write_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
+		{
+			return 0;
+		}
+		
+		static int test_hal_fota_read_update_info(atiny_fota_storage_device_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
+		{
+			return 0;
+		}
+		
+		static uint32_t test_hal_fota_get_block_size(struct fota_hardware_api_tag_s *thi, uint32_t offset)
+		{
+			return 0x1000;/*4096*/
+		}
+		
+		static uint32_t test_hal_fota_get_max_size(struct fota_hardware_api_tag_s *thi)
+		{
+			return 0x00040000;
+		}
+		
+		static int test_hal_fota_read_software(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len)
+		{
+
+			return g_result;
+		}
+		
+		
+		static atiny_fota_storage_device_s storage_device = {test_hal_fota_write_software, test_hal_fota_write_software_end, test_hal_fota_active_software,
+										   test_hal_fota_get_software_result, test_hal_fota_write_update_info, test_hal_fota_read_update_info};
+	
+	
+	
+		static fota_hardware_s hardware = {test_hal_fota_get_block_size, test_hal_fota_get_max_size, test_hal_fota_read_software};
+	
+	
+    static void* stub_atiny_malloc_fail(size_t size)
+    {
+
+        return NULL;
+
+	    
+    }
+
+	
     
 }
 
 void TestFotaPackageCheckSum::test_fota_pack_checksum_create()
 {
+
+    ota_assist assist;
+	assist.func_printf = printf;
+    assist.func_ota_read = hal_spi_flash_read;
+    assist.func_ota_write = hal_spi_flash_erase_write;
+	printf("come into test_fota_pack_checksum_create\n");
+    ota_register_assist(&assist);
+
+	ota_init();
+
+	fota_pack_device_info_s device_info;
+	
+    const char *rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    const char *rsa_E = "10001";
+
+    device_info.hardware = &hardware;
+    device_info.storage_device = &storage_device;
+    device_info.head_info_notify = NULL;
+    device_info.key.rsa_N = rsa_N;
+    device_info.key.rsa_E = rsa_E;
+    (void)fota_set_pack_device(fota_get_pack_device(), &device_info);
+	
+    fota_pack_checksum_s * thi;
     fota_pack_head_s head;
     memset(&head,0,sizeof(fota_pack_head_s));
-	
-    fota_pack_checksum_s * thi = fota_pack_checksum_create(&head);
+
+	stubInfo si_atiny_malloc;
+	setStub((void *)atiny_malloc, (void *)stub_atiny_malloc_fail, &si_atiny_malloc);
+	thi = fota_pack_checksum_create(&head);
+    TEST_ASSERT_MSG((thi == NULL), "fota_pack_head_parse_head_len() is failed");
+	cleanStub(&si_atiny_malloc);
+
+    thi = fota_pack_checksum_create(&head);
     TEST_ASSERT_MSG((thi != NULL), "fota_pack_checksum_create() is failed");
+	fota_pack_checksum_delete(NULL);
     fota_pack_checksum_delete(thi);
 }
 
@@ -90,45 +197,74 @@ void TestFotaPackageCheckSum::test_fota_pack_checksum_delete()
 
 void TestFotaPackageCheckSum::test_fota_pack_checksum_update_head()
 {
-    /*add later*/
+    /*source code not exist*/
 }
 
 void TestFotaPackageCheckSum::test_fota_pack_checksum_update_data()
 {
-    fota_pack_head_s head;
-    memset(&head,0,sizeof(fota_pack_head_s));
+    atiny_fota_storage_device_s * interface = NULL;
+    fota_pack_storage_device_s *device = NULL;
+	uint8_t buff[16] = {0,0,0,12,0,0,0,16,0,0,0,22};
+	uint16_t used_len;
+
+    interface = fota_get_pack_device();
+    device = (fota_pack_storage_device_s *)interface;
+
     int ret = fota_pack_checksum_update_data(NULL, 0, NULL, 0, NULL);
     TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
 
-    fota_pack_checksum_s * thi = fota_pack_checksum_create(&head);
+    fota_pack_checksum_s * thi = fota_pack_checksum_create(&device->head);
+	
     ret = fota_pack_checksum_update_data(thi, 0, NULL, 0, NULL);
     TEST_ASSERT_MSG((FOTA_OK == ret), "fota_pack_checksum_update_data() is failed");
 
     ret = fota_pack_checksum_update_data(thi, 0, NULL, 12, NULL);
     TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
 
-    thi->head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(thi->head, 0, sizeof(fota_pack_head_s));
-    uint8_t * buff = (uint8_t *)malloc(12 * sizeof(uint8_t));
-    memset(buff, 0, sizeof(buff));
+    
+    g_result = 1;
     thi->offset_flag = true;
     thi->offset = 12;
     ret = fota_pack_checksum_update_data(thi, 12, buff, 12, NULL);
     TEST_ASSERT_MSG((FOTA_OK == ret), "fota_pack_checksum_update_data() is failed");
 
-    thi->offset_flag = false;
-    ret = fota_pack_checksum_update_data(thi, 12, buff, 12, NULL);
-    TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
-
-    fota_hardware_s * hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
-    hardware->read_software = read_software;
-    ret = fota_pack_checksum_update_data(thi, 12, buff, 12, hardware);
+	g_result = 0;
+	
+	ret = fota_pack_checksum_update_data(thi, 0, buff, 12, device->hardware);
     TEST_ASSERT_MSG((FOTA_OK == ret), "fota_pack_checksum_update_data() is failed");
     
-    free(hardware);
-    free(buff);
-    free(thi->head);
-    fota_pack_checksum_delete(thi);   
+    thi->offset_flag = false;
+
+	thi->head->head_len = 12 - 1;/*#define FOTA_PACK_HEADER_MIN_LEN 12  */
+	ret = fota_pack_checksum_update_data(thi, 2, buff, 12, NULL);
+    TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
+	
+	
+    ret = fota_pack_checksum_update_data(thi, 2, buff, 12, device->hardware);
+    TEST_ASSERT_MSG((FOTA_OK == ret), "fota_pack_checksum_update_data() is failed");
+    
+    
+    free(thi->head->buff);
+	thi->head->buff = NULL;
+	thi->head->head_len = 12;
+	thi->head->stored_len = 12;
+	ret = fota_pack_checksum_update_data(thi, 2, buff, 12, device->hardware);
+    TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
+		
+    
+
+	printf("start here test_fota_pack_checksum_update_data,%p,%p!!!\n",device->hardware,&hardware);
+	g_result = 1;
+	thi->head->head_len = 12;
+	thi->head->stored_len = 12;
+	thi->head->buff = (uint8_t *)malloc(12);
+    ret = fota_pack_checksum_update_data(thi, 2, buff, 12, device->hardware);
+	printf("+++++ret is %d in fota_pack_checksum_update_data\n",ret);
+    TEST_ASSERT_MSG((FOTA_ERR == ret), "fota_pack_checksum_update_data() is failed");
+    g_result = 0;
+    printf("over here test_fota_pack_checksum_update_data!!!\n");
+    fota_pack_checksum_delete(thi);
+	
 }    
 
 void TestFotaPackageCheckSum::test_fota_pack_checksum_check()
@@ -153,6 +289,7 @@ void TestFotaPackageCheckSum::test_fota_pack_checksum_check()
 
 TestFotaPackageCheckSum::TestFotaPackageCheckSum()
 {
+    
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_create);
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_delete);
     TEST_ADD(TestFotaPackageCheckSum::test_fota_pack_checksum_update_head);

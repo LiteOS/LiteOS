@@ -151,9 +151,36 @@ extern "C"
 
 
 	#endif
+	static void* stub_atiny_malloc_fail(size_t size)
+    {
 
+        return NULL;
+
+	    
+    }
 	
-
+    static int g_last_fail_no = 0;
+	static int i = 0;
+	static void* stub_atiny_malloc_last_fail(size_t size)
+    {
+        i++;
+		
+        if(i > g_last_fail_no)
+        {
+            //printf(" i is %d, g_last_fail_no is %d, return NULL\n",i,g_last_fail_no);
+            return NULL;
+        }
+	    else
+	    {
+	        //printf(" i is %d, g_last_fail_no is %d, return good\n",i,g_last_fail_no);
+	        return malloc(size);
+	    }
+    }
+	static int g_head_update_check = 0;
+    static int stub_head_update_check(const uint8_t *head_buff , uint16_t len, void *param)
+    {
+        return g_head_update_check;
+    }
 	
 }
 
@@ -192,150 +219,158 @@ void TestFotaPackageHead::test_fota_pack_head_init()
 
 void TestFotaPackageHead::test_fota_pack_head_parse_head_len()
 {
-    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(head, 0, sizeof(fota_pack_head_s));
-    uint32_t offset = 0;
-    uint8_t buff[12] = {0};
-    uint16_t len = 0;
-    uint16_t used_len = 0;
+    int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+    fota_pack_storage_device_s *device = NULL;
+	uint8_t buff[16] = {0,0,0,12,0,0,0,16,0,0,0,22};
+	uint16_t used_len;
 
-    offset = 10;
-    head->stored_len = 5;
-    int ret = fota_pack_head_parse_head_len(head, offset, buff, len, &used_len);
+    interface = fota_get_pack_device();
+    device = (fota_pack_storage_device_s *)interface;
+    
+    device->writer.buffer_stored_len = 0;
+	
+#if 1	
+    ret = fota_pack_head_parse_head_len(&device->head, 1, buff, 16, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
-
-    offset = 0;
-    head->buff = NULL;
-    ret = fota_pack_head_parse_head_len(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse_head_len() is failed"); // create head->buff;
-
-    head->stored_len = 10;
-    offset = 0;
-    len = 12;
-    buff[3] = 1;
-    ret = fota_pack_head_parse_head_len(head, offset, buff, len, &used_len);
+	
+    fota_pack_head_destroy(&device->head);
+	stubInfo si_atiny_malloc;
+	setStub((void *)atiny_malloc, (void *)stub_atiny_malloc_fail, &si_atiny_malloc);
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 16, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
+	
+	cleanStub(&si_atiny_malloc);
+#endif	
 
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 16, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
     buff[3] = 0;
-    ret = fota_pack_head_parse_head_len(head, offset, buff, len, &used_len);
+	buff[7] = 25;
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 16, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
-
-    buff[4] = buff[5] = 1;
-    buff[8] = buff[9] = buff[10] = buff[11] = 1;
-    ret = fota_pack_head_parse_head_len(head, offset, buff, len, &used_len);
+#if 1
+	stubInfo si_malloc_last;
+	setStub((void *)atiny_malloc, (void *)stub_atiny_malloc_last_fail, &si_malloc_last);
+	buff[3] = 0;
+	buff[7] = 18;
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 16, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
+	cleanStub(&si_malloc_last);
+	
+    fota_pack_head_destroy(&device->head);
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 16, &used_len);
+	
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse_head_len() is failed");
     
-    atiny_free(head->buff);
-    free(head);
+	fota_pack_head_destroy(&device->head);
+	buff[7] = 18;
+	ret = fota_pack_head_parse_head_len(&device->head, 0, buff, 8, &used_len);
+	
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse_head_len() is failed");
+
+	ret = fota_pack_head_parse_head_len(&device->head, 9, buff, 2, &used_len);
+	
+	
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse_head_len() is failed");
+#endif
+	
+
 }
 
 void TestFotaPackageHead::test_fota_pack_head_destroy()
 {
 
-     printf("come here1, test_fota_pack_head_destroy\n");
-    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(head, 0, sizeof(fota_pack_head_s));
-    head->buff = (uint8_t *)malloc(sizeof(uint8_t));
-    memset(head->buff, 0, sizeof(uint8_t));
-    head->checksum_pos = (uint8_t *)malloc(sizeof(uint8_t));
-    memset(head->checksum_pos, 0, sizeof(uint8_t));
-    //head->checksum = (fota_pack_checksum_s *)malloc(sizeof(fota_pack_checksum_s));
-    //memset(head->checksum, 0, sizeof(fota_pack_checksum_s));
-    printf("come here2, test_fota_pack_head_destroy\n");
-    fota_pack_head_destroy(head);
-    TEST_ASSERT_MSG((NULL == head->buff), "fota_pack_head_destroy() is failed");
-
-    free(head);
-}
-
-void TestFotaPackageHead::test_fota_pack_parse_checksum()
-{
-    int ret; 
-
-	
-    stubInfo si_head_len;
-	uint8_t buff[]={0,0,0,0,0,0,0,64,0,0,0,128};
-	uint16_t used_len = 0;
-    setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
-    flag_head_len = 1;
-	fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
-    ret = fota_pack_head_parse(&device->head, 0, buff, 12, &used_len); 
-    cleanStub(&si_head_len);
-	TEST_ASSERT_MSG((ret == flag_head_len), "test_fota_pack_parse_checksum() is failed");
-	
-	//ret = fota_pack_head_parse(head, 0, buff, 12, &used_len); 
-    //TEST_ASSERT_MSG((ret == 0), "test_fota_pack_parse_checksum() is failed");
     
 }
+
+
 
 void TestFotaPackageHead::test_fota_pack_head_parse()
 {
-    fota_pack_head_s * head = (fota_pack_head_s *)malloc(sizeof(fota_pack_head_s));
-    memset(head, 0, sizeof(fota_pack_head_s));
-    uint32_t offset = 0;
-    uint8_t buff[12] = {0};
-    uint16_t len = 0;
-    uint16_t used_len = 0;
     int ret = 0;
+    atiny_fota_storage_device_s * interface = NULL;
+    fota_pack_storage_device_s *device = NULL;
+	uint8_t buff[20] = {0,0,0,1,0,0,0,20,0,0,0,22};
+	uint16_t used_len;
 
-    offset = 10;
-    head->stored_len = 5;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    interface = fota_get_pack_device();
+    device = (fota_pack_storage_device_s *)interface;
+	
+    fota_pack_head_destroy(&device->head);
+	
+    ret = fota_pack_head_parse(&device->head, 1, buff, 16, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
 
-    offset = 0;
-    head->buff = NULL;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+    buff[3] = 0;
+	//printf("fota_pack_head_parse start here\n");
+    ret = fota_pack_head_parse(&device->head, 0, buff, 6, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
-//    free(head->buff);
+    //printf("fota_pack_head_parse start over\n");
 
-    len = 12;
-    head->stored_len = 10;
-    buff[4] = buff[5] = 1;
-    buff[8] = buff[9] = buff[10] = buff[11] = 1;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
+	ret = fota_pack_head_parse(&device->head, 8, buff, 2, &used_len);
     TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
-    free(head->buff);
 
-    memset(head, 0, sizeof(fota_pack_head_s));
-    head->head_len = 12;
-    head->stored_len = 15;
-    len = 12;
-    head->buff = (uint8_t *)malloc(15 * sizeof(uint8_t));
-    memset(head->buff, 0, 15 * sizeof(uint8_t));
+
+    fota_pack_head_destroy(&device->head);
+	ret = fota_pack_head_parse(&device->head, 17, buff, 16, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+
+	buff[13]=3;/*FOTA_PACK_TLV_T_SHA256_RSA2048*/
+	ret = fota_pack_head_parse(&device->head, 0, buff, 16, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
+
+
+	fota_pack_head_destroy(&device->head);
+	
+	buff[15]=4;/*>0*/
+	buff[16]=1;
+	buff[17]=2;
+	buff[18]=3;
+	buff[19]=5;
+	device->head.checksum_pos = (uint8_t *)atiny_malloc(4);
+	memset(device->head.checksum_pos,0x5A,4);
+	device->head.checksum = fota_pack_checksum_create(&device->head);
+    ret = fota_pack_head_parse(&device->head, 0, buff, 20, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
+	
+	fota_pack_head_destroy(&device->head);
+	//printf("hello this\n");
+    buff[7]=20;
+	buff[15]=4;/*>0*/
+	buff[16]=1;
+	buff[17]=2;
+	buff[18]=3;
+	buff[19]=5;
+	ret = fota_pack_head_parse(&device->head, 0, buff, 20, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
+	buff[7]=20;
+	//printf("hello done this\n");
+    fota_pack_head_destroy(&device->head);
+	
+	buff[13]=2;/*FOTA_PACK_TLV_T_SHA256_RSA2048*/
+	//printf("hello this\n");
+    buff[7]=20;
+	buff[15]=4;/*>0*/
+	buff[16]=1;
+	buff[17]=2;
+	buff[18]=3;
+	buff[19]=5;
+	ret = fota_pack_head_parse(&device->head, 0, buff, 20, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
+	buff[7]=20;
+	//printf("hello done this\n");
+	
     stubInfo si_head_len;
     setStub((void *)fota_pack_head_parse_head_len, (void *)si_fota_pack_head_parse_head_len, &si_head_len);
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);     //stored_len = 12;
-    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
-    
-#if 0
-    memset(buff, 0, sizeof(buff));
-    buff[11] = 10;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");    //â†
-#endif
-
-    head->update_check = test_update_check;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
-
-    memset(buff, 0, sizeof(buff));
-    buff[11] = 10;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");     //â†
-    
-#if 0
-    buff[11] = 15;
-    head->hardware = (fota_hardware_s *)malloc(sizeof(fota_hardware_s));
-    memset(head->hardware, 0, sizeof(fota_hardware_s));
-    head->hardware->get_block_size = test_get_block_size;
-    ret = fota_pack_head_parse(head, offset, buff, len, &used_len);
-    TEST_ASSERT_MSG((ret == FOTA_ERR), "fota_pack_head_parse() is failed");
-#endif 
 
     cleanStub(&si_head_len);
-    free(head->buff);
-    free(head);
+
+	
+    buff[7] = 12;
+	ret = fota_pack_head_parse(&device->head, 0, buff, 12, &used_len);
+    TEST_ASSERT_MSG((ret == FOTA_OK), "fota_pack_head_parse() is failed");
+    
 }
 
 void TestFotaPackageHead::test_fota_pack_head_check()
@@ -406,17 +441,24 @@ TestFotaPackageHead::TestFotaPackageHead()
     (void)fota_set_pack_device(fota_get_pack_device(), &device_info);
 	
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_parse_head_len);
-    TEST_ADD(TestFotaPackageHead::test_fota_pack_head_destroy);
-    TEST_ADD(TestFotaPackageHead::test_fota_pack_parse_checksum);
+    
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_parse);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_check);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_set_head_info);
     TEST_ADD(TestFotaPackageHead::test_fota_pack_head_get_checksum);
-    TEST_ADD(TestFotaPackageHead::test_fota_pack_head_init)
+    TEST_ADD(TestFotaPackageHead::test_fota_pack_head_init);
+	//TEST_ADD(TestFotaPackageHead::test_fota_pack_head_destroy);
 }
 
 TestFotaPackageHead::~TestFotaPackageHead()
 {  
+    atiny_fota_storage_device_s * interface = NULL;
+    fota_pack_storage_device_s *device = NULL;
+
+    interface = fota_get_pack_device();
+    device = (fota_pack_storage_device_s *)interface;
+    fota_pack_head_destroy(&device->head);
+	fota_fmw_wr_destroy(&device->writer);
 }
 
 
@@ -429,6 +471,7 @@ void TestFotaPackageHead::tear_down()
 {
     printf("exit from funcno %d,%s\n", funcno,__FILE__);
 }
+
 
 
 

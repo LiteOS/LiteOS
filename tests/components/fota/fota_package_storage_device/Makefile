@@ -12,7 +12,7 @@ FOR32 := true
 BIN:= bin
 LIB:= $(BUILD_DIR)/libliteos.a
 	
-HW_LITEOSDIR:=../../../../
+HW_LITEOSDIR:=../../../..
 ifeq ($(FOR32), true)
 CFLAGS := -m32  -march=i386 -mtune=i386
 else
@@ -48,48 +48,52 @@ LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
 	
 INCLUDES:= \
-	-I$(HW_LITEOSDIR)/arch/arm/common/cmsis/ \
-	-I$(HW_LITEOSDIR)/arch/arm/arm-m/include/ \
-	-I$(HW_LITEOSDIR)/arch/arm/arm-m/cortex-m4/ \
+	-I$(HW_LITEOSDIR)/arch/arm/common/cmsis \
+	-I$(HW_LITEOSDIR)/arch/arm/arm-m/include \
+	-I$(HW_LITEOSDIR)/arch/arm/arm-m/cortex-m4 \
 	-I$(HW_LITEOSDIR)/components/cmsis/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/comm/include/ \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples/ \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/ \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/ \
-    -I$(HW_LITEOSDIR)/components/connectivity/at_frame/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
+	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/comm/include \
+    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples \
+    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update \
+	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client \
+	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota \
+    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client \
+	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter \
+    -I$(HW_LITEOSDIR)/components/connectivity/at_frame \
+	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
-    -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/ \
-    -I$(HW_LITEOSDIR)/components/fota/ota/ \
-    -I$(HW_LITEOSDIR)/components/fota/utility/ \
-	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include/ \
-	-I$(HW_LITEOSDIR)/components/net/lwip_port/ \
+    -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device \
+	-I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option \
+    -I$(HW_LITEOSDIR)/components/fota/ota \
+    -I$(HW_LITEOSDIR)/components/fota/utility \
+	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include \
+	-I$(HW_LITEOSDIR)/components/net/lwip_port \
 	-I$(HW_LITEOSDIR)/components/net/lwip_port/OS \
-	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/ \
-	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls/ \
-	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/ \
-	-I$(HW_LITEOSDIR)/kernel/base/include/ \
-	-I$(HW_LITEOSDIR)/kernel/include/ \
-	-I$(HW_LITEOSDIR)/kernel/extended/include/ \
-	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG/ \
-	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc/ \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port \
+	-I$(HW_LITEOSDIR)/kernel/base/include \
+	-I$(HW_LITEOSDIR)/kernel/include \
+	-I$(HW_LITEOSDIR)/kernel/extended/include \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
-	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
-	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/tests/stub/
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
+	-I$(HW_LITEOSDIR)/tests/stub 
 	
 
 CPP_SRC := $(wildcard *.cpp)
+CPP_SRC += $(wildcard option/*.cpp)
+vpath %.cpp $(sort $(dir $(CPP_SRC)))
 CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
 
 C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
+	@echo "fota_package_storage_device OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
@@ -116,7 +120,7 @@ $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
     
 clean:
 	rm -rf $(BUILD_DIR) bin gcov *.htm *.log

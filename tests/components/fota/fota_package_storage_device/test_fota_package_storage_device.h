@@ -44,6 +44,10 @@ public:
     void test_fota_pack_storage_write_software_end();
     void test_fota_pack_storage_write_software();
     void test_fota_pack_storage_active_software();
+    void test_fota_pack_storage_get_software_result();
+    void test_fota_pack_storage_write_update_info();
+    void test_fota_pack_storage_read_update_info();
+    
     
     TestFotaPackageStorageDivice();
     ~TestFotaPackageStorageDivice();

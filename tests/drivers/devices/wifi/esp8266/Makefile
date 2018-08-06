@@ -21,7 +21,7 @@ CFLAGS := -m32  -march=i386 -mtune=i386
 else
 CFLAGS := 
 endif
-CFLAGS += -g
+CFLAGS += -w -g
 CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG -DWITH_AT_FRAMEWORK -DUSE_ESP8266
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
@@ -83,6 +83,7 @@ C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
+	@echo "esp8266 OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
@@ -109,7 +110,7 @@ $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
     
 clean:
 	rm -rf $(BUILD_DIR) bin gcov *.htm *.log

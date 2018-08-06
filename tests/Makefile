@@ -15,8 +15,7 @@ SUB_DIR := \
 	$(TOP_DIR)/drivers/devices/nb \
 	$(TOP_DIR)/components/fota/ota \
 	$(TOP_DIR)/components/fota/utility \
-	$(TOP_DIR)/components/fota/fota_package_storage_device/option \
-#	$(TOP_DIR)/components/fota/fota_package_storage_device \
+	$(TOP_DIR)/components/fota/fota_package_storage_device
 #	$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
 #	$(TOP_DIR)/drivers/devices/wifi/mavell \
 

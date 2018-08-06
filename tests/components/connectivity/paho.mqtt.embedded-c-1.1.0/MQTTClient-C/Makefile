@@ -24,7 +24,7 @@ CFLAGS :=
 endif
 
 
-CFLAGS += -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>"  -DWITH_LINUX -DNDEBUG
+CFLAGS += -w -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>"  -DWITH_LINUX -DNDEBUG
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0 -DTEST_WITH_DTLS
 CFLAGS += -fprofile-arcs -ftest-coverage
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
@@ -89,6 +89,7 @@ C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
+	@echo "MQTTClient-C  OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))

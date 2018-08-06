@@ -95,6 +95,7 @@ C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
+	echo "at_fota OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
@@ -121,7 +122,7 @@ $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
     
 clean:
 	rm -rf $(BUILD_DIR) bin gcov *.htm *.log
