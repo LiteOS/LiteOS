@@ -105,7 +105,7 @@ static int atiny_fota_idle_state_recv_notify_ack(atiny_fota_state_s * thi, data_
         return atiny_fota_manager_set_state(thi->manager, ATINY_FOTA_DOWNLOADING);
 
     }
-    ATINY_LOG(LOG_ERR, "start_firmware_download fail %d");
+    ATINY_LOG(LOG_ERR, "start_firmware_download fail %d", ret);
     atiny_fota_manager_set_update_result(thi->manager, ATINY_FIRMWARE_UPDATE_FAIL);
     return atiny_fota_manager_rpt_state(thi->manager, ATINY_FOTA_IDLE);
 

@@ -149,6 +149,8 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
             if(NULL == dest->u.psk.psk)
                 goto atiny_param_dup_failed;
             memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
+            dest->u.psk.psk_id_len = src->u.psk.psk_id_len;
+            dest->u.psk.psk_len = src->u.psk.psk_len;
             break;
         case CLOUD_SECURITY_TYPE_CA:
             dest->u.ca.ca_crt = atiny_strdup((const char *)(src->u.ca.ca_crt));
@@ -595,14 +597,19 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
     dest->client_id = atiny_strdup((const char *)(src->client_id));
     if(NULL == dest->client_id)
         goto device_info_dup_failed;
-
-    dest->user_name = atiny_strdup((const char *)(src->user_name));
-    if(NULL == dest->user_name)
-        goto device_info_dup_failed;
-
-    dest->password = atiny_strdup((const char *)(src->password));
-    if(NULL == dest->password)
-        goto device_info_dup_failed;
+	
+    if(NULL != src->user_name)
+    {
+        dest->user_name = atiny_strdup((const char *)(src->user_name));
+        if(NULL == dest->user_name)
+            goto device_info_dup_failed;
+    }
+    if(NULL != src->password)
+    {
+        dest->password = atiny_strdup((const char *)(src->password));
+        if(NULL == dest->password)
+            goto device_info_dup_failed;
+    }
 
     dest->will_flag = src->will_flag;
 

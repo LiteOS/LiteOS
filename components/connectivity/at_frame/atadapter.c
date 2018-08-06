@@ -37,7 +37,9 @@
 #include "los_memory.h"
 #include "atadapter.h"
 #include "at_hal.h"
+#ifdef CONFIG_FEATURE_FOTA
 #include "at_fota.h"
+#endif
 extern uint8_t buff_full;
 /* FUNCTION */
 void at_init();
@@ -162,16 +164,11 @@ int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len)
     at_listener_list_add(&listener);
 
     at_transmit((uint8_t*)cmd, strlen((char*)cmd), 1);
-#if 0
-    LOS_TaskDelay(200);
-#else
     (void)LOS_SemPend(at.resp_sem, 200);
     listener.suffix = (int8_t *)suffix;
 
     at_listner_list_del(&listener);
     at_listener_list_add(&listener);
-#endif
-
     at_transmit((uint8_t*)buf, len, 0);
     ret = LOS_SemPend(at.resp_sem, at.timeout);
 
@@ -191,8 +188,8 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
     int32_t ret = 0;
     char* cmp = NULL;
     int i;
-    int rlen;
-    memset(wbuf, 0, AT_DATA_LEN);
+//    int rlen;
+//    memset(wbuf, 0, AT_DATA_LEN);
 
     for(i=0;i<at_oob.oob_num;i++){
         cmp = strstr((char*)buf, at_oob.oob[i].featurestr);
@@ -200,9 +197,9 @@ int cloud_cmd_matching(int8_t * buf, int32_t len)
         {
             AT_LOG("cloud send cmd:%s",at_oob.oob[i].featurestr);
             cmp+=at_oob.oob[i].len;
-            sscanf(cmp,"%d,%s",&rlen,wbuf);
+//            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg,(int8_t*)wbuf,(int32_t)rlen);
+            	ret = at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t*)buf, (int32_t)len);
             return ret;
         }
     }

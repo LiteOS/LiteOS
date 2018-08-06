@@ -650,7 +650,9 @@ extern UINT32 g_sys_mem_addr_end;
  * @ingroup los_config
  * Version number
  */
+#ifndef LITEOS_VER
 #define LITEOS_VER                                          "Huawei LiteOS Kernel V200R001c50"
+#endif
 
 /**
  * @ingroup los_config

@@ -347,7 +347,7 @@ int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len)
 }
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head)
 {
-    return fota_pack_head_is_done(head) ? head->head_len : 0;
+    return fota_pack_head_is_done(head) ? (uint32_t)head->head_len : 0;
 }
 
 const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head)

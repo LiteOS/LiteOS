@@ -84,7 +84,7 @@ UINT8 g_uwExcTbl[32] =
 VOID *m_puwExcContent;
 UINT32 g_uwArraySize = 0;
 EXC_INFO_ARRAY_S m_stExcArray[OS_EXC_TYPE_MAX - 1];
-VOID osExcSave2DDR(VOID);
+static VOID osExcSave2DDR(VOID);
 #endif
 
 extern VOID LOS_Reboot(VOID);
@@ -188,17 +188,22 @@ LITE_OS_SEC_TEXT VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UIN
     /* uwExcType BIT_28: Wether or not to use FPU */
     if(uwExcType & OS_EXC_FLAG_NO_FLOAT)
     {
-        m_stExcInfo.pstContext = (EXC_CONTEXT_S *)((UINT8 *)pstExcBufAddr - 64);  /* ponit to uwR4, need add S16-S31 */
+        m_stExcInfo.usFpuContext = 0;
     }
     else
     {
-        m_stExcInfo.pstContext = pstExcBufAddr; /* point to S16 */
+        m_stExcInfo.usFpuContext = 1;
     }
+    m_stExcInfo.pstContext = pstExcBufAddr; /* point to S16 or uwR4 */
 
 #if (LOSCFG_SAVE_EXC_INFO == YES)
     osExcSave2DDR();
 #endif
 
+    if (m_stExcInfo.usFpuContext == 0)
+    {
+        m_stExcInfo.pstContext = (EXC_CONTEXT_S *)((UINT8 *)(m_stExcInfo.pstContext) - 64);  /* ponit to S16 */
+    }
     osExcInfoDisplay(&m_stExcInfo);
 
     LOS_Reboot();
@@ -325,7 +330,7 @@ VOID osExcSaveSysInfo(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, UINT32
 static VOID osExcSaveInfo(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID *pArg)
 {
     UINT32 uwLen;
-    UINT32 uwIdx ;
+    UINT32 uwIdx;
     UINT32 uwLoop;
     UINT32 uwTaskSwitchCount = 0;
     OS_TASK_SWITCH_INFO *pstTaskSwitchInfo;
@@ -340,8 +345,8 @@ static VOID osExcSaveInfo(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VO
 
         case OS_EXC_TYPE_QUE:  /* save queue info */
             uwLen = sizeof(QUEUE_INFO_S);
-            uwLoop = *(UINT32 *)pArg + 1;
-            uwIdx = 1;
+            uwLoop = *(UINT32 *)pArg;
+            uwIdx = 0;
             break;
 
         case OS_EXC_TYPE_NVIC:  /* save NVIC info */
@@ -351,7 +356,7 @@ static VOID osExcSaveInfo(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VO
         case OS_EXC_TYPE_TSK_SWITCH:  /* save task switch info */
             pstTaskSwitchInfo = pArg;
             uwTaskSwitchCount = pstTaskSwitchInfo->ucIsFull & 0x7F;
-            uwLen = sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN;
+            uwLen = sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN; /* auwPID + acName */
             if (pstTaskSwitchInfo->ucIsFull & 0x80)
             {
                 uwIdx = pstTaskSwitchInfo->ucIdx;
@@ -388,11 +393,21 @@ END:
 static VOID osExcSave2DDR(VOID)
 {
     UINT32 uwIdx = 0;
+    UINT32 uwExcContextSize;
+
+    if (m_stExcInfo.usFpuContext == 1)
+    {
+        uwExcContextSize = sizeof(EXC_CONTEXT_S);
+    }
+    else
+    {
+        uwExcContextSize = sizeof(EXC_CONTEXT_S) - 136; /* except FPU register */
+    }
 
     memset(m_puwExcContent, 0xff, g_uwArraySize);
 
-    /* Cortex-m type */
-    *((UINT32 *)m_puwExcContent) = 2;  /* 1 is cortex-M3, 2 is cortex-M4 */
+    /* Cortex-M type */
+    *((UINT32 *)m_puwExcContent) = 4;
     m_puwExcContent = (UINT8 *)m_puwExcContent + 4;
 
     /*
@@ -401,8 +416,8 @@ static VOID osExcSave2DDR(VOID)
     *((UINT32 *)m_puwExcContent) = OS_EXC_TYPE_CONTEXT;
     m_puwExcContent = (UINT8 *)m_puwExcContent + 4;
 
-    /* The size of struct EXC_INFO_S(except member EXC_CONTEXT_S*) and EXC_CONTEXT_S */
-    *((UINT32 *)m_puwExcContent) = sizeof(EXC_INFO_S) - sizeof(EXC_CONTEXT_S *) + sizeof(EXC_CONTEXT_S);
+    /* The size of struct EXC_INFO_S(except member EXC_CONTEXT_S*) and exception context size */
+    *((UINT32 *)m_puwExcContent) = sizeof(EXC_INFO_S) - sizeof(EXC_CONTEXT_S *) + uwExcContextSize;
     m_puwExcContent = (UINT8 *)m_puwExcContent + 4;
 
     /* Save struct m_stExcInfo except m_stExcInfo.pstContext */
@@ -410,8 +425,8 @@ static VOID osExcSave2DDR(VOID)
     m_puwExcContent = (UINT8 *)m_puwExcContent + sizeof(EXC_INFO_S) - sizeof(EXC_CONTEXT_S *);
 
     /* Save struct EXC_CONTEXT_S */
-    memcpy((VOID*)m_puwExcContent, m_stExcInfo.pstContext, sizeof(EXC_CONTEXT_S));
-    m_puwExcContent = (UINT8*)m_puwExcContent + sizeof(EXC_CONTEXT_S);
+    memcpy((VOID *)m_puwExcContent, m_stExcInfo.pstContext, uwExcContextSize);
+    m_puwExcContent = (UINT8 *)m_puwExcContent + uwExcContextSize;
 
     /*
      * Save exception type: OS_EXC_TYPE_CONTEXT+1 ---> OS_EXC_TYPE_MAX-1
@@ -428,7 +443,7 @@ static VOID osExcSave2DDR(VOID)
     /*
      * Save exception type: OS_EXC_TYPE_MAX
      */
-    *((UINT32*)m_puwExcContent) = OS_EXC_TYPE_MAX;
+    *((UINT32 *)m_puwExcContent) = OS_EXC_TYPE_MAX;
     m_puwExcContent = (UINT8*)m_puwExcContent + 4;
 
     return;
@@ -457,8 +472,8 @@ LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
     /* Enable USGFAULT(BIT_18), BUSFAULT(BIT_17), MEMFAULT(BIT_16) */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= 0x70000;
 
-    /* Enable DIV 0(BIT_4) and unaligned(BIT_3) exception */
-    *(volatile UINT32 *)OS_NVIC_CCR |= 0x18;
+    /* Enable DIV 0(BIT_4) exception, unaligned(BIT_3) disable */
+    *(volatile UINT32 *)OS_NVIC_CCR |= 0x10;
 
 #if (LOSCFG_SAVE_EXC_INFO == YES)
     g_uwArraySize = uwArraySize;

@@ -42,6 +42,11 @@
 #include <stdint.h>
 
 
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct atiny_fota_storage_device_tag_s;
 typedef struct atiny_fota_storage_device_tag_s atiny_fota_storage_device_s;
 
@@ -70,10 +75,6 @@ struct atiny_fota_storage_device_tag_s
 };
 
 
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
 
 
 #if defined(__cplusplus)
