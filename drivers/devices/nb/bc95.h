@@ -72,6 +72,5 @@ int nb_query_ip(void);
 int32_t nb_send_payload(const char* buf, int len);
 int32_t nb_send_psk(char* pskid, char* psk);
 int32_t nb_reboot(void);
-int32_t nb_err_cue(void);
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout);
 #endif
