@@ -196,14 +196,6 @@ int fota_fmw_wr_write_buffer_data(fota_firmware_writer_s *writer, uint32_t offse
         return FOTA_ERR;
     }
 
-#if 0
-    offset_end = offset + len;
-    while(block_end  <= offset_end)
-    {
-        block_size = writer->hardware->get_block_size(writer->hardware, block_end);
-        block_end += block_size;
-    };
-#endif
     block_end -= block_size;
 
     if(offset < block_end)
