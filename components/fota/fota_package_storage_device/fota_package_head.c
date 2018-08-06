@@ -128,7 +128,7 @@ int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const
         version = GET_DWORD(head->buff, FOTA_PACK_VERSION_POS);
         if(version != VERSION_NO)
         {
-            FOTA_LOG("invalid version %D", version);
+            FOTA_LOG("invalid version %d", version);
             head->stored_len = 0;
             return FOTA_ERR;
         }
