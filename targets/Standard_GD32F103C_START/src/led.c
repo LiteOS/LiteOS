@@ -31,81 +31,50 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "gd32f450i_eval.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
-#if defined USE_NB_NEUL95
-#include "los_nb_api.h"
-#endif
-#endif
-UINT32 g_TskHandle;
+ #include "led.h"
+ #include "sys_init.h"
+ 
+ static uint32_t GPIO_PORT[LEDn] = {LED1_GPIO_PORT};
+ static uint32_t GPIO_PIN[LEDn] = {LED1_PIN};
+ static rcu_periph_enum GPIO_CLK[LEDn] = {LED1_GPIO_CLK};
+ /*!
+     \brief      configure led GPIO
+     \param[in]  lednum: specify the led to be configured
+       \arg        LED1
+     \param[out] none
+     \retval     none
+ */
+ void  gd_eval_led_init (led_typedef_enum lednum)
+ {
+     /* enable the led clock */
+     rcu_periph_clock_enable(GPIO_CLK[lednum]);
+     /* configure led GPIO port */ 
+     gpio_init(GPIO_PORT[lednum], GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ,GPIO_PIN[lednum]);
+ 
+     GPIO_BC(GPIO_PORT[lednum]) = GPIO_PIN[lednum];
+ }
 
-VOID HardWare_Init(VOID)
-{
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
-}
+ /*!
+     \brief      turn on selected led
+     \param[in]  lednum: specify the led to be turned on
+       \arg        LED1
+     \param[out] none
+     \retval     none
+ */
+ void gd_eval_led_on(led_typedef_enum lednum)
+ {
+     GPIO_BOP(GPIO_PORT[lednum]) = GPIO_PIN[lednum];
+ }
+ 
+ /*!
+     \brief      turn off selected led
+     \param[in]  lednum: specify the led to be turned off
+       \arg        LED1
+     \param[out] none
+     \retval     none
+ */
+ void gd_eval_led_off(led_typedef_enum lednum)
+ {
+     GPIO_BC(GPIO_PORT[lednum]) = GPIO_PIN[lednum];
+ }
 
-VOID liteos_task(VOID)
-{
-    gd_eval_led_init(LED1);
-    gd_eval_led_init(LED2);
-    gd_eval_led_init(LED3);
-    while(1)
-		{
-		    /* turn on led1, turn off led4*/
-        gd_eval_led_on(LED1);
-        delay10ms(100);
-        /* turn on led2, turn off led1*/
-        gd_eval_led_on(LED2);
-        gd_eval_led_off(LED1);
-        delay10ms(100);
-        /* turn on led3, turn off led2*/
-        gd_eval_led_on(LED3);
-        gd_eval_led_off(LED2);
-        delay10ms(100);
-        /* turn on led4, turn off led3*/
-        gd_eval_led_off(LED3);
-        delay10ms(100);
-		}
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}
