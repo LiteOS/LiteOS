@@ -121,7 +121,7 @@ void at_usart3rx_dma_config(DMA_HandleTypeDef *hdma)
     HAL_DMA_Init(hdma);
 
     __HAL_LINKDMA(&at_usart,hdmarx,*hdma);
-        
+
     LOS_HwiCreate(DMA1_Stream1_IRQn, 0, 0,at_usart3rx_dma_irqhandler, NULL);
 }
 #endif
@@ -136,25 +136,25 @@ void at_irq_handler(void)
         if(wi == ri)buff_full = 1;
         if (wi >= at_user_conf.user_buf_len)wi = 0;
     }
-    else 
+    else
 #endif
     if (__HAL_UART_GET_FLAG(&at_usart,UART_FLAG_IDLE) != RESET)
     {
         __HAL_UART_CLEAR_IDLEFLAG(&at_usart);
 #ifdef USE_USARTRX_DMA
-        HAL_UART_DMAStop(&at_usart);  
+        HAL_UART_DMAStop(&at_usart);
         uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
         dma_wi[dma_wbi++] = at_user_conf.user_buf_len - empty;
         if(dma_wbi >= dma_wi_coun)
-            dma_wbi = 0;       	   
+            dma_wbi = 0;
 #else
         wi_bak = wi;
-#endif   
-        LOS_SemPost(at.recv_sem);
-        
-#ifdef USE_USARTRX_DMA		
+#endif
+        (void)LOS_SemPost(at.recv_sem);
+
+#ifdef USE_USARTRX_DMA
         HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*dma_wbi],at_user_conf.user_buf_len);
-#endif   
+#endif
     }
 }
 
@@ -163,7 +163,7 @@ int32_t at_usart_init(void)
 	UART_HandleTypeDef * usart = &at_usart;
 
     at_usart_adapter(at_user_conf.usart_port);
-    
+
     usart->Instance = s_pUSART;
     usart->Init.BaudRate = at_user_conf.buardrate;
 
@@ -198,7 +198,7 @@ void at_usart_deinit(void)
     UART_HandleTypeDef * husart = &at_usart;
     __HAL_UART_DISABLE(husart);
     __HAL_UART_DISABLE_IT(husart, UART_IT_IDLE);
-    
+
 #ifdef USE_USARTRX_DMA
     __HAL_RCC_DMA1_CLK_DISABLE();
     if(NULL != dma_wi)
@@ -239,8 +239,8 @@ int read_resp(uint8_t * buf)
     if (wi > ri){
         len = wi - ri;
         memcpy(buf, &at.recv_buf[ri], len);
-    } 
-    else 
+    }
+    else
     {
         tmp_len = at_user_conf.user_buf_len - ri;
         memcpy(buf, &at.recv_buf[ri], tmp_len);
@@ -251,13 +251,13 @@ int read_resp(uint8_t * buf)
     if (dma_wbi == dma_rbi){
         return 0;
 	}
-    memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);     
+    memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);
     len = dma_wi[dma_rbi];
     dma_rbi++;
     if(dma_rbi >= dma_wi_coun){
         dma_rbi = 0;
     }
-#endif  
+#endif
 #ifndef USE_USARTRX_DMA
     ri = wi;
 #endif

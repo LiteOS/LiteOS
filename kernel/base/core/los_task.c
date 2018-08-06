@@ -96,6 +96,7 @@ LITE_OS_SEC_BSS OS_TASK_SWITCH_INFO g_astTskSwitchInfo;
    }\
 }
 
+#if (LOSCFG_KERNEL_TICKLESS == YES)
 LITE_OS_SEC_TEXT_MINOR UINT32 osTaskNextSwitchTimeGet(VOID)
 {
     LOS_TASK_CB *pstTaskCB;
@@ -121,6 +122,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 osTaskNextSwitchTimeGet(VOID)
 
     return uwTaskSortLinkTick;
 }
+#endif
 
 /*****************************************************************************
  Function : osTskIdleBGD
@@ -1401,8 +1403,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskInfoGet(UINT32 uwTaskID, TSK_INFO_S *pstTa
     pstTaskInfo->uwTopOfStack = pstTaskCB->uwTopOfStack;
     pstTaskInfo->uwEvent = pstTaskCB->uwEvent;
     pstTaskInfo->uwEventMask = pstTaskCB->uwEventMask;
-    pstTaskInfo->pTaskSem = (VOID*)(pstTaskCB->pTaskSem != NULL ? ((SEM_CB_S *)(pstTaskCB->pTaskSem))->usSemID : LOSCFG_BASE_IPC_SEM_LIMIT);
-    pstTaskInfo->pTaskMux = (VOID*)(pstTaskCB->pTaskMux != NULL ? ((MUX_CB_S *)(pstTaskCB->pTaskMux))->ucMuxID : LOSCFG_BASE_IPC_MUX_LIMIT);
+    pstTaskInfo->uwSemID = pstTaskCB->pTaskSem != NULL ? ((SEM_CB_S *)(pstTaskCB->pTaskSem))->usSemID : LOSCFG_BASE_IPC_SEM_LIMIT;
+    pstTaskInfo->uwMuxID = pstTaskCB->pTaskMux != NULL ? ((MUX_CB_S *)(pstTaskCB->pTaskMux))->ucMuxID : LOSCFG_BASE_IPC_MUX_LIMIT;
+    pstTaskInfo->pTaskSem = pstTaskCB->pTaskSem;
+    pstTaskInfo->pTaskMux = pstTaskCB->pTaskMux;
     pstTaskInfo->uwTaskID = uwTaskID;
 
     (VOID)strncpy(pstTaskInfo->acName, pstTaskCB->pcTaskName, LOS_TASK_NAMELEN - 1);

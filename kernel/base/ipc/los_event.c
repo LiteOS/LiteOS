@@ -97,6 +97,11 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S pstEventCB, UINT32 uwEventMask
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
 
+    if ((pstEventCB->stEventList.pstNext == NULL) || (pstEventCB->stEventList.pstPrev == NULL))
+    {
+        return LOS_ERRNO_EVENT_NOT_INITIALIZED;
+    }
+
     if (uwEventMask == 0)
     {
         return LOS_ERRNO_EVENT_EVENTMASK_INVALID;
@@ -175,6 +180,11 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S pstEventCB, UINT32 uwEvents)
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
 
+    if ((pstEventCB->stEventList.pstNext == NULL) || (pstEventCB->stEventList.pstPrev == NULL))
+    {
+        return LOS_ERRNO_EVENT_NOT_INITIALIZED;
+    }
+
     if (uwEvents & LOS_ERRTYPE_ERROR)
     {
         return LOS_ERRNO_EVENT_SETBIT_INVALID;
@@ -214,15 +224,29 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S pstEventCB, UINT32 uwEvents)
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestory(PEVENT_CB_S pstEventCB)
 {
+    UINTPTR uvIntSave;
+
     if (pstEventCB == NULL)
     {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
 
+    uvIntSave = LOS_IntLock();
+
+    if (!LOS_ListEmpty(&pstEventCB->stEventList))
+    {
+        (VOID)LOS_IntRestore(uvIntSave);
+        return LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY;
+    }
+
     pstEventCB->stEventList.pstNext = (LOS_DL_LIST *)NULL;
     pstEventCB->stEventList.pstPrev = (LOS_DL_LIST *)NULL;
+
+    (VOID)LOS_IntRestore(uvIntSave);
+
     return LOS_OK;
 }
+
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S pstEventCB, UINT32 uwEvents)
 {
     UINTPTR uvIntSave;
