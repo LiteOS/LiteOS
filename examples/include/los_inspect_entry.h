@@ -68,11 +68,18 @@ typedef struct os_Inspect_def {
     enInspectID InspectID;
     enInspectStu Status;
     UINT32 (*Inspectfunc)(VOID);
-    CHAR name[6];
+    CHAR name[7];
 }osInspect_Def;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern UINT32 LOS_Inspect_Entry(VOID);
 extern UINT32 LOS_InspectByID(enInspectID InspectID);
 extern UINT32 LOS_InspectStatusSetByID(enInspectID InspectID,enInspectStu InspectStu);
 
+#ifdef __cplusplus
+	}
+#endif
 #endif //_LOS_INSPECT_ENTRY_H

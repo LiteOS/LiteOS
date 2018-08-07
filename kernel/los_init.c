@@ -134,7 +134,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 
     osRegister();
 
-    m_aucSysMem0 = OS_SYS_MEM_ADDR;
+    m_aucSysMem0 = (UINT8*)OS_SYS_MEM_ADDR;
     uwRet = osMemSystemInit();
     if (uwRet != LOS_OK)
     {

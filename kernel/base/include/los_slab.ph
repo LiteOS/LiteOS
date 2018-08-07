@@ -59,7 +59,11 @@ typedef struct tagOS_SLAB_BLOCK_NODE{
 
 struct AtomicBitset {
     UINT32 numBits;
+#ifdef __cplusplus
+    UINT32 words[1];/*lint !e43*/
+#else
     UINT32 words[];/*lint !e43*/
+#endif
 };
 
 typedef struct __s_OS_SLAB_ALLOCATOR {

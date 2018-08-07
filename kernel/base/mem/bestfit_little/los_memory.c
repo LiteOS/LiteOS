@@ -347,7 +347,8 @@ LITE_OS_SEC_TEXT_MINOR VOID *LOS_MemRealloc(VOID *pPool, VOID *pPtr, UINT32 uwSi
 #endif
         if (uwOldSize == (UINT32)-1)
         {
-            pstNode = ((struct LOS_HEAP_NODE *)pPtr) - 1;
+            //pstNode = ((struct LOS_HEAP_NODE *)pPtr) - 1;
+						pstNode = (struct LOS_HEAP_NODE*)((UINT8*)(((struct LOS_HEAP_NODE*)pPtr) - 1) + SIZE_OF_UCDATA);
             uwCpySize = uwSize > pstNode->uwSize ? pstNode->uwSize : uwSize;
         }
         else

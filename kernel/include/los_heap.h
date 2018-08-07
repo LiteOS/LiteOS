@@ -58,14 +58,34 @@ extern "C" {
 #define DDR_HEAP_FREE(p)                osHeapFree((VOID *)DDR_HEAP_START, p)
 #endif
 
-struct LOS_HEAP_NODE {
+typedef struct LOS_HEAP_NODE_HEAD {
 
     struct LOS_HEAP_NODE* pstPrev;
     UINT32 uwSize:30;
     UINT32 uwUsed: 1;
     UINT32 uwAlignFlag: 1; /* Little-Endian, MSB. Big-Endian, LSB */
-    UINT8  ucData[];/*lint !e43*/
-};
+}LOS_HEAP_NODE_HEAD;
+
+
+
+
+typedef struct LOS_HEAP_NODE {
+
+    struct LOS_HEAP_NODE* pstPrev;
+    UINT32 uwSize:30;
+    UINT32 uwUsed: 1;
+    UINT32 uwAlignFlag: 1; /* Little-Endian, MSB. Big-Endian, LSB */
+#ifdef __cplusplus
+	UINT8 ucData[1];/*lint !e43*/
+#else
+  UINT8 ucData[];/*lint !e43*/
+#endif	
+    
+}LOS_HEAP_NODE;
+
+
+#define SIZE_OF_UCDATA (sizeof(LOS_HEAP_NODE) - sizeof(LOS_HEAP_NODE_HEAD))
+
 
 struct LOS_HEAP_MANAGER{
     struct LOS_HEAP_NODE *pstHead;

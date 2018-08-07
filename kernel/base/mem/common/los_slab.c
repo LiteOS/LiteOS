@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <los_slab.ph>
-
+#include <los_heap.h>
 extern VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz);
 extern BOOL osHeapFree(VOID *pPool, VOID* pPtr);
 

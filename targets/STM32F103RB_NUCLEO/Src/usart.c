@@ -121,7 +121,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     }
 }
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* define fputc */
 #if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
 int fputc(int ch, FILE *f)
@@ -136,7 +138,9 @@ __attribute__((used)) int _write(int fd, char *ptr, int len)
     return len;
 }
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

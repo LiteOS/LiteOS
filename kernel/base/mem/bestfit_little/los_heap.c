@@ -88,7 +88,7 @@ LITE_OS_SEC_TEXT_INIT BOOL osHeapInit(VOID *pPool, UINT32 uwSz)
     struct LOS_HEAP_NODE* pstNode;
     struct LOS_HEAP_MANAGER *pstHeapMan = HEAP_CAST(struct LOS_HEAP_MANAGER *, pPool);
 
-    if (!pstHeapMan || (uwSz <= (sizeof(struct LOS_HEAP_NODE) +  sizeof(struct LOS_HEAP_MANAGER))))
+    if (!pstHeapMan || (uwSz <= (sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA +  sizeof(struct LOS_HEAP_MANAGER))))
         return FALSE;
 
     memset(pPool, 0, uwSz);
@@ -102,7 +102,7 @@ LITE_OS_SEC_TEXT_INIT BOOL osHeapInit(VOID *pPool, UINT32 uwSz)
 
     pstNode->uwUsed = 0;
     pstNode->pstPrev = NULL;
-    pstNode->uwSize = uwSz - sizeof(struct LOS_HEAP_NODE) - sizeof(struct LOS_HEAP_MANAGER);
+    pstNode->uwSize = uwSz - (sizeof(struct LOS_HEAP_NODE)- SIZE_OF_UCDATA) - sizeof(struct LOS_HEAP_MANAGER);
 
     return TRUE;
 }
@@ -151,13 +151,13 @@ LITE_OS_SEC_TEXT VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz)
         goto out;
     }
 
-    if (pstBest->uwSize - uwSz > sizeof(struct LOS_HEAP_NODE))
+    if (pstBest->uwSize - uwSz > sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA)
     {
         /* hole divide into 2 */
         pstNode = (struct LOS_HEAP_NODE*)(pstBest->ucData + uwSz);
 
         pstNode->uwUsed = 0;
-        pstNode->uwSize = pstBest->uwSize - uwSz- sizeof(struct LOS_HEAP_NODE);
+        pstNode->uwSize = pstBest->uwSize - uwSz- (sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA);
         pstNode->pstPrev = pstBest;
 
         if (pstBest != pstHeapMan->pstTail)
@@ -180,7 +180,7 @@ SIZE_MATCH:
 #endif
 
 #if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-    g_uwCurHeapUsed += (uwSz + sizeof(struct LOS_HEAP_NODE));
+    g_uwCurHeapUsed += (uwSz + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA);
     if(g_uwCurHeapUsed > g_uwMaxHeapUsed)
     {
         g_uwMaxHeapUsed = g_uwCurHeapUsed;
@@ -223,7 +223,7 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
     }
 
     if ((UINT32)pPtr < (UINT32)pstHeapMan->pstHead
-        || (UINT32)pPtr > ((UINT32)pstHeapMan->pstTail + sizeof(struct LOS_HEAP_NODE)))
+        || (UINT32)pPtr > ((UINT32)pstHeapMan->pstTail + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA))
     {
         PRINT_ERR("0x%x out of range!\n", (UINT32)pPtr);
         return FALSE;
@@ -231,12 +231,12 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 
     uvIntSave = LOS_IntLock();
 
-    pstNode = ((struct LOS_HEAP_NODE*)pPtr) - 1;
+    pstNode = (struct LOS_HEAP_NODE*)((UINT8*)(((struct LOS_HEAP_NODE*)pPtr) - 1) + SIZE_OF_UCDATA);
 
     /* check if the address is a node of the heap memory list*/
     if ((pstNode->uwUsed == 0) || (!((UINT32)pstNode == (UINT32)pstHeapMan->pstHead)
         && ((UINT32)pstNode->pstPrev < (UINT32)pstHeapMan->pstHead
-            || (UINT32)pstNode->pstPrev > ((UINT32)pstHeapMan->pstTail + sizeof(struct LOS_HEAP_NODE))
+            || (UINT32)pstNode->pstPrev > ((UINT32)pstHeapMan->pstTail + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA)
             || ((UINT32)osHeapPrvGetNext(pstHeapMan, pstNode->pstPrev) != (UINT32)pstNode)
         )))
     {
@@ -251,9 +251,9 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 #endif
 
 #if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-    if (g_uwCurHeapUsed >= (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE)))
+    if (g_uwCurHeapUsed >= (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA))
     {
-        g_uwCurHeapUsed -= (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE));
+        g_uwCurHeapUsed -= (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA);
     }
 #endif
 
@@ -263,7 +263,7 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 
     while (((pstT = osHeapPrvGetNext(pstHeapMan, pstNode)) != NULL) && !pstT->uwUsed)
     {
-        pstNode->uwSize += sizeof(struct LOS_HEAP_NODE) + pstT->uwSize;
+        pstNode->uwSize += sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA + pstT->uwSize;
         if (pstHeapMan->pstTail == pstT)
             pstHeapMan->pstTail = pstNode;
     }
@@ -315,7 +315,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 osHeapStatisticsGet(VOID *pPool, LOS_HEAP_STATUS *
     {
         if (pstNode->uwUsed)
         {
-            uwHeapUsed += (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE));
+            uwHeapUsed += (pstNode->uwSize + sizeof(struct LOS_HEAP_NODE) - SIZE_OF_UCDATA);
         }
         pstNode = pstNode->pstPrev;
     }
