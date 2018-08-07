@@ -82,9 +82,9 @@ int32_t nb_set_cdpserver(char* host, char* port)
         return ret;
     }
 
-    snprintf(ipaddr, 99, "%s,%s\r", host, port);
+    snprintf(ipaddr, sizeof(ipaddr) - 1, "%s,%s\r", host, port);
 
-	snprintf(tmpbuf, 127, "%s%s%c", cmd, ipaddr, '\r');
+	snprintf(tmpbuf, sizeof(tmpbuf) - 1, "%s%s%c", cmd, ipaddr, '\r');
     ret = at.cmd((int8_t*)tmpbuf, strlen(tmpbuf), "OK", NULL);
 	if(ret < 0)
 	{
