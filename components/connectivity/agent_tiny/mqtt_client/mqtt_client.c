@@ -841,7 +841,7 @@ int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
     client = &(handle->client);
 
     if(MQTTIsConnected(client) != 1)
-        return -1;
+        return ATINY_ERR;
 
     switch(send_data->method)
     {

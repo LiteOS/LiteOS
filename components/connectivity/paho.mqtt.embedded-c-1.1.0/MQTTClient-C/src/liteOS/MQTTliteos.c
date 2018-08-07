@@ -57,7 +57,6 @@
 
 #include "MQTTliteos.h"
 
-//#define get_time_ms() LOS_Tick2MS(LOS_TickCountGet())
 #define get_time_ms atiny_gettime_ms
 
 void TimerInit(Timer* timer)
@@ -372,7 +371,13 @@ static int los_mqtt_connect(Network* n, char* addr, int port)
 
 static void* atiny_calloc(size_t n, size_t size)
 {
-    return atiny_malloc(n * size);
+    void *p = atiny_malloc(n * size);
+    if(p)
+    {
+        memset(p, 0, n * size);
+    }
+
+    return p;
 }
 
 #if defined(_MSC_VER)
