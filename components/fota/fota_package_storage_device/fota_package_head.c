@@ -284,7 +284,7 @@ int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t 
             save_len = GET_DWORD(head->buff, FOTA_PACK_HEADER_TOTAL_LEN_POS);
             if(save_len <= head->head_len)
             {
-                FOTA_LOG("head len err, save len % head len %u", save_len, head->head_len);
+                FOTA_LOG("head len err, save len %d head len %u", save_len, head->head_len);
                 return FOTA_ERR;
             }
 
