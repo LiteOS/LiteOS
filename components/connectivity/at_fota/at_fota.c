@@ -141,6 +141,11 @@ int at_fota_send(char* buf, int len)
     int ret;
     char crcretbuf[5]= {0};
     ota_pcp_head_s pcp_head={0};
+    if(len > 1024)
+    {
+        AT_LOG("payload too long");
+        return -1;
+    }
     pcp_head.ori_id = htons_ota(0xFFFE);
     pcp_head.ver_num=1;
     pcp_head.msg_code=g_at_update_record.msg_code;
@@ -210,6 +215,11 @@ int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
             ota_ver_notify_t* notify = (ota_ver_notify_t*)pbuf;
             char tmpbuf[2]={0};
             char ver_ret[VER_LEN+2]={0};
+            if(notify == NULL)
+            {
+                AT_LOG("no buf");
+                return -1;
+            }
             ret = (char)ota_cmd_ioctl(OTA_NOTIFY_NEW_VER,(char*)notify,sizeof(ota_ver_notify_t));
             memset(sbuf,0,1064);
             ver_to_hex(tmpbuf, 2, (char*)sbuf);
@@ -233,8 +243,8 @@ int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
                 }
                 else
                 {
-                    ver_ret[16] = (g_at_update_record.block_num>>8)&&0XFF;
-                    ver_ret[17] = g_at_update_record.block_num &&0XFF;
+                    ver_ret[16] = (g_at_update_record.block_num>>8) & 0XFF;
+                    ver_ret[17] = g_at_update_record.block_num & 0XFF;
                 }
                 memset(sbuf,0,1064);
                 ver_to_hex(ver_ret, 18, sbuf);
@@ -254,7 +264,13 @@ int32_t ota_process_main(void* arg, int8_t* buf, int32_t buflen)
     case DOWNLOADING:
     {
         char tmpbuf[VER_LEN+2] = {0};
-        uint16_t block_seq = ((*(pbuf+1)<<8)&0XFF00)|(*(pbuf+2)&0XFF);
+        uint16_t block_seq = 0;
+        if(pbuf == NULL)
+        {
+            AT_LOG("no buf");
+            return -1;
+        }
+        block_seq = ((*(pbuf+1)<<8)&0XFF00)|(*(pbuf+2)&0XFF);
 
         if(*pbuf != OTA_OK || g_at_update_record.block_num != block_seq \
             || g_at_update_record.state != DOWNLOADING)

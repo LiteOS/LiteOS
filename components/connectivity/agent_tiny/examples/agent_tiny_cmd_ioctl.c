@@ -160,7 +160,10 @@ static char g_UTC_offset[UTC_OFFSET_MAX_LEN] = "+01:00";
 
 int atiny_get_UTC_offset(char* offset, int len)
 {
-    (void)atiny_snprintf(offset, len, g_UTC_offset);
+    if(len > strlen(g_UTC_offset) + 1)
+    {
+        (void)atiny_snprintf(offset, len, g_UTC_offset);
+    }
     return ATINY_OK;
 }
 
@@ -175,7 +178,10 @@ static char g_timezone[TIMEZONE_MAXLEN] = "Europe/Berlin";
 
 int atiny_get_timezone(char* timezone, int len)
 {
-    (void)atiny_snprintf(timezone, len, g_timezone);
+    if(len > strlen(g_timezone) + 1)
+    {
+        (void)atiny_snprintf(timezone, len, g_timezone);
+    }
     return ATINY_OK;
 }
 
