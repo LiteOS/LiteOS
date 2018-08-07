@@ -60,12 +60,18 @@ int str_to_hex(const char *bufin, int len, char *bufout)
 int32_t nb_reboot(void)
 {
     memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
-    return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "REBOOT", NULL);
+    return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "OK", NULL);
 }
 
 int32_t nb_hw_detect(void)//"AT+CFUN?\r"
 {
     return at.cmd((int8_t*)AT_NB_hw_detect, strlen(AT_NB_hw_detect), "+CFUN:1", NULL);
+}
+
+int32_t nb_check_csq(void)
+{
+    char *cmd = "AT+CSQ\r";
+    return at.cmd((int8_t*)cmd, strlen(cmd), "+CSQ:", NULL);
 }
 
 int32_t nb_set_cdpserver(char* host, char* port)
@@ -105,6 +111,12 @@ int32_t nb_send_psk(char* pskid, char* psk)
     at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
     snprintf(wbuf, AT_DATA_LEN, "%s=%s,%s\r", cmdp, pskid, psk);
     return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+}
+
+int32_t nb_set_no_encrypt(void)
+{
+    char* cmd = "AT+QSECSWT=0\r";
+    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
 }
 
 int32_t nb_send_str(const char* buf, int len)

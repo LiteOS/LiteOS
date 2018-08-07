@@ -43,7 +43,7 @@
 typedef struct sec_param{
 char* psk;
 char* pskid;
-uint8_t psk_len;
+uint8_t setpsk;
 }sec_param_s;
 
 extern at_task at;
