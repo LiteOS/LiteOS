@@ -444,6 +444,7 @@ lwm2m_object_t * get_binary_app_data_object(atiny_param_t* atiny_params)
             if(ret != ATINY_OK)
             {
                 ATINY_LOG(LOG_ERR, "atiny_add_rpt_uri fail %d", ret);
+                lwm2m_free(targetP);
                 break;
             }
             (void)atiny_set_max_rpt_cnt(&uri, MAX(MIN_SAVE_CNT, atiny_params->server_params.storing_cnt));
@@ -481,7 +482,6 @@ static void free_binary_app_data_object_rpt(lwm2m_object_t * object)
     lwm2m_uri_t uri;
     while(cur)
     {
-
         get_resource_uri(object->objID, ((plat_instance_t *)cur)->shortID, BINARY_APP_DATA_RES_ID, &uri);
         (void)atiny_rm_rpt_uri(&uri);
         cur = cur->next;

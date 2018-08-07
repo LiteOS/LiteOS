@@ -58,31 +58,31 @@ static VOID Example_MutexTask1(VOID)
 {
     UINT32 uwRet;
 
-    dprintf("task1 try to get mutex, wait 10 Tick.\n");
+    dprintf("task1 try to get mutex, wait 10 Tick. \r\n");
     /* get mux */
     uwRet = LOS_MuxPend(g_Testmux01, 10);
 
     if (uwRet == LOS_OK)
     {
-        dprintf("task1 get mutex g_Testmux01.\n");
+        dprintf("task1 get mutex g_Testmux01. \r\n");
         /* release mux */
         LOS_MuxPost(g_Testmux01);
         return;
     }
     else if (uwRet == LOS_ERRNO_MUX_TIMEOUT)
     {
-        dprintf("task1 timeout and try to get  mutex, wait forever.\n");
+        dprintf("task1 timeout and try to get  mutex, wait forever. \r\n");
         /* LOS_WAIT_FOREVER type get mux, LOS_MuxPend return until has been get mux */
         uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
         if (uwRet == LOS_OK)
         {
-            dprintf("task1 wait forever,got mutex g_Testmux01 success.\n");
+            dprintf("task1 wait forever,got mutex g_Testmux01 success. \r\n");
             /* release mux */
             LOS_MuxPost(g_Testmux01);
             uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_MUTEX, LOS_INSPECT_STU_SUCCESS);
             if (LOS_OK != uwRet)
             {
-                dprintf("Set Inspect Status Err\n");
+                dprintf("Set Inspect Status Err \r\n");
             }
             return;
         }
@@ -94,21 +94,21 @@ static VOID Example_MutexTask2(VOID)
 {
     UINT32 uwRet;
 
-    dprintf("task2 try to get mutex, wait forever.\n");
+    dprintf("task2 try to get mutex, wait forever. \r\n");
     /* get mux */
     uwRet = LOS_MuxPend(g_Testmux01, LOS_WAIT_FOREVER);
     if(uwRet != LOS_OK)
     {
-        dprintf("task2 LOS_MuxPend failed .\n");
+        dprintf("task2 LOS_MuxPend failed . \r\n");
         return;
     }
 
-    dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick.\n");
+    dprintf("task2 get mutex g_Testmux01 and suspend 100 Tick. \r\n");
 
     /* task delay 100 ticks */
     LOS_TaskDelay(100);
 
-    dprintf("task2 resumed and post the g_Testmux01\n");
+    dprintf("task2 resumed and post the g_Testmux01 \r\n");
     /* release mux */
     LOS_MuxPost(g_Testmux01);
     return;
@@ -135,7 +135,7 @@ UINT32 Example_MutexLock(VOID)
     uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
     if (uwRet != LOS_OK)
     {
-        dprintf("task1 create failed .\n");
+        dprintf("task1 create failed . \r\n");
         return LOS_NOK;
     }
 
@@ -148,7 +148,7 @@ UINT32 Example_MutexLock(VOID)
     uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
     if (uwRet != LOS_OK)
     {
-        dprintf("task2 create failed .\n");
+        dprintf("task2 create failed . \r\n");
         return LOS_NOK;
     }
 

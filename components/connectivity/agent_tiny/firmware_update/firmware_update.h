@@ -46,6 +46,7 @@ typedef void (*firmware_update_notify)(firmware_update_rst_e rst, void *param);
 
 void set_firmware_update_notify(firmware_update_notify notify_cb, void *param);
 int start_firmware_download(lwm2m_context_t *contextP, char *uri, atiny_fota_storage_device_s *storage_device_p);
+void clean_firmware_record(void);
 
 #endif /* __FIRMWARE_UPDATE_H__ */
 

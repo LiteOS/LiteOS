@@ -50,6 +50,7 @@
 #include "Legacy/stm32_hal_legacy.h"
 #endif
 #include <stdio.h>
+#include <stdint.h>
 
 /* Exported types ------------------------------------------------------------*/
 

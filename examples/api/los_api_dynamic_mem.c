@@ -55,11 +55,11 @@ UINT32 Example_Dyn_Mem(VOID)
     uwRet = LOS_MemInit(pDynMem, MEM_DYN_SIZE);
     if (LOS_OK == uwRet)
     {
-        dprintf("mempool init ok!\n");
+        dprintf("mempool init ok! \r\n");
     }
     else
     {
-        dprintf("mempool init failed!\n");
+        dprintf("mempool init failed! \r\n");
         return LOS_NOK;
     }
 
@@ -67,33 +67,33 @@ UINT32 Example_Dyn_Mem(VOID)
     p_num = (UINT32 *)LOS_MemAlloc(pDynMem, 4);
     if (NULL == p_num)
     {
-        dprintf("mem alloc failed!\n");
+        dprintf("mem alloc failed! \r\n");
         return LOS_NOK;
     }
-    dprintf("mem alloc ok\n");
+    dprintf("mem alloc ok \r\n");
 
     /* assignment */
     *p_num = 828;
-    dprintf("*p_num = %d\n", *p_num);
+    dprintf("*p_num = %d \r\n", *p_num);
 
     /* mem free */
     uwRet = LOS_MemFree(pDynMem, p_num);
     if (LOS_OK == uwRet)
     {
-        dprintf("mem free ok!\n");
+        dprintf("mem free ok!\r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err \r\n");
         }
     }
     else
     {
-        dprintf("mem free failed!\n");
+        dprintf("mem free failed! \r\n");
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err \r\n");
         }
         return LOS_NOK;
     }

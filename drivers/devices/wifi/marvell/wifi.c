@@ -520,7 +520,7 @@ static void WiFi_DownloadHelper(void)
     {
         // Download up to 60 bytes of firmware at a time
         curr = (len > 60) ? 60 : len;
-        memcpy(helper_buf, &curr, 4); // The first 4 bytes are the amount of data actually downloaded
+        memcpy(helper_buf, &curr, 4);/*lint -e420*/ // The first 4 bytes are the amount of data actually downloaded
         memcpy(helper_buf + 4, data, curr);
 
         if (len != WIFI_HELPER_SIZE) // There is no waiting until the data is sent for the first time
@@ -570,7 +570,7 @@ static void WiFi_DownloadReal(void)
          * eg: __attribute__((aligned))
          */
         curr = (curr > 512) ? 512 : curr;
-        memcpy(tmp_buffer, data, curr);
+        memcpy(tmp_buffer, data, curr);/*lint -e669*/
 
         // Send firmware data
         // You cannot use multi-byte transport mode in high speed mode,

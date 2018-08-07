@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := SIM900A
+	NETWORK_TYPE := NB_NEUL95
 endif
 
 #######################################
@@ -140,7 +140,8 @@ ER_COAP_SRC = \
         C_SOURCES += $(ER_COAP_SRC)
 
 LWM2M_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c} \
+		${wildcard $(TOP_DIR)/components/connectivity/lwm2m/examples/shared/*.c}
         C_SOURCES += $(LWM2M_SRC)
 
 OS_ADAPTER_SRC = \
@@ -166,13 +167,16 @@ USER_SRC =  \
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
+SOTA_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/at_fota/*.c}
+        C_SOURCES += $(SOTA_SRC)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
      $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/esp8266/*.c}
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
@@ -310,7 +314,8 @@ ER_COAP_INC = \
         C_INCLUDES += $(ER_COAP_INC)
 
 LWM2M_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core
+        -I $(TOP_DIR)/components/connectivity/lwm2m/core \
+		-I $(TOP_DIR)/components/connectivity/lwm2m//examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
 OS_ADAPTER_INC = \
@@ -351,6 +356,9 @@ ATADAPTOR_INC = \
         -I $(TOP_DIR)/components/connectivity/at_frame
         C_INCLUDES += $(ATADAPTOR_INC)
 
+SOTA_INC = \
+        -I $(TOP_DIR)/components/connectivity/at_fota
+        C_INCLUDES += $(SOTA_INC)
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi

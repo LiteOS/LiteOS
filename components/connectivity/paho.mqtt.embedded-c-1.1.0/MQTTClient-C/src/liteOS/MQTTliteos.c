@@ -38,10 +38,22 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
-#include "atiny_socket.h"
+
+#if defined(WITH_LINUX)
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <errno.h>
+#elif defined(WITH_LWIP)
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
+#endif
 
 #include "MQTTliteos.h"
 

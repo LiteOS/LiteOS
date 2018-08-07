@@ -53,7 +53,7 @@ static VOID Example_Exti0_Init(VOID)
 
 static VOID User_IRQHandler(VOID)
 {
-    dprintf("\n User IRQ test\n");
+    dprintf("\r\n User IRQ test\r\n");
     //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
     return;
 }

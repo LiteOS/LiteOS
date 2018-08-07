@@ -47,13 +47,16 @@ struct fota_pack_checksum_tag_s;
 struct fota_pack_checksum_tag_s;
 typedef struct fota_pack_checksum_tag_s fota_pack_checksum_s;
 
-typedef enum
-{
-    FOTA_PACK_SHA_S56,
-    FOTA_PACK_MAX_CHECKSUM_TYPE
-} fota_pack_checksum_type_e;
-
 struct fota_pack_head_tag_s;
+
+typedef struct fota_pack_checksum_alg_tag_s
+{
+    void (*reset)(struct fota_pack_checksum_alg_tag_s *thi);
+    int (*update)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t *buff, uint16_t len);
+    int (*check)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t  *checksum, uint16_t checksum_len);
+    void (*destroy)(struct fota_pack_checksum_alg_tag_s *thi);
+}fota_pack_checksum_alg_s;
+
 
 
 
@@ -62,7 +65,7 @@ extern "C" {
 #endif
 
 
-fota_pack_checksum_s * fota_pack_checksum_create(fota_pack_checksum_type_e type);
+fota_pack_checksum_s * fota_pack_checksum_create(struct fota_pack_head_tag_s *head);
 void fota_pack_checksum_delete(fota_pack_checksum_s * thi);
 int fota_pack_checksum_update_head(fota_pack_checksum_s *thi, struct fota_pack_head_tag_s *head);
 int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware);

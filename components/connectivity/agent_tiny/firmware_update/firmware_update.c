@@ -181,12 +181,6 @@ static int record_fw_uri(char *uri, int uri_len)
         return -1;
     }
 
-    if(NULL != g_fw_update_record.uri)
-    {
-        lwm2m_free(g_fw_update_record.uri);
-        g_fw_update_record.uri = NULL;
-    }
-
     g_fw_update_record.uri = (char *)lwm2m_malloc(uri_len + 1);
     if(NULL == g_fw_update_record.uri)
     {
@@ -216,6 +210,11 @@ static int update_uri_info(char *uri, int uri_len, unsigned char *update_flag)
     }
     else
     {
+        if(NULL != g_fw_update_record.uri)
+        {
+            lwm2m_free(g_fw_update_record.uri);
+            g_fw_update_record.uri = NULL;
+        }
         memset(&g_fw_update_record, 0x0, sizeof(g_fw_update_record));
         ret = record_fw_uri(uri, uri_len);
         *update_flag = 1;
@@ -255,12 +254,12 @@ int parse_firmware_uri(char *uri, int uri_len)
         ATINY_LOG(LOG_ERR, "unsupported proto");
         return -1;
     }
-    //‘›≤ªøº¬«query
+    //ÊöÇ‰∏çËÄÉËôëquery
     char_p = uri + proto_len;
     if(*char_p == '\0') // eg. just "coap://"
         return -1;
     path = strchr(char_p, '/');
-    if(NULL == char_p)
+    if(NULL == path)
         return -1;
     path_len = uri_len - (path - uri);
 
@@ -364,4 +363,17 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
     return 0;
 }
 
+void clean_firmware_record(void)
+{
+    if(NULL != g_ota_uri)
+    {
+        lwm2m_free(g_ota_uri);
+        g_ota_uri = NULL;
+    }
+    if(NULL != g_fw_update_record.uri)
+    {
+        lwm2m_free(g_fw_update_record.uri);
+        g_fw_update_record.uri = NULL;
+    }
+}
 

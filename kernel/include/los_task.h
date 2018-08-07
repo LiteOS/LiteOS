@@ -444,6 +444,8 @@ typedef struct tagTskInfo
     UINT16              usTaskPrio;                 /**< Task priority                  */
     VOID                *pTaskSem;                  /**< Semaphore pointer              */
     VOID                *pTaskMux;                  /**< Mutex pointer                  */
+    UINT32              uwSemID;                    /**< Sem ID                         */
+    UINT32              uwMuxID;                    /**< Mux ID                         */
     EVENT_CB_S          uwEvent;                    /**< Event                          */
     UINT32              uwEventMask;                /**< Event mask                     */
     UINT32              uwStackSize;                /**< Task stack size                */

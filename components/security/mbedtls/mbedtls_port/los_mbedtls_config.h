@@ -140,6 +140,14 @@
         MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256
 #endif
 
+#ifdef CONFIG_FEATURE_FOTA
+#define MBEDTLS_RSA_C
+#define MBEDTLS_BIGNUM_C
+#define MBEDTLS_OID_C
+#define MBEDTLS_PKCS1_V21
+#define MBEDTLS_ASN1_PARSE_C
+#endif
+
 #include "mbedtls/check_config.h"
 
 #endif /* MBEDTLS_CONFIG_H */
