@@ -38,6 +38,11 @@ USE_BOOTLOADER := no
 USE_FOTA := yes
 
 #######################################
+# sota
+#######################################
+USE_SOTA := no
+
+#######################################
 # binaries
 #######################################
 PREFIX    = arm-none-eabi-
@@ -166,10 +171,13 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
-ifeq ($(USE_AT_FRAMEWORK), yes)
+ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/at_fota/*.c}
         C_SOURCES += $(SOTA_SRC)
+endif
+
+ifeq ($(USE_AT_FRAMEWORK), yes)
 ATADAPTOR_SRC = \
     ${wildcard $(TOP_DIR)/components/connectivity/at_frame/*.c} \
      $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c
@@ -255,6 +263,10 @@ ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
 else
         C_DEFS += -D WITH_LWIP
+endif
+
+ifeq ($(USE_SOTA), yes)
+		C_DEFS += -DWITH_SOTA
 endif
 
 ifeq ($(USE_FOTA), yes)
@@ -352,14 +364,17 @@ FIRMWARE_UPDATE_INC = \
 C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
 endif
 
-ATADAPTOR_INC = \
-        -I $(TOP_DIR)/components/connectivity/at_frame
-        C_INCLUDES += $(ATADAPTOR_INC)
-
+ifeq ($(USE_SOTA), yes)
 SOTA_INC = \
         -I $(TOP_DIR)/components/connectivity/at_fota
         C_INCLUDES += $(SOTA_INC)
+endif
+
 ifeq ($(USE_AT_FRAMEWORK), yes)
+ATADAPTOR_INC = \
+        -I $(TOP_DIR)/components/connectivity/at_frame \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src
+        C_INCLUDES += $(ATADAPTOR_INC)
 ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi
 else ifeq ($(NETWORK_TYPE), SIM900A)

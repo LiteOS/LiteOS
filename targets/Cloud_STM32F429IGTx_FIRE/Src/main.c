@@ -62,6 +62,7 @@ VOID main_task(VOID)
 #define AT_DTLS 0
 #if AT_DTLS
     sec_param_s sec;
+    sec.setpsk = 1;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
 #endif
@@ -101,7 +102,7 @@ UINT32 creat_main_task()
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
+    task_init_param.usTaskPrio = 2;
     task_init_param.pcName = "main_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
 

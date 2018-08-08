@@ -58,6 +58,7 @@ typedef enum
     ATINY_CLIENT_UNREGISTERED  = -7,
     ATINY_SOCKET_CREATE_FAILED = -8,
     ATINY_SOCKET_ERROR = -9,
+    ATINY_ERR                  =-10,
 } atiny_error_e;
 
 typedef enum cloud_security_type
