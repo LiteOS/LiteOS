@@ -61,7 +61,7 @@ typedef struct
     atiny_fota_storage_device_s device;
     fota_hardware_s hardware;
     uint32_t total_len;
-}ota_hal_s;
+} ota_hal_s;
 
 static int hal_fota_write_begin_not_aligned_buffer(uint32_t offset, const uint8_t *buffer, uint32_t len, uint32_t *used_len, uint8_t **block_buff)
 {
@@ -77,11 +77,11 @@ static int hal_fota_write_begin_not_aligned_buffer(uint32_t offset, const uint8_
 
         if(NULL == *block_buff)
         {
-             *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
+            *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
             if(NULL == *block_buff)
             {
-                 HAL_FOTA_LOG("atiny_malloc fail");
-                 return ERR;
+                HAL_FOTA_LOG("atiny_malloc fail");
+                return ERR;
             }
         }
 
@@ -169,7 +169,7 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
     len -= used_len;
     if(len == 0)
     {
-       goto EXIT;
+        goto EXIT;
     }
     buffer += used_len;
     offset += used_len;
@@ -177,15 +177,15 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
 
     while(len >= FLASH_BLOCK_SIZE)
     {
-       ret = hal_spi_flash_erase_write(buffer, FLASH_BLOCK_SIZE, offset);
-       if(ret != OK)
-       {
-           HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
-           goto EXIT;
-       }
-       len -= FLASH_BLOCK_SIZE;
-       buffer += FLASH_BLOCK_SIZE;
-       offset += FLASH_BLOCK_SIZE;
+        ret = hal_spi_flash_erase_write(buffer, FLASH_BLOCK_SIZE, offset);
+        if(ret != OK)
+        {
+            HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
+            goto EXIT;
+        }
+        len -= FLASH_BLOCK_SIZE;
+        buffer += FLASH_BLOCK_SIZE;
+        offset += FLASH_BLOCK_SIZE;
     }
 
     if(len > 0)
@@ -310,7 +310,7 @@ ota_hal_s g_hal_storage_device = {{hal_fota_write_software, hal_fota_write_softw
 int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware)
 {
     if((NULL == storage_device)
-        || (NULL == hardware))
+            || (NULL == hardware))
     {
         HAL_FOTA_LOG("null pointer");
         return ERR;

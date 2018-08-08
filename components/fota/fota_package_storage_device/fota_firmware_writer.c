@@ -68,9 +68,9 @@ void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, atiny_fota_storage_d
 int fota_fmw_wr_check(fota_firmware_writer_s *writer)
 {
     if((NULL == writer->hardware)
-        || ((NULL == writer->hardware->get_block_size))
-        || (NULL == writer->storage_device)
-        || (NULL == writer->storage_device->write_software))
+            || ((NULL == writer->hardware->get_block_size))
+            || (NULL == writer->storage_device)
+            || (NULL == writer->storage_device->write_software))
     {
         FOTA_LOG("null poiter");
         return FOTA_ERR;
@@ -88,7 +88,7 @@ int fota_fmw_wr_create_buffer(fota_firmware_writer_s *writer, uint32_t offset)
     }
 
     if((block_size == writer->buffer_len)
-        && (writer->buffer))
+            && (writer->buffer))
     {
         writer->buffer_stored_len = 0;
         return FOTA_OK;
@@ -139,7 +139,7 @@ int fota_fmw_wr_write_stored_data(fota_firmware_writer_s *writer)
 
 
 int fota_fmw_wr_write_combined_data(fota_firmware_writer_s *writer,
-                                            uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *write_len)
+                                    uint32_t offset, const uint8_t *buff, uint16_t len, uint16_t *write_len)
 {
     uint32_t block_size;
     uint32_t block_end;
@@ -184,12 +184,12 @@ int fota_fmw_wr_write_combined_data(fota_firmware_writer_s *writer,
 }
 
 int fota_fmw_wr_write_buffer_data(fota_firmware_writer_s *writer, uint32_t offset,
-                                              const uint8_t *buff, uint16_t len)
+                                  const uint8_t *buff, uint16_t len)
 {
     uint32_t block_size;
     int ret;
     uint32_t block_end;
-//    uint32_t offset_end;
+    //    uint32_t offset_end;
 
     if(fota_fmw_wr_get_offset_info(writer, offset + len - 1, &block_size, &block_end) != FOTA_OK)
     {
@@ -245,7 +245,7 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
     }
 
     if(fota_fmw_wr_write_combined_data(writer, offset,
-                  buff, len, &write_len) != FOTA_OK)
+                                       buff, len, &write_len) != FOTA_OK)
     {
         return FOTA_ERR;
     }

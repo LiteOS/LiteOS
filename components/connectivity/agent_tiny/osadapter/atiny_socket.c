@@ -77,18 +77,18 @@ typedef struct
     int fd;
 } atiny_net_context;
 
-void* atiny_net_connect(const char* host, const char* port, int proto)
+void *atiny_net_connect(const char *host, const char *port, int proto)
 {
-    atiny_net_context* ctx = NULL;
+    atiny_net_context *ctx = NULL;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     int flags;
     int ret;
     struct addrinfo hints;
-    struct addrinfo* addr_list;
-    struct addrinfo* cur;
+    struct addrinfo *addr_list;
+    struct addrinfo *cur;
 
     if (NULL == host || NULL == port ||
-        (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
+            (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
     {
         SOCKET_LOG("ilegal incoming parameters");
         return NULL;
@@ -172,7 +172,7 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     {
         SOCKET_LOG("malloc failed for socket context");
         return NULL;
-    }    
+    }
 
     ctx->fd = at_api_connect(host, port, proto);
     if (ctx->fd < 0)
@@ -187,7 +187,7 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     {
         SOCKET_LOG("malloc failed for socket context");
         return NULL;
-    }    
+    }
 
     ctx->fd = wiznet_connect(host, port, proto);
     if (ctx->fd < 0)
@@ -197,14 +197,14 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
         ctx = NULL;
     }
 #else
-#endif  
+#endif
     return ctx;
 }
 
-int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
+int atiny_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = -1;
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = recv(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
@@ -239,7 +239,7 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
     return ret;
 }
 
-int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
+int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                            uint32_t timeout)
 {
     int ret = -1;
@@ -247,8 +247,8 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     struct timeval tv;
     fd_set read_fds;
 #endif
-	
-    int fd = ((atiny_net_context*)ctx)->fd;
+
+    int fd = ((atiny_net_context *)ctx)->fd;
 
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     if (fd < 0)
@@ -278,7 +278,7 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     }
 
     ret = atiny_net_recv(ctx, buf, len);
-    
+
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_recv_timeout(fd, buf, len, timeout);
 #elif defined(WITH_WIZNET)
@@ -289,10 +289,10 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     return ret;
 }
 
-int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
+int atiny_net_send(void *ctx, const unsigned char *buf, size_t len)
 {
     int ret = -1;
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 
     if (fd < 0)
     {
@@ -328,9 +328,9 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     return ret;
 }
 
-void atiny_net_close(void* ctx)
+void atiny_net_close(void *ctx)
 {
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 
     if (fd >= 0)
     {

@@ -50,9 +50,9 @@ typedef struct
     fota_pack_checksum_s *checksum;
     uint32_t total_len;
     int init_flag;
-}fota_pack_storage_device_s;
+} fota_pack_storage_device_s;
 
-static inline fota_pack_storage_device_s * fota_pack_storage_get_storage_device(atiny_fota_storage_device_s *this)
+static inline fota_pack_storage_device_s *fota_pack_storage_get_storage_device(atiny_fota_storage_device_s *this)
 {
     return (fota_pack_storage_device_s *)this;
 }
@@ -91,7 +91,8 @@ static int fota_pack_storage_write_software_end(atiny_fota_storage_device_s *thi
             break;
         }
 
-    }while(0);
+    }
+    while(0);
 
 
     if(device->storage_device && device->storage_device->write_software_end)
@@ -117,7 +118,7 @@ static int fota_pack_storage_write_software_end(atiny_fota_storage_device_s *thi
 
 
 static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
-                                           uint32_t offset, const uint8_t *buffer, uint32_t len)
+        uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
     fota_pack_storage_device_s *device;
     uint16_t used_len = 0;
@@ -161,7 +162,7 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
     }
 
     ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
-                buffer, len, device->hardware);
+                                         buffer, len, device->hardware);
     if(ret != FOTA_OK)
     {
         FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
@@ -193,22 +194,22 @@ int name types_args\
 }
 
 DEFINE_PROXY_FUNC(fota_pack_storage_active_software, active_software,
-                    (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
+                  (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
 
 
 DEFINE_PROXY_FUNC(fota_pack_storage_get_software_result, get_software_result,
-                    (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
+                  (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
 
 
 
 DEFINE_PROXY_FUNC(fota_pack_storage_write_update_info, write_update_info,
-                    (atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len),
-                    (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
+                  (atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len),
+                  (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
 
 
 DEFINE_PROXY_FUNC(fota_pack_storage_read_update_info, read_update_info,
-                    (atiny_fota_storage_device_s *this, uint32_t offset, uint8_t *buffer, uint32_t len),
-                    (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
+                  (atiny_fota_storage_device_s *this, uint32_t offset, uint8_t *buffer, uint32_t len),
+                  (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
 
 
 
@@ -252,7 +253,7 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
     dtls_int();
 
     if((NULL == device) || (NULL == device_info)
-        || (NULL == device_info->storage_device) || (NULL == device_info->hardware))
+            || (NULL == device_info->storage_device) || (NULL == device_info->hardware))
     {
         FOTA_LOG("null err");
         return FOTA_ERR;

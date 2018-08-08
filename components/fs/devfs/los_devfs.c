@@ -37,7 +37,7 @@
 
 #if (LOSCFG_ENABLE_DEVFS == YES)
 
-static void * devfs_root = NULL;
+static void *devfs_root = NULL;
 
 UINT32 los_devfs_init (void)
 {
@@ -56,8 +56,8 @@ UINT32 los_devfs_init (void)
     return (devfs_root == NULL) ? LOS_NOK : LOS_OK;
 }
 
-UINT32 los_devfs_create (const char * name, uint32_t flags,
-                         struct devfs_ops * devops, void * arg)
+UINT32 los_devfs_create (const char *name, uint32_t flags,
+                         struct devfs_ops *devops, void *arg)
 {
     int ret;
 
@@ -71,8 +71,8 @@ UINT32 los_devfs_create (const char * name, uint32_t flags,
     return ret == 0 ? LOS_OK : LOS_NOK;
 }
 
-UINT32 los_devfs_link (const char * path_in_mp, uint32_t flags,
-                       void * buff, size_t size)
+UINT32 los_devfs_link (const char *path_in_mp, uint32_t flags,
+                       void *buff, size_t size)
 {
     int ret;
 
