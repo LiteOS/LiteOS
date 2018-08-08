@@ -65,17 +65,17 @@ uint64_t atiny_gettime_ms(void)
     return osKernelGetTickCount() * (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND);
 }
 
-void* atiny_malloc(size_t size)
+void *atiny_malloc(size_t size)
 {
     return LOS_MemAlloc(m_aucSysMem0, size);
 }
 
-void atiny_free(void* ptr)
+void atiny_free(void *ptr)
 {
     (void)LOS_MemFree(m_aucSysMem0, ptr);
 }
 
-int atiny_snprintf(char* buf, unsigned int size, const char* format, ...)
+int atiny_snprintf(char *buf, unsigned int size, const char *format, ...)
 {
     int     ret;
     va_list args;
@@ -87,7 +87,7 @@ int atiny_snprintf(char* buf, unsigned int size, const char* format, ...)
     return ret;
 }
 
-int atiny_printf(const char* format, ...)
+int atiny_printf(const char *format, ...)
 {
     int ret;
     char str_buf[LOG_BUF_SIZE] = {0};
@@ -112,7 +112,7 @@ char *atiny_strdup(const char *ch)
         return NULL;
 
     length = strlen(ch);
-    copy= (char *)atiny_malloc(length + 1);
+    copy = (char *)atiny_malloc(length + 1);
     if(NULL == copy)
         return NULL;
     strncpy(copy, ch, length);
@@ -123,7 +123,7 @@ char *atiny_strdup(const char *ch)
 
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
-void* atiny_mutex_create(void)
+void *atiny_mutex_create(void)
 {
     uint32_t uwRet;
     uint32_t uwSemId;
@@ -133,11 +133,11 @@ void* atiny_mutex_create(void)
         return NULL;
     }
 
-    uwRet = LOS_BinarySemCreate(1, (UINT32*)&uwSemId);
+    uwRet = LOS_BinarySemCreate(1, (UINT32 *)&uwSemId);
 
     if (uwRet == LOS_OK)
     {
-        return (void*)(GET_SEM(uwSemId));
+        return (void *)(GET_SEM(uwSemId));
     }
     else
     {
@@ -145,7 +145,7 @@ void* atiny_mutex_create(void)
     }
 }
 
-void atiny_mutex_destroy(void* mutex)
+void atiny_mutex_destroy(void *mutex)
 {
     if (OS_INT_ACTIVE)
     {
@@ -157,10 +157,10 @@ void atiny_mutex_destroy(void* mutex)
         return;
     }
 
-    (void)LOS_SemDelete(((SEM_CB_S*)mutex)->usSemID);
+    (void)LOS_SemDelete(((SEM_CB_S *)mutex)->usSemID);
 }
 
-void atiny_mutex_lock(void* mutex)
+void atiny_mutex_lock(void *mutex)
 {
     if (mutex == NULL)
     {
@@ -172,28 +172,40 @@ void atiny_mutex_lock(void* mutex)
         return;
     }
 
-    (void)LOS_SemPend(((SEM_CB_S*)mutex)->usSemID, ATINY_CNT_MAX_WAITTIME);
+    (void)LOS_SemPend(((SEM_CB_S *)mutex)->usSemID, ATINY_CNT_MAX_WAITTIME);
 }
 
-void atiny_mutex_unlock(void* mutex)
+void atiny_mutex_unlock(void *mutex)
 {
     if (mutex == NULL)
     {
         return;
     }
 
-    (void)LOS_SemPost(((SEM_CB_S*)mutex)->usSemID);
+    (void)LOS_SemPost(((SEM_CB_S *)mutex)->usSemID);
 }
 
 #else
 
-void* atiny_mutex_create(void) { return NULL; }
+void *atiny_mutex_create(void)
+{
+    return NULL;
+}
 
-void atiny_mutex_destroy(void* mutex) { ((void)mutex); }
+void atiny_mutex_destroy(void *mutex)
+{
+    ((void)mutex);
+}
 
-void atiny_mutex_lock(void* mutex) { ((void)mutex); }
+void atiny_mutex_lock(void *mutex)
+{
+    ((void)mutex);
+}
 
-void atiny_mutex_unlock(void* mutex) { ((void)mutex); }
+void atiny_mutex_unlock(void *mutex)
+{
+    ((void)mutex);
+}
 
 #endif /* LOSCFG_BASE_IPC_SEM == YES */
 

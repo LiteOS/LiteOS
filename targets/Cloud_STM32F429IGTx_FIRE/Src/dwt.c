@@ -47,13 +47,13 @@ void dwt_delay_init(uint32_t clk)
 void delayus(uint32_t usec)
 
 {
-    uint32_t startts,endts,ts;
+    uint32_t startts, endts, ts;
     UINT32 uwIntSave;
     startts = DWT_CYCCNT;
 
-    ts =  usec * (cpuclkfeq /(1000*1000));
+    ts =  usec * (cpuclkfeq / (1000 * 1000));
     endts = startts + ts;
-    uwIntSave=LOS_IntLock();
+    uwIntSave = LOS_IntLock();
     if(endts > startts)
     {
         while(DWT_CYCCNT < endts);
@@ -68,5 +68,5 @@ void delayus(uint32_t usec)
 
 void delay10ms(__IO uint32_t nTime)
 {
-    delayus(1000*nTime);
+    delayus(1000 * nTime);
 }

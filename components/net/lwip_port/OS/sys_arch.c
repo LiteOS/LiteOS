@@ -57,9 +57,9 @@
  *      err_t                   -- ERR_OK if message posted, else ERR_MEM
  *---------------------------------------------------------------------------*/
 
-err_t sys_mbox_new(struct sys_mbox** mb, int size)
+err_t sys_mbox_new(struct sys_mbox **mb, int size)
 {
-    struct sys_mbox* mbox;
+    struct sys_mbox *mbox;
     unsigned int ret;
 
     if (size <= 0)
@@ -68,7 +68,7 @@ err_t sys_mbox_new(struct sys_mbox** mb, int size)
         return ERR_MEM;
     }
 
-    mbox = (struct sys_mbox*)mem_malloc(sizeof(struct sys_mbox));
+    mbox = (struct sys_mbox *)mem_malloc(sizeof(struct sys_mbox));
 
     if (mbox == NULL)
     {
@@ -77,14 +77,14 @@ err_t sys_mbox_new(struct sys_mbox** mb, int size)
 
     (void)memset(mbox, 0, sizeof(struct sys_mbox)); //CSEC_FIX_2302
 
-    mbox->msgs = (void**)mem_malloc(sizeof(void*) * size);
+    mbox->msgs = (void **)mem_malloc(sizeof(void *) * size);
 
     if (mbox->msgs == NULL)
     {
         goto err_handler;
     }
 
-    (void)memset(mbox->msgs, 0, (sizeof(void*) * size));  //CSEC_FIX_2302
+    (void)memset(mbox->msgs, 0, (sizeof(void *) * size)); //CSEC_FIX_2302
 
     mbox->mbox_size = size;
 
@@ -120,7 +120,7 @@ err_t sys_mbox_new(struct sys_mbox** mb, int size)
 
     SYS_STATS_INC_USED(mbox);
     *mb = mbox;
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_new: mbox created successfully 0x%p\n", (void*)mbox));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_new: mbox created successfully 0x%p\n", (void *)mbox));
     return ERR_OK;
 
 err_handler:
@@ -155,14 +155,14 @@ err_handler:
 
 /*-----------------------------------------------------------------------------------*/
 void
-sys_mbox_free(struct sys_mbox** mb)
+sys_mbox_free(struct sys_mbox **mb)
 {
     if ((mb != NULL) && (*mb != SYS_MBOX_NULL))
     {
-        struct sys_mbox* mbox = *mb;
+        struct sys_mbox *mbox = *mb;
         SYS_STATS_DEC(mbox.used);
 
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_free: going to free mbox 0x%p\n", (void*)mbox));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_free: going to free mbox 0x%p\n", (void *)mbox));
 
         (void)LOS_SemPend(mbox->mutex, LOS_WAIT_FOREVER);
 
@@ -190,17 +190,17 @@ sys_mbox_free(struct sys_mbox** mb)
  *      void *msg              -- Pointer to data to post
  *---------------------------------------------------------------------------*/
 void
-sys_mbox_post(struct sys_mbox** mb, void* msg)
+sys_mbox_post(struct sys_mbox **mb, void *msg)
 {
-    struct sys_mbox* mbox;
+    struct sys_mbox *mbox;
     mbox = *mb;
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox 0x%p msg 0x%p\n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox 0x%p msg 0x%p\n", (void *)mbox, (void *)msg));
 
     (void)LOS_SemPend(mbox->mutex, LOS_WAIT_FOREVER);
 
     while (mbox->isFull)
     {
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post : mbox 0x%p mbox 0x%p, queue is full\n", (void*)mbox, (void*)msg));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post : mbox 0x%p mbox 0x%p, queue is full\n", (void *)mbox, (void *)msg));
         (void)LOS_SemPost(mbox->mutex);
         (void)LOS_SemPend(mbox->not_full, LOS_WAIT_FOREVER);
         (void)LOS_SemPend(mbox->mutex, LOS_WAIT_FOREVER);
@@ -219,10 +219,10 @@ sys_mbox_post(struct sys_mbox** mb, void* msg)
     {
         mbox->isEmpty = 0;
         (void)LOS_SemPost(mbox->not_empty);
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post : mbox 0x%p msg 0x%p, signalling not empty\n", (void*)mbox, (void*)msg));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post : mbox 0x%p msg 0x%p, signalling not empty\n", (void *)mbox, (void *)msg));
     }
 
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox 0x%p msg 0%p posted\n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox 0x%p msg 0%p posted\n", (void *)mbox, (void *)msg));
     (void)LOS_SemPost(mbox->mutex);
 }
 
@@ -240,16 +240,16 @@ sys_mbox_post(struct sys_mbox** mb, void* msg)
  *                                  if not.
  *---------------------------------------------------------------------------*/
 err_t
-sys_mbox_trypost(struct sys_mbox** mb, void* msg)
+sys_mbox_trypost(struct sys_mbox **mb, void *msg)
 {
-    struct sys_mbox* mbox;
+    struct sys_mbox *mbox;
     mbox = *mb;
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox 0x%p msg 0x%p \n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox 0x%p msg 0x%p \n", (void *)mbox, (void *)msg));
     (void)LOS_SemPend(mbox->mutex, LOS_WAIT_FOREVER);
 
     if (mbox->isFull)
     {
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost : mbox 0x%p msgx 0x%p,queue is full\n", (void*)mbox, (void*)msg));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost : mbox 0x%p msgx 0x%p,queue is full\n", (void *)mbox, (void *)msg));
         (void)LOS_SemPost(mbox->mutex);
         return ERR_MEM;
     }
@@ -269,7 +269,7 @@ sys_mbox_trypost(struct sys_mbox** mb, void* msg)
         (void)LOS_SemPost(mbox->not_empty);
     }
 
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox 0x%p msg 0x%p posted\n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox 0x%p msg 0x%p posted\n", (void *)mbox, (void *)msg));
     (void)LOS_SemPost(mbox->mutex);
     return ERR_OK;
 }
@@ -277,16 +277,16 @@ sys_mbox_trypost(struct sys_mbox** mb, void* msg)
 
 
 u32_t
-sys_arch_mbox_fetch_ext(struct sys_mbox** mb, void** msg, u32_t timeout, u8_t ignore_timeout)
+sys_arch_mbox_fetch_ext(struct sys_mbox **mb, void **msg, u32_t timeout, u8_t ignore_timeout)
 {
     u32_t time_needed = 0;
-    struct sys_mbox* mbox;
+    struct sys_mbox *mbox;
     unsigned long long u64StartTick;
     unsigned long long u64EndTick;
     unsigned int ret;
 
     mbox = *mb;
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p\n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p\n", (void *)mbox, (void *)msg));
 
     /* The mutex lock is quick so we don't bother with the timeout
        stuff here. */
@@ -307,12 +307,12 @@ sys_arch_mbox_fetch_ext(struct sys_mbox** mb, void** msg, u32_t timeout, u8_t ig
         }
 
         u64StartTick = LOS_TickCountGet();
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p, timed cond wait\n", (void*)mbox));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p, timed cond wait\n", (void *)mbox));
         ret = LOS_SemPend(mbox->not_empty, timeout);
 
         if (ret != 0)
         {
-            LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p,timeout in cond wait\n", (void*)mbox));
+            LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p,timeout in cond wait\n", (void *)mbox));
             return SYS_ARCH_TIMEOUT;
         }
 
@@ -324,11 +324,11 @@ sys_arch_mbox_fetch_ext(struct sys_mbox** mb, void** msg, u32_t timeout, u8_t ig
     if (msg != NULL)
     {
         *msg = mbox->msgs[mbox->first];
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p\n", (void*)mbox, (void*)*msg));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p\n", (void *)mbox, (void *)*msg));
     }
     else
     {
-        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p, null msg\n", (void*)mbox));
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p, null msg\n", (void *)mbox));
     }
 
     mbox->first = (mbox->first + 1) % mbox->mbox_size;
@@ -344,7 +344,7 @@ sys_arch_mbox_fetch_ext(struct sys_mbox** mb, void** msg, u32_t timeout, u8_t ig
         (void)LOS_SemPost(mbox->not_full);
     }
 
-    LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p fetched\n", (void*)mbox, (void*)msg));
+    LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox 0x%p msg 0x%p fetched\n", (void *)mbox, (void *)msg));
     (void)LOS_SemPost(mbox->mutex);
 
     return time_needed;
@@ -377,7 +377,7 @@ sys_arch_mbox_fetch_ext(struct sys_mbox** mb, void** msg, u32_t timeout, u8_t ig
  *                                  of milliseconds until received.
  *---------------------------------------------------------------------------*/
 u32_t
-sys_arch_mbox_fetch(struct sys_mbox** mb, void** msg, u32_t timeout)
+sys_arch_mbox_fetch(struct sys_mbox **mb, void **msg, u32_t timeout)
 {
     return sys_arch_mbox_fetch_ext(mb, msg, timeout, 0);
 }
@@ -447,7 +447,7 @@ u32_t sys_now(void)
 }
 
 sys_thread_t
-sys_thread_new(char* name, lwip_thread_fn function, void* arg, int stacksize, int prio)
+sys_thread_new(char *name, lwip_thread_fn function, void *arg, int stacksize, int prio)
 {
     TSK_INIT_PARAM_S task;
     UINT32 taskid, ret;
@@ -456,7 +456,7 @@ sys_thread_new(char* name, lwip_thread_fn function, void* arg, int stacksize, in
     /* Create host Task */
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)function;
     task.uwStackSize  = stacksize;
-    task.pcName = (char*)name;
+    task.pcName = (char *)name;
     task.usTaskPrio = prio;
     task.uwArg = (UINT32)arg;
     ret = LOS_TaskCreate(&taskid, &task);
@@ -481,7 +481,7 @@ sys_thread_new(char* name, lwip_thread_fn function, void* arg, int stacksize, in
     \param[in]    line  Line number in file with error
     \param[in]    file  Filename with error
  */
-void assert_printf(char* msg, int line, char* file)
+void assert_printf(char *msg, int line, char *file)
 {
     if (msg)
     {
@@ -512,7 +512,7 @@ void assert_printf(char* msg, int line, char* file)
  * Outputs:
  *      err_t                 -- ERR_OK if semaphore created
  *---------------------------------------------------------------------------*/
-err_t sys_sem_new(sys_sem_t* sem,  u8_t count)
+err_t sys_sem_new(sys_sem_t *sem,  u8_t count)
 {
     UINT32 puwSemHandle;
     UINT32 uwRet;
@@ -560,7 +560,7 @@ err_t sys_sem_new(sys_sem_t* sem,  u8_t count)
  * Outputs:
  *      u32_t                   -- Time elapsed or SYS_ARCH_TIMEOUT.
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_sem_wait(sys_sem_t* sem, u32_t timeout)
+u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
     int retval = 0;
     uint64_t u64StartTick;
@@ -581,9 +581,9 @@ u32_t sys_arch_sem_wait(sys_sem_t* sem, u32_t timeout)
     {
         timeout = LOS_MS2Tick(timeout);
         if (!timeout)
-        { 
-		    timeout = 1; 
-		}
+        {
+            timeout = 1;
+        }
     }
 
     retval = LOS_SemPend(sem->sem->usSemID, timeout);
@@ -607,7 +607,7 @@ u32_t sys_arch_sem_wait(sys_sem_t* sem, u32_t timeout)
  * Inputs:
  *      sys_sem_t sem           -- Semaphore to signal
  *---------------------------------------------------------------------------*/
-void sys_sem_signal(sys_sem_t* sem)
+void sys_sem_signal(sys_sem_t *sem)
 {
     UINT32    uwRet;
 
@@ -636,7 +636,7 @@ void sys_sem_signal(sys_sem_t* sem)
  *      sys_sem_t sem           -- Semaphore to free
  *---------------------------------------------------------------------------*/
 
-void sys_sem_free(sys_sem_t* sem)
+void sys_sem_free(sys_sem_t *sem)
 {
     UINT32    uwRet;
 

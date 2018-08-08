@@ -36,7 +36,7 @@
 
 static atiny_log_e g_atiny_log_level = LOG_ERR;
 
-static const char* g_log_names[] =
+static const char *g_log_names[] =
 {
     "DEBUG",
     "INFO",
@@ -55,7 +55,7 @@ atiny_log_e atiny_get_log_level(void)
     return g_atiny_log_level;
 }
 
-const char* atiny_get_log_level_name(atiny_log_e log_level)
+const char *atiny_get_log_level_name(atiny_log_e log_level)
 {
     if (log_level >= LOG_MAX)
     {

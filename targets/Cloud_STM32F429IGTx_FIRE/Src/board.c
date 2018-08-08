@@ -185,8 +185,8 @@ static int prv_inner2spi_copy(int32_t image_len,
 int board_jump2app(void)
 {
     jump_func jump;
-    uint32_t pc = *(__IO uint32_t*)(OTA_DEFAULT_IMAGE_ADDR + 4);
-    uint32_t stack = *(__IO uint32_t*)(OTA_DEFAULT_IMAGE_ADDR);
+    uint32_t pc = *(__IO uint32_t *)(OTA_DEFAULT_IMAGE_ADDR + 4);
+    uint32_t stack = *(__IO uint32_t *)(OTA_DEFAULT_IMAGE_ADDR);
 
     if ((pc & OTA_PC_MASK) == OTA_FLASH_BASE)
     {
@@ -212,7 +212,7 @@ int board_jump2app(void)
 }
 
 int board_update_copy(int32_t old_image_len, int32_t new_image_len,
-                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                      void (*func_get_update_record)(uint8_t *state, uint32_t *offset),
                       int (*func_set_update_record)(uint8_t state, uint32_t offset))
 {
     int ret;
@@ -230,7 +230,7 @@ int board_update_copy(int32_t old_image_len, int32_t new_image_len,
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
-    func_get_update_record((uint8_t*)&cur_state, &cur_offset);
+    func_get_update_record((uint8_t *)&cur_state, &cur_offset);
 
     if (cur_state <= BOARD_BCK)
     {
@@ -281,7 +281,7 @@ int board_update_copy(int32_t old_image_len, int32_t new_image_len,
 }
 
 int board_rollback_copy(int32_t image_len,
-                        void (*func_get_update_record)(uint8_t* record, uint32_t* offset),
+                        void (*func_get_update_record)(uint8_t *record, uint32_t *offset),
                         int (*func_set_update_record)(uint8_t record, uint32_t offset))
 {
     int ret;
@@ -299,7 +299,7 @@ int board_rollback_copy(int32_t image_len,
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
-    func_get_update_record((uint8_t*)&cur_state, &cur_offset);
+    func_get_update_record((uint8_t *)&cur_state, &cur_offset);
 
     if (cur_state != BOARD_ROLLBACK)
     {

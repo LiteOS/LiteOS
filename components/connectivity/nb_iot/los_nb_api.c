@@ -38,7 +38,7 @@
 //#include "atiny_socket.h"
 #include "bc95.h"
 
-int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
+int los_nb_init(const int8_t *host, const int8_t *port, sec_param_s *psk)
 {
     int ret;
     int timecnt = 0;
@@ -63,45 +63,45 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     //nb_get_auto_connect();
     //nb_connect(NULL, NULL, NULL);
 
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		//nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		//LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		nb_query_ip();
-	}
-	ret = nb_set_cdpserver((char *)host, (char *)port);
+    while(timecnt < 120)
+    {
+        ret = nb_get_netstat();
+        //nb_check_csq();
+        if(ret != AT_FAILED)
+        {
+            ret = nb_query_ip();
+            break;
+        }
+        //LOS_TaskDelay(1000);
+        timecnt++;
+    }
+    if(ret != AT_FAILED)
+    {
+        nb_query_ip();
+    }
+    ret = nb_set_cdpserver((char *)host, (char *)port);
     return ret;
 }
 
-int los_nb_report(const char* buf, int len)
+int los_nb_report(const char *buf, int len)
 {
     if(buf == NULL || len <= 0)
         return -1;
     return nb_send_payload(buf, len);
 }
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
+int los_nb_notify(char *featurestr, int cmdlen, oob_callback callback)
 {
-    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
+    if(featurestr == NULL || cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
-    return at.oob_register(featurestr,cmdlen, callback);
+    return at.oob_register(featurestr, cmdlen, callback);
 }
 
 int los_nb_deinit(void)
 {
     nb_reboot();
-	at.deinit();
-	return 0;
+    at.deinit();
+    return 0;
 }
 
 #endif

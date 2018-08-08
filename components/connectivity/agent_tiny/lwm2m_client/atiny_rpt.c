@@ -52,11 +52,11 @@ typedef struct
 } atiny_rpt_node_t;
 
 static atiny_dl_list g_atiny_rpt_table;
-static void* g_mutex = NULL;
+static void *g_mutex = NULL;
 
 // TODO: when free, recorrect then callback code
 
-static int atiny_is_uri_equal(const lwm2m_uri_t* uri0, const lwm2m_uri_t* uri1)
+static int atiny_is_uri_equal(const lwm2m_uri_t *uri0, const lwm2m_uri_t *uri1)
 {
     if (LWM2M_URI_IS_SET_RESOURCE(uri0) && LWM2M_URI_IS_SET_RESOURCE(uri1))
     {
@@ -67,14 +67,14 @@ static int atiny_is_uri_equal(const lwm2m_uri_t* uri0, const lwm2m_uri_t* uri1)
     return (uri0->objectId == uri1->objectId) && (uri0->instanceId == uri1->instanceId);
 }
 
-static atiny_rpt_list_t* atiny_find_rpt_list(const lwm2m_uri_t* uri)
+static atiny_rpt_list_t *atiny_find_rpt_list(const lwm2m_uri_t *uri)
 {
-    atiny_dl_list* item;
-    atiny_dl_list* next;
+    atiny_dl_list *item;
+    atiny_dl_list *next;
 
     ATINY_DL_LIST_FOR_EACH_SAFE(item, next, &g_atiny_rpt_table)
     {
-        atiny_rpt_list_t* data_node = (atiny_rpt_list_t*)item;
+        atiny_rpt_list_t *data_node = (atiny_rpt_list_t *)item;
 
         if (atiny_is_uri_equal(&data_node->uri, uri))
         {
@@ -85,10 +85,10 @@ static atiny_rpt_list_t* atiny_find_rpt_list(const lwm2m_uri_t* uri)
     return NULL;
 }
 
-static void atiny_free_list(atiny_dl_list* list,  void(*free_data)(atiny_dl_list* node, void* param),  void* param)
+static void atiny_free_list(atiny_dl_list *list,  void(*free_data)(atiny_dl_list *node, void *param),  void *param)
 {
-    atiny_dl_list* item;
-    atiny_dl_list* next;
+    atiny_dl_list *item;
+    atiny_dl_list *next;
 
     ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list)
     {
@@ -102,10 +102,10 @@ static void atiny_free_list(atiny_dl_list* list,  void(*free_data)(atiny_dl_list
     }
 }
 
-static void atiny_visit_list(atiny_dl_list* list,  void(*visit_data)(atiny_dl_list* node, void* param), void* param)
+static void atiny_visit_list(atiny_dl_list *list,  void(*visit_data)(atiny_dl_list *node, void *param), void *param)
 {
-    atiny_dl_list* item;
-    atiny_dl_list* next;
+    atiny_dl_list *item;
+    atiny_dl_list *next;
 
     ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list)
     {
@@ -113,9 +113,9 @@ static void atiny_visit_list(atiny_dl_list* list,  void(*visit_data)(atiny_dl_li
     }
 }
 
-static void atiny_clear_rpt_list_node_data(atiny_dl_list* node,  void* result)
+static void atiny_clear_rpt_list_node_data(atiny_dl_list *node,  void *result)
 {
-    atiny_rpt_node_t* rpt_node = (atiny_rpt_node_t*)node;
+    atiny_rpt_node_t *rpt_node = (atiny_rpt_node_t *)node;
 
     if (rpt_node->data.callback)
     {
@@ -130,15 +130,15 @@ static void atiny_clear_rpt_list_node_data(atiny_dl_list* node,  void* result)
     }
 }
 
-static void atiny_clear_rpt_list(atiny_dl_list* node, void* result)
+static void atiny_clear_rpt_list(atiny_dl_list *node, void *result)
 {
-    atiny_rpt_list_t* rpt_list = (atiny_rpt_list_t*)node;
+    atiny_rpt_list_t *rpt_list = (atiny_rpt_list_t *)node;
     atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data, result);
 }
 
-static void atiny_notify_stack_rpt_data_change(atiny_dl_list* node, void* context)
+static void atiny_notify_stack_rpt_data_change(atiny_dl_list *node, void *context)
 {
-    atiny_rpt_list_t* rpt_list = (atiny_rpt_list_t*)node;
+    atiny_rpt_list_t *rpt_list = (atiny_rpt_list_t *)node;
 
     if (!atiny_list_empty(&rpt_list->rpt_list))
     {
@@ -161,9 +161,9 @@ int atiny_init_rpt(void)
     return ATINY_OK;
 }
 
-int atiny_add_rpt_uri(const lwm2m_uri_t* uri,  rpt_list_t* list)
+int atiny_add_rpt_uri(const lwm2m_uri_t *uri,  rpt_list_t *list)
 {
-    atiny_rpt_list_t* rpt_list  = NULL;
+    atiny_rpt_list_t *rpt_list  = NULL;
     int ret = ATINY_ARG_INVALID;
 
     if (NULL == uri)
@@ -207,7 +207,8 @@ int atiny_add_rpt_uri(const lwm2m_uri_t* uri,  rpt_list_t* list)
         atiny_list_insert_tail(&g_atiny_rpt_table, &rpt_list->node);
         ret = ATINY_OK;
 
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 
@@ -216,7 +217,7 @@ int atiny_add_rpt_uri(const lwm2m_uri_t* uri,  rpt_list_t* list)
     return ret;
 }
 
-int atiny_rm_rpt_uri(const lwm2m_uri_t* uri)
+int atiny_rm_rpt_uri(const lwm2m_uri_t *uri)
 {
 
     int ret = ATINY_ARG_INVALID;
@@ -231,7 +232,7 @@ int atiny_rm_rpt_uri(const lwm2m_uri_t* uri)
 
     do
     {
-        atiny_rpt_list_t* rpt_list  = NULL;
+        atiny_rpt_list_t *rpt_list  = NULL;
         rpt_list = atiny_find_rpt_list(uri);
 
         if (NULL == rpt_list)
@@ -241,18 +242,19 @@ int atiny_rm_rpt_uri(const lwm2m_uri_t* uri)
         }
 
         atiny_list_delete(&rpt_list->node);
-        atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data,  (void*)NOT_SENT);
+        atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data,  (void *)NOT_SENT);
         lwm2m_free(rpt_list);
 
         ret = ATINY_OK;
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 
     return ret;
 }
 
-int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t* data)
+int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t *data)
 {
     int ret = ATINY_RESOURCE_NOT_FOUND;
 
@@ -266,7 +268,7 @@ int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t* data)
 
     do
     {
-        atiny_rpt_node_t* data_node;
+        atiny_rpt_node_t *data_node;
 
         if (atiny_list_empty(&rpt_list->rpt_list))
         {
@@ -275,22 +277,23 @@ int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t* data)
             break;
         }
 
-        data_node = (atiny_rpt_node_t*)rpt_list->rpt_list.next;
+        data_node = (atiny_rpt_node_t *)rpt_list->rpt_list.next;
         atiny_list_delete(&data_node->list);
         rpt_list->rpt_node_cnt--;
 
-        memcpy((void*)data, (void*)&data_node->data, sizeof(*data));
+        memcpy((void *)data, (void *)&data_node->data, sizeof(*data));
         lwm2m_free(data_node);
 
         ret = ATINY_OK;
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 
     return ret;
 }
 
-int atiny_queue_rpt_data(const lwm2m_uri_t* uri, const data_report_t* data)
+int atiny_queue_rpt_data(const lwm2m_uri_t *uri, const data_report_t *data)
 {
     int ret = ATINY_MALLOC_FAILED;
 
@@ -304,8 +307,8 @@ int atiny_queue_rpt_data(const lwm2m_uri_t* uri, const data_report_t* data)
 
     do
     {
-        atiny_rpt_list_t* rpt_list;
-        atiny_rpt_node_t* data_node;
+        atiny_rpt_list_t *rpt_list;
+        atiny_rpt_node_t *data_node;
 
         rpt_list = atiny_find_rpt_list(uri);
 
@@ -332,14 +335,15 @@ int atiny_queue_rpt_data(const lwm2m_uri_t* uri, const data_report_t* data)
             break;
         }
 
-        memset((void*)&data_node->list, 0, sizeof(data_node->list));
-        memcpy((void*)&data_node->data, (void*)data, sizeof(data_node->data));
+        memset((void *)&data_node->list, 0, sizeof(data_node->list));
+        memcpy((void *)&data_node->data, (void *)data, sizeof(data_node->data));
         atiny_list_insert_tail(&rpt_list->rpt_list, &data_node->list);
         rpt_list->rpt_node_cnt++;
 
         ret = ATINY_OK;
 
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 
@@ -347,7 +351,7 @@ int atiny_queue_rpt_data(const lwm2m_uri_t* uri, const data_report_t* data)
 
 }
 
-int atiny_clear_rpt_data(const lwm2m_uri_t* uri, int result)
+int atiny_clear_rpt_data(const lwm2m_uri_t *uri, int result)
 {
     int ret = ATINY_RESOURCE_NOT_FOUND;
 
@@ -361,7 +365,7 @@ int atiny_clear_rpt_data(const lwm2m_uri_t* uri, int result)
 
     do
     {
-        atiny_rpt_list_t* rpt_list;
+        atiny_rpt_list_t *rpt_list;
 
         rpt_list = atiny_find_rpt_list(uri);
 
@@ -371,18 +375,19 @@ int atiny_clear_rpt_data(const lwm2m_uri_t* uri, int result)
             break;
         }
 
-        atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data, (void*)result);
+        atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data, (void *)result);
         rpt_list->rpt_node_cnt = 0;
 
         ret = ATINY_OK;
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 
     return ret;
 }
 
-int atiny_step_rpt(lwm2m_context_t* context)
+int atiny_step_rpt(lwm2m_context_t *context)
 {
     atiny_mutex_lock(g_mutex);
     atiny_visit_list(&g_atiny_rpt_table, atiny_notify_stack_rpt_data_change, context);
@@ -392,12 +397,12 @@ int atiny_step_rpt(lwm2m_context_t* context)
 
 void atiny_destroy_rpt(void)
 {
-    atiny_free_list(&g_atiny_rpt_table, atiny_clear_rpt_list, (void*)NOT_SENT);
+    atiny_free_list(&g_atiny_rpt_table, atiny_clear_rpt_list, (void *)NOT_SENT);
     atiny_mutex_destroy(g_mutex);
     g_mutex = NULL;
 }
 
-int atiny_set_max_rpt_cnt(const lwm2m_uri_t* uri, uint32_t max_rpt_cnt)
+int atiny_set_max_rpt_cnt(const lwm2m_uri_t *uri, uint32_t max_rpt_cnt)
 {
     int ret = ATINY_RESOURCE_NOT_FOUND;
 
@@ -405,7 +410,7 @@ int atiny_set_max_rpt_cnt(const lwm2m_uri_t* uri, uint32_t max_rpt_cnt)
 
     do
     {
-        atiny_rpt_list_t* rpt_list;
+        atiny_rpt_list_t *rpt_list;
 
         rpt_list = atiny_find_rpt_list(uri);
 
@@ -417,7 +422,8 @@ int atiny_set_max_rpt_cnt(const lwm2m_uri_t* uri, uint32_t max_rpt_cnt)
 
         rpt_list->max_cnt = max_rpt_cnt;
         ret = ATINY_OK;
-    } while (0);
+    }
+    while (0);
 
     atiny_mutex_unlock(g_mutex);
 

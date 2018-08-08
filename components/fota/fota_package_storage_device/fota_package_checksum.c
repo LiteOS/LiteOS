@@ -62,11 +62,11 @@ struct fota_pack_checksum_tag_s
 
 static inline fota_pack_checksum_alg_s *fota_pack_checksum_get_alg(fota_pack_checksum_s *thi)
 {
-    #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
+#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
     return &thi->alg.sha256.base;
-    #elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
+#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
     return &thi->alg.base;
-    #endif
+#endif
 }
 
 static void fota_pack_checksum_init(fota_pack_checksum_s *thi, fota_pack_head_s *head)
@@ -114,7 +114,7 @@ static int fota_pack_checksum_init_head_data(fota_pack_checksum_s *thi)
 
     return fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, len);
 }
-fota_pack_checksum_s * fota_pack_checksum_create(fota_pack_head_s *head)
+fota_pack_checksum_s *fota_pack_checksum_create(fota_pack_head_s *head)
 {
     fota_pack_checksum_s *thi = atiny_malloc(sizeof(fota_pack_checksum_s));
     if(NULL == thi)
@@ -137,14 +137,14 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
     int ret = FOTA_ERR;
 
     buff = atiny_malloc(max_size);
-    if(NULL ==buff)
+    if(NULL == buff)
     {
         FOTA_LOG("malloc null");
         return FOTA_ERR;
     }
     do
     {
-	    ret = FOTA_ERR;
+        ret = FOTA_ERR;
         left_size = offset - total_size;
         read_size = MIN(left_size, max_size);
         ret = hardware->read_software(hardware, total_size, buff, read_size);
@@ -159,7 +159,8 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
             break;
         }
         total_size += read_size;
-    }while(total_size < offset);
+    }
+    while(total_size < offset);
 
     if(buff)
     {
@@ -170,7 +171,7 @@ static int fota_pack_checksum_restore_checksum(fota_pack_checksum_s *thi, uint32
 }
 
 int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff,
-                                            uint16_t len, fota_hardware_s *hardware)
+                                   uint16_t len, fota_hardware_s *hardware)
 {
     int ret;
 
@@ -188,7 +189,7 @@ int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, c
     }
 
     if(((thi->offset_flag) && (thi->offset == offset))
-        || (fota_pack_head_get_head_len(thi->head) == offset))
+            || (fota_pack_head_get_head_len(thi->head) == offset))
     {
         if(fota_pack_checksum_get_alg(thi)->update(fota_pack_checksum_get_alg(thi), buff, len) != FOTA_OK)
         {

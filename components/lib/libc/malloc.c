@@ -42,7 +42,7 @@
 #include "string.h"
 
 #if defined(LOS_LIBC_MALLOC_ALIGN) && !defined(LOS_LIBC_MALLOC_ALIGN_SIZE)
-    #error "macro LOS_LIBC_MALLOC_ALIGN_SIZE undefined"
+#error "macro LOS_LIBC_MALLOC_ALIGN_SIZE undefined"
 #endif
 
 
@@ -134,8 +134,9 @@ Output           :      nothing.
 Return           :      On success a pointer to the requested space is returned.
                On failure a null pointer is returned.
 *****************************************************************************/
-void * memalign (size_t boundary, size_t size) /*lint !e18 !e578*/
-{ /*lint !e18 !e578*/
+void *memalign (size_t boundary, size_t size)  /*lint !e18 !e578*/
+{
+    /*lint !e18 !e578*/
     void *ptr = NULL;
 
     if(size == 0)
