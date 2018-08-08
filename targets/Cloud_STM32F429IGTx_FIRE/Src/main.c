@@ -62,6 +62,7 @@ VOID main_task(VOID)
 #define AT_DTLS 0
 #if AT_DTLS
     sec_param_s sec;
+    sec.setpsk = 1;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
 #endif
