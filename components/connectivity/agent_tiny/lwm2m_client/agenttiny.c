@@ -171,6 +171,14 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
 #ifdef CONFIG_FEATURE_FOTA
     atiny_fota_storage_device_s * device = NULL;
 #endif
+    int result;
+    
+    result = atiny_init_rpt();
+    if (result != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_init_rpt fail,ret=%d", result);
+        return result;
+    }
 
     if (NULL == atiny_params || NULL == phandle)
     {
@@ -278,12 +286,6 @@ int atiny_init_objects(atiny_param_t* atiny_params, const atiny_device_info_t* d
     char* epname = (char*)device_info->endpoint_name;
 
 
-    result = atiny_init_rpt();
-    if (result != ATINY_OK)
-    {
-        ATINY_LOG(LOG_FATAL, "atiny_init_rpt fail,ret=%d", result);
-        return result;
-    }
 
     pdata = &handle->client_data;
     memset(pdata, 0, sizeof(client_data_t));
