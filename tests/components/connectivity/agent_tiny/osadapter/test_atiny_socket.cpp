@@ -36,6 +36,7 @@
 /* Includes -----------------------------------------------------------------*/
 #include "test_atiny_socket.h"
 #include <stdlib.h>
+
 //#include <cstring>
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
@@ -51,6 +52,7 @@ extern "C"
 #include "atiny_adapter.h"
 #include <sys/socket.h>
 #include <sys/types.h>
+#include "errno.h"
 #define WITH_LINUX	1
 
 #define RECV_NUM  25

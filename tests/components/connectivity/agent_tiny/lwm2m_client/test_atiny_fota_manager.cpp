@@ -320,11 +320,12 @@ void TestAtinyFotaManager::test_atiny_fota_manager_set_state()
     memset(test_thi, 0, sizeof(atiny_fota_manager_s));
     ret = atiny_fota_manager_set_state(test_thi, 5);
     TEST_ASSERT_MSG((ret == ATINY_ARG_INVALID), "atiny_fota_manager_set_state() failed");
-    free(test_thi);
+//    free(test_thi);
 
     test_thi->state = 0;
     ret = atiny_fota_manager_set_state(test_thi, 2);
     TEST_ASSERT_MSG((ret == ATINY_OK), "atiny_fota_manager_set_state() failed");
+    free(test_thi);
 }
 
 void TestAtinyFotaManager::test_atiny_fota_manager_set_storage_device()

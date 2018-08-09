@@ -38,6 +38,7 @@
 #include "adapter_layer.h"
 #include "ota_sha256.h"
 
+
 #define OTA_IMAGE_INTEGRITY_LENGTH 32
 
 typedef struct

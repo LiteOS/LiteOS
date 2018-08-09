@@ -34,6 +34,7 @@
 
 
 #include "test_los_nb_api.h"
+#include <sys/types.h>
 
 extern "C" {
     #include "atadapter.h"
