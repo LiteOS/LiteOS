@@ -51,6 +51,7 @@
 #define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
 #define MAX_AT_USERDATA_LEN (1024*5)
+#define AT_MAX_PAYLOADLEN     512
 
 #define NB_STAT_LOCALPORT 56
 #define AT_LINE_END 		"\r\n"
@@ -70,7 +71,9 @@ int32_t nb_hw_detect(void);
 int32_t nb_get_netstat(void);
 int nb_query_ip(void);
 int32_t nb_send_payload(const char* buf, int len);
+int32_t nb_check_csq(void);
 int32_t nb_send_psk(char* pskid, char* psk);
+int32_t nb_set_no_encrypt(void);
 int32_t nb_reboot(void);
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout);
 #endif

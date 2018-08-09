@@ -122,7 +122,7 @@
 
 // basic check that the time offset value is at ISO 8601 format
 // bug: +12:30 is considered a valid value by this function
-static int prv_check_time_offset(char * buffer,
+static int prv_check_time_offset(char *buffer,
                                  int length)
 {
     int min_index;
@@ -156,18 +156,18 @@ static int prv_check_time_offset(char * buffer,
         return 0;
     }
     if (buffer[min_index] < '0' || buffer[min_index] > '5') return 0;
-    if (buffer[min_index+1] < '0' || buffer[min_index+1] > '9') return 0;
+    if (buffer[min_index + 1] < '0' || buffer[min_index + 1] > '9') return 0;
 
     return 1;
 }
 
-static uint8_t prv_set_value(lwm2m_data_t * dataP)
+static uint8_t prv_set_value(lwm2m_data_t *dataP)
 {
-    char str[MAX_STRING_LEN+1] = {0};
+    char str[MAX_STRING_LEN + 1] = {0};
     int64_t current_time;
     char UTC_offset[PRV_OFFSET_MAXLEN];
     char timezone[PRV_TIMEZONE_MAXLEN];
-    lwm2m_data_t * subTlvP;
+    lwm2m_data_t *subTlvP;
     int power;
     int voltage;
     int battery_level;
@@ -179,37 +179,49 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
     {
     case RES_O_MANUFACTURER:
         result = atiny_cmd_ioctl(ATINY_GET_MANUFACTURER, str, MAX_STRING_LEN);
-        if(result == ATINY_OK) {
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_O_MODEL_NUMBER:
         result = atiny_cmd_ioctl(ATINY_GET_MODEL_NUMBER, str, MAX_STRING_LEN);
-        if(result == ATINY_OK) {
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_O_SERIAL_NUMBER:
         result = atiny_cmd_ioctl(ATINY_GET_SERIAL_NUMBER, str, MAX_STRING_LEN);
-        if(result == ATINY_OK) {
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_O_FIRMWARE_VERSION:
         result = atiny_cmd_ioctl(ATINY_GET_FIRMWARE_VER, str, MAX_STRING_LEN);
-        if(result == ATINY_OK) {
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
@@ -224,14 +236,17 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE, (char*)&power, sizeof(int));
-        if(result == ATINY_OK) {
+        result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE, (char *)&power, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(power, subTlvP);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
-        }else {
-           lwm2m_free(subTlvP);
-           return COAP_400_BAD_REQUEST;
+        }
+        else
+        {
+            lwm2m_free(subTlvP);
+            return COAP_400_BAD_REQUEST;
         }
     }
 
@@ -240,12 +255,15 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_SOURCE_VOLTAGE, (char*)&voltage, sizeof(int));
-        if(result == ATINY_OK) {
+        result = atiny_cmd_ioctl(ATINY_GET_SOURCE_VOLTAGE, (char *)&voltage, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(voltage, subTlvP);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             lwm2m_free(subTlvP);
             return COAP_400_BAD_REQUEST;
         }
@@ -256,12 +274,15 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT, (char*)&power, sizeof(int));
-        if(result == ATINY_OK) {
+        result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT, (char *)&power, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(power, &subTlvP[0]);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
-        }else {
+        }
+        else
+        {
             lwm2m_free(subTlvP);
             return COAP_400_BAD_REQUEST;
         }
@@ -269,22 +290,28 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 
     case RES_O_BATTERY_LEVEL:
     {
-        result = atiny_cmd_ioctl(ATINY_GET_BATERRY_LEVEL, (char*)&battery_level, sizeof(int));
-        if(result == ATINY_OK){
+        result = atiny_cmd_ioctl(ATINY_GET_BATERRY_LEVEL, (char *)&battery_level, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(battery_level, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
     }
 
     case RES_O_MEMORY_FREE:
     {
-        result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char*)&free_memory, sizeof(int));
-        if(result == ATINY_OK){
+        result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char *)&free_memory, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(free_memory, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
     }
@@ -294,12 +321,15 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         subTlvP = lwm2m_data_new(1);
         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
         subTlvP[0].id = 0;
-        result = atiny_cmd_ioctl(ATINY_GET_DEV_ERR, (char*)&err, sizeof(int));
-        if(result == ATINY_OK){
+        result = atiny_cmd_ioctl(ATINY_GET_DEV_ERR, (char *)&err, sizeof(int));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(err, subTlvP);
             lwm2m_data_encode_instances(subTlvP, 1, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             lwm2m_free(subTlvP);
             return COAP_400_BAD_REQUEST;
         }
@@ -308,38 +338,50 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
         return COAP_405_METHOD_NOT_ALLOWED;
 
     case RES_O_CURRENT_TIME:
-        result = atiny_cmd_ioctl(ATINY_GET_CURRENT_TIME, (char*)&current_time, sizeof(int64_t));
-        if(result == ATINY_OK){
+        result = atiny_cmd_ioctl(ATINY_GET_CURRENT_TIME, (char *)&current_time, sizeof(int64_t));
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_int(current_time, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_O_UTC_OFFSET:
         result = atiny_cmd_ioctl(ATINY_GET_UTC_OFFSET, UTC_offset, PRV_OFFSET_MAXLEN);
-        if(result == ATINY_OK){
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(UTC_offset, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_O_TIMEZONE:
         result = atiny_cmd_ioctl(ATINY_GET_TIMEZONE, timezone, PRV_TIMEZONE_MAXLEN);
-        if(result == ATINY_OK){
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(timezone, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
 
     case RES_M_BINDING_MODES:
         result = atiny_cmd_ioctl(ATINY_GET_BINDING_MODES, str, MAX_STRING_LEN);
-        if(result == ATINY_OK){
+        if(result == ATINY_OK)
+        {
             lwm2m_data_encode_string(str, dataP);
             return COAP_205_CONTENT;
-        } else {
+        }
+        else
+        {
             return COAP_400_BAD_REQUEST;
         }
     default:
@@ -348,10 +390,10 @@ static uint8_t prv_set_value(lwm2m_data_t * dataP)
 }
 
 static uint8_t prv_device_read(uint16_t instanceId,
-                               int * numDataP,
-                               lwm2m_data_t ** dataArrayP,
-                               lwm2m_data_cfg_t * dataCfg,
-                               lwm2m_object_t * objectP)
+                               int *numDataP,
+                               lwm2m_data_t **dataArrayP,
+                               lwm2m_data_cfg_t *dataCfg,
+                               lwm2m_object_t *objectP)
 {
     uint8_t result;
     int i;
@@ -365,26 +407,27 @@ static uint8_t prv_device_read(uint16_t instanceId,
     // is the server asking for the full object ?
     if (*numDataP == 0)
     {
-        uint16_t resList[] = {
-                RES_O_MANUFACTURER,
-                RES_O_MODEL_NUMBER,
-                RES_O_SERIAL_NUMBER,
-                RES_O_FIRMWARE_VERSION,
-                //E: RES_M_REBOOT,
-                //E: RES_O_FACTORY_RESET,
-                RES_O_AVL_POWER_SOURCES,
-                RES_O_POWER_SOURCE_VOLTAGE,
-                RES_O_POWER_SOURCE_CURRENT,
-                RES_O_BATTERY_LEVEL,
-                RES_O_MEMORY_FREE,
-                RES_M_ERROR_CODE,
-                //E: RES_O_RESET_ERROR_CODE,
-                RES_O_CURRENT_TIME,
-                RES_O_UTC_OFFSET,
-                RES_O_TIMEZONE,
-                RES_M_BINDING_MODES
+        uint16_t resList[] =
+        {
+            RES_O_MANUFACTURER,
+            RES_O_MODEL_NUMBER,
+            RES_O_SERIAL_NUMBER,
+            RES_O_FIRMWARE_VERSION,
+            //E: RES_M_REBOOT,
+            //E: RES_O_FACTORY_RESET,
+            RES_O_AVL_POWER_SOURCES,
+            RES_O_POWER_SOURCE_VOLTAGE,
+            RES_O_POWER_SOURCE_CURRENT,
+            RES_O_BATTERY_LEVEL,
+            RES_O_MEMORY_FREE,
+            RES_M_ERROR_CODE,
+            //E: RES_O_RESET_ERROR_CODE,
+            RES_O_CURRENT_TIME,
+            RES_O_UTC_OFFSET,
+            RES_O_TIMEZONE,
+            RES_M_BINDING_MODES
         };
-        int nbRes = sizeof(resList)/sizeof(uint16_t);
+        int nbRes = sizeof(resList) / sizeof(uint16_t);
 
         *dataArrayP = lwm2m_data_new(nbRes);
         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
@@ -400,15 +443,16 @@ static uint8_t prv_device_read(uint16_t instanceId,
     {
         result = prv_set_value((*dataArrayP) + i);
         i++;
-    } while (i < *numDataP && result == COAP_205_CONTENT);
+    }
+    while (i < *numDataP && result == COAP_205_CONTENT);
 
     return result;
 }
 
 static uint8_t prv_device_discover(uint16_t instanceId,
-                                   int * numDataP,
-                                   lwm2m_data_t ** dataArrayP,
-                                   lwm2m_object_t * objectP)
+                                   int *numDataP,
+                                   lwm2m_data_t **dataArrayP,
+                                   lwm2m_object_t *objectP)
 {
     uint8_t result;
     int i;
@@ -424,7 +468,8 @@ static uint8_t prv_device_discover(uint16_t instanceId,
     // is the server asking for the full object ?
     if (*numDataP == 0)
     {
-        uint16_t resList[] = {
+        uint16_t resList[] =
+        {
             RES_O_MANUFACTURER,
             RES_O_MODEL_NUMBER,
             RES_O_SERIAL_NUMBER,
@@ -488,8 +533,8 @@ static uint8_t prv_device_discover(uint16_t instanceId,
 
 static uint8_t prv_device_write(uint16_t instanceId,
                                 int numData,
-                                lwm2m_data_t * dataArray,
-                                lwm2m_object_t * objectP)
+                                lwm2m_data_t *dataArray,
+                                lwm2m_object_t *objectP)
 {
     int i;
     uint8_t result;
@@ -510,10 +555,13 @@ static uint8_t prv_device_write(uint16_t instanceId,
         case RES_O_CURRENT_TIME:
             if (1 == lwm2m_data_decode_int(dataArray + i, &current_time))
             {
-                result = atiny_cmd_ioctl(ATINY_SET_CURRENT_TIME, (char*)&current_time, sizeof(int64_t));
-                if(result == ATINY_OK) {
+                result = atiny_cmd_ioctl(ATINY_SET_CURRENT_TIME, (char *)&current_time, sizeof(int64_t));
+                if(result == ATINY_OK)
+                {
                     return COAP_204_CHANGED;
-                } else {
+                }
+                else
+                {
                     return COAP_400_BAD_REQUEST;
                 }
             }
@@ -524,12 +572,15 @@ static uint8_t prv_device_write(uint16_t instanceId,
             break;
 
         case RES_O_UTC_OFFSET:
-            if (1 == prv_check_time_offset((char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length))
+            if (1 == prv_check_time_offset((char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length))
             {
-                result = atiny_cmd_ioctl(ATINY_SET_UTC_OFFSET, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
-                if(result == ATINY_OK) {
+                result = atiny_cmd_ioctl(ATINY_SET_UTC_OFFSET, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
+                if(result == ATINY_OK)
+                {
                     return COAP_204_CHANGED;
-                } else {
+                }
+                else
+                {
                     return COAP_400_BAD_REQUEST;
                 }
             }
@@ -540,29 +591,33 @@ static uint8_t prv_device_write(uint16_t instanceId,
             break;
 
         case RES_O_TIMEZONE:
-            result = atiny_cmd_ioctl(ATINY_SET_TIMEZONE, (char*)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
-            if(result == ATINY_OK) {
+            result = atiny_cmd_ioctl(ATINY_SET_TIMEZONE, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);
+            if(result == ATINY_OK)
+            {
                 return COAP_204_CHANGED;
-            } else {
+            }
+            else
+            {
                 return COAP_400_BAD_REQUEST;
             }
-            //break;
+        //break;
 
         default:
             result = COAP_405_METHOD_NOT_ALLOWED;
         }
 
         i++;
-    } while (i < numData && result == COAP_204_CHANGED);
+    }
+    while (i < numData && result == COAP_204_CHANGED);
 
     return result;
 }
 
 static uint8_t prv_device_execute(uint16_t instanceId,
                                   uint16_t resourceId,
-                                  uint8_t * buffer,
+                                  uint8_t *buffer,
                                   int length,
-                                  lwm2m_object_t * objectP)
+                                  lwm2m_object_t *objectP)
 {
     int result;
     // this is a single instance object
@@ -580,16 +635,22 @@ static uint8_t prv_device_execute(uint16_t instanceId,
         return COAP_204_CHANGED;
     case RES_O_FACTORY_RESET:
         result = atiny_cmd_ioctl(ATINY_DO_FACTORY_RESET, NULL, 0);
-        if(result == ATINY_OK){
+        if(result == ATINY_OK)
+        {
             return COAP_204_CHANGED;
-        }else {
+        }
+        else
+        {
             return COAP_503_SERVICE_UNAVAILABLE;
         }
     case RES_O_RESET_ERROR_CODE:
         result = atiny_cmd_ioctl(ATINY_DO_RESET_DEV_ERR, NULL, 0);
-        if(result == ATINY_OK){
+        if(result == ATINY_OK)
+        {
             return COAP_204_CHANGED;
-        }else {
+        }
+        else
+        {
             return COAP_503_SERVICE_UNAVAILABLE;
         }
     default:
@@ -597,7 +658,7 @@ static uint8_t prv_device_execute(uint16_t instanceId,
     }
 }
 
-void display_device_object(lwm2m_object_t * object)
+void display_device_object(lwm2m_object_t *object)
 {
 #ifdef WITH_LOGS
 
@@ -605,12 +666,12 @@ void display_device_object(lwm2m_object_t * object)
 }
 
 
-lwm2m_object_t * get_object_device(atiny_param_t *atiny_params, const char* manufacturer)
+lwm2m_object_t *get_object_device(atiny_param_t *atiny_params, const char *manufacturer)
 {
     /*
      * The get_object_device function create the object itself and return a pointer to the structure that represent it.
      */
-    lwm2m_object_t * deviceObj;
+    lwm2m_object_t *deviceObj;
 
     deviceObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
 
@@ -653,7 +714,7 @@ lwm2m_object_t * get_object_device(atiny_param_t *atiny_params, const char* manu
     return deviceObj;
 }
 
-void free_object_device(lwm2m_object_t * objectP)
+void free_object_device(lwm2m_object_t *objectP)
 {
     if (NULL != objectP->userData)
     {

@@ -96,7 +96,7 @@
 /**
 implementation for all read-able resources
 */
-static uint8_t prv_res2tlv(lwm2m_data_t* dataP)
+static uint8_t prv_res2tlv(lwm2m_data_t *dataP)
 {
     //-------------------------------------------------------------------- JH --
     uint8_t ret = COAP_205_CONTENT;
@@ -107,51 +107,72 @@ static uint8_t prv_res2tlv(lwm2m_data_t* dataP)
     switch (dataP->id)     // location resourceId
     {
     case RES_M_LATITUDE:
-        if (atiny_cmd_ioctl(ATINY_GET_LATITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_LATITUDE, (char *)&get_value, sizeof(float)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(get_value, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_M_LONGITUDE:
-        if (atiny_cmd_ioctl(ATINY_GET_LONGITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_LONGITUDE, (char *)&get_value, sizeof(float)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(get_value, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_O_ALTITUDE:
-        if (atiny_cmd_ioctl(ATINY_GET_ALTITUDE, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_ALTITUDE, (char *)&get_value, sizeof(float)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(get_value, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_O_RADIUS:
-        if (atiny_cmd_ioctl(ATINY_GET_RADIUS, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_RADIUS, (char *)&get_value, sizeof(float)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(get_value, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_O_VELOCITY:
-        if (atiny_cmd_ioctl(ATINY_GET_VELOCITY, (char*)&velocity, sizeof(velocity)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_VELOCITY, (char *)&velocity, sizeof(velocity)) == ATINY_OK)
+        {
             lwm2m_data_encode_opaque(velocity.opaque, velocity.length, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_M_TIMESTAMP:
-        if (atiny_cmd_ioctl(ATINY_GET_TIMESTAMP, (char*)&timestamp, sizeof(uint64_t)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_TIMESTAMP, (char *)&timestamp, sizeof(uint64_t)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(timestamp, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
     case RES_O_SPEED:
-        if (atiny_cmd_ioctl(ATINY_GET_SPEED, (char*)&get_value, sizeof(float)) == ATINY_OK) {
+        if (atiny_cmd_ioctl(ATINY_GET_SPEED, (char *)&get_value, sizeof(float)) == ATINY_OK)
+        {
             lwm2m_data_encode_float(get_value, dataP);
-        } else {
+        }
+        else
+        {
             ret = COAP_400_BAD_REQUEST;
         }
         break;
@@ -176,10 +197,10 @@ static uint8_t prv_res2tlv(lwm2m_data_t* dataP)
   * @param objectP      in,     private location data structure
   */
 static uint8_t prv_location_read(uint16_t objInstId,
-                                 int*  numDataP,
-                                 lwm2m_data_t** tlvArrayP,
-                                 lwm2m_data_cfg_t* dataCfg,
-                                 lwm2m_object_t*  objectP)
+                                 int  *numDataP,
+                                 lwm2m_data_t **tlvArrayP,
+                                 lwm2m_data_cfg_t *dataCfg,
+                                 lwm2m_object_t  *objectP)
 {
     //-------------------------------------------------------------------- JH --
     int     i;
@@ -190,17 +211,18 @@ static uint8_t prv_location_read(uint16_t objInstId,
 
     if (*numDataP == 0)     // full object, readable resources!
     {
-        uint16_t readResIds[] = {
-                RES_M_LATITUDE,
-                RES_M_LONGITUDE,
-                RES_O_ALTITUDE,
-                RES_O_RADIUS,
-                RES_O_VELOCITY,
-                RES_M_TIMESTAMP,
-                RES_O_SPEED
+        uint16_t readResIds[] =
+        {
+            RES_M_LATITUDE,
+            RES_M_LONGITUDE,
+            RES_O_ALTITUDE,
+            RES_O_RADIUS,
+            RES_O_VELOCITY,
+            RES_M_TIMESTAMP,
+            RES_O_SPEED
         }; // readable resources!
 
-        *numDataP  = sizeof(readResIds)/sizeof(uint16_t);
+        *numDataP  = sizeof(readResIds) / sizeof(uint16_t);
         *tlvArrayP = lwm2m_data_new(*numDataP);
         if (*tlvArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
 
@@ -213,14 +235,14 @@ static uint8_t prv_location_read(uint16_t objInstId,
 
     for (i = 0 ; i < *numDataP ; i++)
     {
-        result = prv_res2tlv ((*tlvArrayP)+i);
+        result = prv_res2tlv ((*tlvArrayP) + i);
         if (result != COAP_205_CONTENT) break;
     }
 
     return result;
 }
 
-void display_location_object(lwm2m_object_t * object)
+void display_location_object(lwm2m_object_t *object)
 {
 #ifdef WITH_LOGS
     float latitude = 0.0f;
@@ -249,10 +271,10 @@ void display_location_object(lwm2m_object_t * object)
   * @return gives back allocated LWM2M data object structure pointer. On error,
   * NULL value is returned.
   */
-lwm2m_object_t * get_object_location(void)
+lwm2m_object_t *get_object_location(void)
 {
     //-------------------------------------------------------------------- JH --
-    lwm2m_object_t * locationObj;
+    lwm2m_object_t *locationObj;
 
     locationObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
     if (NULL != locationObj)
@@ -285,7 +307,7 @@ lwm2m_object_t * get_object_location(void)
     return locationObj;
 }
 
-void free_object_location(lwm2m_object_t * object)
+void free_object_location(lwm2m_object_t *object)
 {
     lwm2m_list_free(object->instanceList);
     lwm2m_free(object->userData);

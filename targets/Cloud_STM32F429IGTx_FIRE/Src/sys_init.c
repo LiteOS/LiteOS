@@ -93,10 +93,11 @@ void net_init(void)
         netif_set_down(&gnetif);
     }
 #if    0
-    #include "lwip/dhcp.h"
+#include "lwip/dhcp.h"
     struct dhcp *dhcp;
     dhcp_start(&gnetif);
-    while (1) {
+    while (1)
+    {
         if (dhcp_supplied_address(&gnetif))
         {
             dhcp = netif_dhcp_data(&gnetif);
@@ -167,8 +168,8 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks
     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                  | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -185,18 +186,18 @@ void SystemClock_Config(void)
 void hieth_hw_init(void)
 {
     extern void ETH_IRQHandler(void);
-    (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
+    (void)LOS_HwiCreate(ETH_IRQn, 1, 0, ETH_IRQHandler, 0);
 }
 
-/**
- * atiny_adapter user interface 
+/*
+ * atiny_adapter user interface
  */
 void atiny_usleep(unsigned long usec)
 {
     delayus((uint32_t)usec);
 }
 
-int atiny_random(void* output, size_t len)
+int atiny_random(void *output, size_t len)
 {
     return hal_rng_generate_buffer(output, len);
 }

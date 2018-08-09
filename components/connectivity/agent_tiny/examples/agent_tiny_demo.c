@@ -41,30 +41,30 @@
 
 #define LWM2M_LIFE_TIME     50000
 
-char * g_endpoint_name = "44440003";
+char *g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
 
-char* g_endpoint_name_s = "55555002";
-char* g_endpoint_name_iots = "55555002";
-char* g_endpoint_name_bs = "55555002";
-unsigned char g_psk_iot_value[] = {0xb4,0x72,0x8f,0x8d,0x70,0xbd,0xfc,0x35,0xf1,0xed,0xf5,0x2b,0xf6,0xa1,0x98,0xf7};  //0x33 -> 0x32
-unsigned char g_psk_bs_value[] = {0xb4,0x72,0x8f,0x8d,0x70,0xbd,0xfc,0x35,0xf1,0xed,0xf5,0x2b,0xf6,0xa1,0x98,0xf7};
+char *g_endpoint_name_s = "55555002";
+char *g_endpoint_name_iots = "55555002";
+char *g_endpoint_name_bs = "55555002";
+unsigned char g_psk_iot_value[] = {0xb4, 0x72, 0x8f, 0x8d, 0x70, 0xbd, 0xfc, 0x35, 0xf1, 0xed, 0xf5, 0x2b, 0xf6, 0xa1, 0x98, 0xf7}; //0x33 -> 0x32
+unsigned char g_psk_bs_value[] = {0xb4, 0x72, 0x8f, 0x8d, 0x70, 0xbd, 0xfc, 0x35, 0xf1, 0xed, 0xf5, 0x2b, 0xf6, 0xa1, 0x98, 0xf7};
 //unsigned char g_psk_value[16] = {0xef,0xe8,0x18,0x45,0xa3,0x53,0xc1,0x3c,0x0c,0x89,0x92,0xb3,0x1d,0x6b,0x6a,0x33};
 
 #endif
 
-static void* g_phandle = NULL;
+static void *g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
-    ATINY_LOG(LOG_DEBUG,"type:%d cookie:%d status:%d\n", type,cookie, status);
+    ATINY_LOG(LOG_DEBUG, "type:%d cookie:%d status:%d\n", type, cookie, status);
 }
 /*lint -e550*/
 void app_data_report(void)
 {
-    uint8_t buf[5] = {0,1,6,5,9};
+    uint8_t buf[5] = {0, 1, 6, 5, 9};
     data_report_t report_data;
     int ret = 0;
     int cnt = 0;
@@ -79,10 +79,10 @@ void app_data_report(void)
         report_data.cookie = cnt;
         cnt++;
         ret = atiny_data_report(g_phandle, &report_data);
-        ATINY_LOG(LOG_DEBUG,"data report ret: %d\n",ret);
+        ATINY_LOG(LOG_DEBUG, "data report ret: %d\n", ret);
         ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
-        ATINY_LOG(LOG_DEBUG,"data change ret: %d\n",ret);
-        (void)LOS_TaskDelay(250*8);
+        ATINY_LOG(LOG_DEBUG, "data change ret: %d\n", ret);
+        (void)LOS_TaskDelay(250 * 8);
     }
 }
 /*lint +e550*/
@@ -132,7 +132,7 @@ void agent_tiny_fota_init(void)
 void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
-    atiny_param_t* atiny_params;
+    atiny_param_t *atiny_params;
     atiny_security_param_t  *iot_security_param = NULL;
     atiny_security_param_t  *bs_security_param = NULL;
 
@@ -174,11 +174,11 @@ void agent_tiny_entry(void)
     bs_security_param->server_port = "5684";
 
     iot_security_param->psk_Id = g_endpoint_name_iots;
-    iot_security_param->psk = (char*)g_psk_iot_value;
+    iot_security_param->psk = (char *)g_psk_iot_value;
     iot_security_param->psk_len = sizeof(g_psk_iot_value);
 
     bs_security_param->psk_Id = g_endpoint_name_bs;
-    bs_security_param->psk = (char*)g_psk_bs_value;
+    bs_security_param->psk = (char *)g_psk_bs_value;
     bs_security_param->psk_len = sizeof(g_psk_bs_value);
 #else
     iot_security_param->server_port = "5683";

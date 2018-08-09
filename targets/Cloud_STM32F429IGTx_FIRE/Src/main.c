@@ -51,7 +51,7 @@ VOID HardWare_Init(VOID)
     dwt_delay_init(SystemCoreClock);
 }
 
-extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
+extern int32_t nb_data_ioctl(void *arg, int8_t *buf, int32_t len);
 
 VOID main_task(VOID)
 {
@@ -62,6 +62,7 @@ VOID main_task(VOID)
 #define AT_DTLS 0
 #if AT_DTLS
     sec_param_s sec;
+    sec.setpsk = 1;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
 #endif
@@ -69,9 +70,9 @@ VOID main_task(VOID)
     printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
 #if AT_DTLS
-    los_nb_init((const int8_t*)"180.101.147.115",(const int8_t*)"5684",&sec);
+    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5684", &sec);
 #else
-    los_nb_init((const int8_t*)"180.101.147.115",(const int8_t*)"5683",NULL);//"139.159.140.34"
+    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5683", NULL); //"139.159.140.34"
 #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
@@ -135,7 +136,7 @@ int main(void)
     extern void uart_init(void);  //this uart used for the pppos interface
     uart_init();
     extern VOID *main_ppp(UINT32  args);
-    task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
+    task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
 #else
     uwRet = creat_main_task();
     if (uwRet != LOS_OK)

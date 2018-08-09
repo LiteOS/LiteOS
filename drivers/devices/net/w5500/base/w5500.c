@@ -1,7 +1,7 @@
 /**
 ******************************************************************************
 * @file    		W5500.c
-* @author  		WIZnet Software Team 
+* @author  		WIZnet Software Team
 * @version 		V1.0
 * @date    		2015-02-14
 * @brief   		the functions of read/write w5500 registers
@@ -18,10 +18,10 @@
 
 #define	MAX_SOCK_NUM		    8	/**< Maxmium number of socket  */
 
-uint16 SSIZE[MAX_SOCK_NUM] = {0,0,0,0,0,0,0,0}; // Max Tx buffer
-uint16 RSIZE[MAX_SOCK_NUM] = {0,0,0,0,0,0,0,0}; // Max Rx buffer
-uint8 txsize[MAX_SOCK_NUM] = {2,2,2,2,2,2,2,2}; // tx buffer set	K bits
-uint8 rxsize[MAX_SOCK_NUM] = {2,2,2,2,2,2,2,2}; // rx buffet set  K bits
+uint16 SSIZE[MAX_SOCK_NUM] = {0, 0, 0, 0, 0, 0, 0, 0}; // Max Tx buffer
+uint16 RSIZE[MAX_SOCK_NUM] = {0, 0, 0, 0, 0, 0, 0, 0}; // Max Rx buffer
+uint8 txsize[MAX_SOCK_NUM] = {2, 2, 2, 2, 2, 2, 2, 2}; // tx buffer set	K bits
+uint8 rxsize[MAX_SOCK_NUM] = {2, 2, 2, 2, 2, 2, 2, 2}; // rx buffet set  K bits
 
 /**
 *@brief		This function is to get the Max size to receive.
@@ -30,9 +30,9 @@ uint8 rxsize[MAX_SOCK_NUM] = {2,2,2,2,2,2,2,2}; // rx buffet set  K bits
 */
 void iinchip_init(void)
 {
-  setMR( MR_RST );
+    setMR( MR_RST );
 #ifdef __DEF_IINCHIP_DBG__
-  printf("MR value is %02x \r\n",IINCHIP_READ_COMMON(MR));
+    printf("MR value is %02x \r\n", IINCHIP_READ_COMMON(MR));
 #endif
 }
 
@@ -43,8 +43,8 @@ void iinchip_init(void)
 */
 uint16 getIINCHIP_RxMAX(SOCKET s)
 {
-	return RSIZE[s];
-}	
+    return RSIZE[s];
+}
 
 /**
 *@brief		This function is to get the Max size to receive.
@@ -53,130 +53,130 @@ uint16 getIINCHIP_RxMAX(SOCKET s)
 */
 uint16 getIINCHIP_TxMAX(SOCKET s)
 {
-	return SSIZE[s];
+    return SSIZE[s];
 }
 
 /**
 *@brief		This function is to set up gateway IP address.
-*@param		addr: a pointer to a 4 -byte array responsible to set the Gateway IP address 
+*@param		addr: a pointer to a 4 -byte array responsible to set the Gateway IP address
 *@return	None
 */
-void setGAR(uint8 * addr )
+void setGAR(uint8 *addr )
 {
     wiz_write_buf(GAR0, addr, 4);
 }
 
 /**
 *@brief		This function is to get gateway IP address.
-*@param		addr: a pointer to a 4 -byte array responsible to get the Gateway IP address  
+*@param		addr: a pointer to a 4 -byte array responsible to get the Gateway IP address
 *@return	None
 */
-void getGAR(uint8 * addr)
+void getGAR(uint8 *addr)
 {
     wiz_read_buf(GAR0, addr, 4);
 }
 
 /**
 *@brief 	This function is to set up SubnetMask address
-*@param		addr: a pointer to a 4 -byte array responsible to set the subway IP address.  
+*@param		addr: a pointer to a 4 -byte array responsible to set the subway IP address.
 *@return	None
 */
-void setSUBR(uint8 * addr)
-{   
+void setSUBR(uint8 *addr)
+{
     wiz_write_buf(SUBR0, addr, 4);
 }
 /**
 *@brief		This function is to set up MAC address.
-*@param		addr: a pointer to a 6 -byte array responsible to set the MAC address.  
+*@param		addr: a pointer to a 6 -byte array responsible to set the MAC address.
 *@return	None
 */
-void setSHAR(uint8 * addr)
+void setSHAR(uint8 *addr)
 {
-    wiz_write_buf(SHAR0, addr, 6);  
+    wiz_write_buf(SHAR0, addr, 6);
 }
 
 /**
 *@brief		This function is to set up Source IP address.
-*@param		addr:a pointer to a 4 -byte array responsible to set the Source IP addres.  
+*@param		addr:a pointer to a 4 -byte array responsible to set the Source IP addres.
 *@return	None
 */
-void setSIPR(uint8 * addr)
+void setSIPR(uint8 *addr)
 {
-    wiz_write_buf(SIPR0, addr, 4);  
+    wiz_write_buf(SIPR0, addr, 4);
 }
 
 /**
 *@brief		This function is to get Subnet mask.
-*@param		addr:a pointer to a 4 -byte array responsible to set the Subnet mask.  
+*@param		addr:a pointer to a 4 -byte array responsible to set the Subnet mask.
 *@return	None
 */
-void getSUBR(uint8 * addr)
+void getSUBR(uint8 *addr)
 {
     wiz_read_buf(SUBR0, addr, 4);
 }
 
 /**
 *@brief		This function is to get up Source MAC .
-*@param		addr: a pointer to a 6 -byte array responsible to get the MAC  
+*@param		addr: a pointer to a 6 -byte array responsible to get the MAC
 *@return	None
 */
-void getSHAR(uint8 * addr)
+void getSHAR(uint8 *addr)
 {
     wiz_read_buf(SHAR0, addr, 6);
 }
 
 /**
 *@brief		This function is to get up Source IP .
-*@param		addr: a pointer to a 4 -byte array responsible to get the Source IP  
+*@param		addr: a pointer to a 4 -byte array responsible to get the Source IP
 *@return	None
 */
-void getSIPR(uint8 * addr)
+void getSIPR(uint8 *addr)
 {
     wiz_read_buf(SIPR0, addr, 4);
 }
 /**
 *@brief		This function is to set the MR register.
-*@param		val: the value to set to MR  
+*@param		val: the value to set to MR
 *@return	None
 */
 void setMR(uint8 val)
 {
-    IINCHIP_WRITE(MR,val);
+    IINCHIP_WRITE(MR, val);
 }
 
 /**
 *@brief		This function is to get Interrupt register in common register.
-*@param		None  
+*@param		None
 *@return	The value read from the IR register
 */
 uint8 getIR( void )
 {
-   return IINCHIP_READ(IR);
+    return IINCHIP_READ(IR);
 }
 
 /**
 @brief		This function is to set up Retransmission time.
 					If there is no response from the peer or delay in response then retransmission
 					will be there as per RTR (Retry Time-value Register)setting
-*@param		timeout: The value write to  the RTR0 register 
+*@param		timeout: The value write to  the RTR0 register
 *@return	None
 */
 void setRTR(uint16 timeout)
 {
-  IINCHIP_WRITE(RTR0,(uint8)((timeout & 0xff00) >> 8));
-  IINCHIP_WRITE(RTR1,(uint8)(timeout & 0x00ff));
+    IINCHIP_WRITE(RTR0, (uint8)((timeout & 0xff00) >> 8));
+    IINCHIP_WRITE(RTR1, (uint8)(timeout & 0x00ff));
 }
 
 /**
 @brief		This function is to set the number of Retransmission.
 					If there is no response from the peer or delay in response then recorded time
 					as per RTR & RCR register seeting then time out will occur.
-*@param		retry: Times to  retry 
+*@param		retry: Times to  retry
 *@return	None
 */
 void setRCR(uint8 retry)
 {
-  IINCHIP_WRITE(WIZ_RCR,retry);
+    IINCHIP_WRITE(WIZ_RCR, retry);
 }
 
 /**
@@ -188,7 +188,7 @@ void setRCR(uint8 retry)
 */
 void clearIR(uint8 mask)
 {
-  IINCHIP_WRITE(IR, ~mask | getIR() ); 
+    IINCHIP_WRITE(IR, ~mask | getIR() );
 }
 
 /**
@@ -199,8 +199,8 @@ void clearIR(uint8 mask)
 */
 void setSn_MSS(SOCKET s, uint16 Sn_MSSR)
 {
-  IINCHIP_WRITE( Sn_MSSR0(s), (uint8)((Sn_MSSR & 0xff00) >> 8));
-  IINCHIP_WRITE( Sn_MSSR1(s), (uint8)(Sn_MSSR & 0x00ff));
+    IINCHIP_WRITE( Sn_MSSR0(s), (uint8)((Sn_MSSR & 0xff00) >> 8));
+    IINCHIP_WRITE( Sn_MSSR1(s), (uint8)(Sn_MSSR & 0x00ff));
 }
 
 /**
@@ -210,8 +210,8 @@ void setSn_MSS(SOCKET s, uint16 Sn_MSSR)
 *@return	None
 */
 void setSn_TTL(SOCKET s, uint8 ttl)
-{    
-   IINCHIP_WRITE( Sn_TTL(s) , ttl);
+{
+    IINCHIP_WRITE( Sn_TTL(s) , ttl);
 }
 
 /**
@@ -221,7 +221,7 @@ void setSn_TTL(SOCKET s, uint8 ttl)
 */
 uint8 getSn_IR(SOCKET s)
 {
-   return IINCHIP_READ(Sn_IR(s));
+    return IINCHIP_READ(Sn_IR(s));
 }
 
 /**
@@ -241,7 +241,7 @@ void setSn_IR(uint8 s, uint8 val)
 */
 uint8 getSn_SR(SOCKET s)
 {
-   return IINCHIP_READ(Sn_SR(s));
+    return IINCHIP_READ(Sn_SR(s));
 }
 
 /**
@@ -253,18 +253,19 @@ uint8 getSn_SR(SOCKET s)
 */
 uint16 getSn_TX_FSR(SOCKET s)
 {
-  uint16 val=0,val1=0;
-  do
-  {
-    val1 = IINCHIP_READ(Sn_TX_FSR0(s));
-    val1 = (val1 << 8) + IINCHIP_READ(Sn_TX_FSR1(s));
-    if (val1 != 0)
+    uint16 val = 0, val1 = 0;
+    do
     {
-        val = IINCHIP_READ(Sn_TX_FSR0(s));
-        val = (val << 8) + IINCHIP_READ(Sn_TX_FSR1(s));
+        val1 = IINCHIP_READ(Sn_TX_FSR0(s));
+        val1 = (val1 << 8) + IINCHIP_READ(Sn_TX_FSR1(s));
+        if (val1 != 0)
+        {
+            val = IINCHIP_READ(Sn_TX_FSR0(s));
+            val = (val << 8) + IINCHIP_READ(Sn_TX_FSR1(s));
+        }
     }
-  } while (val != val1);
-   return val;
+    while (val != val1);
+    return val;
 }
 
 /**
@@ -274,18 +275,19 @@ uint16 getSn_TX_FSR(SOCKET s)
 */
 uint16 getSn_RX_RSR(SOCKET s)
 {
-  uint16 val=0,val1=0;
-  do
-  {
-    val1 = IINCHIP_READ(Sn_RX_RSR0(s));
-    val1 = (val1 << 8) + IINCHIP_READ(Sn_RX_RSR1(s));
-    if(val1 != 0)
+    uint16 val = 0, val1 = 0;
+    do
     {
-        val = IINCHIP_READ(Sn_RX_RSR0(s));
-        val = (val << 8) + IINCHIP_READ(Sn_RX_RSR1(s));
+        val1 = IINCHIP_READ(Sn_RX_RSR0(s));
+        val1 = (val1 << 8) + IINCHIP_READ(Sn_RX_RSR1(s));
+        if(val1 != 0)
+        {
+            val = IINCHIP_READ(Sn_RX_RSR0(s));
+            val = (val << 8) + IINCHIP_READ(Sn_RX_RSR1(s));
+        }
     }
-  } while (val != val1);
-   return val;
+    while (val != val1);
+    return val;
 }
 
 /**
@@ -300,23 +302,23 @@ uint16 getSn_RX_RSR(SOCKET s)
 */
 void send_data_processing(SOCKET s, uint8 *data, uint16 len)
 {
-  uint16 ptr =0;
-  uint32 addrbsb =0;
-  if(len == 0)
-  {
-    printf("CH: %d Unexpected1 length 0\r\n", s);
-    return;
-  }
-   
-  ptr = IINCHIP_READ( Sn_TX_WR0(s) );
-  ptr = ((ptr & 0x00ff) << 8) + IINCHIP_READ(Sn_TX_WR1(s));
+    uint16 ptr = 0;
+    uint32 addrbsb = 0;
+    if(len == 0)
+    {
+        printf("CH: %d Unexpected1 length 0\r\n", s);
+        return;
+    }
 
-  addrbsb = (uint32)(ptr<<8) + (s<<5) + 0x10;
-  wiz_write_buf(addrbsb, data, len);
-  
-  ptr += len;
-  IINCHIP_WRITE( Sn_TX_WR0(s) ,(uint8)((ptr & 0xff00) >> 8));
-  IINCHIP_WRITE( Sn_TX_WR1(s),(uint8)(ptr & 0x00ff));
+    ptr = IINCHIP_READ( Sn_TX_WR0(s) );
+    ptr = ((ptr & 0x00ff) << 8) + IINCHIP_READ(Sn_TX_WR1(s));
+
+    addrbsb = (uint32)(ptr << 8) + (s << 5) + 0x10;
+    wiz_write_buf(addrbsb, data, len);
+
+    ptr += len;
+    IINCHIP_WRITE( Sn_TX_WR0(s) , (uint8)((ptr & 0xff00) >> 8));
+    IINCHIP_WRITE( Sn_TX_WR1(s), (uint8)(ptr & 0x00ff));
 }
 
 /**
@@ -331,24 +333,24 @@ void send_data_processing(SOCKET s, uint8 *data, uint16 len)
 */
 void recv_data_processing(SOCKET s, uint8 *data, uint16 len)
 {
-  uint16 ptr = 0;
-  uint32 addrbsb = 0;
-  
-  if(len == 0)
-  {
-    printf("CH: %d Unexpected2 length 0\r\n", s);
-    return;
-  }
+    uint16 ptr = 0;
+    uint32 addrbsb = 0;
 
-  ptr = IINCHIP_READ( Sn_RX_RD0(s) );
-  ptr = ((ptr & 0x00ff) << 8) + IINCHIP_READ( Sn_RX_RD1(s) );
+    if(len == 0)
+    {
+        printf("CH: %d Unexpected2 length 0\r\n", s);
+        return;
+    }
 
-  addrbsb = (uint32)(ptr<<8) + (s<<5) + 0x18;
-  wiz_read_buf(addrbsb, data, len);
-  ptr += len;
+    ptr = IINCHIP_READ( Sn_RX_RD0(s) );
+    ptr = ((ptr & 0x00ff) << 8) + IINCHIP_READ( Sn_RX_RD1(s) );
 
-  IINCHIP_WRITE( Sn_RX_RD0(s), (uint8)((ptr & 0xff00) >> 8));
-  IINCHIP_WRITE( Sn_RX_RD1(s), (uint8)(ptr & 0x00ff));
+    addrbsb = (uint32)(ptr << 8) + (s << 5) + 0x18;
+    wiz_read_buf(addrbsb, data, len);
+    ptr += len;
+
+    IINCHIP_WRITE( Sn_RX_RD0(s), (uint8)((ptr & 0xff00) >> 8));
+    IINCHIP_WRITE( Sn_RX_RD1(s), (uint8)(ptr & 0x00ff));
 }
 
 /**
@@ -366,10 +368,10 @@ void recv_data_processing(SOCKET s, uint8 *data, uint16 len)
 *@param		rx_size: rx buffer size to set=rx_size[s]*(1024)
 *@return	None
 */
-void socket_buf_init( uint8 * tx_size, uint8 * rx_size  )
+void socket_buf_init( uint8 *tx_size, uint8 *rx_size  )
 {
     int16 i;
-    int16 ssum=0,rsum=0;
+    int16 ssum = 0, rsum = 0;
 
     for (i = 0 ; i < MAX_SOCK_NUM; i++)       // Set the size, masking and base address of Tx & Rx memory by each channel
     {
@@ -377,20 +379,20 @@ void socket_buf_init( uint8 * tx_size, uint8 * rx_size  )
         IINCHIP_WRITE( (Sn_RXMEM_SIZE(i)), rx_size[i]);
 
 #ifdef __DEF_IINCHIP_DBG__
-        printf("tx_size[%d]: %d, Sn_TXMEM_SIZE = %d\r\n",i, tx_size[i], IINCHIP_READ(Sn_TXMEM_SIZE(i)));
-        printf("rx_size[%d]: %d, Sn_RXMEM_SIZE = %d\r\n",i, rx_size[i], IINCHIP_READ(Sn_RXMEM_SIZE(i)));
+        printf("tx_size[%d]: %d, Sn_TXMEM_SIZE = %d\r\n", i, tx_size[i], IINCHIP_READ(Sn_TXMEM_SIZE(i)));
+        printf("rx_size[%d]: %d, Sn_RXMEM_SIZE = %d\r\n", i, rx_size[i], IINCHIP_READ(Sn_RXMEM_SIZE(i)));
 #endif
         SSIZE[i] = (int16)(0);
         RSIZE[i] = (int16)(0);
 
         if (ssum <= 16384)
         {
-            SSIZE[i] = (int16)tx_size[i]*(1024);
+            SSIZE[i] = (int16)tx_size[i] * (1024);
         }
 
         if (rsum <= 16384)
         {
-            RSIZE[i]=(int16)rx_size[i]*(1024);
+            RSIZE[i] = (int16)rx_size[i] * (1024);
         }
         ssum += SSIZE[i];
         rsum += RSIZE[i];

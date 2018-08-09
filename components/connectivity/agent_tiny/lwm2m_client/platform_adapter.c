@@ -55,21 +55,21 @@
 
 #ifndef LWM2M_MEMORY_TRACE
 
-void* lwm2m_malloc(size_t s)
+void *lwm2m_malloc(size_t s)
 {
-    void * mem = NULL;
+    void *mem = NULL;
     mem = atiny_malloc(s);
     return mem;
 }
 
-void lwm2m_free(void * p)
+void lwm2m_free(void *p)
 {
     if(NULL != p)
         atiny_free(p);
 }
 
 
-char * lwm2m_strdup(const char * str)
+char *lwm2m_strdup(const char *str)
 {
     int len = strlen(str) + 1;
     void *new = lwm2m_malloc(len);
@@ -81,16 +81,16 @@ char * lwm2m_strdup(const char * str)
 
 #endif
 
-int lwm2m_strncmp(const char * s1,
-                     const char * s2,
-                     size_t n)
+int lwm2m_strncmp(const char *s1,
+                  const char *s2,
+                  size_t n)
 {
     return strncmp(s1, s2, n);
 }
 
 time_t lwm2m_gettime(void)
 {
-    return (uint32_t)(atiny_gettime_ms()/1000);
+    return (uint32_t)(atiny_gettime_ms() / 1000);
 }
 
 int lwm2m_rand(void *output, size_t len)

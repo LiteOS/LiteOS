@@ -23,14 +23,14 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+* Notice of Export Control Law
+* ===============================================
+* Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+* include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+* Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+* applicable export control laws and regulations.
+*---------------------------------------------------------------------------*/
 /*******
  * Notice:
  * The parts of this file refer to https://blog.csdn.net/zlk1214/article/details/76177336
@@ -66,8 +66,10 @@ void arc4_crypt_raw(arc4_context *ctx, unsigned char *buf, int buflen)
 
     for( i = 0; i < buflen; i++ )
     {
-        x = ( x + 1 ) & 0xFF; a = m[x];
-        y = ( y + a ) & 0xFF; b = m[y];
+        x = ( x + 1 ) & 0xFF;
+        a = m[x];
+        y = ( y + a ) & 0xFF;
+        b = m[y];
 
         m[x] = (unsigned char) b;
         m[y] = (unsigned char) a;
@@ -95,9 +97,9 @@ void ARC4_decrypt_keydata(const uint8_t *KEK, const uint8_t *key_iv, const uint8
     memcpy(newkey[1], KEK, sizeof(newkey[1]));
 
     arc4_setup(&ctx, newkey[0], sizeof(newkey));
-    arc4_crypt_raw(&ctx, (unsigned char*)dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
+    arc4_crypt_raw(&ctx, (unsigned char *)dummy, sizeof(dummy)); // discard the first 256 bytes of the RC4 cipher stream output
     memcpy(output, data, datalen);
-    arc4_crypt_raw(&ctx, (unsigned char*)output, datalen);
+    arc4_crypt_raw(&ctx, (unsigned char *)output, datalen);
 }
 
 /* AES Key Wrap decryption algorithm decrypts AES Key Data packets */
@@ -112,7 +114,7 @@ uint16_t AES_unwrap(const uint8_t *key, const uint8_t *data, uint16_t datalen, u
     struct AES_ctx ctx;
 
     if(NULL == key || NULL == data || NULL == output) return 0;
-    
+
     AES_init_ctx(&ctx, key);
 
     /* Initialize variables */
@@ -277,7 +279,7 @@ uint8_t PRF(const void *k, uint16_t klen, const char *a, const void *b, uint16_t
         return 0;
 
     q = (uint8_t *)output;
-    strncpy((char *)p, a, alen+1); // application-specific text (including '\0')
+    strncpy((char *)p, a, alen + 1); // application-specific text (including '\0')
     memcpy(p + alen + 1, b, blen); // special data
     for (i = 0; n > 0; i++)
     {

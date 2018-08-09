@@ -91,19 +91,19 @@ typedef struct
 {
     uint16_t    ids[4];
     _type       type;
-    uint8_t *   value;
+    uint8_t    *value;
     size_t      valueLen;
 } _record_t;
 
 static int prv_isReserved(char sign)
 {
     if (sign == '['
-     || sign == '{'
-     || sign == ']'
-     || sign == '}'
-     || sign == ':'
-     || sign == ','
-     || sign == '"')
+            || sign == '{'
+            || sign == ']'
+            || sign == '}'
+            || sign == ':'
+            || sign == ','
+            || sign == '"')
     {
         return 1;
     }
@@ -114,9 +114,9 @@ static int prv_isReserved(char sign)
 static int prv_isWhiteSpace(uint8_t sign)
 {
     if (sign == 0x20
-     || sign == 0x09
-     || sign == 0x0A
-     || sign == 0x0D)
+            || sign == 0x09
+            || sign == 0x0A
+            || sign == 0x0D)
     {
         return 1;
     }
@@ -124,14 +124,14 @@ static int prv_isWhiteSpace(uint8_t sign)
     return 0;
 }
 
-static size_t prv_skipSpace(uint8_t * buffer,
+static size_t prv_skipSpace(uint8_t *buffer,
                             size_t bufferLen)
 {
     size_t i;
 
     i = 0;
     while ((i < bufferLen)
-        && prv_isWhiteSpace(buffer[i]))
+            && prv_isWhiteSpace(buffer[i]))
     {
         i++;
     }
@@ -139,12 +139,12 @@ static size_t prv_skipSpace(uint8_t * buffer,
     return i;
 }
 
-static int prv_split(uint8_t * buffer,
+static int prv_split(uint8_t *buffer,
                      size_t bufferLen,
-                     int * tokenStartP,
-                     int * tokenLenP,
-                     int * valueStartP,
-                     int * valueLenP)
+                     int *tokenStartP,
+                     int *tokenLenP,
+                     int *valueStartP,
+                     int *valueLenP)
 {
     size_t index;
     _itemState step;
@@ -156,13 +156,13 @@ static int prv_split(uint8_t * buffer,
     if (index == bufferLen) return -1;
 
     while ((index < bufferLen)
-        && (buffer[index] != ','))
+            && (buffer[index] != ','))
     {
         switch (step)
         {
         case _STEP_START:
             if (buffer[index] != '"') return -1;
-            *tokenStartP = index+1;
+            *tokenStartP = index + 1;
             step = _STEP_TOKEN;
             break;
 
@@ -184,18 +184,20 @@ static int prv_split(uint8_t * buffer,
             {
                 *valueStartP = index;
                 step = _STEP_QUOTED_VALUE;
-            } else if (!prv_isReserved(buffer[index]))
+            }
+            else if (!prv_isReserved(buffer[index]))
             {
                 *valueStartP = index;
                 step = _STEP_VALUE;
-            } else
+            }
+            else
             {
                 return -1;
             }
             break;
 
         case _STEP_QUOTED_VALUE:
-            if (buffer[index] == '"' && buffer[index-1] != '\\' )
+            if (buffer[index] == '"' && buffer[index - 1] != '\\' )
             {
                 *valueLenP = index - *valueStartP + 1;
                 step = _STEP_DONE;
@@ -217,9 +219,9 @@ static int prv_split(uint8_t * buffer,
 
         index++;
         if (step == _STEP_START
-         || step == _STEP_ANY_SEPARATOR
-         || step == _STEP_SEPARATOR
-         || step == _STEP_DONE)
+                || step == _STEP_ANY_SEPARATOR
+                || step == _STEP_SEPARATOR
+                || step == _STEP_DONE)
         {
             index += prv_skipSpace(buffer + index, bufferLen - index);
         }
@@ -236,7 +238,7 @@ static int prv_split(uint8_t * buffer,
     return (int)index;
 }
 
-static int prv_countItems(uint8_t * buffer,
+static int prv_countItems(uint8_t *buffer,
                           size_t bufferLen)
 {
     int count;
@@ -284,13 +286,13 @@ error:
     return -1;
 }
 
-static int prv_parseItem(uint8_t * buffer,
+static int prv_parseItem(uint8_t *buffer,
                          size_t bufferLen,
-                         _record_t * recordP)
+                         _record_t *recordP)
 {
     size_t index;
 
-    memset(recordP->ids, 0xFF, 4*sizeof(uint16_t));
+    memset(recordP->ids, 0xFF, 4 * sizeof(uint16_t));
     recordP->type = _TYPE_UNSET;
     recordP->value = NULL;
     recordP->valueLen = 0;
@@ -304,14 +306,14 @@ static int prv_parseItem(uint8_t * buffer,
         int valueLen;
         int next;
 
-        next = prv_split(buffer+index, bufferLen-index, &tokenStart, &tokenLen, &valueStart, &valueLen);
+        next = prv_split(buffer + index, bufferLen - index, &tokenStart, &tokenLen, &valueStart, &valueLen);
         if (next < 0) return -1;
 
         switch (tokenLen)
         {
         case 1:
         {
-            switch (buffer[index+tokenStart])
+            switch (buffer[index + tokenStart])
             {
             case 'n':
             {
@@ -322,8 +324,8 @@ static int prv_parseItem(uint8_t * buffer,
 
                 // Check for " around URI
                 if (valueLen < 3
-                 || buffer[index+valueStart] != '"'
-                 || buffer[index+valueStart+valueLen-1] != '"')
+                        || buffer[index + valueStart] != '"'
+                        || buffer[index + valueStart + valueLen - 1] != '"')
                 {
                     return -1;
                 }
@@ -339,27 +341,29 @@ static int prv_parseItem(uint8_t * buffer,
                 }
                 i = 0;
                 j = 0;
-                do {
+                do
+                {
                     uint32_t readId;
 
                     readId = 0;
                     i++;
-                    while (i < valueLen-1 && buffer[index+valueStart+i] != '/')
+                    while (i < valueLen - 1 && buffer[index + valueStart + i] != '/')
                     {
-                        if (buffer[index+valueStart+i] < '0'
-                         || buffer[index+valueStart+i] > '9')
+                        if (buffer[index + valueStart + i] < '0'
+                                || buffer[index + valueStart + i] > '9')
                         {
                             return -1;
                         }
                         readId *= 10;
-                        readId += buffer[index+valueStart+i] - '0';
+                        readId += buffer[index + valueStart + i] - '0';
                         if (readId > LWM2M_MAX_ID) return -1;
                         i++;
                     }
                     recordP->ids[j] = readId;
                     j++;
-                } while (i < valueLen-1 && j < 4 && buffer[index+valueStart+i] == '/');
-                if (i < valueLen-1 ) return -1;
+                }
+                while (i < valueLen - 1 && j < 4 && buffer[index + valueStart + i] == '/');
+                if (i < valueLen - 1 ) return -1;
             }
             break;
 
@@ -383,8 +387,8 @@ static int prv_parseItem(uint8_t * buffer,
         case 2:
         {
             // "bv", "ov", or "sv"
-            if (buffer[index+tokenStart+1] != 'v') return -1;
-            switch (buffer[index+tokenStart])
+            if (buffer[index + tokenStart + 1] != 'v') return -1;
+            switch (buffer[index + tokenStart])
             {
             case 'b':
                 if (recordP->type != _TYPE_UNSET) return -1;
@@ -411,8 +415,8 @@ static int prv_parseItem(uint8_t * buffer,
                 if (recordP->type != _TYPE_UNSET) return -1;
                 // Check for " around value
                 if (valueLen < 2
-                 || buffer[index+valueStart] != '"'
-                 || buffer[index+valueStart+valueLen-1] != '"')
+                        || buffer[index + valueStart] != '"'
+                        || buffer[index + valueStart + valueLen - 1] != '"')
                 {
                     return -1;
                 }
@@ -432,13 +436,14 @@ static int prv_parseItem(uint8_t * buffer,
         }
 
         index += next + 1;
-    } while (index < bufferLen);
+    }
+    while (index < bufferLen);
 
     return 0;
 }
 
-static bool prv_convertValue(_record_t * recordP,
-                             lwm2m_data_t * targetP)
+static bool prv_convertValue(_record_t *recordP,
+                             lwm2m_data_t *targetP)
 {
     switch (recordP->type)
     {
@@ -454,7 +459,7 @@ static bool prv_convertValue(_record_t * recordP,
 
         i = 0;
         while (i < recordP->valueLen
-            && recordP->value[i] != '.')
+                && recordP->value[i] != '.')
         {
             i++;
         }
@@ -500,9 +505,9 @@ static bool prv_convertValue(_record_t * recordP,
     return true;
 }
 
-static lwm2m_data_t * prv_findDataItem(lwm2m_data_t * listP,
-                                       int count,
-                                       uint16_t id)
+static lwm2m_data_t *prv_findDataItem(lwm2m_data_t *listP,
+                                      int count,
+                                      uint16_t id)
 {
     int i;
 
@@ -536,9 +541,9 @@ static uri_depth_t prv_decreaseLevel(uri_depth_t level)
     }
 }
 
-static lwm2m_data_t * prv_extendData(lwm2m_data_t * parentP)
+static lwm2m_data_t *prv_extendData(lwm2m_data_t *parentP)
 {
-    lwm2m_data_t * newP;
+    lwm2m_data_t *newP;
 
     newP = lwm2m_data_new(parentP->value.asChildren.count + 1);
     if (newP == NULL) return NULL;
@@ -553,14 +558,14 @@ static lwm2m_data_t * prv_extendData(lwm2m_data_t * parentP)
     return newP + parentP->value.asChildren.count - 1;
 }
 
-static int prv_convertRecord(lwm2m_uri_t * uriP,
-                             _record_t * recordArray,
+static int prv_convertRecord(lwm2m_uri_t *uriP,
+                             _record_t *recordArray,
                              int count,
-                             lwm2m_data_t ** dataP)
+                             lwm2m_data_t **dataP)
 {
     int index;
     int freeIndex;
-    lwm2m_data_t * rootP;
+    lwm2m_data_t *rootP;
     int size;
     uri_depth_t rootLevel;
 
@@ -574,7 +579,7 @@ static int prv_convertRecord(lwm2m_uri_t * uriP,
     }
     else
     {
-        lwm2m_data_t * parentP;
+        lwm2m_data_t *parentP;
         size = 1;
 
         *dataP = lwm2m_data_new(1);
@@ -612,7 +617,7 @@ static int prv_convertRecord(lwm2m_uri_t * uriP,
     freeIndex = 0;
     for (index = 0 ; index < count ; index++)
     {
-        lwm2m_data_t * targetP;
+        lwm2m_data_t *targetP;
         int resSegmentIndex;
         int i;
 
@@ -654,7 +659,7 @@ static int prv_convertRecord(lwm2m_uri_t * uriP,
         }
         if (recordArray[index].ids[1] != LWM2M_MAX_ID)
         {
-            lwm2m_data_t * parentP;
+            lwm2m_data_t *parentP;
             uri_depth_t level;
 
             parentP = targetP;
@@ -695,8 +700,8 @@ error:
 }
 
 static int prv_dataStrip(int size,
-                         lwm2m_data_t * dataP,
-                         lwm2m_data_t ** resultP)
+                         lwm2m_data_t *dataP,
+                         lwm2m_data_t **resultP)
 {
     int i;
     int j;
@@ -722,8 +727,8 @@ static int prv_dataStrip(int size,
             memcpy((*resultP) + j, dataP + i, sizeof(lwm2m_data_t));
 
             if (dataP[i].type == LWM2M_TYPE_OBJECT
-             || dataP[i].type == LWM2M_TYPE_OBJECT_INSTANCE
-             || dataP[i].type == LWM2M_TYPE_MULTIPLE_RESOURCE)
+                    || dataP[i].type == LWM2M_TYPE_OBJECT_INSTANCE
+                    || dataP[i].type == LWM2M_TYPE_MULTIPLE_RESOURCE)
             {
                 int childLen;
 
@@ -750,10 +755,10 @@ static int prv_dataStrip(int size,
     return realSize;
 }
 
-int json_parse(lwm2m_uri_t * uriP,
-               uint8_t * buffer,
+int json_parse(lwm2m_uri_t *uriP,
+               uint8_t *buffer,
                size_t bufferLen,
-               lwm2m_data_t ** dataP)
+               lwm2m_data_t **dataP)
 {
     size_t index;
     int count = 0;
@@ -762,8 +767,8 @@ int json_parse(lwm2m_uri_t * uriP,
     bool btFound = false;
     int bnStart;
     int bnLen;
-    _record_t * recordArray;
-    lwm2m_data_t * parsedP;
+    _record_t *recordArray;
+    lwm2m_data_t *parsedP;
 
     LOG_ARG("bufferLen: %d, buffer: \"%s\"", bufferLen, (char *)buffer);
     LOG_URI(uriP);
@@ -786,7 +791,7 @@ int json_parse(lwm2m_uri_t * uriP,
         {
             int recordIndex;
 
-            if (bufferLen-index < JSON_MIN_ARRAY_LEN) goto error;
+            if (bufferLen - index < JSON_MIN_ARRAY_LEN) goto error;
             index++;
             if (buffer[index] != '"') goto error;
             if (eFound == true) goto error;
@@ -799,7 +804,7 @@ int json_parse(lwm2m_uri_t * uriP,
             _GO_TO_NEXT_CHAR(index, buffer, bufferLen);
             count = prv_countItems(buffer + index, bufferLen - index);
             if (count <= 0) goto error;
-            recordArray = (_record_t*)lwm2m_malloc(count * sizeof(_record_t));
+            recordArray = (_record_t *)lwm2m_malloc(count * sizeof(_record_t));
             if (recordArray == NULL) goto error;
             // at this point we are sure buffer[index] is '{' and all { and } are matching
             recordIndex = 0;
@@ -824,7 +829,7 @@ int json_parse(lwm2m_uri_t * uriP,
                     break;
                 case ']':
                     if (recordIndex == count) break;
-                    // else this is an error
+                // else this is an error
                 default:
                     goto error;
                 }
@@ -834,7 +839,7 @@ int json_parse(lwm2m_uri_t * uriP,
         break;
 
         case 'b':
-            if (bufferLen-index < JSON_MIN_BX_LEN) goto error;
+            if (bufferLen - index < JSON_MIN_BX_LEN) goto error;
             index++;
             switch (buffer[index])
             {
@@ -852,31 +857,31 @@ int json_parse(lwm2m_uri_t * uriP,
                 // end temp
                 break;
             case 'n':
-                {
-                    int next;
-                    int tokenStart;
-                    int tokenLen;
-                    int itemLen;
+            {
+                int next;
+                int tokenStart;
+                int tokenLen;
+                int itemLen;
 
-                    index++;
-                    if (buffer[index] != '"') goto error;
-                    if (bnFound == true) goto error;
-                    bnFound = true;
-                    index -= 3;
-                    itemLen = 0;
-                    while (buffer[index + itemLen] != '}'
+                index++;
+                if (buffer[index] != '"') goto error;
+                if (bnFound == true) goto error;
+                bnFound = true;
+                index -= 3;
+                itemLen = 0;
+                while (buffer[index + itemLen] != '}'
                         && buffer[index + itemLen] != ','
                         && index + itemLen < bufferLen)
-                    {
-                        itemLen++;
-                    }
-                    if (index + itemLen == bufferLen) goto error;
-                    next = prv_split(buffer+index, itemLen, &tokenStart, &tokenLen, &bnStart, &bnLen);
-                    if (next < 0) goto error;
-                    bnStart += index;
-                    index += next - 1;
+                {
+                    itemLen++;
                 }
-                break;
+                if (index + itemLen == bufferLen) goto error;
+                next = prv_split(buffer + index, itemLen, &tokenStart, &tokenLen, &bnStart, &bnLen);
+                if (next < 0) goto error;
+                bnStart += index;
+                index += next - 1;
+            }
+            break;
             default:
                 goto error;
             }
@@ -887,15 +892,16 @@ int json_parse(lwm2m_uri_t * uriP,
         }
 
         _GO_TO_NEXT_CHAR(index, buffer, bufferLen);
-    } while (buffer[index] == ',');
+    }
+    while (buffer[index] == ',');
 
     if (buffer[index] != '}') goto error;
 
     if (eFound == true)
     {
         lwm2m_uri_t baseURI;
-        lwm2m_uri_t * baseUriP;
-        lwm2m_data_t * resultP;
+        lwm2m_uri_t *baseUriP;
+        lwm2m_data_t *resultP;
         int size;
 
         memset(&baseURI, 0, sizeof(lwm2m_uri_t));
@@ -911,8 +917,8 @@ int json_parse(lwm2m_uri_t * uriP,
 
             // Check for " around URI
             if (bnLen < 3
-             || buffer[bnStart] != '"'
-             || buffer[bnStart+bnLen-1] != '"')
+                    || buffer[bnStart] != '"'
+                    || buffer[bnStart + bnLen - 1] != '"')
             {
                 goto error;
             }
@@ -952,7 +958,7 @@ int json_parse(lwm2m_uri_t * uriP,
                 // be permissive and allow full object JSON when requesting for a single instance
                 for (i = 0 ; i < (int)parsedP->value.asChildren.count && resultP == NULL; i++)
                 {
-                    lwm2m_data_t * targetP;
+                    lwm2m_data_t *targetP;
 
                     targetP = parsedP->value.asChildren.array + i;
                     if (targetP->id == uriP->instanceId)
@@ -964,12 +970,12 @@ int json_parse(lwm2m_uri_t * uriP,
                 if (resultP == NULL) goto error;
                 if (LWM2M_URI_IS_SET_RESOURCE(uriP))
                 {
-                    lwm2m_data_t * resP;
+                    lwm2m_data_t *resP;
 
                     resP = NULL;
                     for (i = 0 ; i < size && resP == NULL; i++)
                     {
-                        lwm2m_data_t * targetP;
+                        lwm2m_data_t *targetP;
 
                         targetP = resultP + i;
                         if (targetP->id == uriP->resourceId)
@@ -1001,7 +1007,7 @@ int json_parse(lwm2m_uri_t * uriP,
 
         if (parsedP != NULL)
         {
-            lwm2m_data_t * tempP;
+            lwm2m_data_t *tempP;
 
             size = prv_dataStrip(size, resultP, &tempP);
             if (size <= 0) goto error;
@@ -1029,8 +1035,8 @@ error:
     return -1;
 }
 
-static int prv_serializeValue(lwm2m_data_t * tlvP,
-                              uint8_t * buffer,
+static int prv_serializeValue(lwm2m_data_t *tlvP,
+                              uint8_t *buffer,
                               size_t bufferLen)
 {
     int res;
@@ -1119,7 +1125,7 @@ static int prv_serializeValue(lwm2m_data_t * tlvP,
         memcpy(buffer, JSON_ITEM_STRING_BEGIN, JSON_ITEM_STRING_BEGIN_SIZE);
         head = JSON_ITEM_STRING_BEGIN_SIZE;
 
-        res = utils_base64Encode(tlvP->value.asBuffer.buffer, tlvP->value.asBuffer.length, buffer+head, bufferLen - head);
+        res = utils_base64Encode(tlvP->value.asBuffer.buffer, tlvP->value.asBuffer.length, buffer + head, bufferLen - head);
         if (res == 0) return -1;
         head += res;
 
@@ -1139,10 +1145,10 @@ static int prv_serializeValue(lwm2m_data_t * tlvP,
     return head;
 }
 
-int prv_serializeData(lwm2m_data_t * tlvP,
-                      uint8_t * parentUriStr,
+int prv_serializeData(lwm2m_data_t *tlvP,
+                      uint8_t *parentUriStr,
                       size_t parentUriLen,
-                      uint8_t * buffer,
+                      uint8_t *buffer,
                       size_t bufferLen)
 {
     int head;
@@ -1211,11 +1217,11 @@ int prv_serializeData(lwm2m_data_t * tlvP,
     return head;
 }
 
-static int prv_findAndCheckData(lwm2m_uri_t * uriP,
+static int prv_findAndCheckData(lwm2m_uri_t *uriP,
                                 uri_depth_t level,
                                 size_t size,
-                                lwm2m_data_t * tlvP,
-                                lwm2m_data_t ** targetP)
+                                lwm2m_data_t *tlvP,
+                                lwm2m_data_t **targetP)
 {
     size_t index;
     int result;
@@ -1353,10 +1359,10 @@ static int prv_findAndCheckData(lwm2m_uri_t * uriP,
     return result;
 }
 
-int json_serialize(lwm2m_uri_t * uriP,
+int json_serialize(lwm2m_uri_t *uriP,
                    int size,
-                   lwm2m_data_t * tlvP,
-                   uint8_t ** bufferP)
+                   lwm2m_data_t *tlvP,
+                   uint8_t **bufferP)
 {
     int index;
     size_t head;
@@ -1365,7 +1371,7 @@ int json_serialize(lwm2m_uri_t * uriP,
     int baseUriLen;
     uri_depth_t rootLevel;
     int num;
-    lwm2m_data_t * targetP;
+    lwm2m_data_t *targetP;
 
     LOG_ARG("size: %d", size);
     LOG_URI(uriP);
@@ -1378,16 +1384,16 @@ int json_serialize(lwm2m_uri_t * uriP,
     if (num < 0) return -1;
 
     while (num == 1
-        && (targetP->type == LWM2M_TYPE_OBJECT
-         || targetP->type == LWM2M_TYPE_OBJECT_INSTANCE
-         || targetP->type == LWM2M_TYPE_MULTIPLE_RESOURCE))
+            && (targetP->type == LWM2M_TYPE_OBJECT
+                || targetP->type == LWM2M_TYPE_OBJECT_INSTANCE
+                || targetP->type == LWM2M_TYPE_MULTIPLE_RESOURCE))
     {
         int res;
 
         res = utils_intToText(targetP->id, baseUriStr + baseUriLen, URI_MAX_STRING_LEN - baseUriLen);
         if (res <= 0) return 0;
         baseUriLen += res;
-        if (baseUriLen >= URI_MAX_STRING_LEN -1) return 0;
+        if (baseUriLen >= URI_MAX_STRING_LEN - 1) return 0;
         num = targetP->value.asChildren.count;
         targetP = targetP->value.asChildren.array;
         baseUriStr[baseUriLen] = '/';

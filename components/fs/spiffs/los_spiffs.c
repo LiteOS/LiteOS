@@ -94,9 +94,9 @@ static int spiffs_flags_get (int oflags)
     return flags;
 }
 
-static int spiffs_op_open (struct file * file, const char * path_in_mp, int flags)
+static int spiffs_op_open (struct file *file, const char *path_in_mp, int flags)
 {
-    spiffs             * fs = (spiffs *) file->f_mp->m_data;
+    spiffs              *fs = (spiffs *) file->f_mp->m_data;
     spiffs_file          s_file;
 
     s_file = SPIFFS_open (fs, path_in_mp, spiffs_flags_get (flags), 0);
@@ -111,7 +111,7 @@ static int spiffs_op_open (struct file * file, const char * path_in_mp, int flag
     return 0;
 }
 
-static spiffs_file spifd_from_file (struct file * file)
+static spiffs_file spifd_from_file (struct file *file)
 {
     return (spiffs_file) (uintptr_t) file->f_data;
 }
@@ -119,58 +119,58 @@ static spiffs_file spifd_from_file (struct file * file)
 static int spiffs_op_close (struct file *file)
 {
     spiffs_file  s_file = spifd_from_file (file);
-    spiffs     * fs     = (spiffs *) file->f_mp->m_data;
+    spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return (SPIFFS_close (fs, s_file) == SPIFFS_OK) ? LOS_OK : LOS_NOK;
 }
 
-static ssize_t spiffs_op_read (struct file *file, char * buff, size_t bytes)
+static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 {
     spiffs_file  s_file = spifd_from_file (file);
-    spiffs     * fs     = (spiffs *) file->f_mp->m_data;
+    spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_read (fs, s_file, buff, bytes);
 }
 
-static ssize_t spiffs_op_write (struct file *file, const char * buff, size_t bytes)
+static ssize_t spiffs_op_write (struct file *file, const char *buff, size_t bytes)
 {
     spiffs_file  s_file = spifd_from_file (file);
-    spiffs     * fs     = (spiffs *) file->f_mp->m_data;
+    spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_write (fs, s_file, (void *) buff, bytes);
 }
 
-static off_t spiffs_op_lseek (struct file * file, off_t off, int whence)
+static off_t spiffs_op_lseek (struct file *file, off_t off, int whence)
 {
     spiffs_file  s_file = spifd_from_file (file);
-    spiffs     * fs     = (spiffs *) file->f_mp->m_data;
+    spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_lseek (fs, s_file, off, whence);
 }
 
-static int spiffs_op_unlink (struct mount_point * mp, const char * path_in_mp)
+static int spiffs_op_unlink (struct mount_point *mp, const char *path_in_mp)
 {
     return SPIFFS_remove ((spiffs *) mp->m_data, path_in_mp);
 }
 
-static int spiffs_op_rename (struct mount_point * mp, const char * path_in_mp_old,
-                          const char * path_in_mp_new)
+static int spiffs_op_rename (struct mount_point *mp, const char *path_in_mp_old,
+                             const char *path_in_mp_new)
 {
     return SPIFFS_rename ((spiffs *) mp->m_data, path_in_mp_old, path_in_mp_new);
 }
 
-static int spiffs_op_sync (struct file * file)
+static int spiffs_op_sync (struct file *file)
 {
     spiffs_file  s_file = spifd_from_file (file);
-    spiffs     * fs     = (spiffs *) file->f_mp->m_data;
+    spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_fflush (fs, s_file);
 }
 
-static int spiffs_op_opendir (struct dir * dir, const char * path)
+static int spiffs_op_opendir (struct dir *dir, const char *path)
 {
-    spiffs     * fs     = (spiffs *) dir->d_mp->m_data;
-    spiffs_DIR * sdir;
+    spiffs      *fs     = (spiffs *) dir->d_mp->m_data;
+    spiffs_DIR *sdir;
 
     sdir = (spiffs_DIR *) malloc (sizeof (spiffs_DIR));
 
@@ -193,7 +193,7 @@ static int spiffs_op_opendir (struct dir * dir, const char * path)
     return LOS_OK;
 }
 
-int spiffs_op_readdir (struct dir * dir, struct dirent * dent)
+int spiffs_op_readdir (struct dir *dir, struct dirent *dent)
 {
     struct spiffs_dirent e;
 
@@ -218,9 +218,9 @@ int spiffs_op_readdir (struct dir * dir, struct dirent * dent)
     return LOS_OK;
 }
 
-static int spiffs_op_closedir (struct dir * dir)
+static int spiffs_op_closedir (struct dir *dir)
 {
-    spiffs_DIR * sdir = (spiffs_DIR *) dir->d_data;
+    spiffs_DIR *sdir = (spiffs_DIR *) dir->d_data;
 
     SPIFFS_closedir (sdir);
 
@@ -255,18 +255,18 @@ static struct file_system spiffs_fs =
     0
 };
 
-int spiffs_mount (const char * path, u32_t phys_addr, u32_t phys_size,
+int spiffs_mount (const char *path, u32_t phys_addr, u32_t phys_size,
                   u32_t phys_erase_block, u32_t log_block_size,
                   u32_t log_page_size,
                   s32_t (*spi_rd) (struct spiffs_t *, u32_t, u32_t, u8_t *),
                   s32_t (*spi_wr) (struct spiffs_t *, u32_t, u32_t, u8_t *),
                   s32_t (*spi_er) (struct spiffs_t *, u32_t, u32_t))
 {
-    spiffs        * fs;
+    spiffs         *fs;
     spiffs_config   c;
-    u8_t          * wbuf;
-    u8_t          * fds;
-    u8_t          * cache;
+    u8_t           *wbuf;
+    u8_t           *fds;
+    u8_t           *cache;
     int             ret = -1;
 
 #define LOS_SPIFFS_FD_SIZE      (sizeof (spiffs_fd) * 8)

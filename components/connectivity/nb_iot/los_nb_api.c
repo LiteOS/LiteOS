@@ -50,7 +50,10 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     LOS_TaskDelay(2000);
     if(psk != NULL)//encryption v1.9
     {
-        nb_send_psk(psk->pskid, psk->psk);
+        if(psk->setpsk)
+            nb_send_psk(psk->pskid, psk->psk);
+        else
+            nb_set_no_encrypt();
     }
 
     while(1)
@@ -66,7 +69,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 	while(timecnt < 120)
 	{
 		ret = nb_get_netstat();
-		//nb_check_csq();
+		nb_check_csq();
 		if(ret != AT_FAILED)
 		{
 			ret = nb_query_ip();

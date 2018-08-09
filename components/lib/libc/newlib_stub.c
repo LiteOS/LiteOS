@@ -104,12 +104,12 @@ _off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
     return los_lseek (fd, pos, whence);
 }
 
-int closedir (struct dir * dir)
+int closedir (struct dir *dir)
 {
     return los_closedir (dir);
 }
 
-struct dir * opendir (const char * path)
+struct dir *opendir (const char *path)
 {
     return los_opendir (path);
 }
