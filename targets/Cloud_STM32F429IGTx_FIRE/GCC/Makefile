@@ -100,8 +100,7 @@ CMSIS_SRC =  \
         C_SOURCES += $(CMSIS_SRC)
 
 ARCH_SRC =  \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c} \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/*.c}
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c}
         C_SOURCES += $(ARCH_SRC)
 
 HAL_DRIVER_SRC =  \
@@ -225,9 +224,7 @@ ASM_SOURCES_s =  \
         ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
 
 ASM_SOURCES_S =  \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S} \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_hw_exc_gcc.S}
-
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
 
 ######################################
 # firmware library
@@ -303,8 +300,7 @@ CMSIS_INC = \
 
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
-        -I $(TOP_DIR)/arch/arm/common/cmsis \
-        -I $(TOP_DIR)/arch/arm/arm-m/cortex-m4
+        -I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(ARCH_INC)
 
 HAL_DRIVER_INC = \
