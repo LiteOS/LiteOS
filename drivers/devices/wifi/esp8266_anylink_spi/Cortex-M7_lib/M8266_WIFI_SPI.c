@@ -367,24 +367,10 @@ uint8_t m8266wifi_verify_connect_func(connection_params_struct *plink)
             print_log("query params of test connecton failed");
         }
 
-#if 0
-        m8266wifi_module_delay_ms(5000);
+        test_connect_func_flag = 0;
+        link_occupied_flag_arrary[link_no].busy_flag = 0;
+        print_log("delete test spi connection OK");
 
-        ret = M8266WIFI_SPI_Delete_Connection(TEST_REMOTE_LINK_NO , &test_status);
-
-        if( ret == 0 )
-        {
-            print_log("delete test spi connection failed and status is 0x%x" , test_status);
-            return 0;
-        }
-        else
-#endif
-
-        {
-            test_connect_func_flag = 0;
-            link_occupied_flag_arrary[link_no].busy_flag = 0;
-            print_log("delete test spi connection OK");
-        }
     }
 
     return ret;
