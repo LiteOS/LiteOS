@@ -244,7 +244,7 @@ static void prv_handleRegistrationReply(lwm2m_transaction_t *transacP,
             }
             targetP->location = coap_get_multi_option_as_string(packet->location_path);
 
-            LOG_ARG("Registration successful,location_path is %s", targetP->location);
+            LOG("Registration successful");
         }
         else
         {

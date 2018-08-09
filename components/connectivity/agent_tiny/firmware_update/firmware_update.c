@@ -158,7 +158,7 @@ static void firmware_download_reply(lwm2m_transaction_t *transacP,
         ATINY_LOG(LOG_ERR, "g_firmware_update_notify FIRMWARE_UPDATE_RST_SUCCESS, write end ret %d", ret);
         if(g_firmware_update_notify)
             g_firmware_update_notify((ret == ATINY_OK) ?  FIRMWARE_UPDATE_RST_SUCCESS : FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);
-        ATINY_LOG(LOG_ERR, "download %s success, total size : %lu, write end ret %d", g_fw_update_record.uri, len, ret);
+        ATINY_LOG(LOG_ERR, "download success, total size : %lu, write end ret %d", len, ret);
     }
     return;
 failed_exit:
@@ -290,7 +290,7 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
         ATINY_LOG(LOG_ERR, "invalid params");
         return -1;
     }
-    ATINY_LOG(LOG_ERR, "start download %s", uri);
+    ATINY_LOG(LOG_ERR, "start download");
     g_fota_storage_device = storage_device_p;
     uri_len = strlen(uri);
     server = registration_get_registered_server(contextP);
