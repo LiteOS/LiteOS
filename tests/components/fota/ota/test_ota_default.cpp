@@ -37,6 +37,7 @@
 #include "ota_default.h"
 #include "adapter_layer.h"
 #include "ota_sha256.h"
+#include <stdint.h>
 
 #define OTA_IMAGE_INTEGRITY_LENGTH 32
 
