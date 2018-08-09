@@ -449,8 +449,6 @@ void mqtt_message_arrived(MessageData *md)
     message = md->message;
     topic = md->topicName;
 
-    ATINY_LOG(LOG_DEBUG, "[%s] %.*s : %.*s", md->topic_sub, topic->lenstring.len, topic->lenstring.data, message->payloadlen, (char *)message->payload);
-
     for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
     {
         if(NULL != interest_uris[i].uri && NULL != interest_uris[i].cb)
@@ -501,7 +499,6 @@ int mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t inte
         }
         if(client->mutex) atiny_mutex_unlock(client->mutex);
         rc = MQTTSubscribe(client, interest_uris[i].uri, (enum QoS)interest_uris[i].qos, mqtt_message_arrived);
-        ATINY_LOG(LOG_DEBUG, "MQTTSubscribe %s[%d]", interest_uris[i].uri, rc);
         if(rc != 0)
         {
             rc = ATINY_SOCKET_ERROR;
@@ -751,7 +748,6 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
             ATINY_LOG(LOG_INFO, "reconnect delay : %d", conn_failed_cnt);
             (void)LOS_TaskDelay(MQTT_CONN_FAILED_BASE_DELAY << conn_failed_cnt);
         }
-        ATINY_LOG(LOG_DEBUG, "tcp connect to %s:%s", atiny_params->server_ip, atiny_params->server_port);
         rc = NetworkConnect(&n, atiny_params->server_ip, atoi(atiny_params->server_port));
         ATINY_LOG(LOG_DEBUG, "NetworkConnect : %d", rc);
         if(rc != 0)
@@ -761,7 +757,7 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
             continue;
         }
 
-        ATINY_LOG(LOG_DEBUG, "Send mqtt CONNECT to %s:%s", atiny_params->server_ip, atiny_params->server_port);
+        ATINY_LOG(LOG_DEBUG, "Send mqtt CONNECT to broker");
         rc = MQTTConnect(client, &data);
         ATINY_LOG(LOG_DEBUG, "CONNACK : %d", rc);
         if(0 != rc)
