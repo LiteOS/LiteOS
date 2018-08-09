@@ -145,6 +145,8 @@ int atiny_param_dup(atiny_param_t *dest, atiny_param_t *src)
         dest->u.psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->u.psk.psk_id));
         if(NULL == dest->u.psk.psk_id)
             goto atiny_param_dup_failed;
+        if(src->u.psk.psk_len < 0 || src->u.psk.psk_len > MQTT_PSK_MAX_LEN)
+            goto atiny_param_dup_failed;
         dest->u.psk.psk = (unsigned char *)atiny_malloc(src->u.psk.psk_len);
         if(NULL == dest->u.psk.psk)
             goto atiny_param_dup_failed;
