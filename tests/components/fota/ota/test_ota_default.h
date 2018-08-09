@@ -37,6 +37,7 @@
 
 #include <cpptest.h>
 #include "stub.h"
+#include <stdint.h>
 
 extern int test_hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
 extern int test_hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
