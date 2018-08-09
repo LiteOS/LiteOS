@@ -172,7 +172,7 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
     atiny_fota_storage_device_s *device = NULL;
 #endif
     int result;
-    
+
     result = atiny_init_rpt();
     if (result != ATINY_OK)
     {
@@ -595,6 +595,13 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
         ATINY_LOG(LOG_FATAL, "memory not enough");
         return ATINY_MALLOC_FAILED;
     }
+/*
+#ifdef WITH_DTLS
+   ATINY_LOG(LOG_INFO, "security device, endpoint_name is %s\n", device_info->endpoint_name);
+#else
+    ATINY_LOG(LOG_INFO, "non security device, endpoint_name is %s\n", device_info->endpoint_name);
+#endif
+*/
 
     while (!handle->atiny_quit)
     {

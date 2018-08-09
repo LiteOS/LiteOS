@@ -74,13 +74,13 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
     dtls_rsa->len = FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN;
     if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != FOTA_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string %s", key->rsa_N);
+        FOTA_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 
     if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != FOTA_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string %s", key->rsa_N);
+        FOTA_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 

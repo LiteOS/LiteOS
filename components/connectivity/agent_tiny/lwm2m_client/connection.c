@@ -109,7 +109,7 @@ connection_t *connection_create(connection_t *connList,
         return NULL;
     }
 
-    ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
+    //ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
 
     // parse uri in the form "coaps://[host]:[port]"
 
