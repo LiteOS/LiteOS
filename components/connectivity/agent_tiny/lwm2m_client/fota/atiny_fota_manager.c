@@ -123,7 +123,7 @@ int atiny_fota_manager_start_download(atiny_fota_manager_s *thi, const char *uri
     }
     memcpy(thi->pkg_uri, uri, len);
     thi->pkg_uri[len] = '\0';
-    ATINY_LOG(LOG_INFO, "start download %s", thi->pkg_uri);
+    ATINY_LOG(LOG_INFO, "start download");
     return thi->current->start_download(thi->current, thi->pkg_uri);
 }
 int atiny_fota_manager_execute_update(atiny_fota_manager_s *thi)

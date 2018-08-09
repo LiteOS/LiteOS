@@ -153,18 +153,18 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
 
     if (ctx->fd < 0)
     {
-        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        SOCKET_LOG("unkown host or port");
         atiny_free(ctx);
         return NULL;
     }
 
     if (proto == ATINY_PROTO_UDP)
     {
-        SOCKET_LOG("UDP create socket and bind to server(%s:%s) finished", host, port);
+        SOCKET_LOG("UDP create socket and bind to server finished");
     }
     else /* proto == ATINY_PROTO_TCP */
     {
-        SOCKET_LOG("TCP connect to server(%s:%s) succeed", host, port);
+        SOCKET_LOG("TCP connect to server succeed");
     }
 #elif defined(WITH_AT_FRAMEWORK)
     ctx = atiny_malloc(sizeof(atiny_net_context));
@@ -177,7 +177,7 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
     ctx->fd = at_api_connect(host, port, proto);
     if (ctx->fd < 0)
     {
-        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        SOCKET_LOG("unkown host or port");
         atiny_free(ctx);
         ctx = NULL;
     }
@@ -192,7 +192,7 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
     ctx->fd = wiznet_connect(host, port, proto);
     if (ctx->fd < 0)
     {
-        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        SOCKET_LOG("unkown host or port");
         atiny_free(ctx);
         ctx = NULL;
     }
