@@ -35,7 +35,6 @@
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "los_nb_api.h"
 #include "at_api_interface.h"
-//#include "atiny_socket.h"
 #include "bc95.h"
 
 int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
@@ -51,9 +50,9 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     if(psk != NULL)//encryption v1.9
     {
         if(psk->setpsk)
-            nb_send_psk(psk->pskid, psk->psk);
+            (void)nb_send_psk(psk->pskid, psk->psk);
         else
-            nb_set_no_encrypt();
+            (void)nb_set_no_encrypt();
     }
 
     while(1)
@@ -61,7 +60,6 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
         ret = nb_hw_detect();
         if(ret == AT_OK)
             break;
-        //LOS_TaskDelay(1000);
     }
     //nb_get_auto_connect();
     //nb_connect(NULL, NULL, NULL);
@@ -69,7 +67,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 	while(timecnt < 120)
 	{
 		ret = nb_get_netstat();
-		nb_check_csq();
+		(void)nb_check_csq();
 		if(ret != AT_FAILED)
 		{
 			ret = nb_query_ip();

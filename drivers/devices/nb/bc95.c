@@ -106,7 +106,7 @@ int32_t nb_set_cdpserver(char* host, char* port)
 int32_t nb_send_psk(char* pskid, char* psk)
 {
     char* cmds = "AT+QSECSWT";//AT+QSECSWT=1,100    OK
-    char* cmdp = "AT+QSETPSK";//AT+QSETPSK=86775942,E6F4C799   OK
+    char* cmdp = "AT+QSETPSK";//AT+QSETPSK=88888888,EEEE8888   OK
     sprintf(wbuf, "%s=%d,%d\r", cmds, 1, 100);//min
     at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
     snprintf(wbuf, AT_DATA_LEN, "%s=%s,%s\r", cmdp, pskid, psk);
@@ -205,7 +205,6 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
     snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmd, port);//udp
 	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf);
 	sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
-	//neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
     if (socket >= 0)
     {
         return socket;
@@ -222,7 +221,7 @@ int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
     }
     AT_LOG("entry!");
 
-    //process data frame ,like +NSONMI:linkid,len
+    //process data frame ,like +NNMI:len,buf
     int32_t ret = -1;
     int32_t sockid = 0, data_len = 0;
     char * p1, *p2;
@@ -310,7 +309,6 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 {
 	char *cmd = "AT+NSOST=";
-	//char *str = "AT+NMGS192.53.100.53,5683,1,11\r";
 	int data_len = len/2;
     if(buf == NULL || data_len > AT_MAX_PAYLOADLEN)
     {

@@ -63,22 +63,21 @@ VOID main_task(VOID)
 #if AT_DTLS
     sec_param_s sec;
     sec.setpsk = 1;
-    sec.pskid = "868744031131026";
-    sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
+    sec.pskid = "123456789123456";
+    sec.psk = "aabbccddeeffgghhiijjkkllasdfasdf";
 #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
 #if AT_DTLS
-    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5684", &sec);
+    los_nb_init((const int8_t *)"192.168.255.255", (const int8_t *)"5684", &sec);//cloud ip
 #else
-    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5683", NULL); //"139.159.140.34"
+    los_nb_init((const int8_t *)"192.168.255.255", (const int8_t *)"5683", NULL);
 #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
     //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
-    //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
