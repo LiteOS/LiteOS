@@ -26,7 +26,7 @@ uint8   *SRC_MAC_ADDR   = EXTERN_DHCP_MAC;				/*本地MAC地址*/
 uint8   *GET_SN_MASK    = EXTERN_DHCP_SN;					/*从DHCP服务器获取到的子网掩码*/
 uint8   *GET_GW_IP      = EXTERN_DHCP_GW;					/*从DHCP服务器获取到的网关地址*/
 uint8   *GET_DNS_IP     = EXTERN_DHCP_DNS;				/*从DHCP服务器获取到的DNS服务器地址*/
-uint8   *DHCP_HOST_NAME = EXTERN_DHCP_NAME;   		/*主机名*/
+uint8   *DHCP_HOST_NAME = (uint8 *)EXTERN_DHCP_NAME;   		/*主机名*/
 uint8   *GET_SIP        = EXTERN_DHCP_SIP;				/*从DHCP服务器获取到的本机IP*/
 uint8    DHCP_SIP[4] = {0,};											/*已发现的DNS服务器地址*/
 uint8    DHCP_REAL_SIP[4] = {0,}; 								/*从DHCP列表中选择使用的DHCP服务器*/
@@ -755,7 +755,7 @@ void init_dhcp_client(void)
     DHCP_XID = 0x12345678;
     memset(OLD_SIP, 0, sizeof(OLD_SIP));
     memset(DHCP_SIP, 0, sizeof(DHCP_SIP));
-    memset(DHCP_REAL_SIP, 0, sizeof(GET_SN_MASK));
+    memset(DHCP_REAL_SIP, 0, sizeof(DHCP_REAL_SIP));
 
     /*clear ip setted flag */
     iinchip_init();
