@@ -69,7 +69,7 @@ void net_init(void)
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
-    printf("lwip test init ok\n");
+    printf("lwip test init ok.\n");
     /* IP addresses initialization without DHCP (IPv4) */
     IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
