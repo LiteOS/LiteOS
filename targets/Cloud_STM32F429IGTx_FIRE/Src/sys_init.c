@@ -69,7 +69,7 @@ void net_init(void)
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
-    printf("lwip test init ok\n");
+    printf("lwip test init ok.\n");
     /* IP addresses initialization without DHCP (IPv4) */
     IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
@@ -92,23 +92,6 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
-#if    0
-#include "lwip/dhcp.h"
-    struct dhcp *dhcp;
-    dhcp_start(&gnetif);
-    while (1)
-    {
-        if (dhcp_supplied_address(&gnetif))
-        {
-            dhcp = netif_dhcp_data(&gnetif);
-            printf("IP address: %s\n", ip4addr_ntoa(&dhcp->offered_ip_addr));
-            printf("Subnet mask: %s\n", ip4addr_ntoa(&dhcp->offered_sn_mask));
-            printf("Default gateway: %s\n", ip4addr_ntoa(&dhcp->offered_gw_addr));
-            break;
-        }
-        LOS_TaskDelay(1000);
-    }
-#endif
 }
 
 uint32_t HAL_GetTick(void)
