@@ -31,48 +31,38 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-/* Define to prevent recursive inclusion ------------------------------------*/
-#ifndef __SOCKET_H__
-#define __SOCKET_H__
 
+#ifndef _BOARD_H_
+#define _BOARD_H_
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C"{
-#endif
-#endif /* __cplusplus */
+#include <stdint.h>
 
-/* Includes -----------------------------------------------------------------*/
-#include "types.h"
-
-/* Defines ------------------------------------------------------------------*/
-/* Macros -------------------------------------------------------------------*/
-/* Typedefs -----------------------------------------------------------------*/
-/* Extern variables ---------------------------------------------------------*/
-/* Functions API ------------------------------------------------------------*/
-
-uint8  socket(SOCKET s, uint8 protocol, uint16 port, uint8 flag); // Opens a socket(TCP or UDP or IP_RAW mode)
-void   close(SOCKET s); // Close socket
-uint8  connect(SOCKET s, uint8 * addr, uint16 port); // Establish TCP connection (Active connection)
-void   disconnect(SOCKET s); // disconnect the connection
-uint8  listen(SOCKET s);	// Establish TCP connection (Passive connection)
-uint16 send(SOCKET s, const uint8 * buf, uint16 len); // Send data (TCP)
-uint16 recv(SOCKET s, uint8 * buf, uint16 len);	// Receive data (TCP)
-uint16 sendto(SOCKET s, const uint8 * buf, uint16 len, uint8 * addr, uint16 port); // Send data (UDP/IP RAW)
-uint16 recvfrom(SOCKET s, uint8 * buf, uint16 len, uint8 * addr, uint16  *port); // Receive data (UDP/IP RAW)
-
-#ifdef __MACRAW__
-void   macraw_open(void);
-uint16 macraw_send( const uint8 * buf, uint16 len ); //Send data (MACRAW)
-uint16 macraw_recv( uint8 * buf, uint16 len ); //Recv data (MACRAW)
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
+// SPI flash address
+#define OTA_FLAG_ADDR1                0x00000000
+#define OTA_FLAG_ADDR2                0x00004000
+#define UPDATE_INFO_ADDR              0x00008000
+#define UPDATE_INFO_SIZE              0x00008000
+#define OTA_IMAGE_DOWNLOAD_ADDR       (UPDATE_INFO_ADDR + UPDATE_INFO_SIZE)
+#define OTA_IMAGE_DOWNLOAD_SIZE       0x00040000
+#define OTA_IMAGE_BCK_ADDR            (OTA_IMAGE_DOWNLOAD_ADDR + OTA_IMAGE_DOWNLOAD_SIZE)
 
-#ifdef __cplusplus
-#if __cplusplus
+// Built in flash address
+#define OTA_DEFAULT_IMAGE_ADDR        0x08020000
+
+int board_jump2app(void);
+int board_update_copy(int32_t old_image_len, int32_t new_image_len,
+                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                      int (*func_set_update_record)(uint8_t state, uint32_t offset));
+int board_rollback_copy(int32_t image_len,
+                        void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+                        int (*func_set_update_record)(uint8_t state, uint32_t offset));
+
+#if defined(__cplusplus)
 }
 #endif
-#endif /* __cplusplus */
 
-
-#endif /* __SOCKET_H__ */
+#endif /* _BOARD_H_*/
