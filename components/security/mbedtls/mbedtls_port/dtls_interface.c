@@ -206,7 +206,7 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
         goto exit_fail;
     }
 
-    MBEDTLS_LOG("connecting to udp/%s:%s", host, port);
+    MBEDTLS_LOG("connecting to udp");
 
     if (( server_fd = mbedtls_net_connect(host,
                                           port, MBEDTLS_NET_PROTO_UDP )) == NULL)
