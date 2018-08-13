@@ -146,7 +146,7 @@ int atiny_param_dup(atiny_param_t *dest, atiny_param_t *src)
         dest->u.psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->u.psk.psk_id));
         if(NULL == dest->u.psk.psk_id)
             goto atiny_param_dup_failed;
-        dest->u.psk.psk_id_len = strlen(src->u.psk.psk_id);
+        dest->u.psk.psk_id_len = strlen((const char *)(src->u.psk.psk_id));
         if(NULL == src->u.psk.psk || src->u.psk.psk_len < 0 || src->u.psk.psk_len > MQTT_PSK_MAX_LEN)
             goto atiny_param_dup_failed;
         dest->u.psk.psk = (unsigned char *)atiny_malloc(src->u.psk.psk_len);
@@ -204,8 +204,6 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
 void atiny_deinit(void *phandle)
 {
     handle_data_t *handle;
-    MQTTClient *client;
-    Network *network;
 
     if(NULL == phandle)
     {
@@ -213,8 +211,6 @@ void atiny_deinit(void *phandle)
         return;
     }
     handle = (handle_data_t *)phandle;
-    client = &(handle->client);
-    network = client->ipstack;
     if(0 == handle->atiny_quit)
     {
         handle->atiny_quit = 1;
@@ -674,20 +670,24 @@ int atiny_isconnected(void *phandle)
 int atiny_bind(atiny_device_info_t *device_info, void *phandle)
 {
     Network n;
-    handle_data_t *handle;
-    MQTTClient *client;
+    handle_data_t *handle = NULL;
+    MQTTClient *client = NULL;
     atiny_param_t *atiny_params;
     atiny_device_info_t *device_info_t;
     int rc = -1, conn_failed_cnt = 0;
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
 
-    if ((NULL == device_info) || (NULL == phandle))
+    if(NULL == phandle)
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
-        goto  atiny_bind_quit;
+        return ATINY_ARG_INVALID;
     }
 
-    if(NULL == device_info->client_id)
+    handle = (handle_data_t *)phandle;
+    client = &(handle->client);
+    atiny_params = &(handle->atiny_params);
+
+    if ((NULL == device_info) || (NULL == device_info->client_id))
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
         goto  atiny_bind_quit;
@@ -698,10 +698,6 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
         ATINY_LOG(LOG_FATAL, "Parameter null");
         goto  atiny_bind_quit;
     }
-
-    handle = (handle_data_t *)phandle;
-    client = &(handle->client);
-    atiny_params = &(handle->atiny_params);
 
     if(0 != device_info_dup(&(handle->device_info), device_info))
     {
