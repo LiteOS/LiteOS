@@ -62,6 +62,7 @@ typedef struct
     MQTTClient client;
     atiny_param_t atiny_params;
     char atiny_quit;
+    char bind_quit;
 } handle_data_t;
 
 static handle_data_t g_atiny_handle;
@@ -145,13 +146,13 @@ int atiny_param_dup(atiny_param_t *dest, atiny_param_t *src)
         dest->u.psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->u.psk.psk_id));
         if(NULL == dest->u.psk.psk_id)
             goto atiny_param_dup_failed;
-        if(src->u.psk.psk_len < 0 || src->u.psk.psk_len > MQTT_PSK_MAX_LEN)
+        dest->u.psk.psk_id_len = strlen((const char *)(src->u.psk.psk_id));
+        if(NULL == src->u.psk.psk || src->u.psk.psk_len < 0 || src->u.psk.psk_len > MQTT_PSK_MAX_LEN)
             goto atiny_param_dup_failed;
         dest->u.psk.psk = (unsigned char *)atiny_malloc(src->u.psk.psk_len);
         if(NULL == dest->u.psk.psk)
             goto atiny_param_dup_failed;
         memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
-        dest->u.psk.psk_id_len = src->u.psk.psk_id_len;
         dest->u.psk.psk_len = src->u.psk.psk_len;
         break;
     case CLOUD_SECURITY_TYPE_CA:
@@ -183,12 +184,18 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
         return ATINY_ARG_INVALID;
     }
 
+    while(1 == g_atiny_handle.bind_quit)
+    {
+        (void)LOS_TaskDelay(10);
+    }
+
     memset((void *)&g_atiny_handle, 0, sizeof(handle_data_t));
 
     if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
         return ATINY_MALLOC_FAILED;
 
     g_atiny_handle.atiny_quit = 0;
+    g_atiny_handle.bind_quit = 0;
     *phandle = &g_atiny_handle;
 
     return ATINY_OK;
@@ -197,8 +204,6 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
 void atiny_deinit(void *phandle)
 {
     handle_data_t *handle;
-    MQTTClient *client;
-    Network *network;
 
     if(NULL == phandle)
     {
@@ -206,18 +211,14 @@ void atiny_deinit(void *phandle)
         return;
     }
     handle = (handle_data_t *)phandle;
-    client = &(handle->client);
-    network = client->ipstack;
     if(0 == handle->atiny_quit)
     {
         handle->atiny_quit = 1;
-        atiny_param_member_free(&(handle->atiny_params));
-        if(client->mutex) atiny_mutex_lock(client->mutex);
-        device_info_member_free(&(handle->device_info));
-        if(client->mutex) atiny_mutex_unlock(client->mutex);
-        (void)MQTTDisconnect(client);
-        MQTTClientDeInit(client);
-        NetworkDisconnect(network);
+        while(0 == handle->bind_quit)
+        {
+            (void)LOS_TaskDelay(10);
+        }
+        handle->bind_quit = 0;
     }
 
     return;
@@ -618,6 +619,8 @@ int device_info_dup(atiny_device_info_t *dest, atiny_device_info_t *src)
         if(NULL == dest->will_options)
             goto device_info_dup_failed;
 
+        memset(dest->will_options, 0x0, sizeof(cloud_will_options_t));
+
         dest->will_options->topic_name = atiny_strdup((const char *)(src->will_options->topic_name));
         if(NULL == dest->will_options->topic_name)
             goto device_info_dup_failed;
@@ -667,26 +670,14 @@ int atiny_isconnected(void *phandle)
 int atiny_bind(atiny_device_info_t *device_info, void *phandle)
 {
     Network n;
-    handle_data_t *handle;
-    MQTTClient *client;
+    handle_data_t *handle = NULL;
+    MQTTClient *client = NULL;
     atiny_param_t *atiny_params;
     atiny_device_info_t *device_info_t;
     int rc = -1, conn_failed_cnt = 0;
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
 
-    if ((NULL == device_info) || (NULL == phandle))
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        return ATINY_ARG_INVALID;
-    }
-
-    if(NULL == device_info->client_id)
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        return ATINY_ARG_INVALID;
-    }
-
-    if(device_info->will_flag == MQTT_WILL_FLAG_TRUE && NULL == device_info->will_options)
+    if(NULL == phandle)
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
         return ATINY_ARG_INVALID;
@@ -696,10 +687,21 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
     client = &(handle->client);
     atiny_params = &(handle->atiny_params);
 
+    if ((NULL == device_info) || (NULL == device_info->client_id))
+    {
+        ATINY_LOG(LOG_FATAL, "Parameter null");
+        goto  atiny_bind_quit;
+    }
+
+    if(device_info->will_flag == MQTT_WILL_FLAG_TRUE && NULL == device_info->will_options)
+    {
+        ATINY_LOG(LOG_FATAL, "Parameter null");
+        goto  atiny_bind_quit;
+    }
+
     if(0 != device_info_dup(&(handle->device_info), device_info))
     {
-        atiny_deinit(phandle);
-        return ATINY_MALLOC_FAILED;
+        goto  atiny_bind_quit;
     }
     device_info_t = &(handle->device_info);
 
@@ -719,7 +721,7 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
         break;
     case CLOUD_SECURITY_TYPE_CA:
         ATINY_LOG(LOG_INFO, "CLOUD_SECURITY_TYPE_CA unsupported now" );
-        return ATINY_ARG_INVALID;
+        goto  atiny_bind_quit;
     default:
         ATINY_LOG(LOG_WARNING, "invalid security_typ : %d", atiny_params->security_type);
         break;
@@ -789,6 +791,13 @@ connect_again:
         data.cleansession = MQTT_CLEAN_SESSION_FALSE;
         ATINY_LOG(LOG_ERR, "connect_again");
     }
+atiny_bind_quit:
+    atiny_param_member_free(&(handle->atiny_params));
+    if(client->mutex) atiny_mutex_lock(client->mutex);
+    device_info_member_free(&(handle->device_info));
+    if(client->mutex) atiny_mutex_unlock(client->mutex);
+    MQTTClientDeInit(client);
+    handle->bind_quit = 1;
     return ATINY_OK;
 }
 
