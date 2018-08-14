@@ -44,45 +44,20 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     int timecnt = 0;
     if(host == NULL || port == NULL)
         return -1;
-    at.init();
+    nb_setip((char *)host, (char *)port);
+    nb_init();
 
-    nb_reboot();
-    LOS_TaskDelay(2000);
-    if(psk != NULL)//encryption v1.9
+    if(psk != NULL && 0)//encryption v1.9
     {
+        LOS_TaskDelay(2000);
+        nb_setpskbuf(psk->psk,psk->pskid);
         if(psk->setpsk)
-            nb_send_psk(psk->pskid, psk->psk);
+            at.cmd(NB_SETPSK);
         else
-            nb_set_no_encrypt();
+            at.cmd(NB_CLEANPSK);
     }
-
-    while(1)
-    {
-        ret = nb_hw_detect();
-        if(ret == AT_OK)
-            break;
-        //LOS_TaskDelay(1000);
-    }
-    //nb_get_auto_connect();
-    //nb_connect(NULL, NULL, NULL);
-
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		//LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		nb_query_ip();
-	}
-	ret = nb_set_cdpserver((char *)host, (char *)port);
+    at.cmd(NB_REBOOT);
+    ret = at.cmd(NB_INIT);
     return ret;
 }
 
@@ -90,7 +65,8 @@ int los_nb_report(const char* buf, int len)
 {
     if(buf == NULL || len <= 0)
         return -1;
-    return nb_send_payload(buf, len);
+    nb_setsnddata(buf, len);
+    return at.cmd(NB_SND);
 }
 
 int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)

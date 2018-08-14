@@ -48,7 +48,7 @@ int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
 int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener *p);
 void at_listner_list_del(at_listener *p);
-int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf);
+int32_t at_cmd(int index);
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback);
 
 void at_deinit();
@@ -72,6 +72,7 @@ at_task at =
 at_oob_t at_oob;
 char rbuf[AT_DATA_LEN] = {0};
 char wbuf[AT_DATA_LEN] = {0};
+at_cmd_t at_cmds[AT_PAR_MAX];
 
 //add p to tail;
 void at_listener_list_add(at_listener *p)
@@ -127,22 +128,46 @@ void store_resp_buf(int8_t *resp_buf, int8_t *buf, uint32_t len)
     strcat((char *)resp_buf, (char *)buf);
 }
 
-int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
+int32_t at_cmd(int index)//(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
 {
     at_listener listener;
     int ret = AT_FAILED;
+    int i = 0;
+    int trycnt = 0;
+    int cmdlen = 0;
+    at_param *used_cmd;
 
-    listener.suffix = (int8_t *)suffix;
-    listener.resp = (int8_t *)rep_buf;
-    AT_LOG("cmd:%s", cmd);
+    used_cmd = at_cmds[index].instance;
+    if(at_cmds[index].instance == NULL || at_cmds[index].cnt<=0)
+    {
+        AT_LOG("invalid cmd");
+        return AT_FAILED;
+    }
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
-    at_listener_list_add(&listener);
+    for(i=0;i<at_cmds[index].cnt;i++)
+    {
+        trycnt = 0;
+        listener.suffix = (int8_t *)used_cmd[i].expectret;
+        listener.resp = (int8_t*)used_cmd[i].outbuf;
+        memset(wbuf,0,AT_DATA_LEN);
+        cmdlen = strlen(used_cmd[i].inbuf);
+        memcpy(wbuf,used_cmd[i].inbuf,cmdlen);
 
-    at_transmit((uint8_t *)cmd, len, 1);
-    ret = LOS_SemPend(at.resp_sem, at.timeout);
+        at_listener_list_add(&listener);
 
-    at_listner_list_del(&listener);
+        while(trycnt < used_cmd[i].maxtry){
+            at_transmit((uint8_t*)wbuf, cmdlen,1);
+            //at_transmit((uint8_t*)used_cmd[i].inbuf, (int32_t)strlen(used_cmd[i].inbuf),1);
+            ret = LOS_SemPend(at.resp_sem, used_cmd[i].timeout);
+            if(ret != LOS_OK)
+                trycnt++;
+            else
+                trycnt = used_cmd[i].maxtry;
+        }
+        at_listner_list_del(&listener);
+    }
+
     LOS_MuxPost(at.cmd_mux);
 
     if (ret != LOS_OK)
@@ -453,6 +478,15 @@ int32_t at_struct_deinit(at_task *at)
     at->timeout = 0;
 
     return ret;
+}
+
+int32_t at_cmd_register(int index,      at_param *instance, int cnt)
+{
+    if(index >= AT_PAR_MAX || cnt <= 0 || instance == NULL)
+        return AT_FAILED;
+    at_cmds[index].instance = instance;
+    at_cmds[index].cnt = cnt;
+    return AT_OK;
 }
 
 void at_init()

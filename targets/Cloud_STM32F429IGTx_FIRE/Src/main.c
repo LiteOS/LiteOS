@@ -77,13 +77,13 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
     los_nb_report("22", 2);
-    los_nb_report("23", 1);
+    los_nb_report("23", 2);
     //los_nb_deinit();
 
 #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))

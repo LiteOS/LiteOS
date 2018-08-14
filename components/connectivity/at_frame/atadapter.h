@@ -129,7 +129,7 @@ typedef struct at_task{
 	uint32_t recv_sem;
 	uint32_t resp_sem;
 	uint32_t cmd_mux;
-	uint8_t  *recv_buf;  
+	uint8_t  *recv_buf;
 	uint8_t  *cmdresp;/*AT cmd response,default 512 bytes*/
 	uint8_t  *userdata;  /*data form servers,default 512 bytes*/
 	uint32_t  mux_mode;
@@ -138,7 +138,7 @@ typedef struct at_task{
 	uint32_t timeout; //command respond timeout
 
 	void    (*init)();
-	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
+	int32_t (*cmd)(int index);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* get unused linkid, use in multi connection mode*/
 	int32_t (*get_id)();
@@ -151,4 +151,24 @@ void* at_malloc(size_t size);
 void at_free(void* ptr);
 extern int at_update_result_send(void);
 extern uint16_t at_fota_timer;
+
+typedef int(*atfunc)(char* inbuf, char* outbuf, int payloadlen);
+typedef struct _at_param_t
+{
+    char* inbuf;
+    char* expectret;
+    int maxtry;
+    int sleeptime;
+    int timeout;
+    char* outbuf;
+    atfunc func;
+}at_param;
+
+typedef struct at_cmds_s
+{
+    at_param *instance;
+    int cnt;
+}at_cmd_t;
+int32_t at_cmd_register(int index,      at_param *instance, int cnt);
+#define AT_PAR_MAX 10
 #endif

@@ -66,14 +66,19 @@ typedef struct _remote_info_t
 }remote_info;//struct to save socket info
 
 int str_to_hex(const char *bufin, int len, char *bufout);
-int32_t nb_set_cdpserver(char* host, char* port);
-int32_t nb_hw_detect(void);
-int32_t nb_get_netstat(void);
-int nb_query_ip(void);
-int32_t nb_send_payload(const char* buf, int len);
-int32_t nb_check_csq(void);
-int32_t nb_send_psk(char* pskid, char* psk);
-int32_t nb_set_no_encrypt(void);
-int32_t nb_reboot(void);
-int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout);
+
+int32_t nb_init(void);
+void nb_setpskbuf(char *pskid, char *psk);
+void nb_setip(char *host, char *port);
+void nb_setsnddata(const char* buf, int len);
+typedef enum nb_par_s
+{
+NB_REBOOT=0,
+NB_INIT,
+NB_SETPSK,
+NB_CLEANPSK,
+NB_SND,
+NB_MAX
+}nb_par;
+extern at_cmd_t at_cmds[AT_PAR_MAX];
 #endif
