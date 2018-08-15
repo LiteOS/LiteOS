@@ -53,12 +53,12 @@
 #include "atiny_socket.h"
 
 
-void mbedtls_net_init(mbedtls_net_context* ctx)
+void mbedtls_net_init(mbedtls_net_context *ctx)
 {
     ctx->fd = -1;
 }
 
-void* mbedtls_net_connect(const char* host, const char* port, int proto)
+void *mbedtls_net_connect(const char *host, const char *port, int proto)
 {
     return atiny_net_connect(host, port, proto);
 }
@@ -68,7 +68,7 @@ void mbedtls_net_usleep(unsigned long usec)
     atiny_usleep(usec);
 }
 
-int mbedtls_net_recv(void* ctx, unsigned char* buf, size_t len)
+int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = atiny_net_recv(ctx, buf, len);
 
@@ -84,7 +84,7 @@ int mbedtls_net_recv(void* ctx, unsigned char* buf, size_t len)
     return ret;
 }
 
-int mbedtls_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
+int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                              uint32_t timeout)
 {
     int ret = atiny_net_recv_timeout(ctx, buf, len, timeout);
@@ -105,7 +105,7 @@ int mbedtls_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     return ret;
 }
 
-int mbedtls_net_send(void* ctx, const unsigned char* buf, size_t len)
+int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
 {
     int ret = atiny_net_send(ctx, buf, len);
 
@@ -121,7 +121,7 @@ int mbedtls_net_send(void* ctx, const unsigned char* buf, size_t len)
     return ret;
 }
 
-void mbedtls_net_free(mbedtls_net_context* ctx)
+void mbedtls_net_free(mbedtls_net_context *ctx)
 {
     atiny_net_close(ctx);
 }

@@ -65,14 +65,14 @@ int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, 
 
     switch ( type )
     {
-        case TOCKEN_INFO:
-            offset = OFFSET_BASE_TOCKEN_INFO;
-            break;
-        case FW_DOWNLOAD_INFO:
-            offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-            break;
-        default:
-            return -1;
+    case TOCKEN_INFO:
+        offset = OFFSET_BASE_TOCKEN_INFO;
+        break;
+    case FW_DOWNLOAD_INFO:
+        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
+        break;
+    default:
+        return -1;
     }
     return thi->device->write_update_info(thi->device, offset, info, len);
 }
@@ -86,14 +86,14 @@ int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, u
 
     switch ( type )
     {
-        case TOCKEN_INFO:
-            offset = OFFSET_BASE_TOCKEN_INFO;
-            break;
-        case FW_DOWNLOAD_INFO:
-            offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-            break;
-        default:
-            return -1;
+    case TOCKEN_INFO:
+        offset = OFFSET_BASE_TOCKEN_INFO;
+        break;
+    case FW_DOWNLOAD_INFO:
+        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
+        break;
+    default:
+        return -1;
     }
     return thi->device->read_update_info(thi->device, offset, info, len);
 }

@@ -769,7 +769,7 @@ EP
 Name就是在云平台上注册IMSI号，而PSK（预共享密钥）是用来加密传输的秘钥，agent_tiny_demo.c中示例如下：
 
 ```
-#define DEFAULT_SERVER_IPV4 "139.159.209.89"
+#define DEFAULT_SERVER_IPV4 "192.168.0.5"
 char * g_endpoint_name = "44440003"; 
 #ifdef WITH_DTLS 
 char *g_endpoint_name_s = "11110006"; 

@@ -31,13 +31,13 @@
 
 #ifdef LWM2M_CLIENT_MODE
 
-static lwm2m_attributes_t * prv_findAttributes(lwm2m_context_t * contextP,
-                                               lwm2m_uri_t * uriP,
-                                               lwm2m_server_t * serverP)
+static lwm2m_attributes_t *prv_findAttributes(lwm2m_context_t *contextP,
+        lwm2m_uri_t *uriP,
+        lwm2m_server_t *serverP)
 {
-    lwm2m_observed_t * observedP;
-    lwm2m_watcher_t * watcherP;
-    lwm2m_attributes_t * paramP;
+    lwm2m_observed_t *observedP;
+    lwm2m_watcher_t *watcherP;
+    lwm2m_attributes_t *paramP;
 
     paramP = NULL;
 
@@ -58,17 +58,17 @@ static lwm2m_attributes_t * prv_findAttributes(lwm2m_context_t * contextP,
     return paramP;
 }
 
-static int prv_serializeAttributes(lwm2m_context_t * contextP,
-                                   lwm2m_uri_t * uriP,
-                                   lwm2m_server_t * serverP,
-                                   lwm2m_attributes_t * objectParamP,
-                                   uint8_t * buffer,
+static int prv_serializeAttributes(lwm2m_context_t *contextP,
+                                   lwm2m_uri_t *uriP,
+                                   lwm2m_server_t *serverP,
+                                   lwm2m_attributes_t *objectParamP,
+                                   uint8_t *buffer,
                                    size_t uriLen,
                                    size_t bufferLen)
 {
     int head;
     int res;
-    lwm2m_attributes_t * paramP;
+    lwm2m_attributes_t *paramP;
 
     head = 0;
 
@@ -152,14 +152,14 @@ static int prv_serializeAttributes(lwm2m_context_t * contextP,
     return head;
 }
 
-static int prv_serializeLinkData(lwm2m_context_t * contextP,
-                                 lwm2m_data_t * tlvP,
-                                 lwm2m_server_t * serverP,
-                                 lwm2m_attributes_t * objectParamP,
-                                 lwm2m_uri_t * parentUriP,
-                                 uint8_t * parentUriStr,
+static int prv_serializeLinkData(lwm2m_context_t *contextP,
+                                 lwm2m_data_t *tlvP,
+                                 lwm2m_server_t *serverP,
+                                 lwm2m_attributes_t *objectParamP,
+                                 lwm2m_uri_t *parentUriP,
+                                 uint8_t *parentUriStr,
                                  size_t parentUriLen,
-                                 uint8_t * buffer,
+                                 uint8_t *buffer,
                                  size_t bufferLen)
 {
     int head;
@@ -286,12 +286,12 @@ static int prv_serializeLinkData(lwm2m_context_t * contextP,
     return head;
 }
 
-int discover_serialize(lwm2m_context_t * contextP,
-                       lwm2m_uri_t * uriP,
-                       lwm2m_server_t * serverP,
+int discover_serialize(lwm2m_context_t *contextP,
+                       lwm2m_uri_t *uriP,
+                       lwm2m_server_t *serverP,
                        int size,
-                       lwm2m_data_t * dataP,
-                       uint8_t ** bufferP)
+                       lwm2m_data_t *dataP,
+                       uint8_t **bufferP)
 {
     uint8_t bufferLink[PRV_LINK_BUFFER_SIZE];
     uint8_t baseUriStr[URI_MAX_STRING_LEN];
@@ -300,7 +300,7 @@ int discover_serialize(lwm2m_context_t * contextP,
     size_t head;
     int res;
     lwm2m_uri_t parentUri;
-    lwm2m_attributes_t * paramP;
+    lwm2m_attributes_t *paramP;
     lwm2m_attributes_t mergedParam;
 
     LOG_ARG("size: %d", size);
@@ -314,8 +314,8 @@ int discover_serialize(lwm2m_context_t * contextP,
     if (LWM2M_URI_IS_SET_RESOURCE(uriP))
     {
         lwm2m_uri_t tempUri;
-        lwm2m_attributes_t * objParamP;
-        lwm2m_attributes_t * instParamP;
+        lwm2m_attributes_t *objParamP;
+        lwm2m_attributes_t *instParamP;
 
         memset(&parentUri, 0, sizeof(lwm2m_uri_t));
         tempUri.objectId = uriP->objectId;
@@ -323,7 +323,7 @@ int discover_serialize(lwm2m_context_t * contextP,
 
         // get object level attributes
         objParamP = prv_findAttributes(contextP, &tempUri, serverP);
-        
+
         // get object instance level attributes
         tempUri.instanceId = uriP->instanceId;
         tempUri.flag = LWM2M_URI_FLAG_INSTANCE_ID;

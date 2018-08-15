@@ -56,8 +56,8 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
 
     key = fota_pack_head_get_key(rsa->head);
     if(NULL == key
-        || (NULL == key->rsa_E)
-        || (NULL == key->rsa_N))
+            || (NULL == key->rsa_E)
+            || (NULL == key->rsa_N))
     {
         FOTA_LOG("key null");
         return FOTA_ERR;
@@ -74,13 +74,13 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
     dtls_rsa->len = FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN;
     if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != FOTA_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string %s", key->rsa_N);
+        FOTA_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 
     if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != FOTA_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string %s", key->rsa_N);
+        FOTA_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 
@@ -93,7 +93,7 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
     mbedtls_sha256_finish(&rsa->sha256.sha256_context, real_sha256);
 
     if( mbedtls_rsa_pkcs1_verify(dtls_rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 0,
-                          real_sha256, checksum) != FOTA_OK)
+                                 real_sha256, checksum) != FOTA_OK)
     {
         FOTA_LOG("mbedtls_rsa_pkcs1_verify fail");
         goto EXIT;

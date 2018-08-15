@@ -13,7 +13,7 @@
  * Contributors:
  *    David Navarro, Intel Corporation - initial API and implementation
  *    Toby Jaffey - Please refer to git log
- *    
+ *
  *******************************************************************************/
 
 /*
@@ -53,9 +53,9 @@
 #include <float.h>
 
 
-int utils_textToInt(uint8_t * buffer,
+int utils_textToInt(uint8_t *buffer,
                     int length,
-                    int64_t * dataP)
+                    int64_t *dataP)
 {
     uint64_t result = 0;
     int sign = 1;
@@ -98,9 +98,9 @@ int utils_textToInt(uint8_t * buffer,
     return 1;
 }
 
-int utils_textToFloat(uint8_t * buffer,
+int utils_textToFloat(uint8_t *buffer,
                       int length,
-                      double * dataP)
+                      double *dataP)
 {
     double result;
     int sign;
@@ -163,7 +163,7 @@ int utils_textToFloat(uint8_t * buffer,
 }
 
 size_t utils_intToText(int64_t data,
-                       uint8_t * string,
+                       uint8_t *string,
                        size_t length)
 {
     int index;
@@ -183,10 +183,11 @@ size_t utils_intToText(int64_t data,
     index = length - 1;
     do
     {
-        string[index] = '0' + data%10;
+        string[index] = '0' + data % 10;
         data /= 10;
         index --;
-    } while (index >= 0 && data > 0);
+    }
+    while (index >= 0 && data > 0);
 
     if (data > 0) return 0;
 
@@ -211,7 +212,7 @@ size_t utils_intToText(int64_t data,
 }
 
 size_t utils_floatToText(double data,
-                         uint8_t * string,
+                         uint8_t *string,
                          size_t length)
 {
     size_t intLength;
@@ -262,7 +263,8 @@ size_t utils_floatToText(double data,
         {
             decPart *= 10;
             noiseFloor *= 10;
-        } while (decPart - (int64_t)decPart > noiseFloor);
+        }
+        while (decPart - (int64_t)decPart > noiseFloor);
 
         decLength = utils_intToText(decPart, string + intLength, length - intLength);
         if (decLength <= 1) return 0;
@@ -274,7 +276,7 @@ size_t utils_floatToText(double data,
     return intLength + decLength;
 }
 
-lwm2m_binding_t utils_stringToBinding(uint8_t * buffer,
+lwm2m_binding_t utils_stringToBinding(uint8_t *buffer,
                                       size_t length)
 {
     if (length == 0) return BINDING_UNKNOWN;
@@ -290,9 +292,9 @@ lwm2m_binding_t utils_stringToBinding(uint8_t * buffer,
             switch (buffer[1])
             {
             case 'Q':
-                 return BINDING_UQ;
+                return BINDING_UQ;
             case 'S':
-                 return BINDING_US;
+                return BINDING_US;
             default:
                 break;
             }
@@ -308,24 +310,24 @@ lwm2m_binding_t utils_stringToBinding(uint8_t * buffer,
         }
         break;
 
-        case 'S':
-            switch (length)
+    case 'S':
+        switch (length)
+        {
+        case 1:
+            return BINDING_S;
+        case 2:
+            if (buffer[1] == 'Q')
             {
-            case 1:
-                return BINDING_S;
-            case 2:
-                if (buffer[1] == 'Q')
-                {
-                    return BINDING_SQ;
-                }
-                break;
-            default:
-                break;
+                return BINDING_SQ;
             }
             break;
-
         default:
             break;
+        }
+        break;
+
+    default:
+        break;
     }
 
     return BINDING_UNKNOWN;
@@ -357,14 +359,14 @@ lwm2m_media_type_t utils_convertMediaType(coap_content_type_t type)
 }
 
 #ifdef LWM2M_CLIENT_MODE
-lwm2m_server_t * utils_findServer(lwm2m_context_t * contextP,
-                                  void * fromSessionH)
+lwm2m_server_t *utils_findServer(lwm2m_context_t *contextP,
+                                 void *fromSessionH)
 {
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
 
     targetP = contextP->serverList;
     while (targetP != NULL
-        && false == lwm2m_session_is_equal(targetP->sessionH, fromSessionH, contextP->userData))
+            && false == lwm2m_session_is_equal(targetP->sessionH, fromSessionH, contextP->userData))
     {
         targetP = targetP->next;
     }
@@ -374,16 +376,16 @@ lwm2m_server_t * utils_findServer(lwm2m_context_t * contextP,
 #endif
 
 #ifdef LWM2M_BOOTSTRAP
-lwm2m_server_t * utils_findBootstrapServer(lwm2m_context_t * contextP,
-                                           void * fromSessionH)
+lwm2m_server_t *utils_findBootstrapServer(lwm2m_context_t *contextP,
+        void *fromSessionH)
 {
 #ifdef LWM2M_CLIENT_MODE
 
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
 
     targetP = contextP->bootstrapServerList;
     while (targetP != NULL
-        && false == lwm2m_session_is_equal(targetP->sessionH, fromSessionH, contextP->userData))
+            && false == lwm2m_session_is_equal(targetP->sessionH, fromSessionH, contextP->userData))
     {
         targetP = targetP->next;
     }
@@ -398,7 +400,7 @@ lwm2m_server_t * utils_findBootstrapServer(lwm2m_context_t * contextP,
 }
 #endif
 
-int utils_isAltPathValid(const char * altPath)
+int utils_isAltPathValid(const char *altPath)
 {
     int i;
 
@@ -412,13 +414,13 @@ int utils_isAltPathValid(const char * altPath)
         if (altPath[i] == '/') return 0;
         // TODO: Check needs for sub-delims, ':' and '@'
         if ((altPath[i] < 'A' || altPath[i] > 'Z')      // ALPHA
-         && (altPath[i] < 'a' || altPath[i] > 'z')
-         && (altPath[i] < '0' || altPath[i] > '9')      // DIGIT
-         && (altPath[i] != '-')                         // Other unreserved
-         && (altPath[i] != '.')
-         && (altPath[i] != '_')
-         && (altPath[i] != '~')
-         && (altPath[i] != '%'))                        // pct_encoded
+                && (altPath[i] < 'a' || altPath[i] > 'z')
+                && (altPath[i] < '0' || altPath[i] > '9')      // DIGIT
+                && (altPath[i] != '-')                         // Other unreserved
+                && (altPath[i] != '.')
+                && (altPath[i] != '_')
+                && (altPath[i] != '~')
+                && (altPath[i] != '%'))                        // pct_encoded
         {
             return 0;
         }
@@ -429,9 +431,9 @@ int utils_isAltPathValid(const char * altPath)
 
 // copy a string in a buffer.
 // return the number of copied bytes or -1 if the buffer is not large enough
-int utils_stringCopy(char * buffer,
+int utils_stringCopy(char *buffer,
                      size_t length,
-                     const char * str)
+                     const char *str)
 {
     size_t i;
 
@@ -447,10 +449,10 @@ int utils_stringCopy(char * buffer,
     return (int)i;
 }
 
-void utils_copyValue(void * dst,
-                     const void * src,
+void utils_copyValue(void *dst,
+                     const void *src,
                      size_t len)
-{        
+{
 #ifdef LWM2M_BIG_ENDIAN
     memcpy(dst, src, len);
 #else
@@ -495,9 +497,9 @@ size_t utils_base64GetSize(size_t dataLen)
     return result_len;
 }
 
-size_t utils_base64Encode(uint8_t * dataP,
-                          size_t dataLen, 
-                          uint8_t * bufferP,
+size_t utils_base64Encode(uint8_t *dataP,
+                          size_t dataLen,
+                          uint8_t *bufferP,
                           size_t bufferLen)
 {
     unsigned int data_index;

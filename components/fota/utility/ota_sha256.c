@@ -65,8 +65,10 @@
 #include <stdlib.h>
 
 /* Implementation that should never be optimized out by the compiler */
-static void ota_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void ota_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -209,8 +211,15 @@ void ota_sha256_process( ota_sha256_context *ctx, const unsigned char data[64] )
 
         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i] );
 
-        temp1 = A[7]; A[7] = A[6]; A[6] = A[5]; A[5] = A[4]; A[4] = A[3];
-        A[3] = A[2]; A[2] = A[1]; A[1] = A[0]; A[0] = temp1;
+        temp1 = A[7];
+        A[7] = A[6];
+        A[6] = A[5];
+        A[5] = A[4];
+        A[4] = A[3];
+        A[3] = A[2];
+        A[2] = A[1];
+        A[1] = A[0];
+        A[0] = temp1;
     }
 #else /* MBEDTLS_SHA256_SMALLER */
     for( i = 0; i < 16; i++ )
@@ -218,26 +227,26 @@ void ota_sha256_process( ota_sha256_context *ctx, const unsigned char data[64] )
 
     for( i = 0; i < 16; i += 8 )
     {
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i+0], K[i+0] );
-        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i+1], K[i+1] );
-        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i+2], K[i+2] );
-        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i+3], K[i+3] );
-        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i+4], K[i+4] );
-        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i+5], K[i+5] );
-        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i+6], K[i+6] );
-        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i+7], K[i+7] );
+        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i + 0], K[i + 0] );
+        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i + 1], K[i + 1] );
+        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i + 2], K[i + 2] );
+        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i + 3], K[i + 3] );
+        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i + 4], K[i + 4] );
+        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i + 5], K[i + 5] );
+        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i + 6], K[i + 6] );
+        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i + 7], K[i + 7] );
     }
 
     for( i = 16; i < 64; i += 8 )
     {
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i+0), K[i+0] );
-        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i+1), K[i+1] );
-        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i+2), K[i+2] );
-        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], R(i+3), K[i+3] );
-        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], R(i+4), K[i+4] );
-        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], R(i+5), K[i+5] );
-        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], R(i+6), K[i+6] );
-        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], R(i+7), K[i+7] );
+        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i + 0), K[i + 0] );
+        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i + 1), K[i + 1] );
+        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i + 2), K[i + 2] );
+        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], R(i + 3), K[i + 3] );
+        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], R(i + 4), K[i + 4] );
+        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], R(i + 5), K[i + 5] );
+        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], R(i + 6), K[i + 6] );
+        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], R(i + 7), K[i + 7] );
     }
 #endif /* MBEDTLS_SHA256_SMALLER */
 
@@ -250,7 +259,7 @@ void ota_sha256_process( ota_sha256_context *ctx, const unsigned char data[64] )
  * SHA-256 process buffer
  */
 void ota_sha256_update( ota_sha256_context *ctx, const unsigned char *input,
-                    size_t ilen )
+                        size_t ilen )
 {
     size_t fill;
     uint32_t left;
@@ -289,7 +298,7 @@ void ota_sha256_update( ota_sha256_context *ctx, const unsigned char *input,
 
 static const unsigned char sha256_padding[64] =
 {
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -305,7 +314,7 @@ void ota_sha256_finish( ota_sha256_context *ctx, unsigned char output[32] )
     unsigned char msglen[8];
 
     high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
+           | ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_UINT32_BE( high, msglen, 0 );

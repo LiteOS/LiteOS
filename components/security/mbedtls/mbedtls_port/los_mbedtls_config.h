@@ -128,7 +128,7 @@
 #define MBEDTLS_SSL_RENEGOTIATION
 #define MBEDTLS_SSL_CACHE_C
 #define MBEDTLS_CIPHER_PADDING_ZEROS_AND_LEN
-#if 0
+#if 0 // We should support two encryption algorithm
 #define MBEDTLS_CCM_C
 #define MBEDTLS_SSL_CIPHERSUITES                        \
         MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8

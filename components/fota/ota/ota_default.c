@@ -60,7 +60,7 @@ typedef struct
 
 static ota_default_flag g_ota_flag;
 
-static int prv_read_specific(uint32_t addr, ota_default_flag* flag)
+static int prv_read_specific(uint32_t addr, ota_default_flag *flag)
 {
     int ret;
     int crc;
@@ -78,7 +78,7 @@ static int prv_read_specific(uint32_t addr, ota_default_flag* flag)
     return ret;
 }
 
-static int prv_write_specific(uint32_t addr, ota_default_flag* flag)
+static int prv_write_specific(uint32_t addr, ota_default_flag *flag)
 {
     flag->crc = calc_crc32(0, flag, sizeof(ota_default_flag) - sizeof(uint32_t));
     return g_ota_assist.func_ota_write(flag, sizeof(ota_default_flag), addr);
@@ -120,7 +120,7 @@ static int prv_write_ota_default_flag(void)
 
 uint8_t g_integrity_buf[OTA_INTEGRITY_BUF_SIZE];
 
-static int prv_image_integrity(uint8_t* integrity)
+static int prv_image_integrity(uint8_t *integrity)
 {
     int ret = -1;
     uint32_t image_addr = OTA_IMAGE_DOWNLOAD_ADDR;
@@ -140,11 +140,11 @@ static int prv_image_integrity(uint8_t* integrity)
             OTA_LOG("read image failed during integrity check");
             goto exit;
         }
-        ota_sha256_update(&ctx, (const unsigned char*)g_integrity_buf, check_len);
+        ota_sha256_update(&ctx, (const unsigned char *)g_integrity_buf, check_len);
         image_addr += check_len;
         image_len -= check_len;
     }
-    ota_sha256_finish(&ctx, (unsigned char*)integrity);
+    ota_sha256_finish(&ctx, (unsigned char *)integrity);
 
     ret = 0;
 
@@ -154,7 +154,7 @@ exit:
 }
 
 #ifdef USE_BOOTLOADER
-static void prv_get_update_record(uint8_t* state, uint32_t* offset)
+static void prv_get_update_record(uint8_t *state, uint32_t *offset)
 {
     if (NULL != state)
     {
@@ -186,7 +186,7 @@ static int prv_update_state(ota_state st)
     return OTA_ERRNO_OK;
 }
 
-static int prv_check_integrity_value(const uint8_t* v1, const uint8_t* v2)
+static int prv_check_integrity_value(const uint8_t *v1, const uint8_t *v2)
 {
     int i;
 
@@ -251,7 +251,7 @@ int ota_default_set_reboot(int32_t image_len)
     return OTA_ERRNO_OK;
 }
 
-int ota_default_check_update_state(ota_state* st)
+int ota_default_check_update_state(ota_state *st)
 {
     if (NULL != st)
     {
@@ -278,7 +278,7 @@ int ota_default_check_update_state(ota_state* st)
 #ifdef USE_BOOTLOADER
 int ota_default_update_process(void)
 {
-/*lint -e616 */
+    /*lint -e616 */
     int ret;
     uint8_t integrity[OTA_IMAGE_INTEGRITY_LENGTH];
 
@@ -330,7 +330,7 @@ int ota_default_update_process(void)
         OTA_LOG("unknown state:%d", g_ota_flag.state);
         return OTA_ERRNO_INTERNEL;
     }
-/*lint +e616 */
+    /*lint +e616 */
 }
 
 int ota_default_jump_to_application(void)

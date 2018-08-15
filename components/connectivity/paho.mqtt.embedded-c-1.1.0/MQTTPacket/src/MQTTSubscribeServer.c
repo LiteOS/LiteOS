@@ -32,41 +32,41 @@
   * @param buflen the length in bytes of the data in the supplied buffer
   * @return the length of the serialized data.  <= 0 indicates error
   */
-int MQTTDeserialize_subscribe(unsigned char* dup, unsigned short* packetid, int maxcount, int* count, MQTTString topicFilters[],
-	int requestedQoSs[], unsigned char* buf, int buflen)
+int MQTTDeserialize_subscribe(unsigned char *dup, unsigned short *packetid, int maxcount, int *count, MQTTString topicFilters[],
+                              int requestedQoSs[], unsigned char *buf, int buflen)
 {
-	MQTTHeader header = {0};
-	unsigned char* curdata = buf;
-	unsigned char* enddata = NULL;
-	int rc = -1;
-	int mylen = 0;
+    MQTTHeader header = {0};
+    unsigned char *curdata = buf;
+    unsigned char *enddata = NULL;
+    int rc = -1;
+    int mylen = 0;
 
-	FUNC_ENTRY;
-	header.byte = readChar(&curdata);
-	if (header.bits.type != SUBSCRIBE)
-		goto exit;
-	*dup = header.bits.dup;
+    FUNC_ENTRY;
+    header.byte = readChar(&curdata);
+    if (header.bits.type != SUBSCRIBE)
+        goto exit;
+    *dup = header.bits.dup;
 
-	curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
-	enddata = curdata + mylen;
+    curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
+    enddata = curdata + mylen;
 
-	*packetid = readInt(&curdata);
+    *packetid = readInt(&curdata);
 
-	*count = 0;
-	while (curdata < enddata)
-	{
-		if (!readMQTTLenString(&topicFilters[*count], &curdata, enddata))
-			goto exit;
-		if (curdata >= enddata) /* do we have enough data to read the req_qos version byte? */
-			goto exit;
-		requestedQoSs[*count] = readChar(&curdata);
-		(*count)++;
-	}
+    *count = 0;
+    while (curdata < enddata)
+    {
+        if (!readMQTTLenString(&topicFilters[*count], &curdata, enddata))
+            goto exit;
+        if (curdata >= enddata) /* do we have enough data to read the req_qos version byte? */
+            goto exit;
+        requestedQoSs[*count] = readChar(&curdata);
+        (*count)++;
+    }
 
-	rc = 1;
+    rc = 1;
 exit:
-	FUNC_EXIT_RC(rc);
-	return rc;
+    FUNC_EXIT_RC(rc);
+    return rc;
 }
 
 
@@ -79,34 +79,34 @@ exit:
   * @param grantedQoSs - array of granted QoS
   * @return the length of the serialized data.  <= 0 indicates error
   */
-int MQTTSerialize_suback(unsigned char* buf, int buflen, unsigned short packetid, int count, int* grantedQoSs)
+int MQTTSerialize_suback(unsigned char *buf, int buflen, unsigned short packetid, int count, int *grantedQoSs)
 {
-	MQTTHeader header = {0};
-	int rc = -1;
-	unsigned char *ptr = buf;
-	int i;
+    MQTTHeader header = {0};
+    int rc = -1;
+    unsigned char *ptr = buf;
+    int i;
 
-	FUNC_ENTRY;
-	if (buflen < 2 + count)
-	{
-		rc = MQTTPACKET_BUFFER_TOO_SHORT;
-		goto exit;
-	}
-	header.byte = 0;
-	header.bits.type = SUBACK;
-	writeChar(&ptr, header.byte); /* write header */
+    FUNC_ENTRY;
+    if (buflen < 2 + count)
+    {
+        rc = MQTTPACKET_BUFFER_TOO_SHORT;
+        goto exit;
+    }
+    header.byte = 0;
+    header.bits.type = SUBACK;
+    writeChar(&ptr, header.byte); /* write header */
 
-	ptr += MQTTPacket_encode(ptr, 2 + count); /* write remaining length */
+    ptr += MQTTPacket_encode(ptr, 2 + count); /* write remaining length */
 
-	writeInt(&ptr, packetid);
+    writeInt(&ptr, packetid);
 
-	for (i = 0; i < count; ++i)
-		writeChar(&ptr, grantedQoSs[i]);
+    for (i = 0; i < count; ++i)
+        writeChar(&ptr, grantedQoSs[i]);
 
-	rc = ptr - buf;
+    rc = ptr - buf;
 exit:
-	FUNC_EXIT_RC(rc);
-	return rc;
+    FUNC_EXIT_RC(rc);
+    return rc;
 }
 
 

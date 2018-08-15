@@ -87,11 +87,11 @@ void fota_pack_head_destroy(fota_pack_head_s *head)
         head->checksum = NULL;
     }
 
-    memset(&(head->buff), 0, sizeof(*head) - (((uint8_t *)&(head->buff)) - ((uint8_t *)head)));
+    memset(&(head->buff), 0, sizeof(*head) - (((uint8_t *) & (head->buff)) - ((uint8_t *)head)));
 }
 
 int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
-                                 uint16_t len, uint16_t *used_len)
+                                  uint16_t len, uint16_t *used_len)
 {
     *used_len = 0;
     if(offset < FOTA_PACK_HEADER_MIN_LEN)
@@ -240,7 +240,7 @@ static int fota_pack_parse_checksum(fota_pack_head_s *head, uint8_t *buff, uint3
 
 
 int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
-                                 uint16_t len, uint16_t *used_len)
+                         uint16_t len, uint16_t *used_len)
 {
     int ret;
     uint16_t tmp_len = 0;
@@ -263,11 +263,11 @@ int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t 
     buff += tmp_len;
 
     if((head->head_len < FOTA_PACK_HEADER_MIN_LEN)
-        || (NULL == head->buff)
-        || ((head->stored_len < head->head_len) && (offset > head->stored_len)))
+            || (NULL == head->buff)
+            || ((head->stored_len < head->head_len) && (offset > head->stored_len)))
     {
         FOTA_LOG("head not continuous, len %u offset %u", head->stored_len, offset);
-            return FOTA_ERR;
+        return FOTA_ERR;
     }
 
     if(offset < head->head_len)
@@ -350,7 +350,7 @@ uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head)
     return fota_pack_head_is_done(head) ? (uint32_t)head->head_len : 0;
 }
 
-const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head)
+const uint8_t *fota_pack_head_get_head_info(const fota_pack_head_s *head)
 {
     return fota_pack_head_is_done(head) ? head->buff : 0;
 }

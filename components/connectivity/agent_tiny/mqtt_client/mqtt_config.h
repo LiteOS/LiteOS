@@ -41,6 +41,7 @@
 #define MQTT_KEEPALIVE_INTERVAL_S (100)
 #define MQTT_SENDBUF_SIZE (1024)
 #define MQTT_READBUF_SIZE (1024)
+#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
 
 #endif /* __MQTT_CONFIG_H__ */
 
