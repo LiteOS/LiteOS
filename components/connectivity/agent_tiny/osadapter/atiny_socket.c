@@ -86,13 +86,16 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
     struct addrinfo hints;
     struct addrinfo *addr_list;
     struct addrinfo *cur;
+#endif
 
     if (NULL == host || NULL == port ||
             (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
     {
-        SOCKET_LOG("ilegal incoming parameters");
+        SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
         return NULL;
     }
+    
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
 
     /* Do name resolution with both IPv6 and IPv4 */
     memset(&hints, 0, sizeof(hints));
