@@ -42,12 +42,13 @@ int32_t at_api_register(at_adaptor_api *api)
     if (NULL == gp_at_adaptor_api)
     {
         gp_at_adaptor_api = api;
+        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
+        {
+            return gp_at_adaptor_api->init();
+        }
     }
-    if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-    {
-        return gp_at_adaptor_api->init();
-    }
-    return -1;
+    
+    return 0;
 }
 
 int32_t at_api_connect(const char *host, const char *port, int proto)
