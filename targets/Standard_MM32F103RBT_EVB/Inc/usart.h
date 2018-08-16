@@ -31,71 +31,48 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
-
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
-
-int32_t at_api_register(at_adaptor_api *api)
-{
-    if (NULL == gp_at_adaptor_api)
-    {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
-    }
-    
-    return 0;
-}
-
-int32_t at_api_connect(const char *host, const char *port, int proto)
-{
-    int32_t ret = -1;
-
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
-    {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
-    }
-    return ret;
-}
-
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
-    {
-        return gp_at_adaptor_api->send(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
-
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __usart_H
+#define __usart_H
+#ifdef __cplusplus
+ extern "C" {
 #endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "system_MM32F103.h"
+#include "main.h"
+#include "HAL_uart.h"
+#include "HAL_gpio.h"
+#include "HAL_rcc.h"
+
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+//extern UART_HandleTypeDef huart1;
+
+/* USER CODE BEGIN Private defines */
+
+/* USER CODE END Private defines */
+extern void _Error_Handler(char *, int);
+
+void Debug_USART1_UART_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+
+/* USER CODE END Prototypes */
+typedef struct __FILE FILE;
+#ifdef __cplusplus
+}
+#endif
+#endif /*__ usart_H */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

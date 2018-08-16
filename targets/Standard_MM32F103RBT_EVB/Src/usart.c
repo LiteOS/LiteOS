@@ -31,71 +31,80 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+ 
+#include "usart.h"
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
+/* USER CODE BEGIN 0 */
 
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
+/* USER CODE END 0 */
 
-int32_t at_api_register(at_adaptor_api *api)
+//UART_HandleTypeDef USART1;
+
+/* USART1 init function */
+
+void Debug_USART1_UART_Init(void)
 {
-    if (NULL == gp_at_adaptor_api)
-    {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
-    }
+    //GPIO端口设置
+    GPIO_InitTypeDef GPIO_InitStructure;
+    UART_InitTypeDef UART_InitStructure;
     
-    return 0;
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1|RCC_APB2Periph_GPIOA, ENABLE);	//使能UART1，GPIOA时钟
+    
+    //UART 初始化设置
+    UART_InitStructure.UART_BaudRate = 115200;//串口波特率
+    UART_InitStructure.UART_WordLength = UART_WordLength_8b;//字长为8位数据格式
+    UART_InitStructure.UART_StopBits = UART_StopBits_1;//一个停止位
+    UART_InitStructure.UART_Parity = UART_Parity_No;//无奇偶校验位
+    UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;//无硬件数据流控制
+    UART_InitStructure.UART_Mode = UART_Mode_Rx | UART_Mode_Tx;	//收发模式
+    
+    UART_Init(UART1, &UART_InitStructure); //初始化串口1
+//    UART_ITConfig(UART1, UART_IT_RXIEN, ENABLE);//开启串口接受中断
+    UART_Cmd(UART1, ENABLE);                    //使能串口1 
+    
+    //UART1_TX   GPIOA.9
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; //PA.9
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
+    GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.9
+    
+    //UART1_RX	  GPIOA.10初始化
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PA10
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
+    GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.10  
+
 }
 
-int32_t at_api_connect(const char *host, const char *port, int proto)
+
+/* define fputc */
+#if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
+int fputc(int ch, FILE *f)
 {
-    int32_t ret = -1;
-
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
-    {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
-    }
-    return ret;
+    UART_SendData(UART1, ch);
+    return ch;
 }
-
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
+#elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
+__attribute__((used)) int _write(int fd, char *ptr, int len)
 {
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
+    int i = 0;
+    for(i < len && (ptr+i) != NULL)
     {
-        return gp_at_adaptor_api->send(id, buf, len);
+        UART_SendData(UART1, ch);
     }
-    return -1;
+    return len;
 }
-
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
-
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
 #endif
+
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

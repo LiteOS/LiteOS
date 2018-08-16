@@ -32,70 +32,33 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
+#include "sys_init.h"
 
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
-
-int32_t at_api_register(at_adaptor_api *api)
+uint32_t HAL_GetTick(void)
 {
-    if (NULL == gp_at_adaptor_api)
-    {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
-    }
-    
-    return 0;
+    return (uint32_t)LOS_TickCountGet();
 }
 
-int32_t at_api_connect(const char *host, const char *port, int proto)
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  file: The file name as string.
+  * @param  line: The line in file as a number.
+  * @retval None
+  */
+void _Error_Handler(char *file, int line)
 {
-    int32_t ret = -1;
-
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
+    /* USER CODE BEGIN Error_Handler_Debug */
+    /* User can add his own implementation to report the HAL error return state */
+    while(1)
     {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
     }
-    return ret;
+    /* USER CODE END Error_Handler_Debug */
 }
 
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
+void SystemClock_Config(void)
 {
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
-    {
-        return gp_at_adaptor_api->send(id, buf, len);
-    }
-    return -1;
+
 }
 
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
 
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
 
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
-#endif

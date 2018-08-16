@@ -31,71 +31,61 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#include "main.h"
+#include "sys_init.h"
+#include "system_MM32F103.h"
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
+UINT32 g_TskHandle;
 
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
-
-int32_t at_api_register(at_adaptor_api *api)
+VOID HardWare_Init(VOID)
 {
-    if (NULL == gp_at_adaptor_api)
+    Debug_USART1_UART_Init();
+    dwt_delay_init(SystemCoreClock);
+}
+
+VOID liteos_task(VOID)
+{
+    while(1)
     {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
+        printf("this is testing\r\n");  
+        delayus(200);
+	}
+}
+UINT32 creat_main_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "liteos_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
+    task_init_param.uwStackSize = 0x1000;
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
     }
-    
+    return uwRet;
+}
+
+int main(void)
+{
+    UINT32 uwRet = LOS_OK;
+    HardWare_Init();
+
+    uwRet = LOS_KernelInit();
+    if (uwRet != LOS_OK)
+    {
+        return LOS_NOK;
+    }
+
+    uwRet = creat_main_task();
+    if (uwRet != LOS_OK)
+    {
+        return LOS_NOK;
+    }
+
+    (void)LOS_Start();
     return 0;
 }
-
-int32_t at_api_connect(const char *host, const char *port, int proto)
-{
-    int32_t ret = -1;
-
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
-    {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
-    }
-    return ret;
-}
-
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
-    {
-        return gp_at_adaptor_api->send(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
-
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
-#endif

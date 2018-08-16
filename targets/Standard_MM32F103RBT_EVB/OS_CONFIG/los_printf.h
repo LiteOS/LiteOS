@@ -32,70 +32,84 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
+/**@defgroup los_printf Printf
+ * @ingroup kernel
+ */
 
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
-
-int32_t at_api_register(at_adaptor_api *api)
-{
-    if (NULL == gp_at_adaptor_api)
-    {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
-    }
-    
-    return 0;
-}
-
-int32_t at_api_connect(const char *host, const char *port, int proto)
-{
-    int32_t ret = -1;
-
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
-    {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
-    }
-    return ret;
-}
-
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
-    {
-        return gp_at_adaptor_api->send(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
-
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
+#ifndef _LOS_PRINTF_H
+#define _LOS_PRINTF_H
+//#ifdef LOSCFG_LIB_LIBC
+#include "stdarg.h"
+//#endif
+#ifdef LOSCFG_LIB_LIBCMINI
+#include "libcmini.h"
 #endif
+#include "los_typedef.h"
+#include "los_config.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define LOS_EMG_LEVEL   0
+
+#define LOS_COMMOM_LEVEL   (LOS_EMG_LEVEL + 1)
+
+#define LOS_ERR_LEVEL   (LOS_COMMOM_LEVEL + 1)
+
+#define LOS_WARN_LEVEL  (LOS_ERR_LEVEL + 1)
+
+#define LOS_INFO_LEVEL  (LOS_WARN_LEVEL + 1)
+
+#define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)
+
+#define PRINT_LEVEL LOS_ERR_LEVEL
+
+#if PRINT_LEVEL < LOS_DEBUG_LEVEL
+#define PRINT_DEBUG(fmt, args...)
+#else
+#define PRINT_DEBUG(fmt, args...)   do{(printf("[DEBUG] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_INFO_LEVEL
+#define PRINT_INFO(fmt, args...)
+#else
+#define PRINT_INFO(fmt, args...)    do{(printf("[INFO] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_WARN_LEVEL
+#define PRINT_WARN(fmt, args...)
+#else
+#define PRINT_WARN(fmt, args...)    do{(printf("[WARN] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_ERR_LEVEL
+#define PRINT_ERR(fmt, args...)
+#else
+#define PRINT_ERR(fmt, args...)     do{(printf("[ERR] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_COMMOM_LEVEL
+#define PRINTK(fmt, args...)
+#else
+#define PRINTK(fmt, args...)     printf(fmt, ##args)
+#endif
+
+#if PRINT_LEVEL < LOS_EMG_LEVEL
+#define PRINT_EMG(fmt, args...)
+#else
+#define PRINT_EMG(fmt, args...)     do{(printf("[EMG] "), printf(fmt, ##args));}while(0)
+#endif
+
+#define PRINT_RELEASE(fmt, args...)   printf(fmt, ##args)
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _LOS_PRINTF_H */

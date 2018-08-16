@@ -32,70 +32,40 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "at_api_interface.h"
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
-static at_adaptor_api  *gp_at_adaptor_api = NULL;
+/* Includes ------------------------------------------------------------------*/
 
-int32_t at_api_register(at_adaptor_api *api)
-{
-    if (NULL == gp_at_adaptor_api)
-    {
-        gp_at_adaptor_api = api;
-        if (gp_at_adaptor_api && gp_at_adaptor_api->init)
-        {
-            return gp_at_adaptor_api->init();
-        }
-    }
-    
-    return 0;
-}
+/* Includes LiteOS------------------------------------------------------------------*/
 
-int32_t at_api_connect(const char *host, const char *port, int proto)
-{
-    int32_t ret = -1;
+#include "los_base.h"
+#include "los_config.h"
+#include "los_sys.h"
+#include "los_typedef.h"
+#include "los_task.ph"
 
-    if (gp_at_adaptor_api && gp_at_adaptor_api->connect)
-    {
-        ret = gp_at_adaptor_api->connect((int8_t *)host, (int8_t *)port, proto);
-    }
-    return ret;
-}
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
+#include "MM32F103.h"
+#include "usart.h"
+#include "dwt.h"
 
-int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->send)
-    {
-        return gp_at_adaptor_api->send(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv(int32_t id, unsigned char *buf, size_t len)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv)
-    {
-        return gp_at_adaptor_api->recv(id, buf, len);
-    }
-    return -1;
-}
-
-int32_t at_api_recv_timeout(int32_t id, unsigned char *buf, size_t len, uint32_t timeout)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->recv_timeout)
-    {
-        return gp_at_adaptor_api->recv_timeout(id, buf, len, timeout);
-    }
-    return -1;
-}
-
-int32_t at_api_close(int32_t fd)
-{
-    if (gp_at_adaptor_api && gp_at_adaptor_api->close)
-    {
-        return gp_at_adaptor_api->close(fd);
-    }
-    return -1;
-}
-
+#ifdef __cplusplus
+ extern "C" {
 #endif
+void net_init(void);
+uint32_t HAL_GetTick(void);
+void SystemClock_Config(void);
+void _Error_Handler(char *, int);
+void hieth_hw_init(void);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __SYS_H_ */
+
