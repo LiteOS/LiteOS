@@ -55,9 +55,11 @@ enum
 {
     OBJ_SECURITY_INDEX = 0,
     OBJ_SERVER_INDEX,
+    OBJ_ACCESS_CONTROL_INDEX,
     OBJ_DEVICE_INDEX,
-    OBJ_FIRMWARE_INDEX,
     OBJ_CONNECT_INDEX,
+    OBJ_FIRMWARE_INDEX,
+    OBJ_LOCATION_INDEX,
     OBJ_APP_INDEX,
     OBJ_MAX_NUM,
 };
@@ -330,10 +332,24 @@ int atiny_init_objects(atiny_param_t *atiny_params, const atiny_device_info_t *d
         return ATINY_MALLOC_FAILED;
     }
 
+    handle->obj_array[OBJ_ACCESS_CONTROL_INDEX] = acc_ctrl_create_object();
+    if (NULL == handle->obj_array[OBJ_ACCESS_CONTROL_INDEX])
+    {
+        ATINY_LOG(LOG_FATAL, "Failed to create access control object");
+        return ATINY_MALLOC_FAILED;
+    }
+
     handle->obj_array[OBJ_DEVICE_INDEX] = get_object_device(atiny_params, device_info->manufacturer);
     if (NULL == handle->obj_array[OBJ_DEVICE_INDEX])
     {
         ATINY_LOG(LOG_FATAL, "Failed to create device object");
+        return ATINY_MALLOC_FAILED;
+    }
+
+    handle->obj_array[OBJ_CONNECT_INDEX] = get_object_conn_m(atiny_params);
+    if (NULL == handle->obj_array[OBJ_CONNECT_INDEX])
+    {
+        ATINY_LOG(LOG_FATAL, "Failed to create connect object");
         return ATINY_MALLOC_FAILED;
     }
 
@@ -346,10 +362,10 @@ int atiny_init_objects(atiny_param_t *atiny_params, const atiny_device_info_t *d
     }
 #endif
 
-    handle->obj_array[OBJ_CONNECT_INDEX] = get_object_conn_m(atiny_params);
-    if (NULL == handle->obj_array[OBJ_CONNECT_INDEX])
+    handle->obj_array[OBJ_LOCATION_INDEX] = get_object_location();
+    if (NULL == handle->obj_array[OBJ_LOCATION_INDEX])
     {
-        ATINY_LOG(LOG_FATAL, "Failed to create connect object");
+        ATINY_LOG(LOG_FATAL, "Failed to create location object");
         return ATINY_MALLOC_FAILED;
     }
 
@@ -423,9 +439,19 @@ void atiny_destroy(void *handle)
         clean_server_object(handle_data->obj_array[OBJ_SERVER_INDEX]);
     }
 
+    if (handle_data->obj_array[OBJ_ACCESS_CONTROL_INDEX] != NULL)
+    {
+        acl_ctrl_free_object(handle_data->obj_array[OBJ_ACCESS_CONTROL_INDEX]);
+    }
+
     if (handle_data->obj_array[OBJ_DEVICE_INDEX] != NULL)
     {
         free_object_device(handle_data->obj_array[OBJ_DEVICE_INDEX]);
+    }
+
+    if (handle_data->obj_array[OBJ_CONNECT_INDEX] != NULL)
+    {
+        free_object_conn_m(handle_data->obj_array[OBJ_CONNECT_INDEX]);
     }
 
     if (handle_data->obj_array[OBJ_FIRMWARE_INDEX] != NULL)
@@ -433,9 +459,9 @@ void atiny_destroy(void *handle)
         free_object_firmware(handle_data->obj_array[OBJ_FIRMWARE_INDEX]);
     }
 
-    if (handle_data->obj_array[OBJ_CONNECT_INDEX] != NULL)
+    if (handle_data->obj_array[OBJ_LOCATION_INDEX] != NULL)
     {
-        free_object_conn_m(handle_data->obj_array[OBJ_CONNECT_INDEX]);
+        free_object_location(handle_data->obj_array[OBJ_LOCATION_INDEX]);
     }
 
     if (handle_data->obj_array[OBJ_APP_INDEX] != NULL)
