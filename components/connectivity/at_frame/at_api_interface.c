@@ -47,8 +47,19 @@ int32_t at_api_register(at_adaptor_api *api)
             return gp_at_adaptor_api->init();
         }
     }
-    
+
     return 0;
+}
+
+int32_t at_api_bind(const char *host, const char *port, int proto)
+{
+    int32_t ret = -1;
+
+    if (gp_at_adaptor_api && gp_at_adaptor_api->bind)
+    {
+        ret = gp_at_adaptor_api->bind((int8_t *)host, (int8_t *)port, proto);
+    }
+    return ret;
 }
 
 int32_t at_api_connect(const char *host, const char *port, int proto)

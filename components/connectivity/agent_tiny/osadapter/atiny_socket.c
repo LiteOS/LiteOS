@@ -77,6 +77,46 @@ typedef struct
     int fd;
 } atiny_net_context;
 
+void *atiny_net_bind(const char *host, const char *port, int proto)
+{
+    atiny_net_context *ctx = NULL;
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+    int flags;
+    int ret;
+    struct addrinfo hints;
+    struct addrinfo *addr_list;
+    struct addrinfo *cur;
+#endif
+
+    if (NULL == host || NULL == port ||
+            (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
+    {
+        SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
+        return NULL;
+    }
+
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#elif defined(WITH_AT_FRAMEWORK)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }
+
+    ctx->fd = at_api_bind(host, port, proto);
+    if (ctx->fd < 0)
+    {
+        SOCKET_LOG("unkown host or port");
+        atiny_free(ctx);
+        ctx = NULL;
+    }
+#elif defined(WITH_WIZNET)
+#else
+#endif
+    return ctx;
+}
+
 void *atiny_net_connect(const char *host, const char *port, int proto)
 {
     atiny_net_context *ctx = NULL;
@@ -94,7 +134,7 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
         SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
         return NULL;
     }
-    
+
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
 
     /* Do name resolution with both IPv6 and IPv4 */
