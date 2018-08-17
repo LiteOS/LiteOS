@@ -33,7 +33,14 @@
  *---------------------------------------------------------------------------*/
 #include "main.h"
 #include "sys_init.h"
+#ifndef WITH_AT_FRAMEWORK
 #include "agent_tiny_demo.h"
+#else
+#include "los_base.h"
+#include "los_task.ph"
+#include "los_typedef.h"
+#include "los_sys.h"
+#endif
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
 #if defined USE_NB_NEUL95
