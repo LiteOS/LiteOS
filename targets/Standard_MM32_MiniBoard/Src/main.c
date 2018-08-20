@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 #include "main.h"
 #include "sys_init.h"
-#include "system_MM32F103.h"
+#include "MM32L0xx.h"
 
 UINT32 g_TskHandle;
 
@@ -59,7 +59,7 @@ UINT32 creat_main_task()
     task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "liteos_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
+    task_init_param.uwStackSize = 0x100;
 
     uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
     if(LOS_OK != uwRet)

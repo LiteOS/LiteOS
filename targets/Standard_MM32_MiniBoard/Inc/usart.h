@@ -31,61 +31,49 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __usart_H
+#define __usart_H
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "MM32L0xx.h"
 #include "main.h"
-#include "sys_init.h"
-#include "system_MM32F103.h"
+#include "target_config.h"
+#include "HAL_uart.h"
+#include "HAL_gpio.h"
+#include "HAL_rcc.h"
 
-UINT32 g_TskHandle;
+/* USER CODE BEGIN Includes */
 
-VOID HardWare_Init(VOID)
-{
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
+/* USER CODE END Includes */
+
+//extern UART_HandleTypeDef huart1;
+
+/* USER CODE BEGIN Private defines */
+
+/* USER CODE END Private defines */
+extern void _Error_Handler(char *, int);
+
+void Debug_USART1_UART_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+
+/* USER CODE END Prototypes */
+typedef struct __FILE FILE;
+#ifdef __cplusplus
 }
+#endif
+#endif /*__ usart_H */
 
-VOID liteos_task(VOID)
-{
-    while(1)
-    {
-        printf("this is testing\r\n");  
-        LOS_TaskDelay(200);
-	}
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
+/**
+  * @}
+  */
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
+/**
+  * @}
+  */
 
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

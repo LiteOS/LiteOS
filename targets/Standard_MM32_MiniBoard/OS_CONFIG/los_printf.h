@@ -31,61 +31,85 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "system_MM32F103.h"
 
-UINT32 g_TskHandle;
+/**@defgroup los_printf Printf
+ * @ingroup kernel
+ */
 
-VOID HardWare_Init(VOID)
-{
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
+#ifndef _LOS_PRINTF_H
+#define _LOS_PRINTF_H
+//#ifdef LOSCFG_LIB_LIBC
+#include "stdarg.h"
+//#endif
+#ifdef LOSCFG_LIB_LIBCMINI
+#include "libcmini.h"
+#endif
+#include "los_typedef.h"
+#include "los_config.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#define LOS_EMG_LEVEL   0
+
+#define LOS_COMMOM_LEVEL   (LOS_EMG_LEVEL + 1)
+
+#define LOS_ERR_LEVEL   (LOS_COMMOM_LEVEL + 1)
+
+#define LOS_WARN_LEVEL  (LOS_ERR_LEVEL + 1)
+
+#define LOS_INFO_LEVEL  (LOS_WARN_LEVEL + 1)
+
+#define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)
+
+#define PRINT_LEVEL LOS_ERR_LEVEL
+
+#if PRINT_LEVEL < LOS_DEBUG_LEVEL
+#define PRINT_DEBUG(fmt, args...)
+#else
+#define PRINT_DEBUG(fmt, args...)   do{(printf("[DEBUG] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_INFO_LEVEL
+#define PRINT_INFO(fmt, args...)
+#else
+#define PRINT_INFO(fmt, args...)    do{(printf("[INFO] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_WARN_LEVEL
+#define PRINT_WARN(fmt, args...)
+#else
+#define PRINT_WARN(fmt, args...)    do{(printf("[WARN] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_ERR_LEVEL
+#define PRINT_ERR(fmt, args...)
+#else
+#define PRINT_ERR(fmt, args...)     do{(printf("[ERR] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_COMMOM_LEVEL
+#define PRINTK(fmt, args...)
+#else
+#define PRINTK(fmt, args...)     printf(fmt, ##args)
+#endif
+
+#if PRINT_LEVEL < LOS_EMG_LEVEL
+#define PRINT_EMG(fmt, args...)
+#else
+#define PRINT_EMG(fmt, args...)     do{(printf("[EMG] "), printf(fmt, ##args));}while(0)
+#endif
+
+#define PRINT_RELEASE(fmt, args...)   printf(fmt, ##args)
+
+
+#ifdef __cplusplus
+#if __cplusplus
 }
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-VOID liteos_task(VOID)
-{
-    while(1)
-    {
-        printf("this is testing\r\n");  
-        LOS_TaskDelay(200);
-	}
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}
+#endif /* _LOS_PRINTF_H */

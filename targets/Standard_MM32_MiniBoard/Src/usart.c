@@ -44,13 +44,21 @@
 
 void Debug_USART1_UART_Init(void)
 {
+   
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
     UART_InitTypeDef UART_InitStructure;
     
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1|RCC_APB2Periph_GPIOA, ENABLE);	//使能UART1，GPIOA时钟
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1, ENABLE);	//使能UART1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  //开启GPIOA时钟
+    
+    //UART1 NVIC 配置
     
     //UART 初始化设置
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource9,GPIO_AF_1);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_1);
+    
+    
     UART_InitStructure.UART_BaudRate = 115200;//串口波特率
     UART_InitStructure.UART_WordLength = UART_WordLength_8b;//字长为8位数据格式
     UART_InitStructure.UART_StopBits = UART_StopBits_1;//一个停止位
@@ -59,7 +67,6 @@ void Debug_USART1_UART_Init(void)
     UART_InitStructure.UART_Mode = UART_Mode_Rx | UART_Mode_Tx;	//收发模式
     
     UART_Init(UART1, &UART_InitStructure); //初始化串口1
-//    UART_ITConfig(UART1, UART_IT_RXIEN, ENABLE);//开启串口接受中断
     UART_Cmd(UART1, ENABLE);                    //使能串口1 
     
     //UART1_TX   GPIOA.9
