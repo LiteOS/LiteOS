@@ -62,31 +62,15 @@ typedef struct _remote_info_t
     int socket;
     unsigned short port;
     char ip[16];
-}remote_info;//åç»­åˆ›å»ºsocketæ—¶éœ€è¦è¯¥structä¿å­˜
-
+}remote_info;//struct to save socket info
 
 int str_to_hex(const char *bufin, int len, char *bufout);
-int32_t nb_reboot(void);
-int32_t nb_hw_detect(void);
-int32_t nb_err_cue(void);
 int32_t nb_set_cdpserver(char* host, char* port);
-int32_t nb_send_psk(char* pskid, char* psk);
-int32_t nb_send_payload(const char* buf, int len);
-int32_t nb_get_auto_connect(void);
-//int32_t nb_send_coap_payload(int32_t id ,const uint8_t *buf, uint32_t len);//ÎŞ
-//int neul_bc95_udp_read(int socket,char *buf, int maxrlen, int mode);//ÎŞ
-int32_t nb_check_csq(void);
-int nb_query_ip(void);
+int32_t nb_hw_detect(void);
 int32_t nb_get_netstat(void);
-int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto);
-//int32_t nb_udp_recv(void * arg, int8_t * buf, int32_t len);//ÎŞ
-
-int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto);
-int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len);
-int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len);
+int nb_query_ip(void);
+int32_t nb_send_payload(const char* buf, int len);
+int32_t nb_send_psk(char* pskid, char* psk);
+int32_t nb_reboot(void);
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout);
-int32_t nb_close(int32_t socket);
-int32_t nb_recv_cb(int32_t id);
-int32_t nb_deinit(void);
-
 #endif

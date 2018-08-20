@@ -60,6 +60,10 @@
 #define MIN(a, b) (((a) <= (b)) ? (a) : (b))
 #endif
 
+#ifndef array_size
+#define array_size(a) (sizeof(a)/sizeof(*(a)))
+#endif
+
 enum
 {
     FOTA_OK,
@@ -75,7 +79,9 @@ typedef struct fota_pack_head_tag_s
     fota_hardware_s *hardware;
     head_update_check update_check;
     void *param;
+    fota_pack_key_s key;
 
+    /* following data will be memset  when destroy */
     uint8_t *buff;
     uint16_t stored_len;
     uint16_t head_len;
@@ -97,9 +103,10 @@ int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head);
 const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head);
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_hardware_s *hardware,
-                                            head_update_check updat_check, void *param);
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info);
 fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
+fota_pack_key_s  *fota_pack_head_get_key(fota_pack_head_s *head);
+
 
 
 #if defined(__cplusplus)

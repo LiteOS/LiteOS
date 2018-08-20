@@ -130,6 +130,7 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return -1;
     }
+	dest->security_type = src->security_type;
     dest->server_ip = atiny_strdup((const char *)(src->server_ip));
     if(NULL == dest->server_ip)
         goto atiny_param_dup_failed;
@@ -148,6 +149,8 @@ int atiny_param_dup(atiny_param_t* dest, atiny_param_t* src)
             if(NULL == dest->u.psk.psk)
                 goto atiny_param_dup_failed;
             memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
+            dest->u.psk.psk_id_len = src->u.psk.psk_id_len;
+            dest->u.psk.psk_len = src->u.psk.psk_len;
             break;
         case CLOUD_SECURITY_TYPE_CA:
             dest->u.ca.ca_crt = atiny_strdup((const char *)(src->u.ca.ca_crt));
@@ -179,7 +182,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle)
     }
 
     memset((void*)&g_atiny_handle, 0, sizeof(handle_data_t));
-    g_atiny_handle.atiny_params = *atiny_params;
+
     if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
         return ATINY_MALLOC_FAILED;
 
@@ -363,7 +366,10 @@ int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos,
 
     rc = MQTTSubscribe(client, topic_dup, (enum QoS)qos, mqtt_message_arrived);
     if(0 != rc)
+    {
+        (void)mqtt_del_interest_topic(topic);/*del topic when fail*/
         ATINY_LOG(LOG_ERR, "MQTTSubscribe %s[%d]", topic, rc);
+    }
 
     return rc;
 }
@@ -586,18 +592,19 @@ int device_info_dup(atiny_device_info_t* dest, atiny_device_info_t* src)
         return -1;
     }
 
+    device_info_member_free(dest);
+
     dest->client_id = atiny_strdup((const char *)(src->client_id));
     if(NULL == dest->client_id)
         goto device_info_dup_failed;
-
-    if(NULL != dest->user_name)
+	
+    if(NULL != src->user_name)
     {
         dest->user_name = atiny_strdup((const char *)(src->user_name));
         if(NULL == dest->user_name)
             goto device_info_dup_failed;
     }
-
-    if(NULL != dest->password)
+    if(NULL != src->password)
     {
         dest->password = atiny_strdup((const char *)(src->password));
         if(NULL == dest->password)
@@ -760,7 +767,7 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle)
         if(0 != rc)
         {
             ATINY_LOG(LOG_ERR, "MQTTConnect failed");
-            if(conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES) 
+            if(conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES)
                 conn_failed_cnt++;
             goto connect_again;
         }
@@ -822,7 +829,7 @@ int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb)
     MQTTClient *client;
     int rc= -1;
 
-    if (NULL == phandle || NULL == send_data || NULL == send_data->uri 
+    if (NULL == phandle || NULL == send_data || NULL == send_data->uri
         || !(send_data->qos>=CLOUD_QOS_MOST_ONCE && send_data->qos<CLOUD_QOS_LEVEL_MAX)
         || !(send_data->method>=CLOUD_METHOD_GET&& send_data->method<CLOUD_METHOD_MAX))
     {
