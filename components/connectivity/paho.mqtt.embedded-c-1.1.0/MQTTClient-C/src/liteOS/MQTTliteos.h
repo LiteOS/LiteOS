@@ -53,6 +53,7 @@
 #include <signal.h>
 #include <los_typedef.h>
 #include <los_sys.h>
+#include "atiny_socket.h"
 #include "atiny_log.h"
 
 typedef struct Timer

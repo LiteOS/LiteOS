@@ -91,11 +91,11 @@
 #define IFNAME1 't'
 
 
-static struct netif* s_pxNetIf = NULL;
+static struct netif *s_pxNetIf = NULL;
 static struct ethernet_api s_eth_api;
 
 //void ethernetif_input( void * pvParameters );
-static void arp_timer(void* arg);
+static void arp_timer(void *arg);
 
 int8_t ethernetif_api_register(struct ethernet_api *api)
 {
@@ -115,7 +115,7 @@ int8_t ethernetif_api_register(struct ethernet_api *api)
 * @param netif the already initialized lwip network interface structure
 *        for this ethernetif
 */
-static void low_level_init(struct netif* netif)
+static void low_level_init(struct netif *netif)
 {
     if(s_eth_api.init)
     {
@@ -139,7 +139,7 @@ static void low_level_init(struct netif* netif)
 *       to become availale since the stack doesn't retry to send a packet
 *       dropped because of memory failure (except for the TCP timers).
 */
-static err_t low_level_output(struct netif* netif, struct pbuf* p)
+static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
     err_t err = ERR_IF;
 
@@ -159,10 +159,10 @@ static err_t low_level_output(struct netif* netif, struct pbuf* p)
 * @return a pbuf filled with the received packet (including MAC header)
 *         NULL on memory error
 */
-static struct pbuf* low_level_input(struct netif* netif)
+static struct pbuf *low_level_input(struct netif *netif)
 {
     struct pbuf *p = NULL;
-    
+
     if(s_eth_api.input)
     {
         p = s_eth_api.input(netif);
@@ -179,9 +179,9 @@ static struct pbuf* low_level_input(struct netif* netif)
 *
 * @param netif the lwip network interface structure for this ethernetif
 */
-void ethernetif_input( void* pvParameters )
+void ethernetif_input( void *pvParameters )
 {
-    struct pbuf* p;
+    struct pbuf *p;
     err_t err;
 
     //LWIP_ASSERT("s_pxNetIf != NULL", (s_pxNetIf != NULL));
@@ -207,7 +207,8 @@ void ethernetif_input( void* pvParameters )
             pbuf_free(p);
             p = NULL;
         }
-    }while(p != NULL);
+    }
+    while(p != NULL);
 }
 
 /**
@@ -222,7 +223,7 @@ void ethernetif_input( void* pvParameters )
 *         ERR_MEM if private data couldn't be allocated
 *         any other err_t on error
 */
-err_t ethernetif_init(struct netif* netif)
+err_t ethernetif_init(struct netif *netif)
 {
     LWIP_ASSERT("netif != NULL", (netif != NULL));
 
@@ -248,7 +249,7 @@ err_t ethernetif_init(struct netif* netif)
 }
 
 
-static void arp_timer(void* arg)
+static void arp_timer(void *arg)
 {
     etharp_tmr();
     sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);

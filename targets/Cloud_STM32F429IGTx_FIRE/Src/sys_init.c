@@ -34,6 +34,8 @@
 
 #include "sys_init.h"
 
+#ifndef AT_NBONLY
+
 struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
@@ -69,7 +71,7 @@ void net_init(void)
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
-    printf("lwip test init ok\n");
+    printf("lwip test init ok.\n");
     /* IP addresses initialization without DHCP (IPv4) */
     IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
@@ -92,24 +94,8 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
-#if    0
-    #include "lwip/dhcp.h"
-    struct dhcp *dhcp;
-    dhcp_start(&gnetif);
-    while (1) {
-        if (dhcp_supplied_address(&gnetif))
-        {
-            dhcp = netif_dhcp_data(&gnetif);
-            printf("IP address: %s\n", ip4addr_ntoa(&dhcp->offered_ip_addr));
-            printf("Subnet mask: %s\n", ip4addr_ntoa(&dhcp->offered_sn_mask));
-            printf("Default gateway: %s\n", ip4addr_ntoa(&dhcp->offered_gw_addr));
-            break;
-        }
-        LOS_TaskDelay(1000);
-    }
-#endif
 }
-
+#endif
 uint32_t HAL_GetTick(void)
 {
     return (uint32_t)LOS_TickCountGet();
@@ -167,8 +153,8 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks
     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                  | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -185,18 +171,19 @@ void SystemClock_Config(void)
 void hieth_hw_init(void)
 {
     extern void ETH_IRQHandler(void);
-    (void)LOS_HwiCreate(ETH_IRQn, 1,0,ETH_IRQHandler,0);
+    (void)LOS_HwiCreate(ETH_IRQn, 1, 0, ETH_IRQHandler, 0);
 }
+#ifndef AT_NBONLY
 
-/**
- * atiny_adapter user interface 
+/*
+ * atiny_adapter user interface
  */
 void atiny_usleep(unsigned long usec)
 {
     delayus((uint32_t)usec);
 }
 
-int atiny_random(void* output, size_t len)
+int atiny_random(void *output, size_t len)
 {
     return hal_rng_generate_buffer(output, len);
 }
@@ -205,4 +192,4 @@ void atiny_reboot(void)
 {
     HAL_NVIC_SystemReset();
 }
-
+#endif

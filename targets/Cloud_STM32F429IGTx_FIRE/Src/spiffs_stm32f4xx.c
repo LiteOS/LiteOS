@@ -55,21 +55,21 @@
 #define LOG_BLOCK_SIZE      64 * 1024
 #define LOG_PAGE_SIZE       256
 
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t * fs, u32_t addr, u32_t size, u8_t * buff)
+static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
 {
     (void)hal_spi_flash_read ((void *) buff, size, addr);
 
     return SPIFFS_OK;
 }
 
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t * fs, u32_t addr, u32_t size, u8_t * buff)
+static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
 {
     (void)hal_spi_flash_write ((void *) buff, size, &addr);
 
     return SPIFFS_OK;
 }
 
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t * fs, u32_t addr, u32_t size)
+static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
 {
     (void)hal_spi_flash_erase (addr, size);
 

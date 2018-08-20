@@ -7,7 +7,7 @@ import  xml.dom.minidom as minidom
 import traceback
 from Crypto import Random
 from Crypto.Hash import SHA256
-from Crypto.Signature import PKCS1_v1_5 as PKCS1_v1_5
+from Crypto.Signature import pss as pss
 from Crypto.PublicKey import RSA
 import binascii
 import base64
@@ -221,7 +221,7 @@ class sha256_rsa2048_checksum(sha256_checksum):
 		with open(self.priave_key_file_name) as f:
 			key = f.read()
 			rsakey = RSA.importKey(key)
-			signer = PKCS1_v1_5.new(rsakey)
+			signer = pss.new(rsakey)
 			sign = signer.sign(self.sha256)			
 		print 'sha256-rsa2048 checksum:%s'%(binascii.hexlify(sign))
 		#print 'base 64:%s' %(base64.b64encode(sign))

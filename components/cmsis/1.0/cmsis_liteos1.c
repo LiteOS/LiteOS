@@ -95,9 +95,10 @@ osThreadId osThreadCreate(const osThreadDef_t *thread_def, void *argument)
     UINT32 uwTskHandle;
     UINT32 uwRet;
     if ((thread_def == NULL) ||
-        (thread_def->pthread == NULL) ||
-        (thread_def->tpriority < osPriorityIdle) ||
-        (thread_def->tpriority > osPriorityRealtime)) {
+            (thread_def->pthread == NULL) ||
+            (thread_def->tpriority < osPriorityIdle) ||
+            (thread_def->tpriority > osPriorityRealtime))
+    {
         return (osThreadId)NULL;
     }
 
@@ -240,7 +241,7 @@ osSemaphoreId osSemaphoreCreate(const osSemaphoreDef_t *semaphore_def, INT32 cou
 {
 #if (LOSCFG_BASE_IPC_SEM == YES)
     UINT32 uwRet;
-    UINT32 * SemHandle;
+    UINT32 *SemHandle;
 
     if (semaphore_def == NULL)
     {
@@ -381,14 +382,14 @@ osMutexId osMutexCreate (const osMutexDef_t *mutex_def)
 {
 #if (LOSCFG_BASE_IPC_MUX == YES)
     UINT32  uwRet;
-    UINT32* MuxHandle;
+    UINT32 *MuxHandle;
 
     if(mutex_def == NULL)
     {
         return (osMutexId)NULL;
     }
 
-    MuxHandle = (UINT32*)(mutex_def->puwMuxHandle);
+    MuxHandle = (UINT32 *)(mutex_def->puwMuxHandle);
     uwRet =  LOS_MuxCreate (MuxHandle);
 
     if(uwRet == LOS_OK)
@@ -430,7 +431,7 @@ osStatus osMutexWait (osMutexId mutex_id, UINT32 millisec)
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S*)mutex_id)->ucMuxID;
+    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
 
     uwRet = LOS_MuxPend(MutID, LOS_MS2Tick(millisec));
 
@@ -484,7 +485,7 @@ osStatus osMutexRelease (osMutexId mutex_id)
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S*)mutex_id)->ucMuxID;
+    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
     uwRet = LOS_MuxPost(MutID);
 
     if(uwRet == LOS_OK)
@@ -524,7 +525,7 @@ osStatus osMutexDelete (osMutexId mutex_id)
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S*)mutex_id)->ucMuxID;
+    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
     uwRet = LOS_MuxDelete(MutID);
 
     if(uwRet == LOS_OK)
@@ -548,9 +549,10 @@ osPoolId osPoolCreate (const osPoolDef_t *pool_def)
     UINT32 uwRet;
 
     if ((pool_def == NULL) ||
-        (pool_def->pool_sz == 0) ||
-        (pool_def->item_sz == 0) ||
-        (pool_def->pool == NULL)) {
+            (pool_def->pool_sz == 0) ||
+            (pool_def->item_sz == 0) ||
+            (pool_def->pool == NULL))
+    {
         return (osPoolId)NULL;
     }
 
@@ -646,7 +648,7 @@ osMessageQId osMessageCreate(osMessageQDef_t *queue_def, osThreadId thread_id)
     {
         return (osMessageQId)NULL;
     }
-    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)(queue_def->queue_sz), &uwQueueID, 0,(UINT16)( queue_def->item_sz));
+    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)(queue_def->queue_sz), &uwQueueID, 0, (UINT16)( queue_def->item_sz));
     if (uwRet == LOS_OK)
     {
         return (osMessageQId)GET_QUEUE_HANDLE(uwQueueID);
@@ -663,7 +665,7 @@ osStatus osMessagePutHead(const osMessageQId queue_id, UINT32 info, UINT32 milli
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     UINT32 uwRet;
-    uwRet = LOS_QueueWriteHead(MESSAGEQID_TO_QUEUEID(queue_id), (void*)info, sizeof(UINT32), LOS_MS2Tick(millisec));
+    uwRet = LOS_QueueWriteHead(MESSAGEQID_TO_QUEUEID(queue_id), (void *)info, sizeof(UINT32), LOS_MS2Tick(millisec));
     uwRet = osMessageCheckRet(uwRet);
     return (osStatus)uwRet;
 #endif
@@ -679,7 +681,7 @@ osStatus osMessagePut(const osMessageQId queue_id, UINT32 info, UINT32 millisec)
         return osErrorParameter;
     }
 
-    uwRet = LOS_QueueWrite(MESSAGEQID_TO_QUEUEID(queue_id), (void*)info, sizeof(UINT32), LOS_MS2Tick(millisec));
+    uwRet = LOS_QueueWrite(MESSAGEQID_TO_QUEUEID(queue_id), (void *)info, sizeof(UINT32), LOS_MS2Tick(millisec));
     uwRet = osMessageCheckRet(uwRet);
     return (osStatus)uwRet;
 #endif
@@ -738,7 +740,7 @@ osMailQId osMailCreate(osMailQDef_t *queue_def, osThreadId thread_id)
     uwRet = LOS_QueueCreate((char *)NULL, (UINT16)(queue_def->queue_sz), &uwQueueID, 0, sizeof(UINT32));
     if (uwRet == LOS_OK)
     {
-        *(UINT32*)(((void **)queue_def->pool) + 0) = (UINT32)(GET_QUEUE_HANDLE(uwQueueID));
+        *(UINT32 *)(((void **)queue_def->pool) + 0) = (UINT32)(GET_QUEUE_HANDLE(uwQueueID));
         uwBlkSize = (queue_def->item_sz + 3) & (~3);
         uwBoxSize = /* sizeof(OS_MEMBOX_S) + */queue_def->queue_sz * uwBlkSize; /* delete sizeof(OS_MEMBOX_S) after membox management change */
 
@@ -761,7 +763,7 @@ void *osMailAlloc(osMailQId queue_id, UINT32 millisec)
         return NULL;
     }
 
-    uwQueueID = *((UINT32*)(((void **)queue_id) + 0));
+    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
     pool = *((((void **)queue_id) + 1));
 
     return (void *)osQueueMailAlloc(MESSAGEQID_TO_QUEUEID(uwQueueID), pool, LOS_MS2Tick(millisec));
@@ -778,7 +780,7 @@ void *osMailCAlloc(osMailQId queue_id, UINT32 millisec)
 
     if (mem != NULL)
     {
-        pool = (LOS_MEMBOX_INFO*)(*(((void **)queue_id) + 1));
+        pool = (LOS_MEMBOX_INFO *)(*(((void **)queue_id) + 1));
         (VOID)memset(mem, 0, pool->uwBlkSize);
     }
 
@@ -799,7 +801,7 @@ osStatus osMailFree(osMailQId queue_id, void *mail)
         return osErrorParameter;
     }
 
-    uwQueueID = *((UINT32*)(((void **)queue_id) + 0));
+    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
     pool = *((((void **)queue_id) + 1));
 
     uwRet = osQueueMailFree(MESSAGEQID_TO_QUEUEID(uwQueueID), pool, mail);
@@ -831,7 +833,7 @@ osStatus osMailPutHead(osMailQId queue_id, void *mail)
         return osErrorValue;
     }
 
-    uwQueueID = *((UINT32*)(((void **)queue_id) + 0));
+    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
 
     return osMessagePutHead((osMessageQId)uwQueueID, (UINT32)mail, 0);
 #endif
@@ -853,7 +855,7 @@ osStatus osMailPut(osMailQId queue_id, void *mail)
         return osErrorValue;
     }
 
-    uwQueueID = *((UINT32*)(((void **)queue_id) + 0));
+    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
 
     return osMessagePut((osMessageQId)uwQueueID, (UINT32)mail, 0);
 #endif
@@ -872,7 +874,7 @@ osEvent osMailGet(osMailQId queue_id, UINT32 millisec)
         return ret;
     }
 
-    uwQueueID = *((UINT32*)(((void **)queue_id) + 0));
+    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
     ret = osMessageGet((osMessageQId)uwQueueID, millisec);
 
     if (ret.status == osEventMessage)
@@ -895,7 +897,7 @@ osStatus osMailClear(osMailQId queue_id)
         evt = osMailGet(queue_id, 0);
         if(evt.status == osEventMail)
         {
-            (VOID)osMailFree(queue_id,evt.value.p);
+            (VOID)osMailFree(queue_id, evt.value.p);
         }
         else if(evt.status == osEventTimeout)
         {
@@ -922,7 +924,7 @@ INT32 osSignalSet (osThreadId thread_id, INT32 signals)
         return 0x80000000;/*lint !e569*/
     }
 
-    if (signals & (~((0x1 << osFeature_Signals)-1)))
+    if (signals & (~((0x1 << osFeature_Signals) - 1)))
     {
         return osErrorValue;
     }
@@ -957,7 +959,7 @@ INT32 osSignalClear (osThreadId thread_id, INT32 signals)
         return 0x80000000; /*lint !e569*/
     }
 
-    if (signals & (~((0x1 << osFeature_Signals)-1)))
+    if (signals & (~((0x1 << osFeature_Signals) - 1)))
     {
         return osErrorValue;
     }
@@ -989,7 +991,7 @@ osEvent osSignalWait (INT32 signals, UINT32 millisec)
         return ret;
     }
 
-    if (signals & (~((0x1 << osFeature_Signals)-1)))
+    if (signals & (~((0x1 << osFeature_Signals) - 1)))
     {
         ret.status = osErrorValue;
         return ret;
@@ -1001,7 +1003,7 @@ osEvent osSignalWait (INT32 signals, UINT32 millisec)
     }
     else
     {
-        signals = 0xFFFFFFFF & ((0x1 << osFeature_Signals)-1);
+        signals = 0xFFFFFFFF & ((0x1 << osFeature_Signals) - 1);
         uwFlags |= LOS_WAITMODE_OR;
     }
 
@@ -1055,9 +1057,9 @@ osTimerId osTimerExtCreate (const osTimerDef_t *timer_def, os_timer_type type, v
     UINT16 usSwTmrID;
 
     if ((timer_def == NULL)
-        || (timer_def->ptimer == NULL)
-        || (timer_def->default_interval == 0)
-        || ((type != osTimerOnce) && (type != osTimerPeriodic)))
+            || (timer_def->ptimer == NULL)
+            || (timer_def->default_interval == 0)
+            || ((type != osTimerOnce) && (type != osTimerPeriodic)))
     {
         return NULL;
     }
@@ -1085,9 +1087,9 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
     UINT16 usSwTmrID;
 
     if ((timer_def == NULL)
-        || (timer_def->ptimer == NULL)
-        || (timer_def->default_interval == 0)
-        || ((type != osTimerOnce) && (type != osTimerPeriodic) && (type != osTimerDelay)))
+            || (timer_def->ptimer == NULL)
+            || (timer_def->default_interval == 0)
+            || ((type != osTimerOnce) && (type != osTimerPeriodic) && (type != osTimerDelay)))
     {
         return (osTimerId)NULL;
     }
@@ -1095,10 +1097,10 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
     uwRet = LOS_SwtmrCreate(timer_def->default_interval, type,
                             (SWTMR_PROC_FUNC)(timer_def->ptimer),
                             &usSwTmrID, (UINT32)argument
-                            #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
                             , osTimerRousesAllow, osTimerAlignIgnore
-                            #endif
-                            );
+#endif
+                           );
 
     if (uwRet != LOS_OK)
     {
@@ -1322,8 +1324,8 @@ void *fwMailAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd)
 
     if (mem != NULL)
     {
-        ((fw_event_t*)mem)->cmd = cmd;
-        ((fw_event_t*)mem)->tag = tag;
+        ((fw_event_t *)mem)->cmd = cmd;
+        ((fw_event_t *)mem)->tag = tag;
     }
 
     return mem;
@@ -1343,8 +1345,8 @@ void *fwMailCAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd)
 
     if (mem != NULL)
     {
-        ((fw_event_t*)mem)->cmd = cmd;
-        ((fw_event_t*)mem)->tag = tag;
+        ((fw_event_t *)mem)->cmd = cmd;
+        ((fw_event_t *)mem)->tag = tag;
     }
 
     return mem;
@@ -1388,11 +1390,11 @@ osEvent fwMailGet (fwMailQId queue_id, UINT32 millisec)
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
 
     pool = ((((fwMailQDef_t *)queue_id)->queue_id)->pool);
-    uwQueueID = *((UINT32*)(((void **)(pool)) + 0));
+    uwQueueID = *((UINT32 *)(((void **)(pool)) + 0));
     max_time = GET_EVENT_MAXTIME(queue_id) != 0 ? GET_EVENT_MAXTIME(queue_id) : g_maxEventTime;
 
     if (((fwMailQDef_t *)queue_id)->event_begin_time != 0 &&
-        (osKernelSysTick() - ((fwMailQDef_t *)queue_id)->event_begin_time ) > max_time)
+            (osKernelSysTick() - ((fwMailQDef_t *)queue_id)->event_begin_time ) > max_time)
     {
         ((fwMailQDef_t *)queue_id)->timeout_cnt++;
         PRINT_ERR("[ERR] Get QID %d TIMEOUTCNT %d\n", uwQueueID, ((fwMailQDef_t *)queue_id)->timeout_cnt);
@@ -1402,7 +1404,7 @@ osEvent fwMailGet (fwMailQId queue_id, UINT32 millisec)
     evt = osMailGet((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), millisec);
     if (evt.status == osEventMail)
     {
-        ((fwMailQDef_t *)queue_id)->last_event = *(fw_event_t*)(evt.value.p);
+        ((fwMailQDef_t *)queue_id)->last_event = *(fw_event_t *)(evt.value.p);
         ((fwMailQDef_t *)queue_id)->event_begin_time = osKernelSysTick();
     }
 #else
@@ -1427,7 +1429,7 @@ UINT32 fwMailQGetStatus(void)
     {
         max_time = GET_EVENT_MAXTIME(ptr) != 0 ? GET_EVENT_MAXTIME(ptr) : g_maxEventTime;
         pool = ((ptr->queue_id)->pool);
-        uwQueueID = *((UINT32*)(((void **)(pool)) + 0));
+        uwQueueID = *((UINT32 *)(((void **)(pool)) + 0));
         if ( ptr->event_begin_time != 0 && (curr_tick - ptr->event_begin_time) > max_time)
         {
             ptr->timeout_cnt++;

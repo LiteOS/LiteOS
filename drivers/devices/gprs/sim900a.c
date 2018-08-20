@@ -41,17 +41,17 @@ char prefix_name[15];
 
 int32_t sim900a_echo_off(void)
 {
-    return at.cmd((int8_t*)AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), "OK\r\n", NULL);
+    return at.cmd((int8_t *)AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), "OK\r\n", NULL);
 }
 int32_t sim900a_echo_on(void)
 {
-    return at.cmd((int8_t*)AT_CMD_ECHO_ON, strlen(AT_CMD_ECHO_OFF), "OK\r\n", NULL);
+    return at.cmd((int8_t *)AT_CMD_ECHO_ON, strlen(AT_CMD_ECHO_OFF), "OK\r\n", NULL);
 }
 int32_t sim900a_reset(void)
 {
     int32_t ret = 0;
     //at.cmd((int8_t*)AT_CMD_CLOSE,strlen(AT_CMD_CLOSE),"CLOSE OK","ERROR");
-    ret = at.cmd((int8_t*)AT_CMD_SHUT,strlen(AT_CMD_SHUT),"SHUT OK", NULL);
+    ret = at.cmd((int8_t *)AT_CMD_SHUT, strlen(AT_CMD_SHUT), "SHUT OK", NULL);
     return ret;
 }
 
@@ -59,41 +59,41 @@ int32_t sim900a_set_mux_mode(int32_t m)
 {
     char cmd[64] = {0};
     snprintf(cmd, 64, "%s=%d", AT_CMD_MUX, (int)m);
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    return at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
 }
 
-int32_t sim900a_connect(const int8_t * host, const int8_t * port, int32_t proto)
+int32_t sim900a_connect(const int8_t *host, const int8_t *port, int32_t proto)
 {
     int32_t ret = AT_FAILED;
     int32_t id = at.get_id();
     sim900a_reset();
     char cmd1[64] = {0};
     snprintf(cmd1, 64, "%s=\"B\"", AT_CMD_CLASS);
-    at.cmd((int8_t*)cmd1,strlen(cmd1),"OK", NULL);
+    at.cmd((int8_t *)cmd1, strlen(cmd1), "OK", NULL);
     char cmd2[64] = {0};
     snprintf(cmd2, 64, "%s=1,\"IP\",\"CMNET\"", AT_CMD_PDP_CONT);
-    at.cmd((int8_t*)cmd2,strlen(cmd2),"OK",NULL);
+    at.cmd((int8_t *)cmd2, strlen(cmd2), "OK", NULL);
     char cmd3[64] = {0};
     snprintf(cmd3, 64, "%s=1", AT_CMD_PDP_ATT);
-    at.cmd((int8_t*)cmd3,strlen(cmd3),"OK",NULL);
+    at.cmd((int8_t *)cmd3, strlen(cmd3), "OK", NULL);
     char cmd4[64] = {0};
     snprintf(cmd4, 64, "%s=1", AT_CMD_CIPHEAD);
-    at.cmd((int8_t*)cmd4,strlen(cmd4),"OK",NULL);
+    at.cmd((int8_t *)cmd4, strlen(cmd4), "OK", NULL);
     char cmd5[64] = {0};
 
     AT_LOG("host:%s, port:%s", host, port);
 
     if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
-        snprintf(cmd5, 64, "%s=\"%s\",\"%s\",\"%s\"", AT_CMD_CONN, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
+        snprintf(cmd5, 64, "%s=\"%s\",\"%s\",\"%s\"", AT_CMD_CONN, proto == ATINY_PROTO_UDP ? "UDP" : "TCP", host, port);
     }
     else
     {
-        at.cmd((int8_t*)(AT_CMD_PDP_ACT"=1,1"),strlen(AT_CMD_PDP_ACT"=1,1"),"OK",NULL);
-        at.cmd((int8_t*)AT_CMD_CSTT, strlen(AT_CMD_CSTT),"OK",NULL);
-        at.cmd((int8_t*)AT_CMD_CIICR, strlen(AT_CMD_CIICR),"OK",NULL);
-        at.cmd((int8_t*)AT_CMD_CIFSR, strlen(AT_CMD_CIFSR),"",NULL);
-        snprintf(cmd5, 64, "%s=%ld,\"%s\",\"%s\",\"%s\"", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP? "UDP" : "TCP", host, port);
+        at.cmd((int8_t *)(AT_CMD_PDP_ACT"=1,1"), strlen(AT_CMD_PDP_ACT"=1,1"), "OK", NULL);
+        at.cmd((int8_t *)AT_CMD_CSTT, strlen(AT_CMD_CSTT), "OK", NULL);
+        at.cmd((int8_t *)AT_CMD_CIICR, strlen(AT_CMD_CIICR), "OK", NULL);
+        at.cmd((int8_t *)AT_CMD_CIFSR, strlen(AT_CMD_CIFSR), "", NULL);
+        snprintf(cmd5, 64, "%s=%ld,\"%s\",\"%s\",\"%s\"", AT_CMD_CONN, id, proto == ATINY_PROTO_UDP ? "UDP" : "TCP", host, port);
     }
     if (id < 0 || id >= AT_MAX_LINK_NUM)
     {
@@ -111,21 +111,22 @@ int32_t sim900a_connect(const int8_t * host, const int8_t * port, int32_t proto)
     return id;
 }
 
-int32_t  sim900a_recv_timeout(int32_t id, uint8_t * buf, uint32_t len, int32_t timeout)
+int32_t  sim900a_recv_timeout(int32_t id, uint8_t *buf, uint32_t len, int32_t timeout)
 {
     uint32_t qlen = sizeof(QUEUE_BUFF);
     uint32_t rxlen = 0;
 
     QUEUE_BUFF  qbuf = {0, NULL};
-    AT_LOG("****at.linkid[id].qid=%d***\n",at.linkid[id].qid);
-    int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, timeout);
+    AT_LOG("****at.linkid[id].qid=%d***\n", at.linkid[id].qid);
+    int ret = LOS_QueueReadCopy(at.linkid[id].qid, (void *)&qbuf, (UINT32 *)&qlen, timeout);
     AT_LOG("ret = %x, len = %ld, id = %ld", ret, qbuf.len, id);
     if (ret != LOS_OK)
     {
         return AT_FAILED;
     }
 
-    if (qbuf.len){
+    if (qbuf.len)
+    {
         rxlen = (len < qbuf.len) ? len : qbuf.len;
         memcpy(buf, qbuf.addr, rxlen);
         at_free(qbuf.addr);
@@ -133,7 +134,7 @@ int32_t  sim900a_recv_timeout(int32_t id, uint8_t * buf, uint32_t len, int32_t t
     return rxlen;
 }
 
-int32_t  sim900a_recv(int32_t id, uint8_t * buf, uint32_t len)
+int32_t  sim900a_recv(int32_t id, uint8_t *buf, uint32_t len)
 {
     return sim900a_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
 }
@@ -151,27 +152,27 @@ int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)
         snprintf(cmd, 64, "%s=%ld,%ld", AT_CMD_SEND, id, len);
     }
 
-    ret = at.write((int8_t *)cmd, (int8_t*)"SEND OK", (int8_t*)buf, len);
+    ret = at.write((int8_t *)cmd, (int8_t *)"SEND OK", (int8_t *)buf, len);
 
     return ret;
 }
 
 void sim900a_check(void)
 {
-	//check module response
-    while(AT_FAILED == at.cmd((int8_t*)AT_CMD_AT,strlen(AT_CMD_AT),"OK",NULL))
+    //check module response
+    while(AT_FAILED == at.cmd((int8_t *)AT_CMD_AT, strlen(AT_CMD_AT), "OK", NULL))
     {
-      printf("\r\ncheck module response unnormal\r\n");
-      printf("\r\nplease check the module pin connection and the power switch\r\n");
-      SIM900A_DELAY(500);
+        printf("\r\ncheck module response unnormal\r\n");
+        printf("\r\nplease check the module pin connection and the power switch\r\n");
+        SIM900A_DELAY(500);
     }
-    if(AT_FAILED != at.cmd((int8_t*)AT_CMD_CPIN,strlen(AT_CMD_CPIN),"OK",NULL))
+    if(AT_FAILED != at.cmd((int8_t *)AT_CMD_CPIN, strlen(AT_CMD_CPIN), "OK", NULL))
     {
-      printf("detected sim card\n");
+        printf("detected sim card\n");
     }
-    if(AT_FAILED != at.cmd((int8_t*)AT_CMD_COPS,strlen(AT_CMD_COPS),"CHINA MOBILE",NULL))
+    if(AT_FAILED != at.cmd((int8_t *)AT_CMD_COPS, strlen(AT_CMD_COPS), "CHINA MOBILE", NULL))
     {
-      printf("registerd to the network\n");
+        printf("registerd to the network\n");
     }
 }
 
@@ -191,9 +192,10 @@ int32_t sim900a_close(int32_t id)
     {
         uint32_t qlen = sizeof(QUEUE_BUFF);
         QUEUE_BUFF  qbuf = {0, NULL};
-        while(LOS_OK == LOS_QueueReadCopy(at.linkid[id].qid, (void*)&qbuf, (UINT32*)&qlen, 10))
+        while(LOS_OK == LOS_QueueReadCopy(at.linkid[id].qid, (void *)&qbuf, (UINT32 *)&qlen, 10))
         {
-            if (qbuf.len){
+            if (qbuf.len)
+            {
                 at_free(qbuf.addr);
                 memset(&qbuf, 0, sizeof(QUEUE_BUFF)); // don't use qlen
             }
@@ -202,9 +204,9 @@ int32_t sim900a_close(int32_t id)
         at.linkid[id].usable = 0;
         snprintf(cmd, 64, "%s=%ld", AT_CMD_CLOSE, id);
     }
-    return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL);
+    return at.cmd((int8_t *)cmd, strlen(cmd), "OK", NULL);
 }
-int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
+int32_t sim900a_data_handler(void *arg, int8_t *buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
     {
@@ -216,7 +218,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
     //process data frame ,like +IPD,linkid,len:data
     int32_t ret = 0;
     int32_t linkid = 0, data_len = 0;
-    char * p1, *p2;
+    char *p1, *p2;
     QUEUE_BUFF qbuf;
     p1 = (char *)buf;
 
@@ -238,7 +240,7 @@ int32_t sim900a_data_handler(void * arg, int8_t * buf, int32_t len)
             }
         }
 
-        for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
+        for (p2++; *p2 <= '9' && *p2 >= '0' ; p2++)
         {
             data_len = (data_len * 10 + (*p2 - '0'));
         }
@@ -282,12 +284,12 @@ int32_t sim900a_ini()
     {
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
-    at.oob_register((char*)prefix_name, strlen((char*)prefix_name), sim900a_data_handler);
+    at.oob_register((char *)prefix_name, strlen((char *)prefix_name), sim900a_data_handler);
     sim900a_echo_off();
     sim900a_check();
     sim900a_reset();
     sim900a_set_mux_mode(at.mux_mode);
-    at.cmd((int8_t*)("AT+CIPMUX?"),strlen("AT+CIPMUX?"),"OK",NULL);
+    at.cmd((int8_t *)("AT+CIPMUX?"), strlen("AT+CIPMUX?"), "OK", NULL);
     return AT_OK;
 }
 
@@ -313,7 +315,8 @@ int32_t sim900a_deinit(void)
     return AT_OK;
 }
 
-at_config at_user_conf = {
+at_config at_user_conf =
+{
     .name = AT_MODU_NAME,
     .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
@@ -325,7 +328,8 @@ at_config at_user_conf = {
     .timeout = AT_CMD_TIMEOUT,   //  ms
 };
 
-at_adaptor_api at_interface = {
+at_adaptor_api at_interface =
+{
     .init = sim900a_ini,
     .connect = sim900a_connect, /*TCP or UDP connect*/
     .send = sim900a_send, /*send data, if no response, retrun error*/

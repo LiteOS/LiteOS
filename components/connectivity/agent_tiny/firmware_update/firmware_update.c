@@ -52,7 +52,7 @@ typedef struct fw_update_record
     uint32_t block_offset;
     uint32_t uri_len;
     char *uri;
-}fw_update_record_t;
+} fw_update_record_t;
 
 static char *g_ota_uri = NULL;
 static atiny_fota_storage_device_s *g_fota_storage_device = NULL;
@@ -61,12 +61,12 @@ static fw_update_record_t g_fw_update_record = {0};
 static firmware_update_notify g_firmware_update_notify = NULL;
 static void *g_firmware_update_notify_param = NULL;
 
-static void firmware_download_reply(lwm2m_transaction_t * transacP,
-                                        void * message)
+static void firmware_download_reply(lwm2m_transaction_t *transacP,
+                                    void *message)
 {
     coap_packet_t *packet = (coap_packet_t *)message;
     lwm2m_context_t *contextP = (lwm2m_context_t *)(transacP->userData);
-    lwm2m_transaction_t * transaction;
+    lwm2m_transaction_t *transaction;
     uint32_t len = 0;
     uint32_t block_num = 0;
     uint8_t block2_more = 0;
@@ -85,8 +85,8 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
         ATINY_LOG(LOG_ERR, "coap_get_header_block2 failed");
         goto failed_exit;
     }
-    ATINY_LOG(LOG_ERR, "block_num : %lu, block2_more : %lu, block_offset : %lu, payload_len is %u", 
-        block_num, (uint32_t)block2_more, block_offset, packet->payload_len);
+    ATINY_LOG(LOG_ERR, "block_num : %lu, block2_more : %lu, block_offset : %lu, payload_len is %u",
+              block_num, (uint32_t)block2_more, block_offset, packet->payload_len);
 
     if(0 == block_num)
     {
@@ -127,13 +127,13 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
             goto failed_exit;
         }
         //coap_set_header_uri_query(transaction->message, query);
-        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num + 1, 0, g_fw_update_record.block_size);
         if(ret < 0)
         {
             transaction_free(transaction);
             goto failed_exit;
         }
-        ATINY_LOG(LOG_DEBUG, "get next : %lu", block_num+1);
+        ATINY_LOG(LOG_DEBUG, "get next : %lu", block_num + 1);
 
         transaction->callback = firmware_download_reply;
         transaction->userData = (void *)contextP;
@@ -158,7 +158,7 @@ static void firmware_download_reply(lwm2m_transaction_t * transacP,
         ATINY_LOG(LOG_ERR, "g_firmware_update_notify FIRMWARE_UPDATE_RST_SUCCESS, write end ret %d", ret);
         if(g_firmware_update_notify)
             g_firmware_update_notify((ret == ATINY_OK) ?  FIRMWARE_UPDATE_RST_SUCCESS : FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);
-        ATINY_LOG(LOG_ERR, "download %s success, total size : %lu, write end ret %d", g_fw_update_record.uri, len, ret);
+        ATINY_LOG(LOG_ERR, "download success, total size : %lu, write end ret %d", len, ret);
     }
     return;
 failed_exit:
@@ -170,7 +170,7 @@ failed_exit:
         ATINY_LOG(LOG_ERR, "g_fota_storage_device->write_software_end NULL");
     ATINY_LOG(LOG_INFO, "g_firmware_update_notify FIRMWARE_UPDATE_RST_FAILED");
     if(g_firmware_update_notify)
-            g_firmware_update_notify(FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);
+        g_firmware_update_notify(FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);
     return;
 }
 
@@ -277,9 +277,9 @@ int parse_firmware_uri(char *uri, int uri_len)
 }
 
 int start_firmware_download(lwm2m_context_t *contextP, char *uri,
-    atiny_fota_storage_device_s *storage_device_p)
+                            atiny_fota_storage_device_s *storage_device_p)
 {
-    lwm2m_transaction_t * transaction;
+    lwm2m_transaction_t *transaction;
     unsigned char update_flag = 0;
     int ret = -1;
     int uri_len;
@@ -290,7 +290,7 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
         ATINY_LOG(LOG_ERR, "invalid params");
         return -1;
     }
-    ATINY_LOG(LOG_ERR, "start download %s", uri);
+    ATINY_LOG(LOG_ERR, "start download");
     g_fota_storage_device = storage_device_p;
     uri_len = strlen(uri);
     server = registration_get_registered_server(contextP);
@@ -337,7 +337,7 @@ int start_firmware_download(lwm2m_context_t *contextP, char *uri,
     //coap_set_header_uri_query(transaction->message, query);
     if(1 == g_fw_update_record.in_use)
     {
-        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num+1, 0, g_fw_update_record.block_size);
+        ret = coap_set_header_block2(transaction->message, g_fw_update_record.block_num + 1, 0, g_fw_update_record.block_size);
     }
     else
     {

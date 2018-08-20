@@ -83,7 +83,7 @@ typedef struct
 #define WIZ_ASSERT_ID(id) \
     if(id < 0 || id >= WIZ_MAX_SOCKET_NUM) \
     {\
-        WIZ_ERROR("id=%d is invalid!",id);\
+        WIZ_ERROR("id=%ld is invalid!",id);\
         return WIZ_FAILED;\
     }
 /* Local variables ----------------------------------------------------------*/
@@ -237,14 +237,14 @@ static void wiznet_deinit_data(void)
     // delete task
     if(g_wizConfig.tsk_hdl != LOS_ERRNO_TSK_NOT_CREATED){
         if(LOS_OK != LOS_TaskDelete(g_wizConfig.tsk_hdl)){
-            WIZ_LOG("LOS_TaskDelete(%d) failed!", g_wizConfig.tsk_hdl);
+            WIZ_LOG("LOS_TaskDelete(%ld) failed!", g_wizConfig.tsk_hdl);
         }
         g_wizConfig.tsk_hdl = LOS_ERRNO_TSK_NOT_CREATED;
     }
     // delete semaphore
     if(g_wizConfig.recv_sem != LOS_ERRNO_SEM_INVALID){
         if(LOS_OK != LOS_SemDelete(g_wizConfig.recv_sem)){
-            WIZ_LOG("LOS_SemDelete(%d) failed!", g_wizConfig.recv_sem);
+            WIZ_LOG("LOS_SemDelete(%ld) failed!", g_wizConfig.recv_sem);
         }
         g_wizConfig.recv_sem = LOS_ERRNO_SEM_INVALID;
     }
@@ -322,7 +322,7 @@ int32_t wiznet_connect(const char* host, const char* port, int protocol)
     }
     wiz_link[id].server_port = result;
 
-    ret = LOS_QueueCreate("wizQueue", 16, &wiz_link[id].qid, 0, sizeof(WizQueueBuf_t));
+    ret = LOS_QueueCreate("wizQueue", 16, (UINT32 *)&wiz_link[id].qid, 0, sizeof(WizQueueBuf_t));
     if (ret != LOS_OK)
     {
         WIZ_LOG("init wizQueue failed!");
@@ -362,7 +362,7 @@ int32_t wiznet_send(int32_t id, const uint8_t *buf, uint32_t len)
     WIZ_ASSERT_ID(id);
     
     if(wiz_link[id].usable == WIZ_LINK_UNUSE){
-        WIZ_ERROR("id=%d is unusable!", id);
+        WIZ_ERROR("id=%ld is unusable!", id);
         return WIZ_FAILED;
     }
     if(wiz_link[id].protocol == Sn_MR_TCP){
@@ -408,7 +408,7 @@ int32_t wiznet_close(int32_t id)
     WIZ_ASSERT_ID(id);
 
     if(wiz_link[id].usable == WIZ_LINK_UNUSE){
-        WIZ_LOG("linkid=%d is unused!", id);
+        WIZ_LOG("linkid=%ld is unused!", id);
         return WIZ_FAILED;
     }
     
@@ -429,7 +429,7 @@ int32_t wiznet_close(int32_t id)
             }
         }
         while(LOS_OK != LOS_QueueDelete(wiz_link[id].qid) || timeout > 10){
-            WIZ_ERROR("LOS_QueueDelete() failed, qid=%d", wiz_link[id].qid); 
+            WIZ_ERROR("LOS_QueueDelete() failed, qid=%ld", wiz_link[id].qid);
             timeout++;
         }
         wiz_link[id].qid = LOS_ERRNO_QUEUE_NOT_CREATE;

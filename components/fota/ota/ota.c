@@ -38,7 +38,7 @@
 ota_module g_ota_module;
 ota_assist g_ota_assist;
 
-void ota_register_module(ota_module* module)
+void ota_register_module(ota_module *module)
 {
     g_ota_module.func_init = module->func_init;
 #ifndef USE_BOOTLOADER
@@ -51,7 +51,7 @@ void ota_register_module(ota_module* module)
 #endif
 }
 
-void ota_register_assist(ota_assist* assist)
+void ota_register_assist(ota_assist *assist)
 {
     g_ota_assist.func_printf = assist->func_printf;
     g_ota_assist.func_ota_read = assist->func_ota_read;
@@ -61,8 +61,8 @@ void ota_register_assist(ota_assist* assist)
 int ota_init(void)
 {
     if (g_ota_assist.func_printf == NULL
-        || g_ota_assist.func_ota_read == NULL
-        || g_ota_assist.func_ota_write == NULL)
+            || g_ota_assist.func_ota_read == NULL
+            || g_ota_assist.func_ota_write == NULL)
     {
         OTA_LOG("must call ota_register_assist first");
         return OTA_ERRNO_INTERNEL;
@@ -86,7 +86,7 @@ int ota_set_reboot(int32_t image_len)
     return g_ota_module.func_set_reboot(image_len);
 }
 
-int ota_check_update_state(ota_state* st)
+int ota_check_update_state(ota_state *st)
 {
     if (g_ota_module.func_check_update_state == NULL)
     {

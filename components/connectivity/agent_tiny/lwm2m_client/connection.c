@@ -63,10 +63,11 @@
 
 static lwm2m_connection_err_notify_t g_connection_err_notify = NULL;
 
-static inline void inc_connection_stat(connection_t* connection, connection_err_e type)
+static inline void inc_connection_stat(connection_t *connection, connection_err_e type)
 {
     static const uint16_t max_num[CONNECTION_ERR_MAX] = {MAX_SEND_ERR_NUM,
-                                                         MAX_RECV_ERR_NUM};
+                                                         MAX_RECV_ERR_NUM
+                                                        };
 
     connection->errs[type]++;
     if(connection->errs[type] >= max_num[type])
@@ -79,23 +80,23 @@ static inline void inc_connection_stat(connection_t* connection, connection_err_
     }
 }
 
-connection_t* connection_create(connection_t* connList,
-                                lwm2m_object_t* securityObj,
+connection_t *connection_create(connection_t *connList,
+                                lwm2m_object_t *securityObj,
                                 int instanceId,
-                                lwm2m_context_t* lwm2mH)
+                                lwm2m_context_t *lwm2mH)
 {
-    connection_t* connP = NULL;
-    char* uri;
-    char* host;
-    char* port;
-    char* defaultport;
-    security_instance_t* targetP;
+    connection_t *connP = NULL;
+    char *uri;
+    char *host;
+    char *port;
+    char *defaultport;
+    security_instance_t *targetP;
 #ifdef WITH_DTLS
     int ret;
 #endif
     ATINY_LOG(LOG_INFO, "now come into connection_create!!!");
 
-    targetP = (security_instance_t*)LWM2M_LIST_FIND(securityObj->instanceList, instanceId);
+    targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj->instanceList, instanceId);
     if (NULL == targetP)
     {
         return NULL;
@@ -108,7 +109,7 @@ connection_t* connection_create(connection_t* connList,
         return NULL;
     }
 
-    ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
+    //ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
 
     // parse uri in the form "coaps://[host]:[port]"
 
@@ -156,7 +157,7 @@ connection_t* connection_create(connection_t* connList,
         port++;
     }
 
-    connP = (connection_t*)lwm2m_malloc(sizeof(connection_t));
+    connP = (connection_t *)lwm2m_malloc(sizeof(connection_t));
     if (connP == NULL)
     {
         ATINY_LOG(LOG_INFO, "connP is NULL!!!");
@@ -169,7 +170,7 @@ connection_t* connection_create(connection_t* connList,
 
     if (targetP->securityMode != LWM2M_SECURITY_MODE_NONE)
     {
-        connP->net_context = (void*)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity);
+        connP->net_context = (void *)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity);
         if (NULL == connP->net_context)
         {
             ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");
@@ -181,7 +182,7 @@ connection_t* connection_create(connection_t* connList,
         if (ret != 0)
         {
             ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
-            dtls_ssl_destroy((mbedtls_ssl_context*)connP->net_context);
+            dtls_ssl_destroy((mbedtls_ssl_context *)connP->net_context);
             lwm2m_free(connP);
             return NULL;
         }
@@ -212,7 +213,7 @@ connection_t* connection_create(connection_t* connList,
     return connP;
 }
 
-void connection_free(connection_t* connP)
+void connection_free(connection_t *connP)
 {
     if(connP == NULL)
     {
@@ -233,14 +234,14 @@ void connection_free(connection_t* connP)
     return;
 }
 
-void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap_flag)
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool bootstrap_flag)
 {
-    client_data_t* dataP;
-    lwm2m_list_t* instance;
-    connection_t* newConnP = NULL;
-    lwm2m_object_t*   securityObj;
+    client_data_t *dataP;
+    lwm2m_list_t *instance;
+    connection_t *newConnP = NULL;
+    lwm2m_object_t   *securityObj;
 
-    dataP = (client_data_t*)userData;
+    dataP = (client_data_t *)userData;
     securityObj = dataP->securityObjP;
 
     ATINY_LOG(LOG_INFO, "Now come into Connection creation in lwm2m_connect_server.\n");
@@ -263,16 +264,16 @@ void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap
     ATINY_LOG(LOG_INFO, "Connection creation successfully in lwm2m_connect_server.\n");
     dataP->connList = newConnP;
 
-    return (void*)newConnP;
+    return (void *)newConnP;
 }
 
-void lwm2m_close_connection(void* sessionH, void* userData)
+void lwm2m_close_connection(void *sessionH, void *userData)
 {
-    client_data_t* app_data;
-    connection_t* targetP;
+    client_data_t *app_data;
+    connection_t *targetP;
 
-    app_data = (client_data_t*)userData;
-    targetP = (connection_t*)sessionH;
+    app_data = (client_data_t *)userData;
+    targetP = (connection_t *)sessionH;
 
     if (targetP == app_data->connList)
     {
@@ -282,7 +283,7 @@ void lwm2m_close_connection(void* sessionH, void* userData)
     }
     else
     {
-        connection_t* parentP;
+        connection_t *parentP;
 
         parentP = app_data->connList;
 
@@ -303,12 +304,12 @@ void lwm2m_close_connection(void* sessionH, void* userData)
 }
 
 
-int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t timeout)
+int lwm2m_buffer_recv(void *sessionH, uint8_t *buffer, size_t length, uint32_t timeout)
 {
-    connection_t* connP = (connection_t*) sessionH;
+    connection_t *connP = (connection_t *) sessionH;
     int ret = -1;
     const int TIME_OUT = -2;
-    
+
     timeout *= 1000;
 #ifdef WITH_DTLS
 
@@ -334,12 +335,12 @@ int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t t
     return ret;
 }
 
-uint8_t lwm2m_buffer_send(void* sessionH,
-                          uint8_t* buffer,
+uint8_t lwm2m_buffer_send(void *sessionH,
+                          uint8_t *buffer,
                           size_t length,
-                          void* userdata)
+                          void *userdata)
 {
-    connection_t* connP = (connection_t*) sessionH;
+    connection_t *connP = (connection_t *) sessionH;
     int ret;
 
     if (connP == NULL)
@@ -375,7 +376,7 @@ uint8_t lwm2m_buffer_send(void* sessionH,
     }
 }
 
-bool lwm2m_session_is_equal(void* session1, void* session2, void* userData)
+bool lwm2m_session_is_equal(void *session1, void *session2, void *userData)
 {
     return (session1 == session2);
 }
