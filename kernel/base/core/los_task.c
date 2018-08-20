@@ -135,17 +135,59 @@ LITE_OS_SEC_TEXT WEAK VOID osIdleTask(VOID)
 {
     while (1)
     {
-#if (LOSCFG_KERNEL_TICKLESS == YES)
+#if (LOSCFG_PLATFORM_HWI == YES)
+
+    #if (LOSCFG_KERNEL_TICKLESS == YES)
         if (g_bTickIrqFlag)
         {
             g_bTickIrqFlag = 0;
             osTicklessStart();
         }
-#endif
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
+    #endif
+    #if (LOSCFG_KERNEL_RUNSTOP == YES)
         osEnterSleep();
+    #endif
+
+#else
+
+    #if (LOSCFG_KERNEL_TICKLESS == YES)
+        if (g_bTickIrqFlag)
+        {
+            UINTPTR uvIntSave;
+            uvIntSave = LOS_IntLock();
+            LOS_TaskLock();
+
+            g_bTickIrqFlag = 0;
+            osTicklessStart();
+
+            osEnterSleep();
+            LOS_IntRestore(uvIntSave);
+
+            /*
+             * Here: Handling interrupts. However, because the task scheduler is locked,
+             * there will be no task switching, after the interrupt exit, the CPU returns
+             * here to continue excuting the following code.
+             */
+
+            uvIntSave = LOS_IntLock();
+            osUpdateKernelTickCount(0);  /* param: 0 - invalid */
+            LOS_TaskUnlock();
+            LOS_IntRestore(uvIntSave);
+        }
+        else
+        {
+            /* Waiting for g_bTickIrqFlag setup, at most one tick time, sleep directly */
+            osEnterSleep();
+        }
+    #else
+        #if (LOSCFG_KERNEL_RUNSTOP == YES)
+        osEnterSleep();
+        #endif
+    #endif
+
 #endif
     }
+
 }
 
 /*****************************************************************************

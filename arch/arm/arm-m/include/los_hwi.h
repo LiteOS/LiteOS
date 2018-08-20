@@ -670,10 +670,6 @@ ul>
  */
 extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
 
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-extern VOID LOS_SysTickReload(UINT32 uwCyclesPerTick);
-#endif
-
 extern UINT32 LOS_SysTickCurrCycleGet(VOID);
 
 

@@ -49,8 +49,15 @@ extern "C" {
 BOOL g_bTicklessFlag = 1;
 BOOL g_bTickIrqFlag = 0;
 BOOL g_bReloadSysTickFlag = 0;
+#if (LOSCFG_PLATFORM_HWI == NO)
+UINT32 g_uwSysTickIntFlag = 0;
+#endif
 
 volatile UINT32 g_uwSleepTicks = 0;
+
+extern UINT32 osTaskNextSwitchTimeGet(VOID);
+extern UINT32 osSwTmrGetNextTimeout(VOID);
+
 
 LITE_OS_SEC_TEXT VOID LOS_TicklessEnable(VOID)
 {
@@ -85,7 +92,11 @@ inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
         UINT32 uwCurrSysCycles, uwElapseSysCycles, uwElapseTicks, uwRemainSysCycles;
 
         g_bReloadSysTickFlag = 0;
-        if(uwHwiIndex == (SysTick_IRQn + OS_SYS_VECTOR_CNT))
+    #if (LOSCFG_PLATFORM_HWI == YES)
+        if (uwHwiIndex == (SysTick_IRQn + OS_SYS_VECTOR_CNT))
+    #else
+        if (g_uwSysTickIntFlag == 2) /* OS tick interrupt */
+    #endif
         {
             uwElapseTicks = (g_uwSleepTicks - 1);
             LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
@@ -93,7 +104,11 @@ inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
         else
         {
             uwCurrSysCycles = LOS_SysTickCurrCycleGet();
+        #if (LOSCFG_SYSTICK_CNT_DIR_DECREASE == YES)
             uwElapseSysCycles = ((g_uwSleepTicks * uwCyclesPerTick) - uwCurrSysCycles);
+        #else
+            uwElapseSysCycles = uwCurrSysCycles;
+        #endif
             uwElapseTicks = uwElapseSysCycles / uwCyclesPerTick;
             uwRemainSysCycles = uwElapseSysCycles % uwCyclesPerTick;
             if (uwRemainSysCycles > 0)
@@ -108,17 +123,26 @@ inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
         }
         osTickHandlerLoop(uwElapseTicks);
         g_uwSleepTicks = 0;
+     #if (LOSCFG_PLATFORM_HWI == NO)
+        g_uwSysTickIntFlag = 0;
+     #endif
     }
 }
 
 VOID osTicklessStart(VOID)
 {
     UINT32 uwCyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    UINT32 uwMaxTicks = SysTick_LOAD_RELOAD_Msk / uwCyclesPerTick;
+    UINT32 uwMaxTicks = LOSCFG_SYSTICK_LOAD_RELOAD_MAX / uwCyclesPerTick;
     UINTPTR uvIntSave = 0;
     UINT32 uwSleepTicks = 0;
 
     uvIntSave = LOS_IntLock();
+    LOS_SysTickStop();
+    if (LOS_SysTickGetIntStatus()) /* SysTick interrupt pend */
+    {
+        goto out;
+    }
+
     uwSleepTicks = osSleepTicksGet();
     if (uwSleepTicks > 1)
     {
@@ -130,9 +154,21 @@ VOID osTicklessStart(VOID)
 
         uwSleepCycles = uwSleepTicks * uwCyclesPerTick;
         uwCurrSysCycles = LOS_SysTickCurrCycleGet();
+    #if (LOSCFG_SYSTICK_CNT_DIR_DECREASE == YES)
+        LOS_SysTickReload(uwSleepCycles - uwCyclesPerTick + uwCurrSysCycles);
+    #else
         LOS_SysTickReload(uwSleepCycles - uwCurrSysCycles);
+    #endif
         g_uwSleepTicks = uwSleepTicks;
+    #if (LOSCFG_PLATFORM_HWI == NO)
+        if (g_uwSysTickIntFlag == 0)
+        {
+            g_uwSysTickIntFlag = 1;
+        }
+    #endif
     }
+out:
+    LOS_SysTickStart();
     LOS_IntRestore(uvIntSave);
 
     return;

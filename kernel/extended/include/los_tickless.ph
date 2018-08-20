@@ -36,11 +36,13 @@
 #define _LOS_TICKLESS_PH
 
 #include "los_tickless.h"
+#include "los_hw_tick.h"
 
 extern BOOL g_bTickIrqFlag;
 extern BOOL g_bReloadSysTickFlag;
 extern volatile UINT32 g_uwSleepTicks;
 extern BOOL g_bTicklessFlag;
+extern UINT32 g_uwSysTickIntFlag;
 extern VOID tick_timer_reload(UINT32 period);
 extern VOID osSysTimeUpdate(UINT32 uwSleepTicks);
 extern VOID osTicklessStart(VOID);

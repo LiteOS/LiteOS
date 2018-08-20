@@ -32,108 +32,80 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "los_tick.inc"
-#include "los_base.ph"
-#include "los_swtmr.ph"
-#include "los_task.ph"
-#include "los_timeslice.ph"
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-#include "los_tickless.ph"
-#endif
+ /**@defgroup los_hw hardware
+   *@ingroup kernel
+ */
 
+#ifndef _LOS_HW_TICK_H
+#define _LOS_HW_TICK_H
+
+#include "los_base.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
-LITE_OS_SEC_BSS UINT64      g_ullTickCount;
-LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
-LITE_OS_SEC_BSS UINT32      g_uwSysClock;
-LITE_OS_SEC_DATA_INIT BOOL  g_bSysTickStart = FALSE;
-
 #if (LOSCFG_KERNEL_TICKLESS == YES)
-/*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandlerLoop(UINT32 uwElapseTicks)
-{
-    UINT32 uwIndex;
+/**
+ * @ingroup los_hwi
+ * Check whether the counting direction of system tick is decreasing, it will be used to
+ * readjust the value of the system tick, if not decreasing, please set this macro to NO.
+ */
+#define LOSCFG_SYSTICK_CNT_DIR_DECREASE      YES
 
-    for (uwIndex = 0; uwIndex < uwElapseTicks; uwIndex++)
-    {
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-        platform_tick_handler();
-#endif
-
-        g_ullTickCount ++;
-
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-        osTimesliceCheck();
-#endif
-        osTaskScan();   //task timeout scan
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-        (VOID)osSwtmrScan();
-#endif
-    }
-}
-
-#endif
+/**
+ * @ingroup los_hwi
+ * Max reload value of system tick.
+ */
+#define LOSCFG_SYSTICK_LOAD_RELOAD_MAX      SysTick_LOAD_RELOAD_Msk
 
 /*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
+Function   : LOS_SysTickStop
+Description: stop systick
+Input   : none
+output  : none
+return  : none
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR static inline VOID LOS_SysTickStop(VOID)
 {
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-    if (g_bReloadSysTickFlag)
-    {
-        LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
-        g_bReloadSysTickFlag = 0;
-    }
-    g_bTickIrqFlag = g_bTicklessFlag;
-
-    #if (LOSCFG_PLATFORM_HWI == NO)
-    if (g_uwSysTickIntFlag == 1)
-    {
-        g_uwSysTickIntFlag = 2;
-    }
-    #endif
-#endif
-
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-    platform_tick_handler();
-#endif
-
-    g_ullTickCount ++;
-
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-    osTimesliceCheck();
-#endif
-
-    osTaskScan();   //task timeout scan
-
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-    (VOID)osSwtmrScan();
-#endif
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 }
 
-LITE_OS_SEC_TEXT UINT32 LOS_SysClockGet(void)
+/*****************************************************************************
+Function   : LOS_SysTickStart
+Description: start systick
+Input   : none
+output  : none
+return  : none
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR static inline VOID LOS_SysTickStart(VOID)
 {
-    return g_uwSysClock;
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
+
+/*****************************************************************************
+Function   : LOS_SysTickGetIntStatus
+Description: get systick interrupt status
+Input   : none
+output  : none
+return  : systick interrupt status
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR static inline UINT32 LOS_SysTickGetIntStatus(VOID)
+{
+    return SCB->ICSR & SCB_ICSR_PENDSTSET_Msk;
+}
+
+extern VOID LOS_SysTickReload(UINT32 uwCyclesPerTick);
+
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+
+#endif /* _LOS_HW_H */
+
