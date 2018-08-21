@@ -17,7 +17,7 @@
 
 /* 私有类型定义 --------------------------------------------------------------*/
 /* 私有宏定义 ----------------------------------------------------------------*/
-#define Delay_ms(x)   HAL_Delay(x)
+#define Delay_ms(x)   delayms(x)
 /* 私有变量 ------------------------------------------------------------------*/
 /* 扩展变量 ------------------------------------------------------------------*/
 /* 私有函数原形 --------------------------------------------------------------*/
@@ -144,71 +144,69 @@ static uint8_t DHT11_ReadByte ( void )
   * 说    明：8bit 湿度整数 + 8bit 湿度小数 + 8bit 温度整数 + 8bit 温度小数 + 8bit 校验和
   */
 uint8_t DHT11_Read_TempAndHumidity(DHT11_Data_TypeDef *DHT11_Data)
-{
-    uint8_t temp;
-    uint16_t humi_temp;
-
+{  
+  uint8_t temp;
+  uint16_t humi_temp;
+  
+  // unsigned int up = LOS_IntLock();
 	/*输出模式*/
 	DHT11_Mode_Out_PP();
 	/*主机拉低*/
 	DHT11_Dout_LOW();
 	/*延时18ms*/
-	Delay_ms(18);
+  LOS_TaskDelay(20);
+	// Delay_ms(18);	
 	/*总线拉高 主机延时30us*/
-	DHT11_Dout_HIGH();
+	DHT11_Dout_HIGH(); 
 
 	DHT11_Delay(30);   //延时30us
 
-	/*主机设为输入 判断从机响应信号*/
+	/*主机设为输入 判断从机响应信号*/ 
 	DHT11_Mode_IPU();
 
-	/*判断从机是否有低电平响应信号 如不响应则跳出，响应则向下运行*/
-	if(DHT11_Data_IN()==GPIO_PIN_RESET)
+	/*判断从机是否有低电平响应信号 如不响应则跳出，响应则向下运行*/   
+	if(DHT11_Data_IN()==GPIO_PIN_RESET)     
 	{
-    /*轮询直到从机发出 的80us 低电平 响应信号结束*/
+    /*轮询直到从机发出 的80us 低电平 响应信号结束*/  
     while(DHT11_Data_IN()==GPIO_PIN_RESET);
 
     /*轮询直到从机发出的 80us 高电平 标置信号结束*/
     while(DHT11_Data_IN()==GPIO_PIN_SET);
 
-    unsigned int up = LOS_IntLock();
-
-    /*开始接收数据*/
+    
+    /*开始接收数据*/   
     DHT11_Data->humi_high8bit= DHT11_ReadByte();
     DHT11_Data->humi_low8bit = DHT11_ReadByte();
     DHT11_Data->temp_high8bit= DHT11_ReadByte();
     DHT11_Data->temp_low8bit = DHT11_ReadByte();
     DHT11_Data->check_sum    = DHT11_ReadByte();
 
-    LOS_IntRestore(up);
+    // LOS_IntRestore(up);
 
     /*读取结束，引脚改为输出模式*/
     DHT11_Mode_Out_PP();
     /*主机拉高*/
     DHT11_Dout_HIGH();
-
+    
     /* 对数据进行处理 */
     humi_temp=DHT11_Data->humi_high8bit*100+DHT11_Data->humi_low8bit;
-    DHT11_Data->humidity =(uint32_t)humi_temp/10;
-    printf("DHT11_Data->humidity = %d\r\n", humi_temp);
-
+    DHT11_Data->humidity =(float)humi_temp/100;
+    
     humi_temp=DHT11_Data->temp_high8bit*100+DHT11_Data->temp_low8bit;
-    DHT11_Data->temperature=(uint32_t)humi_temp/10;
-    printf("DHT11_Data->temperature = %d\r\n", humi_temp);
-
+    DHT11_Data->temperature=(float)humi_temp/100;    
+    
     /*检查读取的数据是否正确*/
-    temp = DHT11_Data->humi_high8bit + DHT11_Data->humi_low8bit +
+    temp = DHT11_Data->humi_high8bit + DHT11_Data->humi_low8bit + 
            DHT11_Data->temp_high8bit+ DHT11_Data->temp_low8bit;
-
     if(DHT11_Data->check_sum==temp)
-    {
-        return SUCCESS;
+    { 
+      return SUCCESS;
     }
-    else
-        return ERROR;
-	}
+    else 
+      return ERROR;
+	}	
 	else
-        return ERROR;
-
+		return ERROR;
+	
 }
 
