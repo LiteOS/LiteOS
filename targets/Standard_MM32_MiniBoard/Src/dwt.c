@@ -31,61 +31,42 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "system_MM32F103.h"
 
-UINT32 g_TskHandle;
+#include "dwt.h"
 
-VOID HardWare_Init(VOID)
+static uint32_t cpuclkfeq;
+
+void dwt_delay_init(uint32_t clk)
 {
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
+    cpuclkfeq = clk;
+    DEM_CR         |=  DEM_CR_TRCENA;
+    DWT_CYCCNT      = 0u;
+    DWT_CR         |= DWT_CR_CYCCNTENA;
 }
 
-VOID liteos_task(VOID)
-{
-    while(1)
-    {
-        printf("this is testing\r\n");  
-        LOS_TaskDelay(200);
-	}
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
+void delayus(uint32_t usec)
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
+{
+    uint32_t startts,endts,ts;
+    UINT32 uwIntSave;
+    startts = DWT_CYCCNT;
 
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
+    ts =  usec * (cpuclkfeq /(1000*1000));
+    endts = startts + ts;
+    uwIntSave=LOS_IntLock();
+    if(endts > startts)
     {
-        return uwRet;
+        while(DWT_CYCCNT < endts);
     }
-    return uwRet;
+    else
+    {
+        while(DWT_CYCCNT > endts);
+        while(DWT_CYCCNT < endts);
+    }
+    (VOID)LOS_IntRestore(uwIntSave);
 }
 
-int main(void)
+void delay10ms(__IO uint32_t nTime)
 {
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
+    delayus(1000*nTime);
 }

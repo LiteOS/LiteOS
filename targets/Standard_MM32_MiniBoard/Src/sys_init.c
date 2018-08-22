@@ -31,61 +31,34 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
+
 #include "sys_init.h"
-#include "system_MM32F103.h"
 
-UINT32 g_TskHandle;
-
-VOID HardWare_Init(VOID)
+uint32_t HAL_GetTick(void)
 {
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
+    return (uint32_t)LOS_TickCountGet();
 }
 
-VOID liteos_task(VOID)
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  file: The file name as string.
+  * @param  line: The line in file as a number.
+  * @retval None
+  */
+void _Error_Handler(char *file, int line)
 {
+    /* USER CODE BEGIN Error_Handler_Debug */
+    /* User can add his own implementation to report the HAL error return state */
     while(1)
     {
-        printf("this is testing\r\n");  
-        LOS_TaskDelay(200);
-	}
+    }
+    /* USER CODE END Error_Handler_Debug */
 }
-UINT32 creat_main_task()
+
+void SystemClock_Config(void)
 {
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
 }
 
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
 
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
 
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}

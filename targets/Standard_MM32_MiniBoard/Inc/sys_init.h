@@ -31,61 +31,41 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
-#include "sys_init.h"
-#include "system_MM32F103.h"
 
-UINT32 g_TskHandle;
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
-VOID HardWare_Init(VOID)
-{
-    Debug_USART1_UART_Init();
-    dwt_delay_init(SystemCoreClock);
+/* Includes ------------------------------------------------------------------*/
+
+/* Includes LiteOS------------------------------------------------------------------*/
+
+#include "los_base.h"
+#include "los_config.h"
+#include "los_sys.h"
+#include "los_typedef.h"
+#include "los_task.ph"
+
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
+#include "MM32L0xx.h"
+#include "usart.h"
+#include "dwt.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+void net_init(void);
+uint32_t HAL_GetTick(void);
+void SystemClock_Config(void);
+void _Error_Handler(char *, int);
+void hieth_hw_init(void);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+#ifdef __cplusplus
 }
+#endif
 
-VOID liteos_task(VOID)
-{
-    while(1)
-    {
-        printf("this is testing\r\n");  
-        LOS_TaskDelay(200);
-	}
-}
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
+#endif /* __SYS_H_ */
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "liteos_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)liteos_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int main(void)
-{
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
-
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    uwRet = creat_main_task();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
-
-    (void)LOS_Start();
-    return 0;
-}
