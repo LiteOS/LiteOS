@@ -80,7 +80,7 @@ typedef struct
 void *atiny_net_bind(const char *host, const char *port, int proto)
 {
 	atiny_net_context *ctx = NULL;
-
+#if defined(WITH_AT_FRAMEWORK)
     ctx = atiny_malloc(sizeof(atiny_net_context));
     if (NULL == ctx)
     {
@@ -95,6 +95,7 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
     	atiny_free(ctx);
     	ctx = NULL;
     }
+#endif
     return ctx;
 }
 
