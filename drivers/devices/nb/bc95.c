@@ -42,7 +42,7 @@ extern char wbuf[AT_DATA_LEN];
 
 char tmpbuf[AT_DATA_LEN]={0}; //transform to hex
 
-remote_info sockinfo[MAX_SOCK_NUM];
+socket_info sockinfo[MAX_SOCK_NUM];
 int str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
@@ -59,7 +59,7 @@ int str_to_hex(const char *bufin, int len, char *bufout)
 
 int32_t nb_reboot(void)
 {
-    memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _remote_info_t));
+    memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _socket_info_t));
     return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), "OK", NULL);
 }
 
@@ -193,16 +193,23 @@ int32_t nb_get_netstat(void)
 }
 
 
-int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
+int32_t nb_create_sock(int port,int proto)
 {
 	int socket;
-	char *cmd = "AT+NSOCR=DGRAM,17,";//udp
+	char *cmdudp = "AT+NSOCR=DGRAM,17,";//udp
+	char *cmdtcp = "AT+NSOCR=STREAM,6,";//tcp
+	if(proto!=17 && proto!=6)
+    {
+        AT_LOG("proto invalid!");
+        return -1;
+    }
     memset(rbuf, 0, AT_DATA_LEN);
 	memset(wbuf, 0, AT_DATA_LEN);
 
-	//nb_set_cdpserver(host,strlen(host));
-
-    snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmd, port);//udp
+    if(proto == 17)
+        snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmdudp, port);//udp
+    else
+        {snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmdtcp, port);}
 	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf);
 	sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
 	//neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
@@ -213,22 +220,22 @@ int32_t nb_create_udpsock(const int8_t * host, int port, int32_t proto)
     return -1;
 }
 
-int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
+int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
     {
         AT_LOG("param invailed!");
         return -1;
     }
-    AT_LOG("entry!");
 
-    //process data frame ,like +NSONMI:linkid,len
     int32_t ret = -1;
     int32_t sockid = 0, data_len = 0;
     char * p1, *p2;
     QUEUE_BUFF qbuf;
     p1 = (char *)buf;
     char* cmd = "AT+NSORF";
+
+    AT_LOG("entry!");
 
     if (strstr(p1, AT_DATAF_PREFIX) != NULL)
     {
@@ -275,25 +282,64 @@ int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
     return ret;
 }
 
-int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
+int chartoint(char* port)
+{
+	int tmp=0;
+	//printf("the port convey is %s \n",port);
+	while(*port != '\0')
+	{
+		tmp = tmp*10+*port-'0';
+		port++;
+	}
+	return tmp;
+}
+int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)
 {
 	int ret = 0;
-	//int timecnt = 0;
-	static int localport = NB_STAT_LOCALPORT;
+	int portnum;
+	printf("nb_bind\n");
+	portnum = chartoint((char*)port);
+	printf("port:%s portnum:%d\n",port,portnum);
 
-	do{
-		ret = nb_create_udpsock(NULL, localport, 1);
-		localport++;
-	}while(ret < 0);
+    ret = nb_create_sock(portnum, 17);
 
-	localport--;
-	if(ret >= MAX_SOCK_NUM)
+	if(ret >= MAX_SOCK_NUM || ret < 0)
 	{
 		AT_LOG_DEBUG("sock num exceeded,ret is %d",ret);
 		return -1;
 	}
-	memcpy(sockinfo[ret].ip, (const char*)host,strlen((const char*)host));
-	sockinfo[ret].port = *(unsigned short*)port;
+	memcpy(sockinfo[ret].localip, (const char*)host,strlen((const char*)host));
+	sockinfo[ret].localport = *(unsigned short*)portnum;
+
+    if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
+    {
+        AT_LOG("init dataQueue failed, ret is %d!",ret);
+        at.linkid[ret].usable = AT_LINK_UNUSE;//adapter other module.
+        return -1;
+    }
+
+    return ret;
+
+}
+
+int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
+{
+	int ret = 0;
+	static int localport = NB_STAT_LOCALPORT;
+
+	do{
+		ret = nb_create_sock(localport, 17);
+		localport++;
+	}while(ret < 0);
+
+	localport--;
+	if(ret >= MAX_SOCK_NUM ||ret < 0)
+	{
+		AT_LOG_DEBUG("sock num exceeded,ret is %d",ret);
+		return -1;
+	}
+	memcpy(sockinfo[ret].remoteip, (const char*)host,strlen((const char*)host));
+	sockinfo[ret].remoteport = *(unsigned short*)port;
 	localport++;
 
     if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
@@ -320,22 +366,43 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	memset(wbuf, 0, AT_DATA_LEN);
 	memset(tmpbuf, 0, AT_DATA_LEN);
 	str_to_hex((const char *)buf, len, tmpbuf);
-	snprintf(wbuf, AT_DATA_LEN, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].ip,(int)sockinfo[id].port,(int)data_len,tmpbuf);
+	snprintf(wbuf, AT_DATA_LEN, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].remoteip,(int)sockinfo[id].remoteport,(int)data_len,tmpbuf);
+	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
+}
+
+int32_t nb_sendto(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port)
+{
+	char *cmd = "AT+NSOST=";
+	int data_len = len/2;
+    if(buf == NULL || data_len > AT_MAX_PAYLOADLEN)
+    {
+        AT_LOG("payload too long");
+        return -1;
+    }
+	memset(wbuf, 0, AT_DATA_LEN);
+	memset(tmpbuf, 0, AT_DATA_LEN);
+	str_to_hex((const char *)buf, len, tmpbuf);
+	snprintf(wbuf, AT_DATA_LEN, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,ipaddr,*port,(int)data_len,tmpbuf);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
 int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len)
 {
-    return nb_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
+    return nb_recv_timeout(id, buf, len,NULL,NULL, LOS_WAIT_FOREVER);
 }
 
-int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeout)
+int32_t nb_recvfrom(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port)
+{
+    return nb_recv_timeout(id, buf, len, ipaddr,port,LOS_WAIT_FOREVER);
+}
+
+int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout)
 {
     int rlen = 0;
     int rskt = -1;
-    int port = 0;
     int readleft = 0;
     int ret;
+	int tmp;
     QUEUE_BUFF	qbuf = {0, NULL};
     UINT32 qlen = sizeof(QUEUE_BUFF);
 
@@ -347,18 +414,22 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len, int32_t timeou
     {
         return -1;
     }
+	printf("qbuf:%s\n",qbuf.addr);//qbuf:3,192.168.5.1,1024,2,ABAB,0OK
 
-    sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&port,&rlen,tmpbuf+22,&readleft,rbuf);
-    AT_LOG("ret = %x, len = %d, rxlen = %d, qbuf.len = %d", ret, (int)len, rlen, (int)qbuf.len);
-
-    if (qbuf.len){
-        rlen = (len < qbuf.len) ? len : qbuf.len;
-        memcpy(buf, wbuf, rlen);
-        at_free(qbuf.addr);
-    }
-    else
+	if(ipaddr != NULL)
+	{
+    	sscanf((const char*)qbuf.addr, "%d,%s,%d,%d,%s,%s", &rskt,ipaddr,&tmp,&rlen,rbuf,tmpbuf);
+    	AT_LOG("ipaddr:%s port:%d",ipaddr,tmp);
+	}
+	else
     {
-        rlen = 0;
+		sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&tmp,&rlen,rbuf,&readleft,tmpbuf);
+    }
+    AT_LOG("rskt:%d ret:%x, len:%d, rlen:%d, qbuf.len:%d",rskt, ret, (int)len, rlen, (int)qbuf.len);
+
+    if (rlen){
+        memcpy(buf, rbuf, rlen);
+        at_free(qbuf.addr);
     }
     return rlen;
 
@@ -398,11 +469,15 @@ at_config at_user_conf = {
 at_adaptor_api at_interface = {
     .init = NULL,
 
+    .bind = nb_bind,
+
     .connect = nb_connect,
     .send = nb_send,
+    .sendto = nb_sendto,
 
     .recv_timeout = nb_recv_timeout,
     .recv = nb_recv,
+    .recvfrom = nb_recvfrom,
 
     .close = nb_close,
     .recv_cb = nb_recv_cb,

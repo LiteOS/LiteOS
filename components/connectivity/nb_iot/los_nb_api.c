@@ -42,7 +42,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {
     int ret;
     int timecnt = 0;
-    if(host == NULL || port == NULL)
+    if(port == NULL)
         return -1;
     at.init();
 
