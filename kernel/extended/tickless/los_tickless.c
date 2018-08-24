@@ -37,6 +37,7 @@
 #include "los_tick.ph"
 #include "los_tickless.inc"
 #include "los_hw.h"
+#include "los_task.h"
 
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 
@@ -50,7 +51,7 @@ BOOL g_bTicklessFlag = 1;
 BOOL g_bTickIrqFlag = 0;
 BOOL g_bReloadSysTickFlag = 0;
 #if (LOSCFG_PLATFORM_HWI == NO)
-UINT32 g_uwSysTickIntFlag = 0;
+enum TICKLESS_OS_TICK_INT_FLAG g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_INIT;
 #endif
 
 volatile UINT32 g_uwSleepTicks = 0;
@@ -95,7 +96,7 @@ inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
     #if (LOSCFG_PLATFORM_HWI == YES)
         if (uwHwiIndex == (SysTick_IRQn + OS_SYS_VECTOR_CNT))
     #else
-        if (g_uwSysTickIntFlag == 2) /* OS tick interrupt */
+        if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_SET) /* OS tick interrupt */
     #endif
         {
             uwElapseTicks = (g_uwSleepTicks - 1);
@@ -124,7 +125,7 @@ inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
         osTickHandlerLoop(uwElapseTicks);
         g_uwSleepTicks = 0;
      #if (LOSCFG_PLATFORM_HWI == NO)
-        g_uwSysTickIntFlag = 0;
+        g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_INIT;
      #endif
     }
 }
@@ -161,9 +162,9 @@ VOID osTicklessStart(VOID)
     #endif
         g_uwSleepTicks = uwSleepTicks;
     #if (LOSCFG_PLATFORM_HWI == NO)
-        if (g_uwSysTickIntFlag == 0)
+        if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_INIT)
         {
-            g_uwSysTickIntFlag = 1;
+            g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_WAIT;
         }
     #endif
     }
@@ -172,6 +173,52 @@ out:
     LOS_IntRestore(uvIntSave);
 
     return;
+}
+
+VOID osTicklessHandler(VOID)
+{
+#if (LOSCFG_PLATFORM_HWI == YES)
+
+    if (g_bTickIrqFlag)
+    {
+        g_bTickIrqFlag = 0;
+        osTicklessStart();
+    }
+
+    osEnterSleep();
+
+#else
+
+    if (g_bTickIrqFlag)
+    {
+        UINTPTR uvIntSave;
+        uvIntSave = LOS_IntLock();
+        LOS_TaskLock();
+
+        g_bTickIrqFlag = 0;
+        osTicklessStart();
+
+        osEnterSleep();
+        LOS_IntRestore(uvIntSave);
+
+        /*
+         * Here: Handling interrupts. However, because the task scheduler is locked,
+         * there will be no task switching, after the interrupt exit, the CPU returns
+         * here to continue excuting the following code.
+         */
+
+        uvIntSave = LOS_IntLock();
+        osUpdateKernelTickCount(0);  /* param: 0 - invalid */
+        LOS_TaskUnlock();
+        LOS_IntRestore(uvIntSave);
+    }
+    else
+    {
+        /* Waiting for g_bTickIrqFlag setup, at most one tick time, sleep directly */
+        osEnterSleep();
+    }
+
+#endif
 }
 
 #ifdef __cplusplus

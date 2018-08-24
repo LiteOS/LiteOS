@@ -103,9 +103,9 @@ LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
     g_bTickIrqFlag = g_bTicklessFlag;
 
     #if (LOSCFG_PLATFORM_HWI == NO)
-    if (g_uwSysTickIntFlag == 1)
+    if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_WAIT)
     {
-        g_uwSysTickIntFlag = 2;
+        g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_SET;
     }
     #endif
 #endif

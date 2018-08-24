@@ -571,7 +571,7 @@ extern VOID Reset_Handler(VOID);
  * @see None.
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID  osPendSV(VOID);
+extern VOID PendSV_Handler(VOID);
 
  /**
  *@ingroup los_hwi
