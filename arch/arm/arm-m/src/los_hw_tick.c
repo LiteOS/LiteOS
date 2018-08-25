@@ -87,7 +87,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osTickStart(VOID)
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 /*****************************************************************************
 Function   : LOS_SysTickReload
-Description: reconfig systick, and clear SysTick_IRQn
+Description: reconfig systick
 Input   : none
 output  : none
 return  : none
@@ -95,7 +95,6 @@ return  : none
 LITE_OS_SEC_TEXT_MINOR VOID LOS_SysTickReload(UINT32 uwCyclesPerTick)
 {
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-    NVIC_ClearPendingIRQ(SysTick_IRQn);
     SysTick->LOAD  = (uint32_t)(uwCyclesPerTick - 1UL);               /* set reload register */
     SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
