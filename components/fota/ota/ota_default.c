@@ -303,6 +303,7 @@ int ota_default_update_process(void)
     case OTA_S_UPDATING:
         (void)prv_update_state(OTA_S_UPDATING);
         ret = board_update_copy(g_ota_flag.old_image_length, g_ota_flag.image_length,
+                                OTA_IMAGE_DOWNLOAD_ADDR,
                                 prv_get_update_record, prv_set_update_record);
         if (OTA_ERRNO_OK != ret)
         {

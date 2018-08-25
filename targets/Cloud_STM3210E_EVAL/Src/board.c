@@ -212,6 +212,7 @@ int board_jump2app(void)
 }
 
 int board_update_copy(int32_t old_image_len, int32_t new_image_len,
+                      uint32_t new_image_addr,
                       void (*func_get_update_record)(uint8_t *state, uint32_t *offset),
                       int (*func_set_update_record)(uint8_t state, uint32_t offset))
 {
@@ -264,7 +265,7 @@ int board_update_copy(int32_t old_image_len, int32_t new_image_len,
             return OTA_ERRNO_SPI_FLASH_WRITE;
         }
     }
-    ret = prv_spi2inner_copy(OTA_IMAGE_DOWNLOAD_ADDR, new_image_len, cur_state, cur_offset, func_set_update_record);
+    ret = prv_spi2inner_copy(new_image_addr, new_image_len, cur_state, cur_offset, func_set_update_record);
     if (ret != 0)
     {
         OTA_LOG("update image failed");
