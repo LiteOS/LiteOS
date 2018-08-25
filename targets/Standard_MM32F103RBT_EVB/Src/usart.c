@@ -74,13 +74,17 @@ void Debug_USART1_UART_Init(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.10  
 
 }
-
+void UART_SendString(UART_TypeDef* UARTx, uint16_t ch)
+{
+    while((UART1->CSR&UART_IT_TXIEN)==0);//循环发送,直到发送完毕   
+    UART1->TDR = (ch & (uint16_t)0x00FF);  
+}
 
 /* define fputc */
 #if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
 int fputc(int ch, FILE *f)
 {
-    UART_SendData(UART1, ch);
+    UART_SendString(UART1, ch);
     return ch;
 }
 #elif defined ( __GNUC__ )  /* GCC: printf will call _write to print */
