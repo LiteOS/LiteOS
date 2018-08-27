@@ -56,7 +56,7 @@
 #define NB_STAT_LOCALPORT 56
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
-#define AT_DATAF_PREFIX      "+NSONMI"
+#define AT_DATAF_PREFIX      "+NSONMI:"
 #define MAX_SOCK_NUM 5
 #define IP_LEN 16
 typedef struct _socket_info_t

@@ -31,7 +31,8 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include <string.h>
+#include <ctype.h>
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "bc95.h"
 
@@ -57,6 +58,38 @@ int str_to_hex(const char *bufin, int len, char *bufout)
     return 0;
 }
 
+void HexStrToStr(const unsigned char *source, unsigned char *dest, int sourceLen)
+{
+    short i;
+    unsigned char highByte, lowByte;
+    for (i = 0; i < sourceLen; i += 2)
+    {
+        highByte = toupper(source[i]);
+        lowByte  = toupper(source[i + 1]);
+        if (highByte > 0x39)
+            highByte -= 0x37;
+        else
+            highByte -= 0x30;
+        if (lowByte > 0x39)
+            lowByte -= 0x37;
+        else
+            lowByte -= 0x30;
+        dest[i / 2] = (highByte << 4) | lowByte;
+    }
+    return ;
+}
+
+int chartoint(char* port)
+{
+	int tmp=0;
+	while(*port >= '0' && *port <= '9')
+	{
+		tmp = tmp*10+*port-'0';
+		port++;
+	}
+	return tmp;
+}
+
 int32_t nb_reboot(void)
 {
     memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _socket_info_t));
@@ -79,12 +112,15 @@ int32_t nb_set_cdpserver(char* host, char* port)
     char *cmd = "AT+NCDP=";
     char *cmd2 = "AT+NCDP?";
 	char *cmdNNMI = "AT+NNMI=1\r";
+    char *cmdCMEE = "AT+CMEE=1\r";
 	//char *cmdCGP = "AT+CGPADDR";
 	char tmpbuf[128] = {0};
 	int ret = -1;
     char ipaddr[100] = {0};
-    if(strlen(host) > 70 || strlen(port) > 20)
+    if(strlen(host) > 70 || strlen(port) > 20 || (host==NULL && port == NULL))
     {
+        ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), "OK", NULL);
+        ret = at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), "OK", NULL);
         return ret;
     }
 
@@ -220,6 +256,34 @@ int32_t nb_create_sock(int port,int proto)
     return -1;
 }
 
+char rcvbuf[AT_DATA_LEN]={0};
+int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
+{
+    int port;
+    int ret,qid;
+    static int offset = 0;
+    unsigned char bufout[512]={0};
+    unsigned char* tmp;
+    tmp = strtok(str,",");
+    qid = chartoint((char*)tmp);
+    tmp = strtok(NULL,",");
+    memcpy(qbuf->ipaddr,tmp,strlen(tmp));
+    tmp = strtok(NULL,",");
+    port = chartoint((char*)tmp);
+    qbuf->port = port;
+    tmp = strtok(NULL,",");
+    *rlen = chartoint((char*)tmp);
+    tmp = strtok(NULL,",");
+    HexStrToStr((const unsigned char*)tmp, bufout, (*rlen)*2);
+
+    memcpy(qbuf->addr+offset,bufout,*rlen);
+    offset+=*rlen;
+    tmp = strtok(NULL,",");
+    *readleft = chartoint((char*)tmp);
+    ret = offset;
+    return ret;
+}
+
 int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
@@ -230,76 +294,74 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 
     int32_t ret = -1;
     int32_t sockid = 0, data_len = 0;
-    char * p1, *p2;
+    char *p1, *p2;
     QUEUE_BUFF qbuf;
     p1 = (char *)buf;
-    char* cmd = "AT+NSORF";
+    char* cmd = "AT+NSORF=";
+    int rlen,readleft = 0,tolen = 0;
 
-    AT_LOG("entry!");
-
-    if (strstr(p1, AT_DATAF_PREFIX) != NULL)
+    p2 = strstr(p1, AT_DATAF_PREFIX);
+    if (NULL == p2)
     {
-        p2 = strstr(p1, ",");
-        if (NULL == p2)
-        {
-            AT_LOG("got data prefix invailed!");
-            goto END;
-        }
-
-        for (p2++; *p2 <= '9' && *p2 >= '0'; p2++)
-        {
-            sockid = sockid * 10 + (*p2 - '0');
-        }
-
-        for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
-        {
-            data_len = (data_len * 10 + (*p2 - '0'));
-        }
-
-        qbuf.addr = at_malloc(data_len + 40);//extra space for ip and port
-        if (NULL == qbuf.addr)
-        {
-            AT_LOG("malloc for qbuf failed!");
-            goto END;
-        }
-
-        qbuf.len = data_len;
-        memset(wbuf, 0, AT_DATA_LEN);
-        memset(tmpbuf, 0, AT_DATA_LEN);
-        snprintf(wbuf, AT_DATA_LEN, "%s=%d,%d\r", cmd, (int)sockid,(int)data_len);
-        sprintf(tmpbuf, "%d,\r",(int)sockid);
-        at.cmd((int8_t*)wbuf, strlen(wbuf), tmpbuf, (char *)qbuf.addr);
-
-        if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
-        {
-            AT_LOG("LOS_QueueWriteCopy  failed!");
-            at_free(qbuf.addr);
-            goto END;
-        }
-        ret = data_len;
+        AT_LOG("got data prefix invailed!");
+        goto END;
     }
+    p2+=strlen(AT_DATAF_PREFIX);
+
+    for (p2++; *p2 <= '9' && *p2 >= '0'; p2++)
+    {
+        sockid = sockid * 10 + (*p2 - '0');
+    }
+
+    for (p2++; *p2 <= '9' && *p2 >= '0' ;p2++)
+    {
+        data_len = (data_len * 10 + (*p2 - '0'));
+    }
+
+    qbuf.addr = at_malloc(AT_DATA_LEN/2);//extra space for ip and port
+    if (NULL == qbuf.addr)
+    {
+        AT_LOG("malloc for qbuf failed!");
+        goto END;
+    }
+
+    qbuf.len = AT_DATA_LEN/2;
+    memset(wbuf, 0, AT_DATA_LEN);
+    memset(rcvbuf, 0, AT_DATA_LEN);
+    snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
+    at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
+
+    if(rcvbuf!= NULL)
+	{
+	    tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
+        while(readleft != 0 && rcvbuf != NULL)
+        {
+            memset(wbuf, 0, AT_DATA_LEN);
+            memset(rcvbuf, 0, AT_DATA_LEN);
+            snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
+            at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
+            tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
+        }
+	}
+    qbuf.len = tolen;
+    *(qbuf.addr+tolen) = NULL;
+
+    if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
+    {
+        AT_LOG("LOS_QueueWriteCopy  failed!");
+        at_free(qbuf.addr);
+        goto END;
+    }
+    ret = data_len;
     END:
     return ret;
 }
 
-int chartoint(char* port)
-{
-	int tmp=0;
-	//printf("the port convey is %s \n",port);
-	while(*port != '\0')
-	{
-		tmp = tmp*10+*port-'0';
-		port++;
-	}
-	return tmp;
-}
 int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)
 {
 	int ret = 0;
 	int portnum;
-	printf("nb_bind\n");
 	portnum = chartoint((char*)port);
-	printf("port:%s portnum:%d\n",port,portnum);
 
     ret = nb_create_sock(portnum, 17);
 
@@ -325,6 +387,7 @@ int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)
 int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 {
 	int ret = 0;
+    int portnum;
 	static int localport = NB_STAT_LOCALPORT;
 
 	do{
@@ -338,8 +401,10 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 		AT_LOG_DEBUG("sock num exceeded,ret is %d",ret);
 		return -1;
 	}
+    portnum = chartoint((char*)port);
 	memcpy(sockinfo[ret].remoteip, (const char*)host,strlen((const char*)host));
-	sockinfo[ret].remoteport = *(unsigned short*)port;
+	sockinfo[ret].remoteport = portnum;
+    AT_LOG("ret:%d remoteip:%s port:%d",ret,sockinfo[ret].remoteip,sockinfo[ret].remoteport);
 	localport++;
 
     if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
@@ -358,15 +423,17 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	char *cmd = "AT+NSOST=";
 	//char *str = "AT+NMGS192.53.100.53,5683,1,11\r";
 	int data_len = len/2;
+    int i=0;
     if(buf == NULL || data_len > AT_MAX_PAYLOADLEN)
     {
         AT_LOG("payload too long");
         return -1;
     }
+    AT_LOG("id:%d remoteip:%s port:%d",id,sockinfo[id].remoteip,sockinfo[id].remoteport);
 	memset(wbuf, 0, AT_DATA_LEN);
 	memset(tmpbuf, 0, AT_DATA_LEN);
 	str_to_hex((const char *)buf, len, tmpbuf);
-	snprintf(wbuf, AT_DATA_LEN, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].remoteip,(int)sockinfo[id].remoteport,(int)data_len,tmpbuf);
+	snprintf(wbuf, AT_DATA_LEN, "%s%d,%s,%d,%d,%s\r",cmd,(int)id,sockinfo[id].remoteip,(int)sockinfo[id].remoteport,(int)len,tmpbuf);
 	return at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL);
 }
 
@@ -399,10 +466,7 @@ int32_t nb_recvfrom(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* p
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout)
 {
     int rlen = 0;
-    int rskt = -1;
-    int readleft = 0;
     int ret;
-	int tmp;
     QUEUE_BUFF	qbuf = {0, NULL};
     UINT32 qlen = sizeof(QUEUE_BUFF);
 
@@ -414,21 +478,16 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,in
     {
         return -1;
     }
-	printf("qbuf:%s\n",qbuf.addr);//qbuf:3,192.168.5.1,1024,2,ABAB,0OK
 
 	if(ipaddr != NULL)
 	{
-    	sscanf((const char*)qbuf.addr, "%d,%s,%d,%d,%s,%s", &rskt,ipaddr,&tmp,&rlen,rbuf,tmpbuf);
-    	AT_LOG("ipaddr:%s port:%d",ipaddr,tmp);
+	    memcpy(ipaddr,qbuf.ipaddr,strlen(qbuf.ipaddr));
+        *port = qbuf.port;
 	}
-	else
-    {
-		sscanf((const char*)qbuf.addr, "\r%d,%s,%d,%d,%s,%d\r%s", &rskt,tmpbuf,&tmp,&rlen,rbuf,&readleft,tmpbuf);
-    }
-    AT_LOG("rskt:%d ret:%x, len:%d, rlen:%d, qbuf.len:%d",rskt, ret, (int)len, rlen, (int)qbuf.len);
+    rlen = qbuf.len;
 
     if (rlen){
-        memcpy(buf, rbuf, rlen);
+        memcpy(buf, qbuf.addr, rlen);
         at_free(qbuf.addr);
     }
     return rlen;
