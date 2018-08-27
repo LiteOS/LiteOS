@@ -571,7 +571,7 @@ extern VOID Reset_Handler(VOID);
  * @see None.
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID  osPendSV(VOID);
+extern VOID PendSV_Handler(VOID);
 
  /**
  *@ingroup los_hwi
@@ -669,10 +669,6 @@ ul>
  *@since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-extern VOID LOS_SysTickReload(UINT32 uwCyclesPerTick);
-#endif
 
 extern UINT32 LOS_SysTickCurrCycleGet(VOID);
 

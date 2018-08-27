@@ -54,7 +54,8 @@ extern "C" {
 #define OTA_DEFAULT_IMAGE_ADDR        0x08020000
 
 int board_jump2app(void);
-int board_update_copy(int32_t image_len,
+int board_update_copy(int32_t old_image_len, int32_t new_image_len,
+                      uint32_t new_image_addr,
                       void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
                       int (*func_set_update_record)(uint8_t state, uint32_t offset));
 int board_rollback_copy(int32_t image_len,

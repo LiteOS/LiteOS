@@ -41,7 +41,7 @@
     .global  LOS_IntRestore
     .global  LOS_StartToRun
     .global  osTaskSchedule
-    .global  osPendSV
+    .global  PendSV_Handler
 
 /****************************************************************************************
 *                                  EXTERN PARAMETERS
@@ -133,6 +133,19 @@ LOS_StartToRun:
     /**
      * Restore the default stack frame(R0-R3,R12,LR,PC,xPSR) of g_stLosTask.pstRunTask to R0-R7.
      * Return by setting the CONTROL register.
+     *
+     * The initial stack of the current running task is as follows:
+     *
+     *                 POP: Restore the context of the current running task ===>|
+     *                                                             High addr--->|
+     *                                                   Bottom of the stack--->|
+     * ----------+-----------------------+--------------------------------------+
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+
+     *           |<---Top of the stack, restored from g_stLosTask.pstRunTask->pStackPointer
+     *           |<---      skip     --->|<---        copy to R0-R7         --->|
+     *                                                             R3 to PSP--->|
+     *                                    Stack pointer after LOS_StartToRun--->|
      */
     LDR     R3, [R1]
     ADDS    R3, R3, #36            /* skip R4-R11, PRIMASK. */
@@ -206,7 +219,7 @@ osTaskSchedule:
 
 /****************************************************************************************
 * Function:
-*        VOID osPendSV(VOID);
+*        VOID PendSV_Handler(VOID);
 * Description:
 *        PendSV interrupt handler, switch the context of the task.
 *        First: Save the context of the current running task(g_stLosTask.pstRunTask)
@@ -214,8 +227,8 @@ osTaskSchedule:
 *        Second: Restore the context of the next running task(g_stLosTask.pstNewTask)
 *                from its own stack.
 ****************************************************************************************/
-    .type osPendSV, %function
-osPendSV:
+    .type PendSV_Handler, %function
+PendSV_Handler:
     /**
      * R12: Save the interruption state of the current running task.
      * Disable all interrupts except Reset,NMI and HardFault
@@ -248,6 +261,18 @@ TaskSwitch:
      * NOTE: Before entering the exception handler function, these registers
      *       (xPSR,PC,LR,R12,R3-R0) have been automatically
      *       saved by the CPU in the stack of the current running task.
+     *
+     * The stack of the current running task is as follows:
+     *
+     *           |<=== PUSH: Save the context of the current running task
+     *           |                                                      High addr--->|
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+-----
+     *                               Stack pointer before entering exception--->|
+     *                                   |<---        cpu auto saved        --->|
+     *                                   |<---PSP to R0
+     *           |<---Top of the stack, save to g_stLosTask.pstRunTask->pStackPointer
      */
     SUBS    R0, #36
     STMIA   R0!, {R4-R7}           /* save R4-R7. */
@@ -307,6 +332,31 @@ TaskSwitch:
      * NOTE: After exiting the exception handler function, these registers
      *       (xPSR,R0-R3,R12,LR,PC) will be automatically
      *       restored by the CPU from the stack of the next running task.
+     *
+     * 1. The stack of the next running task is as follows:
+     *
+     *                    POP: Restore the context of the next running task ===>|
+     *                                                                  High addr--->|
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |<---Top of the stack, restored from g_stLosTask.pstNewTask->pStackPointer
+     *                      R1 to PSP--->|
+     *                                   |<---      cpu auto restoring      --->|
+     *                                 Stack pointer after exiting exception--->|
+     *
+     * 2. If the next running task is run for the first time, the stack is as follows:
+     *
+     *                    POP: Restore the context of the next running task ===>|
+     *                                                             High addr--->|
+     *                                                   Bottom of the stack--->|
+     * ----------+-----------------------+--------------------------------------+
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+
+     *           |<---Top of the stack, restored from g_stLosTask.pstNewTask->pStackPointer
+     *                      R1 to PSP--->|
+     *                                   |<---      cpu auto restoring      --->|
+     *                                 Stack pointer after exiting exception--->|
      */
     ADDS    R1, #16
     LDMFD   R1!, {R3-R7}           /* restore R8-R12 to R3-R7. */
