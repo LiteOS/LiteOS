@@ -31,65 +31,53 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __HAL_SRAM_H__
+#define __HAL_SRAM_H__
 
-#include <stdio.h>
-#include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+#ifdef __cplusplus
+#if __cplusplus
+extern "C"{
 #endif
+#endif /* __cplusplus */
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
+/* Includes -----------------------------------------------------------------*/
+#include "stm32f1xx_hal.h"
+
+/* Defines ------------------------------------------------------------------*/
+/** 
+  * @brief  SRAM status structure definition  
+  */     
+#define SRAM_OK         0x00
+#define SRAM_ERROR      0x01
+
+#define SRAM_DEVICE_ADDR  ((uint32_t)0x68000000)
+#define SRAM_DEVICE_SIZE  ((uint32_t)0x100000)  /* SRAM device size in MBytes */  
+  
+/* #define SRAM_MEMORY_WIDTH    FSMC_NORSRAM_MEM_BUS_WIDTH_8  */
+#define SRAM_MEMORY_WIDTH    FSMC_NORSRAM_MEM_BUS_WIDTH_16
+
+#define SRAM_BURSTACCESS    FSMC_BURST_ACCESS_MODE_DISABLE  
+/* #define SRAM_BURSTACCESS    FSMC_BURST_ACCESS_MODE_ENABLE*/
+  
+#define SRAM_WRITEBURST    FSMC_WRITE_BURST_DISABLE  
+/* #define SRAM_WRITEBURST   FSMC_WRITE_BURST_ENABLE */
+
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+uint8_t hal_sram_init(void);
+uint8_t hal_sram_read_data(uint32_t addr, uint16_t *buff, uint32_t len);
+uint8_t hal_sram_write_data(uint32_t addr, uint16_t *buff, uint32_t len);
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
 #endif
+#endif /* __cplusplus */
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
 
-#include <hal_spi_flash.h>
-
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
-
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (void)
-{
-    hal_spi_flash_config();
-    
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
-
+#endif /* __HAL_SRAM_H__ */
