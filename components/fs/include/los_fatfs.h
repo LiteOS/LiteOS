@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,64 +32,61 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __LOS_FATFS_H__
+#define __LOS_FATFS_H__
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C"{
 #endif
+#endif /* __cplusplus */
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
+/* Includes -----------------------------------------------------------------*/
+#include "ff.h"
+#include "diskio.h"
+#include <stdint.h>
+/* Defines ------------------------------------------------------------------*/
+#define DISK_STATE_INITIALIZED  1
+/* Macros -------------------------------------------------------------------*/
+/* Typedefs -----------------------------------------------------------------*/
+struct diskio_drv
+{
+    DSTATUS (*initialize)   (BYTE);                             /*!< Initialize Disk Drive  */
+    DSTATUS (*status)       (BYTE);                             /*!< Get Disk Status        */
+    DRESULT (*read)         (BYTE, BYTE *, DWORD, UINT);        /*!< Read Sector(s)         */
+    DRESULT (*write)        (BYTE, const BYTE *, DWORD, UINT);  /*!< Write Sector(s)        */
+    DRESULT (*ioctl)        (BYTE, BYTE, void *);               /*!< I/O control operation  */
+};
+
+struct disk_dev
+{
+    uint8_t                 state;
+    const struct diskio_drv *drv;
+    uint8_t                 lun;
+};
+
+struct disk_mnt
+{
+    struct disk_dev     dev[FF_VOLUMES];
+    volatile uint8_t    num;
+};
+
+/* Extern variables ---------------------------------------------------------*/
+/* Functions API ------------------------------------------------------------*/
+
+int fatfs_init (void);
+int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive);
+int fatfs_unmount(const char *path, uint8_t drive);
+
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
 #endif
+#endif /* __cplusplus */
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
 
-#include <hal_spi_flash.h>
-
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
-
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (void)
-{
-    hal_spi_flash_config();
-    
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
-
+#endif /* __LOS_FATFS_H__ */

@@ -48,7 +48,7 @@ extern "C" {
 /* M25P80-VMW6G-STMicoelectronics 8Mbit */
 
 #define SPI_FLASH_PAGESIZE                         256
-#define SPI_FLASH_SECTOR                           4096
+#define SPI_FLASH_SECTOR                           (64 * 1024)
 #define SPI_FLASH_ID                               0x202014
 #define SPI_FLASH_TOTAL_SIZE                       0x100000
 
