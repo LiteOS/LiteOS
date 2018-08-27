@@ -56,6 +56,7 @@ void at_deinit();
 at_task at =
 {
     .tsk_hdl = 0xFFFF,
+    .oobtsk_hdl = 0xFFFF,
     .recv_buf = NULL,
     .cmdresp = NULL,
     .userdata = NULL,
@@ -186,7 +187,8 @@ int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len)
 
 int cloud_cmd_matching(int8_t *buf, int32_t len)
 {
-    int32_t ret = 0;
+    //int32_t ret = 0;
+    int index = 0;
     char *cmp = NULL;
     int i;
     //    int rlen;
@@ -194,21 +196,29 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
 
     for(i = 0; i < at_oob.oob_num; i++)
     {
-        cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
-        if(cmp != NULL)
+        //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
+        index = strncmp((const char *)(buf+2),(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
+        if(index == 0)
         {
-            AT_LOG("cloud send cmd:%s", at_oob.oob[i].featurestr);
+            //AT_LOG("cloud send cmd:%s", at_oob.oob[i].featurestr);
             cmp += at_oob.oob[i].len;
             //            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
-                ret = at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)buf, (int32_t)len);
-            return ret;
+            {
+                //ret = at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)buf, (int32_t)len);
+                at_oob.oob[i].runflag = 1;
+                at_oob.oob[i].buf = buf;
+                at_oob.oob[i].buflen = len;
+                memcpy(at.saveddata,buf,len);
+                (void)LOS_SemPost(at.oob_sem);
+            }
+            return len;
         }
     }
     return 0;
 }
 
-void at_recv_task(uint32_t p)
+void at_recv_task()
 {
     uint32_t recv_len = 0;
     uint8_t *tmp = at.userdata;  //[MAX_USART_BUF_LEN] = {0};
@@ -243,8 +253,9 @@ void at_recv_task(uint32_t p)
                 ret = cloud_cmd_matching((int8_t *)p1, data_len);
                 if(ret > 0)
                 {
-                    p1 += ret;
-                    continue;
+                    //p1 += ret;
+                    //continue;
+                    break;
                 }
 
                 listener = at.head;
@@ -271,7 +282,7 @@ void at_recv_task(uint32_t p)
                 else
                 {
                     if(NULL != listener->resp)
-                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, suffix + strlen((char *)listener->suffix) - p1);
+                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1);//suffix + strlen((char *)listener->suffix) - p1
                     (void)LOS_SemPost(at.resp_sem);
                 }
                 break;
@@ -299,6 +310,41 @@ uint32_t create_at_recv_task()
     return uwRet;
 
 }
+void at_oob_task(int8_t *buf, int32_t len)
+{
+    int i = 0;
+    while(1)
+    {
+        (void)LOS_SemPend(at.oob_sem, LOS_WAIT_FOREVER);
+        for(i=0;i<OOB_MAX_NUM;i++)
+            if(at_oob.oob[i].runflag == 1)
+            {
+                (void)at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)at.saveddata, at_oob.oob[i].buflen);
+                memset(at.saveddata,0,at_user_conf.user_buf_len);
+                break;
+            }
+    }
+
+}
+
+uint32_t create_at_oob_task()
+{
+    uint32_t uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 1;
+    task_init_param.pcName = "at_oob_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)at_oob_task;
+    task_init_param.uwStackSize = 0x1000;
+
+    uwRet = LOS_TaskCreate((UINT32 *)&at.oobtsk_hdl, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+
+}
 
 void at_init_oob(void)
 {
@@ -319,9 +365,15 @@ int32_t at_struct_init(at_task *at)
     if (ret != LOS_OK)
     {
         AT_LOG("init at_recv_sem failed!");
-        goto at_recv_sema_failed;
+        goto at_recv_sem_failed;
     }
 
+    ret = LOS_SemCreate(0, (UINT32 *)&at->oob_sem);
+    if (ret != LOS_OK)
+    {
+        AT_LOG("init at_recv_sem failed!");
+        goto at_oob_sem_failed;
+    }
 
     ret = LOS_MuxCreate((UINT32 *)&at->cmd_mux);
     if (ret != LOS_OK)
@@ -365,6 +417,12 @@ int32_t at_struct_init(at_task *at)
         AT_LOG("malloc userdata failed!");
         goto malloc_userdata_buf;
     }
+    at->saveddata = at_malloc(at_user_conf.user_buf_len);
+    if (NULL == at->saveddata)
+    {
+        AT_LOG("malloc saveddata failed!");
+        goto malloc_saveddata_buf;
+    }
 
     at->linkid = (at_link *)at_malloc(at_user_conf.linkid_num * sizeof(at_link));
     if (NULL == at->linkid)
@@ -381,6 +439,8 @@ int32_t at_struct_init(at_task *at)
     //        atiny_free(at->linkid);
 malloc_linkid_failed:
     at_free(at->userdata);
+malloc_saveddata_buf:
+    at_free(at->saveddata);
 malloc_userdata_buf:
     at_free(at->cmdresp);
 malloc_resp_buf:
@@ -391,7 +451,9 @@ at_resp_sem_failed:
     (void)LOS_MuxDelete(at->cmd_mux);
 at_cmd_mux_failed:
     (void)LOS_SemDelete(at->recv_sem);
-at_recv_sema_failed:
+at_oob_sem_failed:
+    (void)LOS_SemDelete(at->oob_sem);
+at_recv_sem_failed:
     return AT_FAILED;
 }
 
@@ -480,6 +542,16 @@ void at_init()
         (void)at_struct_deinit(&at);
         return;
     }
+
+    if(LOS_OK != create_at_oob_task())
+    {
+        AT_LOG("create_at_oob_task failed!");
+        at_usart_deinit();
+        (void)LOS_TaskDelete(at.tsk_hdl);
+        (void)at_struct_deinit(&at);
+        return;
+    }
+
     //at_ota_init("+NNMI:",strlen("+NNMI:"));
 
     AT_LOG("Config complete!!\n");

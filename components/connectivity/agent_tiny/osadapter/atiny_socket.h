@@ -51,6 +51,26 @@ extern "C" {
 
 /**
  *@ingroup atiny_socket
+ *@brief create socket and bind local ip and port
+ *
+ *@par Description:
+ *This API is used to create socket and bind local ip and port. It will do name resolution with both IPv6 and IPv4, do internal memory allocation for socket structure and release it by the atiny_net_close interface.
+ *used only in bootstrap server mode.
+ *@attention none.
+ *
+ *@param host           [IN] Host to bind.
+ *@param port           [IN] Port to bind.
+ *@param proto          [IN] Protocol: ATINY_PROTO_TCP or ATINY_PROTO_UDP.
+ *
+ *@retval #pointer      Point to the Socket you created.
+ *@retval NULL          Create socket or binded ip or port failed.
+ *@par Dependency: none.
+ *@see atiny_net_recv | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
+ */
+void *atiny_net_bind(const char *host, const char *port, int proto);
+
+/**
+ *@ingroup atiny_socket
  *@brief create socket and connect to the server
  *
  *@par Description:

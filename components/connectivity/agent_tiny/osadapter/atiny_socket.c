@@ -77,6 +77,28 @@ typedef struct
     int fd;
 } atiny_net_context;
 
+void *atiny_net_bind(const char *host, const char *port, int proto)
+{
+	atiny_net_context *ctx = NULL;
+#if defined(WITH_AT_FRAMEWORK)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+    	SOCKET_LOG("malloc failed for socket context");
+    	return NULL;
+    }
+
+    ctx->fd = at_api_bind(host, port, proto);
+    if (ctx->fd < 0)
+    {
+    	SOCKET_LOG("unkown host or port");
+    	atiny_free(ctx);
+    	ctx = NULL;
+    }
+#endif
+    return ctx;
+}
+
 void *atiny_net_connect(const char *host, const char *port, int proto)
 {
     atiny_net_context *ctx = NULL;
@@ -88,7 +110,8 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
     struct addrinfo *cur;
 #endif
 
-    if (NULL == host || NULL == port ||
+    //if (NULL == host || NULL == port ||
+    if (NULL == port ||
             (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
     {
         SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
@@ -283,7 +306,7 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     ret = atiny_net_recv(ctx, buf, len);
 
 #elif defined(WITH_AT_FRAMEWORK)
-    ret = at_api_recv_timeout(fd, buf, len, timeout);
+    ret = at_api_recv_timeout(fd, buf, len, NULL,NULL,timeout);
 #elif defined(WITH_WIZNET)
     ret = wiznet_recv_timeout(fd, buf, len, timeout);
 #else

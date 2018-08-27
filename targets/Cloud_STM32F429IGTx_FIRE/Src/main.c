@@ -93,8 +93,11 @@ VOID main_task(VOID)
     los_nb_report("23", 1);
     //los_nb_deinit();
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry============================\n");
+    los_nb_init(NULL,NULL,NULL);
+    los_nb_notify("+NSONMI:",strlen("+NSONMI:"),nb_data_rcv_handler);
     at_api_register(&at_interface);
     agent_tiny_entry();
 #endif

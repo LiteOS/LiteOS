@@ -77,6 +77,8 @@ typedef int32_t (*oob_callback)(void* arg, int8_t* buf, int32_t buflen);
 typedef struct {
     uint32_t len;
     uint8_t *addr;
+    char ipaddr[40];
+    int port;
 }QUEUE_BUFF;
 
 
@@ -99,6 +101,9 @@ typedef struct _listner{
 typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
+    int runflag;
+    int8_t *buf;
+    int buflen;
 	oob_callback callback;
 	void* arg;
 }oob_t;
@@ -126,12 +131,15 @@ typedef struct __config{
 typedef struct at_task{
 
 	uint32_t  tsk_hdl;
+    uint32_t  oobtsk_hdl;
 	uint32_t recv_sem;
 	uint32_t resp_sem;
+    uint32_t oob_sem;
 	uint32_t cmd_mux;
-	uint8_t  *recv_buf;  
+	uint8_t  *recv_buf;
 	uint8_t  *cmdresp;/*AT cmd response,default 512 bytes*/
 	uint8_t  *userdata;  /*data form servers,default 512 bytes*/
+    uint8_t  *saveddata;
 	uint32_t  mux_mode;
 	at_link  *linkid;
 	at_listener * head;
