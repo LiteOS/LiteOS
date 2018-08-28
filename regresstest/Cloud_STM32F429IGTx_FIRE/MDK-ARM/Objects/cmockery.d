@@ -1,9 +1,0 @@
-.\objects\cmockery.o: ..\..\cmockery\src\cmockery.c
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\setjmp.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\signal.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\cmockery.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\cmockery.o: ..\..\cmockery\src\google\cmockery.h
