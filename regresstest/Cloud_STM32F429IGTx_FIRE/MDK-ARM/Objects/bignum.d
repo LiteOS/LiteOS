@@ -1,0 +1,13 @@
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls-2.6.0\library\bignum.c
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls_port\los_mbedtls_config.h
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls/check_config.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls/bignum.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls/bn_mul.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\bignum.o: ..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls/platform.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h

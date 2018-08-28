@@ -1,0 +1,14 @@
+.\objects\fota_port.o: ..\..\..\targets\Cloud_STM32F429IGTx_FIRE\Src\fota_port.c
+.\objects\fota_port.o: ..\..\..\targets\Cloud_STM32F429IGTx_FIRE\Inc\fota_port.h
+.\objects\fota_port.o: ..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_api.h
+.\objects\fota_port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\fota_port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\fota_port.o: ..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.h
+.\objects\fota_port.o: ..\..\..\components\fota\ota\ota.h
+.\objects\fota_port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\fota_port.o: ..\..\..\components\fota\ota\ota_errno.h
+.\objects\fota_port.o: ..\..\..\targets\Cloud_STM32F429IGTx_FIRE\Hardware\Inc\hal_spi_flash.h
+.\objects\fota_port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\fota_port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\fota_port.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\fota_port.o: ..\..\..\targets\Cloud_STM32F429IGTx_FIRE\Inc\board.h

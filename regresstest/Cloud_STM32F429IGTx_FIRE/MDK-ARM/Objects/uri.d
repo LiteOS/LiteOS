@@ -1,0 +1,13 @@
+.\objects\uri.o: ..\..\..\components\connectivity\lwm2m\core\uri.c
+.\objects\uri.o: ..\..\..\components\connectivity\lwm2m\core\internals.h
+.\objects\uri.o: ..\..\..\components\connectivity\lwm2m\core\liblwm2m.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\uri.o: ..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.h
+.\objects\uri.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\uri.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h

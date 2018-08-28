@@ -1,0 +1,13 @@
+.\objects\fota_package_head.o: ..\..\..\components\fota\fota_package_storage_device\fota_package_head.c
+.\objects\fota_package_head.o: ..\..\..\components\fota\fota_package_storage_device\fota_package_head.h
+.\objects\fota_package_head.o: ..\..\..\components\fota\fota_package_storage_device\fota_package_storage_device.h
+.\objects\fota_package_head.o: ..\..\..\components\connectivity\agent_tiny\lwm2m_client\fota\atiny_fota_api.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\fota_package_head.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\fota_package_head.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\fota_package_head.o: ..\..\..\components\fota\fota_package_storage_device\fota_package_checksum.h
+.\objects\fota_package_head.o: ..\..\..\components\fota\fota_package_storage_device\fota_firmware_writer.h

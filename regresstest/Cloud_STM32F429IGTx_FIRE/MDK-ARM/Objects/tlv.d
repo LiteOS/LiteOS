@@ -1,0 +1,15 @@
+.\objects\tlv.o: ..\..\..\components\connectivity\lwm2m\core\tlv.c
+.\objects\tlv.o: ..\..\..\components\connectivity\lwm2m\core\internals.h
+.\objects\tlv.o: ..\..\..\components\connectivity\lwm2m\core\liblwm2m.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\tlv.o: ..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.h
+.\objects\tlv.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+.\objects\tlv.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h

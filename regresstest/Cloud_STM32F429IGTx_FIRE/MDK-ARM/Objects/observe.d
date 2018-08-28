@@ -1,0 +1,13 @@
+.\objects\observe.o: ..\..\..\components\connectivity\lwm2m\core\observe.c
+.\objects\observe.o: ..\..\..\components\connectivity\lwm2m\core\internals.h
+.\objects\observe.o: ..\..\..\components\connectivity\lwm2m\core\liblwm2m.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\observe.o: ..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.h
+.\objects\observe.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\observe.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h

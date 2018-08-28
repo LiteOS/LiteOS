@@ -1,0 +1,15 @@
+.\objects\commandline.o: ..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\commandline.o: ..\..\..\components\connectivity\lwm2m\core\liblwm2m.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\commandline.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\commandline.o: ..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.h
+.\objects\commandline.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\commandline.o: ..\..\..\components\connectivity\lwm2m\core\internals.h
+.\objects\commandline.o: ..\..\..\components\connectivity\lwm2m\examples\shared\commandline.h

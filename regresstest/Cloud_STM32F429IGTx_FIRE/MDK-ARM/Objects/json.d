@@ -1,0 +1,14 @@
+.\objects\json.o: ..\..\..\components\connectivity\lwm2m\core\json.c
+.\objects\json.o: ..\..\..\components\connectivity\lwm2m\core\internals.h
+.\objects\json.o: ..\..\..\components\connectivity\lwm2m\core\liblwm2m.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\json.o: ..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.h
+.\objects\json.o: ..\..\..\components\connectivity\agent_tiny\osadapter\atiny_adapter.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\ctype.h
+.\objects\json.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
