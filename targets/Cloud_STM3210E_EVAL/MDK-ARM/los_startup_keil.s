@@ -55,7 +55,6 @@ __LOS_HEAP_ADDR_END__
                 THUMB
 
                 IMPORT  ||Image$$ARM_LIB_STACKHEAP$$ZI$$Limit||
-                IMPORT  osPendSV
 
                 EXPORT  _BootVectors
                 EXPORT  Reset_Handler
