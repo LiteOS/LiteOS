@@ -63,11 +63,8 @@
 /* The time to block waiting for input. */
 #define TIME_WAITING_FOR_INPUT                      ( LOS_WAIT_FOREVER )
 
-//#define TEST_SSID       "TP-LINK_80D8BE"
-//#define TEST_PASSWORD   "87654321"
 #define TEST_SSID       "TP-LINK_4CEAC8"
 #define TEST_PASSWORD   "123456789"
-
 
 /* Semaphore to signal incoming packets */
 static UINT32 s_uwRxSemID;

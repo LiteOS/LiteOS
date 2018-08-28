@@ -41,13 +41,15 @@
 #include <string.h>
 #include <stdint.h>
 #include "tiny_aes.h"
+#include "wpa.h"
+
+#ifdef USE_MRVL_SDIO_WIFI
 
 // base on mbedtls
 #include "compat-1.3.h"
 #include "arc4.h"
 #include "md5.h"
 #include "sha1.h"
-#include "wpa.h"
 
 /*
  * ARC4 cipher function
@@ -110,7 +112,8 @@ uint16_t AES_unwrap(const uint8_t *key, const uint8_t *data, uint16_t datalen, u
 {
     uint8_t a[8], b[16];
     uint8_t *r;
-    uint16_t i, j, n, t;
+    int16_t j;
+    uint16_t i, n, t;
     struct AES_ctx ctx;
 
     if(NULL == key || NULL == data || NULL == output) return 0;
@@ -295,3 +298,35 @@ uint8_t PRF(const void *k, uint16_t klen, const char *a, const void *b, uint16_t
     free(p);
     return 1;
 }
+#else
+uint16_t AES_unwrap(const uint8_t *key, const uint8_t *data, uint16_t datalen, uint8_t *output)
+{
+    return 0;
+}
+
+void ARC4_decrypt_keydata(const uint8_t *KEK, const uint8_t *key_iv, const uint8_t *data, uint16_t datalen, uint8_t *output)
+{
+}
+
+uint8_t hmac_md5(const void *key, uint16_t keylen, const void *msg, uint16_t msglen, uint8_t output[HMAC_MD5_OUTPUTSIZE])
+{
+    return 0;
+}
+
+uint8_t hmac_sha1(const void *key, uint16_t keylen, const void *msg, uint16_t msglen, uint8_t output[HMAC_SHA1_OUTPUTSIZE])
+{
+    return 0;
+}
+
+uint8_t pbkdf2_hmac_sha1(const void *password, uint16_t pwdlen, const void *salt, uint16_t saltlen, uint32_t c, uint8_t *dk, uint16_t dklen)
+{
+    return 0;
+}
+
+uint8_t PRF(const void *k, uint16_t klen, const char *a, const void *b, uint16_t blen, void *output, uint8_t n)
+{
+    return 0;
+}
+
+#endif /* USE_MRVL_SDIO_WIFI */
+
