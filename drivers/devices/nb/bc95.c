@@ -260,12 +260,12 @@ char rcvbuf[AT_DATA_LEN]={0};
 int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
 {
     int port;
-    int ret,qid;
+    int ret;
     static int offset = 0;
     unsigned char bufout[512]={0};
-    unsigned char* tmp;
+    char* tmp;
     tmp = strtok(str,",");
-    qid = chartoint((char*)tmp);
+    //chartoint((char*)tmp);
     tmp = strtok(NULL,",");
     memcpy(qbuf->ipaddr,tmp,strlen(tmp));
     tmp = strtok(NULL,",");
@@ -284,6 +284,8 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     return ret;
 }
 
+int32_t nb_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf);
+
 int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 {
     if (NULL == buf || len <= 0)
@@ -299,6 +301,7 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     p1 = (char *)buf;
     char* cmd = "AT+NSORF=";
     int rlen,readleft = 0,tolen = 0;
+    char* str;
 
     p2 = strstr(p1, AT_DATAF_PREFIX);
     if (NULL == p2)
@@ -329,7 +332,7 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     memset(wbuf, 0, AT_DATA_LEN);
     memset(rcvbuf, 0, AT_DATA_LEN);
     snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
-    at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
+    nb_cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
 
     if(rcvbuf!= NULL)
 	{
@@ -339,12 +342,19 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
             memset(wbuf, 0, AT_DATA_LEN);
             memset(rcvbuf, 0, AT_DATA_LEN);
             snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
-            at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
-            tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
+            nb_cmd((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf);
+            str = strstr(rcvbuf, AT_DATAF_PREFIX);
+            str+=strlen(AT_DATAF_PREFIX);
+            if(str != NULL)
+            {
+                str = strstr(rcvbuf, ",");//todo
+                str+=1;
+            }
+            tolen = nb_decompose_str(str,&qbuf,&rlen,&readleft);
         }
 	}
     qbuf.len = tolen;
-    *(qbuf.addr+tolen) = NULL;
+    //*(qbuf.addr+tolen) = NULL;
 
     if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
     {
@@ -363,7 +373,7 @@ int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)
 	int portnum;
 	portnum = chartoint((char*)port);
 
-    ret = nb_create_sock(portnum, 17);
+    ret = nb_create_sock(portnum, UDP_PROTO);
 
 	if(ret >= MAX_SOCK_NUM || ret < 0)
 	{
@@ -391,7 +401,7 @@ int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)
 	static int localport = NB_STAT_LOCALPORT;
 
 	do{
-		ret = nb_create_sock(localport, 17);
+		ret = nb_create_sock(localport, UDP_PROTO);
 		localport++;
 	}while(ret < 0);
 
@@ -423,13 +433,12 @@ int32_t nb_send(int32_t id , const uint8_t  *buf, uint32_t len)
 	char *cmd = "AT+NSOST=";
 	//char *str = "AT+NMGS192.53.100.53,5683,1,11\r";
 	int data_len = len/2;
-    int i=0;
     if(buf == NULL || data_len > AT_MAX_PAYLOADLEN)
     {
         AT_LOG("payload too long");
         return -1;
     }
-    AT_LOG("id:%d remoteip:%s port:%d",id,sockinfo[id].remoteip,sockinfo[id].remoteport);
+    AT_LOG("id:%d remoteip:%s port:%d",(int)id,sockinfo[id].remoteip,sockinfo[id].remoteport);
 	memset(wbuf, 0, AT_DATA_LEN);
 	memset(tmpbuf, 0, AT_DATA_LEN);
 	str_to_hex((const char *)buf, len, tmpbuf);
@@ -467,7 +476,7 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,in
 {
     int rlen = 0;
     int ret;
-    QUEUE_BUFF	qbuf = {0, NULL};
+    QUEUE_BUFF	qbuf;
     UINT32 qlen = sizeof(QUEUE_BUFF);
 
     memset(rbuf, 0, AT_DATA_LEN);

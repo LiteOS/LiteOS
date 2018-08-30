@@ -59,6 +59,8 @@
 #define AT_DATAF_PREFIX      "+NSONMI:"
 #define MAX_SOCK_NUM 5
 #define IP_LEN 16
+
+#define UDP_PROTO   17
 typedef struct _socket_info_t
 {
     int socket;

@@ -57,8 +57,7 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
-
-extern int32_t nb_data_ioctl(void *arg, int8_t *buf, int32_t len);
+int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 
 VOID main_task(VOID)
 {
@@ -84,7 +83,7 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_rcv_handler);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
