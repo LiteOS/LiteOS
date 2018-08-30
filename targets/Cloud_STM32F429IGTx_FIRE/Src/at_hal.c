@@ -232,14 +232,14 @@ int read_resp(uint8_t *buf)
     {
         return -1;
     }
-#ifndef USE_USARTRX_DMA
     NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
+#ifndef USE_USARTRX_DMA
 
     wi = wi_bak;
     if (wi == ri)
     {
-        NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
-        return 0;
+        len = 0;
+        goto END;
     }
 
     if (wi > ri)
@@ -257,7 +257,8 @@ int read_resp(uint8_t *buf)
 #else
     if (dma_wbi == dma_rbi)
     {
-        return 0;
+        len = 0;
+        goto END;
     }
     memcpy(buf, &at.recv_buf[dma_rbi * at_user_conf.user_buf_len], dma_wi[dma_rbi]);
     len = dma_wi[dma_rbi];
@@ -270,6 +271,7 @@ int read_resp(uint8_t *buf)
 #ifndef USE_USARTRX_DMA
     ri = wi;
 #endif
+END:
     NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
     return len;
 }
