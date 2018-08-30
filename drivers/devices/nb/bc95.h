@@ -53,14 +53,7 @@
 #define MAX_AT_USERDATA_LEN (1024*5)
 #define AT_MAX_PAYLOADLEN     512
 
-#define NB_STAT_LOCALPORT 56
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
-#define AT_DATAF_PREFIX      "+NSONMI:"
-#define MAX_SOCK_NUM 5
 #define IP_LEN 16
-
-#define UDP_PROTO   17
 typedef struct _socket_info_t
 {
     int socket;

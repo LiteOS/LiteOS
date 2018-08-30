@@ -224,9 +224,8 @@ void at_transmit(uint8_t *cmd, int32_t len, int flag)
 int read_resp(uint8_t *buf)
 {
     uint32_t len = 0;
-    UINT32 uwIntSave;
 #ifndef USE_USARTRX_DMA
-    uint32_t wi = wi_bak;
+    uint32_t wi;
     uint32_t tmp_len = 0;
 #endif
     if (NULL == buf)
@@ -234,13 +233,14 @@ int read_resp(uint8_t *buf)
         return -1;
     }
 #ifndef USE_USARTRX_DMA
+    NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
 
+    wi = wi_bak;
     if (wi == ri)
     {
+        NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
         return 0;
     }
-
-    uwIntSave = LOS_IntLock();
 
     if (wi > ri)
     {
@@ -254,15 +254,12 @@ int read_resp(uint8_t *buf)
         memcpy(buf + tmp_len, at.recv_buf, wi);
         len = wi + tmp_len;
     }
-    LOS_IntRestore(uwIntSave);
 #else
     if (dma_wbi == dma_rbi)
     {
         return 0;
     }
-    uwIntSave = LOS_IntLock();
     memcpy(buf, &at.recv_buf[dma_rbi * at_user_conf.user_buf_len], dma_wi[dma_rbi]);
-    LOS_IntRestore(uwIntSave);
     len = dma_wi[dma_rbi];
     dma_rbi++;
     if(dma_rbi >= dma_wi_coun)
@@ -273,6 +270,7 @@ int read_resp(uint8_t *buf)
 #ifndef USE_USARTRX_DMA
     ri = wi;
 #endif
+    NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
     return len;
 }
 #endif

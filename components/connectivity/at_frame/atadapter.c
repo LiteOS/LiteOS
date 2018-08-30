@@ -48,7 +48,7 @@ int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
 int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener *p);
 void at_listner_list_del(at_listener *p);
-int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf);
+int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback);
 
 void at_deinit();
@@ -119,24 +119,19 @@ int32_t at_get_unuse_linkid()
 }
 
 
-void store_resp_buf(int8_t *resp_buf, int8_t *buf, uint32_t len)
+void store_resp_buf(int8_t *resp_buf, int8_t *buf, uint32_t len, uint32_t* maxlen)
 {
-    if (NULL == buf || 0 == len || len > at_user_conf.user_buf_len)
+    if (NULL == buf || 0 == len || 0 == maxlen || len > at_user_conf.user_buf_len || *maxlen > at_user_conf.user_buf_len)
         return;
 
-    strcat((char *)resp_buf, (char *)buf);
+    strncat((char *)resp_buf, (char *)buf,*maxlen);
+    if(*maxlen >= len)
+        *maxlen = len;
 }
 
-char nbbuf[AT_DATA_LEN] = {0};
-int32_t nb_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
+int32_t at_cmd_in_recv_task(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
 {
-    int ret = AT_FAILED;
     uint32_t recv_len = 0;
-    uint8_t *tmp = nbbuf;
-    char *p1, * p2;
-
-    AT_LOG("nbcmd:%s", cmd);
-    memset(tmp, 0, AT_DATA_LEN);
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
 
@@ -144,24 +139,22 @@ int32_t nb_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
 
     (void)LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
 
-    recv_len = read_resp(rep_buf);
-    AT_LOG("nb recv len = %lu buf = %s buff_full = %d", recv_len, rep_buf, buff_full);
-    p1 = (char *)tmp;
-    p2 = (char *)(tmp + recv_len);
-    //store_resp_buf((int8_t *)rep_buf, (int8_t *)p1, recv_len);
+    recv_len = read_resp((uint8_t*)resp_buf);
+    AT_LOG("nb recv len = %lu buf = %s buff_full = %d", recv_len, resp_buf, buff_full);
 
     LOS_MuxPost(at.cmd_mux);
 
     return AT_OK;
 }
 
-int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
+int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
 {
     at_listener listener;
     int ret = AT_FAILED;
 
     listener.suffix = (int8_t *)suffix;
-    listener.resp = (int8_t *)rep_buf;
+    listener.resp = (int8_t *)resp_buf;
+    listener.resp_len = (uint32_t*)resp_len;
     AT_LOG("cmd:%s", cmd);
 
     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
@@ -214,8 +207,7 @@ int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len)
 
 int cloud_cmd_matching(int8_t *buf, int32_t len)
 {
-    //int32_t ret = 0;
-    int index = 0;
+    int ret = 0;
     char *cmp = NULL;
     int i;
     //    int rlen;
@@ -224,8 +216,8 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
     for(i = 0; i < at_oob.oob_num; i++)
     {
         //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
-        index = strncmp((const char *)(buf+2),(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
-        if(index == 0)
+        ret = strncmp((const char *)(buf+2),(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
+        if(ret == 0)
         {
             cmp += at_oob.oob[i].len;
             //            sscanf(cmp,"%d,%s",&rlen,wbuf);
@@ -298,12 +290,12 @@ void at_recv_task()
                 if (NULL == suffix)
                 {
                     if(NULL != listener->resp)
-                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1);
+                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1,listener->resp_len);
                 }
                 else
                 {
                     if(NULL != listener->resp)
-                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1);//suffix + strlen((char *)listener->suffix) - p1
+                        store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1,listener->resp_len);//suffix + strlen((char *)listener->suffix) - p1
                     (void)LOS_SemPost(at.resp_sem);
                 }
                 break;

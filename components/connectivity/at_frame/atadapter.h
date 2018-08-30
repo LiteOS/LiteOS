@@ -92,7 +92,7 @@ typedef struct _listner{
 	struct _listner * next;
 	int8_t * suffix;
 	int8_t * resp;
-	uint32_t resp_len;
+	uint32_t* resp_len;
 }at_listener;
 
 #define OOB_MAX_NUM 5
@@ -142,7 +142,7 @@ typedef struct at_task{
 	uint32_t timeout; //command respond timeout
 
 	void    (*init)();
-	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
+	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * resp_buf, int* resp_len);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* get unused linkid, use in multi connection mode*/
 	int32_t (*get_id)();
@@ -154,5 +154,7 @@ typedef struct at_task{
 void* at_malloc(size_t size);
 void at_free(void* ptr);
 extern int at_update_result_send(void);
+int32_t at_cmd_in_recv_task(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
+
 extern uint16_t at_fota_timer;
 #endif
