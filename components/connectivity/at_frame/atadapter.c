@@ -56,7 +56,6 @@ void at_deinit();
 at_task at =
 {
     .tsk_hdl = 0xFFFF,
-    .oobtsk_hdl = 0xFFFF,
     .recv_buf = NULL,
     .cmdresp = NULL,
     .userdata = NULL,
@@ -126,6 +125,34 @@ void store_resp_buf(int8_t *resp_buf, int8_t *buf, uint32_t len)
         return;
 
     strcat((char *)resp_buf, (char *)buf);
+}
+
+char nbbuf[AT_DATA_LEN] = {0};
+int32_t nb_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
+{
+    int ret = AT_FAILED;
+    uint32_t recv_len = 0;
+    uint8_t *tmp = nbbuf;
+    char *p1, * p2;
+
+    AT_LOG("nbcmd:%s", cmd);
+    memset(tmp, 0, AT_DATA_LEN);
+
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
+
+    at_transmit((uint8_t *)cmd, len, 1);
+
+    (void)LOS_SemPend(at.recv_sem, LOS_WAIT_FOREVER);
+
+    recv_len = read_resp(rep_buf);
+    AT_LOG("nb recv len = %lu buf = %s buff_full = %d", recv_len, rep_buf, buff_full);
+    p1 = (char *)tmp;
+    p2 = (char *)(tmp + recv_len);
+    //store_resp_buf((int8_t *)rep_buf, (int8_t *)p1, recv_len);
+
+    LOS_MuxPost(at.cmd_mux);
+
+    return AT_OK;
 }
 
 int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *rep_buf)
@@ -200,17 +227,11 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
         index = strncmp((const char *)(buf+2),(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
         if(index == 0)
         {
-            //AT_LOG("cloud send cmd:%s", at_oob.oob[i].featurestr);
             cmp += at_oob.oob[i].len;
             //            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
             {
-                //ret = at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)buf, (int32_t)len);
-                at_oob.oob[i].runflag = 1;
-                at_oob.oob[i].buf = buf;
-                at_oob.oob[i].buflen = len;
-                memcpy(at.saveddata,buf,len);
-                (void)LOS_SemPost(at.oob_sem);
+                (void)at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)buf, (int32_t)len);
             }
             return len;
         }
@@ -310,41 +331,6 @@ uint32_t create_at_recv_task()
     return uwRet;
 
 }
-void at_oob_task(int8_t *buf, int32_t len)
-{
-    int i = 0;
-    while(1)
-    {
-        (void)LOS_SemPend(at.oob_sem, LOS_WAIT_FOREVER);
-        for(i=0;i<OOB_MAX_NUM;i++)
-            if(at_oob.oob[i].runflag == 1)
-            {
-                (void)at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)at.saveddata, at_oob.oob[i].buflen);
-                memset(at.saveddata,0,at_user_conf.user_buf_len);
-                break;
-            }
-    }
-
-}
-
-uint32_t create_at_oob_task()
-{
-    uint32_t uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 1;
-    task_init_param.pcName = "at_oob_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)at_oob_task;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate((UINT32 *)&at.oobtsk_hdl, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-
-}
 
 void at_init_oob(void)
 {
@@ -366,13 +352,6 @@ int32_t at_struct_init(at_task *at)
     {
         AT_LOG("init at_recv_sem failed!");
         goto at_recv_sem_failed;
-    }
-
-    ret = LOS_SemCreate(0, (UINT32 *)&at->oob_sem);
-    if (ret != LOS_OK)
-    {
-        AT_LOG("init at_recv_sem failed!");
-        goto at_oob_sem_failed;
     }
 
     ret = LOS_MuxCreate((UINT32 *)&at->cmd_mux);
@@ -451,8 +430,6 @@ at_resp_sem_failed:
     (void)LOS_MuxDelete(at->cmd_mux);
 at_cmd_mux_failed:
     (void)LOS_SemDelete(at->recv_sem);
-at_oob_sem_failed:
-    (void)LOS_SemDelete(at->oob_sem);
 at_recv_sem_failed:
     return AT_FAILED;
 }
@@ -542,17 +519,6 @@ void at_init()
         (void)at_struct_deinit(&at);
         return;
     }
-
-    if(LOS_OK != create_at_oob_task())
-    {
-        AT_LOG("create_at_oob_task failed!");
-        at_usart_deinit();
-        (void)LOS_TaskDelete(at.tsk_hdl);
-        (void)at_struct_deinit(&at);
-        return;
-    }
-
-    //at_ota_init("+NNMI:",strlen("+NNMI:"));
 
     AT_LOG("Config complete!!\n");
 }

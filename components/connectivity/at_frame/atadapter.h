@@ -102,8 +102,6 @@ typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
     int runflag;
-    int8_t *buf;
-    int buflen;
 	oob_callback callback;
 	void* arg;
 }oob_t;
@@ -131,10 +129,8 @@ typedef struct __config{
 typedef struct at_task{
 
 	uint32_t  tsk_hdl;
-    uint32_t  oobtsk_hdl;
 	uint32_t recv_sem;
 	uint32_t resp_sem;
-    uint32_t oob_sem;
 	uint32_t cmd_mux;
 	uint8_t  *recv_buf;
 	uint8_t  *cmdresp;/*AT cmd response,default 512 bytes*/
