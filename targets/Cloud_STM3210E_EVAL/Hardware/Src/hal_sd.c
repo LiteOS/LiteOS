@@ -122,10 +122,10 @@ static void hal_sd_show_info(void)
 		case CARD_SECURED:      printf("           CARD_SECURED\r\n");break;
 	}	
   	printf("Card ManufacturerID: %d\r\n",cid.ManufacturerID);	
- 	printf("Card RCA:            0x%08X\r\n",hsd.SdCard.RelCardAdd);
-	printf("Card Capacity:       %d MB\r\n",(uint32_t)(((uint64_t)hsd.SdCard.BlockNbr*hsd.SdCard.BlockSize)>>20));
- 	printf("Card BlockSize:      %d B\r\n",hsd.SdCard.BlockSize);	
-    printf("DeviceSize:          %d B\r\n\r\n",hsd.SdCard.BlockSize);
+ 	printf("Card RCA:            0x%08lX\r\n",hsd.SdCard.RelCardAdd);
+	printf("Card Capacity:       %ld MB\r\n",(uint32_t)(((uint64_t)hsd.SdCard.BlockNbr*hsd.SdCard.BlockSize)>>20));
+ 	printf("Card BlockSize:      %ld B\r\n",hsd.SdCard.BlockSize);
+    printf("DeviceSize:          %ld B\r\n\r\n",hsd.SdCard.BlockSize);
 }
 
 /* Public functions ---------------------------------------------------------*/

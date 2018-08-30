@@ -103,9 +103,9 @@ EEPROM_MSG_STR  EEPROM_MSG;
 uint8 mac[6] = {0x00,0x08,0xdc,0x11,0x11,0x11};
 
 /* default local ip infor */
-uint8 local_ip[4]   = {192,168,0,231};
+uint8 local_ip[4]   = {192,168,1,231};
 uint8 subnet[4]     = {255,255,255,0};
-uint8 gateway[4]    = {192,168,0,1};
+uint8 gateway[4]    = {192,168,1,1};
 uint8 dns_server[4] = {114,114,114,114};
 
 uint16 local_port   = 5000;
@@ -240,8 +240,9 @@ void w5500_init(void)
     w5500_config();
     w5500_interrupt_config();
     w5500_reset();
-}
 
+    IINCHIP_WRITE(SIMR, 0xff);
+}
 
 void w5500_deinit(void)
 {
