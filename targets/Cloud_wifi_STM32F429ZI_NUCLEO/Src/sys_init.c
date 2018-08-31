@@ -38,9 +38,18 @@ struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
 ip4_addr_t gw;
-uint8_t IP_ADDRESS[4];
-uint8_t NETMASK_ADDRESS[4];
-uint8_t GATEWAY_ADDRESS[4];
+uint8_t IP_ADDRESS[4]       = {192, 168, 1, 10};
+uint8_t NETMASK_ADDRESS[4]  = {255, 255, 255, 0};
+uint8_t GATEWAY_ADDRESS[4]  = {192, 168, 1, 1};
+
+#define USE_DHCP    1
+
+#define DHCP_OFF                      0
+#define DHCP_START                    1
+#define DHCP_WAIT_ADDRESS             2
+#define DHCP_ADDRESS_ASSIGNED         3
+#define DHCP_TIMEOUT                  4
+#define DHCP_LINK_DOWN                5
 
 static void lwip_impl_register(void)
 {
@@ -49,31 +58,93 @@ static void lwip_impl_register(void)
     lwIPRegSspCbk(&stlwIPSspCbk);
 }
 
+#if USE_DHCP
+void net_dhcp_start(void)
+{
+    struct dhcp *dhcp;
+    uint8_t DHCP_state = DHCP_START;
+
+    while(1)
+    {   
+        if(DHCP_state == DHCP_ADDRESS_ASSIGNED){
+            printf("get dhcp successfully,ip is %d.%d.%d.%d\n",
+                ip4_addr1(&gnetif.ip_addr),ip4_addr2(&gnetif.ip_addr),
+                ip4_addr3(&gnetif.ip_addr),ip4_addr4(&gnetif.ip_addr));
+            break;
+        }
+        switch (DHCP_state)
+        {
+        case DHCP_START:
+        {
+            ip_addr_set_zero_ip4(&gnetif.ip_addr);
+            ip_addr_set_zero_ip4(&gnetif.netmask);
+            ip_addr_set_zero_ip4(&gnetif.gw);       
+            dhcp_start(&gnetif);
+            DHCP_state = DHCP_WAIT_ADDRESS;
+        }
+        break;
+        case DHCP_WAIT_ADDRESS:
+        {                
+            if (dhcp_supplied_address(&gnetif)) 
+            {
+                DHCP_state = DHCP_ADDRESS_ASSIGNED;   
+            }
+            else
+            {
+                dhcp = (struct dhcp *)netif_get_client_data(&gnetif, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
+
+                /* DHCP timeout */
+                if (++dhcp->tries > 10)
+                {
+                    printf("dhcp timeout!\n");
+                    DHCP_state = DHCP_TIMEOUT;
+
+                    /* Stop DHCP */
+                    dhcp_stop(&gnetif);
+
+                    /* Static address used */
+                    IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
+                    IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
+                    IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+                    netif_set_addr(&gnetif, ip_2_ip4(&ipaddr), ip_2_ip4(&netmask), ip_2_ip4(&gw));
+                    return;
+                }
+            }
+        }
+        break;
+        case DHCP_LINK_DOWN:
+        {
+            /* Stop DHCP */
+            dhcp_stop(&gnetif);
+            DHCP_state = DHCP_OFF; 
+        }
+        break;
+        default: break;
+        }
+        LOS_TaskDelay(1000);
+    }
+}
+#endif
+
 void net_init(void)
 {  
     /* IP addresses initialization */
-    IP_ADDRESS[0] = 192;
-    IP_ADDRESS[1] = 168;
-    IP_ADDRESS[2] = 1;
-    IP_ADDRESS[3] = 10;
-    NETMASK_ADDRESS[0] = 255;
-    NETMASK_ADDRESS[1] = 255;
-    NETMASK_ADDRESS[2] = 255;
-    NETMASK_ADDRESS[3] = 0;
-    GATEWAY_ADDRESS[0] = 192;
-    GATEWAY_ADDRESS[1] = 168;
-    GATEWAY_ADDRESS[2] = 1;
-    GATEWAY_ADDRESS[3] = 1;
 
     lwip_impl_register();
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
-    printf("lwip test init ok\n");
+    
+#if USE_DHCP
+    ip_addr_set_zero_ip4(&ipaddr);
+    ip_addr_set_zero_ip4(&netmask);
+    ip_addr_set_zero_ip4(&gw);
+#else
     /* IP addresses initialization without DHCP (IPv4) */
     IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
     IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
     IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+#endif
 
 #ifdef USE_MRVL_SDIO_WIFI
     (void)ethernetif_api_register(&g_wifi_eth_api);
@@ -97,6 +168,9 @@ void net_init(void)
         /* When the netif link is down this function must be called */
         netif_set_down(&gnetif);
     }
+#if USE_DHCP
+    net_dhcp_start();
+#endif
 }
 
 uint32_t HAL_GetTick(void)

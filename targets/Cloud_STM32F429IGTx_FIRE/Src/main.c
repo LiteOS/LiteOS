@@ -57,8 +57,7 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
-
-extern int32_t nb_data_ioctl(void *arg, int8_t *buf, int32_t len);
+int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 
 VOID main_task(VOID)
 {
@@ -84,7 +83,7 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_rcv_handler);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
@@ -93,8 +92,11 @@ VOID main_task(VOID)
     los_nb_report("23", 1);
     //los_nb_deinit();
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry============================\n");
+    los_nb_init(NULL,NULL,NULL);
+    los_nb_notify("+NSONMI:",strlen("+NSONMI:"),nb_data_rcv_handler);
     at_api_register(&at_interface);
     agent_tiny_entry();
 #endif
