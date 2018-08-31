@@ -47,6 +47,17 @@ extern at_task at;
 at_adaptor_api at_interface;
 extern char rbuf[AT_DATA_LEN];
 extern char wbuf[AT_DATA_LEN];
+at_config at_user_conf = {
+    .name = AT_MODU_NAME,
+    .usart_port = AT_USART_PORT,
+    .buardrate = AT_BUARDRATE,
+    .linkid_num = AT_MAX_LINK_NUM,
+    .user_buf_len = MAX_AT_USERDATA_LEN,
+    .cmd_begin = AT_CMD_BEGIN,
+    .line_end = AT_LINE_END,
+    .mux_mode = 1, //support multi connection mode
+    .timeout = AT_CMD_TIMEOUT,   //  ms
+};
 
 char tmpbuf[AT_DATA_LEN]={0}; //transform to hex
 
@@ -266,7 +277,6 @@ int32_t nb_create_sock(int port,int proto)
     return -1;
 }
 
-char rcvbuf[AT_DATA_LEN]={0};
 int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
 {
     int port;
@@ -277,12 +287,18 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     tmp = strtok(str,",");
     //chartoint((char*)tmp);
     tmp = strtok(NULL,",");
-    memcpy(qbuf->ipaddr,tmp,strlen(tmp));
+    strncpy(qbuf->ipaddr,tmp,MAXIPLEN-1);
     tmp = strtok(NULL,",");
     port = chartoint((char*)tmp);
     qbuf->port = port;
     tmp = strtok(NULL,",");
     *rlen = chartoint((char*)tmp);
+    if(*rlen >= AT_DATA_LEN/2)
+    {
+        AT_LOG("decompose len error:%d!",*rlen);
+        *rlen = 0;
+        return -1;
+    }
     tmp = strtok(NULL,",");
     HexStrToStr((const unsigned char*)tmp, bufout, (*rlen)*2);
 
@@ -311,6 +327,20 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     char* cmd = "AT+NSORF=";
     int rlen,readleft = 0,tolen = 0;
     char* str;
+    char* rcvbuf = at_malloc(at_user_conf.user_buf_len);
+    if (NULL == rcvbuf)
+    {
+        AT_LOG("malloc recvbuf failed!");
+        goto END;
+    }
+    char* cmdbuf = at_malloc(40);
+    if (NULL == cmdbuf)
+    {
+        AT_LOG("malloc wbuf failed!");
+        goto END;
+    }
+
+    //memset(&qbuf,0,sizeof(QUEUE_BUFF));
 
     p2 = strstr(p1, AT_DATAF_PREFIX);
     if (NULL == p2)
@@ -338,21 +368,20 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     }
 
     qbuf.len = AT_DATA_LEN/2;
-    memset(wbuf, 0, AT_DATA_LEN);
-    memset(rcvbuf, 0, AT_DATA_LEN);
-    snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
-    (void)at_cmd_in_recv_task((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf,&rbuflen);
+    memset(cmdbuf, 0, 40);
+    snprintf(cmdbuf, 40, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
+    (void)at_cmd_in_recv_task((int8_t*)cmdbuf, strlen(cmdbuf), "OK", rcvbuf,&rbuflen);
 
     if(rcvbuf!= NULL)
 	{
 	    tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
         while(readleft != 0 && rcvbuf != NULL)
         {
-            memset(wbuf, 0, AT_DATA_LEN);
-            memset(rcvbuf, 0, AT_DATA_LEN);
+            memset(cmdbuf, 0, 40);
+            memset(rcvbuf, 0, rbuflen+1);
             rbuflen = AT_DATA_LEN;
-            snprintf(wbuf, AT_DATA_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
-            (void)at_cmd_in_recv_task((int8_t*)wbuf, strlen(wbuf), "OK", rcvbuf,&rbuflen);
+            snprintf(cmdbuf, 40, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
+            (void)at_cmd_in_recv_task((int8_t*)cmdbuf, strlen(cmdbuf), "OK", rcvbuf,&rbuflen);
 
             str = strstr(rcvbuf, AT_DATAF_PREFIX);
             str+=strlen(AT_DATAF_PREFIX);
@@ -375,6 +404,16 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     }
     ret = data_len;
     END:
+    if (NULL != rcvbuf)
+    {
+        at_free(rcvbuf);
+        rcvbuf = NULL;
+    }
+    if (NULL != cmdbuf)
+    {
+        at_free(cmdbuf);
+        cmdbuf = NULL;
+    }
     return ret;
 }
 
@@ -532,18 +571,6 @@ int32_t nb_deinit(void)
 {
     return nb_reboot();
 }
-
-at_config at_user_conf = {
-    .name = AT_MODU_NAME,
-    .usart_port = AT_USART_PORT,
-    .buardrate = AT_BUARDRATE,
-    .linkid_num = AT_MAX_LINK_NUM,
-    .user_buf_len = MAX_AT_USERDATA_LEN,
-    .cmd_begin = AT_CMD_BEGIN,
-    .line_end = AT_LINE_END,
-    .mux_mode = 1, //support multi connection mode
-    .timeout = AT_CMD_TIMEOUT,   //  ms
-};
 
 at_adaptor_api at_interface = {
     .init = NULL,

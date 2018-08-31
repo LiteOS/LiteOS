@@ -128,11 +128,7 @@ void *malloc(size_t size) /*lint !e31 !e10*/
     if (size == 0)
         return NULL; /*lint !e64*/
 
-#if defined(LOS_LIBC_MALLOC_ALIGN)
-    ptr = LOS_MemAllocAlign((void *)OS_SYS_MEM_ADDR, (UINT32)size, LOS_LIBC_MALLOC_ALIGN_SIZE);
-#else
     ptr = LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)size);
-#endif
 
     return ptr;
 }

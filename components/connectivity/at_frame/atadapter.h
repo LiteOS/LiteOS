@@ -73,11 +73,11 @@
 
 /* TYPE REDEFINE */
 typedef int32_t (*oob_callback)(void* arg, int8_t* buf, int32_t buflen);
-
+#define MAXIPLEN  40
 typedef struct {
     uint32_t len;
     uint8_t *addr;
-    char ipaddr[40];
+    char ipaddr[MAXIPLEN];
     int port;
 }QUEUE_BUFF;
 
