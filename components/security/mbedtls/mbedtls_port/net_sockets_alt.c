@@ -126,22 +126,6 @@ void mbedtls_net_free(mbedtls_net_context *ctx)
     atiny_net_close(ctx);
 }
 
-int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char *port, int proto )
-{
-    int ret = atiny_net_bind(ctx, bind_ip, port, proto);
-
-    if (ret == -1)
-        return MBEDTLS_ERR_NET_UNKNOWN_HOST;
-    else if (ret == -2)
-        return MBEDTLS_ERR_NET_SOCKET_FAILED;
-    else if (ret == -3)
-       return MBEDTLS_ERR_NET_BIND_FAILED;
-    else if (ret == -4)
-       return MBEDTLS_ERR_NET_LISTEN_FAILED;
-
-    return ret;
-}
-
 int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
                         mbedtls_net_context *client_ctx,
                         void *client_ip, size_t buf_size, size_t *ip_len )

@@ -58,8 +58,7 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
-
-extern int32_t nb_data_ioctl(void *arg, int8_t *buf, int32_t len);
+int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 
 VOID main_task(VOID)
 {
@@ -85,7 +84,7 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_rcv_handler);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
@@ -94,8 +93,11 @@ VOID main_task(VOID)
     los_nb_report("23", 1);
     //los_nb_deinit();
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry============================\n");
+    los_nb_init(NULL,NULL,NULL);
+    los_nb_notify("+NSONMI:",strlen("+NSONMI:"),nb_data_rcv_handler);
     at_api_register(&at_interface);
     agent_tiny_entry();
 #endif
@@ -113,21 +115,25 @@ VOID main_task(VOID)
 
 VOID dtls_server_task(VOID)
 {
-	mbedtls_net_context * bind_fd = atiny_malloc(sizeof(mbedtls_net_context)) ;
-    mbedtls_net_context *  cli_fd = atiny_malloc(sizeof(mbedtls_net_context));
+	mbedtls_net_context * bind_ctx = atiny_malloc(sizeof(mbedtls_net_context));
+    mbedtls_net_context *  cli_ctx = atiny_malloc(sizeof(mbedtls_net_context));
     int ret ;
     
     LOS_TaskDelay(1000);
     mbedtls_ssl_context *ssl = NULL;
 
-    ret = dtls_bind(bind_fd, NULL, "5685", 1);
+    bind_ctx = (mbedtls_net_context*)atiny_net_bind(NULL, "5685", 1);
+    if (bind_ctx == NULL)
+    {
+        return ;
+    }
     
     ssl = dtls_ssl_new_with_psk(SERVER_PSK, strlen(SERVER_PSK), SERVER_IDENTITY, MBEDTLS_SSL_IS_SERVER);
     do {    
         unsigned char buf[64] = {0};
 
-        ret = dtls_accept(bind_fd, cli_fd, NULL, 0, 0);
-        mbedtls_ssl_set_bio(ssl, cli_fd, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+        ret = dtls_accept(bind_ctx, cli_ctx, NULL, 0, 0);
+        mbedtls_ssl_set_bio(ssl, cli_ctx, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
         //new psk and handshake should been done for each client, now only for frist connection.
         do{
@@ -146,7 +152,7 @@ VOID dtls_server_task(VOID)
     }while(0);
 
     if (ssl)dtls_ssl_destroy(ssl);
-    mbedtls_net_free(bind_fd);
+    mbedtls_net_free(bind_ctx);
 
 }
 

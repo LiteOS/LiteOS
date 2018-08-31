@@ -77,39 +77,45 @@ typedef struct
     int fd;
 } atiny_net_context;
 
-int atiny_net_bind( void *ctx, const char *bind_ip, const char *port, int proto )
+void *atiny_net_bind(const char *host, const char *port, int proto)
 {
-
+    atiny_net_context *ctx = NULL;
+#if defined (WITH_LWIP) || defined (WITH_LINUX)
     struct sockaddr_in sock_addr;
-    int * fp = &((atiny_net_context*)ctx)->fd;
     int port_i;
     int ret = -1;
 
-    if (NULL == ctx || NULL == port || (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
-        return -1;
+    if (NULL == port || (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
+        return NULL;
+    
+    ctx = atiny_malloc(sizeof(atiny_net_context));
 
     sscanf(port , "%d", &port_i);
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_port = lwip_htons(port_i);
-    sock_addr.sin_addr.s_addr = (bind_ip == NULL ? IPADDR_ANY : inet_addr(bind_ip));
+    sock_addr.sin_addr.s_addr = (host == NULL ? IPADDR_ANY : inet_addr(host));
     sock_addr.sin_len = sizeof(struct sockaddr_in);
 
-    * fp = socket(AF_INET,
+    ctx->fd = socket(AF_INET,
         proto == ATINY_PROTO_TCP ? SOCK_STREAM : SOCK_DGRAM,
         proto == ATINY_PROTO_TCP ? IPPROTO_TCP : IPPROTO_UDP);
 
-    if (*fp < 0)return -2;
+    if (ctx->fd < 0)
+    {
+        ret = -2;
+        atiny_free(ctx);
+        return NULL;
+    }
 
 	int n = 1;
-	if( (ret = setsockopt( *fp, SOL_SOCKET, SO_REUSEADDR,
+	if( (ret = setsockopt( ctx->fd, SOL_SOCKET, SO_REUSEADDR,
 					(const char *) &n, sizeof( n )) ) != 0 )
 	{
-		close( *fp );
 		ret = -2;
 		goto exit_failed;
 	}
 
-    ret = bind(*fp, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr));
+    ret = bind(ctx->fd, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr));
     if (ret < 0)
     {
        ret = -3;
@@ -118,7 +124,7 @@ int atiny_net_bind( void *ctx, const char *bind_ip, const char *port, int proto 
 
     if (proto == ATINY_PROTO_TCP)
     {
-        ret = listen(*fp, 20);
+        ret = listen(ctx->fd, 20);
         if (ret < 0)
         {
             ret = -4;
@@ -126,14 +132,34 @@ int atiny_net_bind( void *ctx, const char *bind_ip, const char *port, int proto 
         }
     }
 
-    return 0;
+    return ctx;
 
 exit_failed:
-       close(*fp);
-       return ret;
+       close(ctx->fd);
+       atiny_free(ctx);
+       return NULL;
+
+#elif defined(WITH_AT_FRAMEWORK)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+    	SOCKET_LOG("malloc failed for socket context");
+    	return NULL;
+    }
+
+    ctx->fd = at_api_bind(host, port, proto);
+    if (ctx->fd < 0)
+    {
+    	SOCKET_LOG("unkown host or port");
+    	atiny_free(ctx);
+    	ctx = NULL;
+    }
+#endif
+return ctx;
 }
 int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )
 {
+#if defined (WITH_LIWP) || defined (WITH_LINUX)
     int bind_fd = ((atiny_net_context*)bind_ctx)->fd;
     int client_fd = ((atiny_net_context*)client_ctx)->fd;
     int type;
@@ -166,10 +192,12 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
 
     if (type != SOCK_STREAM)
     {
+
         struct sockaddr_in  local_addr;
         char port_s[6] = {0};
         socklen_t n = sizeof(struct sockaddr_in);
-
+        int one = 1; 
+        
         ((atiny_net_context*)client_ctx)->fd = client_fd = bind_fd;
         ((atiny_net_context*)bind_ctx)->fd = bind_fd = -1;
 
@@ -179,7 +207,13 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
         ret = getsockname(client_fd, (struct sockaddr*)&local_addr, &n);
 
         snprintf(port_s, sizeof(port_s), "%d", lwip_ntohs(local_addr.sin_port));
-        ret = atiny_net_bind(bind_ctx, NULL, port_s, ATINY_PROTO_UDP);
+        ((atiny_net_context*)bind_ctx)->fd = socket(local_addr.sin_family, SOCK_DGRAM, IPPROTO_UDP);
+        if( (ret = setsockopt( ((atiny_net_context*)bind_ctx)->fd, SOL_SOCKET, SO_REUSEADDR,
+					(const char *) &one, sizeof( one )) ) != 0 )
+    	{
+    		ret = -2;
+    	}
+        
         if (ret != 0)
             return ret;
     }
@@ -197,7 +231,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
             memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
         }
     }
-
+#endif
     return 0;
 }
 
@@ -212,7 +246,8 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
     struct addrinfo *cur;
 #endif
 
-    if (NULL == host || NULL == port ||
+    //if (NULL == host || NULL == port ||
+    if (NULL == port ||
             (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
     {
         SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
@@ -407,7 +442,7 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     ret = atiny_net_recv(ctx, buf, len);
 
 #elif defined(WITH_AT_FRAMEWORK)
-    ret = at_api_recv_timeout(fd, buf, len, timeout);
+    ret = at_api_recv_timeout(fd, buf, len, NULL,NULL,timeout);
 #elif defined(WITH_WIZNET)
     ret = wiznet_recv_timeout(fd, buf, len, timeout);
 #else

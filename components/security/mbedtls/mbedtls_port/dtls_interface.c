@@ -56,7 +56,6 @@
 #include "dtls_interface.h"
 #include "atiny_adapter.h"
 #include "mbedtls/net_sockets.h"
-#include "mbedtls/ssl_cookie.h"
 
 #define MBEDTLS_DEBUG
 
@@ -100,7 +99,7 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
     entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
     ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
-    timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
+    timer     = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 
     if (NULL == ssl || NULL == conf || entropy == NULL ||
             NULL == ctr_drbg)
@@ -374,11 +373,6 @@ void dtls_int(void)
     (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
     (void)mbedtls_platform_set_snprintf(atiny_snprintf);
     (void)mbedtls_platform_set_printf(atiny_printf);
-}
-
-int dtls_bind(mbedtls_net_context *ctx, char * host, char * port, int proto)
-{
-    return mbedtls_net_bind(ctx, host, port, proto);
 }
 
 int dtls_accept( mbedtls_net_context *bind_ctx,

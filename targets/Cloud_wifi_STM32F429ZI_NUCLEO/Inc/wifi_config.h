@@ -52,25 +52,6 @@ extern "C"{
 #include "stm32f429xx.h"
 
 /* Defines ------------------------------------------------------------------*/
-
-#if   defined ( __CC_ARM )  /* ARM Compiler 4/5 */
-  #define __PACKED_STRUCT_BEGIN         __packed
-  #define __PACKED_STRUCT_END
-#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) /* ARM Compiler 6 (armclang) */
-  #define __PACKED_STRUCT_BEGIN        
-  #define __PACKED_STRUCT_END           __PACKED 
-#elif defined ( __GNUC__ )  /* GNU Compiler */
-  #define __PACKED_STRUCT_BEGIN        
-  #define __PACKED_STRUCT_END           __PACKED 
-#elif defined ( __ICCARM__ )    /* IAR Compiler */
-  #define __PACKED_STRUCT_BEGIN         __PACKED
-  #define __PACKED_STRUCT_END            
-#elif defined ( __TI_ARM__ )    /* TI ARM Compiler */
-  #define __PACKED_STRUCT_BEGIN        
-  #define __PACKED_STRUCT_END           __PACKED 
-#endif
-
-
 /* print defines */
 #define WIFI_DEBUG_LOG
 #ifdef WIFI_DEBUG_LOG
@@ -88,9 +69,6 @@ extern "C"{
 /* options */
 #define WIFI_DEFAULT_MAXRETRY           10      // retrans
 // timeout (ms)
-//#define WIFI_DEFAULT_TIMEOUT_CMDACK     20    // The timeout of command acknowledge
-//#define WIFI_DEFAULT_TIMEOUT_CMDRESP    1000  // The timeout of command response
-//#define WIFI_DEFAULT_TIMEOUT_DATAACK    20    // The timeout of data acknowledge
 #define WIFI_DEFAULT_TIMEOUT_CMDACK     200    // The timeout of command acknowledge
 #define WIFI_DEFAULT_TIMEOUT_CMDRESP    2000  // The timeout of command response
 #define WIFI_DEFAULT_TIMEOUT_DATAACK    200    // The timeout of data acknowledge
@@ -98,8 +76,8 @@ extern "C"{
 #define WIFI_DEFAULT_TIMEOUT_CHECK      2000
 // display
 #define WIFI_DISPLAY_PACKET_SIZE    
-#define WIFI_DISPLAY_PACKET_RX 
-#define WIFI_DISPLAY_PACKET_TX 
+//#define WIFI_DISPLAY_PACKET_RX
+//#define WIFI_DISPLAY_PACKET_TX
 #define WIFI_DISPLAY_RESPTIME
 #define WIFI_DISPLAY_SCANNED_SSID  // Displays the hot spot information scanned
 

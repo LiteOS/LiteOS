@@ -49,34 +49,30 @@
 extern "C" {
 #endif
 
-/**
- *@ingroup atiny_net_bind
- *@brief bind socket to target ip and port
- *
- *@par Description:
- *
- *@attention none.
- *
- *@param ctx              [OUT]  bind socket fd
- *@param bind_ip        [IN] Host to connect to.
- *@param port            [IN]  Port to connect to.
- *@param proto          [IN] Protocol: ATINY_PROTO_TCP or ATINY_PROTO_UDP.
- *
- *@retval #int      Point to the Socket you created.
- *@retval 0          Create socket and bind to target port succ.
- *@retval -1        Unknow host name.
- *@retval -2        Create socket failed.
- *@retval -3        bind to target port failed.
- *@retval -4        listen connection failed(TCP).
- *@par Dependency: none.
- *@see atiny_net_recv | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
- */
-
-int atiny_net_bind( void *ctx, const char *bind_ip, const char *port, int proto );
 
 int atiny_net_accept( void *bind_ctx,
                         void *client_ctx,
                         void *client_ip, size_t buf_size, size_t *ip_len );
+
+/**
+ *@ingroup atiny_socket
+ *@brief create socket and bind local ip and port
+ *
+ *@par Description:
+ *This API is used to create socket and bind local ip and port. It will do name resolution with both IPv6 and IPv4, do internal memory allocation for socket structure and release it by the atiny_net_close interface.
+ *used only in bootstrap server mode.
+ *@attention none.
+ *
+ *@param host           [IN] Host to bind.
+ *@param port           [IN] Port to bind.
+ *@param proto          [IN] Protocol: ATINY_PROTO_TCP or ATINY_PROTO_UDP.
+ *
+ *@retval #pointer      Point to the Socket you created.
+ *@retval NULL          Create socket or binded ip or port failed.
+ *@par Dependency: none.
+ *@see atiny_net_recv | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
+ */
+void *atiny_net_bind(const char *host, const char *port, int proto);
 
 /**
  *@ingroup atiny_socket
