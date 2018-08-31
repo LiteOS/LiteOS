@@ -42,8 +42,8 @@ extern at_config at_user_conf;
 
 UART_HandleTypeDef at_usart;
 
-static USART_TypeDef* s_pUSART = USART2;
-static uint32_t s_uwIRQn = USART2_IRQn;
+static USART_TypeDef* s_pUSART ;
+static uint32_t s_uwIRQn ;
 
 //uint32_t list_mux;
 

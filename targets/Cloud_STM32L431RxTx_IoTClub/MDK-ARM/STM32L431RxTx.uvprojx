@@ -10,11 +10,13 @@
       <TargetName>Huawei_LiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L431RCTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32L4xx_DFP.1.2.0</PackID>
+          <PackID>Keil.STM32L4xx_DFP.2.0.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000-0x2000FFFF) IROM(0x8000000-0x803FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -52,7 +54,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath></ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -124,47 +126,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>11</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -229,6 +190,7 @@
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -365,11 +327,16 @@
             <useXO>0</useXO>
             <v6Lang>3</v6Lang>
             <v6LangP>3</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1295</MiscControls>
-              <Define>USE_HAL_DRIVER,STM32L431xx,USE_MBED_TLS,WITH_DTLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_AT_FRAMEWORK,USE_NB_NEUL95,HAL_RNG_MODULE_ENABLED</Define>
+              <Define>USE_HAL_DRIVER,STM32L431xx,USE_MBED_TLS,NOWITH_DTLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_AT_FRAMEWORK,NOUSE_ESP8266,USE_NB_NEUL95,HAL_RNG_MODULE_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\Hardware\OLED;..\Hardware\BC95;..\Hardware\BH1750;..\Hardware\DHT11;..\Hardware\GPS;..\Hardware\RNG;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\OS_CONFIG;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\components\connectivity\at_frame;..\..\..\components\connectivity\nb_iot;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\nb;..\..\..\drivers\devices\gprs;..\..\..\components\connectivity\lwm2m\examples\shared</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\Hardware\OLED;..\Hardware\BC95;..\Hardware\BH1750;..\Hardware\DHT11;..\Hardware\GPS;..\Hardware\RNG;..\..\..\components\cmsis;..\..\..\components\cmsis\1.0;..\..\..\components\cmsis\2.0;..\..\..\kernel\base\include;..\..\..\kernel\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\arm-m\cortex-m4;..\..\..\examples\include;..\OS_CONFIG;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include\mbedtls;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\components\connectivity\agent_tiny\comm\include;..\..\..\components\connectivity\agent_tiny\lwm2m_client;..\..\..\components\connectivity\agent_tiny\examples;..\..\..\components\connectivity\agent_tiny\osadapter;..\..\..\components\connectivity\at_frame;..\..\..\components\connectivity\nb_iot;..\..\..\drivers\devices\wifi;..\..\..\drivers\devices\nb;..\..\..\drivers\devices\gprs;..\Src\demo;..\Src\IoTCluB;..\..\..\components\cmsis;..\..\..\components\connectivity\lwm2m\examples\shared</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -382,6 +349,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -1242,11 +1210,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\core\utils.c</FilePath>
             </File>
-            <File>
-              <FileName>commandline.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1337,6 +1300,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\lwm2m_client\platform_adapter.c</FilePath>
             </File>
+            <File>
+              <FileName>commandline.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1381,6 +1349,51 @@
               <FileName>los_nb_api.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\nb_iot\los_nb_api.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>nb-iot_demo</GroupName>
+          <Files>
+            <File>
+              <FileName>nb-iot_cmd_ioctl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\demo\nb-iot_cmd_ioctl.c</FilePath>
+            </File>
+            <File>
+              <FileName>nb-iot_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\demo\nb-iot_demo.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>IoTCluB</GroupName>
+          <Files>
+            <File>
+              <FileName>tasklist.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\IoTCluB\tasklist.h</FilePath>
+            </File>
+            <File>
+              <FileName>club_func.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\IoTCluB\club_func.c</FilePath>
+            </File>
+            <File>
+              <FileName>club_key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\IoTCluB\club_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>club_oled.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\IoTCluB\club_oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>club_nbiot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\IoTCluB\club_nbiot.c</FilePath>
             </File>
           </Files>
         </Group>

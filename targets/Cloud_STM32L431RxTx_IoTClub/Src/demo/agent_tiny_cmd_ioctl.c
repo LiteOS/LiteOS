@@ -234,43 +234,41 @@ int atiny_get_link_quality(int* quality)
     *quality = ATINY_LINK_QUALITY;
     return ATINY_OK;
 }
-
 int atiny_get_link_utilization(int* utilization)
 {
     *utilization = ATINY_LINK_UTRILIZATION;
     return ATINY_OK;
 }
-
 int atiny_write_app_write(void* user_data, int len)
 {
     int i;
-	  uint8_t cmd_data[len];
+	   char  cmd_data[len];
 	  memcpy(cmd_data,user_data,len);
 	  
-			printf("################## %d",cmd_data);
-			if(cmd_data[0]==0) //����
+			printf("################## %s",cmd_data);
+			if(strstr(cmd_data,"L_ON")>0) //开补光灯
 			{	
-					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_SET);    // 输出高电平
 			}
-		  else if(cmd_data[0]==1) //�ص�
+		   if(strstr(cmd_data,"L_OFF")>0) //关补光灯
 		 	{	
-					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+					HAL_GPIO_WritePin(LED1_GPIO_Port,LED1_Pin,GPIO_PIN_RESET);  // 输出低电平
 			}
-			else if(cmd_data[0]==2) //����
+			 if(strstr(cmd_data,"C_ON")>0) //开降温
 			{	
-					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_SET);    // 输出高电平
 			}
-		  else if(cmd_data[0]==3) //�ص�
+		   if(strstr(cmd_data,"C_OFF")>0) //关降温
 		 	{	
-					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+					HAL_GPIO_WritePin(LED2_GPIO_Port,LED2_Pin,GPIO_PIN_RESET);  // 输出低电平
 			}
-			else if(cmd_data[0]==4) //����
+			 if(strstr(cmd_data,"H_ON")>0) //开供暖
 			{	
-					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_SET);    // ����ߵ�ƽ
+					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_SET);    // 输出高电平
 			}
-		  else if(cmd_data[0]==5) //�ص�
+		  if(strstr(cmd_data,"H_OFF")>0) //关供暖
 		 	{	
-					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_RESET);  // ����͵�ƽ
+					HAL_GPIO_WritePin(LED3_GPIO_Port,LED3_Pin,GPIO_PIN_RESET);  // 输出低电平
 			}
 			
     (void)atiny_printf("write num19 object success\r\n");
