@@ -75,7 +75,7 @@
 
 void dtls_int(void);
 
-mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* psk_identity);
+mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type);
 
 int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port);
 
@@ -84,4 +84,11 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl);
 int dtls_write(mbedtls_ssl_context* ssl, const unsigned char* buf, size_t len);
 
 int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t timeout);
+
+int dtls_bind(mbedtls_net_context *ctx, char * host, char * port, int proto);
+
+int dtls_accept( mbedtls_net_context *bind_ctx,
+                            mbedtls_net_context *client_ctx,
+                            void *client_ip, size_t buf_size, size_t *ip_len );
+
 

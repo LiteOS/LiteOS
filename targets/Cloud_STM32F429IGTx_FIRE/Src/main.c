@@ -47,6 +47,9 @@
 #include "los_nb_api.h"
 #endif
 #endif
+#ifdef SUPPORT_DTLS_SRV
+#include "test_dtls_server.h"
+#endif
 UINT32 g_TskHandle;
 
 void USART3_UART_Init(void);
@@ -105,7 +108,6 @@ VOID main_task(VOID)
 #endif
 }
 
-
 UINT32 creat_main_task()
 {
     UINT32 uwRet = LOS_OK;
@@ -152,6 +154,14 @@ int main(void)
     {
         return LOS_NOK;
     }
+
+    #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+    uwRet = create_dtls_server_task();
+    if (uwRet != LOS_OK)
+    {
+        return LOS_NOK;
+    }
+    #endif
 #endif
     (void)LOS_Start();
     return 0;
