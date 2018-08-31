@@ -83,7 +83,7 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
 #if defined (WITH_LWIP) || defined (WITH_LINUX)
     struct sockaddr_in sock_addr;
     int port_i;
-    int ret = -1;
+    int ret = ATINY_NET_ERR;
 
     if (NULL == port || (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
         return NULL;
@@ -102,7 +102,7 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
 
     if (ctx->fd < 0)
     {
-        ret = -2;
+        ret = ATINY_NET_SOCKET_FAILED;
         atiny_free(ctx);
         return NULL;
     }
@@ -111,14 +111,14 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
 	if( (ret = setsockopt( ctx->fd, SOL_SOCKET, SO_REUSEADDR,
 					(const char *) &n, sizeof( n )) ) != 0 )
 	{
-		ret = -2;
+		ret = ATINY_NET_SOCKET_FAILED;
 		goto exit_failed;
 	}
 
     ret = bind(ctx->fd, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr));
     if (ret < 0)
     {
-       ret = -3;
+       ret = ATINY_NET_BIND_FAILED;
        goto exit_failed;
     }
 
@@ -127,7 +127,7 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
         ret = listen(ctx->fd, 20);
         if (ret < 0)
         {
-            ret = -4;
+            ret = ATINY_NET_LISTEN_FAILED;
             goto exit_failed;
         }
     }
@@ -159,11 +159,11 @@ return ctx;
 }
 int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )
 {
-#if defined (WITH_LIWP) || defined (WITH_LINUX)
+#if defined (WITH_LWIP) || defined (WITH_LINUX)
     int bind_fd = ((atiny_net_context*)bind_ctx)->fd;
     int client_fd = ((atiny_net_context*)client_ctx)->fd;
     int type;
-    int ret = -1;
+    int ret = ATINY_NET_ERR;
 
     struct sockaddr_in client_addr;
     socklen_t type_len, client_addr_len;
@@ -172,7 +172,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
     if (getsockopt(bind_fd, SOL_SOCKET, SO_TYPE, (void*)&type, &type_len) != 0 ||
         (type != SOCK_STREAM && type != SOCK_DGRAM))
     {
-        return -5;
+        return ATINY_NET_ACCEPT_FAILED;
     }
 
     client_addr_len = sizeof(struct sockaddr_in);
@@ -188,8 +188,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
     }
 
     if (ret < 0)
-        return -5; //MBEDTLS_ERR_NET_ACCEPT_FAILED
-
+        return ATINY_NET_ACCEPT_FAILED;
     if (type != SOCK_STREAM)
     {
 
@@ -202,7 +201,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
         ((atiny_net_context*)bind_ctx)->fd = bind_fd = -1;
 
         if (connect(client_fd, (struct sockaddr *)&client_addr, client_addr_len) != 0)
-            return -5; //MBEDTLS_ERR_NET_ACCEPT_FAILED
+            return ATINY_NET_ACCEPT_FAILED;
 
         ret = getsockname(client_fd, (struct sockaddr*)&local_addr, &n);
 
@@ -211,7 +210,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
         if( (ret = setsockopt( ((atiny_net_context*)bind_ctx)->fd, SOL_SOCKET, SO_REUSEADDR,
 					(const char *) &one, sizeof( one )) ) != 0 )
     	{
-    		ret = -2;
+    		ret = ATINY_NET_SOCKET_FAILED;
     	}
         
         if (ret != 0)
@@ -226,7 +225,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
             *ip_len = sizeof( addr4->sin_addr.s_addr );
 
             if( buf_size < *ip_len )
-                return( -6 );
+                return( ATINY_NET_BUF_SMALL_FAILED );
 
             memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
         }

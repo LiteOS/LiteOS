@@ -257,7 +257,6 @@ C_DEFS =  \
         -D LWM2M_WITH_LOGS \
         -D AT_INTO \
         -D AT_DEBUG \
-        -D LWM2M_SERVER_MODE \
 #        -D SUPPORT_DTLS_SRV
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
