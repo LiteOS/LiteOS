@@ -170,7 +170,7 @@ connection_t *connection_create(connection_t *connList,
 
     if (targetP->securityMode != LWM2M_SECURITY_MODE_NONE)
     {
-        connP->net_context = (void *)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity);
+        connP->net_context = (void *)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity, MBEDTLS_SSL_IS_CLIENT);
         if (NULL == connP->net_context)
         {
             ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");

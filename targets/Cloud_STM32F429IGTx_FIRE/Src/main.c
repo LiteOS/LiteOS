@@ -48,6 +48,7 @@
 #endif
 #endif
 UINT32 g_TskHandle;
+UINT32 g_dtls_server_TskHandle;
 
 void USART3_UART_Init(void);
 VOID HardWare_Init(VOID)
@@ -103,6 +104,72 @@ VOID main_task(VOID)
 #endif
 }
 
+#if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+
+#define SERVER_PSK  "11223344556677881122334455667788"
+#define SERVER_IDENTITY "testserver1"
+
+#include "dtls_interface.h"
+
+VOID dtls_server_task(VOID)
+{
+	mbedtls_net_context * bind_fd = atiny_malloc(sizeof(mbedtls_net_context)) ;
+    mbedtls_net_context *  cli_fd = atiny_malloc(sizeof(mbedtls_net_context));
+    int ret ;
+    
+    LOS_TaskDelay(1000);
+    mbedtls_ssl_context *ssl = NULL;
+
+    ret = dtls_bind(bind_fd, NULL, "5685", 1);
+    
+    ssl = dtls_ssl_new_with_psk(SERVER_PSK, strlen(SERVER_PSK), SERVER_IDENTITY, MBEDTLS_SSL_IS_SERVER);
+    do {    
+        unsigned char buf[64] = {0};
+
+        ret = dtls_accept(bind_fd, cli_fd, NULL, 0, 0);
+        mbedtls_ssl_set_bio(ssl, cli_fd, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+
+        //new psk and handshake should been done for each client, now only for frist connection.
+        do{
+            ret = mbedtls_ssl_handshake(ssl);
+        }
+        while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
+                ret == MBEDTLS_ERR_SSL_WANT_WRITE));
+
+        ret = dtls_read(ssl, buf, sizeof(buf), 5000);
+        printf("%s:%d --- dtls read buf = %s\r\n", __func__, __LINE__, buf);
+        
+        unsigned char hello[] = "hello this\r\n";
+        ret = dtls_write(ssl, hello, sizeof(hello));
+
+        LOS_TaskDelay(2000);
+    }while(0);
+
+    if (ssl)dtls_ssl_destroy(ssl);
+    mbedtls_net_free(bind_fd);
+
+}
+
+UINT32 create_dtls_server_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 3;
+    task_init_param.pcName = "dtls_server_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)dtls_server_task;
+
+    task_init_param.uwStackSize = 0x1000;
+
+    uwRet = LOS_TaskCreate(&g_dtls_server_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
+
+#endif
 
 UINT32 creat_main_task()
 {
@@ -150,6 +217,14 @@ int main(void)
     {
         return LOS_NOK;
     }
+
+    #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+    uwRet = create_dtls_server_task();
+    if (uwRet != LOS_OK)
+    {
+        return LOS_NOK;
+    }
+    #endif
 #endif
     (void)LOS_Start();
     return 0;

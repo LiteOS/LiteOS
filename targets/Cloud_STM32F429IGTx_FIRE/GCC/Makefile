@@ -21,10 +21,10 @@ OPT = -Og
 #######################################
 # network
 #######################################
-USE_AT_FRAMEWORK := yes
+USE_AT_FRAMEWORK := no
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := ESP8266
 endif
 
 #######################################
@@ -35,7 +35,7 @@ USE_BOOTLOADER := no
 #######################################
 # fota
 #######################################
-USE_FOTA := yes
+USE_FOTA := no
 
 #######################################
 # sota
@@ -252,12 +252,15 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0 \
-        -D WITH_DTLS \
         -D ATINY_DEBUG \
         -D LWM2M_WITH_LOGS \
         -D AT_INTO \
         -D AT_DEBUG \
+        -D LWM2M_SERVER_MODE \
+#        -D WITH_DTLS
+#        -D SUPPORT_DTLS_SRV
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
+
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
