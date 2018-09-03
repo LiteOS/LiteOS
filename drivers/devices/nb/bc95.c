@@ -42,6 +42,9 @@
 #define AT_DATAF_PREFIX      "+NSONMI:"
 #define MAX_SOCK_NUM 5
 #define UDP_PROTO   17
+#ifndef MIN
+#define MIN(a, b) ((a) < (b)? (a) : (b))
+#endif /* MIN */
 
 extern at_task at;
 at_adaptor_api at_interface;
@@ -282,12 +285,12 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     int port;
     int ret;
     static int offset = 0;
-    unsigned char bufout[512]={0};
+    unsigned char bufout[AT_DATA_LEN/2]={0};
     char* tmp;
     tmp = strtok(str,",");
     //chartoint((char*)tmp);
     tmp = strtok(NULL,",");
-    strncpy(qbuf->ipaddr,tmp,MAXIPLEN-1);
+    strncpy(qbuf->ipaddr,tmp,sizeof(qbuf->ipaddr));
     tmp = strtok(NULL,",");
     port = chartoint((char*)tmp);
     qbuf->port = port;
@@ -318,11 +321,14 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
         return -1;
     }
 
+    #define cmdbuf_len 40
     int32_t ret = -1;
     int32_t sockid = 0, data_len = 0;
     char *p1, *p2;
     int rbuflen = AT_DATA_LEN;
     QUEUE_BUFF qbuf;
+    char cmdbuf[cmdbuf_len] = {0};
+    int cmdlen;
     p1 = (char *)buf;
     char* cmd = "AT+NSORF=";
     int rlen,readleft = 0,tolen = 0;
@@ -331,12 +337,6 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     if (NULL == rcvbuf)
     {
         AT_LOG("malloc recvbuf failed!");
-        goto END;
-    }
-    char* cmdbuf = at_malloc(40);
-    if (NULL == cmdbuf)
-    {
-        AT_LOG("malloc wbuf failed!");
         goto END;
     }
 
@@ -368,20 +368,19 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     }
 
     qbuf.len = AT_DATA_LEN/2;
-    memset(cmdbuf, 0, 40);
-    snprintf(cmdbuf, 40, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
-    (void)at_cmd_in_recv_task((int8_t*)cmdbuf, strlen(cmdbuf), "OK", rcvbuf,&rbuflen);
+    cmdlen = snprintf(cmdbuf, cmdbuf_len, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
+    (void)at_cmd_in_recv_task((int8_t*)cmdbuf, cmdlen, "OK", rcvbuf,&rbuflen);
 
     if(rcvbuf!= NULL)
 	{
 	    tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
         while(readleft != 0 && rcvbuf != NULL)
         {
-            memset(cmdbuf, 0, 40);
-            memset(rcvbuf, 0, rbuflen+1);
+            memset(cmdbuf, 0, cmdbuf_len);
+            memset(rcvbuf, 0, MIN(at_user_conf.user_buf_len,rbuflen+1));
             rbuflen = AT_DATA_LEN;
-            snprintf(cmdbuf, 40, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
-            (void)at_cmd_in_recv_task((int8_t*)cmdbuf, strlen(cmdbuf), "OK", rcvbuf,&rbuflen);
+            cmdlen = snprintf(cmdbuf, cmdbuf_len, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
+            (void)at_cmd_in_recv_task((int8_t*)cmdbuf, cmdlen, "OK", rcvbuf,&rbuflen);
 
             str = strstr(rcvbuf, AT_DATAF_PREFIX);
             str+=strlen(AT_DATAF_PREFIX);
@@ -408,11 +407,6 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     {
         at_free(rcvbuf);
         rcvbuf = NULL;
-    }
-    if (NULL != cmdbuf)
-    {
-        at_free(cmdbuf);
-        cmdbuf = NULL;
     }
     return ret;
 }
