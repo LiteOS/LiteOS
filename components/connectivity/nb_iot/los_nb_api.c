@@ -93,11 +93,11 @@ int los_nb_report(const char* buf, int len)
     return nb_send_payload(buf, len);
 }
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
 {
     if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
-    return at.oob_register(featurestr,cmdlen, callback);
+    return at.oob_register(featurestr,cmdlen, callback,cmd_match);
 }
 
 int los_nb_deinit(void)
