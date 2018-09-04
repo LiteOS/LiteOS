@@ -288,8 +288,12 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     unsigned char bufout[AT_DATA_LEN/2]={0};
     char *tmp,*trans;
     tmp = strstr(str,",");
+    if(tmp == NULL)
+        goto END;
     //chartoint((char*)tmp);
     trans = strstr(tmp+1,",");
+    if(trans == NULL)
+        goto END;
     strncpy(qbuf->ipaddr,tmp+1,MIN((trans-tmp),AT_DATA_LEN/2));
     qbuf->ipaddr[trans-tmp-1] = '\0';
 
@@ -297,23 +301,31 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
 
     qbuf->port = port;
     tmp = strstr(trans+1,",");
+    if(tmp == NULL)
+        goto END;
     *rlen = chartoint((char*)(tmp+1));
 
     if(*rlen >= AT_DATA_LEN/2 || *rlen < 0)
-    {
-        AT_LOG("decompose len error:%d!",*rlen);
-        *rlen = 0;
-        return -1;
-    }
+        goto END;
     trans = strstr(tmp+1,",");
+    if(trans == NULL)
+        goto END;
     HexStrToStr((const unsigned char*)(trans+1), bufout, (*rlen)*2);
 
     memcpy(qbuf->addr+offset,bufout,*rlen);
     offset+=*rlen;
     tmp = strstr(trans+1,",");
+    if(tmp == NULL)
+        goto END;
     *readleft = chartoint((char*)(tmp+1));
     ret = offset;
     return ret;
+END:
+    {
+        AT_LOG("decompose fail!");
+        *rlen = 0;
+        return -1;
+    }
 }
 
 int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
@@ -324,13 +336,13 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
         return -1;
     }
 
-    #define cmdbuf_len 40
+    #define CMDBUF_LEN 40
     int32_t ret = -1;
     int32_t sockid = 0, data_len = 0;
     char *p1, *p2;
     int rbuflen = AT_DATA_LEN;
     QUEUE_BUFF qbuf;
-    char cmdbuf[cmdbuf_len] = {0};
+    char cmdbuf[CMDBUF_LEN] = {0};
     int cmdlen;
     p1 = (char *)buf;
     char* cmd = "AT+NSORF=";
@@ -371,7 +383,7 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     }
 
     qbuf.len = AT_DATA_LEN/2;
-    cmdlen = snprintf(cmdbuf, cmdbuf_len, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
+    cmdlen = snprintf(cmdbuf, CMDBUF_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
     (void)at_cmd_in_recv_task((int8_t*)cmdbuf, cmdlen, "OK", rcvbuf,&rbuflen);
 
     if(rcvbuf!= NULL)
@@ -379,10 +391,10 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 	    tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
         while(readleft != 0 && rcvbuf != NULL)
         {
-            memset(cmdbuf, 0, cmdbuf_len);
+            memset(cmdbuf, 0, CMDBUF_LEN);
             memset(rcvbuf, 0, MIN(at_user_conf.user_buf_len,rbuflen+1));
             rbuflen = AT_DATA_LEN;
-            cmdlen = snprintf(cmdbuf, cmdbuf_len, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
+            cmdlen = snprintf(cmdbuf, CMDBUF_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)readleft);
             (void)at_cmd_in_recv_task((int8_t*)cmdbuf, cmdlen, "OK", rcvbuf,&rbuflen);
 
             str = strstr(rcvbuf, AT_DATAF_PREFIX);
