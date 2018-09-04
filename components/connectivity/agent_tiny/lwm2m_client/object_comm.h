@@ -215,5 +215,5 @@ void copy_security_object(lwm2m_object_t * objectDest, lwm2m_object_t * objectSr
 
 int prv_refreshServerList(lwm2m_context_t * contextP);
 void output_buffer(FILE * stream, uint8_t * buffer, int length, int indent);
-void atiny_set_reboot_flag();
+void atiny_set_reboot_flag(void);
 #endif /* LWM2MCLIENT_H_ */

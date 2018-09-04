@@ -42,14 +42,14 @@ extern at_config at_user_conf;
 
 UART_HandleTypeDef at_usart;
 
-static USART_TypeDef* s_pUSART = USART2;
+static USART_TypeDef *s_pUSART = USART2;
 static uint32_t s_uwIRQn = USART2_IRQn;
 
 //uint32_t list_mux;
-
+uint8_t buff_full = 0;
 #ifndef USE_USARTRX_DMA
 uint32_t wi = 0;
-uint32_t wi_bak= 0;
+uint32_t wi_bak = 0;
 uint32_t ri = 0;
 #else
 /*DMA操作*/
@@ -84,7 +84,7 @@ static void at_usart_adapter(uint32_t port)
 #ifdef USE_USARTRX_DMA
 int32_t at_dmawi_init(void)
 {
-    dma_wi_coun = at_user_conf.recv_buf_len/at_user_conf.user_buf_len;
+    dma_wi_coun = at_user_conf.recv_buf_len / at_user_conf.user_buf_len;
     dma_wi = at_malloc(dma_wi_coun * sizeof(*dma_wi));
     if (NULL == dma_wi)
     {
@@ -120,9 +120,9 @@ void at_usart3rx_dma_config(DMA_HandleTypeDef *hdma)
     hdma->Init.PeriphBurst = DMA_PBURST_SINGLE;
     HAL_DMA_Init(hdma);
 
-    __HAL_LINKDMA(&at_usart,hdmarx,*hdma);
-        
-    LOS_HwiCreate(DMA1_Stream1_IRQn, 0, 0,at_usart3rx_dma_irqhandler, NULL);
+    __HAL_LINKDMA(&at_usart, hdmarx, *hdma);
+
+    LOS_HwiCreate(DMA1_Stream1_IRQn, 0, 0, at_usart3rx_dma_irqhandler, NULL);
 }
 #endif
 
@@ -133,36 +133,37 @@ void at_irq_handler(void)
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
         at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
+        if(wi == ri)buff_full = 1;
         if (wi >= at_user_conf.user_buf_len)wi = 0;
     }
-    else 
+    else
 #endif
-    if (__HAL_UART_GET_FLAG(&at_usart,UART_FLAG_IDLE) != RESET)
+    if (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_IDLE) != RESET)
     {
         __HAL_UART_CLEAR_IDLEFLAG(&at_usart);
 #ifdef USE_USARTRX_DMA
-        HAL_UART_DMAStop(&at_usart);  
+        HAL_UART_DMAStop(&at_usart);
         uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
         dma_wi[dma_wbi++] = at_user_conf.user_buf_len - empty;
         if(dma_wbi >= dma_wi_coun)
-            dma_wbi = 0;       	   
+            dma_wbi = 0;
 #else
         wi_bak = wi;
-#endif   
-        LOS_SemPost(at.recv_sem);
-        
-#ifdef USE_USARTRX_DMA		
-        HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*dma_wbi],at_user_conf.user_buf_len);
-#endif   
+#endif
+        (void)LOS_SemPost(at.recv_sem);
+
+#ifdef USE_USARTRX_DMA
+        HAL_UART_Receive_DMA(&at_usart, &at.recv_buf[at_user_conf.user_buf_len * dma_wbi], at_user_conf.user_buf_len);
+#endif
     }
 }
 
 int32_t at_usart_init(void)
 {
-	UART_HandleTypeDef * usart = &at_usart;
+    UART_HandleTypeDef *usart = &at_usart;
 
     at_usart_adapter(at_user_conf.usart_port);
-    
+
     usart->Instance = s_pUSART;
     usart->Init.BaudRate = at_user_conf.buardrate;
 
@@ -175,7 +176,7 @@ int32_t at_usart_init(void)
     {
         _Error_Handler(__FILE__, __LINE__);
     }
-    __HAL_UART_CLEAR_FLAG(usart,UART_FLAG_TC);
+    __HAL_UART_CLEAR_FLAG(usart, UART_FLAG_TC);
     LOS_HwiCreate(s_uwIRQn, 0, 0, at_irq_handler, 0);
     __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
 
@@ -184,7 +185,7 @@ int32_t at_usart_init(void)
     {
         return AT_FAILED;
     }
-    HAL_UART_Receive_DMA(&at_usart,&at.recv_buf[at_user_conf.user_buf_len*0],at_user_conf.user_buf_len);
+    HAL_UART_Receive_DMA(&at_usart, &at.recv_buf[at_user_conf.user_buf_len * 0], at_user_conf.user_buf_len);
     at_usart3rx_dma_config(&at_hdma_usart3_rx);
 #else
     __HAL_UART_ENABLE_IT(usart, UART_IT_RXNE);
@@ -194,10 +195,10 @@ int32_t at_usart_init(void)
 
 void at_usart_deinit(void)
 {
-    UART_HandleTypeDef * husart = &at_usart;
+    UART_HandleTypeDef *husart = &at_usart;
     __HAL_UART_DISABLE(husart);
     __HAL_UART_DISABLE_IT(husart, UART_IT_IDLE);
-    
+
 #ifdef USE_USARTRX_DMA
     __HAL_RCC_DMA1_CLK_DISABLE();
     if(NULL != dma_wi)
@@ -210,36 +211,43 @@ void at_usart_deinit(void)
 #endif
 }
 
-void at_transmit(uint8_t * cmd, int32_t len, int flag)
+void at_transmit(uint8_t *cmd, int32_t len, int flag)
 {
-    char * line_end = at_user_conf.line_end;
-    (void)HAL_UART_Transmit(&at_usart, (uint8_t*)cmd, len, 0xffff);
-	if(flag == 1){
-    	(void)HAL_UART_Transmit(&at_usart, (uint8_t*)line_end, strlen(at_user_conf.line_end), 0xffff);
-	}
+    char *line_end = at_user_conf.line_end;
+    (void)HAL_UART_Transmit(&at_usart, (uint8_t *)cmd, len, 0xffff);
+    if(flag == 1)
+    {
+        (void)HAL_UART_Transmit(&at_usart, (uint8_t *)line_end, strlen(at_user_conf.line_end), 0xffff);
+    }
 }
 
-int read_resp(uint8_t * buf)
+int read_resp(uint8_t *buf)
 {
     uint32_t len = 0;
 #ifndef USE_USARTRX_DMA
-    uint32_t wi = wi_bak;
+    uint32_t wi;
     uint32_t tmp_len = 0;
 #endif
-    if (NULL == buf){
+    if (NULL == buf)
+    {
         return -1;
     }
+    NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
 #ifndef USE_USARTRX_DMA
 
-    if (wi == ri){
-        return 0;
+    wi = wi_bak;
+    if (wi == ri)
+    {
+        len = 0;
+        goto END;
     }
 
-    if (wi > ri){
+    if (wi > ri)
+    {
         len = wi - ri;
         memcpy(buf, &at.recv_buf[ri], len);
-    } 
-    else 
+    }
+    else
     {
         tmp_len = at_user_conf.user_buf_len - ri;
         memcpy(buf, &at.recv_buf[ri], tmp_len);
@@ -247,19 +255,24 @@ int read_resp(uint8_t * buf)
         len = wi + tmp_len;
     }
 #else
-    if (dma_wbi == dma_rbi){
-        return 0;
-	}
-    memcpy(buf, &at.recv_buf[dma_rbi*at_user_conf.user_buf_len], dma_wi[dma_rbi]);     
+    if (dma_wbi == dma_rbi)
+    {
+        len = 0;
+        goto END;
+    }
+    memcpy(buf, &at.recv_buf[dma_rbi * at_user_conf.user_buf_len], dma_wi[dma_rbi]);
     len = dma_wi[dma_rbi];
     dma_rbi++;
-    if(dma_rbi >= dma_wi_coun){
+    if(dma_rbi >= dma_wi_coun)
+    {
         dma_rbi = 0;
     }
-#endif  
+#endif
 #ifndef USE_USARTRX_DMA
     ri = wi;
 #endif
+END:
+    NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
     return len;
 }
 #endif

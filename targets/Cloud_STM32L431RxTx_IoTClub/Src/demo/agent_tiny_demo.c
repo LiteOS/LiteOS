@@ -72,7 +72,7 @@ void app_data_report(void)
     data_report_t report_data;
     int ret;
     int cnt = 0;
-    report_data.buf = Wifi_send.buf;
+    report_data.buf = (uint8_t *)(Wifi_send.buf);
     report_data.callback = ack_callback;
     report_data.cookie = 0;
     report_data.len = sizeof(Wifi_send.buf);

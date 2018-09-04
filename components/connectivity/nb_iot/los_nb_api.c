@@ -38,30 +38,22 @@
 //#include "atiny_socket.h"
 #include "bc95.h"
 
-int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
-{
-    if (NULL == buf || len <= 0)
-    {
-        AT_LOG("param invailed!");
-        return -1;
-    }
-    AT_LOG("cmd in:%s",buf);
-	return 0;
-}
-
 int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {
     int ret;
     int timecnt = 0;
-    if(host == NULL || port == NULL)
-        return -1;
+    //if(port == NULL)
+        //return -1;
     at.init();
 
     nb_reboot();
     LOS_TaskDelay(2000);
     if(psk != NULL)//encryption v1.9
     {
-        nb_send_psk(psk->pskid, psk->psk);
+        if(psk->setpsk)
+            nb_send_psk(psk->pskid, psk->psk);
+        else
+            nb_set_no_encrypt();
     }
 
     while(1)
@@ -69,7 +61,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
         ret = nb_hw_detect();
         if(ret == AT_OK)
             break;
-        LOS_TaskDelay(1000);
+        //LOS_TaskDelay(1000);
     }
     //nb_get_auto_connect();
     //nb_connect(NULL, NULL, NULL);
@@ -77,13 +69,13 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 	while(timecnt < 120)
 	{
 		ret = nb_get_netstat();
-		//nb_check_csq();
+		nb_check_csq();
 		if(ret != AT_FAILED)
 		{
 			ret = nb_query_ip();
 			break;
 		}
-		LOS_TaskDelay(1000);
+		//LOS_TaskDelay(1000);
 		timecnt++;
 	}
 	if(ret != AT_FAILED)
@@ -101,17 +93,18 @@ int los_nb_report(const char* buf, int len)
     return nb_send_payload(buf, len);
 }
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback)
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
 {
     if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
-    return at.oob_register(featurestr,cmdlen, callback);
+    return at.oob_register(featurestr,cmdlen, callback,cmd_match);
 }
 
 int los_nb_deinit(void)
 {
-    //at.deinit();
-    return nb_reboot();
+    nb_reboot();
+	at.deinit();
+	return 0;
 }
 
 #endif

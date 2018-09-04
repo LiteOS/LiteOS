@@ -1,6 +1,52 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
+
 #include "eth.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_eth.h"
+#include "lwip/timeouts.h"
+#include "netif/etharp.h"
+#include <string.h>
 
 
+#define netifINTERFACE_TASK_STACK_SIZE              ( 4096u )
+#define netifINTERFACE_TASK_PRIORITY                ( 6u   )
+/* The time to block waiting for input. */
+#define TIME_WAITING_FOR_INPUT                      ( 500u )
+
+/* Semaphore to signal incoming packets */
+static sys_sem_t s_xSemaphore;
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -34,7 +80,6 @@ void ETH_IRQHandler(void)
     HAL_ETH_IRQHandler(&heth);
 }
 
-
 /**
   * @brief  Ethernet Rx Transfer completed callback
   * @param  heth: ETH handle
@@ -43,12 +88,12 @@ void ETH_IRQHandler(void)
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *pheth)
 {
     (void)pheth;
-	ethernetif_rxcb();
+    sys_sem_signal(&s_xSemaphore);
 }
 
 /* Private functions ---------------------------------------------------------*/
 
-void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
+void HAL_ETH_MspInit(ETH_HandleTypeDef *ethHandle)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -125,7 +170,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
     }
 }
 
-void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
+void HAL_ETH_MspDeInit(ETH_HandleTypeDef *ethHandle)
 {
     if (ethHandle->Instance == ETH)
     {
@@ -159,10 +204,19 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
     }
 }
 
-static int8_t eth_init(struct netif* netif)
+static void eth_thread(void *arg)
+{
+    while (1)
+    {
+        sys_arch_sem_wait(&s_xSemaphore, TIME_WAITING_FOR_INPUT);
+        ethernetif_input(arg);
+    }
+}
+
+static int8_t eth_init(struct netif *netif)
 {
     HAL_StatusTypeDef hal_eth_init_status;
-    
+
     MACAddr[0] = 0x00;
     MACAddr[1] = 0x80;
     MACAddr[2] = 0xE1;
@@ -174,7 +228,7 @@ static int8_t eth_init(struct netif* netif)
     heth.Instance = ETH;
     heth.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
     heth.Init.PhyAddress = LAN8742A_PHY_ADDRESS;
-    
+
     heth.Init.MACAddr = &MACAddr[0];
     heth.Init.RxMode = ETH_RXINTERRUPT_MODE;
     heth.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
@@ -194,12 +248,11 @@ static int8_t eth_init(struct netif* netif)
     /* Initialize Rx Descriptors list: Chain Mode  */
     (void)HAL_ETH_DMARxDescListInit(&heth, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
 
-    return 0;
-    
-}
+#if LWIP_ARP || LWIP_ETHERNET
 
-static int8_t eth_set_mac(struct netif* netif)
-{
+    /* set MAC hardware address length */
+    netif->hwaddr_len = ETH_HWADDR_LEN;
+
     /* set MAC hardware address */
     netif->hwaddr[0] =  heth.Init.MACAddr[0];
     netif->hwaddr[1] =  heth.Init.MACAddr[1];
@@ -208,23 +261,38 @@ static int8_t eth_set_mac(struct netif* netif)
     netif->hwaddr[4] =  heth.Init.MACAddr[4];
     netif->hwaddr[5] =  heth.Init.MACAddr[5];
 
-    return 0;
-}
+    /* maximum transfer unit */
+    netif->mtu = 1500;
 
-static int8_t eth_start(struct netif* netif)
-{
-    (void)netif;
+    /* Accept broadcast address and ARP traffic */
+    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
+#if LWIP_ARP
+    netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+#else
+    netif->flags |= NETIF_FLAG_BROADCAST;
+#endif /* LWIP_ARP */
+
+    if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
+    {
+        return -1;
+    }
+    /* create the task that handles the ETH_MAC */
+    sys_thread_new((char *)"Eth_if", eth_thread, netif, netifINTERFACE_TASK_STACK_SIZE, netifINTERFACE_TASK_PRIORITY);
+
     /* Enable MAC and DMA transmission and reception */
     (void)HAL_ETH_Start(&heth);
+
+#endif /* LWIP_ARP || LWIP_ETHERNET */
+
     return 0;
 }
 
-static int8_t eth_output(struct netif* netif, struct pbuf* p)
+static int8_t eth_output(struct netif *netif, struct pbuf *p)
 {
     err_t errval;
-    struct pbuf* q;
-    uint8_t* buffer = (uint8_t*)(heth.TxDesc->Buffer1Addr);
-    __IO ETH_DMADescTypeDef* DmaTxDesc;
+    struct pbuf *q;
+    uint8_t *buffer = (uint8_t *)(heth.TxDesc->Buffer1Addr);
+    __IO ETH_DMADescTypeDef *DmaTxDesc;
     uint32_t framelength = 0;
     uint32_t bufferoffset = 0;
     uint32_t byteslefttocopy = 0;
@@ -250,10 +318,10 @@ static int8_t eth_output(struct netif* netif, struct pbuf* p)
         while ( (byteslefttocopy + bufferoffset) > ETH_TX_BUF_SIZE )
         {
             /* Copy data to Tx buffer*/
-            memcpy( (uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset) );
+            memcpy( (uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset) );
 
             /* Point to next descriptor */
-            DmaTxDesc = (ETH_DMADescTypeDef*)(DmaTxDesc->Buffer2NextDescAddr);
+            DmaTxDesc = (ETH_DMADescTypeDef *)(DmaTxDesc->Buffer2NextDescAddr);
 
             /* Check if the buffer is available */
             if ((DmaTxDesc->Status & ETH_DMATXDESC_OWN) != (uint32_t)RESET)
@@ -262,7 +330,7 @@ static int8_t eth_output(struct netif* netif, struct pbuf* p)
                 goto error;
             }
 
-            buffer = (uint8_t*)(DmaTxDesc->Buffer1Addr);
+            buffer = (uint8_t *)(DmaTxDesc->Buffer1Addr);
 
             byteslefttocopy = byteslefttocopy - (ETH_TX_BUF_SIZE - bufferoffset);
             payloadoffset = payloadoffset + (ETH_TX_BUF_SIZE - bufferoffset);
@@ -271,7 +339,7 @@ static int8_t eth_output(struct netif* netif, struct pbuf* p)
         }
 
         /* Copy the remaining bytes */
-        memcpy( (uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), byteslefttocopy );
+        memcpy( (uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), byteslefttocopy );
         bufferoffset = bufferoffset + byteslefttocopy;
         framelength = framelength + byteslefttocopy;
     }
@@ -296,13 +364,13 @@ error:
     return errval;
 }
 
-static struct pbuf* eth_input(struct netif* netif)
+static struct pbuf *eth_input(struct netif *netif)
 {
-    struct pbuf* p = NULL;
-    struct pbuf* q = NULL;
+    struct pbuf *p = NULL;
+    struct pbuf *q = NULL;
     uint16_t len = 0;
-    uint8_t* buffer;
-    __IO ETH_DMADescTypeDef* dmarxdesc;
+    uint8_t *buffer;
+    __IO ETH_DMADescTypeDef *dmarxdesc;
     uint32_t bufferoffset = 0;
     uint32_t payloadoffset = 0;
     uint32_t byteslefttocopy = 0;
@@ -311,13 +379,13 @@ static struct pbuf* eth_input(struct netif* netif)
 
     /* get received frame */
     if (HAL_ETH_GetReceivedFrame(&heth) != HAL_OK)
-    { 
-	    return NULL;
+    {
+        return NULL;
     }
 
     /* Obtain the size of the packet and put it into the "len" variable. */
     len = heth.RxFrameInfos.length;
-    buffer = (uint8_t*)heth.RxFrameInfos.buffer;
+    buffer = (uint8_t *)heth.RxFrameInfos.buffer;
 
     if (len > 0)
     {
@@ -339,11 +407,11 @@ static struct pbuf* eth_input(struct netif* netif)
             while ( (byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE )
             {
                 /* Copy data to pbuf */
-                memcpy( (uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
+                memcpy( (uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
 
                 /* Point to next descriptor */
-                dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-                buffer = (uint8_t*)(dmarxdesc->Buffer1Addr);
+                dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
+                buffer = (uint8_t *)(dmarxdesc->Buffer1Addr);
 
                 byteslefttocopy = byteslefttocopy - (ETH_RX_BUF_SIZE - bufferoffset);
                 payloadoffset = payloadoffset + (ETH_RX_BUF_SIZE - bufferoffset);
@@ -351,7 +419,7 @@ static struct pbuf* eth_input(struct netif* netif)
             }
 
             /* Copy remaining data in pbuf */
-            memcpy( (uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
+            memcpy( (uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
@@ -364,7 +432,7 @@ static struct pbuf* eth_input(struct netif* netif)
     for (i = 0; i < heth.RxFrameInfos.SegCount; i++)
     {
         dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+        dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
     }
 
     /* Clear Segment_Count */
@@ -382,10 +450,9 @@ static struct pbuf* eth_input(struct netif* netif)
     return p;
 }
 
-struct eth_api g_eth_api = {
+struct ethernet_api g_eth_api =
+{
     .init     = eth_init,
-    .set_mac  = eth_set_mac,
-    .start    = eth_start,
     .output   = eth_output,
     .input    = eth_input
 };

@@ -10,8 +10,7 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>MIMXRT1052DVL6B</Device>
@@ -324,7 +323,6 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -339,7 +337,7 @@
 --diag_suppress=66,1296,186,1,47,177,223,1295</MiscControls>
               <Define>CPU_MIMXRT1052DVL6B,XIP_EXTERNAL_FLASH=1, XIP_BOOT_HEADER_ENABLE =1,XIP_BOOT_HEADER_DCD_ENABLE =1,PRINTF_FLOAT_ENABLE=1, SCANF_FLOAT_ENABLE=1, PRINTF_ADVANCED_ENABLE=1, SCANF_ADVANCED_ENABLE=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\libraries\CMSIS\Include;..\..\libraries\drivers;..\..\libraries\utilities;..\..\libraries\utilities\str;..\..\libraries\utilities\log;..\..\libraries\utilities\io;..\..\libraries\xip;..\..\user;..\..\user\bsp;..\..\..\..\components\cmsis;..\..\..\..\components\cmsis\1.0;..\..\..\..\components\cmsis\2.0;..\..\..\..\kernel\base\include;..\..\..\..\kernel\extended\include;..\..\..\..\kernel\include;..\..\..\..\arch\arm\arm-m\include;..\..\OS_CONFIG</IncludePath>
+              <IncludePath>..\..\libraries\CMSIS\Include;..\..\libraries\drivers;..\..\libraries\utilities;..\..\libraries\utilities\str;..\..\libraries\utilities\log;..\..\libraries\utilities\io;..\..\libraries\xip;..\..\user;..\..\user\bsp;..\..\..\..\components\cmsis;..\..\..\..\components\cmsis\1.0;..\..\..\..\components\cmsis\2.0;..\..\..\..\kernel\base\include;..\..\..\..\kernel\extended\include;..\..\..\..\kernel\include;..\..\..\..\arch\arm\arm-m\include;..\..\OS_CONFIG;..\..\libraries</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

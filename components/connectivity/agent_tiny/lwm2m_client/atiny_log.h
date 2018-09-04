@@ -34,12 +34,55 @@
 
 #ifndef ATINY_LOG_H
 #define ATINY_LOG_H
-#include "agenttiny.h"
 #include "atiny_adapter.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum
+{
+    LOG_DEBUG = 0,
+    LOG_INFO,
+    LOG_WARNING,
+    LOG_ERR,
+    LOG_FATAL,
+
+    LOG_MAX
+} atiny_log_e;
+
+/**
+ *@ingroup agenttiny
+ *@brief set log level.
+ *
+ *@par Description:
+ *This API is used to set log level. The log informations whose level is not less than
+  the level set up in this interface are displayed.
+ *@attention none.
+ *
+ *@param level          [IN] Log level to be set up.
+ *
+ *@retval none.
+ *@par Dependency: none.
+ *@see atiny_get_log_level.
+ */
+void atiny_set_log_level(atiny_log_e level);
+
+/**
+ *@ingroup agenttiny
+ *@brief get log level.
+ *
+ *@par Description:
+ *This API is used to get log level set by atiny_set_log_level.
+ *@attention none.
+ *
+ *@param none.
+ *
+ *@retval #atiny_log_e  Log level.
+ *@par Dependency: none.
+ *@see atiny_set_log_level.
+ */
+atiny_log_e atiny_get_log_level(void);
 
 #ifdef ATINY_DEBUG
 const char* atiny_get_log_level_name(atiny_log_e log_level);

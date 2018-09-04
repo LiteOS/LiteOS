@@ -50,20 +50,18 @@
 #define AT_BUARDRATE        9600
 #define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
-#define MAX_AT_USERDATA_LEN 2048
+#define MAX_AT_USERDATA_LEN (1024*5)
+#define AT_MAX_PAYLOADLEN     512
 
-#define NB_STAT_LOCALPORT 56
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
-#define AT_DATAF_PREFIX      "+NSONMI"
-#define MAX_SOCK_NUM 5
-typedef struct _remote_info_t
+#define IP_LEN 16
+typedef struct _socket_info_t
 {
     int socket;
-    unsigned short port;
-    char ip[16];
-}remote_info;//后续创建socket时需要该struct保存
-
+    short localport;
+    char localip[IP_LEN];
+    short remoteport;
+    char remoteip[IP_LEN];
+}socket_info;//struct to save socket info
 
 int str_to_hex(const char *bufin, int len, char *bufout);
 int32_t nb_set_cdpserver(char* host, char* port);
@@ -71,8 +69,10 @@ int32_t nb_hw_detect(void);
 int32_t nb_get_netstat(void);
 int nb_query_ip(void);
 int32_t nb_send_payload(const char* buf, int len);
+int32_t nb_check_csq(void);
 int32_t nb_send_psk(char* pskid, char* psk);
+int32_t nb_set_no_encrypt(void);
 int32_t nb_reboot(void);
-int32_t nb_err_cue(void);
-
+int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout);
+int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 #endif

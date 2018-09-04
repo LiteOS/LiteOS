@@ -59,7 +59,7 @@ static VOID Example_SemTask1(VOID)
 {
     UINT32 uwRet;
 
-    dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\n");
+    dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\r\n");
     /* get sem, timeout is 10 ticks */
     uwRet = LOS_SemPend(g_usSemID, 10);
 
@@ -72,17 +72,17 @@ static VOID Example_SemTask1(VOID)
     /* timeout, get sem fail */
     if (LOS_ERRNO_SEM_TIMEOUT == uwRet)
     {
-        dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\n");
+        dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\r\n");
         /* get sem wait forever, LOS_SemPend return until has been get mux */
         uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
         if (LOS_OK == uwRet)
         {
-            dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\n");
+            dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\r\n");
             LOS_SemPost(g_usSemID);
             uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SEM, LOS_INSPECT_STU_SUCCESS);
             if (LOS_OK != uwRet)
             {
-                dprintf("Set Inspect Status Err\n");
+                dprintf("Set Inspect Status Err \r\n");
             }
             return;
         }
@@ -93,19 +93,19 @@ static VOID Example_SemTask1(VOID)
 static VOID Example_SemTask2(VOID)
 {
     UINT32 uwRet;
-    dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\n");
+    dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\r\n");
     /* wait forever get sem */
     uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
 
     if(LOS_OK == uwRet)
     {
-        dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\n");
+        dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\r\n");
     }
 
     /* task delay 20 ticks */
     LOS_TaskDelay(20);
 
-    dprintf("Example_SemTask2 post sem g_usSemID .\n");
+    dprintf("Example_SemTask2 post sem g_usSemID .\r\n");
     /* release sem */
     LOS_SemPost(g_usSemID);
 
@@ -128,12 +128,12 @@ UINT32 Example_Semphore(VOID)
     memset(&stTask1, 0, sizeof(TSK_INIT_PARAM_S));
     stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask1;
     stTask1.pcName       = "MutexTsk1";
-    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask1.usTaskPrio   = TASK_PRIO_TEST;
     uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
     if (uwRet != LOS_OK)
     {
-        dprintf("task1 create failed .\n");
+        dprintf("task1 create failed .\r\n");
         return LOS_NOK;
     }
 
@@ -141,17 +141,17 @@ UINT32 Example_Semphore(VOID)
     memset(&stTask2, 0, sizeof(TSK_INIT_PARAM_S));
     stTask2.pfnTaskEntry = (TSK_ENTRY_FUNC)Example_SemTask2;
     stTask2.pcName       = "MutexTsk2";
-    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
     uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
     if (uwRet != LOS_OK)
     {
-        dprintf("task2 create failed .\n");
+        dprintf("task2 create failed .\r\n");
 
         /* delete task 1 */
         if (LOS_OK != LOS_TaskDelete(g_TestTaskID01))
         {
-            dprintf("task1 delete failed .\n");
+            dprintf("task1 delete failed .\r\n");
         }
 
         return LOS_NOK;

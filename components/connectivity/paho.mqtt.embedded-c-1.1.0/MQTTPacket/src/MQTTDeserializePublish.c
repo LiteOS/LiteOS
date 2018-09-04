@@ -33,39 +33,39 @@
   * @param buflen the length in bytes of the data in the supplied buffer
   * @return error code.  1 is success
   */
-int MQTTDeserialize_publish(unsigned char* dup, int* qos, unsigned char* retained, unsigned short* packetid, MQTTString* topicName,
-		unsigned char** payload, int* payloadlen, unsigned char* buf, int buflen)
+int MQTTDeserialize_publish(unsigned char *dup, int *qos, unsigned char *retained, unsigned short *packetid, MQTTString *topicName,
+                            unsigned char **payload, int *payloadlen, unsigned char *buf, int buflen)
 {
-	MQTTHeader header = {0};
-	unsigned char* curdata = buf;
-	unsigned char* enddata = NULL;
-	int rc = 0;
-	int mylen = 0;
+    MQTTHeader header = {0};
+    unsigned char *curdata = buf;
+    unsigned char *enddata = NULL;
+    int rc = 0;
+    int mylen = 0;
 
-	FUNC_ENTRY;
-	header.byte = readChar(&curdata);
-	if (header.bits.type != PUBLISH)
-		goto exit;
-	*dup = header.bits.dup;
-	*qos = header.bits.qos;
-	*retained = header.bits.retain;
+    FUNC_ENTRY;
+    header.byte = readChar(&curdata);
+    if (header.bits.type != PUBLISH)
+        goto exit;
+    *dup = header.bits.dup;
+    *qos = header.bits.qos;
+    *retained = header.bits.retain;
 
-	curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
-	enddata = curdata + mylen;
+    curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
+    enddata = curdata + mylen;
 
-	if (!readMQTTLenString(topicName, &curdata, enddata) ||
-		enddata - curdata < 0) /* do we have enough data to read the protocol version byte? */
-		goto exit;
+    if (!readMQTTLenString(topicName, &curdata, enddata) ||
+            enddata - curdata < 0) /* do we have enough data to read the protocol version byte? */
+        goto exit;
 
-	if (*qos > 0)
-		*packetid = readInt(&curdata);
+    if (*qos > 0)
+        *packetid = readInt(&curdata);
 
-	*payloadlen = enddata - curdata;
-	*payload = curdata;
-	rc = 1;
+    *payloadlen = enddata - curdata;
+    *payload = curdata;
+    rc = 1;
 exit:
-	FUNC_EXIT_RC(rc);
-	return rc;
+    FUNC_EXIT_RC(rc);
+    return rc;
 }
 
 
@@ -79,29 +79,29 @@ exit:
   * @param buflen the length in bytes of the data in the supplied buffer
   * @return error code.  1 is success, 0 is failure
   */
-int MQTTDeserialize_ack(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
+int MQTTDeserialize_ack(unsigned char *packettype, unsigned char *dup, unsigned short *packetid, unsigned char *buf, int buflen)
 {
-	MQTTHeader header = {0};
-	unsigned char* curdata = buf;
-	unsigned char* enddata = NULL;
-	int rc = 0;
-	int mylen;
+    MQTTHeader header = {0};
+    unsigned char *curdata = buf;
+    unsigned char *enddata = NULL;
+    int rc = 0;
+    int mylen;
 
-	FUNC_ENTRY;
-	header.byte = readChar(&curdata);
-	*dup = header.bits.dup;
-	*packettype = header.bits.type;
+    FUNC_ENTRY;
+    header.byte = readChar(&curdata);
+    *dup = header.bits.dup;
+    *packettype = header.bits.type;
 
-	curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
-	enddata = curdata + mylen;
+    curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
+    enddata = curdata + mylen;
 
-	if (enddata - curdata < 2)
-		goto exit;
-	*packetid = readInt(&curdata);
+    if (enddata - curdata < 2)
+        goto exit;
+    *packetid = readInt(&curdata);
 
-	rc = 1;
+    rc = 1;
 exit:
-	FUNC_EXIT_RC(rc);
-	return rc;
+    FUNC_EXIT_RC(rc);
+    return rc;
 }
 

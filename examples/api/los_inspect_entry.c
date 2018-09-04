@@ -245,7 +245,7 @@ UINT32 LOS_Inspect_Entry(VOID)
 
     (VOID)memset((VOID *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
     stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_Inspect_TskDeal;
-    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTaskInitParam.pcName = "InspectTsk";
     stTaskInitParam.usTaskPrio = 9;
     uwRet = LOS_TaskCreate(&g_uwDemoTaskID, &stTaskInitParam);

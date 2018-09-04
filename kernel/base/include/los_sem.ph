@@ -43,12 +43,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
-enum LOS_SEM_MAX_COUNT
-{
-    OS_SEM_COUNTING_MAX_COUNT = 0xFFFF,       /*Max count of counting semaphores*/
-    OS_SEM_BINARY_MAX_COUNT   = 1           /*Max count of binary semaphores*/
-};
+#define OS_SEM_COUNTING_MAX_COUNT   0xFFFF
+#define OS_SEM_BINARY_MAX_COUNT     1
 
 /**
  * @ingroup los_sem

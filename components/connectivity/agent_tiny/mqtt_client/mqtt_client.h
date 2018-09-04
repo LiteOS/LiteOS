@@ -58,6 +58,7 @@ typedef enum
     ATINY_CLIENT_UNREGISTERED  = -7,
     ATINY_SOCKET_CREATE_FAILED = -8,
     ATINY_SOCKET_ERROR = -9,
+    ATINY_ERR                  =-10,
 } atiny_error_e;
 
 typedef enum cloud_security_type
@@ -148,10 +149,88 @@ typedef struct atiny_param
     }u;
 }atiny_param_t;
 
+/**
+ *@ingroup agenttiny
+ *@brief initialize the MQTT protocal.
+ *
+ *@par Description:
+ *This API is used to initialize the MQTT protocal.
+ *@attention none.
+ *
+ *@param atiny_params   [IN]  Configure parameters of MQTT.
+ *@param phandle        [OUT] The handle of the agent_tiny.
+ *
+ *@retval #int          0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see atiny_bind | atiny_deinit.
+ */
 int  atiny_init(atiny_param_t* atiny_params, void** phandle);
+
+/**
+ *@ingroup agenttiny
+ *@brief stop the device and release resources.
+ *
+ *@par Description:
+ *This API is used to stop the device and release resources.
+ *@attention none.
+ *
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *
+ *@retval none.
+ *@par Dependency: none.
+ *@see atiny_init | atiny_bind.
+ */
 void atiny_deinit(void* phandle);
+
+/**
+ *@ingroup agenttiny
+ *@brief to judge if the MQTT client has connected to broker.
+ *
+ *@par Description:
+ *This API is used to judge if the MQTT client has connected to broker.
+ *@attention none.
+ *
+ *@param phandle        [OUT] The handle of the agent_tiny.
+ *
+ *@retval #int          1 if connected, 0 if not connected, or the error number @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see atiny_bind | atiny_deinit.
+ */
 int atiny_isconnected(void* phandle);
+
+/**
+ *@ingroup agenttiny
+ *@brief main task of the MQTT protocal.
+ *
+ *@par Description:
+ *This API is used to implement the MQTT protocal, and interactive with MQTT broker.
+ *@attention none.
+ *
+ *@param device_info    [IN] The information of devices to be bound.
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *
+ *@retval #int          0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see atiny_init | atiny_deinit.
+ */
 int atiny_bind(atiny_device_info_t* device_info, void* phandle);
+
+/**
+ *@ingroup agenttiny
+ *@brief send the data to the broker.
+ *
+ *@par Description:
+ *This API is used to send the data to the broker.
+ *@attention none.
+ *
+ *@param phandle        [IN] The handle of the agent_tiny.
+ *@param send_data    [IN] Data to be sended.
+  *@param cb              [IN] callback funtion if method of send_data is CLOUD_METHOD_GET, otherwise is NULL.
+ *
+ *@retval #int           0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@par Dependency: none.
+ *@see none.
+ */
 int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb);
 
 #ifdef __cplusplus

@@ -45,9 +45,42 @@
 #define ATINY_PROTO_TCP 0 /* < The TCP transport protocol */
 #define ATINY_PROTO_UDP 1 /* < The UDP transport protocol */
 
+
+#define ATINY_NET_ERR             -1
+#define ATINY_NET_SOCKET_FAILED   -2
+#define ATINY_NET_BIND_FAILED     -3
+#define ATINY_NET_LISTEN_FAILED   -4
+#define ATINY_NET_ACCEPT_FAILED   -5
+#define ATINY_NET_BUF_SMALL_FAILED  -6 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+int atiny_net_accept( void *bind_ctx,
+                        void *client_ctx,
+                        void *client_ip, size_t buf_size, size_t *ip_len );
+
+/**
+ *@ingroup atiny_socket
+ *@brief create socket and bind local ip and port
+ *
+ *@par Description:
+ *This API is used to create socket and bind local ip and port. It will do name resolution with both IPv6 and IPv4, do internal memory allocation for socket structure and release it by the atiny_net_close interface.
+ *used only in bootstrap server mode.
+ *@attention none.
+ *
+ *@param host           [IN] Host to bind.
+ *@param port           [IN] Port to bind.
+ *@param proto          [IN] Protocol: ATINY_PROTO_TCP or ATINY_PROTO_UDP.
+ *
+ *@retval #pointer      Point to the Socket you created.
+ *@retval NULL          Create socket or binded ip or port failed.
+ *@par Dependency: none.
+ *@see atiny_net_recv | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
+ */
+void *atiny_net_bind(const char *host, const char *port, int proto);
 
 /**
  *@ingroup atiny_socket

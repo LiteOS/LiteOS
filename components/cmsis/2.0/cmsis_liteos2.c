@@ -69,7 +69,7 @@ cb_uart_is_need_awake_fn uart_is_need_awake_callback = NULL;
 #endif
 #define LOS_PRIORITY_WIN 8
 
-const osVersion_t g_stLosVersion = {001,001};
+const osVersion_t g_stLosVersion = {001, 001};
 
 #define LITEOS_VERSION_MAJOR    1
 #define LITEOS_VERSION_MINOR    0
@@ -121,13 +121,16 @@ osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size
         return osErrorISR;
     }
 
-    if (version != NULL) {
+    if (version != NULL)
+    {
         version->api = g_stLosVersion.api;
         version->kernel = g_stLosVersion.kernel;
     }
 
-    if ((id_buf != NULL) && (id_size != 0U)) {
-        if (id_size > sizeof(KERNEL_ID)) {
+    if ((id_buf != NULL) && (id_size != 0U))
+    {
+        if (id_size > sizeof(KERNEL_ID))
+        {
             id_size = sizeof(KERNEL_ID);
         }
         memcpy(id_buf, KERNEL_ID, id_size);
@@ -374,16 +377,16 @@ osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAtt
     }
 
     if ((attr == NULL) ||
-        (func == NULL) ||
-        (attr->priority < osPriorityLow1) ||
-        (attr->priority > osPriorityAboveNormal6))
+            (func == NULL) ||
+            (attr->priority < osPriorityLow1) ||
+            (attr->priority > osPriorityAboveNormal6))
     {
         return (osThreadId_t)NULL;
     }
 
     memset(&stTskInitParam, 0, sizeof(TSK_INIT_PARAM_S));
     stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
-    stTskInitParam.uwStackSize  = attr->stack_size*4;
+    stTskInitParam.uwStackSize  = attr->stack_size * 4;
     stTskInitParam.pcName       = (CHAR *)attr->name;
     stTskInitParam.usTaskPrio   = OS_TASK_PRIORITY_LOWEST - ((UINT16)(attr->priority) - LOS_PRIORITY_WIN); /*0~31*/
 
@@ -449,8 +452,8 @@ osThreadState_t osThreadGetState (osThreadId_t thread_id)
         stState = osThreadReady;
     }
     else if (usTaskStatus &
-        (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND |
-         OS_TASK_STATUS_SUSPEND | OS_TASK_STATUS_PEND_QUEUE))
+             (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND |
+              OS_TASK_STATUS_SUSPEND | OS_TASK_STATUS_PEND_QUEUE))
     {
         stState = osThreadBlocked;
     }
@@ -722,7 +725,7 @@ osStatus_t osThreadTerminate (osThreadId_t thread_id)
 uint32_t osThreadGetCount (void)
 {
     uint32_t uwCount = 0;
-	int index = 0;
+    int index = 0;
 
     if (OS_INT_ACTIVE)
     {
@@ -792,7 +795,7 @@ osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, 
     UINT8 mode;
 
     if ((OS_INT_ACTIVE) || (NULL == func) ||
-        ((osTimerOnce != type) && (osTimerPeriodic != type)))
+            ((osTimerOnce != type) && (osTimerPeriodic != type)))
     {
         return (osTimerId_t)NULL;
     }
@@ -1162,7 +1165,7 @@ osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)
         timeout = 0;
     }
 
-    uwRet = LOS_MuxPend(((MUX_CB_S*)mutex_id)->ucMuxID, timeout);
+    uwRet = LOS_MuxPend(((MUX_CB_S *)mutex_id)->ucMuxID, timeout);
 
     if(uwRet == LOS_OK)
     {
@@ -1192,7 +1195,7 @@ osStatus_t osMutexRelease (osMutexId_t mutex_id)
         return osErrorParameter;
     }
 
-    uwRet = LOS_MuxPost(((MUX_CB_S*)mutex_id)->ucMuxID);
+    uwRet = LOS_MuxPost(((MUX_CB_S *)mutex_id)->ucMuxID);
 
     if (uwRet == LOS_OK)
     {
@@ -1221,7 +1224,7 @@ osThreadId_t osMutexGetOwner (osMutexId_t mutex_id)
     }
 
     uwIntSave = LOS_IntLock();
-    pstTaskCB = ((MUX_CB_S*)mutex_id)->pstOwner;
+    pstTaskCB = ((MUX_CB_S *)mutex_id)->pstOwner;
     (VOID)LOS_IntRestore(uwIntSave);
 
     return (osThreadId_t)pstTaskCB;
@@ -1242,7 +1245,7 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id)
         return osErrorParameter;
     }
 
-    uwRet = LOS_MuxDelete(((MUX_CB_S*)mutex_id)->ucMuxID);
+    uwRet = LOS_MuxDelete(((MUX_CB_S *)mutex_id)->ucMuxID);
 
     if(uwRet == LOS_OK)
     {
@@ -1428,7 +1431,7 @@ osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, con
         return (osMessageQueueId_t)NULL;
     }
 
-    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)msg_count, &uwQueueID, 0,(UINT16)msg_size);
+    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)msg_count, &uwQueueID, 0, (UINT16)msg_size);
     if (uwRet == LOS_OK)
     {
         handle = (osMessageQueueId_t)(GET_QUEUE_HANDLE(uwQueueID));
@@ -1455,7 +1458,7 @@ osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uin
     }
 
     uwBufferSize = (UINT32)(pstQueue->usQueueSize - sizeof(UINT32));
-    uwRet = LOS_QueueWriteCopy((UINT32)pstQueue->usQueueID, (void*)msg_ptr, uwBufferSize, timeout);
+    uwRet = LOS_QueueWriteCopy((UINT32)pstQueue->usQueueID, (void *)msg_ptr, uwBufferSize, timeout);
     if (uwRet == LOS_OK)
     {
         return osOK;
@@ -1625,12 +1628,12 @@ void osUartVetoCallbackRegister(cb_uart_is_need_awake_fn cb)
 
 void osAddStopClocksVeto(void)
 {
-     tickless_add_stop_clocks_veto();
+    tickless_add_stop_clocks_veto();
 }
 
 void osRemoveStopClocksVeto(void)
 {
-     tickless_remove_stop_clocks_veto();
+    tickless_remove_stop_clocks_veto();
 }
 #endif
 

@@ -71,32 +71,38 @@
 #endif
 
 
-static void* atiny_calloc(size_t n, size_t size)
+static void *atiny_calloc(size_t n, size_t size)
 {
-    return atiny_malloc(n * size);
+    void *p = atiny_malloc(n * size);
+    if(p)
+    {
+        memset(p, 0, n * size);
+    }
+
+    return p;
 }
 
-mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* psk_identity)
+mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type)
 {
     int ret;
-    mbedtls_ssl_context* ssl;
-    mbedtls_ssl_config* conf;
-    mbedtls_entropy_context* entropy;
-    mbedtls_ctr_drbg_context* ctr_drbg;
+    mbedtls_ssl_context *ssl;
+    mbedtls_ssl_config *conf;
+    mbedtls_entropy_context *entropy;
+    mbedtls_ctr_drbg_context *ctr_drbg;
+    mbedtls_timing_delay_context * timer;
 
-    const char* pers = "dtls_client";
+    const char *pers = "dtls_client";
 
-    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
-    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
-    (void)mbedtls_platform_set_printf(atiny_printf);
+    dtls_int();
 
     ssl       = mbedtls_calloc(1, sizeof(mbedtls_ssl_context));
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
     entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
     ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
+    timer     = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 
     if (NULL == ssl || NULL == conf || entropy == NULL ||
-        NULL == ctr_drbg)
+            NULL == ctr_drbg)
     {
         goto exit_fail;
     }
@@ -107,7 +113,7 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
     mbedtls_entropy_init(entropy);
 
     if ((ret = mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func, entropy,
-                                     (const unsigned char*) pers,
+                                     (const unsigned char *) pers,
                                      strlen(pers))) != 0)
     {
         MBEDTLS_LOG("mbedtls_ctr_drbg_seed failed: -0x%x", -ret);
@@ -117,7 +123,7 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
     MBEDTLS_LOG("setting up the DTLS structure");
 
     if ((ret = mbedtls_ssl_config_defaults(conf,
-                                           MBEDTLS_SSL_IS_CLIENT,
+                                           plat_type,
                                            MBEDTLS_SSL_TRANSPORT_DATAGRAM,
                                            MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
     {
@@ -130,8 +136,8 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
 
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 
-    if ((ret = mbedtls_ssl_conf_psk(conf, (const unsigned char*)psk, psk_len,
-                                    (const unsigned char*) psk_identity,
+    if ((ret = mbedtls_ssl_conf_psk(conf, (const unsigned char *)psk, psk_len,
+                                    (const unsigned char *) psk_identity,
                                     strlen(psk_identity))) != 0)
     {
         MBEDTLS_LOG("mbedtls_ssl_conf_psk failed: -0x%x", -ret);
@@ -139,6 +145,7 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
     }
 
 #endif
+    mbedtls_ssl_conf_dtls_cookies( conf, NULL, NULL,NULL );
 
     if ((ret = mbedtls_ssl_setup(ssl, conf)) != 0)
     {
@@ -155,11 +162,16 @@ mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* ps
     }
 
 #endif
+
+    mbedtls_ssl_set_timer_cb( ssl, timer, mbedtls_timing_set_delay,
+                                            mbedtls_timing_get_delay );
+
     MBEDTLS_LOG("set DTLS structure succeed");
 
     return ssl;
 
 exit_fail:
+
     if (conf)
     {
         mbedtls_ssl_config_free(conf);
@@ -186,12 +198,12 @@ exit_fail:
     return NULL;
 }
 
-int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
+int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
 {
     int ret;
     int j = 0;
-    mbedtls_net_context* server_fd = NULL;
-    mbedtls_timing_delay_context* timer = NULL;
+    mbedtls_net_context *server_fd = NULL;
+    mbedtls_timing_delay_context *timer = NULL;
 
     timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 
@@ -202,7 +214,7 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
         goto exit_fail;
     }
 
-    MBEDTLS_LOG("connecting to udp/%s:%s", host, port);
+    MBEDTLS_LOG("connecting to udp");
 
     if (( server_fd = mbedtls_net_connect(host,
                                           port, MBEDTLS_NET_PROTO_UDP )) == NULL)
@@ -222,13 +234,13 @@ int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port)
 
     do
     {
-        ret = mbedtls_ssl_handshake(ssl);       
+        ret = mbedtls_ssl_handshake(ssl);
         //LOS_TaskDelay(1);
         j++;
 
     }
     while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 10 );
+            ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 10 );
 
     if (ret != 0)
     {
@@ -256,13 +268,13 @@ exit_fail:
     return ret;
 
 }
-void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
+void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
 {
-    mbedtls_ssl_config*           conf = NULL;
-    mbedtls_ctr_drbg_context*     ctr_drbg = NULL;
-    mbedtls_entropy_context*      entropy = NULL;
-    mbedtls_net_context*          server_fd = NULL;
-    mbedtls_timing_delay_context* timer = NULL;
+    mbedtls_ssl_config           *conf = NULL;
+    mbedtls_ctr_drbg_context     *ctr_drbg = NULL;
+    mbedtls_entropy_context      *entropy = NULL;
+    mbedtls_net_context          *server_fd = NULL;
+    mbedtls_timing_delay_context *timer = NULL;
 
     if (ssl == NULL)
     {
@@ -270,8 +282,8 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
     }
 
     conf       = ssl->conf;
-    server_fd  = (mbedtls_net_context*)ssl->p_bio;
-    timer      = (mbedtls_timing_delay_context*)ssl->p_timer;
+    server_fd  = (mbedtls_net_context *)ssl->p_bio;
+    timer      = (mbedtls_timing_delay_context *)ssl->p_timer;
 
     if (conf)
     {
@@ -292,6 +304,7 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
     {
         mbedtls_ssl_config_free(conf);
         mbedtls_free(conf);
+        ssl->conf = NULL; //  need by mbedtls_debug_print_msg(), see mbedtls_ssl_free(ssl)
     }
 
     if (ctr_drbg)
@@ -315,9 +328,9 @@ void dtls_ssl_destroy(mbedtls_ssl_context* ssl)
     mbedtls_free(ssl);
 }
 
-int dtls_write(mbedtls_ssl_context* ssl, const unsigned char* buf, size_t len)
+int dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len)
 {
-    int ret = mbedtls_ssl_write(ssl, (unsigned char*) buf, len);
+    int ret = mbedtls_ssl_write(ssl, (unsigned char *) buf, len);
 
     if (ret == MBEDTLS_ERR_SSL_WANT_WRITE)
     {
@@ -331,7 +344,7 @@ int dtls_write(mbedtls_ssl_context* ssl, const unsigned char* buf, size_t len)
     return ret;
 }
 
-int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t timeout)
+int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t timeout)
 {
     int ret;
 
@@ -353,5 +366,19 @@ int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t
     }
 
     return ret;
+}
+
+void dtls_int(void)
+{
+    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
+    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
+    (void)mbedtls_platform_set_printf(atiny_printf);
+}
+
+int dtls_accept( mbedtls_net_context *bind_ctx,
+                            mbedtls_net_context *client_ctx,
+                            void *client_ip, size_t buf_size, size_t *ip_len )
+{
+    return mbedtls_net_accept(bind_ctx, client_ctx, client_ip, buf_size, ip_len);
 }
 

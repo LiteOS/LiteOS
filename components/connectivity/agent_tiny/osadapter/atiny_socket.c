@@ -52,7 +52,10 @@
 #include "lwip/errno.h"
 #elif defined(WITH_AT_FRAMEWORK)
 #include "at_api_interface.h"
+#elif defined(WITH_WIZNET)
+#include "wiznet.h"
 #else
+// TODO
 #endif
 
 #define SOCKET_DEBUG
@@ -74,22 +77,183 @@ typedef struct
     int fd;
 } atiny_net_context;
 
-void* atiny_net_connect(const char* host, const char* port, int proto)
+void *atiny_net_bind(const char *host, const char *port, int proto)
 {
-    atiny_net_context* ctx = NULL;
+    atiny_net_context *ctx = NULL;
+#if defined (WITH_LWIP) || defined (WITH_LINUX)
+    struct sockaddr_in sock_addr;
+    int port_i;
+    int ret = ATINY_NET_ERR;
+
+    if (NULL == port || (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
+        return NULL;
+    
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+
+    sscanf(port , "%d", &port_i);
+    sock_addr.sin_family = AF_INET;
+    sock_addr.sin_port = lwip_htons(port_i);
+    sock_addr.sin_addr.s_addr = (host == NULL ? IPADDR_ANY : inet_addr(host));
+    sock_addr.sin_len = sizeof(struct sockaddr_in);
+
+    ctx->fd = socket(AF_INET,
+        proto == ATINY_PROTO_TCP ? SOCK_STREAM : SOCK_DGRAM,
+        proto == ATINY_PROTO_TCP ? IPPROTO_TCP : IPPROTO_UDP);
+
+    if (ctx->fd < 0)
+    {
+        ret = ATINY_NET_SOCKET_FAILED;
+        atiny_free(ctx);
+        return NULL;
+    }
+
+	int n = 1;
+	if( (ret = setsockopt( ctx->fd, SOL_SOCKET, SO_REUSEADDR,
+					(const char *) &n, sizeof( n )) ) != 0 )
+	{
+		ret = ATINY_NET_SOCKET_FAILED;
+		goto exit_failed;
+	}
+
+    ret = bind(ctx->fd, (struct sockaddr*)&sock_addr, sizeof(struct sockaddr));
+    if (ret < 0)
+    {
+       ret = ATINY_NET_BIND_FAILED;
+       goto exit_failed;
+    }
+
+    if (proto == ATINY_PROTO_TCP)
+    {
+        ret = listen(ctx->fd, 20);
+        if (ret < 0)
+        {
+            ret = ATINY_NET_LISTEN_FAILED;
+            goto exit_failed;
+        }
+    }
+
+    return ctx;
+
+exit_failed:
+       close(ctx->fd);
+       atiny_free(ctx);
+       return NULL;
+
+#elif defined(WITH_AT_FRAMEWORK)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+    	SOCKET_LOG("malloc failed for socket context");
+    	return NULL;
+    }
+
+    ctx->fd = at_api_bind(host, port, proto);
+    if (ctx->fd < 0)
+    {
+    	SOCKET_LOG("unkown host or port");
+    	atiny_free(ctx);
+    	ctx = NULL;
+    }
+#endif
+return ctx;
+}
+int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )
+{
+#if defined (WITH_LWIP) || defined (WITH_LINUX)
+    int bind_fd = ((atiny_net_context*)bind_ctx)->fd;
+    int client_fd = ((atiny_net_context*)client_ctx)->fd;
+    int type;
+    int ret = ATINY_NET_ERR;
+
+    struct sockaddr_in client_addr;
+    socklen_t type_len, client_addr_len;
+
+    type_len = sizeof(type);
+    if (getsockopt(bind_fd, SOL_SOCKET, SO_TYPE, (void*)&type, &type_len) != 0 ||
+        (type != SOCK_STREAM && type != SOCK_DGRAM))
+    {
+        return ATINY_NET_ACCEPT_FAILED;
+    }
+
+    client_addr_len = sizeof(struct sockaddr_in);
+    if (type == SOCK_STREAM)
+    {
+        ret = client_fd = accept(bind_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    }
+    else
+    {
+        //udp
+        char buf[1] = {0};
+        ret = recvfrom(bind_fd, buf, sizeof(buf), MSG_PEEK, (struct sockaddr*)&client_addr, &client_addr_len);
+    }
+
+    if (ret < 0)
+        return ATINY_NET_ACCEPT_FAILED;
+    if (type != SOCK_STREAM)
+    {
+
+        struct sockaddr_in  local_addr;
+        char port_s[6] = {0};
+        socklen_t n = sizeof(struct sockaddr_in);
+        int one = 1; 
+        
+        ((atiny_net_context*)client_ctx)->fd = client_fd = bind_fd;
+        ((atiny_net_context*)bind_ctx)->fd = bind_fd = -1;
+
+        if (connect(client_fd, (struct sockaddr *)&client_addr, client_addr_len) != 0)
+            return ATINY_NET_ACCEPT_FAILED;
+
+        ret = getsockname(client_fd, (struct sockaddr*)&local_addr, &n);
+
+        snprintf(port_s, sizeof(port_s), "%d", lwip_ntohs(local_addr.sin_port));
+        ((atiny_net_context*)bind_ctx)->fd = socket(local_addr.sin_family, SOCK_DGRAM, IPPROTO_UDP);
+        if( (ret = setsockopt( ((atiny_net_context*)bind_ctx)->fd, SOL_SOCKET, SO_REUSEADDR,
+					(const char *) &one, sizeof( one )) ) != 0 )
+    	{
+    		ret = ATINY_NET_SOCKET_FAILED;
+    	}
+        
+        if (ret != 0)
+            return ret;
+    }
+
+    if (client_ip != NULL)
+    {
+        if( client_addr.sin_family == AF_INET )
+        {
+            struct sockaddr_in *addr4 = (struct sockaddr_in *) &client_addr;
+            *ip_len = sizeof( addr4->sin_addr.s_addr );
+
+            if( buf_size < *ip_len )
+                return( ATINY_NET_BUF_SMALL_FAILED );
+
+            memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
+        }
+    }
+#endif
+    return 0;
+}
+
+void *atiny_net_connect(const char *host, const char *port, int proto)
+{
+    atiny_net_context *ctx = NULL;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     int flags;
     int ret;
     struct addrinfo hints;
-    struct addrinfo* addr_list;
-    struct addrinfo* cur;
+    struct addrinfo *addr_list;
+    struct addrinfo *cur;
+#endif
 
-    if (NULL == host || NULL == port ||
-        (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
+    //if (NULL == host || NULL == port ||
+    if (NULL == port ||
+            (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
     {
-        SOCKET_LOG("ilegal incoming parameters");
+        SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
         return NULL;
     }
+    
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
 
     /* Do name resolution with both IPv6 and IPv4 */
     memset(&hints, 0, sizeof(hints));
@@ -150,18 +314,18 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
 
     if (ctx->fd < 0)
     {
-        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        SOCKET_LOG("unkown host or port");
         atiny_free(ctx);
         return NULL;
     }
 
     if (proto == ATINY_PROTO_UDP)
     {
-        SOCKET_LOG("UDP create socket and bind to server(%s:%s) finished", host, port);
+        SOCKET_LOG("UDP create socket and bind to server finished");
     }
     else /* proto == ATINY_PROTO_TCP */
     {
-        SOCKET_LOG("TCP connect to server(%s:%s) succeed", host, port);
+        SOCKET_LOG("TCP connect to server succeed");
     }
 #elif defined(WITH_AT_FRAMEWORK)
     ctx = atiny_malloc(sizeof(atiny_net_context));
@@ -169,28 +333,45 @@ void* atiny_net_connect(const char* host, const char* port, int proto)
     {
         SOCKET_LOG("malloc failed for socket context");
         return NULL;
-    }    
+    }
 
     ctx->fd = at_api_connect(host, port, proto);
     if (ctx->fd < 0)
     {
-        SOCKET_LOG("unkown host(%s) or port(%s)", host, port);
+        SOCKET_LOG("unkown host or port");
+        atiny_free(ctx);
+        ctx = NULL;
+    }
+#elif defined(WITH_WIZNET)
+    ctx = atiny_malloc(sizeof(atiny_net_context));
+    if (NULL == ctx)
+    {
+        SOCKET_LOG("malloc failed for socket context");
+        return NULL;
+    }
+
+    ctx->fd = wiznet_connect(host, port, proto);
+    if (ctx->fd < 0)
+    {
+        SOCKET_LOG("unkown host or port");
         atiny_free(ctx);
         ctx = NULL;
     }
 #else
-#endif  
+#endif
     return ctx;
 }
 
-int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
+int atiny_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = -1;
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     ret = recv(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
-    ret = at_api_recv(fd,buf,len);
+    ret = at_api_recv(fd, buf, len);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_recv(fd, buf, len);
 #else
     (void)fd; //clear unuse warning
 #endif
@@ -219,7 +400,7 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len)
     return ret;
 }
 
-int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
+int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                            uint32_t timeout)
 {
     int ret = -1;
@@ -227,8 +408,8 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
     struct timeval tv;
     fd_set read_fds;
 #endif
-	
-    int fd = ((atiny_net_context*)ctx)->fd;
+
+    int fd = ((atiny_net_context *)ctx)->fd;
 
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     if (fd < 0)
@@ -251,20 +432,28 @@ int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
         return -2;
     }
 
+    if(ret < 0)
+    {
+        SOCKET_LOG("select error ret=%d,err 0x%x", ret, errno);
+        return -1;
+    }
+
     ret = atiny_net_recv(ctx, buf, len);
-    
+
 #elif defined(WITH_AT_FRAMEWORK)
-    ret = at_api_recv_timeout(fd, buf, len, timeout);
+    ret = at_api_recv_timeout(fd, buf, len, NULL,NULL,timeout);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_recv_timeout(fd, buf, len, timeout);
 #else
     (void)fd; //clear unuse warning
 #endif
     return ret;
 }
 
-int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
+int atiny_net_send(void *ctx, const unsigned char *buf, size_t len)
 {
     int ret = -1;
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 
     if (fd < 0)
     {
@@ -276,6 +465,8 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     ret = send(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_send(fd, buf, len);
+#elif defined(WITH_WIZNET)
+    ret = wiznet_send(fd, buf, len);
 #else
 #endif
 
@@ -298,9 +489,9 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     return ret;
 }
 
-void atiny_net_close(void* ctx)
+void atiny_net_close(void *ctx)
 {
-    int fd = ((atiny_net_context*)ctx)->fd;
+    int fd = ((atiny_net_context *)ctx)->fd;
 
     if (fd >= 0)
     {
@@ -308,6 +499,8 @@ void atiny_net_close(void* ctx)
         close(fd);
 #elif defined(WITH_AT_FRAMEWORK)
         at_api_close(fd);
+#elif defined(WITH_WIZNET)
+        wiznet_close(fd);
 #endif
     }
 

@@ -75,7 +75,7 @@ static UINT32 Example_TaskHi(VOID)
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err.\r\n");
         }
         return LOS_NOK;
     }
@@ -85,13 +85,13 @@ static UINT32 Example_TaskHi(VOID)
     uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_SUCCESS);
     if (LOS_OK != uwRet)
     {
-        dprintf("Set Inspect Status Err\n");
+        dprintf("Set Inspect Status Err.\r\n");
     }
 
     /* delete self */
     if(LOS_OK != LOS_TaskDelete(g_uwTskHiID))
     {
-        dprintf("TaskHi delete failed .\n");
+        dprintf("TaskHi delete failed .\r\n");
         return LOS_NOK;
     }
 
@@ -122,7 +122,7 @@ static UINT32 Example_TaskLo(VOID)
         uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TASK, LOS_INSPECT_STU_ERROR);
         if (LOS_OK != uwRet)
         {
-            dprintf("Set Inspect Status Err\n");
+            dprintf("Set Inspect Status Err.\r\n");
         }
         return LOS_NOK;
     }
@@ -130,7 +130,7 @@ static UINT32 Example_TaskLo(VOID)
     /* delete self */
     if(LOS_OK != LOS_TaskDelete(g_uwTskLoID))
     {
-        dprintf("TaskLo delete failed .\n");
+        dprintf("TaskLo delete failed .\r\n");
         return LOS_NOK;
     }
 
@@ -174,7 +174,7 @@ UINT32 Example_TskCaseEntry(VOID)
         /* delete high prio task */
         if (LOS_OK != LOS_TaskDelete(g_uwTskHiID))
         {
-            dprintf("TaskHi delete failed .\n");
+            dprintf("TaskHi delete failed .\r\n");
         }
 
         LOS_TaskUnlock();

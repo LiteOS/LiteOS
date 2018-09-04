@@ -53,20 +53,20 @@
 
 struct file          files [LOS_MAX_FILES];
 UINT32               fs_mutex = LOS_ERRNO_MUX_PTR_NULL;
-struct mount_point * mount_points = NULL;
-struct file_system * file_systems = NULL;
+struct mount_point *mount_points = NULL;
+struct file_system *file_systems = NULL;
 
-static int _file_2_fd (struct file * file)
+static int _file_2_fd (struct file *file)
 {
     return file - files;
 }
 
-static struct file * _fd_2_file (int fd)
+static struct file *_fd_2_file (int fd)
 {
     return &files [fd];
 }
 
-static struct file * los_file_get (void)
+static struct file *los_file_get (void)
 {
     int i;
 
@@ -84,22 +84,22 @@ static struct file * los_file_get (void)
     return NULL;
 }
 
-static void los_file_put(struct file * file)
+static void los_file_put(struct file *file)
 {
     file->f_flags  = 0;
     file->f_fops   = NULL;
     file->f_data   = NULL;
     file->f_mp     = NULL;
     file->f_offset = 0;
-    file->f_owner  = (UINT32) -1;
+    file->f_owner  = (UINT32) - 1;
 
     file->f_status = FILE_STATUS_NOT_USED;
 }
 
-struct mount_point * los_mp_find (const char * path, const char ** path_in_mp)
+struct mount_point *los_mp_find (const char *path, const char **path_in_mp)
 {
-    struct mount_point * mp = mount_points;
-    struct mount_point * best_mp = NULL;
+    struct mount_point *mp = mount_points;
+    struct mount_point *best_mp = NULL;
     int                  best_matches = 0;
 
     if (path_in_mp != NULL)
@@ -109,10 +109,10 @@ struct mount_point * los_mp_find (const char * path, const char ** path_in_mp)
 
     while (mp != NULL)
     {
-        const char     * m_path  = mp->m_path;  /* mount point path */
-        const char     * i_path  = path;        /* input path */
+        const char      *m_path  = mp->m_path;  /* mount point path */
+        const char      *i_path  = path;        /* input path */
         int              matches = 0;
-        const char     * t;
+        const char      *t;
 
         do
         {
@@ -139,9 +139,9 @@ struct mount_point * los_mp_find (const char * path, const char ** path_in_mp)
             }
 
             if (strncmp (m_path, i_path, t - m_path) != 0)
-                {
+            {
                 goto next;  /* this mount point do not match, check next */
-                }
+            }
 
             /*
              * if m_path is "abc", i_path maybe:
@@ -160,7 +160,8 @@ struct mount_point * los_mp_find (const char * path, const char ** path_in_mp)
 
             matches += (t - m_path);
             m_path  += (t - m_path);
-        } while (*m_path != '\0');
+        }
+        while (*m_path != '\0');
 
         if (matches > best_matches)
         {
@@ -181,12 +182,12 @@ next:
     return best_mp;
 }
 
-int los_open (const char * path, int flags)
+int los_open (const char *path, int flags)
 {
-    struct file        * file = NULL;
+    struct file         *file = NULL;
     int                  fd = -1;
-    const char         * path_in_mp;
-    struct mount_point * mp;
+    const char          *path_in_mp;
+    struct mount_point *mp;
 
     if (path == NULL)
     {
@@ -221,7 +222,7 @@ int los_open (const char * path, int flags)
     mp = los_mp_find (path, &path_in_mp);
 
     if ((mp == NULL) || (*path_in_mp == '\0') ||
-        (mp->m_fs->fs_fops->open == NULL))
+            (mp->m_fs->fs_fops->open == NULL))
     {
         goto err_post_exit;
     };
@@ -270,9 +271,9 @@ err_post_exit:
 
 /* attach to a file and then set new status */
 
-static struct file * _los_attach_file (int fd, UINT32 status)
+static struct file *_los_attach_file (int fd, UINT32 status)
 {
-    struct file        * file = NULL;
+    struct file         *file = NULL;
 
     if ((fd < 0) || (fd >= LOS_MAX_FILES))
     {
@@ -345,24 +346,24 @@ static struct file * _los_attach_file (int fd, UINT32 status)
     return file;
 }
 
-static struct file * los_attach_file (int fd)
+static struct file *los_attach_file (int fd)
 {
     return _los_attach_file (fd, FILE_STATUS_READY);
 }
 
-static struct file * los_attach_file_with_status (int fd, int status)
+static struct file *los_attach_file_with_status (int fd, int status)
 {
     return _los_attach_file (fd, status);
 }
 
-static UINT32 los_detach_file (struct file * file)
+static UINT32 los_detach_file (struct file *file)
 {
     return LOS_MuxPost (file->f_mp->m_mutex);
 }
 
 int los_close (int fd)
 {
-    struct file        * file;
+    struct file         *file;
     int                  ret = -1;
 
     file = los_attach_file_with_status (fd, FILE_STATUS_CLOSING);
@@ -389,10 +390,10 @@ int los_close (int fd)
     return ret;
 }
 
-ssize_t los_read (int fd, char * buff, size_t bytes)
+ssize_t los_read (int fd, char *buff, size_t bytes)
 {
-    struct file * file;
-    ssize_t       ret = (ssize_t) -1;
+    struct file *file;
+    ssize_t       ret = (ssize_t) - 1;
 
     file = los_attach_file (fd);
 
@@ -417,9 +418,9 @@ ssize_t los_read (int fd, char * buff, size_t bytes)
     return ret;
 }
 
-ssize_t los_write (int fd, const void * buff, size_t bytes)
+ssize_t los_write (int fd, const void *buff, size_t bytes)
 {
-    struct file * file;
+    struct file *file;
     ssize_t       ret = -1;
 
     file = los_attach_file (fd);
@@ -447,7 +448,7 @@ ssize_t los_write (int fd, const void * buff, size_t bytes)
 
 off_t los_lseek (int fd, off_t off, int whence)
 {
-    struct file * file;
+    struct file *file;
     off_t         ret = -1;
 
     file = los_attach_file (fd);
@@ -471,9 +472,9 @@ off_t los_lseek (int fd, off_t off, int whence)
     return ret;
 }
 
-int los_stat (const char * path, struct stat * stat)
+int los_stat (const char *path, struct stat *stat)
 {
-    struct file * file;
+    struct file *file;
     int           ret = -1;
     int           fd = los_open (path, 0);
 
@@ -496,10 +497,10 @@ int los_stat (const char * path, struct stat * stat)
     return ret;
 }
 
-int los_unlink (const char * path)
+int los_unlink (const char *path)
 {
-    struct mount_point * mp;
-    const char         * path_in_mp;
+    struct mount_point *mp;
+    const char          *path_in_mp;
     int                  ret = -1;
 
     LOS_MuxPend (fs_mutex, LOS_WAIT_FOREVER);   /* prevent the file open/rename */
@@ -507,7 +508,7 @@ int los_unlink (const char * path)
     mp = los_mp_find (path, &path_in_mp);
 
     if ((mp == NULL) || (*path_in_mp == '\0') ||
-        (mp->m_fs->fs_fops->unlink == NULL))
+            (mp->m_fs->fs_fops->unlink == NULL))
     {
         goto out;
     }
@@ -520,12 +521,12 @@ out:
     return ret;
 }
 
-int los_rename (const char * old, const char * new)
+int los_rename (const char *old, const char *new)
 {
-    struct mount_point * mp_old;
-    struct mount_point * mp_new;
-    const char         * path_in_mp_old;
-    const char         * path_in_mp_new;
+    struct mount_point *mp_old;
+    struct mount_point *mp_new;
+    const char          *path_in_mp_old;
+    const char          *path_in_mp_new;
     int                  ret = -1;
 
     LOS_MuxPend (fs_mutex, LOS_WAIT_FOREVER);   /* prevent file open/unlink */
@@ -533,7 +534,7 @@ int los_rename (const char * old, const char * new)
     mp_old = los_mp_find (old, &path_in_mp_old);
 
     if ((mp_old == NULL) || (*path_in_mp_old == '\0') ||
-        (mp_old->m_fs->fs_fops->unlink == NULL))
+            (mp_old->m_fs->fs_fops->unlink == NULL))
     {
         goto out;
     }
@@ -541,7 +542,7 @@ int los_rename (const char * old, const char * new)
     mp_new = los_mp_find (new, &path_in_mp_new);
 
     if ((mp_new == NULL) || (*path_in_mp_new == '\0') ||
-        (mp_new->m_fs->fs_fops->unlink == NULL))
+            (mp_new->m_fs->fs_fops->unlink == NULL))
     {
         goto out;
     }
@@ -568,7 +569,7 @@ int los_ioctl (int fd, int func, ...)
 {
     va_list       ap;
     unsigned long arg;
-    struct file * file;
+    struct file *file;
     int           ret = -1;
 
     va_start (ap, func);
@@ -594,7 +595,7 @@ int los_ioctl (int fd, int func, ...)
 
 int los_sync (int fd)
 {
-    struct file * file;
+    struct file *file;
     int           ret = -1;
 
     file = los_attach_file (fd);
@@ -614,11 +615,11 @@ int los_sync (int fd)
     return ret;
 }
 
-struct dir * los_opendir (const char * path)
+struct dir *los_opendir (const char *path)
 {
-    struct mount_point * mp;
-    const char         * path_in_mp;
-    struct dir         * dir = NULL;
+    struct mount_point *mp;
+    const char          *path_in_mp;
+    struct dir          *dir = NULL;
     int                  ret = -1;
 
     dir = (struct dir *) malloc (sizeof (struct dir));
@@ -686,10 +687,10 @@ struct dir * los_opendir (const char * path)
     return dir;
 }
 
-struct dirent * los_readdir (struct dir * dir)
+struct dirent *los_readdir (struct dir *dir)
 {
-    struct mount_point * mp;
-    struct dirent      * ret = NULL;
+    struct mount_point *mp;
+    struct dirent       *ret = NULL;
 
     if (dir == NULL)
     {
@@ -706,7 +707,7 @@ struct dirent * los_readdir (struct dir * dir)
     }
 
     if ((dir->d_mp->m_fs->fs_fops->readdir != NULL) &&
-        (dir->d_mp->m_fs->fs_fops->readdir (dir, &dir->d_dent) == 0))
+            (dir->d_mp->m_fs->fs_fops->readdir (dir, &dir->d_dent) == 0))
     {
         ret = &dir->d_dent;
     }
@@ -716,9 +717,9 @@ struct dirent * los_readdir (struct dir * dir)
     return ret;
 }
 
-int los_closedir (struct dir * dir)
+int los_closedir (struct dir *dir)
 {
-    struct mount_point * mp;
+    struct mount_point *mp;
     int                  ret = -1;
 
     if (dir == NULL)
@@ -751,10 +752,10 @@ int los_closedir (struct dir * dir)
     return ret;
 }
 
-int los_mkdir (const char * path, int mode)
+int los_mkdir (const char *path, int mode)
 {
-    struct mount_point * mp;
-    const char         * path_in_mp;
+    struct mount_point *mp;
+    const char          *path_in_mp;
     int                  ret = -1;
 
     (void) mode;
@@ -798,7 +799,7 @@ int los_mkdir (const char * path, int mode)
     return ret;
 }
 
-static int los_fs_name_check (const char * name)
+static int los_fs_name_check (const char *name)
 {
     char ch;
     int  len = 0;
@@ -813,10 +814,10 @@ static int los_fs_name_check (const char * name)
         }
 
         if ((('a' <= ch) && (ch <= 'z')) ||
-            (('A' <= ch) && (ch <= 'Z')) ||
-            (('0' <= ch) && (ch <= '9')) ||
-            (ch == '_')                  ||
-            (ch == '-'))
+                (('A' <= ch) && (ch <= 'Z')) ||
+                (('0' <= ch) && (ch <= '9')) ||
+                (ch == '_')                  ||
+                (ch == '-'))
         {
             len++;
 
@@ -829,14 +830,15 @@ static int los_fs_name_check (const char * name)
         }
 
         return LOS_NOK;
-    } while (1);
+    }
+    while (1);
 
     return len == 0 ? LOS_NOK : LOS_OK;
 }
 
-static struct file_system * los_fs_find (const char * name)
+static struct file_system *los_fs_find (const char *name)
 {
-    struct file_system * fs;
+    struct file_system *fs;
 
     for (fs = file_systems; fs != NULL; fs = fs->fs_next)
     {
@@ -849,7 +851,7 @@ static struct file_system * los_fs_find (const char * name)
     return fs;
 }
 
-int los_fs_register (struct file_system * fs)
+int los_fs_register (struct file_system *fs)
 {
     if ((fs == NULL) || (fs->fs_fops == NULL) || (fs->fs_fops->open == NULL))
     {
@@ -880,9 +882,9 @@ int los_fs_register (struct file_system * fs)
     return LOS_OK;
 }
 
-int los_fs_unregister (struct file_system * fs)
+int los_fs_unregister (struct file_system *fs)
 {
-    struct file_system * prev;
+    struct file_system *prev;
     int ret = LOS_OK;
 
     if (fs == NULL)
@@ -933,11 +935,11 @@ out:
     return ret;
 }
 
-int los_fs_mount (const char * fsname, const char * path, void * data)
+int los_fs_mount (const char *fsname, const char *path, void *data)
 {
-    struct file_system * fs;
-    struct mount_point * mp;
-    const char         * tmp;
+    struct file_system *fs;
+    struct mount_point *mp;
+    const char          *tmp;
 
     if (path [0] == '\0' || path [0] != '/')
     {
@@ -997,11 +999,11 @@ err_post_exit:
     return LOS_NOK;
 }
 
-int los_fs_unmount (const char * path)
+int los_fs_unmount (const char *path)
 {
-    struct mount_point * mp;
-    struct mount_point * prev;
-    const char         * tmp;
+    struct mount_point *mp;
+    struct mount_point *prev;
+    const char          *tmp;
     int                  ret = LOS_NOK;
 
     LOS_MuxPend (fs_mutex, LOS_WAIT_FOREVER);
@@ -1062,7 +1064,7 @@ int los_vfs_init (void)
 }
 
 #ifdef __CC_ARM
-int open (const char * path, int flags)
+int open (const char *path, int flags)
 {
     return los_open (path, flags);
 }
@@ -1072,12 +1074,12 @@ int close (int fd)
     return los_close (fd);
 }
 
-ssize_t read (int fd, char * buff, size_t bytes)
+ssize_t read (int fd, char *buff, size_t bytes)
 {
     return los_read (fd, buff, bytes);
 }
 
-ssize_t write (int fd, const void * buff, size_t bytes)
+ssize_t write (int fd, const void *buff, size_t bytes)
 {
     return los_write (fd, buff, bytes);
 }
@@ -1087,17 +1089,17 @@ off_t lseek (int fd, off_t off, int whence)
     return los_lseek (fd, off, whence);
 }
 
-int stat (const char * path, struct stat * stat)
+int stat (const char *path, struct stat *stat)
 {
     return los_stat (path, stat);
 }
 
-int unlink (const char * path)
+int unlink (const char *path)
 {
     return los_unlink (path);
 }
 
-int rename (const char * old, const char * new)
+int rename (const char *old, const char *new)
 {
     return los_rename (old, new);
 }
@@ -1119,22 +1121,22 @@ int sync (int fd)
     return los_sync (fd);
 }
 
-struct dir * opendir (const char * path)
+struct dir *opendir (const char *path)
 {
     return los_opendir (path);
 }
 
-struct dirent * readdir (struct dir * dir)
+struct dirent *readdir (struct dir *dir)
 {
     return los_readdir (dir);
 }
 
-int closedir (struct dir * dir)
+int closedir (struct dir *dir)
 {
     return los_closedir (dir);
 }
 
-int mkdir (const char * path, int mode)
+int mkdir (const char *path, int mode)
 {
     return los_mkdir (path, mode);
 }

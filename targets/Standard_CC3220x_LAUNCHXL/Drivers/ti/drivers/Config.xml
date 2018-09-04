@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<gep name="TI-Drivers" title="TI-Drivers Configuration" version="1">
+
+<page name="Driver Configuration Options" title="Driver Configuration Options">
+<html><body><table>
+  <tr><td>
+    <h1>Library Selection Options</h1>
+    <table>
+      <tr>
+        <td>
+            <control type="radiogroup" value="value:ti.drivers.Config.libType"
+                label="TI-RTOS Driver Library Type"
+                tooltip="value:ti.drivers.Config.libType.$summary"
+                align="left" />
+        </td>
+        <td>
+            <control type="radiogroup" value="value:ti.drivers.Config.rfDriverMode"
+                label="TI-RTOS RF Driver Mode"
+                enabled="value:ti.drivers.Config.supportsRFDriver"
+                tooltip="value:ti.drivers.Config.rfDriverMode.$summary"
+                align="left" />
+        </td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+</table></body></html>
+</page>
+
+</gep>

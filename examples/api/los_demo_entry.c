@@ -150,14 +150,14 @@ VOID LOS_Demo_Entry(VOID)
 
     (VOID)memset((VOID *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
     stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_Demo_Tskfunc;
-    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;
+    stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTaskInitParam.pcName = "ApiDemo";
     stTaskInitParam.usTaskPrio = 30;
     uwRet = LOS_TaskCreate(&g_uwDemoTaskID, &stTaskInitParam);
 
     if (uwRet != LOS_OK)
     {
-        dprintf("Api demo test task create failed\n");
+        dprintf("Api demo test task create failed \r\n");
         return;
     }
     return;

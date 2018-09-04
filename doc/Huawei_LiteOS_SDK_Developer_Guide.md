@@ -306,7 +306,7 @@ SDK端云互通组件支持物联网开放平台的远程固件升级，且具�
 
 **固件升级流程示意图**
 
-![](./meta/SDKGuide_AgentTiny/13.gif)
+![](./meta/SDKGuide_AgentTiny/13.png)
 
 <h2 id="4">4.LiteOS SDK端云互通组件API</h2>
 
@@ -769,7 +769,7 @@ EP
 Name就是在云平台上注册IMSI号，而PSK（预共享密钥）是用来加密传输的秘钥，agent_tiny_demo.c中示例如下：
 
 ```
-#define DEFAULT_SERVER_IPV4 "139.159.209.89"
+#define DEFAULT_SERVER_IPV4 "192.168.0.5"
 char * g_endpoint_name = "44440003"; 
 #ifdef WITH_DTLS 
 char *g_endpoint_name_s = "11110006"; 

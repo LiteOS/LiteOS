@@ -122,8 +122,13 @@ ER_COAP_SRC = \
         C_SOURCES += $(ER_COAP_SRC)
 
 LWM2M_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c} \
+		${wildcard $(TOP_DIR)/components/connectivity/lwm2m/examples/shared/*.c}
         C_SOURCES += $(LWM2M_SRC)
+
+ATINY_LOG_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/atiny_log.c}
+        C_SOURCES += $(ATINY_LOG_SRC)
 
 MQTT_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTPacket/src/*.c} \
@@ -250,7 +255,8 @@ ER_COAP_INC = \
         C_INCLUDES += $(ER_COAP_INC)
 
 LWM2M_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core
+        -I $(TOP_DIR)/components/connectivity/lwm2m/core \
+		-I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
 MQTT_INC = \

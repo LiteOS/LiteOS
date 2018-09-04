@@ -3,8 +3,14 @@ import os
 import sys
 import getopt
 import  xml.dom.minidom as minidom
-import hashlib
+#import hashlib
 import traceback
+from Crypto import Random
+from Crypto.Hash import SHA256
+from Crypto.Signature import pss as pss
+from Crypto.PublicKey import RSA
+import binascii
+import base64
 
 '''
 '''
@@ -22,8 +28,8 @@ RET_XML_CONFIG_ERR=7
 FILE_OPERATE_SIZE = 4 * 1024
 
 TLV_SHA256_CHECKSUM = 1
-
-TLV_CRC_CHECKSUM = TLV_SHA256_CHECKSUM + 2
+TLV_CRC_CHECKSUM = TLV_SHA256_CHECKSUM + 1
+TLV_SHA256_RSA2048_CHECKSUM = TLV_SHA256_CHECKSUM + 2
 
 INVALID_OFFSET = -1
 TLV_T_LEN = 2
@@ -32,6 +38,7 @@ TLV_L_LEN = 2
 TLV_HEAD_LEN_POS = 4
 TLV_TOTAL_LEN_POS = 8
 DEFAULT_CONFIG_FILE_NAME = 'config.xml'
+DEFAULT_KEY_FILE_NAME = 'private_key.pem'
 
 def min(a, b):
 	if a <= b:
@@ -100,11 +107,12 @@ class config_info(object):
 	def __init__(self):
 		self.input_file=""
 		self.output_file=""
-		self.config_file=""
+		self.config_file=""	
+		self.key_file = ""
 		
 	def parse_args(self):
 		try:
-			opts, args = getopt.getopt(sys.argv[1:], 'c:i:o')
+			opts, args = getopt.getopt(sys.argv[1:], 'c:i:o:k')
 		except getopt.GetoptError as err:
 			print str(err)			
 			return RET_INVALID_ARG			
@@ -117,6 +125,8 @@ class config_info(object):
 				self.input_file = arg
 			elif opt == "-o":
 				self.output_file = arg
+			elif opt == "-k":
+				self.key_file = arg
 			else:
 				pass
 		
@@ -129,6 +139,9 @@ class config_info(object):
 		
 		if self.config_file == '':
 			self.config_file = DEFAULT_CONFIG_FILE_NAME
+		
+		if self.key_file == '':
+			self.key_file = DEFAULT_KEY_FILE_NAME
 		
 		if not os.path.isfile(self.config_file):
 			print "config xml file \"{}\" not exist".format(self.config_file)
@@ -186,10 +199,36 @@ class sha256_checksum(checksum):
 		return self.sha256.digest()
 	
 	def reset(self):
-		self.sha256 = hashlib.sha256('')
+		#self.sha256 = hashlib.sha256('')
+		self.sha256 = SHA256.new()
+		
+class sha256_rsa2048_checksum(sha256_checksum):
+	def __init__(self, priave_key_file_name):
+		sha256_checksum.__init__(self)
+		self.priave_key_file_name = priave_key_file_name
+		
+	def name(self):
+		return 'sha256_rsa2048'
+	
+	def attribute(self):
+		return TLV_SHA256_RSA2048_CHECKSUM
+		
+	def size(self):
+		return 256
+	
+	def get_checksum(self):
+		print 'sha256:%s'%(self.sha256.hexdigest())
+		with open(self.priave_key_file_name) as f:
+			key = f.read()
+			rsakey = RSA.importKey(key)
+			signer = pss.new(rsakey)
+			sign = signer.sign(self.sha256)			
+		print 'sha256-rsa2048 checksum:%s'%(binascii.hexlify(sign))
+		#print 'base 64:%s' %(base64.b64encode(sign))
+		return sign
 		
 class crc256_checksum(checksum):
-	def name():
+	def name(self):
 		return 'crc256'
 
 	
@@ -297,8 +336,7 @@ class software_header(object):
 		if len(checksum) == 0:
 			print "no checksum tag in config file"
 			return RET_XML_CONFIG_ERR
-			
-		algs = [sha256_checksum(), crc256_checksum()]
+		algs = [sha256_checksum(), crc256_checksum(), sha256_rsa2048_checksum(self.config.key_file)]
 		for alg in algs:
 			if alg.name() == checksum[0].firstChild.data:
 				self.checksum_alg = alg
@@ -403,7 +441,7 @@ class software_maker(object):
 		return ret
 
 def print_usage():
-	print "Usage: {} [-c config_xml_file]  [-o output_file] -i input_file".format(sys.argv[0])
+	print "Usage: {} [-c config_xml_file]  [-o output_file] -i input_file [-k key_file]".format(sys.argv[0])
 	
 
 	

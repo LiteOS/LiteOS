@@ -214,17 +214,18 @@ static int hal_fota_write_software(atiny_fota_storage_device_s *this, uint32_t o
     return hal_fota_write_flash(OTA_IMAGE_DOWNLOAD_ADDR + offset, buffer, len);
 }
 
-static void hal_fota_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
+static int hal_fota_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
 {
     ota_hal_s *hal = (ota_hal_s *)this;
 
     if(NULL == this)
     {
         HAL_FOTA_LOG("null pointer");
-        return;
+        return ERR;
     }
 
     hal->total_len = (ATINY_FOTA_DOWNLOAD_OK == result) ? total_len : 0;
+    return OK;
 }
 
 static int hal_fota_active_software(atiny_fota_storage_device_s *this)

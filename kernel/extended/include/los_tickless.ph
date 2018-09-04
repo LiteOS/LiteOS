@@ -36,6 +36,18 @@
 #define _LOS_TICKLESS_PH
 
 #include "los_tickless.h"
+#include "los_hw_tick.h"
+#include "los_config.h"
+
+#if (LOSCFG_PLATFORM_HWI == NO)
+enum TICKLESS_OS_TICK_INT_FLAG
+{
+    TICKLESS_OS_TICK_INT_INIT = 0,
+    TICKLESS_OS_TICK_INT_WAIT = 1,  /* tickless start, waiting for the next tick interrupt to happen */
+    TICKLESS_OS_TICK_INT_SET  = 2,  /* tick interrupt happened */
+};
+extern enum TICKLESS_OS_TICK_INT_FLAG g_uwSysTickIntFlag;
+#endif
 
 extern BOOL g_bTickIrqFlag;
 extern BOOL g_bReloadSysTickFlag;
@@ -47,4 +59,5 @@ extern VOID osTicklessStart(VOID);
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 extern inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex);
 #endif
+extern VOID osTicklessHandler(VOID);
 #endif /* _LOS_TICKLESS_PH */
