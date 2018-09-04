@@ -286,29 +286,32 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     int ret;
     static int offset = 0;
     unsigned char bufout[AT_DATA_LEN/2]={0};
-    char* tmp;
-    tmp = strtok(str,",");
+    char *tmp,*trans;
+    tmp = strstr(str,",");
     //chartoint((char*)tmp);
-    tmp = strtok(NULL,",");
-    strncpy(qbuf->ipaddr,tmp,sizeof(qbuf->ipaddr));
-    tmp = strtok(NULL,",");
-    port = chartoint((char*)tmp);
+    trans = strstr(tmp+1,",");
+    strncpy(qbuf->ipaddr,tmp+1,MIN((trans-tmp),AT_DATA_LEN/2));
+    qbuf->ipaddr[trans-tmp-1] = '\0';
+
+    port = chartoint((char*)(trans+1));
+
     qbuf->port = port;
-    tmp = strtok(NULL,",");
-    *rlen = chartoint((char*)tmp);
-    if(*rlen >= AT_DATA_LEN/2)
+    tmp = strstr(trans+1,",");
+    *rlen = chartoint((char*)(tmp+1));
+
+    if(*rlen >= AT_DATA_LEN/2 || *rlen < 0)
     {
         AT_LOG("decompose len error:%d!",*rlen);
         *rlen = 0;
         return -1;
     }
-    tmp = strtok(NULL,",");
-    HexStrToStr((const unsigned char*)tmp, bufout, (*rlen)*2);
+    trans = strstr(tmp+1,",");
+    HexStrToStr((const unsigned char*)(trans+1), bufout, (*rlen)*2);
 
     memcpy(qbuf->addr+offset,bufout,*rlen);
     offset+=*rlen;
-    tmp = strtok(NULL,",");
-    *readleft = chartoint((char*)tmp);
+    tmp = strstr(trans+1,",");
+    *readleft = chartoint((char*)(tmp+1));
     ret = offset;
     return ret;
 }

@@ -73,6 +73,8 @@
 
 /* TYPE REDEFINE */
 typedef int32_t (*oob_callback)(void* arg, int8_t* buf, int32_t buflen);
+typedef int32_t (*oob_cmd_match)(const char *buf, char* featurestr,int len);
+
 #define MAXIPLEN  40
 typedef struct {
     uint32_t len;
@@ -102,6 +104,7 @@ typedef struct oob_s{
 	char featurestr[OOB_CMD_LEN];
 	int len;
     int runflag;
+    oob_cmd_match cmd_match;
 	oob_callback callback;
 	void* arg;
 }oob_t;
@@ -147,7 +150,7 @@ typedef struct at_task{
 	/* get unused linkid, use in multi connection mode*/
 	int32_t (*get_id)();
 	/* register uset msg process to the listener list */
-	int32_t (*oob_register)(char* featurestr,int strlen, oob_callback callback);
+	int32_t (*oob_register)(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 	void (*deinit)();
 } at_task;
 

@@ -49,7 +49,7 @@ int32_t at_get_unuse_linkid();
 void at_listener_list_add(at_listener *p);
 void at_listner_list_del(at_listener *p);
 int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
-int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback);
+int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 
 void at_deinit();
 //init function for at struct
@@ -216,7 +216,7 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
     for(i = 0; i < at_oob.oob_num; i++)
     {
         //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
-        ret = strncmp((const char *)(buf+2),(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
+        ret = at_oob.oob[i].cmd_match((const char *)buf,(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
         if(ret == 0)
         {
             cmp += at_oob.oob[i].len;
@@ -531,15 +531,16 @@ void at_deinit()
     //    LOS_SwtmrDelete(at_fota_timer);
 }
 
-int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback)
+int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
 {
     oob_t *oob;
-    if(featurestr == NULL || at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
+    if(featurestr == NULL || cmd_match == NULL || at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
     oob = &(at_oob.oob[at_oob.oob_num++]);
     memcpy(oob->featurestr, featurestr, cmdlen);
     oob->len = strlen(featurestr);
     oob->callback = callback;
+    oob->cmd_match = cmd_match;
     return 0;
 }
 
