@@ -142,7 +142,9 @@ int32_t at_cmd_in_recv_task(int8_t *cmd, int32_t len, const char *suffix, char *
     recv_len = read_resp((uint8_t*)resp_buf);
     AT_LOG("nb recv len = %lu buf = %s buff_full = %d", recv_len, resp_buf, buff_full);
 
+
     LOS_MuxPost(at.cmd_mux);
+
 
     return AT_OK;
 }
@@ -216,7 +218,7 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
     for(i = 0; i < at_oob.oob_num; i++)
     {
         //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
-        ret = at_oob.oob[i].cmd_match((const char *)buf,(const char *)at_oob.oob[i].featurestr,at_oob.oob[i].len);
+        ret = at_oob.oob[i].cmd_match((const char *)buf, at_oob.oob[i].featurestr,at_oob.oob[i].len);
         if(ret == 0)
         {
             cmp += at_oob.oob[i].len;
@@ -289,12 +291,12 @@ void at_recv_task()
 
                 if (NULL == suffix)
                 {
-                    if(NULL != listener->resp)
+                    if((NULL != listener->resp) && (NULL != listener->resp_len))
                         store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1,listener->resp_len);
                 }
                 else
                 {
-                    if(NULL != listener->resp)
+                    if((NULL != listener->resp) && (NULL != listener->resp_len))
                         store_resp_buf((int8_t *)listener->resp, (int8_t *)p1, p2 - p1,listener->resp_len);//suffix + strlen((char *)listener->suffix) - p1
                     (void)LOS_SemPost(at.resp_sem);
                 }
