@@ -255,9 +255,10 @@ int32_t nb_get_netstat(void)
 int32_t nb_create_sock(int port,int proto)
 {
 	int socket;
-    int rbuflen;
+    int rbuflen = AT_DATA_LEN;
 	char *cmdudp = "AT+NSOCR=DGRAM,17,";//udp
 	char *cmdtcp = "AT+NSOCR=STREAM,6,";//tcp
+	int ret;
 	if(proto!=17 && proto!=6)
     {
         AT_LOG("proto invalid!");
@@ -270,21 +271,22 @@ int32_t nb_create_sock(int port,int proto)
         snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmdudp, port);//udp
     else
         {snprintf(wbuf, AT_DATA_LEN, "%s%d,1\r", cmdtcp, port);}
-	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf,&rbuflen);
-	sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
+	at.cmd((int8_t*)wbuf, strlen(wbuf), "OK", rbuf, &rbuflen);
+	ret = sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
 	//neul_bc95_hex_to_str(tmpbuf, readlen*2, coapmsg);
-    if (socket >= 0)
+    if ((2 == ret) && (socket >= 0)
+        && (strnstr(tmpbuf, "OK", sizeof(tmpbuf))))
     {
         return socket;
     }
+
+    AT_LOG("sscanf fail,ret=%d,socket=%d", ret, socket);
     return -1;
 }
 
-int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
+int nb_decompose_str(char* str,QUEUE_BUFF* qbuf, int* rlen,int* readleft)
 {
     int port;
-    int ret;
-    static int offset = 0;
     unsigned char bufout[AT_DATA_LEN/2]={0};
     char *tmp,*trans;
     tmp = strstr(str,",");
@@ -311,15 +313,19 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int* rlen,int* readleft)
     if(trans == NULL)
         goto END;
     HexStrToStr((const unsigned char*)(trans+1), bufout, (*rlen)*2);
+    if ((qbuf->len + *rlen) > AT_DATA_LEN/2)
+    {
+        AT_LOG("at rcv len exceed err len %ld, rcv len %d", qbuf->len, *rlen);
+        goto END;
+    }
 
-    memcpy(qbuf->addr+offset,bufout,*rlen);
-    offset+=*rlen;
+    memcpy(qbuf->addr+qbuf->len, bufout, *rlen);
+    qbuf->len += *rlen;
     tmp = strstr(trans+1,",");
     if(tmp == NULL)
         goto END;
     *readleft = chartoint((char*)(tmp+1));
-    ret = offset;
-    return ret;
+    return qbuf->len;
 END:
     {
         AT_LOG("decompose fail!");
@@ -346,8 +352,9 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
     int cmdlen;
     p1 = (char *)buf;
     char* cmd = "AT+NSORF=";
-    int rlen,readleft = 0,tolen = 0;
+    int rlen,readleft = 0;
     char* str;
+
     char* rcvbuf = at_malloc(at_user_conf.user_buf_len);
     if (NULL == rcvbuf)
     {
@@ -355,8 +362,8 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
         goto END;
     }
 
-    //memset(&qbuf,0,sizeof(QUEUE_BUFF));
 
+    memset(&qbuf,0,sizeof(QUEUE_BUFF));
     p2 = strstr(p1, AT_DATAF_PREFIX);
     if (NULL == p2)
     {
@@ -382,13 +389,13 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
         goto END;
     }
 
-    qbuf.len = AT_DATA_LEN/2;
+
     cmdlen = snprintf(cmdbuf, CMDBUF_LEN, "%s%d,%d\r", cmd, (int)sockid,(int)data_len);
     (void)at_cmd_in_recv_task((int8_t*)cmdbuf, cmdlen, "OK", rcvbuf,&rbuflen);
 
     if(rcvbuf!= NULL)
 	{
-	    tolen = nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
+	    (void) nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
         while(readleft != 0 && rcvbuf != NULL)
         {
             memset(cmdbuf, 0, CMDBUF_LEN);
@@ -404,10 +411,9 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
                 str = strstr(rcvbuf, ",");//todo
                 str+=1;
             }
-            tolen = nb_decompose_str(str,&qbuf,&rlen,&readleft);
+            (void)nb_decompose_str(str,&qbuf,&rlen,&readleft);
         }
 	}
-    qbuf.len = tolen;
     //*(qbuf.addr+tolen) = NULL;
 
     if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
@@ -439,7 +445,8 @@ int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)
 		AT_LOG_DEBUG("sock num exceeded,ret is %d",ret);
 		return -1;
 	}
-	memcpy(sockinfo[ret].localip, (const char*)host,strlen((const char*)host));
+    memset(&sockinfo[ret], 0, sizeof(sockinfo[ret]));
+	//memcpy(sockinfo[ret].localip, (const char*)host,strlen((const char*)host));
 	sockinfo[ret].localport = *(unsigned short*)portnum;
 
     if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
@@ -538,6 +545,12 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,in
     QUEUE_BUFF	qbuf;
     UINT32 qlen = sizeof(QUEUE_BUFF);
 
+    if (id  >= MAX_SOCK_NUM)
+    {
+        AT_LOG("link id %ld invalid", id);
+        return -1;
+    }
+
     memset(rbuf, 0, AT_DATA_LEN);
     memset(tmpbuf, 0, AT_DATA_LEN);
 
@@ -545,6 +558,15 @@ int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,in
     if (ret != LOS_OK)
     {
         return -1;
+    }
+
+    if (('\0' == sockinfo[id].remoteip[0])
+        || (0 == sockinfo[id].remoteport))
+    {
+        AT_LOG("update ip and port for link %ld", id);
+        strncpy(sockinfo[id].remoteip, qbuf.ipaddr, sizeof(sockinfo[id].remoteip));
+        sockinfo[id].remoteip[sizeof(sockinfo[id].remoteip) - 1] = '\0';
+        sockinfo[id].remoteport = qbuf.port;
     }
 
 	if(ipaddr != NULL)
