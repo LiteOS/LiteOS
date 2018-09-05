@@ -65,34 +65,40 @@
 /* Public functions ---------------------------------------------------------*/
 static DSTATUS stm32f4xx_fatfs_status(BYTE lun)
 {
-    DSTATUS stat = STA_NOINIT;
+    DSTATUS status = STA_NOINIT;
     
     if(SPI_FLASH_ID == hal_spi_flash_get_id())
     {
-        stat &= ~STA_NOINIT;
+        status &= ~STA_NOINIT;
     }
-    return stat;
+    return status;
 }
 
 static DSTATUS stm32f4xx_fatfs_initialize(BYTE lun)
 {
-    DSTATUS stat = STA_NOINIT;
+    DSTATUS status = STA_NOINIT;
 
     hal_spi_flash_config();
     hal_spi_flash_wake_up();
-    stat = stm32f4xx_fatfs_status(lun);
-    return stat;
+    status = stm32f4xx_fatfs_status(lun);
+    return status;
 }
 
 static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
-    hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    int ret;
+    ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    if(ret != 0)
+        return RES_ERROR;
     return RES_OK;
 }
 
 static DRESULT stm32f4xx_fatfs_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
-    hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    int ret;
+    ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    if(ret != 0)
+        return RES_ERROR;
     return RES_OK;
 }
 
