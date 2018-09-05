@@ -86,20 +86,20 @@ static DSTATUS stm32f4xx_fatfs_initialize(BYTE lun)
 
 static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
-	int ret;
+    int ret;
     ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
-	if(ret != 0)
-		return RES_ERROR;
+    if(ret != 0)
+        return RES_ERROR;
     return RES_OK;
 }
 
 static DRESULT stm32f4xx_fatfs_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
-	int ret;
+    int ret;
     ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
     if(ret != 0)
-		return RES_ERROR;
-	return RES_OK;
+        return RES_ERROR;
+    return RES_OK;
 }
 
 static DRESULT stm32f4xx_fatfs_ioctl(BYTE lun, BYTE cmd, void *buff)
