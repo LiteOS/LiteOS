@@ -31,6 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_ESP8266)
 
 #include "agent_tiny_demo.h"
 #ifdef CONFIG_FEATURE_FOTA
@@ -38,12 +39,12 @@
 #endif
 //#define DEFAULT_SERVER_IPV4 "139.159.209.89"/*Huawei */
 //#define DEFAULT_SERVER_IPV4 "192.168.0.116"/*Huawei */
-#define DEFAULT_SERVER_IPV4 "192.168.1.111"/*sjn */
-//#define DEFAULT_SERVER_IPV4 "180.101.147.115"/*dianxin */
+//#define DEFAULT_SERVER_IPV4 "192.168.1.111"/*sjn */
+#define DEFAULT_SERVER_IPV4 "180.101.147.115"/*dianxin */
 
 #define LWM2M_LIFE_TIME     50000
 
-char * g_endpoint_name = "44440003";
+char * g_endpoint_name = "201808070034";
 #ifdef WITH_DTLS
 char* g_endpoint_name_s = "11110001";
 char* g_endpoint_name_iots = "66667777";
@@ -57,8 +58,9 @@ static void* g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
 
-DHT11_Data_TypeDef  DHT11_Data;
+
 msg_for_Wifi Wifi_send;
+DHT11_Data_TypeDef  DHT11_Data;
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
@@ -68,10 +70,10 @@ void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e statu
 void app_data_report(void)
 {
 		UINT32 uwRet = LOS_OK;
-//    uint8_t buf[13] = {'1','2','.','2','1','2','.','2','1','2','2','2','2'};
     data_report_t report_data;
     int ret;
     int cnt = 0;
+//    sprintf(Wifi_send.buf, "31312e3131312e31");
     report_data.buf = (uint8_t *)(Wifi_send.buf);
     report_data.callback = ack_callback;
     report_data.cookie = 0;
@@ -129,25 +131,27 @@ VOID data_collection_task(VOID)
 {
 	UINT32 uwRet = LOS_OK;
 	short int Lux;
-	
+	DHT11_Init();
+	Init_BH1750();
 	while (1)
   {
 
 	  /****************temperature and humidity*****************/
-    if(DHT11_Read_TempAndHumidity(&DHT11_Data)==SUCCESS)
-    {
-		printf("read DH11 value succ! temp is %d.%d  humi is %d.%d\n",DHT11_Data.humidity/10, DHT11_Data.humidity%10,DHT11_Data.temperature/10, DHT11_Data.temperature%10);
-    }
-    else
-    {
-        printf("read DH11 value failed\n");
-			DHT11_Init();
-    }
+	if(DHT11_Read_TempAndHumidity(&DHT11_Data)==SUCCESS)
+	{
+		printf("Read DHT11 success!-->Hum is %.1f £¥RH £¬Temp is %.1f¡æ \n",DHT11_Data.humidity,DHT11_Data.temperature);
+	}
+	else
+	{
+		printf("read DHT11 fialed\n");
+		DHT11_Init();      
+	}
 				/****************BH1750******************/
 		Lux=(int)Convert_BH1750();
-		  printf("\r\n******************************BH1750 Value is  %d\r\n",Lux);
+		printf("\r\n******************************BH1750 Value is  %d\r\n",Lux);
 		
-    sprintf(Wifi_send.buf, "%2d.%1d%2d.%1d%5d", DHT11_Data.temperature/10,DHT11_Data.temperature%10, DHT11_Data.humidity/10, DHT11_Data.humidity%10,Lux);
+		sprintf((char*)Wifi_send.buf, "%.1f%.1f%5d", DHT11_Data.temperature,DHT11_Data.humidity,Lux);
+		
 		uwRet=LOS_TaskDelay(1500);
 		if(uwRet !=LOS_OK)
 		return;
@@ -241,10 +245,11 @@ void agent_tiny_entry(void)
     {
         return;
     }
-		uwRet = creat_data_collection_task();
+	uwRet = creat_data_collection_task();
     if(LOS_OK != uwRet)
     {
         return ;
     }
     (void)atiny_bind(device_info, g_phandle);
 }
+#endif

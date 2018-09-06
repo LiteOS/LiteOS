@@ -1,0 +1,303 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;-------------------------------------------------------
+                       ---------------------
+    2 00000000         ; Copyright (c) <2016-2018>, <Huawei Technologies Co., L
+                       td>
+    3 00000000         ; All rights reserved.
+    4 00000000         ; Redistribution and use in source and binary forms, wit
+                       h or without modification,
+    5 00000000         ; are permitted provided that the following conditions a
+                       re met:
+    6 00000000         ; 1. Redistributions of source code must retain the abov
+                       e copyright notice, this list of
+    7 00000000         ; conditions and the following disclaimer.
+    8 00000000         ; 2. Redistributions in binary form must reproduce the a
+                       bove copyright notice, this list
+    9 00000000         ; of conditions and the following disclaimer in the docu
+                       mentation and/or other materials
+   10 00000000         ; provided with the distribution.
+   11 00000000         ; 3. Neither the name of the copyright holder nor the na
+                       mes of its contributors may be used
+   12 00000000         ; to endorse or promote products derived from this softw
+                       are without specific prior written
+   13 00000000         ; permission.
+   14 00000000         ; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+                        CONTRIBUTORS
+   15 00000000         ; "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDI
+                       NG, BUT NOT LIMITED TO,
+   16 00000000         ; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+                       FOR A PARTICULAR
+   17 00000000         ; PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGH
+                       T HOLDER OR
+   18 00000000         ; CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCID
+                       ENTAL, SPECIAL,
+   19 00000000         ; EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NO
+                       T LIMITED TO,
+   20 00000000         ; PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF U
+                       SE, DATA, OR PROFITS;
+   21 00000000         ; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY TH
+                       EORY OF LIABILITY,
+   22 00000000         ; WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUD
+                       ING NEGLIGENCE OR
+   23 00000000         ; OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS S
+                       OFTWARE, EVEN IF
+   24 00000000         ; ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   25 00000000         ;-------------------------------------------------------
+                       --------------------*/
+   26 00000000         ;-------------------------------------------------------
+                       ---------------------
+   27 00000000         ; Notice of Export Control Law
+   28 00000000         ; ===============================================
+   29 00000000         ; Huawei LiteOS may be subject to applicable export cont
+                       rol laws and regulations, which might
+   30 00000000         ; include those applicable to Huawei LiteOS of U.S. and 
+                       the country in which you are located.
+   31 00000000         ; Import, export and usage of Huawei LiteOS in any manne
+                       r by you shall be in compliance with such
+   32 00000000         ; applicable export control laws and regulations.
+   33 00000000         ;-------------------------------------------------------
+                       --------------------*/
+   34 00000000         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   35 00000000 00000400 
+                       LOS_Heap_Min_Size
+                               EQU              0x400
+   36 00000000         
+   37 00000000                 AREA             LOS_HEAP, NOINIT, READWRITE, AL
+IGN=3
+   38 00000000         __los_heap_base
+   39 00000000         LOS_Heap_Mem
+                               SPACE            LOS_Heap_Min_Size
+   40 00000400         
+   41 00000400         
+   42 00000400                 AREA             LOS_HEAP_INFO, DATA, READONLY, 
+ALIGN=2
+   43 00000000                 IMPORT           |Image$$ARM_LIB_STACKHEAP$$ZI$$
+Base|
+   44 00000000                 EXPORT           __LOS_HEAP_ADDR_START__
+   45 00000000                 EXPORT           __LOS_HEAP_ADDR_END__
+   46 00000000         __LOS_HEAP_ADDR_START__
+   47 00000000 00000000        DCD              __los_heap_base
+   48 00000004         __LOS_HEAP_ADDR_END__
+   49 00000004 FFFFFFFF        DCD              |Image$$ARM_LIB_STACKHEAP$$ZI$$
+Base| - 1
+   50 00000008         
+   51 00000008         
+   52 00000008                 PRESERVE8
+   53 00000008         
+   54 00000008                 AREA             RESET, CODE, READONLY
+   55 00000000                 THUMB
+   56 00000000         
+   57 00000000                 IMPORT           ||Image$$ARM_LIB_STACKHEAP$$ZI$
+$Limit||
+   58 00000000                 IMPORT           osPendSV
+   59 00000000         
+   60 00000000                 EXPORT           _BootVectors
+   61 00000000                 EXPORT           Reset_Handler
+   62 00000000         
+   63 00000000         _BootVectors
+   64 00000000 00000000        DCD              ||Image$$ARM_LIB_STACKHEAP$$ZI$
+$Limit||
+   65 00000004 00000000        DCD              Reset_Handler
+   66 00000008         
+   67 00000008         
+   68 00000008         Reset_Handler
+   69 00000008 F8DF 0014       LDR.W            R0, =0xE000ED88
+   70 0000000C 6801            LDR              R1, [R0]
+   71 0000000E F441 0170       ORR              R1, R1, #(0xF << 20)
+   72 00000012 6001            STR              R1, [R0]
+   73 00000014 B672            CPSID            I
+   74 00000016         
+   75 00000016                 IMPORT           SystemInit
+   76 00000016                 IMPORT           __main
+   77 00000016 4803            LDR              R0, =SystemInit
+   78 00000018 4780            BLX              R0
+   79 0000001A 4803            LDR              R0, =__main
+   80 0000001C 4700            BX               R0
+   81 0000001E         
+   82 0000001E         
+   83 0000001E 00 00           ALIGN
+   84 00000020                 END
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+              E000ED88 
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
+erwork --depend=stm32l431rxtx\los_startup_keil.d -ostm32l431rxtx\los_startup_ke
+il.o -I.\RTE\_Huawei_LiteOS -IE:\Keil_v5\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\Include
+ -IE:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\Drivers\CMSIS\Device\ST\STM32L4
+xx\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 
+524" --predefine="_RTE_ SETA 1" --predefine="STM32L431xx SETA 1" --list=los_sta
+rtup_keil.lst los_startup_keil.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+LOS_HEAP 00000000
+
+Symbol: LOS_HEAP
+   Definitions
+      At line 37 in file los_startup_keil.s
+   Uses
+      None
+Comment: LOS_HEAP unused
+LOS_Heap_Mem 00000000
+
+Symbol: LOS_Heap_Mem
+   Definitions
+      At line 39 in file los_startup_keil.s
+   Uses
+      None
+Comment: LOS_Heap_Mem unused
+__los_heap_base 00000000
+
+Symbol: __los_heap_base
+   Definitions
+      At line 38 in file los_startup_keil.s
+   Uses
+      At line 47 in file los_startup_keil.s
+Comment: __los_heap_base used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+LOS_HEAP_INFO 00000000
+
+Symbol: LOS_HEAP_INFO
+   Definitions
+      At line 42 in file los_startup_keil.s
+   Uses
+      None
+Comment: LOS_HEAP_INFO unused
+__LOS_HEAP_ADDR_END__ 00000004
+
+Symbol: __LOS_HEAP_ADDR_END__
+   Definitions
+      At line 48 in file los_startup_keil.s
+   Uses
+      At line 45 in file los_startup_keil.s
+Comment: __LOS_HEAP_ADDR_END__ used once
+__LOS_HEAP_ADDR_START__ 00000000
+
+Symbol: __LOS_HEAP_ADDR_START__
+   Definitions
+      At line 46 in file los_startup_keil.s
+   Uses
+      At line 44 in file los_startup_keil.s
+Comment: __LOS_HEAP_ADDR_START__ used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+RESET 00000000
+
+Symbol: RESET
+   Definitions
+      At line 54 in file los_startup_keil.s
+   Uses
+      None
+Comment: RESET unused
+Reset_Handler 00000008
+
+Symbol: Reset_Handler
+   Definitions
+      At line 68 in file los_startup_keil.s
+   Uses
+      At line 61 in file los_startup_keil.s
+      At line 65 in file los_startup_keil.s
+
+_BootVectors 00000000
+
+Symbol: _BootVectors
+   Definitions
+      At line 63 in file los_startup_keil.s
+   Uses
+      At line 60 in file los_startup_keil.s
+Comment: _BootVectors used once
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+LOS_Heap_Min_Size 00000400
+
+Symbol: LOS_Heap_Min_Size
+   Definitions
+      At line 35 in file los_startup_keil.s
+   Uses
+      At line 39 in file los_startup_keil.s
+Comment: LOS_Heap_Min_Size used once
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+Image$$ARM_LIB_STACKHEAP$$ZI$$Base 00000000
+
+Symbol: Image$$ARM_LIB_STACKHEAP$$ZI$$Base
+   Definitions
+      At line 43 in file los_startup_keil.s
+   Uses
+      At line 49 in file los_startup_keil.s
+Comment: Image$$ARM_LIB_STACKHEAP$$ZI$$Base used once
+SystemInit 00000000
+
+Symbol: SystemInit
+   Definitions
+      At line 75 in file los_startup_keil.s
+   Uses
+      At line 77 in file los_startup_keil.s
+Comment: SystemInit used once
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 76 in file los_startup_keil.s
+   Uses
+      At line 79 in file los_startup_keil.s
+Comment: __main used once
+osPendSV 00000000
+
+Symbol: osPendSV
+   Definitions
+      At line 58 in file los_startup_keil.s
+   Uses
+      None
+Comment: osPendSV unused
+|Image$$ARM_LIB_STACKHEAP$$ZI$$Limit| 00000000
+
+Symbol: |Image$$ARM_LIB_STACKHEAP$$ZI$$Limit|
+   Definitions
+      At line 57 in file los_startup_keil.s
+   Uses
+      At line 64 in file los_startup_keil.s
+Comment: |Image$$ARM_LIB_STACKHEAP$$ZI$$Limit| used once
+5 symbols
+352 symbols in table

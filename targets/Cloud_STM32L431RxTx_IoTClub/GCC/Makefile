@@ -24,7 +24,7 @@ OPT = -O0
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := ESP8266
 endif
 
 #######################################
@@ -137,8 +137,7 @@ ER_COAP_SRC = \
         C_SOURCES += $(ER_COAP_SRC)
 
 LWM2M_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c} \
-		${wildcard $(TOP_DIR)/components/connectivity/lwm2m/examples/shared/*.c}        
+        ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c}
         C_SOURCES += $(LWM2M_SRC)
 
 OS_ADAPTER_SRC = \
@@ -173,8 +172,8 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/gpio.c \
         $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/i2c.c \
         $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/adc.c \
-        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/stm32l4xx_it.c
- #       $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/los_dev_st_uart.c
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/stm32l4xx_it.c \
+        $(TOP_DIR)/targets/Cloud_STM32L431RxTx_IoTClub/Src/los_dev_st_uart.c
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
@@ -184,7 +183,7 @@ ATADAPTOR_SRC = \
     C_SOURCES += $(ATADAPTOR_SRC)
 
 ifeq ($(NETWORK_TYPE), ESP8266)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/esp8266/*.c}
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/wifi/*.c}
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/drivers/devices/gprs/*.c}
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)
@@ -308,8 +307,7 @@ ER_COAP_INC = \
         C_INCLUDES += $(ER_COAP_INC)
 
 LWM2M_INC = \
-        -I $(TOP_DIR)/components/connectivity/lwm2m/core \
-		-I $(TOP_DIR)/components/connectivity/lwm2m//examples/shared       
+        -I $(TOP_DIR)/components/connectivity/lwm2m/core
         C_INCLUDES += $(LWM2M_INC)
 
 OS_ADAPTER_INC = \
@@ -347,7 +345,7 @@ ATADAPTOR_INC = \
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
 ifeq ($(NETWORK_TYPE), ESP8266)
-    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi/esp8266
+    USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/wifi
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_INC = -I $(TOP_DIR)/drivers/devices/gprs
 else ifeq ($(NETWORK_TYPE), NB_NEUL95)

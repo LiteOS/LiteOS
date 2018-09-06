@@ -61,10 +61,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "oled.h"
-#include "neul_bc95.h"
-#include "DHT11_BUS.h"
-#include "BH1750.h" 
-#include "gps.h"
+
 
 #ifdef __cplusplus
  extern "C" {
