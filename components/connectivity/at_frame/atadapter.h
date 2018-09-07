@@ -88,6 +88,9 @@ typedef struct {
 	UINT32 fd;		//convert between socket_fd and linkid
 	UINT32 qid;    // queue id
 	UINT32 usable;
+
+    UINT8 remote_ip[16];
+    UINT32 remote_port;
 }at_link;
 
 typedef struct _listner{
