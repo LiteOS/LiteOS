@@ -43,7 +43,7 @@
 #define AT_NB_reboot    		"AT+NRB\r"
 #define AT_NB_hw_detect    		"AT+CFUN?\r"
 #define AT_NB_get_auto_connect    		"AT+NCONFIG?\r"
-#define AT_CMD_PREFIX      "+NNMI:"
+#define AT_CMD_PREFIX      "\r\n+NNMI:"
 
 #define AT_MODU_NAME        "nb_neul95"
 #define AT_USART_PORT       3

@@ -173,7 +173,7 @@ USER_SRC =  \
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/at_fota/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/sota/*.c}
         C_SOURCES += $(SOTA_SRC)
 endif
 
@@ -368,7 +368,7 @@ endif
 
 ifeq ($(USE_SOTA), yes)
 SOTA_INC = \
-        -I $(TOP_DIR)/components/connectivity/at_fota
+        -I $(TOP_DIR)/components/connectivity/sota
         C_INCLUDES += $(SOTA_INC)
 endif
 

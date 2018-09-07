@@ -38,7 +38,7 @@
 #include "atadapter.h"
 #include "at_hal.h"
 #ifdef WITH_SOTA
-#include "at_fota.h"
+#include "sota.h"
 #endif
 extern uint8_t buff_full;
 /* FUNCTION */
@@ -72,6 +72,17 @@ at_task at =
 at_oob_t at_oob;
 char rbuf[AT_DATA_LEN] = {0};
 char wbuf[AT_DATA_LEN] = {0};
+
+int chartoint(char* port)
+{
+	int tmp=0;
+	while(*port >= '0' && *port <= '9')
+	{
+		tmp = tmp*10+*port-'0';
+		port++;
+	}
+	return tmp;
+}
 
 //add p to tail;
 void at_listener_list_add(at_listener *p)
@@ -142,9 +153,7 @@ int32_t at_cmd_in_recv_task(int8_t *cmd, int32_t len, const char *suffix, char *
     recv_len = read_resp((uint8_t*)resp_buf);
     AT_LOG("nb recv len = %lu buf = %s buff_full = %d", recv_len, resp_buf, buff_full);
 
-
     LOS_MuxPost(at.cmd_mux);
-
 
     return AT_OK;
 }
@@ -513,7 +522,9 @@ void at_init()
         (void)at_struct_deinit(&at);
         return;
     }
-
+#ifdef WITH_SOTA
+    at_ota_init("\r\n+NNMI:",strlen("\r\n+NNMI:"));
+#endif
     AT_LOG("Config complete!!\n");
 }
 
@@ -529,8 +540,6 @@ void at_deinit()
         AT_LOG("at_struct_deinit failed!");
     }
     at_init_oob();
-    //if(at_fota_timer!=-1)
-    //    LOS_SwtmrDelete(at_fota_timer);
 }
 
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
