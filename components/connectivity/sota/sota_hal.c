@@ -39,11 +39,12 @@
 #include "hal_spi_flash.h"
 #include "atadapter.h"
 
+extern unsigned char *flashbuf;
+
 int at_fota_write(int offset, char *buffer, int len)
 {
     static uint32_t writed_len = 0;
     static int cnt = 0;
-    static unsigned char flashbuf[0x1000] = {0};
     int ret;
     ret = hal_spi_flash_read(flashbuf, offset - writed_len, OTA_IMAGE_DOWNLOAD_ADDR + writed_len);
     if(ret)

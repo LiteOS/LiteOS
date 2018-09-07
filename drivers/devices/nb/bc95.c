@@ -100,17 +100,6 @@ void HexStrToStr(const unsigned char *source, unsigned char *dest, int sourceLen
     return ;
 }
 
-int chartoint(char* port)
-{
-	int tmp=0;
-	while(*port >= '0' && *port <= '9')
-	{
-		tmp = tmp*10+*port-'0';
-		port++;
-	}
-	return tmp;
-}
-
 int32_t nb_reboot(void)
 {
     memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _socket_info_t));

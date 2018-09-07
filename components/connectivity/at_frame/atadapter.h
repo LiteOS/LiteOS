@@ -156,6 +156,7 @@ typedef struct at_task{
 
 void* at_malloc(size_t size);
 void at_free(void* ptr);
+int chartoint(char* port);
 extern int at_update_result_send(void);
 int32_t at_cmd_in_recv_task(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
 
