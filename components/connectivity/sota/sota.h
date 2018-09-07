@@ -61,6 +61,7 @@ typedef  unsigned short   WORD;
 int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
 
 #define MIN_PKT_LEN 4
+#define FLASH_LEN 1024*4
 
 typedef struct ota_pcp_head_t
 {

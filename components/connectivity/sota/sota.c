@@ -111,7 +111,7 @@ int valid_check(char *rcvbuf, int32_t len)
     ota_pcp_head_s *pbuf;
     char *buf,*databuf,*rlen;
     int buflen;
-    unsigned char stmpbuf[512] = {0};
+    unsigned char stmpbuf[AT_DATA_LEN/2] = {0};
     if(rcvbuf == NULL || len <= MIN_PKT_LEN)
     {
         AT_LOG("buf null");
@@ -126,7 +126,7 @@ int valid_check(char *rcvbuf, int32_t len)
     sprintf(buf + 10, "%02X", '0');
     HexStrToByte((const unsigned char *)buf, stmpbuf, buflen); //strlen(buf)
     (void)crc_check(stmpbuf, buflen);
-    memset(rabuf, 0, 1064);
+    memset(rabuf, 0, AT_DATA_LEN);
     sota_str_to_hex(buf, buflen * 2, rabuf);
     pbuf = (ota_pcp_head_s *)rabuf;
 
@@ -154,11 +154,11 @@ int at_fota_send(char *buf, int len)
     //平台的回应处理
     int ret;
     char crcretbuf[5] = {0};
-    char tmpbuf[256] = {0};
+    char tmpbuf[AT_DATA_LEN/4] = {0};
     ota_pcp_head_s pcp_head = {0};
-    unsigned char atwbuf[256] = {0};
+    unsigned char atwbuf[AT_DATA_LEN/4] = {0};
     unsigned char hbuf[64] = {0};
-    if(len > 1024)
+    if(len > AT_DATA_LEN)
     {
         AT_LOG("payload too long");
         return -1;
@@ -418,10 +418,10 @@ int hal_init_sota(void)
     {
         AT_LOG("read/write boot information failed");
     }
-    flashbuf = at_malloc(1024*4);
+    flashbuf = at_malloc(FLASH_LEN);
     if(flashbuf == NULL)
         AT_LOG("malloc flashbuf failed");
-    rabuf =  at_malloc(1024);
+    rabuf =  at_malloc(AT_DATA_LEN);
     if(rabuf == NULL)
         AT_LOG("malloc rabufs failed");
     return ret;
