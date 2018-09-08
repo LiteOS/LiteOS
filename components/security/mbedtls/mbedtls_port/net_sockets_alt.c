@@ -89,13 +89,9 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
 {
     int ret = atiny_net_recv_timeout(ctx, buf, len, timeout);
 
-    if (ret == -2)
+    if (ret < 0)
     {
         return MBEDTLS_ERR_SSL_TIMEOUT;
-    }
-    else if (ret < 0)
-    {
-        return MBEDTLS_ERR_NET_RECV_FAILED;
     }
     else if (ret == 0)
     {

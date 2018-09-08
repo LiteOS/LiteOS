@@ -31,8 +31,8 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __AT_FOTA_H__
-#define __AT_FOTA_H__
+#ifndef __SOTA_H__
+#define __SOTA_H__
 
 #include<stdint.h>
 
@@ -57,10 +57,11 @@ typedef enum{
 
 typedef  unsigned char   BYTE;
 typedef  unsigned short   WORD;
-
+#define USE_DIFF_UPGRADE  0
 int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
 
 #define MIN_PKT_LEN 4
+#define FLASH_LEN 1024*4
 
 typedef struct ota_pcp_head_t
 {

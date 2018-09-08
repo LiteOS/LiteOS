@@ -230,6 +230,8 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
             memcpy( client_ip, &addr4->sin_addr.s_addr, *ip_len );
         }
     }
+#else
+    ((atiny_net_context*)client_ctx)->fd = ((atiny_net_context*)bind_ctx)->fd;
 #endif
     return 0;
 }

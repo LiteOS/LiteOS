@@ -65,7 +65,7 @@ int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 int32_t nb_cmd_match(const char *buf, char* featurestr,int len)
 {
     printf("buf:%s feature:%s\n",buf,featurestr);
-    return strncmp((const char *)(buf+2),featurestr,len);
+    return strncmp(buf,featurestr,len);
 }
 VOID main_task(VOID)
 {
@@ -91,7 +91,7 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_rcv_handler,nb_cmd_match);
+    //los_nb_notify("\r\n+NNMI:",strlen("\r\n+NNMI:"),nb_data_rcv_handler,nb_cmd_match);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
@@ -104,7 +104,7 @@ VOID main_task(VOID)
     extern at_adaptor_api at_interface;
     printf("\r\n=============agent_tiny_entry============================\n");
     los_nb_init(NULL,NULL,NULL);
-    los_nb_notify("+NSONMI:",strlen("+NSONMI:"),nb_data_rcv_handler,nb_cmd_match);
+    los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),nb_data_rcv_handler,nb_cmd_match);
     at_api_register(&at_interface);
     agent_tiny_entry();
 #endif
