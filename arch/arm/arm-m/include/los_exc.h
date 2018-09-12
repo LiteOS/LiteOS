@@ -343,11 +343,6 @@ void LOS_Panic(const char * fmt, ...);
  */
 #define OS_EXC_CAUSE_FATAL_ERR     27
 
-
-#ifndef LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH
-#define LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH     16
-#endif
-
 /**
  *@ingroup los_exc
  * 异常信息结构体

@@ -98,34 +98,34 @@ extern VOID LOS_Reboot(VOID);
  *****************************************************************************/
 LITE_OS_SEC_TEXT VOID osExcInfoDisplay(EXC_INFO_S *pstExc)
 {
-    printf("Phase      = 0x%x\n", pstExc->usPhase);
-    printf("Type       = 0x%x\n", pstExc->usType);
-    printf("FaultAddr  = 0x%x\n", pstExc->uwFaultAddr);
-    printf("ThrdPid    = 0x%x\n", pstExc->uwThrdPid);
-    printf("R0         = 0x%x\n", pstExc->pstContext->uwR0);
-    printf("R1         = 0x%x\n", pstExc->pstContext->uwR1);
-    printf("R2         = 0x%x\n", pstExc->pstContext->uwR2);
-    printf("R3         = 0x%x\n", pstExc->pstContext->uwR3);
-    printf("R4         = 0x%x\n", pstExc->pstContext->uwR4);
-    printf("R5         = 0x%x\n", pstExc->pstContext->uwR5);
-    printf("R6         = 0x%x\n", pstExc->pstContext->uwR6);
-    printf("R7         = 0x%x\n", pstExc->pstContext->uwR7);
-    printf("R8         = 0x%x\n", pstExc->pstContext->uwR8);
-    printf("R9         = 0x%x\n", pstExc->pstContext->uwR9);
-    printf("R10        = 0x%x\n", pstExc->pstContext->uwR10);
-    printf("R11        = 0x%x\n", pstExc->pstContext->uwR11);
-    printf("R12        = 0x%x\n", pstExc->pstContext->uwR12);
-    printf("PriMask    = 0x%x\n", pstExc->pstContext->uwPriMask);
-    printf("SP         = 0x%x\n", pstExc->pstContext->uwSP);
-    printf("LR         = 0x%x\n", pstExc->pstContext->uwLR);
-    printf("PC         = 0x%x\n", pstExc->pstContext->uwPC);
-    printf("xPSR       = 0x%x\n", pstExc->pstContext->uwxPSR);
+    PRINT_ERR("Phase      = 0x%x\n", pstExc->usPhase);
+    PRINT_ERR("Type       = 0x%x\n", pstExc->usType);
+    PRINT_ERR("FaultAddr  = 0x%x\n", pstExc->uwFaultAddr);
+    PRINT_ERR("ThrdPid    = 0x%x\n", pstExc->uwThrdPid);
+    PRINT_ERR("R0         = 0x%x\n", pstExc->pstContext->uwR0);
+    PRINT_ERR("R1         = 0x%x\n", pstExc->pstContext->uwR1);
+    PRINT_ERR("R2         = 0x%x\n", pstExc->pstContext->uwR2);
+    PRINT_ERR("R3         = 0x%x\n", pstExc->pstContext->uwR3);
+    PRINT_ERR("R4         = 0x%x\n", pstExc->pstContext->uwR4);
+    PRINT_ERR("R5         = 0x%x\n", pstExc->pstContext->uwR5);
+    PRINT_ERR("R6         = 0x%x\n", pstExc->pstContext->uwR6);
+    PRINT_ERR("R7         = 0x%x\n", pstExc->pstContext->uwR7);
+    PRINT_ERR("R8         = 0x%x\n", pstExc->pstContext->uwR8);
+    PRINT_ERR("R9         = 0x%x\n", pstExc->pstContext->uwR9);
+    PRINT_ERR("R10        = 0x%x\n", pstExc->pstContext->uwR10);
+    PRINT_ERR("R11        = 0x%x\n", pstExc->pstContext->uwR11);
+    PRINT_ERR("R12        = 0x%x\n", pstExc->pstContext->uwR12);
+    PRINT_ERR("PriMask    = 0x%x\n", pstExc->pstContext->uwPriMask);
+    PRINT_ERR("SP         = 0x%x\n", pstExc->pstContext->uwSP);
+    PRINT_ERR("LR         = 0x%x\n", pstExc->pstContext->uwLR);
+    PRINT_ERR("PC         = 0x%x\n", pstExc->pstContext->uwPC);
+    PRINT_ERR("xPSR       = 0x%x\n", pstExc->pstContext->uwxPSR);
 
-    printf("\nplease use the addr2line tool to analyze the call stack on PC:\n");
-    printf("addr2line -e (xxx.axf/xxx.elf/xxx.out) -a -f ");
+    PRINT_ERR("\nplease use the addr2line tool to analyze the call stack on PC:\n");
+    PRINT_ERR("addr2line -e (xxx.axf/xxx.elf/xxx.out) -a -f ");
     for (UINT32 i = 0; i < pstExc->uwCallStackDepth; i++)
     {
-        printf("%#x ", pstExc->uwCallStack[i]);
+        PRINT_ERR("%#x ", pstExc->uwCallStack[i]);
     }
 
     return;
@@ -138,22 +138,6 @@ LITE_OS_SEC_TEXT VOID osExcInfoDisplay(EXC_INFO_S *pstExc)
  Output      : None
  Return      : None
  *****************************************************************************/
-/*
- * NOTE: Users must configure these macros, otherwise, the invocation relationship
- *       can not be correctly analyzed.
- */
-#ifndef LOSCFG_EXC_CODE_START_ADDR
-#define LOSCFG_EXC_CODE_START_ADDR (0x08000000)  /* invalid, Please reconfigure it */
-#endif
-#ifndef LOSCFG_EXC_CODE_SIZE
-#define LOSCFG_EXC_CODE_SIZE (0x00100000)  /* invalid, Please reconfigure it */
-#endif
-#ifndef LOSCFG_EXC_MSP_START_ADDR
-#define LOSCFG_EXC_MSP_START_ADDR (0x20000000)  /* invalid, Please reconfigure it */
-#endif
-#ifndef LOSCFG_EXC_MSP_SIZE
-#define LOSCFG_EXC_MSP_SIZE (0x00080000)  /* invalid, Please reconfigure it */
-#endif
 LITE_OS_SEC_TEXT VOID osExcCallStackAnalysis(EXC_INFO_S *pstExc)
 {
     UINT32 uwSP;
@@ -202,11 +186,11 @@ LITE_OS_SEC_TEXT VOID osExcCallStackAnalysis(EXC_INFO_S *pstExc)
     {
         if (pstExc->usPhase == OS_EXC_IN_TASK)
         {
-            printf("task %s stack top overflow\n", g_stLosTask.pstRunTask->pcTaskName);
+            PRINT_ERR("task %s stack top overflow\n", g_stLosTask.pstRunTask->pcTaskName);
         }
         else
         {
-            printf("MSP top overflow\n");
+            PRINT_ERR("MSP top overflow\n");
         }
         uwStackSize += (uwStackStartAddr - uwSP);  /* compensate overflow size */
         uwStackStartAddr = uwSP;  /* readjust stack start address */
