@@ -98,28 +98,133 @@ extern VOID LOS_Reboot(VOID);
  *****************************************************************************/
 LITE_OS_SEC_TEXT VOID osExcInfoDisplay(EXC_INFO_S *pstExc)
 {
-    printf("Phase      = 0x%x\n", pstExc->usPhase);
-    printf("Type       = 0x%x\n", pstExc->usType);
-    printf("FaultAddr  = 0x%x\n", pstExc->uwFaultAddr);
-    printf("ThrdPid    = 0x%x\n", pstExc->uwThrdPid);
-    printf("R0         = 0x%x\n", pstExc->pstContext->uwR0);
-    printf("R1         = 0x%x\n", pstExc->pstContext->uwR1);
-    printf("R2         = 0x%x\n", pstExc->pstContext->uwR2);
-    printf("R3         = 0x%x\n", pstExc->pstContext->uwR3);
-    printf("R4         = 0x%x\n", pstExc->pstContext->uwR4);
-    printf("R5         = 0x%x\n", pstExc->pstContext->uwR5);
-    printf("R6         = 0x%x\n", pstExc->pstContext->uwR6);
-    printf("R7         = 0x%x\n", pstExc->pstContext->uwR7);
-    printf("R8         = 0x%x\n", pstExc->pstContext->uwR8);
-    printf("R9         = 0x%x\n", pstExc->pstContext->uwR9);
-    printf("R10        = 0x%x\n", pstExc->pstContext->uwR10);
-    printf("R11        = 0x%x\n", pstExc->pstContext->uwR11);
-    printf("R12        = 0x%x\n", pstExc->pstContext->uwR12);
-    printf("PriMask    = 0x%x\n", pstExc->pstContext->uwPriMask);
-    printf("SP         = 0x%x\n", pstExc->pstContext->uwSP);
-    printf("LR         = 0x%x\n", pstExc->pstContext->uwLR);
-    printf("PC         = 0x%x\n", pstExc->pstContext->uwPC);
-    printf("xPSR       = 0x%x\n", pstExc->pstContext->uwxPSR);
+    PRINT_ERR("Phase      = 0x%x\n", pstExc->usPhase);
+    PRINT_ERR("Type       = 0x%x\n", pstExc->usType);
+    PRINT_ERR("FaultAddr  = 0x%x\n", pstExc->uwFaultAddr);
+    PRINT_ERR("ThrdPid    = 0x%x\n", pstExc->uwThrdPid);
+    PRINT_ERR("R0         = 0x%x\n", pstExc->pstContext->uwR0);
+    PRINT_ERR("R1         = 0x%x\n", pstExc->pstContext->uwR1);
+    PRINT_ERR("R2         = 0x%x\n", pstExc->pstContext->uwR2);
+    PRINT_ERR("R3         = 0x%x\n", pstExc->pstContext->uwR3);
+    PRINT_ERR("R4         = 0x%x\n", pstExc->pstContext->uwR4);
+    PRINT_ERR("R5         = 0x%x\n", pstExc->pstContext->uwR5);
+    PRINT_ERR("R6         = 0x%x\n", pstExc->pstContext->uwR6);
+    PRINT_ERR("R7         = 0x%x\n", pstExc->pstContext->uwR7);
+    PRINT_ERR("R8         = 0x%x\n", pstExc->pstContext->uwR8);
+    PRINT_ERR("R9         = 0x%x\n", pstExc->pstContext->uwR9);
+    PRINT_ERR("R10        = 0x%x\n", pstExc->pstContext->uwR10);
+    PRINT_ERR("R11        = 0x%x\n", pstExc->pstContext->uwR11);
+    PRINT_ERR("R12        = 0x%x\n", pstExc->pstContext->uwR12);
+    PRINT_ERR("PriMask    = 0x%x\n", pstExc->pstContext->uwPriMask);
+    PRINT_ERR("SP         = 0x%x\n", pstExc->pstContext->uwSP);
+    PRINT_ERR("LR         = 0x%x\n", pstExc->pstContext->uwLR);
+    PRINT_ERR("PC         = 0x%x\n", pstExc->pstContext->uwPC);
+    PRINT_ERR("xPSR       = 0x%x\n", pstExc->pstContext->uwxPSR);
+
+    PRINT_ERR("\nplease use the addr2line tool to analyze the call stack on PC:\n");
+    PRINT_ERR("addr2line -e (xxx.axf/xxx.elf/xxx.out) -a -f ");
+    for (UINT32 i = 0; i < pstExc->uwCallStackDepth; i++)
+    {
+        PRINT_ERR("%#x ", pstExc->uwCallStack[i]);
+    }
+
+    return;
+}
+
+/*****************************************************************************
+ Function    : osExcCallStackAnalysis
+ Description : Call stack analysis
+ Input       : pstExc  ---  point to exception info
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT VOID osExcCallStackAnalysis(EXC_INFO_S *pstExc)
+{
+    UINT32 uwSP;
+    UINT32 uwLR;
+    UINT32 uwPC;
+    UINT32 uwStackStartAddr;
+    UINT32 uwStackSize;
+    UINT32 uwDepth = 0;
+    BOOL   bFirstLrValid = FALSE;
+
+    uwSP = pstExc->pstContext->uwSP;  /* sp pointer before entering exception */
+
+    /*
+     * save first and second depth
+     * first: PC before entering exception
+     * second: (LR - 4) before entering exception
+     * NOTE: If an exception occurs in the interrupt, LR may be EXC_RETURN, so we must make sure
+     *       that LR is valid, exclude EXC_RETURN.
+     */
+    pstExc->uwCallStack[uwDepth++] = pstExc->pstContext->uwPC;
+    if ((pstExc->pstContext->uwLR >= LOSCFG_EXC_CODE_START_ADDR) && \
+        (pstExc->pstContext->uwLR <= LOSCFG_EXC_CODE_START_ADDR + LOSCFG_EXC_CODE_SIZE))
+    {
+        pstExc->uwCallStack[uwDepth++] = pstExc->pstContext->uwLR - sizeof(VOID *);  /* lr = pc + 4 */
+        bFirstLrValid = TRUE;
+    }
+
+    /*
+     * get the start address and size of the stack before entering the exception
+     */
+    if (pstExc->usPhase == OS_EXC_IN_TASK)  /* task use PSP */
+    {
+        uwStackStartAddr = g_stLosTask.pstRunTask->uwTopOfStack;
+        uwStackSize = g_stLosTask.pstRunTask->uwStackSize;
+    }
+    else  /* init and interrupt use MSP */
+    {
+        uwStackStartAddr = LOSCFG_EXC_MSP_START_ADDR;
+        uwStackSize = LOSCFG_EXC_MSP_SIZE;
+    }
+
+    /*
+     * check stack overflow, if so, compensate for overflow, readjust stack start address and size.
+     */
+    if (uwSP < uwStackStartAddr)  /* stack top overflow */
+    {
+        if (pstExc->usPhase == OS_EXC_IN_TASK)
+        {
+            PRINT_ERR("task %s stack top overflow\n", g_stLosTask.pstRunTask->pcTaskName);
+        }
+        else
+        {
+            PRINT_ERR("MSP top overflow\n");
+        }
+        uwStackSize += (uwStackStartAddr - uwSP);  /* compensate overflow size */
+        uwStackStartAddr = uwSP;  /* readjust stack start address */
+    }
+
+    /*
+     * Traverses the entire stack from the top of the stack to the bottom of the stack,
+     * find all LR.
+     */
+    for (; uwSP < uwStackStartAddr + uwStackSize; uwSP += sizeof(UINT32))
+    {
+        uwLR = *(UINT32 *)uwSP;
+        if (uwLR % 2 == 0)  /* Thumb instruction, LR bit0 == 1 */
+        {
+            continue;
+        }
+
+        /*
+         * It may be LR, which must be further determined based on the start address
+         * and end address of the code segment.
+         */
+        if ((uwLR >= LOSCFG_EXC_CODE_START_ADDR) && (uwLR <= LOSCFG_EXC_CODE_START_ADDR + LOSCFG_EXC_CODE_SIZE) \
+            && (uwDepth < LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH))
+        {
+            uwPC = uwLR - sizeof(VOID *);  /* lr = pc + 4 */
+            /* the second depth(first LR) has been saved */
+            if ((uwDepth == 2) && (uwPC == pstExc->uwCallStack[1]) && (bFirstLrValid == TRUE))
+            {
+                continue;
+            }
+            pstExc->uwCallStack[uwDepth++] = uwPC;
+        }
+    }
+    pstExc->uwCallStackDepth = uwDepth;  /* save call stack depth */
 
     return;
 }
@@ -189,21 +294,25 @@ LITE_OS_SEC_TEXT VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UIN
     if(uwExcType & OS_EXC_FLAG_NO_FLOAT)
     {
         m_stExcInfo.usFpuContext = 0;
+    #if FPU_EXIST
+        /* NOTE: S16-S31, S0-S15,FPSCR,NO_NAME invalid */
+        m_stExcInfo.pstContext = (EXC_CONTEXT_S *)((UINT8 *)pstExcBufAddr - 64); /* point to S16 */
+    #else
+        m_stExcInfo.pstContext = pstExcBufAddr; /* point to uwR4 */
+    #endif
     }
     else
     {
         m_stExcInfo.usFpuContext = 1;
+        m_stExcInfo.pstContext = pstExcBufAddr;  /* point to S16 */
     }
-    m_stExcInfo.pstContext = pstExcBufAddr; /* point to S16 or uwR4 */
+
+    osExcCallStackAnalysis(&m_stExcInfo);
 
 #if (LOSCFG_SAVE_EXC_INFO == YES)
     osExcSave2DDR();
 #endif
 
-    if (m_stExcInfo.usFpuContext == 0)
-    {
-        m_stExcInfo.pstContext = (EXC_CONTEXT_S *)((UINT8 *)(m_stExcInfo.pstContext) - 64);  /* ponit to S16 */
-    }
     osExcInfoDisplay(&m_stExcInfo);
 
     LOS_Reboot();
@@ -425,7 +534,21 @@ static VOID osExcSave2DDR(VOID)
     m_puwExcContent = (UINT8 *)m_puwExcContent + sizeof(EXC_INFO_S) - sizeof(EXC_CONTEXT_S *);
 
     /* Save struct EXC_CONTEXT_S */
-    memcpy((VOID *)m_puwExcContent, m_stExcInfo.pstContext, uwExcContextSize);
+    if (m_stExcInfo.usFpuContext == 0)
+    {
+        #if FPU_EXIST
+        /* m_stExcInfo.pstContext: init --- point to S16, S16->S31 invalid
+         *                         + 64 --- point to uwR4
+         *                         copy uwR4 -> uwxPSR */
+        memcpy((VOID *)m_puwExcContent, (UINT8 *)m_stExcInfo.pstContext + 64, uwExcContextSize);
+        #else
+        memcpy((VOID *)m_puwExcContent, m_stExcInfo.pstContext, uwExcContextSize);
+        #endif
+    }
+    else
+    {
+        memcpy((VOID *)m_puwExcContent, m_stExcInfo.pstContext, uwExcContextSize);
+    }
     m_puwExcContent = (UINT8 *)m_puwExcContent + uwExcContextSize;
 
     /*
@@ -461,12 +584,12 @@ LITE_OS_SEC_TEXT_INIT VOID osExcInit(UINT32 uwArraySize)
 {
 #if (LOSCFG_PLATFORM_HWI == YES)
     /* Register exception handler to interrupt vector table in RAM */
-    m_pstHwiForm[-14 + OS_SYS_VECTOR_CNT] = osExcNMI;
-    m_pstHwiForm[-13 + OS_SYS_VECTOR_CNT] = osExcHardFault;
-    m_pstHwiForm[-12 + OS_SYS_VECTOR_CNT] = osExcMemFault;
-    m_pstHwiForm[-11 + OS_SYS_VECTOR_CNT] = osExcBusFault;
-    m_pstHwiForm[-10 + OS_SYS_VECTOR_CNT] = osExcUsageFault;
-    m_pstHwiForm[-5  + OS_SYS_VECTOR_CNT] = osExcSvcCall;
+    m_pstHwiForm[-14 + OS_SYS_VECTOR_CNT] = NMI_Handler;
+    m_pstHwiForm[-13 + OS_SYS_VECTOR_CNT] = HardFault_Handler;
+    m_pstHwiForm[-12 + OS_SYS_VECTOR_CNT] = MemManage_Handler;
+    m_pstHwiForm[-11 + OS_SYS_VECTOR_CNT] = BusFault_Handler;
+    m_pstHwiForm[-10 + OS_SYS_VECTOR_CNT] = UsageFault_Handler;
+    m_pstHwiForm[-5  + OS_SYS_VECTOR_CNT] = SVC_Handler;
 #endif
 
     /* Enable USGFAULT(BIT_18), BUSFAULT(BIT_17), MEMFAULT(BIT_16) */
@@ -485,58 +608,6 @@ VOID osBackTrace(VOID)
 {
     return;
 }
-
-#if (LOSCFG_PLATFORM_HWI == NO)
-/**
-  * @brief  This function handles NMI exception.
-  * @param  None
-  * @retval None
-  */
-void NMI_Handler(void)
-{
-    osExcNMI();
-}
-
-/**
-  * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
-  */
-void HardFault_Handler(void)
-{
-    osExcHardFault();
-}
-
-/**
-  * @brief  This function handles Bus Fault exception.
-  * @param  None
-  * @retval None
-  */
-void BusFault_Handler(void)
-{
-    osExcBusFault();
-}
-
-/**
-  * @brief  This function handles Usage Fault exception.
-  * @param  None
-  * @retval None
-  */
-void UsageFault_Handler(void)
-{
-    osExcUsageFault();
-}
-
-/**
-  * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
-  */
-void SVC_Handler(void)
-{
-    osExcSvcCall();
-}
-#endif
 
 #endif /*(LOSCFG_PLATFORM_EXC == YES)*/
 
