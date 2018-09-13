@@ -273,7 +273,7 @@ int32_t nb_create_sock(int port,int proto)
     return -1;
 }
 
-int nb_decompose_str(char* str,QUEUE_BUFF* qbuf, int* rlen,int* readleft)
+int nb_decompose_str(char* str,QUEUE_BUFF* qbuf,int32_t* sockid, int* rlen,int* readleft)
 {
     int port;
     unsigned char bufout[AT_DATA_LEN/2]={0};
@@ -281,11 +281,13 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf, int* rlen,int* readleft)
     tmp = strstr(str,",");
     if(tmp == NULL)
         goto END;
-    //chartoint((char*)tmp);
+    *sockid = chartoint((char*)(tmp-1));//Assume sockid less than 10
+    if(*sockid >= 10 || *sockid < 0)
+        goto END;
     trans = strstr(tmp+1,",");
     if(trans == NULL)
         goto END;
-    strncpy(qbuf->ipaddr,tmp+1,MIN((trans-tmp),AT_DATA_LEN/2));
+    strncpy(qbuf->ipaddr,tmp+1,MIN((trans-tmp),AT_DATA_LEN));
     qbuf->ipaddr[trans-tmp-1] = '\0';
 
     port = chartoint((char*)(trans+1));
@@ -296,13 +298,13 @@ int nb_decompose_str(char* str,QUEUE_BUFF* qbuf, int* rlen,int* readleft)
         goto END;
     *rlen = chartoint((char*)(tmp+1));
 
-    if(*rlen >= AT_DATA_LEN/2 || *rlen < 0)
+    if(*rlen >= AT_DATA_LEN || *rlen < 0)
         goto END;
     trans = strstr(tmp+1,",");
     if(trans == NULL)
         goto END;
     HexStrToStr((const unsigned char*)(trans+1), bufout, (*rlen)*2);
-    if ((qbuf->len + *rlen) > AT_DATA_LEN/2)
+    if ((qbuf->len + *rlen) > AT_DATA_LEN)
     {
         AT_LOG("at rcv len exceed err len %ld, rcv len %d", qbuf->len, *rlen);
         goto END;
@@ -371,7 +373,7 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
         data_len = (data_len * 10 + (*p2 - '0'));
     }
 
-    qbuf.addr = at_malloc(AT_DATA_LEN/2);//extra space for ip and port
+    qbuf.addr = at_malloc(AT_DATA_LEN);//extra space for ip and port
     if (NULL == qbuf.addr)
     {
         AT_LOG("malloc for qbuf failed!");
@@ -384,7 +386,14 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
 
     if(rcvbuf!= NULL)
 	{
-	    (void) nb_decompose_str(rcvbuf,&qbuf,&rlen,&readleft);
+	    (void) nb_decompose_str(rcvbuf,&qbuf,&sockid,&rlen,&readleft);
+        if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
+        {
+            AT_LOG("LOS_QueueWriteCopy  failed!");
+            at_free(qbuf.addr);
+            goto END;
+        }
+
         while(readleft != 0 && rcvbuf != NULL)
         {
             memset(cmdbuf, 0, CMDBUF_LEN);
@@ -400,17 +409,17 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
                 str = strstr(rcvbuf, ",");//todo
                 str+=1;
             }
-            (void)nb_decompose_str(str,&qbuf,&rlen,&readleft);
+            (void)nb_decompose_str(str,&qbuf,&sockid,&rlen,&readleft);
+            if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
+            {
+                AT_LOG("LOS_QueueWriteCopy failed!");
+                at_free(qbuf.addr);
+                goto END;
+            }
         }
 	}
     //*(qbuf.addr+tolen) = NULL;
 
-    if (LOS_OK != (ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(QUEUE_BUFF), 0)))
-    {
-        AT_LOG("LOS_QueueWriteCopy  failed!");
-        at_free(qbuf.addr);
-        goto END;
-    }
     ret = data_len;
     END:
     if (NULL != rcvbuf)
