@@ -135,13 +135,12 @@ int valid_check(char *rcvbuf, int32_t len)
         goto END;
     }
     buf = databuf + 1;
-    *(buf + buflen) = 0;
     sota_str_to_hex(buf+8, 4, (unsigned char*)cmd);
     cmd_crc_num = cmd[0]<<8 | cmd[1];
     memset(buf + 8, '0', 4);
 
-    HexStrToByte((const unsigned char *)buf, tmpbuf, buflen* 2);
-    ret = crc_check(tmpbuf, strlen((const char *)buf)/2);
+    HexStrToByte((const unsigned char *)buf, tmpbuf, buflen);
+    ret = crc_check(tmpbuf, buflen/2);
     memset(rabuf, 0, AT_DATA_LEN);
     sota_str_to_hex(buf, buflen, rabuf);
     pbuf = (ota_pcp_head_s *)rabuf;
@@ -191,7 +190,7 @@ int at_fota_send(char *buf, int len)
     memcpy(atwbuf + 16, buf, len);
 
     HexStrToByte(atwbuf, (unsigned char*)tmpbuf, len + 16); //strlen(atwbuf)
-    ret = crc_check((unsigned char*)tmpbuf, strlen((const char *)atwbuf) / 2);
+    ret = crc_check((unsigned char*)tmpbuf, (len + 16) / 2);
     sprintf(crcretbuf, "%04X", ret);
 
     memcpy(atwbuf + 8, crcretbuf, 4);
