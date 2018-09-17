@@ -73,7 +73,7 @@ int ota_cmd_ioctl(OTA_CMD_E cmd, char *arg, int len)
     case OTA_GET_VER:
     {
         char *ver_ret = arg;
-        *ver_ret = 0;
+        *ver_ret = 0;//ret code
         memcpy(ver_ret + 1, g_at_update_record.ver, 16);
 
         break;
@@ -109,35 +109,50 @@ void sota_deinit(void)
 int valid_check(char *rcvbuf, int32_t len)
 {
     ota_pcp_head_s *pbuf;
-    char *buf,*databuf,*rlen;
+    char *databuf,*rlen;
     int buflen;
-    unsigned char stmpbuf[AT_DATA_LEN/2] = {0};
+    int ret,cmd_crc_num;
+    char *buf;
+    char cmd[2]={0};
+    unsigned char tmpbuf[AT_DATA_LEN] = {0};
     if(rcvbuf == NULL || len <= MIN_PKT_LEN)
     {
         AT_LOG("buf null");
-        return -1;
+        goto END;
     }
     rlen = strstr(rcvbuf,":");
+    if(rlen == NULL)
+    {
+        AT_LOG("buflen invalid");
+        goto END;
+    }
     buflen = chartoint(rlen+1);
+    buflen = buflen * 2;
     databuf = strstr(rlen,",");
+    if(databuf == NULL)
+    {
+        AT_LOG("buf invalid");
+        goto END;
+    }
     buf = databuf + 1;
-    //memset(buf+8,'0',4);
-    sprintf(buf + 8, "%04X", '0');
-    sprintf(buf + 10, "%02X", '0');
-    HexStrToByte((const unsigned char *)buf, stmpbuf, buflen); //strlen(buf)
-    (void)crc_check(stmpbuf, buflen);
+    sota_str_to_hex(buf+8, 4, (unsigned char*)cmd);
+    cmd_crc_num = cmd[0]<<8 | cmd[1];
+    memset(buf + 8, '0', 4);
+
+    HexStrToByte((const unsigned char *)buf, tmpbuf, buflen);
+    ret = crc_check(tmpbuf, buflen/2);
     memset(rabuf, 0, AT_DATA_LEN);
-    sota_str_to_hex(buf, buflen * 2, rabuf);
+    sota_str_to_hex(buf, buflen, rabuf);
     pbuf = (ota_pcp_head_s *)rabuf;
 
     pbuf->ori_id = htons_ota(pbuf->ori_id);
     pbuf->chk_code = htons_ota(pbuf->chk_code);
     pbuf->data_len = htons_ota(pbuf->data_len);
-    if(pbuf->ori_id != 0XFFFE || (pbuf->ver_num & 0xf) != 1 || \
+    if(pbuf->ori_id != 0XFFFE || (pbuf->ver_num & 0xf) != 1 || (ret != cmd_crc_num) || \
             (pbuf->msg_code < MSG_GET_VER && pbuf->msg_code > MSG_NOTIFY_STATE))
     {
         AT_LOG("head wrong");
-        return -1;
+        goto END;
     }
     g_at_update_record.msg_code = pbuf->msg_code;
     g_at_update_record.chk_code = pbuf->chk_code;
@@ -146,7 +161,9 @@ int valid_check(char *rcvbuf, int32_t len)
         g_at_update_record.block_tolen += pbuf->data_len;
     }
     g_at_update_record.block_len = pbuf->data_len;
-    return 0;
+    return AT_OK;
+END:
+    return AT_FAILED;
 }
 
 int at_fota_send(char *buf, int len)
@@ -173,7 +190,7 @@ int at_fota_send(char *buf, int len)
     memcpy(atwbuf + 16, buf, len);
 
     HexStrToByte(atwbuf, (unsigned char*)tmpbuf, len + 16); //strlen(atwbuf)
-    ret = crc_check((unsigned char*)tmpbuf, strlen((const char *)atwbuf) / 2);
+    ret = crc_check((unsigned char*)tmpbuf, (len + 16) / 2);
     sprintf(crcretbuf, "%04X", ret);
 
     memcpy(atwbuf + 8, crcretbuf, 4);
@@ -305,6 +322,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
             tmpbuf[17] = g_at_update_record.block_num & 0XFF;
             ver_to_hex(tmpbuf, 18, sbuf);
             at_fota_send(sbuf, 18 * 2);
+            break;
         }
         else//if((g_at_update_record.block_num) >= g_at_update_record.block_totalnum)
         {
@@ -320,31 +338,27 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
             tmpbuf[0] = OTA_OK;
             ver_to_hex(tmpbuf, 1, sbuf);
             at_fota_send(sbuf, 2);
-        }
-        break;
-    }
-    case DOWNLOADED:
-        if(g_at_update_record.msg_code == MSG_UPDATE_STATE)
-        {
             AT_LOG("platform ack");
             g_at_update_record.msg_code = MSG_EXC_UPDATE;
-            //break;//平台下发开始升级报文过快，板端无法处理
         }
-        if(g_at_update_record.msg_code == MSG_EXC_UPDATE)
-        {
-            char tmpbuf[1] = {0};
-            AT_LOG("begin update and send");
-            g_at_update_record.state = UPDATING;
-            tmpbuf[0] = OTA_OK;
-            ver_to_hex(tmpbuf, 1, sbuf);
-            at_fota_send(sbuf, 2);
-            g_at_update_record.msg_code = MSG_NOTIFY_STATE;
-            ota_set_reboot(g_at_update_record.block_tolen);
-        }
+        //break;
+    }
+    case DOWNLOADED:
+    if(g_at_update_record.msg_code == MSG_EXC_UPDATE)
+    {
+        char tmpbuf[1] = {0};
+        AT_LOG("begin update and send");
+        g_at_update_record.state = UPDATING;
+        tmpbuf[0] = OTA_OK;
+        ver_to_hex(tmpbuf, 1, sbuf);
+        at_fota_send(sbuf, 2);
+        g_at_update_record.msg_code = MSG_NOTIFY_STATE;
+        ota_set_reboot(g_at_update_record.block_tolen);
+    }
     //break;
     case UPDATING:
     {
-        if(g_at_update_record.msg_code == MSG_NOTIFY_STATE)
+        if(g_at_update_record.msg_code == MSG_NOTIFY_STATE)//this process should preserve in flash
         {
             ota_update_exc_s update_info;
             char tmpbuf[17] = {0};

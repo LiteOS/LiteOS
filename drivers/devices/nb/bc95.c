@@ -418,7 +418,6 @@ int32_t nb_data_rcv_handler(void* arg,int8_t * buf, int32_t len)
             }
         }
 	}
-    //*(qbuf.addr+tolen) = NULL;
 
     ret = data_len;
     END:
