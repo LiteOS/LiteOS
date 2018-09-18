@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,17 +32,32 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __AT_HAL_H__
-#define __AT_HAL_H__
+/**@defgroup agent AgentTiny
+ * @defgroup agenttiny Agenttiny Definition
+ * @ingroup agent
+ */
+#ifndef LIB_LWM2M_API_H
+#define LIB_LWM2M_API_H
 
-#include "atadapter.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-void at_transmit(uint8_t * cmd, int32_t len,int flag);
-int32_t at_usart_init(void);
-void at_usart_deinit(void);
-int read_resp(uint8_t *buf, recv_buff* recv_buf);
-void write_at_task_msg(at_msg_type_e type);
-//declear in device drivers
-extern at_config at_user_conf;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//bootstrap at least have one mode, we have three mode.
+typedef enum
+{
+    BOOTSTRAP_FACTORY = 0,
+    BOOTSTRAP_CLIENT_INITIATED,
+    BOOTSTRAP_SEQUENCE
+} lwm2m_bootstrap_type_e;
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
+
