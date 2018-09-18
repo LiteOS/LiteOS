@@ -244,7 +244,8 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define LWIP_COMPAT_MUTEX_ALLOWED 1
 #define LWIP_COMPAT_MUTEX  1
 
-
+//for dtls server
+#define SO_REUSE 1
 
 #endif /* __LWIPOPTS_H__ */
 

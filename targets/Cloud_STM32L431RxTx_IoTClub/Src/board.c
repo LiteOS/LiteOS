@@ -185,8 +185,8 @@ static int prv_inner2spi_copy(int32_t image_len,
 int board_jump2app(void)
 {
     jump_func jump;
-    uint32_t pc = *(__IO uint32_t*)(OTA_DEFAULT_IMAGE_ADDR + 4);
-    uint32_t stack = *(__IO uint32_t*)(OTA_DEFAULT_IMAGE_ADDR);
+    uint32_t pc = *(__IO uint32_t *)(OTA_DEFAULT_IMAGE_ADDR + 4);
+    uint32_t stack = *(__IO uint32_t *)(OTA_DEFAULT_IMAGE_ADDR);
 
     if ((pc & OTA_PC_MASK) == OTA_FLASH_BASE)
     {
@@ -198,30 +198,31 @@ int board_jump2app(void)
         }
         else
         {
-            OTA_LOG("stack value(%d) of the image is ilegal", stack);
+            OTA_LOG("stack value(%04X) of the image is ilegal", stack);
             return OTA_ERRNO_ILEGAL_STACK;
         }
     }
     else
     {
-        OTA_LOG("PC value(%d) of the image is ilegal", pc);
+        OTA_LOG("PC value(%04X) of the image is ilegal", pc);
         return OTA_ERRNO_ILEGAL_PC;
     }
 
     return OTA_ERRNO_OK;
 }
 
-int board_update_copy(int32_t image_len,
-                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
+int board_update_copy(int32_t old_image_len, int32_t new_image_len,
+                      uint32_t new_image_addr,
+                      void (*func_get_update_record)(uint8_t *state, uint32_t *offset),
                       int (*func_set_update_record)(uint8_t state, uint32_t offset))
 {
     int ret;
     board_state cur_state;
     uint32_t cur_offset;
 
-    if (image_len < 0)
+    if (old_image_len < 0 || new_image_len < 0)
     {
-        OTA_LOG("ilegal image_len:%d", image_len);
+        OTA_LOG("ilegal old_image_len(%d) or new_image_len(%d)", old_image_len, new_image_len);
         return OTA_ERRNO_ILEGAL_PARAM;
     }
     if (NULL == func_get_update_record || NULL == func_set_update_record)
@@ -230,7 +231,7 @@ int board_update_copy(int32_t image_len,
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
-    func_get_update_record((uint8_t*)&cur_state, &cur_offset);
+    func_get_update_record((uint8_t *)&cur_state, &cur_offset);
 
     if (cur_state <= BOARD_BCK)
     {
@@ -245,7 +246,7 @@ int board_update_copy(int32_t image_len,
                 return OTA_ERRNO_SPI_FLASH_WRITE;
             }
         }
-        ret = prv_inner2spi_copy(image_len, cur_state, cur_offset, func_set_update_record);
+        ret = prv_inner2spi_copy(old_image_len, cur_state, cur_offset, func_set_update_record);
         if (ret != 0)
         {
             OTA_LOG("back up old image failed");
@@ -264,7 +265,7 @@ int board_update_copy(int32_t image_len,
             return OTA_ERRNO_SPI_FLASH_WRITE;
         }
     }
-    ret = prv_spi2inner_copy(OTA_IMAGE_DOWNLOAD_ADDR, image_len, cur_state, cur_offset, func_set_update_record);
+    ret = prv_spi2inner_copy(new_image_addr, new_image_len, cur_state, cur_offset, func_set_update_record);
     if (ret != 0)
     {
         OTA_LOG("update image failed");
@@ -281,7 +282,7 @@ int board_update_copy(int32_t image_len,
 }
 
 int board_rollback_copy(int32_t image_len,
-                        void (*func_get_update_record)(uint8_t* record, uint32_t* offset),
+                        void (*func_get_update_record)(uint8_t *record, uint32_t *offset),
                         int (*func_set_update_record)(uint8_t record, uint32_t offset))
 {
     int ret;
@@ -299,7 +300,7 @@ int board_rollback_copy(int32_t image_len,
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
-    func_get_update_record((uint8_t*)&cur_state, &cur_offset);
+    func_get_update_record((uint8_t *)&cur_state, &cur_offset);
 
     if (cur_state != BOARD_ROLLBACK)
     {

@@ -151,14 +151,6 @@ extern "C" {
 #define LOSCFG_PLATFORM_HWI_LIMIT                           32
 #endif
 
-/**
- * @ingroup los_config
- * tickless function dependency relationship
- */
-#if (LOSCFG_PLATFORM_HWI == NO && LOSCFG_KERNEL_TICKLESS == YES)
-    #error "tickless lean on platform hwi for support, should make LOSCFG_PLATFORM_HWI = YES"
-#endif
-
 /*=============================================================================
                                        Task module configuration
 =============================================================================*/
@@ -528,6 +520,38 @@ extern UINT32 g_sys_mem_addr_end;
 #ifndef LOSCFG_SAVE_EXC_INFO
 #define LOSCFG_SAVE_EXC_INFO                                NO
 #endif
+
+#if (LOSCFG_PLATFORM_EXC == YES)
+
+/**
+ * @ingroup los_config
+ * Configuration exception call stack analysis max depth
+ */
+#ifndef LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH
+#define LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH            16
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration code start address and code size, msp start address and size
+ *
+ * NOTE: Users must reconfigure these macros, otherwise, the invocation relationship
+ *       can not be correctly analyzed.
+ */
+#ifndef LOSCFG_EXC_CODE_START_ADDR
+#define LOSCFG_EXC_CODE_START_ADDR                          (0x08000000)  /* invalid, Please reconfigure it */
+#endif
+#ifndef LOSCFG_EXC_CODE_SIZE
+#define LOSCFG_EXC_CODE_SIZE                                (0x00100000)  /* invalid, Please reconfigure it */
+#endif
+#ifndef LOSCFG_EXC_MSP_START_ADDR
+#define LOSCFG_EXC_MSP_START_ADDR                           (0x20000000)  /* invalid, Please reconfigure it */
+#endif
+#ifndef LOSCFG_EXC_MSP_SIZE
+#define LOSCFG_EXC_MSP_SIZE                                 (0x00080000)  /* invalid, Please reconfigure it */
+#endif
+
+#endif  /* LOSCFG_PLATFORM_EXC == YES */
 
 #if(LOSCFG_PLATFORM_EXC == NO && LOSCFG_SAVE_EXC_INFO == YES)
     #error "save exception info need support platform exception, should make LOSCFG_PLATFORM_EXC = YES"

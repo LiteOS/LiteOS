@@ -33,12 +33,22 @@
  *---------------------------------------------------------------------------*/
 #include "main.h"
 #include "sys_init.h"
+#ifndef WITH_AT_FRAMEWORK
 #include "agent_tiny_demo.h"
+#else
+#include "los_base.h"
+#include "los_task.ph"
+#include "los_typedef.h"
+#include "los_sys.h"
+#endif
 #if defined WITH_AT_FRAMEWORK
 #include "at_api_interface.h"
 #if defined USE_NB_NEUL95
 #include "los_nb_api.h"
 #endif
+#endif
+#ifdef SUPPORT_DTLS_SRV
+#include "test_dtls_server.h"
 #endif
 UINT32 g_TskHandle;
 
@@ -50,9 +60,13 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
+int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 
-extern int32_t nb_data_ioctl(void *arg, int8_t *buf, int32_t len);
-
+int32_t nb_cmd_match(const char *buf, char* featurestr,int len)
+{
+    printf("buf:%s feature:%s\n",buf,featurestr);
+    return strncmp(buf,featurestr,len);
+}
 VOID main_task(VOID)
 {
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
@@ -77,7 +91,7 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl);
+    //los_nb_notify("\r\n+NNMI:",strlen("\r\n+NNMI:"),nb_data_rcv_handler,nb_cmd_match);
     //osDelay(3000);
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
@@ -86,8 +100,11 @@ VOID main_task(VOID)
     los_nb_report("23", 1);
     //los_nb_deinit();
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry============================\n");
+    los_nb_init(NULL,NULL,NULL);
+    los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),nb_data_rcv_handler,nb_cmd_match);
     at_api_register(&at_interface);
     agent_tiny_entry();
 #endif
@@ -95,7 +112,6 @@ VOID main_task(VOID)
     agent_tiny_entry();
 #endif
 }
-
 
 UINT32 creat_main_task()
 {
@@ -109,7 +125,7 @@ UINT32 creat_main_task()
 #ifdef CONFIG_FEATURE_FOTA
     task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
 #else
-    task_init_param.uwStackSize = 0x1000;
+    task_init_param.uwStackSize = 0x2000;
 #endif
 
     uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
@@ -143,6 +159,14 @@ int main(void)
     {
         return LOS_NOK;
     }
+
+    #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+    uwRet = create_dtls_server_task();
+    if (uwRet != LOS_OK)
+    {
+        return LOS_NOK;
+    }
+    #endif
 #endif
     (void)LOS_Start();
     return 0;

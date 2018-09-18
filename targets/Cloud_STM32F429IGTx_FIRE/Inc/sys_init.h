@@ -53,6 +53,8 @@
 #include "hal_rng.h"
 #include "usart.h"
 #include "dwt.h"
+#ifndef AT_NBONLY
+
 #include "lwip/netif.h"
 #if defined ( __CC_ARM )  /* MDK ARM Compiler */
 #include "lwip/sio.h"
@@ -73,11 +75,13 @@
 #include "net.h"
 #include "ssl.h"
 #include "eth.h"
-
+#endif
 #ifdef __cplusplus
  extern "C" {
 #endif
+#ifndef AT_NBONLY
 void net_init(void);
+#endif
 uint32_t HAL_GetTick(void);
 void SystemClock_Config(void);
 void _Error_Handler(char *, int);
