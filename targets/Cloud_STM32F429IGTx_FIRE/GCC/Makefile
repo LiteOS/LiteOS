@@ -21,26 +21,34 @@ OPT = -Og
 #######################################
 # network
 #######################################
-USE_AT_FRAMEWORK := yes
-ifeq ($(USE_AT_FRAMEWORK), yes)
+#USE_AT_FRAMEWORK := yes
+#ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
-endif
+#	NETWORK_TYPE := NB_NEUL95
+#endif
 
+MKCONFIG = ./mkconfig
+
+ifeq ($(OS), Windows_NT)
+GREP = findstr
+else
+GREP = grep
+endif
+	
 #######################################
 # bootloader
 #######################################
-USE_BOOTLOADER := no
+#USE_BOOTLOADER := no
 
 #######################################
 # fota
 #######################################
-USE_FOTA := yes
+#USE_FOTA := yes
 
 #######################################
 # sota
 #######################################
-USE_SOTA := no
+#USE_SOTA := no
 
 #######################################
 # binaries
@@ -218,7 +226,6 @@ ASM_SOURCES_s =  \
 ASM_SOURCES_S =  \
         ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
 
-
 ######################################
 # firmware library
 ######################################
@@ -252,7 +259,6 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0 \
-        -D WITH_DTLS \
         -D ATINY_DEBUG \
         -D LWM2M_WITH_LOGS \
         -D AT_INTO \
@@ -275,6 +281,9 @@ ifeq ($(USE_FOTA), yes)
 		C_DEFS += -DCONFIG_FEATURE_FOTA
 endif
 
+ifeq ($(USE_DTLS), yes)
+	C_DEFS += -DWITH_DTLS
+endif
 # AS includes
 AS_INCLUDES =
 
@@ -454,6 +463,36 @@ $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@
+	
+target_%:$(MKCONFIG)
+	$(MKCONFIG)  $(shell $(GREP) $(@:target_%=%) target_config)
+
+help:
+	@echo "######################################################"
+	@echo "Please use cmd \"make  target_xxxx\" to build target"
+	@echo "target_xxx:namely,target_(protocol)_(network)(security)(ota)"
+	@echo "protocol:choose the protocol for target.Range:lwm2m, mqtt"
+	@echo "network:choose network type for target,use ethernet for default.Range:default, esp8266, sim900a, nb_neul95"
+	@echo "securtiy:choose weather use security communication.Range:yes, no"
+	@echo "ota:choose if support ota update.Range:yes, no"
+	@echo "example:"
+	@echo ""
+	@echo "#target        network        sec        ota"
+	@echo "target_lwm2m_dyy   : use protocol lwm2m, default network type(ether), security communication, support ota update."
+	@echo "target_lwm2m_dnn   : use protocol lwm2m, default network type(ether), security communication."
+	@echo "target_lwm2m_eyy   : use protocol lwm2m, use wifi(esp8266) for network, security communication, support ota update."
+	@echo "target_lwm2m_eyn   : use protocol lwm2m, use wifi(esp8266) for network, security communication."
+	@echo "target_lwm2m_eny   : use protocol lwm2m, use wifi(esp8266) for network, support ota update."
+	@echo "target_lwm2m_enn   : use protocol lwm2m, use wifi(esp8266) for network."
+	@echo "target_lwm2m_syy   : use protocol lwm2m, use gsm(sim900a) for network, security communication, support ota update."
+	@echo "target_lwm2m_syn   : use protocol lwm2m, use gsm(sim900a) for network, security communication."
+	@echo "target_lwm2m_sny   : use protocol lwm2m, use gsm(sim900a) for network, support ota update."
+	@echo "target_lwm2m_snn   : use protocol lwm2m, use gsm(sim900a) for network."
+	@echo "target_lwm2m_nyy   : use protocol lwm2m, use nbiot(neul_bc95) for network, security communication, support ota update."
+	@echo "target_lwm2m_nyn   : use protocol lwm2m, use nbiot(neul_bc95) for network, security communication."
+	@echo "target_lwm2m_nny   : use protocol lwm2m, use nbiot(neul_bc95) for network, support ota update."
+	@echo "target_lwm2m_nnn   : use protocol lwm2m, use nbiot(neul_bc95) for network."
+	@echo "######################################################"
 
 $(BUILD_DIR):
 	mkdir $@

@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+while [ $# -gt 0 ] ; do
+      case "$1" in
+      	   lwm2m) echo "lwm2m"; break;;
+	   mqtt) echo mqtt ; break;;
+	   *) break;
+      esac
+done
+
+#[ $# -gt 4 ] && exit 1
+#[ $# -lt 4 ] && exit 1
+
+PROTO=$1
+NET_TYPE=$2
+SECURITY=$3
+OTA=$4
+
+#choose use network type
+if [ "$NET_TYPE" != "default" ] ; then
+   export USE_AT_FRAMEWORK=yes
+   export NETWORK_TYPE=$(echo $NET_TYPE| tr a-z A-Z)
+   echo networktype = $NETWORK_TYPE
+fi
+
+
+# if use security communicate
+if [ "$SECURITY" == "yes" ]; then
+   export USE_DTLS=yes;
+   echo use dtls = $USE_DTLS
+fi
+
+# if support fota upadte
+if [ "$OTA" == "yes" ]; then
+   export USE_BOOTLOADER=yes
+   export USE_FOTA=yes
+   echo support ota,bl = $USE_BOOTLOADER
+   if [ "$NET_TYPE" == "nb_neul95" ]; then
+       export SOTA=yes
+       echo open SOTA
+   fi
+fi
+
+make all
