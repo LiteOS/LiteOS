@@ -56,6 +56,7 @@
 #include "dtls_interface.h"
 #include "atiny_adapter.h"
 #include "mbedtls/net_sockets.h"
+#include "atiny_socket.h"
 
 #define MBEDTLS_DEBUG
 
@@ -198,12 +199,20 @@ exit_fail:
     return NULL;
 }
 
-int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
+
+static inline uint32_t dtls_gettime()
 {
-    int ret;
-    int j = 0;
+    return (uint32_t)(atiny_gettime_ms() / 1000);
+}
+
+int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
+{
+    int ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
+    uint32_t change_value = 0;
     mbedtls_net_context *server_fd = NULL;
     mbedtls_timing_delay_context *timer = NULL;
+    uint32_t max_value;
+
 
     timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 
@@ -216,10 +225,19 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
 
     MBEDTLS_LOG("connecting to udp");
 
-    if (( server_fd = mbedtls_net_connect(host,
-                                          port, MBEDTLS_NET_PROTO_UDP )) == NULL)
+
+    if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server)
     {
-        MBEDTLS_LOG("mbedtls_net_connect failed");
+        server_fd = mbedtls_net_connect(info->u.c.host, info->u.c.port, MBEDTLS_NET_PROTO_UDP);
+    }
+    else
+    {
+        server_fd = (mbedtls_net_context*)atiny_net_bind(NULL, info->u.s.local_port, MBEDTLS_NET_PROTO_UDP);
+    }
+
+    if (server_fd == NULL)
+    {
+		MBEDTLS_LOG("connect failed! mode %d", info->client_or_server);
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
         goto exit_fail;
     }
@@ -232,15 +250,37 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
 
     MBEDTLS_LOG("Performing the SSL/TLS handshake");
 
+    max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server) ?
+                (dtls_gettime() + info->u.s.timeout) : 10);
+
+
     do
     {
         ret = mbedtls_ssl_handshake(ssl);
+        //MBEDTLS_LOG("mbedtls_ssl_handshake %d %d", change_value, max_value);
         //LOS_TaskDelay(1);
-        j++;
+        if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server)
+        {
+            change_value++;
+        }
+        else
+        {
+            change_value = dtls_gettime();
+        }
+
+        if (info->step_notify)
+        {
+            info->step_notify(info->param);
+        }
 
     }
     while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-            ret == MBEDTLS_ERR_SSL_WANT_WRITE) && j < 10 );
+            ret == MBEDTLS_ERR_SSL_WANT_WRITE) && change_value < max_value);
+
+    if (info->finish_notify)
+    {
+        info->finish_notify(info->param);
+    }
 
     if (ret != 0)
     {

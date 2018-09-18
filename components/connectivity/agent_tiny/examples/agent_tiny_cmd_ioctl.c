@@ -39,6 +39,11 @@
 #include "fota_package_storage_device.h"
 #endif
 
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#include "bc95.h"
+#endif
+
+
 #define ATINY_POWER_VOLTAGE     3800
 #define ATINY_BATTERY_LEVEL     90
 #define ATINY_MEMORY_FREE       50
@@ -444,6 +449,14 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
         result = ATINY_OK;
         break;
 #endif
+
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+    case ATINY_TRIGER_SERVER_INITIATED_BS:
+        nb_reattach();
+        result = ATINY_OK;
+        break;
+#endif
+
     default:
         break;
     }

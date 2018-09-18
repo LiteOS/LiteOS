@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,17 +32,51 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __AT_HAL_H__
-#define __AT_HAL_H__
+/**@defgroup agent AgentTiny
+ * @defgroup agenttiny Agenttiny Definition
+ * @ingroup agent
+ */
 
-#include "atadapter.h"
 
-void at_transmit(uint8_t * cmd, int32_t len,int flag);
-int32_t at_usart_init(void);
-void at_usart_deinit(void);
-int read_resp(uint8_t *buf, recv_buff* recv_buf);
-void write_at_task_msg(at_msg_type_e type);
-//declear in device drivers
-extern at_config at_user_conf;
+
+#ifndef _UTIL_TIMER_H_
+#define _UTIL_TIMER_H_
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <time.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#ifdef LWM2M_BOOTSTRAP
+#ifdef LWM2M_CLIENT_MODE
+
+// time uint is second, and max value 0xffffffff is hundreds of years.so ignore the turn to 0 problem
+typedef struct
+{
+    time_t expireTime;
+    time_t interval;
+    void(*callback)(void *param);
+    void *param;
+    bool startFlag;
+}util_timer_t;
+
+void timer_init(util_timer_t *timer, time_t interval, void(*callback)(void *param), void *param);
+void timer_start(util_timer_t *timer);
+void timer_stop(util_timer_t *timer);
+void timer_step(util_timer_t *timer);
+
+
+#endif // LWM2M_CLIENT_MODE
+
+#endif // LWM2M_BOOTSTRAP
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

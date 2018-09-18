@@ -47,6 +47,7 @@ static uint32_t s_uwIRQn = USART2_IRQn;
 
 //uint32_t list_mux;
 uint8_t buff_full = 0;
+static uint32_t g_disscard_cnt = 0;
 #ifndef USE_USARTRX_DMA
 uint32_t wi = 0;
 uint32_t wi_bak = 0;
@@ -129,6 +130,7 @@ void at_usart3rx_dma_config(DMA_HandleTypeDef *hdma)
 
 void at_irq_handler(void)
 {
+    recv_buff recv_buf;
 #ifndef USE_USARTRX_DMA
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
@@ -150,7 +152,18 @@ void at_irq_handler(void)
 #else
         wi_bak = wi;
 #endif
-        (void)LOS_SemPost(at.recv_sem);
+
+        recv_buf.ori = ri;
+        recv_buf.end = wi;
+        //recv_buf.addr = at.recv_buf[wi];
+        ri = recv_buf.end;
+        recv_buf.msg_type = AT_USART_RX;
+
+        if(LOS_QueueWriteCopy(at.rid, &recv_buf, sizeof(recv_buff), 0) != LOS_OK)
+        {
+            g_disscard_cnt++;
+        }
+
 
 #ifdef USE_USARTRX_DMA
         HAL_UART_Receive_DMA(&at_usart, &at.recv_buf[at_user_conf.user_buf_len * dma_wbi], at_user_conf.user_buf_len);
@@ -221,11 +234,10 @@ void at_transmit(uint8_t *cmd, int32_t len, int flag)
     }
 }
 
-int read_resp(uint8_t *buf)
+int read_resp(uint8_t *buf, recv_buff* recv_buf)
 {
     uint32_t len = 0;
 #ifndef USE_USARTRX_DMA
-    uint32_t wi;
     uint32_t tmp_len = 0;
 #endif
     if (NULL == buf)
@@ -235,24 +247,24 @@ int read_resp(uint8_t *buf)
     NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
 #ifndef USE_USARTRX_DMA
 
-    wi = wi_bak;
-    if (wi == ri)
+    //wi = recv_buf->end;//wi_bak
+    if (recv_buf->end == recv_buf->ori)
     {
         len = 0;
         goto END;
     }
 
-    if (wi > ri)
+    if (recv_buf->end > recv_buf->ori)
     {
-        len = wi - ri;
-        memcpy(buf, &at.recv_buf[ri], len);
+        len = recv_buf->end - recv_buf->ori;
+        memcpy(buf, &at.recv_buf[recv_buf->ori], len);
     }
     else
     {
-        tmp_len = at_user_conf.user_buf_len - ri;
-        memcpy(buf, &at.recv_buf[ri], tmp_len);
-        memcpy(buf + tmp_len, at.recv_buf, wi);
-        len = wi + tmp_len;
+        tmp_len = at_user_conf.user_buf_len - recv_buf->ori;
+        memcpy(buf, &at.recv_buf[recv_buf->ori], tmp_len);
+        memcpy(buf + tmp_len, at.recv_buf, recv_buf->end);
+        len = recv_buf->end + tmp_len;
     }
 #else
     if (dma_wbi == dma_rbi)
@@ -269,10 +281,26 @@ int read_resp(uint8_t *buf)
     }
 #endif
 #ifndef USE_USARTRX_DMA
-    ri = wi;
+    ri = recv_buf->end;
 #endif
 END:
     NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
     return len;
 }
+
+void write_at_task_msg(at_msg_type_e type)
+{
+    recv_buff recv_buf;
+    int ret;
+
+    memset(&recv_buf,  0, sizeof(recv_buf));
+    recv_buf.msg_type = type;
+
+    ret = LOS_QueueWriteCopy(at.rid, &recv_buf, sizeof(recv_buff), 0);
+    if(ret != LOS_OK)
+    {
+        g_disscard_cnt++;
+    }
+}
+
 #endif

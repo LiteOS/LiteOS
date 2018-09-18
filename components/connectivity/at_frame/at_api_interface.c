@@ -47,7 +47,7 @@ int32_t at_api_register(at_adaptor_api *api)
             return gp_at_adaptor_api->init();
         }
     }
-    
+
     return 0;
 }
 
@@ -82,7 +82,7 @@ int32_t at_api_send(int32_t id , const unsigned char *buf, uint32_t len)
     return -1;
 }
 
-int32_t at_api_sendto(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port)
+int32_t at_api_sendto(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int port)
 {
     if (gp_at_adaptor_api && gp_at_adaptor_api->sendto)
     {

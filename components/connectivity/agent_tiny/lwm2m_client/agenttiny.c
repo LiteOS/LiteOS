@@ -97,7 +97,7 @@ static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)
         return ATINY_ARG_INVALID;
     }
 
-    if(BOOTSTRAP_FACTORY == atiny_params->bootstrap_mode)
+    if(BOOTSTRAP_FACTORY == atiny_params->server_params.bootstrap_mode)
     {
         if((NULL == atiny_params->security_params[0].server_ip) || (NULL == atiny_params->security_params[0].server_port))
         {
@@ -105,7 +105,7 @@ static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)
             return ATINY_ARG_INVALID;
         }
     }
-    else if(BOOTSTRAP_CLIENT_INITIATED == atiny_params->bootstrap_mode)
+    else if(BOOTSTRAP_CLIENT_INITIATED == atiny_params->server_params.bootstrap_mode)
     {
         if((NULL == atiny_params->security_params[1].server_ip) || (NULL == atiny_params->security_params[1].server_port))
         {
@@ -113,7 +113,7 @@ static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)
             return ATINY_ARG_INVALID;
         }
     }
-    else if(BOOTSTRAP_SEQUENCE == atiny_params->bootstrap_mode)
+    else if(BOOTSTRAP_SEQUENCE == atiny_params->server_params.bootstrap_mode)
     {
         return ATINY_OK;
     }
@@ -239,37 +239,7 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
  */
 void atiny_set_bootstrap_sequence_state(atiny_param_t *atiny_params, lwm2m_context_t *lwm2m_context)
 {
-    if((NULL == atiny_params) || (NULL == lwm2m_context))
-    {
-        LOG("[bootstrap_tag]: the atiny_params or lwm2m_context params are NULL for get_set_bootstrap_info ");
-        return;
-    }
-
-
-    //the state is used for bootstrap sequence mode,  other mode are all marked as NO_BS_SEQUENCE_STATE
-    lwm2m_context->bs_sequence_state = NO_BS_SEQUENCE_STATE;
-
-    switch(atiny_params->bootstrap_mode)
-    {
-    case BOOTSTRAP_FACTORY:
-        lwm2m_context->regist_first_flag = true;
-        break;
-    case BOOTSTRAP_SEQUENCE:
-        lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_SERVER_INITIATED;
-        lwm2m_context->regist_first_flag = false;
-        //security_params[0] for iot server
-        if((atiny_params->security_params[0].server_ip != NULL) && (atiny_params->security_params[0].server_port != NULL))
-        {
-            lwm2m_context->bs_sequence_state = BS_SEQUENCE_STATE_FACTORY;
-            lwm2m_context->regist_first_flag = true;
-        }
-        break;
-    case BOOTSTRAP_CLIENT_INITIATED:
-        lwm2m_context->regist_first_flag = false;
-        break;
-    default:
-        break;
-    }
+    (void)lwm2m_initBootStrap(lwm2m_context, atiny_params->server_params.bootstrap_mode);
 }
 
 
