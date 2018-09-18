@@ -96,7 +96,7 @@ VOID main_task(VOID)
     los_nb_report("23", 1);
     //los_nb_deinit();
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A) || defined(USE_NB_NEUL95))
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
     printf("\r\n=============agent_tiny_entry============================\n");
     los_nb_init((const int8_t *)"172.25.233.98",(const int8_t *)"5600",NULL);
@@ -104,6 +104,13 @@ VOID main_task(VOID)
     los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),NULL,nb_cmd_match);
     at_api_register(&at_interface);
     agent_tiny_entry();
+
+#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
+		extern at_adaptor_api at_interface;
+		printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
+		at_api_register(&at_interface);
+		agent_tiny_entry();
+	
 #endif
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     agent_tiny_entry();
