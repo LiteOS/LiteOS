@@ -81,13 +81,18 @@ void *atiny_net_bind(const char *host, const char *port, int proto)
 {
     atiny_net_context *ctx = NULL;
 #if defined (WITH_LWIP) || defined (WITH_LINUX)
+    (void)host;
+    (void)port;
+    (void)proto;
+    return NULL;
+/*
     struct sockaddr_in sock_addr;
     int port_i;
     int ret = ATINY_NET_ERR;
 
     if (NULL == port || (proto != ATINY_PROTO_UDP && proto != ATINY_PROTO_TCP))
         return NULL;
-    
+
     ctx = atiny_malloc(sizeof(atiny_net_context));
 
     sscanf(port , "%d", &port_i);
@@ -138,6 +143,8 @@ exit_failed:
        close(ctx->fd);
        atiny_free(ctx);
        return NULL;
+       */
+
 
 #elif defined(WITH_AT_FRAMEWORK)
     ctx = atiny_malloc(sizeof(atiny_net_context));
@@ -212,7 +219,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
     	{
     		ret = ATINY_NET_SOCKET_FAILED;
     	}
-        
+
         if (ret != 0)
             return ret;
     }
@@ -254,7 +261,7 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
         SOCKET_LOG("ilegal incoming parameters,(%p,%p,%d)",host,port,proto);
         return NULL;
     }
-    
+
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
 
     /* Do name resolution with both IPv6 and IPv4 */

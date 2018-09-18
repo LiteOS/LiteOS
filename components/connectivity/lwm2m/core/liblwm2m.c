@@ -182,6 +182,7 @@ static void prv_deleteBootstrapServerList(lwm2m_context_t *context)
         lwm2m_server_t *server;
         server = context->bootstrapServerList;
         context->bootstrapServerList = server->next;
+        lwm2m_stop_striger_server_initiated_bs(server->sessionH);
         prv_deleteBootstrapServer(server, context->userData);
     }
 }
@@ -267,6 +268,162 @@ void lwm2m_close(lwm2m_context_t *contextP)
     prv_deleteTransactionList(contextP);
     lwm2m_free(contextP);
 }
+
+
+static bool prv_isBoostrpEnable(const lwm2m_context_t *contextP)
+{
+#ifdef LWM2M_BOOTSTRAP
+    return contextP->bsCtrl.bsType != BOOTSTRAP_FACTORY;
+#else
+    return false;
+#endif
+}
+
+/* BsCtrl bootstrap control is used to control the register(factory bootstrap(FBS)), client initiated bootstrap(CIBS),
+and server initiated bootstrap(CIBS).it try max time to register and the change to bootstrap(CIBS and SIBS) as the bs type.
+the state is STATE_REGISTER_REQUIRED, STATE_BOOTSTRAP_REQUIRED and STATE_NON. CIBS is only state is STATE_BOOTSTRAP_REQUIRED,
+,cnt is 0 and bs type is BOOTSTRAP_SEQUENCE. cnt is used to calculte the delay for the next retry.
+Delay(cnt) = Base + Interval * cnt; Base and Interval are configured by different macros.
+*/
+bool lwm2m_isBsCtrlInServerInitiatedBs(const lwm2m_context_t *contextP)
+{
+    return (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (contextP->bsCtrl.cnt == 0);
+}
+
+void lwm2m_initBsCtrlStat(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bs_type)
+{
+    memset(&contextP->bsCtrl, 0, sizeof(contextP->bsCtrl));
+    contextP->bsCtrl.bsType = bs_type;
+    contextP->bsCtrl.state = STATE_NON;
+}
+
+static void lwm2m_setBsCtrlStatWithoutCheck(lwm2m_context_t *contextP, lwm2m_client_state_t state)
+{
+    if (contextP->bsCtrl.state != state)
+    {
+        contextP->bsCtrl.state = state;
+        contextP->bsCtrl.cnt = 0;
+        return;
+    }
+    {
+        uint32_t maxValue = ((STATE_REGISTER_REQUIRED == state)
+                            ? MAX_FACTORY_BS_RETRY_CNT : MAX_CLIENT_INITIATED_BS_RETRY_CNT);
+
+        if ((STATE_BOOTSTRAP_REQUIRED == state) && (BOOTSTRAP_SEQUENCE == contextP->bsCtrl.bsType))
+        {
+            maxValue++;
+        }
+        if(++(contextP->bsCtrl.cnt) >= maxValue)
+        {
+            contextP->bsCtrl.state = ((STATE_REGISTER_REQUIRED == contextP->bsCtrl.state)
+                                     ? STATE_BOOTSTRAP_REQUIRED :STATE_REGISTER_REQUIRED);
+            contextP->bsCtrl.cnt = 0;
+        }
+    }
+
+}
+
+void lwm2m_setBsCtrlStat(lwm2m_context_t *contextP, lwm2m_client_state_t state)
+{
+    lwm2m_client_state_t oldState = contextP->bsCtrl.state;
+    uint32_t oldCnt = contextP->bsCtrl.cnt;
+
+    lwm2m_setBsCtrlStatWithoutCheck(contextP, state);
+
+    if (STATE_REGISTER_REQUIRED == contextP->bsCtrl.state)
+    {
+        if (contextP->serverList == NULL)
+        {
+            contextP->bsCtrl.state = STATE_BOOTSTRAP_REQUIRED;
+            contextP->bsCtrl.cnt = 0;
+        }
+    }
+
+    if (STATE_BOOTSTRAP_REQUIRED == contextP->bsCtrl.state)
+    {
+        if ((!prv_isBoostrpEnable(contextP))
+            || (contextP->bootstrapServerList == NULL))
+        {
+            contextP->bsCtrl.state = STATE_REGISTER_REQUIRED;
+            contextP->bsCtrl.cnt = 0;
+            goto END;
+        }
+
+        // bootstrapServerList not empty, int CIBS but bs ip not valid.
+        if((!lwm2m_isBsCtrlInServerInitiatedBs(contextP))
+               && (!bootstrap_isBsServerIpValid(contextP)))
+        {
+            //FBS
+            if (contextP->serverList)
+            {
+                contextP->bsCtrl.state = STATE_REGISTER_REQUIRED;
+                contextP->bsCtrl.cnt = 0;
+            }
+            // only in SIBS
+            else if ((contextP->serverList == NULL) && (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE))
+            {
+                contextP->bsCtrl.cnt = 0;
+            }
+            else
+            {
+            }
+        }
+    }
+END:
+    if ((oldState != contextP->bsCtrl.state)
+        || (oldCnt != contextP->bsCtrl.cnt))
+    {
+        LOG_ARG("bsctrlstat (%d,%d) to (%d,%d)", oldState, oldCnt,
+                    contextP->bsCtrl.state, contextP->bsCtrl.cnt);
+    }
+
+}
+
+lwm2m_client_state_t lwm2m_getBsCtrlStat(const lwm2m_context_t *contextP)
+{
+    return contextP->bsCtrl.state;
+}
+
+bool lwm2m_delayBs(lwm2m_context_t *contextP)
+{
+    time_t current = lwm2m_gettime();
+    uint32_t delayBase;
+    uint32_t delayInterval;
+    uint32_t cnt;
+
+    if (!contextP->bsCtrl.startFlag)
+    {
+        contextP->bsCtrl.startFlag = true;
+
+        cnt = contextP->bsCtrl.cnt;
+
+        if (contextP->bsCtrl.state == STATE_REGISTER_REQUIRED)
+        {
+            delayBase = FACTORY_BS_DELAY_BASE;
+            delayInterval = FACTORY_BS_DELAY_INTERVAL;
+        }
+        else
+        {
+            delayBase = CLIENT_INITIATED_BS_DELAY_BASE;
+            delayInterval = CLIENT_INITIATED_BS_DELAY_INTERVAL;
+            if ((contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (cnt > 0))
+            {
+                cnt--;
+            }
+        }
+
+        contextP->bsCtrl.expireTime = current + delayBase + delayInterval * cnt;
+
+    }
+
+    if(current >= contextP->bsCtrl.expireTime)
+    {
+        contextP->bsCtrl.startFlag = false;
+    }
+
+    return !contextP->bsCtrl.startFlag;
+}
+
 
 #ifdef LWM2M_CLIENT_MODE
 static int prv_refreshServerList(lwm2m_context_t *contextP)
@@ -448,190 +605,52 @@ int lwm2m_reconnect(lwm2m_context_t *context)
     lwm2m_reset_register(context);
     prv_deleteObservedList(context);
     prv_deleteTransactionList(context);
-    context->state = ((context->serverList != NULL) ? STATE_REGISTER_REQUIRED : STATE_BOOTSTRAP_REQUIRED);
+    lwm2m_setBsCtrlStat(context, STATE_REGISTER_REQUIRED);
+    context->state = lwm2m_getBsCtrlStat(context);
     lwm2m_notify_even(MODULE_LWM2M, STATE_REG_FAILED, NULL, 0);
+    return COAP_NO_ERROR;
+}
+
+int lwm2m_initBootStrap(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bsType)
+{
+    if (NULL == contextP)
+    {
+        LOG("context null point");
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    contextP->regist_first_flag = ((bsType == BOOTSTRAP_CLIENT_INITIATED) ? false : true);
+    lwm2m_initBsCtrlStat(contextP, bsType);
     return COAP_NO_ERROR;
 }
 
 #endif
 
-/*
- * add date:     2018-06-04
- * description:  in order to mark the server of the bootstrapServerList and the serverList. think the server's data are
- * 				 dirty, should be delete from the list, and will be new soon.
- * return:       none
- * pay attention:
- *              the function in fact have been defined as prv_tagAllServer in another file. defined here again, in order to
- *              not include and contact closely with another file.
- *
- */
-static void lwm2m_bootstrap_tag_IOT_server(lwm2m_context_t *contextP)
-{
-    lwm2m_server_t *targetP;
-
-    targetP = contextP->serverList;
-    while (targetP != NULL)
-    {
-        targetP->dirty = true;
-        targetP = targetP->next;
-    }
-}
 
 
-/*
- * add date:     2018-06-04
- * modify data:  2018-06-25
- * description:  only in the bootstrap sequence mode. when plan to change from factory to server, we should set the flag true for
- *               bootstrap(factory regist directly, flag is false,did not have bootstrapServerList). when set ok, we should
- *               start from the contextP->state = STATE_INITIAL
- *
- * return:
-                success:  0
-                fail:    -1
- *
- */
-int lwm2m_bootstrap_sequence_factory_to_server_initiated(lwm2m_context_t *contextP)
-{
+#define SET_BS_LATER(contextP, newState) \
+do{\
+    lwm2m_setBsCtrlStat(contextP, newState);\
+    contextP->state = STATE_DELAY;\
+}while(0)
 
-    LOG("[bootstrap_tag]: --------lwm2m_bootstrap_sequence_factory_to_server_initiated----------");
-
-    //if regist fail, mean all iot server could not regist well, so tag it.
-    lwm2m_bootstrap_tag_IOT_server(contextP);  //only iot server
-
-    //in the server initiated mod, will have a connection in the bootstrap_start , the bootstrap server uri/psk/bootstrap flag have been
-    //set in the security_instance_t already. and the security_instance_t's some info also have been set in the bootstrapServerList
-
-    //pay attention : we should get into lwm2m_step again, so the process : contextP->state = STATE_INITIAL; run
-    //prv_refreshServerList, we have delete all iot_server, and delete the instance for iot server, so not any instance in serverList, only
-    //the right instance of bootstrapserverlist , get into bootstrap process.
-
-    return 0;
-}
-
-
-/*
- * add date:     2018-06-04
- * description:  only in the bootstrap sequence mode. when plan to change from server to client. we have bootstrapServerList, but some
- *               info, such as uri may not ok.and in client mode, we must have the suitable bs server ip. or else send request to who?
- * return:
-                 success:  0
-                 fail:    -1
- *
- */
-int lwm2m_bootstrap_sequence_server_to_client_initiated(lwm2m_context_t *contextP)
-{
-    LOG("[bootstrap_tag]: --------lwm2m_bootstrap_sequence_server_to_client_initiated----------");
-    //if regist fail, mean all iot server could not regist well, so tag it.
-    lwm2m_bootstrap_tag_IOT_server(contextP);  ////only iot server
-
-    ///no need write uri info, because have been stored in the instance for bootstrap server
-    return 0;
-}
-
-
-/*
- * author:       twx378188
- * add date:     2018-06-04
- * description:  only used in the situation: regist fail. when regist fail, we could regist again and again. and in the bootstrap
- *               sequence mode, we could make some more, write new info and use bootstrap to get new info to regist.
- * return:
- *               success: 0
- *               fail:    -1
- * pay attention:
- *              regist using old info a period, how long ?
- *
- *
- */
-static void lwm2m_bootstrap_process_reg_failed(lwm2m_context_t *contextP)
-{
-    static time_t start_cnt;
-    static bool time_start = false;
-    bool to_register_entrance = false;
-    const int REGIST_INTERVAL_TIME = 100;
-    time_t end_cnt = lwm2m_gettime();
-
-    if(NULL == contextP)
-    {
-        LOG("[bootstrap_tag]: contextP is NULL, in bootstrap_dealwith_reg_failed");
-        return;
-    }
-
-    if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
-    {
-        if(!time_start)
-        {
-            time_start = true;
-            start_cnt = lwm2m_gettime();
-        }
-        end_cnt = lwm2m_gettime();
-
-        //let's regist using old info for a period
-        if(end_cnt >= REGIST_INTERVAL_TIME + start_cnt)
-        {
-            time_start = false;
-            if(lwm2m_bootstrap_sequence_factory_to_server_initiated(contextP) == 0)
-            {
-                contextP->state = STATE_INITIAL;
-                contextP->regist_first_flag = false;
-                contextP->bs_sequence_state = BS_SEQUENCE_STATE_SERVER_INITIATED;
-            }
-            else
-            {
-                to_register_entrance = true;
-            }
-        }
-        else
-        {
-            to_register_entrance = true;
-        }
-
-    }
-    else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
-    {
-        if(!time_start)
-        {
-            time_start = true;
-            start_cnt = lwm2m_gettime();
-        }
-
-        end_cnt = lwm2m_gettime();
-        if(end_cnt >= REGIST_INTERVAL_TIME + start_cnt)
-        {
-            if(lwm2m_bootstrap_sequence_server_to_client_initiated(contextP) == 0)
-            {
-                contextP->state = STATE_INITIAL;
-                contextP->regist_first_flag = false;
-                contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
-            }
-            else
-            {
-                to_register_entrance = true;
-            }
-        }
-        else
-        {
-            to_register_entrance = true;
-        }
-    }
-    else if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED) || (contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))
-    {
-        to_register_entrance = true;
-    }
-
-
-    if(to_register_entrance)
-    {
-        contextP->state = STATE_REGISTER_REQUIRED;  //no other method to try registe, only again and again
-        lwm2m_notify_even(MODULE_LWM2M, STATE_REG_FAILED, NULL, 0);
-    }
-}
-
+#define DELAY_BS(contextP)\
+   {\
+       if (!lwm2m_delayBs(contextP))\
+       {\
+            break;\
+       }\
+       contextP->state = lwm2m_getBsCtrlStat(contextP);\
+       goto next_step;\
+   }
 
 int lwm2m_step(lwm2m_context_t *contextP,
                time_t *timeoutP)
 {
     time_t tv_sec;
     int result;
+    lwm2m_client_state_t state;
+    int ret = 0;
 
     LOG_ARG("timeoutP: %" PRId64, *timeoutP);
     tv_sec = lwm2m_gettime();
@@ -651,22 +670,13 @@ next_step:
             return COAP_503_SERVICE_UNAVAILABLE;
         }
 
-        if (contextP->serverList != NULL)
-        {
-            if(contextP->regist_first_flag)
-            {
-                contextP->state = STATE_REGISTER_REQUIRED;
-            }
-            else
-            {
-                contextP->state = STATE_BOOTSTRAP_REQUIRED;
-            }
-        }
-        else
-        {
-            // Bootstrapping
-            contextP->state = STATE_BOOTSTRAP_REQUIRED;
-        }
+        state = ((!prv_isBoostrpEnable(contextP))
+                 || ((contextP->serverList != NULL) && contextP->regist_first_flag)
+                 ?  STATE_REGISTER_REQUIRED : STATE_BOOTSTRAP_REQUIRED);
+
+        contextP->regist_first_flag = true;
+
+        SET_BS_LATER(contextP, state);
         goto next_step;
     //break;
 
@@ -682,7 +692,9 @@ next_step:
         else
 #endif
         {
-            return COAP_503_SERVICE_UNAVAILABLE;
+            SET_BS_LATER(contextP, STATE_BOOTSTRAP_REQUIRED);
+            ret = COAP_503_SERVICE_UNAVAILABLE;
+            break;
         }
 
 #ifdef LWM2M_BOOTSTRAP
@@ -691,12 +703,14 @@ next_step:
         {
         case STATE_BS_FINISHED:
             contextP->state = STATE_INITIAL;
-            contextP->regist_first_flag = true;
+            lwm2m_setBsCtrlStat(contextP, STATE_NON);
             goto next_step;
             break;
 
         case STATE_BS_FAILED:
-            return COAP_503_SERVICE_UNAVAILABLE;
+            SET_BS_LATER(contextP, STATE_BOOTSTRAP_REQUIRED);
+            ret = COAP_503_SERVICE_UNAVAILABLE;
+            break;
 
         default:
             // keep on waiting
@@ -710,17 +724,9 @@ next_step:
         LOG_ARG("[bootstrap_tag]: ---the return value result = %d of registration_start-----", result);
         if (COAP_NO_ERROR != result)
         {
-            if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
-            {
-                //for the bs sequence mode, and in the state BS_SEQUENCE_STATE_FACTORY, even if fail, still have a chance
-                //to get regist info from bs server. so not return. after get into registration_getStatus, judge all server
-                //reg fail---because all server's are not in good state.
-                contextP->state = STATE_REGISTERING;
-            }
-            else
-            {
-                return result;
-            }
+            SET_BS_LATER(contextP, STATE_REGISTER_REQUIRED);
+            ret = result;
+            break;
         }
         contextP->state = STATE_REGISTERING;
         break;
@@ -732,17 +738,16 @@ next_step:
         case STATE_REGISTERED:
             contextP->state = STATE_READY;
             lwm2m_notify_even(MODULE_LWM2M, STATE_REGISTERED, NULL, 0);
+            lwm2m_setBsCtrlStat(contextP, STATE_NON);
             break;
 
         case STATE_REG_FAILED:
             // TODO avoid infinite loop by checking the bootstrap info is different
             //contextP->state = STATE_BOOTSTRAP_REQUIRED;
 
-            //if regist fail, we may regist again or use other method to try  according the init param
-            lwm2m_bootstrap_process_reg_failed(contextP);
+            lwm2m_notify_even(MODULE_LWM2M,STATE_REG_FAILED, NULL, 0);
+            SET_BS_LATER(contextP, STATE_REGISTER_REQUIRED);
 
-            //contextP->state = STATE_REGISTER_REQUIRED;
-            //lwm2m_notify_even(MODULE_LWM2M,STATE_REG_FAILED, NULL, 0);
             break;
 
         case STATE_REG_PENDING:
@@ -759,10 +764,14 @@ next_step:
             // TODO avoid infinite loop by checking the bootstrap info is different
             //contextP->state = STATE_BOOTSTRAP_REQUIRED;
             contextP->state = STATE_REGISTER_REQUIRED;
+            lwm2m_setBsCtrlStat(contextP, STATE_REGISTER_REQUIRED);
             goto next_step;
             //            break;
         }
         break;
+
+   case STATE_DELAY:
+        DELAY_BS(contextP);
 
     default:
         // do nothing
@@ -779,5 +788,5 @@ next_step:
 #ifdef LWM2M_CLIENT_MODE
     LOG_ARG("Final state: %s", STR_STATE(contextP->state));
 #endif
-    return 0;
+    return ret;
 }
