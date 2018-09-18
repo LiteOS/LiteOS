@@ -65,6 +65,25 @@ at_config at_user_conf = {
 char tmpbuf[AT_DATA_LEN]={0}; //transform to hex
 
 socket_info sockinfo[MAX_SOCK_NUM];
+
+#if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
+char *strnstr(const char *s1, const char *s2, size_t len)  
+{  
+    size_t l2;  
+  
+    l2 = strlen(s2);  
+    if (!l2)  
+        return (char *)s1;  
+    while (len >= l2) {  
+        len--;  
+        if (!memcmp(s1, s2, l2))  
+            return (char *)s1;  
+        s1++;  
+    }  
+    return NULL;  
+}
+#endif
+
 int str_to_hex(const char *bufin, int len, char *bufout)
 {
     int i = 0;
