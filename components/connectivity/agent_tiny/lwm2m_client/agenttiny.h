@@ -45,6 +45,8 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "atiny_fota_api.h"
 #endif
+#include "liblwm2m_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -88,7 +90,8 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
-    ATINY_GET_FOTA_STORAGE_DEVICE
+    ATINY_GET_FOTA_STORAGE_DEVICE,
+    ATINY_TRIGER_SERVER_INITIATED_BS
 } atiny_cmd_e;
 
 #define MAX_VELOCITY_LEN 16
@@ -149,21 +152,20 @@ void atiny_event_notify(atiny_event_e event, const char* arg, int len);
 
 /****************The following interfaces are implemented by agent_tiny*******************/
 
+typedef lwm2m_bootstrap_type_e   atiny_bootstrap_type_e;
+
 typedef struct
 {
     char* binding;               /*目前支持U或者UQ*/
     int   life_time;             /*必选，默认50000,如过短，则频繁发送update报文，如过长，在线状态更新时间长*/
     unsigned int  storing_cnt;   /*storing为true时，lwm2m缓存区总字节个数*/
+ 
+    atiny_bootstrap_type_e  bootstrap_mode; /* bootstrap mode  */
+    int   hold_off_time; /* bootstrap hold off time for server initiated bootstrap */
 } atiny_server_param_t;
 
 
-//bootstrap at least have one mode, we have three mode.
-typedef enum
-{
-    BOOTSTRAP_FACTORY = 0,
-    BOOTSTRAP_CLIENT_INITIATED,
-    BOOTSTRAP_SEQUENCE
-} atiny_bootstrap_type_e;
+
 
 
 typedef struct
@@ -189,9 +191,6 @@ typedef struct
 {
 
     atiny_server_param_t   server_params;
-
-    atiny_bootstrap_type_e  bootstrap_mode;
-
     //both iot_server and bs_server have psk & pskID, index 0 for iot_server, and index 1 for bs_server
     atiny_security_param_t security_params[2];
 } atiny_param_t;

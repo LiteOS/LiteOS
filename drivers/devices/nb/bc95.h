@@ -61,6 +61,7 @@ typedef struct _socket_info_t
     char localip[IP_LEN];
     short remoteport;
     char remoteip[IP_LEN];
+    bool used_flag;
 }socket_info;//struct to save socket info
 
 int str_to_hex(const char *bufin, int len, char *bufout);
@@ -74,5 +75,7 @@ int32_t nb_send_psk(char* pskid, char* psk);
 int32_t nb_set_no_encrypt(void);
 int32_t nb_reboot(void);
 int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout);
-int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
+int32_t nb_cmd_match(const char *buf, char* featurestr,int len);
+void nb_step(void);
+void nb_reattach(void);
 #endif

@@ -32,17 +32,52 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __AT_HAL_H__
-#define __AT_HAL_H__
+#ifdef LWM2M_BOOTSTRAP
+#ifdef LWM2M_CLIENT_MODE
+#include "util_timer.h"
+#include "liblwm2m.h"
 
-#include "atadapter.h"
+void timer_init(util_timer_t *timer, time_t interval, void(*callback)(void *param), void *param)
+{
+    timer->expireTime = lwm2m_gettime() + interval;
+    timer->interval = interval;
+    timer->startFlag = false;
+    timer->callback = callback;
+    timer->param = param;
+}
 
-void at_transmit(uint8_t * cmd, int32_t len,int flag);
-int32_t at_usart_init(void);
-void at_usart_deinit(void);
-int read_resp(uint8_t *buf, recv_buff* recv_buf);
-void write_at_task_msg(at_msg_type_e type);
-//declear in device drivers
-extern at_config at_user_conf;
+void timer_start(util_timer_t *timer)
+{
+    timer->startFlag = true;
+}
 
-#endif
+void timer_stop(util_timer_t *timer)
+{
+    timer->startFlag = false;
+}
+void timer_step(util_timer_t *timer)
+{
+    time_t current;
+
+    if (!timer->startFlag)
+    {
+        return;
+    }
+
+    current = lwm2m_gettime();
+    if (current < timer->expireTime)
+    {
+        return;
+    }
+
+    if (timer->callback)
+    {
+        timer->callback(timer->param);
+    }
+
+    timer->expireTime = current + timer->interval;
+}
+
+#endif // LWM2M_CLIENT_MODE
+#endif // LWM2M_BOOTSTRAP
+

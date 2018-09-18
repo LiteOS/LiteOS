@@ -91,7 +91,7 @@ static void prv_requestBootstrap(lwm2m_context_t *context,
 
     if (bootstrapServer->sessionH == NULL)
     {
-        bootstrapServer->sessionH = lwm2m_connect_server(bootstrapServer->secObjInstID, context->userData, true);
+        bootstrapServer->sessionH = lwm2m_connect_server(bootstrapServer->secObjInstID, context->userData, false);
     }
 
     if (bootstrapServer->sessionH != NULL)
@@ -125,6 +125,38 @@ static void prv_requestBootstrap(lwm2m_context_t *context,
     }
 }
 
+
+static void prv_resetBootstrapServer(lwm2m_server_t *serverP, void *userData)
+{
+     if (serverP->sessionH != NULL)
+     {
+         lwm2m_close_connection(serverP->sessionH, userData);
+         serverP->sessionH = NULL;
+     }
+     free_block1_buffer(serverP->block1Data);
+     serverP->block1Data = NULL;
+}
+
+
+static void prv_createBsConnection(lwm2m_context_t *contextP, lwm2m_server_t *targetP)
+{
+
+    prv_resetBootstrapServer(targetP, contextP->userData);
+
+    if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
+    {
+        if (targetP != NULL)
+        {
+            targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, true);
+        }
+        return;
+    }
+
+    targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, false);
+}
+
+
+
 /*
  * modify info:
  * modify date:     2019-06-04
@@ -138,50 +170,57 @@ void bootstrap_step(lwm2m_context_t *contextP,
                     time_t *timeoutP)
 {
     lwm2m_server_t *targetP;
-    bool server_to_client_mode = false;
 
     LOG("entering");
     targetP = contextP->bootstrapServerList;
     while (targetP != NULL)
     {
+        time_t timeOut;
+
         LOG_ARG("Initial status: %s", STR_STATUS(targetP->status));
         switch (targetP->status)
         {
         case STATE_DEREGISTERED:
             //pay attention: targetP->lifetime come from securityobj instance, it's init value is 10. too small, too short for
             //STATE_BS_HOLD_OFF. of course, the value could be wrote by the bs server. encode decode used for securityobj/serverobj instance
-            targetP->registration = currentTime + targetP->lifetime;
-            targetP->status = STATE_BS_HOLD_OFF;
-            if (*timeoutP > targetP->lifetime)
+
+            targetP->registration =  currentTime;
+            if(lwm2m_isBsCtrlInServerInitiatedBs(contextP))
             {
-                *timeoutP = targetP->lifetime;
+                targetP->registration = (currentTime + targetP->lifetime);
+            }
+            prv_createBsConnection(contextP, targetP);
+            currentTime = lwm2m_gettime();
+            targetP->status = STATE_BS_HOLD_OFF;
+
+            timeOut = (targetP->registration - currentTime);
+            if (timeOut < 0)
+            {
+                timeOut = 0;
+            }
+            if (*timeoutP > timeOut)
+            {
+                *timeoutP = timeOut;
             }
             break;
 
         case STATE_BS_HOLD_OFF:
             if (targetP->registration <= currentTime)
             {
-                if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED) || (contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE)) //add by tan
+                if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
+                {
+                    lwm2m_stop_striger_server_initiated_bs(targetP->sessionH);
+                    targetP->status = STATE_REG_FAILED;
+                }
+                else
                 {
                     prv_requestBootstrap(contextP, targetP);
-                }
-                else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
-                {
-                    //this situation is over clientHoldOffTime
-                    //targetP->status = STATE_BS_PENDING;
-                    //if(contextP->bs_server_uri != NULL)
-                    {
-                        targetP->status = STATE_BS_FINISHING; //so get to the process : contextP->state = STATE_INITIAL;
-
-                        server_to_client_mode = true;  //
-                        contextP->bs_sequence_state = BS_SEQUENCE_STATE_CLIENT_INITIATED;
-                    }
-
                 }
             }
             else if (*timeoutP > targetP->registration - currentTime)
             {
                 *timeoutP = targetP->registration - currentTime;
+                 lwm2m_step_striger_server_initiated_bs(targetP->sessionH);
             }
             break;
 
@@ -191,32 +230,14 @@ void bootstrap_step(lwm2m_context_t *contextP,
             break;
 
         case STATE_BS_PENDING:
-            if((contextP->bs_sequence_state == BS_SEQUENCE_STATE_CLIENT_INITIATED) || (contextP->bs_sequence_state == NO_BS_SEQUENCE_STATE))
+            if (targetP->registration <= currentTime)
             {
-                if (targetP->registration <= currentTime)
-                {
-                    //bootstrap failed, and in the atiny_bind, will return error again and again. do not try bootstrap request?
-                    //need it?
-                    targetP->status = STATE_BS_FAILING;
-                    *timeoutP = 0;
-                }
-                else if (*timeoutP > targetP->registration - currentTime)
-                {
-                    *timeoutP = targetP->registration - currentTime;
-                }
+               targetP->status = STATE_BS_FAILING;
+               *timeoutP = 0;
             }
-            else if(contextP->bs_sequence_state == BS_SEQUENCE_STATE_SERVER_INITIATED)
+            else if (*timeoutP > targetP->registration - currentTime)
             {
-                if (targetP->registration <= currentTime)
-                {
-                    //SERVER_INITIATED after write info, start to regist----,server not send finish request before timer
-                    targetP->status = STATE_BS_FINISHING;
-                    *timeoutP = 0;
-                }
-                else if (*timeoutP > targetP->registration - currentTime)
-                {
-                    *timeoutP = targetP->registration - currentTime;
-                }
+                *timeoutP = targetP->registration - currentTime;
             }
             break;
 
@@ -244,17 +265,14 @@ void bootstrap_step(lwm2m_context_t *contextP,
             break;
         }
         LOG_ARG("Finalal status: %s", STR_STATUS(targetP->status));
+
+        if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
+        {
+            return;
+        }
         targetP = targetP->next;
     }
 
-    if(server_to_client_mode)
-    {
-        if(lwm2m_bootstrap_sequence_server_to_client_initiated(contextP) == 0)
-        {
-            contextP->state = STATE_INITIAL;
-            contextP->regist_first_flag = false;
-        }
-    }
 
 }
 
@@ -282,6 +300,23 @@ uint8_t bootstrap_handleFinish(lwm2m_context_t *context,
 
     return COAP_IGNORE;
 }
+bool bootstrap_isBsServerIpValid(const lwm2m_context_t *contextP)
+{
+    lwm2m_server_t *targetP;
+
+    targetP = contextP->bootstrapServerList;
+    while (targetP != NULL)
+    {
+        if(lwm2m_is_sec_obj_uri_valid(targetP->secObjInstID, contextP->userData))
+        {
+            return true;
+        }
+        targetP = targetP->next;
+    }
+
+    return false;
+}
+
 
 /*
  * Reset the bootstrap servers statuses
@@ -298,10 +333,6 @@ void bootstrap_start(lwm2m_context_t *contextP)
     while (targetP != NULL)
     {
         targetP->status = STATE_DEREGISTERED;
-        if (targetP->sessionH == NULL)
-        {
-            targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, true);
-        }
         targetP = targetP->next;
     }
 }
@@ -560,7 +591,7 @@ uint8_t bootstrap_handleCommand(lwm2m_context_t *contextP,
             serverP->status = STATE_BS_PENDING;
             contextP->state = STATE_BOOTSTRAPPING;
         }
-    }
+        lwm2m_stop_striger_server_initiated_bs(serverP->sessionH);    }
     LOG_ARG("Server status: %s", STR_STATUS(serverP->status));
 
     return result;

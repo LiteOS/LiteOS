@@ -45,6 +45,7 @@
 #include "at_api_interface.h"
 #if defined USE_NB_NEUL95
 #include "los_nb_api.h"
+#include "bc95.h"
 #endif
 #endif
 #ifdef SUPPORT_DTLS_SRV
@@ -60,13 +61,8 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
-int32_t nb_data_rcv_handler(void *arg, int8_t *buf, int32_t len);
 
-int32_t nb_cmd_match(const char *buf, char* featurestr,int len)
-{
-    printf("buf:%s feature:%s\n",buf,featurestr);
-    return strncmp(buf,featurestr,len);
-}
+
 VOID main_task(VOID)
 {
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
@@ -103,8 +99,9 @@ VOID main_task(VOID)
 #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
     printf("\r\n=============agent_tiny_entry============================\n");
-    los_nb_init(NULL,NULL,NULL);
-    los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),nb_data_rcv_handler,nb_cmd_match);
+    los_nb_init((const int8_t *)"172.25.233.98",(const int8_t *)"5600",NULL);
+    void agent_tiny_entry(void);
+    los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),NULL,nb_cmd_match);
     at_api_register(&at_interface);
     agent_tiny_entry();
 
