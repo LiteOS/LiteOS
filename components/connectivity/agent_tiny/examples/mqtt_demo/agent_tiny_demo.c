@@ -37,7 +37,7 @@
 
 void message_cb(cloud_msg_t *msg);
 
-#define DEFAULT_SERVER_IPV4 "192.168.1.100"
+#define DEFAULT_SERVER_IPV4 "180.101.147.115"
 #ifdef WITH_DTLS
 #define DEFAULT_SERVER_PORT "8883"
 #define AGENT_TINY_DEMO_PSK_ID "testID"

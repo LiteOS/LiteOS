@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := SIM900A
 endif
 
 #######################################
@@ -252,7 +252,6 @@ C_DEFS =  \
         -D NDEBUG \
 		-D LWM2M_BOOTSTRAP \
         -D LWIP_TIMEVAL_PRIVATE=0 \
-        -D WITH_DTLS \
         -D ATINY_DEBUG \
         -D LWM2M_WITH_LOGS \
         -D AT_INTO \
