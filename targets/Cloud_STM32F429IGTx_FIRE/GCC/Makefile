@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := SIM900A
 endif
 
 #######################################

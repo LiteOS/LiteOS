@@ -51,6 +51,8 @@
  *******************************************************************************/
 #include <ctype.h>
 #include "connection.h"
+#include "mbedtls/ssl.h"
+
 #if defined (WITH_DTLS)
 #include "dtls_interface.h"
 #endif
