@@ -36,8 +36,8 @@
 
 #include "atadapter.h"
 
-#define WIFI_SSID      		"TP-LINK_80D8BE"
-#define WIFI_PASSWD    		"87654321"
+#define WIFI_SSID      		"DQB16iPhone"
+#define WIFI_PASSWD    		"qwertyui"
 
 #define AT_MODU_NAME    	"ESP8266"
 #define AT_USART_PORT   	3
