@@ -32,68 +32,64 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
+#ifndef __JFFS2_CONFIG_H__
+#define __JFFS2_CONFIG_H__
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+#include "los_config.h"
+
+#define CONFIG_JFFS2_DIRECT  /* unuse mtd */
+
+#define FILE_PATH_MAX                128  /* the longest file path */
+#define CONFIG_JFFS2_ENTRY_NAME_MAX  23
+#define	JFFS2_NAME_MAX   CONFIG_JFFS2_ENTRY_NAME_MAX
+#define	JFFS2_PATH_MAX   FILE_PATH_MAX
+
+#define DEVICE_PART_MAX   1  /* the max partions on a nand deivce*/
+
+/* memory page size in kernel/asm/page.h, it is correspond with flash read/write
+ * option, so this size has a great impact on reading/writing speed */
+#define CONFIG_JFFS2_PAGE_SHIFT  12  /* (1<<12) 4096bytes*/
+
+/* jffs2 support relative dir, command "ls" will get
+ * +-------------------------------+
+ * |   finsh>>ls("/")              |
+ * |   Directory /:                |
+ * |   .                   <DIR>   |
+ * |   ..                  <DIR>   |
+ * |   dir1                <DIR>   |
+ * +-------------------------------+
+ */
+#define CONFIG_JFFS2_NO_RELATIVEDIR
+
+//#define CYGPKG_FS_JFFS2_RET_DIRENT_DTYPE
+#if defined(CYGPKG_FS_JFFS2_RET_DIRENT_DTYPE)
+	#define CYGPKG_FILEIO_DIRENT_DTYPE
 #endif
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
-#endif
+#define CONFIG_JFFS2_WRITABLE   /* if not defined, jffs2 is read only*/
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
+/* jffs2 debug output opion */
+#define CONFIG_JFFS2_FS_DEBUG 		0  /* 1 or 2 */
 
-#include <hal_spi_flash.h>
+/* jffs2 gc thread section */
+#define CONFIG_JFFS2_GC_THREAD
+#define CONFIG_JFFS2_GC_THREAD_PRIORITY     (LOS_TASK_PRIORITY_LOWEST-2) /* GC thread's priority */
+#define CONFIG_JFFS2_GS_THREAD_TICKS        20  /* event timeout ticks */
+#define CONFIG_JFFS2_GC_THREAD_TICKS        20  /* GC thread's running ticks */
+#define CONFIG_JFFS2_GC_THREAD_STACK_SIZE   (1024*4)
 
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
+//#define CONFIG_JFFS2_FS_WRITEBUFFER /* should not be enabled */
 
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
+/* zlib section*/
+//#define CONFIG_JFFS2_PROC
+//#define CONFIG_JFFS2_ZLIB
+//#define CONFIG_JFFS2_RTIME
+//#define CONFIG_JFFS2_RUBIN
+//#define CONFIG_JFFS2_CMODE_NONE
+//#define CONFIG_JFFS2_CMODE_SIZE
 
-    return SPIFFS_OK;
-}
 
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
+#define GFP_KERNEL              0
 
-    return SPIFFS_OK;
-}
 
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (int need_erase)
-{
-    hal_spi_flash_config();
-    if (need_erase)
-    {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
-    }
-
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
-
+#endif /* __JFFS2_CONFIG_H__ */

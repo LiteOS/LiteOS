@@ -32,6 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
+/* Includes -----------------------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
 
@@ -46,54 +47,87 @@
 #endif
 
 #include <los_vfs.h>
-#include <los_spiffs.h>
+#include <los_jffs2.h>
 
 #include <hal_spi_flash.h>
 
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
+/* Defines ------------------------------------------------------------------*/
+#define SPI_FLASH_ID            0xEF4018
 
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
+#define SPI_FLASH_TOTAL_SIZE    (1024 * 1024)
+#define SPI_FLASH_SECTOR_SIZE   (4 * 1024)
+#define SPI_FLASH_PAGE_SIZE     256
+
+/* Typedefs -----------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
+/* Local variables ----------------------------------------------------------*/
+/* Extern variables ---------------------------------------------------------*/
+/* Global variables ---------------------------------------------------------*/
+/* Private function prototypes ----------------------------------------------*/
+/* Public functions ---------------------------------------------------------*/
+static int stm32f4xx_jffs2_read(struct mtd_info *mtd, loff_t from, size_t len,
+                                        size_t *retlen, u_char *buf)
 {
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
+    int ret = hal_spi_flash_read((void *)buf, len, from);
+    if(ret < 0)
+    {
+        *retlen = 0;
+        return ret;
+    }
+    *retlen = len;
+    return 0;
 }
 
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
+static int stm32f4xx_jffs2_write(struct mtd_info *mtd, loff_t to, size_t len,
+                                        size_t *retlen, const u_char *buf)
 {
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
+    int ret = hal_spi_flash_write((void *)buf, len, (uint32_t *)&to);
+    if(ret < 0)
+    {
+        *retlen = 0;
+        return ret;
+    }
+    *retlen = len;
+    return 0;
 }
 
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
+static int stm32f4xx_jffs2_erase(struct mtd_info *mtd, loff_t from, size_t len)
 {
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
+    return hal_spi_flash_erase(from, len);
 }
 
-int stm32f4xx_spiffs_init (int need_erase)
+
+static struct mtd_info mtd_spi_flash =
 {
-    hal_spi_flash_config();
+    .type = MTD_TYPE_SPI_FLASH,
+    .size = SPI_FLASH_TOTAL_SIZE,
+    .erasesize = SPI_FLASH_SECTOR_SIZE,
+
+    .read = stm32f4xx_jffs2_read,
+    .write = stm32f4xx_jffs2_write,
+    .erase = stm32f4xx_jffs2_erase
+};
+
+
+int stm32f4xx_jffs2_init(int need_erase)
+{
+    int ret;
+
+    (void)hal_spi_flash_config();
     if (need_erase)
     {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
+        (void)hal_spi_flash_erase(0, SPI_FLASH_TOTAL_SIZE);
     }
 
-    (void)spiffs_init ();
+    (void)jffs2_init();
 
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
+    ret = jffs2_mount("/jffs2/", &mtd_spi_flash);
+    if(ret < 0)
     {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
+        PRINT_ERR ("failed to mount jffs2!\n");
     }
 
-    return LOS_OK;
+    return ret;
 }
 
+/* Private functions --------------------------------------------------------*/

@@ -31,69 +31,35 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+/* Define to prevent recursive inclusion ------------------------------------*/
+#ifndef __JFFS2_WAIT_H__
+#define __JFFS2_WAIT_H__
 
-#include <stdio.h>
-#include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+#ifdef __cplusplus
+#if __cplusplus
+extern "C"{
 #endif
+#endif /* __cplusplus */
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
+
+typedef struct { int none;} wait_queue_head_t;
+
+#define init_waitqueue_head(wait) do{} while (0)
+#define add_wait_queue(wait,new_wait) do{} while (0)
+#define remove_wait_queue(wait,old_wait) do{} while (0)
+#define DECLARE_WAITQUEUE(wait,current) do{} while (0)
+
+static inline void wake_up(wait_queue_head_t *erase_wait)
+{ /* Only used for waking up threads blocks on erases. Not used in eCos */ }
+
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
 #endif
+#endif /* __cplusplus */
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
 
-#include <hal_spi_flash.h>
-
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
-
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (int need_erase)
-{
-    hal_spi_flash_config();
-    if (need_erase)
-    {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
-    }
-
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
-
+#endif /* __JFFS2_WAIT_H__ */
