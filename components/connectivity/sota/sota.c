@@ -376,7 +376,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
     }
     case UPDATED:
         AT_LOG("update success");
-        if(pbuf == OTA_OK)
+        if(*pbuf == OTA_OK)
         {
             //sota_deinit();
             memset(&g_at_update_record, 0, sizeof(at_update_record_t));
