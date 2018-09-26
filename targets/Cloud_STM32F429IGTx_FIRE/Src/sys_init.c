@@ -57,7 +57,7 @@ void net_init(void)
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
     IP_ADDRESS[2] = 0;
-    IP_ADDRESS[3] = 115;
+    IP_ADDRESS[3] = 190;
     NETMASK_ADDRESS[0] = 255;
     NETMASK_ADDRESS[1] = 255;
     NETMASK_ADDRESS[2] = 255;
