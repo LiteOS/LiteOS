@@ -66,7 +66,7 @@
 static DSTATUS stm32f4xx_fatfs_status(BYTE lun)
 {
     DSTATUS status = STA_NOINIT;
-    
+
     if(SPI_FLASH_ID == hal_spi_flash_get_id())
     {
         status &= ~STA_NOINIT;
@@ -131,17 +131,23 @@ static struct diskio_drv spi_drv =
     stm32f4xx_fatfs_ioctl
 };
 
-int stm32f4xx_fatfs_init(void)
+int stm32f4xx_fatfs_init(int need_erase)
 {
     int8_t drive = -1;
-    
+
+    if (need_erase)
+    {
+        (void)hal_spi_flash_config();
+        (void)hal_spi_flash_erase(0, SPI_FLASH_TOTAL_SIZE);
+    }
+
     (void)fatfs_init();
 
     if(fatfs_mount("/fatfs/", &spi_drv, (uint8_t *)&drive) < 0)
     {
         PRINT_ERR ("failed to mount fatfs!\n");
     }
-    
+
     return drive;
 }
 

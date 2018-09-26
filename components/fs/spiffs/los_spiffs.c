@@ -126,6 +126,9 @@ static int spiffs_op_close (struct file *file)
 
 static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 {
+    if (buff == NULL || bytes == 0)
+        return -1;
+
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
@@ -134,6 +137,9 @@ static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 
 static ssize_t spiffs_op_write (struct file *file, const char *buff, size_t bytes)
 {
+    if (buff == NULL || bytes == 0)
+        return -1;
+
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
@@ -146,6 +152,23 @@ static off_t spiffs_op_lseek (struct file *file, off_t off, int whence)
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
 
     return SPIFFS_lseek (fs, s_file, off, whence);
+}
+
+int spiffs_op_stat (struct file *file, struct stat *stat)
+{
+    spiffs_file s_file = spifd_from_file(file);
+    spiffs * fs = (spiffs *)file->f_mp->m_data;
+    spiffs_stat s;
+
+    memset(&s, 0, sizeof(s));
+    memset(stat, 0, sizeof(*stat));
+    int ret = SPIFFS_fstat(fs, s_file, &s);
+    if (ret == SPIFFS_OK)
+    {
+        stat->st_size = s.size;
+    }
+
+    return ret;
 }
 
 static int spiffs_op_unlink (struct mount_point *mp, const char *path_in_mp)
@@ -236,7 +259,7 @@ static struct file_ops spiffs_ops =
     spiffs_op_read,
     spiffs_op_write,
     spiffs_op_lseek,
-    NULL,               /* stat not supported for now */
+    spiffs_op_stat,
     spiffs_op_unlink,
     spiffs_op_rename,
     NULL,               /* ioctl not supported for now */
