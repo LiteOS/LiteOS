@@ -127,9 +127,9 @@ Contains code snippets which are:
 #include <stdio.h>
 #include "commandline.h"
 
-static void handle_reset(lwm2m_context_t * contextP,
-                         void * fromSessionH,
-                         coap_packet_t * message)
+static void handle_reset(lwm2m_context_t *contextP,
+                         void *fromSessionH,
+                         coap_packet_t *message)
 {
 #ifdef LWM2M_CLIENT_MODE
     LOG("Entering");
@@ -137,16 +137,16 @@ static void handle_reset(lwm2m_context_t * contextP,
 #endif
 }
 
-static uint8_t handle_request(lwm2m_context_t * contextP,
-                              void * fromSessionH,
-                              coap_packet_t * message,
-                              coap_packet_t * response)
+static uint8_t handle_request(lwm2m_context_t *contextP,
+                              void *fromSessionH,
+                              coap_packet_t *message,
+                              coap_packet_t *response)
 {
-    lwm2m_uri_t * uriP;
+    lwm2m_uri_t *uriP;
     uint8_t result = COAP_IGNORE;
 
     LOG("Entering");
-    
+
 #ifdef LWM2M_CLIENT_MODE
     uriP = uri_decode(contextP->altPath, message->uri_path);
 #else
@@ -160,7 +160,7 @@ static uint8_t handle_request(lwm2m_context_t * contextP,
 #ifdef LWM2M_CLIENT_MODE
     case LWM2M_URI_FLAG_DM:
     {
-        lwm2m_server_t * serverP;
+        lwm2m_server_t *serverP;
 
         serverP = utils_findServer(contextP, fromSessionH);
         if (serverP != NULL)
@@ -231,10 +231,10 @@ static uint8_t handle_request(lwm2m_context_t * contextP,
  * Erbium is Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
  * All rights reserved.
  */
-void lwm2m_handle_packet(lwm2m_context_t * contextP,
-                         uint8_t * buffer,
+void lwm2m_handle_packet(lwm2m_context_t *contextP,
+                         uint8_t *buffer,
                          int length,
-                         void * fromSessionH)
+                         void *fromSessionH)
 {
     uint8_t coap_error_code = NO_ERROR;
     static coap_packet_t message[1];
@@ -285,7 +285,7 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
             {
 #ifdef LWM2M_CLIENT_MODE
                 // get server
-                lwm2m_server_t * serverP;
+                lwm2m_server_t *serverP;
                 serverP = utils_findServer(contextP, fromSessionH);
 #ifdef LWM2M_BOOTSTRAP
                 if (serverP == NULL)
@@ -302,7 +302,7 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
                     uint32_t block1_num;
                     uint8_t  block1_more;
                     uint16_t block1_size;
-                    uint8_t * complete_buffer = NULL;
+                    uint8_t *complete_buffer = NULL;
                     size_t complete_buffer_size;
 
                     // parse block1 header
@@ -321,7 +321,7 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
                     else if (coap_error_code == COAP_231_CONTINUE)
                     {
                         block1_size = MIN(block1_size, REST_MAX_CHUNK_SIZE);
-                        coap_set_header_block1(response,block1_num, block1_more,block1_size);
+                        coap_set_header_block1(response, block1_num, block1_more, block1_size);
                     }
                 }
 #else
@@ -332,12 +332,12 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
             {
                 coap_error_code = handle_request(contextP, fromSessionH, message, response);
             }
-            if (coap_error_code==NO_ERROR)
+            if (coap_error_code == NO_ERROR)
             {
                 if ( IS_OPTION(message, COAP_OPTION_BLOCK2) )
                 {
                     /* unchanged new_offset indicates that resource is unaware of blockwise transfer */
-                    if (new_offset==block_offset)
+                    if (new_offset == block_offset)
                     {
                         LOG_ARG("Blockwise: unaware resource with payload length %u/%u", response->payload_len, block_size);
                         if (block_offset >= message->payload_len)
@@ -350,22 +350,22 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
                         else
                         {
                             coap_set_header_block2(response, block_num, response->payload_len - block_offset > block_size, block_size);
-                            coap_set_payload(response, response->payload+block_offset, MIN(response->payload_len - block_offset, block_size));
+                            coap_set_payload(response, response->payload + block_offset, MIN(response->payload_len - block_offset, block_size));
                         } /* if (valid offset) */
                     }
                     else
                     {
                         /* resource provides chunk-wise data */
                         LOG_ARG("Blockwise: blockwise resource, new offset %d", (int) new_offset);
-                        coap_set_header_block2(response, block_num, new_offset!=-1 || response->payload_len > block_size, block_size);
+                        coap_set_header_block2(response, block_num, new_offset != -1 || response->payload_len > block_size, block_size);
                         if (response->payload_len > block_size) coap_set_payload(response, response->payload, block_size);
                     } /* if (resource aware of blockwise) */
                 }
-                else if (new_offset!=0)
+                else if (new_offset != 0)
                 {
                     LOG_ARG("Blockwise: no block option for blockwise resource, using block size %u", REST_MAX_CHUNK_SIZE);
 
-                    coap_set_header_block2(response, 0, new_offset!=-1, REST_MAX_CHUNK_SIZE);
+                    coap_set_header_block2(response, 0, new_offset != -1, REST_MAX_CHUNK_SIZE);
                     coap_set_payload(response, response->payload, MIN(response->payload_len, REST_MAX_CHUNK_SIZE));
                 } /* if (blockwise request) */
 
@@ -390,23 +390,23 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
             {
             case COAP_TYPE_NON:
             case COAP_TYPE_CON:
-                {
-                    bool done = transaction_handleResponse(contextP, fromSessionH, message, response);
+            {
+                bool done = transaction_handleResponse(contextP, fromSessionH, message, response);
 
 #ifdef LWM2M_SERVER_MODE
-                    if (!done && IS_OPTION(message, COAP_OPTION_OBSERVE) &&
+                if (!done && IS_OPTION(message, COAP_OPTION_OBSERVE) &&
                         ((message->code == COAP_204_CHANGED) || (message->code == COAP_205_CONTENT)))
-                    {
-                        done = observe_handleNotify(contextP, fromSessionH, message, response);
-                    }
-#endif
-                    if (!done && message->type == COAP_TYPE_CON )
-                    {
-                        coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
-                        coap_error_code = message_send(contextP, response, fromSessionH);
-                    }
+                {
+                    done = observe_handleNotify(contextP, fromSessionH, message, response);
                 }
-                break;
+#endif
+                if (!done && message->type == COAP_TYPE_CON )
+                {
+                    coap_init_message(response, COAP_TYPE_ACK, 0, message->mid);
+                    coap_error_code = message_send(contextP, response, fromSessionH);
+                }
+            }
+            break;
 
             case COAP_TYPE_RST:
                 /* Cancel possible subscriptions. */
@@ -446,12 +446,12 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
 }
 
 
-uint8_t message_send(lwm2m_context_t * contextP,
-                     coap_packet_t * message,
-                     void * sessionH)
+uint8_t message_send(lwm2m_context_t *contextP,
+                     coap_packet_t *message,
+                     void *sessionH)
 {
     uint8_t result = COAP_500_INTERNAL_SERVER_ERROR;
-    uint8_t * pktBuffer;
+    uint8_t *pktBuffer;
     size_t pktBufferLen = 0;
     size_t allocLen;
 

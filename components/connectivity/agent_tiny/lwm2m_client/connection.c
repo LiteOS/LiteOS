@@ -51,6 +51,8 @@
  *******************************************************************************/
 #include <ctype.h>
 #include "connection.h"
+#include "mbedtls/ssl.h"
+
 #if defined (WITH_DTLS)
 #include "dtls_interface.h"
 #endif
@@ -63,10 +65,11 @@
 
 static lwm2m_connection_err_notify_t g_connection_err_notify = NULL;
 
-static inline void inc_connection_stat(connection_t* connection, connection_err_e type)
+static inline void inc_connection_stat(connection_t *connection, connection_err_e type)
 {
     static const uint16_t max_num[CONNECTION_ERR_MAX] = {MAX_SEND_ERR_NUM,
-                                                         MAX_RECV_ERR_NUM};
+                                                         MAX_RECV_ERR_NUM
+                                                        };
 
     connection->errs[type]++;
     if(connection->errs[type] >= max_num[type])
@@ -79,36 +82,20 @@ static inline void inc_connection_stat(connection_t* connection, connection_err_
     }
 }
 
-connection_t* connection_create(connection_t* connList,
-                                lwm2m_object_t* securityObj,
-                                int instanceId,
-                                lwm2m_context_t* lwm2mH)
+
+int connection_parse_host_ip(security_instance_t *targetP, char **parsed_host, char **parsed_port)
 {
-    connection_t* connP = NULL;
-    char* uri;
-    char* host;
-    char* port;
-    char* defaultport;
-    security_instance_t* targetP;
-#ifdef WITH_DTLS
-    int ret;
-#endif
-    ATINY_LOG(LOG_INFO, "now come into connection_create!!!");
-
-    targetP = (security_instance_t*)LWM2M_LIST_FIND(securityObj->instanceList, instanceId);
-    if (NULL == targetP)
-    {
-        return NULL;
-    }
-
-    uri = targetP->uri;
+    char *host;
+    char *port;
+    char *defaultport;
+    char *uri = targetP->uri;
     if (uri == NULL)
     {
         ATINY_LOG(LOG_INFO, "uri is NULL!!!");
-        return NULL;
+        return COAP_500_INTERNAL_SERVER_ERROR;
     }
 
-    ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
+    //ATINY_LOG(LOG_INFO, "uri is %s\n", uri);
 
     // parse uri in the form "coaps://[host]:[port]"
 
@@ -125,7 +112,7 @@ connection_t* connection_create(connection_t* connList,
     else
     {
         ATINY_LOG(LOG_INFO, "come here1!!!");
-        return NULL;
+        return COAP_500_INTERNAL_SERVER_ERROR;
     }
 
     port = strrchr(host, ':');
@@ -147,7 +134,7 @@ connection_t* connection_create(connection_t* connList,
             else
             {
                 ATINY_LOG(LOG_INFO, "come here2!!!");
-                return NULL;
+                return COAP_500_INTERNAL_SERVER_ERROR;
             }
         }
 
@@ -156,7 +143,99 @@ connection_t* connection_create(connection_t* connList,
         port++;
     }
 
-    connP = (connection_t*)lwm2m_malloc(sizeof(connection_t));
+    *parsed_host = host;
+    *parsed_port = port;
+
+    return COAP_NO_ERROR;
+}
+
+#ifdef WITH_DTLS
+int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, const char *host, const char *port, int client_or_server)
+{
+    int ret;
+    dtls_shakehand_info_s info;
+
+    connP->net_context = (void *)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity, client_or_server);
+    if (NULL == connP->net_context)
+    {
+        ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+
+    memset(&info, 0, sizeof(info));
+    info.client_or_server = client_or_server;
+    info.finish_notify = (void(*)(void *))lwm2m_stop_striger_server_initiated_bs;
+    info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
+    info.param = (void(*)(void *))connP;
+    if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
+    {
+        info.u.c.host = host;
+        info.u.c.port = port;
+    }
+    else
+    {
+        info.u.s.timeout = targetP->clientHoldOffTime;
+        info.u.s.local_port = port;
+    }
+    ret = dtls_shakehand(connP->net_context, &info);
+    if (ret != 0)
+    {
+        ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
+        dtls_ssl_destroy((mbedtls_ssl_context *)connP->net_context);
+        connP->net_context = NULL;
+        return COAP_500_INTERNAL_SERVER_ERROR;
+    }
+
+    connP->dtls_flag = true;
+
+    return COAP_NO_ERROR;
+}
+
+#endif
+
+#ifdef LWM2M_BOOTSTRAP
+void connection_striger_server_initiated_bs(connection_t * sessionH)
+{
+    (void)sessionH;
+    (void)atiny_cmd_ioctl(ATINY_TRIGER_SERVER_INITIATED_BS, NULL, 0);
+}
+#endif
+
+
+connection_t *connection_create(connection_t *connList,
+                                lwm2m_object_t *securityObj,
+                                int instanceId,
+                                lwm2m_context_t *lwm2mH,
+                                int client_or_server)
+{
+    connection_t *connP = NULL;
+    char *host;
+    char *port;
+    security_instance_t *targetP;
+
+    ATINY_LOG(LOG_INFO, "now come into connection_create!!!");
+
+    targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj->instanceList, instanceId);
+    if (NULL == targetP)
+    {
+        return NULL;
+    }
+
+    if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
+    {
+        if (connection_parse_host_ip(targetP, &host, &port) != COAP_NO_ERROR)
+        {
+            return NULL;
+        }
+    }
+    else
+    {
+        host = NULL;
+        port = ((targetP->securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);
+    }
+
+    connP = (connection_t *)lwm2m_malloc(sizeof(connection_t));
     if (connP == NULL)
     {
         ATINY_LOG(LOG_INFO, "connP is NULL!!!");
@@ -169,38 +248,38 @@ connection_t* connection_create(connection_t* connList,
 
     if (targetP->securityMode != LWM2M_SECURITY_MODE_NONE)
     {
-        connP->net_context = (void*)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity);
-        if (NULL == connP->net_context)
+        if (connection_connect_dtls(connP, targetP, host, port, client_or_server) != COAP_NO_ERROR)
         {
-            ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");
-            lwm2m_free(connP);
-            return NULL;
+            goto fail;
         }
-
-        ret = dtls_shakehand(connP->net_context, host, port);
-        if (ret != 0)
-        {
-            ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
-            dtls_ssl_destroy((mbedtls_ssl_context*)connP->net_context);
-            lwm2m_free(connP);
-            return NULL;
-        }
-
-        connP->dtls_flag = true;
     }
     else
 #endif
     {
         // no dtls session
-        connP->net_context = atiny_net_connect(host, port, ATINY_PROTO_UDP);
+        if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
+        {
+            connP->net_context = atiny_net_connect(host, port, ATINY_PROTO_UDP);
+        }
+        else
+        {
+            connP->net_context = atiny_net_bind(host, port, ATINY_PROTO_UDP);
+
+            #ifdef LWM2M_BOOTSTRAP
+            if (connP->net_context)
+            {
+                connection_striger_server_initiated_bs(connP);
+                timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
+                timer_start(&connP->server_triger_timer);
+            }
+            #endif
+        }
 
         if (NULL == connP->net_context)
         {
-            ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");
-            lwm2m_free(connP);
-            return NULL;
+            ATINY_LOG(LOG_INFO, "net_context is NULL in connection_create");
+            goto fail;
         }
-
         connP->dtls_flag = false;
     }
 
@@ -208,11 +287,17 @@ connection_t* connection_create(connection_t* connList,
     connP->securityObj = securityObj;
     connP->securityInstId = instanceId;
     connP->lwm2mH = lwm2mH;
+    connP->bootstrap_flag = targetP->isBootstrap;
 
     return connP;
+
+fail:
+    lwm2m_free(connP);
+    return NULL;
+
 }
 
-void connection_free(connection_t* connP)
+void connection_free(connection_t *connP)
 {
     if(connP == NULL)
     {
@@ -233,17 +318,18 @@ void connection_free(connection_t* connP)
     return;
 }
 
-void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap_flag)
-{
-    client_data_t* dataP;
-    lwm2m_list_t* instance;
-    connection_t* newConnP = NULL;
-    lwm2m_object_t*   securityObj;
 
-    dataP = (client_data_t*)userData;
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer)
+{
+    client_data_t *dataP;
+    lwm2m_list_t *instance;
+    connection_t *newConnP = NULL;
+    lwm2m_object_t   *securityObj;
+
+    dataP = (client_data_t *)userData;
     securityObj = dataP->securityObjP;
 
-    ATINY_LOG(LOG_INFO, "Now come into Connection creation in lwm2m_connect_server.\n");
+    ATINY_LOG(LOG_INFO, "Now come into Connection creation in lwm2m_connect_server %d.\n", isServer);
 
     instance = LWM2M_LIST_FIND(dataP->securityObjP->instanceList, secObjInstID);
 
@@ -252,27 +338,27 @@ void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap
         return NULL;
     }
 
-    newConnP = connection_create(dataP->connList, securityObj, instance->id, dataP->lwm2mH);
+    newConnP = connection_create(dataP->connList, securityObj, instance->id, dataP->lwm2mH,
+                                isServer ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT);
 
     if (newConnP == NULL)
     {
         ATINY_LOG(LOG_INFO, "Connection creation failed.\n");
         return NULL;
     }
-    newConnP->bootstrap_flag = bootstrap_flag;
     ATINY_LOG(LOG_INFO, "Connection creation successfully in lwm2m_connect_server.\n");
     dataP->connList = newConnP;
 
-    return (void*)newConnP;
+    return (void *)newConnP;
 }
 
-void lwm2m_close_connection(void* sessionH, void* userData)
+void lwm2m_close_connection(void *sessionH, void *userData)
 {
-    client_data_t* app_data;
-    connection_t* targetP;
+    client_data_t *app_data;
+    connection_t *targetP;
 
-    app_data = (client_data_t*)userData;
-    targetP = (connection_t*)sessionH;
+    app_data = (client_data_t *)userData;
+    targetP = (connection_t *)sessionH;
 
     if (targetP == app_data->connList)
     {
@@ -282,7 +368,7 @@ void lwm2m_close_connection(void* sessionH, void* userData)
     }
     else
     {
-        connection_t* parentP;
+        connection_t *parentP;
 
         parentP = app_data->connList;
 
@@ -303,12 +389,12 @@ void lwm2m_close_connection(void* sessionH, void* userData)
 }
 
 
-int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t timeout)
+int lwm2m_buffer_recv(void *sessionH, uint8_t *buffer, size_t length, uint32_t timeout)
 {
-    connection_t* connP = (connection_t*) sessionH;
+    connection_t *connP = (connection_t *) sessionH;
     int ret = -1;
     const int TIME_OUT = -2;
-    
+
     timeout *= 1000;
 #ifdef WITH_DTLS
 
@@ -334,12 +420,12 @@ int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t t
     return ret;
 }
 
-uint8_t lwm2m_buffer_send(void* sessionH,
-                          uint8_t* buffer,
+uint8_t lwm2m_buffer_send(void *sessionH,
+                          uint8_t *buffer,
                           size_t length,
-                          void* userdata)
+                          void *userdata)
 {
-    connection_t* connP = (connection_t*) sessionH;
+    connection_t *connP = (connection_t *) sessionH;
     int ret;
 
     if (connP == NULL)
@@ -375,7 +461,7 @@ uint8_t lwm2m_buffer_send(void* sessionH,
     }
 }
 
-bool lwm2m_session_is_equal(void* session1, void* session2, void* userData)
+bool lwm2m_session_is_equal(void *session1, void *session2, void *userData)
 {
     return (session1 == session2);
 }
@@ -384,3 +470,39 @@ void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy)
 {
     g_connection_err_notify = nofiy;
 }
+
+#ifdef LWM2M_BOOTSTRAP
+void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH)
+{
+    if (sessionH == NULL)
+    {
+        return;
+    }
+    timer_step(&sessionH->server_triger_timer);
+}
+void lwm2m_stop_striger_server_initiated_bs(connection_t * sessionH)
+{
+    if (sessionH == NULL)
+    {
+        return;
+    }
+    timer_stop(&sessionH->server_triger_timer);
+}
+
+
+bool lwm2m_is_sec_obj_uri_valid(uint16_t secObjInstID, void *userData)
+{
+    client_data_t *dataP;
+    lwm2m_object_t   *securityObj;
+    dataP = (client_data_t *)userData;
+    securityObj = dataP->securityObjP;
+    security_instance_t *targetP;
+
+    targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj->instanceList, secObjInstID);
+    return !(((NULL == targetP)
+            || (targetP->uri == NULL)
+            || (targetP->uri[0] == '\0')));
+}
+#endif
+
+

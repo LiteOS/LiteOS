@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="ti.posix.freertos" version="1, 0, 0" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+    </sources>
+    <configscripts>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/package.cfg.dep" src="package.xdc"/>
+        <srcFile name="package/rel/ti_posix_freertos.zip.dep" src="package/rel/ti_posix_freertos.xdc.inc"/>
+    </makefiles>
+    <targets>
+    </targets>
+    <libraries>
+    </libraries>
+    <configurations>
+    </configurations>
+    <executables>
+    </executables>
+    <tests>
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="ti_posix_freertos"
+        pname="../../..//../exports/ti_posix_freertos.zip"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+        <file name="aeabi_portable.c"/>
+        <file name="Mtx.c"/>
+        <file name="Mtx.h"/>
+        <file name="PTLS.c"/>
+        <file name="PTLS.h"/>
+        <file name="reent.c"/>
+        <file name="clock.c"/>
+        <file name="memory.c"/>
+        <file name="mqueue.c"/>
+        <file name="pthread.c"/>
+        <file name="pthread_barrier.c"/>
+        <file name="pthread_cond.c"/>
+        <file name="pthread_mutex.c"/>
+        <file name="pthread_rwlock.c"/>
+        <file name="sched.c"/>
+        <file name="semaphore.c"/>
+        <file name="sleep.c"/>
+        <file name="timer.c"/>
+        <file name="package.bld"/>
+        <file name="package/package.cfg.xdc.inc"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

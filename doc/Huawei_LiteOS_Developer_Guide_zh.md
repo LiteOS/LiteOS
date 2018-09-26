@@ -2908,7 +2908,7 @@ Agent Tiny对外接口和依赖接口，可能存在的错误，统一用以下�
 **代码实现如下：**  
 ```  
 #define MAX_PSK_LEN 16
-#define DEFAULT_SERVER_IPV4 "139.159.209.89"
+#define DEFAULT_SERVER_IPV4 "192.168.0.5"
 #define DEFAULT_SERVER_PORT "5684"
 #define LWM2M_LIFE_TIME     50000
 char *  g_endpoint_name_s = "11110001";
@@ -3032,7 +3032,7 @@ void agent_tiny_entry(void)
 
 1. 登录OceanConncet测试平台：  
 
-<https://139.159.209.89:8843/index.html#/device>  
+<https://192.168.0.5:8843/index.html#/device>  
 
 请在OceanConnect平台上提前注册账号。  
 

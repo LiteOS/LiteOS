@@ -40,65 +40,71 @@ static unsigned char *from = NULL;		// to keep track of data sending
 static int howmany;				// ditto
 
 
-void transport_sendPacketBuffernb_start(int sock, unsigned char* buf, int buflen)
+void transport_sendPacketBuffernb_start(int sock, unsigned char *buf, int buflen)
 {
-	from = buf;			// from[sock] or mystruct[sock].from
-	howmany = buflen;		// myhowmany[sock] or mystruct[sock].howmany
+    from = buf;			// from[sock] or mystruct[sock].from
+    howmany = buflen;		// myhowmany[sock] or mystruct[sock].howmany
 }
 
 int transport_sendPacketBuffernb(int sock)
 {
-transport_iofunctions_t *myio = io;	// io[sock] or mystruct[sock].io
-int len;
+    transport_iofunctions_t *myio = io;	// io[sock] or mystruct[sock].io
+    int len;
 
-	/* you should have called open() with a valid pointer to a valid struct and 
-	called sendPacketBuffernb_start with a valid buffer, before calling this */
-	assert((myio != NULL) && (myio->send != NULL) && (from != NULL));
-	if((len = myio->send(from, howmany)) > 0){
-		from += len;
-		if((howmany -= len) <= 0){
-			return TRANSPORT_DONE;
-		}
-	} else if(len < 0){
-		return TRANSPORT_ERROR;
-	}
-	return TRANSPORT_AGAIN;
+    /* you should have called open() with a valid pointer to a valid struct and
+    called sendPacketBuffernb_start with a valid buffer, before calling this */
+    assert((myio != NULL) && (myio->send != NULL) && (from != NULL));
+    if((len = myio->send(from, howmany)) > 0)
+    {
+        from += len;
+        if((howmany -= len) <= 0)
+        {
+            return TRANSPORT_DONE;
+        }
+    }
+    else if(len < 0)
+    {
+        return TRANSPORT_ERROR;
+    }
+    return TRANSPORT_AGAIN;
 }
 
-int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
+int transport_sendPacketBuffer(int sock, unsigned char *buf, int buflen)
 {
-int rc;
+    int rc;
 
-	transport_sendPacketBuffernb_start(sock, buf, buflen);
-	while((rc=transport_sendPacketBuffernb(sock)) == TRANSPORT_AGAIN){
-		/* this is unlikely to loop forever unless there is a hardware problem */
-	}
-	if(rc == TRANSPORT_DONE){
-		return buflen;
-	}
-	return TRANSPORT_ERROR;
+    transport_sendPacketBuffernb_start(sock, buf, buflen);
+    while((rc = transport_sendPacketBuffernb(sock)) == TRANSPORT_AGAIN)
+    {
+        /* this is unlikely to loop forever unless there is a hardware problem */
+    }
+    if(rc == TRANSPORT_DONE)
+    {
+        return buflen;
+    }
+    return TRANSPORT_ERROR;
 }
 
 
-int transport_getdata(unsigned char* buf, int count)
+int transport_getdata(unsigned char *buf, int count)
 {
-	assert(0);		/* This function is NOT supported, it is just here to tease you */
-	return TRANSPORT_ERROR;	/* nah, it is here for similarity with other transport examples */
+    assert(0);		/* This function is NOT supported, it is just here to tease you */
+    return TRANSPORT_ERROR;	/* nah, it is here for similarity with other transport examples */
 }
 
-int transport_getdatanb(void *sck, unsigned char* buf, int count)
+int transport_getdatanb(void *sck, unsigned char *buf, int count)
 {
-//int sock = *((int *)sck); 		/* sck: pointer to whatever the system may use to identify the transport */
-transport_iofunctions_t *myio = io;	// io[sock] or mystruct[sock].io
-int len;
-	
-	/* you should have called open() with a valid pointer to a valid struct before calling this */
-	assert((myio != NULL) && (myio->recv != NULL));
-	/* this call will return immediately if no bytes, or return whatever outstanding bytes we have,
-	 upto count */
-	if((len = myio->recv(buf, count)) >= 0)
-		return len;
-	return TRANSPORT_ERROR;
+    //int sock = *((int *)sck); 		/* sck: pointer to whatever the system may use to identify the transport */
+    transport_iofunctions_t *myio = io;	// io[sock] or mystruct[sock].io
+    int len;
+
+    /* you should have called open() with a valid pointer to a valid struct before calling this */
+    assert((myio != NULL) && (myio->recv != NULL));
+    /* this call will return immediately if no bytes, or return whatever outstanding bytes we have,
+     upto count */
+    if((len = myio->recv(buf, count)) >= 0)
+        return len;
+    return TRANSPORT_ERROR;
 }
 
 /**
@@ -106,17 +112,17 @@ return >=0 for a connection descriptor, <0 for an error code
 */
 int transport_open(transport_iofunctions_t *thisio)
 {
-int idx=0;	// for multiple connections, you might, basically turn myio into myio[MAX_CONNECTIONS],
+    int idx = 0;	// for multiple connections, you might, basically turn myio into myio[MAX_CONNECTIONS],
 
-	//if((idx=assignidx()) >= MAX_CONNECTIONS)	// somehow assign an index,
-	//	return TRANSPORT_ERROR;
-	io = thisio;					// store myio[idx] = thisio, or mystruct[idx].io = thisio, 
-	return idx;					// and return the index used
+    //if((idx=assignidx()) >= MAX_CONNECTIONS)	// somehow assign an index,
+    //	return TRANSPORT_ERROR;
+    io = thisio;					// store myio[idx] = thisio, or mystruct[idx].io = thisio,
+    return idx;					// and return the index used
 }
 
 int transport_close(int sock)
 {
-int rc=TRANSPORT_DONE;
+    int rc = TRANSPORT_DONE;
 
-	return rc;
+    return rc;
 }

@@ -1,0 +1,180 @@
+//*****************************************************************************
+// cc3220sf.icf
+//
+// IAR Linker configuration file.
+//
+// Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
+//
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
+//  are met:
+//
+//    Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+//    Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the
+//    distribution.
+//
+//    Neither the name of Texas Instruments Incorporated nor the names of
+//    its contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+//  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+//  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+//  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+//  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+//  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//*****************************************************************************
+
+//
+// Define a memory region that covers the entire 4 GB addressable space of the
+// processor.
+//
+define memory mem with size = 4G;
+
+//
+// Define a region for the on-chip flash.
+//
+define region FLASH_HDR = mem:[from 0x01000000 to 0x010007FF];
+define region FLASH = mem:[from 0x01000800 to 0x010FFFFF];
+
+//
+// Define a region for the on-chip SRAM.
+define region SRAM = mem:[from 0x20000000 to 0x20040000];
+
+//
+// Keep the debug header
+//
+keep {section .dbghdr};
+place at start of FLASH_HDR { readonly section .dbghdr };
+
+//
+// Define a block for the heap.  The size should be set to something other
+// than zero if things in the C library that require the heap are used.
+//
+define block HEAP with alignment = 8, size = 0x00008000 { };
+keep {readonly section .cmdtbl};
+define block CmdTbl {section .cmdtbl };
+
+//
+// Indicate that the noinit values should be left alone.  This includes the
+// stack, which if initialized will destroy the return address from the
+// initialization code, causing the processor to branch to zero and fault.
+//
+do not initialize { section .noinit };
+
+define symbol STACKSIZE = 1024;
+define block CSTACK with alignment = 8, size = STACKSIZE { section .stack };
+do not initialize { section .stack};
+place at end of SRAM { block CSTACK };
+
+
+/* HeapMem Primary Heap configuration */
+define symbol HEAPSIZE = 0x8000;
+define block primary_heap with size = HEAPSIZE {};
+
+/* place heap just before CSTACK */
+place at end of SRAM { block primary_heap };
+
+/* define buffer start and end symbols for HeapMem Primary Heap */
+define exported symbol __primary_heap_end__ = end(SRAM)-STACKSIZE;
+define exported symbol __primary_heap_start__ = __primary_heap_end__ - HEAPSIZE;
+
+//-----------------------------------------------------------
+initialize by copy { readwrite };
+//-----------------------------------------------------------
+
+//
+// Place the interrupt vectors at the start of flash.
+// Define Flash = 0 if application doesn't use Flash memory
+// else define Flash = 1
+//
+define symbol Flash = 1;
+
+if (!isdefinedsymbol(Flash))
+{
+//-----------------------------------------------------------
+place at start of SRAM { readonly section .intvec };
+//-----------------------------------------------------------
+
+//
+// Place the remainder of the read-only items into flash.
+//
+place in SRAM { readonly };
+
+//
+// Place the RAM vector table at the start of SRAM.
+//
+
+//-----------------------------------------------------------
+place in SRAM { section VTABLE };
+//------------------------------------------------------------
+
+//
+// Place all read/write items into SRAM.
+//
+
+place in SRAM { block CmdTbl };
+place in SRAM { readwrite, block HEAP };
+}
+else if (!Flash)
+{
+//-----------------------------------------------------------
+place at start of SRAM { readonly section .intvec };
+//-----------------------------------------------------------
+
+//
+// Place the remainder of the read-only items into flash.
+//
+place in SRAM { readonly };
+
+//
+// Place the RAM vector table at the start of SRAM.
+//
+
+//-----------------------------------------------------------
+place in SRAM { section VTABLE };
+//------------------------------------------------------------
+
+//
+// Place all read/write items into SRAM.
+//
+
+place in SRAM { block CmdTbl };
+place in SRAM { readwrite, block HEAP };
+}
+else
+{
+  //-----------------------------------------------------------
+  place at start of FLASH { readonly section .intvec };
+  //-----------------------------------------------------------
+
+  //
+  // Place the remainder of the read-only items into flash.
+  //
+  place in FLASH { readonly };
+  place in FLASH { block CmdTbl };
+
+  //
+  // Place the RAM vector table at the start of SRAM.
+  //
+
+  //-----------------------------------------------------------
+  place in SRAM { section VTABLE };
+  //------------------------------------------------------------
+
+  //
+  // Place all read/write items into SRAM.
+  //
+  place in SRAM { readwrite, block HEAP };
+}

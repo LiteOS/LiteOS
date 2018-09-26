@@ -153,12 +153,12 @@ VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UINT32 uwPid, EXC_CO
  */
 VOID osExcInit(UINT32 uwArraySize);
 
-extern VOID osExcNMI(VOID);
-extern VOID osExcHardFault(VOID);
-extern VOID osExcMemFault(VOID);
-extern VOID osExcBusFault(VOID);
-extern VOID osExcUsageFault(VOID);
-extern VOID osExcSvcCall(VOID);
+extern VOID NMI_Handler(VOID);
+extern VOID HardFault_Handler(VOID);
+extern VOID MemManage_Handler(VOID);
+extern VOID BusFault_Handler(VOID);
+extern VOID UsageFault_Handler(VOID);
+extern VOID SVC_Handler(VOID);
 extern VOID osBackTrace(VOID);
 extern UINT8 m_aucTaskArray[];
 
@@ -343,7 +343,6 @@ void LOS_Panic(const char * fmt, ...);
  */
 #define OS_EXC_CAUSE_FATAL_ERR     27
 
-
 /**
  *@ingroup los_exc
  * 异常信息结构体
@@ -359,6 +358,8 @@ typedef struct tagExcInfo
     UINT32 uwThrdPid;            /**< 在中断中发生异常，表示中断号。在任务中发生异常，表示任务id，如果发生在初始化中，则为0xffffffff */
     UINT16 usNestCnt;            /**< 异常嵌套个数，目前仅支持第一次进入异常时执行注册的钩子函数 */
     UINT16 usFpuContext;         /**< 是否保存浮点寄存器，1表示需要保存浮点寄存器 */
+    UINT32 uwCallStackDepth;     /**< 异常时调用栈分析深度 */
+    UINT32 uwCallStack[LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH];  /**< 函数调用地址 */
     EXC_CONTEXT_S *pstContext;   /**< 异常发生时的寄存器值，由usFpuContext决定寄存器中是否包含浮点寄存器的值 */
 }EXC_INFO_S;
 

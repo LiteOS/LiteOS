@@ -136,14 +136,11 @@ LITE_OS_SEC_TEXT WEAK VOID osIdleTask(VOID)
     while (1)
     {
 #if (LOSCFG_KERNEL_TICKLESS == YES)
-        if (g_bTickIrqFlag)
-        {
-            g_bTickIrqFlag = 0;
-            osTicklessStart();
-        }
-#endif
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
+        osTicklessHandler();
+#else
+    #if (LOSCFG_KERNEL_RUNSTOP == YES)
         osEnterSleep();
+    #endif
 #endif
     }
 }

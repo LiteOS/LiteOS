@@ -76,28 +76,31 @@
 #define MAX_DATA_VAL 65535
 
 typedef struct acc_ctrl_ri_s
-{   // linked list:
-    struct acc_ctrl_ri_s*   next;       // matches lwm2m_list_t::next
+{
+    // linked list:
+    struct acc_ctrl_ri_s   *next;       // matches lwm2m_list_t::next
     uint16_t                resInstId;  // matches lwm2m_list_t::id, ..serverID
     // resource data:
     uint16_t                accCtrlValue;
 } acc_ctrl_ri_t;
 
 typedef struct acc_ctrl_oi_s
-{   //linked list:
-    struct acc_ctrl_oi_s*   next;       // matches lwm2m_list_t::next
+{
+    //linked list:
+    struct acc_ctrl_oi_s   *next;       // matches lwm2m_list_t::next
     uint16_t                objInstId;  // matches lwm2m_list_t::id
     // resources
     uint16_t                objectId;
     uint16_t                objectInstId;
     uint16_t                accCtrlOwner;
-    acc_ctrl_ri_t*          accCtrlValList;
+    acc_ctrl_ri_t          *accCtrlValList;
 } acc_ctrl_oi_t;
 
 
-static uint8_t prv_set_tlv(lwm2m_data_t* dataP, acc_ctrl_oi_t* accCtrlOiP)
+static uint8_t prv_set_tlv(lwm2m_data_t *dataP, acc_ctrl_oi_t *accCtrlOiP)
 {
-    switch (dataP->id) {
+    switch (dataP->id)
+    {
     case RES_M_OBJECT_ID:
         lwm2m_data_encode_int(accCtrlOiP->objectId, dataP);
         return COAP_205_CONTENT;
@@ -107,22 +110,22 @@ static uint8_t prv_set_tlv(lwm2m_data_t* dataP, acc_ctrl_oi_t* accCtrlOiP)
     case RES_O_ACL:
     {
         int ri;
-        acc_ctrl_ri_t* accCtrlRiP;
-        for (accCtrlRiP =accCtrlOiP->accCtrlValList, ri=0;
-             accCtrlRiP!=NULL;
-             accCtrlRiP = accCtrlRiP->next, ri++);
+        acc_ctrl_ri_t *accCtrlRiP;
+        for (accCtrlRiP = accCtrlOiP->accCtrlValList, ri = 0;
+                accCtrlRiP != NULL;
+                accCtrlRiP = accCtrlRiP->next, ri++);
 
-        if (ri==0)  // no values!
+        if (ri == 0) // no values!
         {
             return COAP_404_NOT_FOUND;
         }
         else
         {
-            lwm2m_data_t* subTlvP = lwm2m_data_new(ri);
+            lwm2m_data_t *subTlvP = lwm2m_data_new(ri);
             if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;
             for (accCtrlRiP = accCtrlOiP->accCtrlValList, ri = 0;
-                 accCtrlRiP!= NULL;
-                 accCtrlRiP = accCtrlRiP->next, ri++)
+                    accCtrlRiP != NULL;
+                    accCtrlRiP = accCtrlRiP->next, ri++)
             {
                 subTlvP[ri].id = accCtrlRiP->resInstId;
                 lwm2m_data_encode_int(accCtrlRiP->accCtrlValue, &subTlvP[ri]);
@@ -139,14 +142,14 @@ static uint8_t prv_set_tlv(lwm2m_data_t* dataP, acc_ctrl_oi_t* accCtrlOiP)
     }
 }
 
-static uint8_t prv_read(uint16_t instanceId, int * numDataP,
-                        lwm2m_data_t** dataArrayP, lwm2m_data_cfg_t * dataCfg,lwm2m_object_t * objectP)
+static uint8_t prv_read(uint16_t instanceId, int *numDataP,
+                        lwm2m_data_t **dataArrayP, lwm2m_data_cfg_t *dataCfg, lwm2m_object_t *objectP)
 {
     uint8_t result;
     int     ri, ni;
 
     // multi-instance object: search instance
-    acc_ctrl_oi_t* accCtrlOiP =
+    acc_ctrl_oi_t *accCtrlOiP =
         (acc_ctrl_oi_t *)lwm2m_list_find(objectP->instanceList, instanceId);
     if (accCtrlOiP == NULL)
     {
@@ -156,11 +159,12 @@ static uint8_t prv_read(uint16_t instanceId, int * numDataP,
     // is the server asking for the full object ?
     if (*numDataP == 0)
     {
-        uint16_t resList[] = {
-                RES_M_OBJECT_ID,
-                RES_M_OBJECT_INSTANCE_ID,
-                RES_O_ACL,  // prv_set_tlv will return COAP_404_NOT_FOUND w/o values!
-                RES_M_ACCESS_CONTROL_OWNER
+        uint16_t resList[] =
+        {
+            RES_M_OBJECT_ID,
+            RES_M_OBJECT_INSTANCE_ID,
+            RES_O_ACL,  // prv_set_tlv will return COAP_404_NOT_FOUND w/o values!
+            RES_M_ACCESS_CONTROL_OWNER
         };
         int nbRes = sizeof(resList) / sizeof(uint16_t);
 
@@ -178,28 +182,30 @@ static uint8_t prv_read(uint16_t instanceId, int * numDataP,
     do
     {
         result = prv_set_tlv((*dataArrayP) + ni, accCtrlOiP);
-        if (result==COAP_404_NOT_FOUND) {
+        if (result == COAP_404_NOT_FOUND)
+        {
             ri++;
-            if (*numDataP>1) result = COAP_205_CONTENT;
+            if (*numDataP > 1) result = COAP_205_CONTENT;
         }
         else if (ri > 0)    // copy new one by ri skipped ones in front
         {
-            (*dataArrayP)[ni-ri] = (*dataArrayP)[ni];
+            (*dataArrayP)[ni - ri] = (*dataArrayP)[ni];
         }
         ni++;
-    } while (ni < *numDataP && result == COAP_205_CONTENT);
-    *numDataP = ni-ri;
+    }
+    while (ni < *numDataP && result == COAP_205_CONTENT);
+    *numDataP = ni - ri;
 
     return result;
 }
 
-static bool prv_add_ac_val(acc_ctrl_oi_t* accCtrlOiP,
+static bool prv_add_ac_val(acc_ctrl_oi_t *accCtrlOiP,
                            uint16_t acResId, uint16_t acValue)
 {
     bool ret = false;
     acc_ctrl_ri_t *accCtrlRiP;
     accCtrlRiP = (acc_ctrl_ri_t *)lwm2m_malloc(sizeof(acc_ctrl_ri_t));
-    if (accCtrlRiP==NULL)
+    if (accCtrlRiP == NULL)
     {
         return ret;
     }
@@ -209,24 +215,24 @@ static bool prv_add_ac_val(acc_ctrl_oi_t* accCtrlOiP,
         accCtrlRiP->resInstId      = acResId;
         accCtrlRiP->accCtrlValue   = acValue;
 
-        accCtrlOiP->accCtrlValList = (acc_ctrl_ri_t*)
-                LWM2M_LIST_ADD(accCtrlOiP->accCtrlValList, accCtrlRiP);
+        accCtrlOiP->accCtrlValList = (acc_ctrl_ri_t *)
+                                     LWM2M_LIST_ADD(accCtrlOiP->accCtrlValList, accCtrlRiP);
         ret = true;
     }
     return ret;
 }
 
 static uint8_t prv_write_resources(uint16_t instanceId, int numData,
-               lwm2m_data_t* tlvArray, lwm2m_object_t* objectP, bool doCreate)
+                                   lwm2m_data_t *tlvArray, lwm2m_object_t *objectP, bool doCreate)
 {
     int i;
     uint8_t result = COAP_NO_ERROR;
     int64_t value;
-    lwm2m_data_t* subTlvArray;
+    lwm2m_data_t *subTlvArray;
     int ri;
 
-    acc_ctrl_oi_t* accCtrlOiP = (acc_ctrl_oi_t *)
-            lwm2m_list_find(objectP->instanceList, instanceId);
+    acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)
+                                lwm2m_list_find(objectP->instanceList, instanceId);
     if (NULL == accCtrlOiP)
         return COAP_404_NOT_FOUND ;
 
@@ -236,7 +242,7 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
         switch (tlvArray[i].id)
         {
         case RES_M_OBJECT_ID:
-            if (doCreate==false)
+            if (doCreate == false)
             {
                 result = COAP_405_METHOD_NOT_ALLOWED;
             }
@@ -258,7 +264,7 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
             }
             break;
         case RES_M_OBJECT_INSTANCE_ID:
-            if (doCreate==false)
+            if (doCreate == false)
             {
                 result = COAP_405_METHOD_NOT_ALLOWED;
             }
@@ -281,7 +287,7 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
             break;
         case RES_O_ACL:
         {
-            if (tlvArray[i].type!= LWM2M_TYPE_MULTIPLE_RESOURCE)
+            if (tlvArray[i].type != LWM2M_TYPE_MULTIPLE_RESOURCE)
             {
                 result = COAP_400_BAD_REQUEST;
             }
@@ -291,7 +297,7 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
                 // see LWM2M-TS:5.4.3 (wakaama has no part-update switch)
 
                 // 1st: save accValueList!
-                acc_ctrl_ri_t* acValListSave = accCtrlOiP->accCtrlValList;
+                acc_ctrl_ri_t *acValListSave = accCtrlOiP->accCtrlValList;
                 accCtrlOiP->accCtrlValList = NULL;
 
                 subTlvArray = tlvArray[i].value.asChildren.array;
@@ -300,13 +306,13 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
                 {
                     result = COAP_204_CHANGED;
                 }
-                else if (subTlvArray==NULL)
+                else if (subTlvArray == NULL)
                 {
                     result = COAP_400_BAD_REQUEST;
                 }
                 else
                 {
-                    for (ri=0; ri < tlvArray[i].value.asChildren.count; ri++)
+                    for (ri = 0; ri < tlvArray[i].value.asChildren.count; ri++)
                     {
                         if (1 != lwm2m_data_decode_int(&subTlvArray[ri], &value))
                         {
@@ -319,7 +325,7 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
                             break;
                         }
                         else if (!prv_add_ac_val(accCtrlOiP, subTlvArray[ri].id,
-                                                             (uint16_t)value))
+                                                 (uint16_t)value))
                         {
                             result = COAP_500_INTERNAL_SERVER_ERROR;
                             break;
@@ -344,8 +350,10 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
                     LWM2M_LIST_FREE(acValListSave);
                 }
             }
-        }   break;
-        case RES_M_ACCESS_CONTROL_OWNER: {
+        }
+        break;
+        case RES_M_ACCESS_CONTROL_OWNER:
+        {
             if (1 == lwm2m_data_decode_int(tlvArray + i, &value))
             {
                 if (value >= 0 && value <= MAX_DATA_VAL)
@@ -363,28 +371,29 @@ static uint8_t prv_write_resources(uint16_t instanceId, int numData,
                 result = COAP_400_BAD_REQUEST;
             }
         }
-            break;
+        break;
         default:
             return COAP_404_NOT_FOUND ;
         }
         i++;
-    } while (i < numData && result == COAP_204_CHANGED );
+    }
+    while (i < numData && result == COAP_204_CHANGED );
 
     return result;
 }
 
 static uint8_t prv_write(uint16_t instanceId, int numData,
-                         lwm2m_data_t* tlvArray, lwm2m_object_t* objectP)
+                         lwm2m_data_t *tlvArray, lwm2m_object_t *objectP)
 {
     return prv_write_resources(instanceId, numData, tlvArray, objectP, false);
 }
 
-static uint8_t prv_delete(uint16_t id, lwm2m_object_t * objectP)
+static uint8_t prv_delete(uint16_t id, lwm2m_object_t *objectP)
 {
-    acc_ctrl_oi_t* targetP;
+    acc_ctrl_oi_t *targetP;
 
     objectP->instanceList = lwm2m_list_remove(objectP->instanceList, id,
-                                              (lwm2m_list_t**)&targetP);
+                            (lwm2m_list_t **)&targetP);
     if (NULL == targetP) return COAP_404_NOT_FOUND;
 
     LWM2M_LIST_FREE(targetP->accCtrlValList);
@@ -394,9 +403,9 @@ static uint8_t prv_delete(uint16_t id, lwm2m_object_t * objectP)
 }
 
 static uint8_t prv_create(uint16_t objInstId, int numData,
-                          lwm2m_data_t * tlvArray, lwm2m_object_t * objectP)
+                          lwm2m_data_t *tlvArray, lwm2m_object_t *objectP)
 {
-    acc_ctrl_oi_t * targetP;
+    acc_ctrl_oi_t *targetP;
     uint8_t result;
 
     targetP = (acc_ctrl_oi_t *)lwm2m_malloc(sizeof(acc_ctrl_oi_t));
@@ -422,13 +431,13 @@ static uint8_t prv_create(uint16_t objInstId, int numData,
 /*
  * Create an empty multiple instance LWM2M Object: Access Control
  */
-lwm2m_object_t * acc_ctrl_create_object(void)
+lwm2m_object_t *acc_ctrl_create_object(void)
 {
     /*
      * The acc_ctrl_create_object() function creates an empty object
      * and returns a pointer to the structure that represents it.
      */
-    lwm2m_object_t* accCtrlObj = NULL;
+    lwm2m_object_t *accCtrlObj = NULL;
 
     accCtrlObj = (lwm2m_object_t *) lwm2m_malloc(sizeof(lwm2m_object_t));
 
@@ -449,10 +458,10 @@ lwm2m_object_t * acc_ctrl_create_object(void)
     return accCtrlObj;
 }
 
-void acl_ctrl_free_object(lwm2m_object_t * objectP)
+void acl_ctrl_free_object(lwm2m_object_t *objectP)
 {
     acc_ctrl_oi_t *accCtrlOiT;
-    acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t*)objectP->instanceList;
+    acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)objectP->instanceList;
     while (accCtrlOiP != NULL)
     {
         // first free acl (multiple resource!):
@@ -464,8 +473,8 @@ void acl_ctrl_free_object(lwm2m_object_t * objectP)
     lwm2m_free(objectP);
 }
 
-bool  acc_ctrl_obj_add_inst (lwm2m_object_t* accCtrlObjP, uint16_t instId,
-                uint16_t acObjectId, uint16_t acObjInstId, uint16_t acOwner)
+bool  acc_ctrl_obj_add_inst (lwm2m_object_t *accCtrlObjP, uint16_t instId,
+                             uint16_t acObjectId, uint16_t acObjInstId, uint16_t acOwner)
 {
     bool ret = false;
 
@@ -476,7 +485,7 @@ bool  acc_ctrl_obj_add_inst (lwm2m_object_t* accCtrlObjP, uint16_t instId,
     else
     {
         // create an access control object instance
-        acc_ctrl_oi_t* accCtrlOiP;
+        acc_ctrl_oi_t *accCtrlOiP;
         accCtrlOiP = (acc_ctrl_oi_t *)lwm2m_malloc(sizeof(acc_ctrl_oi_t));
         if (NULL == accCtrlOiP)
         {
@@ -493,29 +502,29 @@ bool  acc_ctrl_obj_add_inst (lwm2m_object_t* accCtrlObjP, uint16_t instId,
             accCtrlOiP->accCtrlOwner = acOwner;
 
             accCtrlObjP->instanceList =
-                    LWM2M_LIST_ADD(accCtrlObjP->instanceList, accCtrlOiP);
+                LWM2M_LIST_ADD(accCtrlObjP->instanceList, accCtrlOiP);
             ret = true;
         }
     }
     return ret;
 }
 
-bool acc_ctrl_oi_add_ac_val (lwm2m_object_t* accCtrlObjP, uint16_t instId,
+bool acc_ctrl_oi_add_ac_val (lwm2m_object_t *accCtrlObjP, uint16_t instId,
                              uint16_t acResId, uint16_t acValue)
 {
     bool ret = false;
 
-    acc_ctrl_oi_t* accCtrlOiP = (acc_ctrl_oi_t *)
-            lwm2m_list_find(accCtrlObjP->instanceList, instId);
+    acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)
+                                lwm2m_list_find(accCtrlObjP->instanceList, instId);
     if (NULL == accCtrlOiP)
         return ret;
 
     return prv_add_ac_val (accCtrlOiP, acResId, acValue);
 }
 
-static acc_ctrl_oi_t* prv_get_acc_instance(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, uint16_t instId)
+static acc_ctrl_oi_t *prv_get_acc_instance(acc_ctrl_oi_t *accCtrlOiP, uint16_t objId, uint16_t instId)
 {
-    acc_ctrl_oi_t* itor = accCtrlOiP;
+    acc_ctrl_oi_t *itor = accCtrlOiP;
 
     while (itor)
     {
@@ -529,9 +538,9 @@ static acc_ctrl_oi_t* prv_get_acc_instance(acc_ctrl_oi_t* accCtrlOiP, uint16_t o
     return NULL;
 }
 
-static acc_ctrl_ri_t* prv_get_acl_instance(acc_ctrl_ri_t* accCtrlRiP, uint16_t serverId)
+static acc_ctrl_ri_t *prv_get_acl_instance(acc_ctrl_ri_t *accCtrlRiP, uint16_t serverId)
 {
-    acc_ctrl_ri_t* targetP;
+    acc_ctrl_ri_t *targetP;
 
     targetP = (acc_ctrl_ri_t *)LWM2M_LIST_FIND(accCtrlRiP, serverId);
     if (NULL == targetP)
@@ -547,11 +556,11 @@ static inline bool prv_auth_match(OBJ_ACC_OPERATE op, uint16_t auth_op)
     return auth_op & (0x01 << op);
 }
 
-static bool prv_check_instance_auth(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, uint16_t instId,
+static bool prv_check_instance_auth(acc_ctrl_oi_t *accCtrlOiP, uint16_t objId, uint16_t instId,
                                     uint16_t serverId, OBJ_ACC_OPERATE op)
 {
-    acc_ctrl_oi_t* targetP;
-    acc_ctrl_ri_t* accCtrlRiP;
+    acc_ctrl_oi_t *targetP;
+    acc_ctrl_ri_t *accCtrlRiP;
 
     targetP = prv_get_acc_instance(accCtrlOiP, objId, instId);
     if (NULL == targetP)
@@ -566,14 +575,14 @@ static bool prv_check_instance_auth(acc_ctrl_oi_t* accCtrlOiP, uint16_t objId, u
     return prv_auth_match(op, accCtrlRiP->accCtrlValue);
 }
 
-static uint8_t prv_acc_self_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* uri,
+static uint8_t prv_acc_self_auth_check(acc_ctrl_oi_t *accCtrlOiP, lwm2m_uri_t *uri,
                                        OBJ_ACC_OPERATE op, uint16_t serverId)
 {
-    acc_ctrl_oi_t* targetP;
+    acc_ctrl_oi_t *targetP;
 
     if (LWM2M_URI_IS_SET_INSTANCE(uri))
     {
-        targetP = (acc_ctrl_oi_t*)LWM2M_LIST_FIND(accCtrlOiP, uri->instanceId);
+        targetP = (acc_ctrl_oi_t *)LWM2M_LIST_FIND(accCtrlOiP, uri->instanceId);
         if (NULL != targetP && targetP->accCtrlOwner == serverId)
         {
             return COAP_NO_ERROR;
@@ -598,7 +607,7 @@ static uint8_t prv_acc_self_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* u
     }
 }
 
-static uint8_t prv_pre_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* uri,
+static uint8_t prv_pre_auth_check(acc_ctrl_oi_t *accCtrlOiP, lwm2m_uri_t *uri,
                                   OBJ_ACC_OPERATE op, uint16_t serverId)
 {
     if (OBJ_ACC_CREATE == op)
@@ -632,7 +641,7 @@ static uint8_t prv_pre_auth_check(acc_ctrl_oi_t* accCtrlOiP, lwm2m_uri_t* uri,
     return COAP_NO_ERROR;
 }
 
-static uint8_t prv_post_action_check(lwm2m_uri_t* uri, OBJ_ACC_OPERATE op)
+static uint8_t prv_post_action_check(lwm2m_uri_t *uri, OBJ_ACC_OPERATE op)
 {
     if (LWM2M_URI_IS_SET_RESOURCE(uri))
     {
@@ -656,7 +665,7 @@ static uint8_t prv_post_action_check(lwm2m_uri_t* uri, OBJ_ACC_OPERATE op)
     }
     else
     {
-        if (OBJ_ACC_WRITE_ATTR == op|| OBJ_ACC_CREATE == op)
+        if (OBJ_ACC_WRITE_ATTR == op || OBJ_ACC_CREATE == op)
         {
             return COAP_NO_ERROR;
         }
@@ -676,9 +685,9 @@ static uint8_t prv_post_action_check(lwm2m_uri_t* uri, OBJ_ACC_OPERATE op)
     }
 }
 
-static int prv_get_srv_cnt(lwm2m_server_t* serverP)
+static int prv_get_srv_cnt(lwm2m_server_t *serverP)
 {
-    lwm2m_server_t* itor = serverP;
+    lwm2m_server_t *itor = serverP;
     int cnt = 0;
 
     while (itor)
@@ -693,12 +702,12 @@ static int prv_get_srv_cnt(lwm2m_server_t* serverP)
     return cnt;
 }
 
-uint8_t acc_auth_operate(lwm2m_context_t* contextP, lwm2m_uri_t* uri,
+uint8_t acc_auth_operate(lwm2m_context_t *contextP, lwm2m_uri_t *uri,
                          OBJ_ACC_OPERATE op, uint16_t serverId)
 {
     uint8_t ret;
-    lwm2m_object_t* accCtrlObjP;
-    acc_ctrl_oi_t* accCtrlOiP;
+    lwm2m_object_t *accCtrlObjP;
+    acc_ctrl_oi_t *accCtrlOiP;
 
     if (prv_get_srv_cnt(contextP->serverList) <= 1)
     {

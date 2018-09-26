@@ -67,7 +67,7 @@ typedef struct _prv_instance_
      * The first two are mandatories and represent the pointer to the next instance and the ID of this one. The rest
      * is the instance scope user data (uint8_t test in this case)
      */
-    struct _prv_instance_ * next;   // matches lwm2m_list_t::next
+    struct _prv_instance_ *next;    // matches lwm2m_list_t::next
     uint16_t shortID;               // matches lwm2m_list_t::id
     rpt_list_t header;
     uint8_t  test;
@@ -77,7 +77,7 @@ typedef struct _prv_instance_
 } plat_instance_t;
 
 #define ARRAY_MAXNUM  16
-static void prv_output_buffer(uint8_t * buffer,
+static void prv_output_buffer(uint8_t *buffer,
                               int length)
 {
     int i;
@@ -89,9 +89,9 @@ static void prv_output_buffer(uint8_t * buffer,
         int j;
         fprintf(stderr, "  ");
 
-        memcpy(array, buffer+i, ARRAY_MAXNUM);
+        memcpy(array, buffer + i, ARRAY_MAXNUM);
 
-        for (j = 0 ; j < ARRAY_MAXNUM && i+j < length; j++)
+        for (j = 0 ; j < ARRAY_MAXNUM && i + j < length; j++)
         {
             fprintf(stderr, "%02X ", array[j]);
         }
@@ -101,7 +101,7 @@ static void prv_output_buffer(uint8_t * buffer,
             j++;
         }
         fprintf(stderr, "  ");
-        for (j = 0 ; j < ARRAY_MAXNUM && i+j < length; j++)
+        for (j = 0 ; j < ARRAY_MAXNUM && i + j < length; j++)
         {
             if (isprint(array[j]))
                 fprintf(stderr, "%c ", array[j]);
@@ -114,10 +114,10 @@ static void prv_output_buffer(uint8_t * buffer,
     }
 }
 
-static uint8_t prv_read_data(plat_instance_t * targetP,
-                        int data_number,
-                        lwm2m_data_t *dataArrayP,
-                        lwm2m_data_cfg_t* dataCfg)
+static uint8_t prv_read_data(plat_instance_t *targetP,
+                             int data_number,
+                             lwm2m_data_t *dataArrayP,
+                             lwm2m_data_cfg_t *dataCfg)
 {
     int i;
     data_report_t data;
@@ -127,47 +127,47 @@ static uint8_t prv_read_data(plat_instance_t * targetP,
     {
         switch (dataArrayP[i].id)
         {
-            case 0:
-                //printf("19/0/0 read\r\n");
-                if(NULL == dataCfg)
+        case 0:
+            //printf("19/0/0 read\r\n");
+            if(NULL == dataCfg)
+            {
+                uint8_t *buf = lwm2m_malloc(sizeof(*buf));
+                if(NULL == buf)
                 {
-                     uint8_t *buf = lwm2m_malloc(sizeof(*buf));
-                     if(NULL == buf)
-                     {
-                        ATINY_LOG(LOG_ERR, "malloc null");
-                        return COAP_404_NOT_FOUND;
-                     }
-                     *buf = 0;
-                     dataArrayP[i].id = 0;
-                     dataArrayP[i].type = LWM2M_TYPE_OPAQUE;
-                     dataArrayP[i].value.asBuffer.buffer = buf;
-                     dataArrayP[i].value.asBuffer.length = 1;
+                    ATINY_LOG(LOG_ERR, "malloc null");
+                    return COAP_404_NOT_FOUND;
+                }
+                *buf = 0;
+                dataArrayP[i].id = 0;
+                dataArrayP[i].type = LWM2M_TYPE_OPAQUE;
+                dataArrayP[i].value.asBuffer.buffer = buf;
+                dataArrayP[i].value.asBuffer.length = 1;
+            }
+            else
+            {
+                ret = atiny_dequeue_rpt_data((targetP->header), &data);
+                if (ret != ATINY_OK)
+                {
+                    ATINY_LOG(LOG_INFO, "atiny_dequeue_rpt_data fail,ret=%d", ret);
+                    return COAP_404_NOT_FOUND;
                 }
                 else
                 {
-                    ret = atiny_dequeue_rpt_data((targetP->header), &data);
-                    if (ret != ATINY_OK)
-                    {
-                        ATINY_LOG(LOG_INFO, "atiny_dequeue_rpt_data fail,ret=%d", ret);
-                        return COAP_404_NOT_FOUND;
-                    }
-                    else
-                    {
-                        ATINY_LOG(LOG_DEBUG, "atiny_dequeue_rpt_data sucessfully");
-                    }
-
-                    dataArrayP[i].id = 0;
-                    dataArrayP[i].type = LWM2M_TYPE_OPAQUE;
-                    dataArrayP[i].value.asBuffer.buffer = data.buf;
-                    dataArrayP[i].value.asBuffer.length = data.len;
-                    dataCfg->type = data.type;
-                    dataCfg->cookie = data.cookie;
-                    dataCfg->callback = (lwm2m_data_process)data.callback;
+                    ATINY_LOG(LOG_DEBUG, "atiny_dequeue_rpt_data sucessfully");
                 }
-                break;
-            default:
-                return COAP_404_NOT_FOUND;
-         }
+
+                dataArrayP[i].id = 0;
+                dataArrayP[i].type = LWM2M_TYPE_OPAQUE;
+                dataArrayP[i].value.asBuffer.buffer = data.buf;
+                dataArrayP[i].value.asBuffer.length = data.len;
+                dataCfg->type = data.type;
+                dataCfg->cookie = data.cookie;
+                dataCfg->callback = (lwm2m_data_process)data.callback;
+            }
+            break;
+        default:
+            return COAP_404_NOT_FOUND;
+        }
     }
 
     return COAP_205_CONTENT;
@@ -180,16 +180,16 @@ static void prv_destroy_data_buf(int data_number, lwm2m_data_t *data_array)
     {
         switch (data_array[i].id)
         {
-          case 0:
-              if(data_array[i].value.asBuffer.buffer != NULL)
-              {
-                  lwm2m_free(data_array[i].value.asBuffer.buffer);
-                  data_array[i].value.asBuffer.buffer = NULL;
-                  data_array[i].value.asBuffer.length = 0;
-              }
-              break;
-          default:
-              break;
+        case 0:
+            if(data_array[i].value.asBuffer.buffer != NULL)
+            {
+                lwm2m_free(data_array[i].value.asBuffer.buffer);
+                data_array[i].value.asBuffer.buffer = NULL;
+                data_array[i].value.asBuffer.length = 0;
+            }
+            break;
+        default:
+            break;
         }
 
     }
@@ -197,12 +197,12 @@ static void prv_destroy_data_buf(int data_number, lwm2m_data_t *data_array)
 }
 
 static uint8_t prv_read(uint16_t instanceId,
-                        int * numDataP,
-                        lwm2m_data_t ** dataArrayP,
-                        lwm2m_data_cfg_t* dataCfg,
-                        lwm2m_object_t * objectP)
+                        int *numDataP,
+                        lwm2m_data_t **dataArrayP,
+                        lwm2m_data_cfg_t *dataCfg,
+                        lwm2m_object_t *objectP)
 {
-    plat_instance_t * targetP;
+    plat_instance_t *targetP;
     uint8_t ret;
     int new_data_flag = false;
 
@@ -244,9 +244,9 @@ static uint8_t prv_read(uint16_t instanceId,
 }
 
 static uint8_t prv_discover(uint16_t instanceId,
-                            int * numDataP,
-                            lwm2m_data_t ** dataArrayP,
-                            lwm2m_object_t * objectP)
+                            int *numDataP,
+                            lwm2m_data_t **dataArrayP,
+                            lwm2m_object_t *objectP)
 {
     int i;
 
@@ -281,10 +281,10 @@ static uint8_t prv_discover(uint16_t instanceId,
 
 static uint8_t prv_write(uint16_t instanceId,
                          int numData,
-                         lwm2m_data_t * dataArray,
-                         lwm2m_object_t * objectP)
+                         lwm2m_data_t *dataArray,
+                         lwm2m_object_t *objectP)
 {
-    plat_instance_t * targetP;
+    plat_instance_t *targetP;
     int i;
 
     targetP = (plat_instance_t *)lwm2m_list_find(objectP->instanceList, instanceId);
@@ -296,7 +296,7 @@ static uint8_t prv_write(uint16_t instanceId,
         {
         case 0:
         {
-            (void)atiny_cmd_ioctl(ATINY_WRITE_APP_DATA,(char*)(dataArray[i].value.asBuffer.buffer), dataArray->value.asBuffer.length);
+            (void)atiny_cmd_ioctl(ATINY_WRITE_APP_DATA, (char *)(dataArray[i].value.asBuffer.buffer), dataArray->value.asBuffer.length);
             break;
         }
         default:
@@ -309,9 +309,9 @@ static uint8_t prv_write(uint16_t instanceId,
 
 
 static uint8_t prv_delete(uint16_t id,
-                          lwm2m_object_t * objectP)
+                          lwm2m_object_t *objectP)
 {
-    plat_instance_t * targetP;
+    plat_instance_t *targetP;
     lwm2m_uri_t uri;
 
     objectP->instanceList = lwm2m_list_remove(objectP->instanceList, id, (lwm2m_list_t **)&targetP);
@@ -326,10 +326,10 @@ static uint8_t prv_delete(uint16_t id,
 
 static uint8_t prv_create(uint16_t instanceId,
                           int numData,
-                          lwm2m_data_t * dataArray,
-                          lwm2m_object_t * objectP)
+                          lwm2m_data_t *dataArray,
+                          lwm2m_object_t *objectP)
 {
-    plat_instance_t * targetP;
+    plat_instance_t *targetP;
     uint8_t result;
     int ret;
     lwm2m_uri_t uri;
@@ -369,9 +369,9 @@ static uint8_t prv_create(uint16_t instanceId,
 
 static uint8_t prv_exec(uint16_t instanceId,
                         uint16_t resourceId,
-                        uint8_t * buffer,
+                        uint8_t *buffer,
                         int length,
-                        lwm2m_object_t * objectP)
+                        lwm2m_object_t *objectP)
 {
 
     if (NULL == lwm2m_list_find(objectP->instanceList, instanceId)) return COAP_404_NOT_FOUND;
@@ -379,18 +379,18 @@ static uint8_t prv_exec(uint16_t instanceId,
     switch (resourceId)
     {
     case 0:
-        {
-            ATINY_LOG(LOG_INFO, "no in prv_exec+++++++++++++++++++++++++++");
-            return COAP_204_CHANGED;
-        }
+    {
+        ATINY_LOG(LOG_INFO, "no in prv_exec+++++++++++++++++++++++++++");
+        return COAP_204_CHANGED;
+    }
     case 1:
         return COAP_405_METHOD_NOT_ALLOWED;
     case 2:
         fprintf(stdout, "\r\n-----------------\r\n"
-                        "Execute on %hu/%d/%d\r\n"
-                        " Parameter (%d bytes):\r\n",
-                        objectP->objID, instanceId, resourceId, length);
-        prv_output_buffer((uint8_t*)buffer, length);
+                "Execute on %hu/%d/%d\r\n"
+                " Parameter (%d bytes):\r\n",
+                objectP->objID, instanceId, resourceId, length);
+        prv_output_buffer((uint8_t *)buffer, length);
         fprintf(stdout, "-----------------\r\n\r\n");
         return COAP_204_CHANGED;
     case 3:
@@ -400,11 +400,11 @@ static uint8_t prv_exec(uint16_t instanceId,
     }
 }
 
-void display_binary_app_data_object(lwm2m_object_t * object)
+void display_binary_app_data_object(lwm2m_object_t *object)
 {
 #ifdef WITH_LOGS
     fprintf(stdout, "  /%u: Test object, instances:\r\n", object->objID);
-    plat_instance_t * instance = (plat_instance_t *)object->instanceList;
+    plat_instance_t *instance = (plat_instance_t *)object->instanceList;
     while (instance != NULL)
     {
         fprintf(stdout, "    /%u/%u: shortId: %u, test: %u\r\n",
@@ -415,23 +415,23 @@ void display_binary_app_data_object(lwm2m_object_t * object)
 #endif
 }
 
-lwm2m_object_t * get_binary_app_data_object(atiny_param_t* atiny_params)
+lwm2m_object_t *get_binary_app_data_object(atiny_param_t *atiny_params)
 {
-    lwm2m_object_t * appObj;
+    lwm2m_object_t *appObj;
 
     appObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));
 
     if (NULL != appObj)
     {
         int i;
-        plat_instance_t * targetP;
+        plat_instance_t *targetP;
         lwm2m_uri_t uri;
         int ret = ATINY_OK;
 
         memset(appObj, 0, sizeof(lwm2m_object_t));
 
         appObj->objID = BINARY_APP_DATA_OBJECT_ID;
-        for (i=0 ; i < BINARY_APP_DATA_OBJECT_INSTANCE_NUM; i++)
+        for (i = 0 ; i < BINARY_APP_DATA_OBJECT_INSTANCE_NUM; i++)
         {
             targetP = (plat_instance_t *)lwm2m_malloc(sizeof(plat_instance_t));
             if (NULL == targetP)
@@ -476,7 +476,7 @@ lwm2m_object_t * get_binary_app_data_object(atiny_param_t* atiny_params)
     return appObj;
 }
 
-static void free_binary_app_data_object_rpt(lwm2m_object_t * object)
+static void free_binary_app_data_object_rpt(lwm2m_object_t *object)
 {
     lwm2m_list_t *cur = object->instanceList;
     lwm2m_uri_t uri;
@@ -488,7 +488,7 @@ static void free_binary_app_data_object_rpt(lwm2m_object_t * object)
     }
 }
 
-void free_binary_app_data_object(lwm2m_object_t * object)
+void free_binary_app_data_object(lwm2m_object_t *object)
 {
     free_binary_app_data_object_rpt(object);
     LWM2M_LIST_FREE(object->instanceList);

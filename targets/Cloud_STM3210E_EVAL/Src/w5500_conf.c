@@ -103,9 +103,9 @@ EEPROM_MSG_STR  EEPROM_MSG;
 uint8 mac[6] = {0x00,0x08,0xdc,0x11,0x11,0x11};
 
 /* default local ip infor */
-uint8 local_ip[4]   = {192,168,0,231};
+uint8 local_ip[4]   = {192,168,1,231};
 uint8 subnet[4]     = {255,255,255,0};
-uint8 gateway[4]    = {192,168,0,1};
+uint8 gateway[4]    = {192,168,1,1};
 uint8 dns_server[4] = {114,114,114,114};
 
 uint16 local_port   = 5000;
@@ -127,8 +127,7 @@ SPI_HandleTypeDef g_w5500_hspi;
 /* Public functions ---------------------------------------------------------*/
 extern void wiznet_irq_handler(void);
 /* Private functions --------------------------------------------------------*/
-/* This function is called by inner-HAL lib, static here to prevent conflict */
-static void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
+static void SPI_MspInit(SPI_HandleTypeDef* hspi)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -158,8 +157,7 @@ static void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     }
 }
 
-/* This function is called by inner-HAL lib, static here to prevent conflict */
-static void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
+static void SPI_MspDeInit(SPI_HandleTypeDef* hspi)
 {
     if (hspi->Instance == WIZ_SPIx)
     {
@@ -210,9 +208,8 @@ void w5500_config(void)
     g_w5500_hspi.Init.FirstBit = SPI_FIRSTBIT_MSB;
     g_w5500_hspi.Init.TIMode = SPI_TIMODE_DISABLE;
     g_w5500_hspi.Init.CRCPolynomial = 7;
-    
-    // show Calls, this api conflict with other spi, so static
-    HAL_SPI_MspInit(&g_w5500_hspi);  
+
+    SPI_MspInit(&g_w5500_hspi);
     
     HAL_SPI_Init(&g_w5500_hspi);
     WIZ_ENABLE(&g_w5500_hspi);
@@ -229,7 +226,7 @@ void w5500_interrupt_config(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Pin = WIZ_INT_PIN;	
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    LOS_HwiCreate(WIZ_IRQn, WIZ_INT_PRIORITY, 0, w5500_irq_handler, NULL);
+    LOS_HwiCreate(WIZ_IRQn, WIZ_INT_PRIORITY, 0, w5500_irq_handler, 0);
     HAL_GPIO_Init(WIZ_INT_PORT, &GPIO_InitStruct);
 }
 
@@ -243,12 +240,15 @@ void w5500_init(void)
     w5500_config();
     w5500_interrupt_config();
     w5500_reset();
-}
 
+    IINCHIP_WRITE(SIMR, 0xff);
+}
 
 void w5500_deinit(void)
 {
     WIZ_INT_CLK_DISABLE();
+    HAL_SPI_DeInit(&g_w5500_hspi);
+    SPI_MspDeInit(&g_w5500_hspi);
 }
 
 /**
@@ -258,10 +258,10 @@ void w5500_deinit(void)
  */
 void w5500_reset(void)
 {
-  HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_RESET);
-  wizDelayMs(10);  
-  HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_SET);
-  wizDelayMs(10);
+    HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_RESET);
+    wizDelayMs(10);  
+    HAL_GPIO_WritePin(WIZ_RESET_PORT, WIZ_RESET_PIN, GPIO_PIN_SET);
+    wizDelayMs(10);
 }
 
 /**
@@ -478,7 +478,7 @@ uint16 wiz_read_buf(uint32 addrbsb, uint8* buf,uint16 len)
  */
 void write_config_to_eeprom(void)
 {
-	uint16 dAddr = 0;
+//	uint16 dAddr = 0;
 //	eeprom_WriteBytes(ConfigMsg.mac,dAddr,(uint8)EEPROM_MSG_LEN);				
 	wizDelayMs(10);																							
 }

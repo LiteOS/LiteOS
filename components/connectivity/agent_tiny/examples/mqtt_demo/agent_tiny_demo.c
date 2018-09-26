@@ -54,7 +54,7 @@ unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
 #define AGENT_TINY_DEMO_PUB_TOPIC "/pub_test"
 #define AGENT_TINY_DEMO_SUB_TOPIC "/helloworld"
 
-static void* g_phandle = NULL;
+static void *g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
 
@@ -86,12 +86,12 @@ void app_data_report(void)
     while(1)
     {
         sprintf(payload, "publish message number %d", cnt);
-        report_data.payload_len= strlen(payload);
+        report_data.payload_len = strlen(payload);
         payload[report_data.payload_len] = '\0';
         cnt++;
         ret = atiny_data_send(g_phandle, &report_data, NULL);
         ATINY_LOG(LOG_DEBUG, "report ret:%d", ret);
-        (void)LOS_TaskDelay(250*2);
+        (void)LOS_TaskDelay(250 * 2);
     }
 }
 /*lint +e550*/
@@ -118,7 +118,7 @@ UINT32 creat_report_task()
 void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
-    atiny_param_t* atiny_params;
+    atiny_param_t *atiny_params;
     atiny_device_info_t *device_info = &g_device_info;
 
     device_info->client_id = AGENT_TINY_DEMO_CLIENT_ID;

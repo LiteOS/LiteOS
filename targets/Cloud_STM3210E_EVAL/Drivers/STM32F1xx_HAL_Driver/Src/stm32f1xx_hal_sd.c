@@ -2449,7 +2449,10 @@ static uint32_t SD_PowerON(SD_HandleTypeDef *hsd)
   if(errorstate != HAL_SD_ERROR_NONE)
   {
     hsd->SdCard.CardVersion = CARD_V1_X;
-      
+    
+    /* SEND CMD55 APP_CMD with RCA as 0 */
+    errorstate = SDMMC_CmdAppCommand(hsd->Instance, 0U);
+    
     /* Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
     while(validvoltage == 0U)
     {

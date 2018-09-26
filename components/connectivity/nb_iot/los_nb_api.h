@@ -43,7 +43,7 @@
 typedef struct sec_param{
 char* psk;
 char* pskid;
-uint8_t psk_len;
+uint8_t setpsk;
 }sec_param_s;
 
 extern at_task at;
@@ -86,7 +86,7 @@ Func Name: los_nb_notify
 *  negative value: on failure
 */
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback);
+int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 /*
 Func Name: los_nb_deinit
 

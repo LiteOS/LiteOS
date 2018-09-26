@@ -65,6 +65,7 @@
 #define AT_CMD_CLOSE		"AT+CIPCLOSE"
 #define AT_CMD_CHECK_IP		"AT+CIPSTA_CUR?"
 #define AT_CMD_CHECK_MAC	"AT+CIPSTAMAC_CUR?"
+#define AT_CMD_SHOW_DINFO   "AT+CIPDINFO"
 
 #define AT_DATAF_PREFIX      "\r\n+IPD"
 

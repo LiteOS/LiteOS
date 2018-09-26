@@ -57,14 +57,14 @@ static int fota_pack_sha256_check(fota_pack_checksum_alg_s *thi, const uint8_t  
 
     if(sizeof(real_value) != checksum_len)
     {
-       FOTA_LOG("len %d not the same", checksum_len);
-       return FOTA_ERR;
+        FOTA_LOG("len %d not the same", checksum_len);
+        return FOTA_ERR;
     }
     mbedtls_sha256_finish(&sha256->sha256_context, real_value);
     if(memcmp(real_value, checksum, checksum_len) != 0)
     {
-       FOTA_LOG("checksum err");
-       return FOTA_ERR;
+        FOTA_LOG("checksum err");
+        return FOTA_ERR;
     }
     return FOTA_OK;
 }

@@ -85,13 +85,15 @@
 //#define MBEDTLS_NET_C
 #define MBEDTLS_SHA256_C
 #define MBEDTLS_SSL_CLI_C
-//#define MBEDTLS_SSL_SRV_C
+#define MBEDTLS_SSL_SRV_C
 #define MBEDTLS_SSL_TLS_C
 #define MBEDTLS_DEBUG_C
 
+#ifdef USE_MRVL_SDIO_WIFI
 #define MBEDTLS_ARC4_C
 #define MBEDTLS_MD5_C
 #define MBEDTLS_SHA1_C
+#endif
 
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
@@ -128,7 +130,7 @@
 #define MBEDTLS_SSL_RENEGOTIATION
 #define MBEDTLS_SSL_CACHE_C
 #define MBEDTLS_CIPHER_PADDING_ZEROS_AND_LEN
-#if 0
+#if 0 // We should support two encryption algorithm
 #define MBEDTLS_CCM_C
 #define MBEDTLS_SSL_CIPHERSUITES                        \
         MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8
