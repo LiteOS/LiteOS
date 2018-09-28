@@ -730,8 +730,7 @@ static int values_equal_display_error(const LargestIntegralType left,
                                       const LargestIntegralType right) {
     const int equal = left == right;
     if (!equal) {
-        print_error(LargestIntegralTypePrintfFormat " != "
-                    LargestIntegralTypePrintfFormat "\n", left, right);
+        print_error("%lld != %lld\n", left, right);
     }
     return equal;
 }
@@ -742,8 +741,7 @@ static int values_not_equal_display_error(const LargestIntegralType left,
                                           const LargestIntegralType right) {
     const int not_equal = left != right;
     if (!not_equal) {
-        print_error(LargestIntegralTypePrintfFormat " == "
-                    LargestIntegralTypePrintfFormat "\n", left, right);
+        print_error("%lld == %lld\n", left, right);
     }
     return not_equal;
 }
@@ -774,9 +772,9 @@ static int value_in_set_display_error(
         if (succeeded) {
             return 1;
         }
-        print_error("%d is %sin the set (", value, invert ? "" : "not ");
+        print_error("%lld is %sin the set (", value, invert ? "" : "not ");
         for (i = 0; i < size_of_set; i++) {
-            print_error("%d, ", set[i]);
+            print_error("%lld, ", set[i]);
         }
         print_error(")\n");
     }
@@ -793,7 +791,7 @@ static int integer_in_range_display_error(
     if (value >= range_min && value <= range_max) {
         return 1;
     }
-    print_error("%d is not within the range %d-%d\n", value, range_min,
+    print_error("%lld is not within the range %lld-%lld\n", value, range_min,
                 range_max);
     return 0;
 }
@@ -808,7 +806,7 @@ static int integer_not_in_range_display_error(
     if (value < range_min || value > range_max) {
         return 1;
     }
-    print_error("%d is within the range %d-%d\n", value, range_min,
+    print_error("%lld is within the range %lld-%lld\n", value, range_min,
                 range_max);
     return 0;
 }
