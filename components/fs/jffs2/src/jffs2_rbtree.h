@@ -31,69 +31,68 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef __JFFS2_RBTREE_H__
+#define __JFFS2_RBTREE_H__
 
-#include <stdio.h>
-#include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+#ifdef __cplusplus
+#if __cplusplus
+extern "C"{
+#endif
+#endif /* __cplusplus */
+
+
+struct rb_node {
+	struct rb_node *rb_left;	/* left element */
+	struct rb_node *rb_right;	/* right element */
+	struct rb_node *rb_parent;	/* parent element */
+	int rb_color;			/* node color */
+};
+
+struct rb_root {
+	struct rb_node *rb_node; /* root of the tree */
+};
+
+#ifndef NULL
+#define NULL ((void *)0)
 #endif
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
+#define RB_ROOT ((struct rb_root){NULL})
+#define rb_entry(p, container, field)		\
+	((container *) ((char *)p - ((char *)&(((container *)0)->field))))
+
+#define RB_BLACK	0
+#define RB_RED		1
+
+
+extern void rb_insert_color(struct rb_node *, struct rb_root *);
+extern void rb_erase(struct rb_node *, struct rb_root *);
+
+/* Find logical next and previous nodes in a tree */
+extern struct rb_node *rb_next(struct rb_node *);
+extern struct rb_node *rb_prev(struct rb_node *);
+extern struct rb_node *rb_first(struct rb_root *);
+
+/* Fast replacement of a single node without remove/rebalance/add/rebalance */
+extern void rb_replace_node(struct rb_node *victim, struct rb_node *new,
+			    struct rb_root *root);
+
+static inline void rb_link_node(struct rb_node * node, struct rb_node * parent,
+				struct rb_node ** rb_link)
+{
+	node->rb_parent = parent;
+	node->rb_color = RB_RED;
+	node->rb_left = node->rb_right = NULL;
+
+	*rb_link = node;
+}
+
+#ifdef __cplusplus
+#if __cplusplus
+                }
 #endif
+#endif /* __cplusplus */
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
 
-#include <hal_spi_flash.h>
-
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
-
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (int need_erase)
-{
-    hal_spi_flash_config();
-    if (need_erase)
-    {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
-    }
-
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
+#endif /* __JFFS2_RBTREE_H__ */
 

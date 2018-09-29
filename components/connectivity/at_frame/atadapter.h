@@ -44,14 +44,14 @@
 #include "at_api_interface.h"
 
 /* MACRO DEFINE */
-//#define AT_INTO
+#define AT_INTO
 #ifdef AT_INTO
 #define AT_LOG(fmt, arg...)  printf("[%lu][%s:%d][I]"fmt"\n", at_get_time(), __func__, __LINE__, ##arg)
 #else
 #define AT_LOG(fmt, arg...)
 #endif
 
-//#define AT_DEBUG
+#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%lu][%s:%d][D]"fmt"\n", at_get_time(), __func__, __LINE__, ##arg)
 #else
@@ -128,7 +128,7 @@ typedef struct
 
 typedef struct _listner{
 	struct _listner * next;
-    at_cmd_info_s *cmd_info;
+    at_cmd_info_s cmd_info;
     uint32_t expire_time;
     int32_t (*handle_data)(const int8_t *data, uint32_t len);
 }at_listener;

@@ -32,68 +32,47 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <stdio.h>
+#ifndef __JFFS2_TYPES_H__
+#define __JFFS2_TYPES_H__
+
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C"{
+#endif
+#endif /* __cplusplus */
+
+#include <stdint.h>
+#include <stdio.h>	// for SEEK_SET SEEK_CUR SEEK_END
 #include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include <sys/stat.h>
+#include "jffs2_compiler.h"
+#include "jffs2_errno.h"
+
+typedef unsigned short  nlink_t;
+typedef long            off_t;
+typedef unsigned short  gid_t;
+typedef unsigned short  uid_t;
+typedef unsigned int    ino_t;
+typedef int             pid_t;
+typedef int             ssize_t;
+typedef unsigned long   mode_t;
+typedef unsigned int    dev_t;
+typedef int             time_t;
+typedef unsigned char   u_char;
+
+
+#define loff_t          off_t
+#define kvec            iovec
+
+
+
+#ifdef __cplusplus
+#if __cplusplus
+}
 #endif
+#endif /* __cplusplus */
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
-#include <los_printf.h>
-#endif
 
-#include <los_vfs.h>
-#include <los_spiffs.h>
-
-#include <hal_spi_flash.h>
-
-#define SPIFFS_PHYS_SIZE    1024 * 1024
-#define PHYS_ERASE_SIZE     64 * 1024
-#define LOG_BLOCK_SIZE      64 * 1024
-#define LOG_PAGE_SIZE       256
-
-static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_read ((void *) buff, size, addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
-{
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
-
-    return SPIFFS_OK;
-}
-
-static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size)
-{
-    (void)hal_spi_flash_erase (addr, size);
-
-    return SPIFFS_OK;
-}
-
-int stm32f4xx_spiffs_init (int need_erase)
-{
-    hal_spi_flash_config();
-    if (need_erase)
-    {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
-    }
-
-    (void)spiffs_init ();
-
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
-                      LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
-        PRINT_ERR ("failed to mount spiffs!\n");
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
+#endif /* __JFFS2_TYPES_H__ */
 

@@ -42,38 +42,43 @@
 #endif
 
 #include "los_vfs.h"
+
 /* Defines ------------------------------------------------------------------*/
 #define TEST_FS_SPIFFS      0
 #define TEST_FS_FATFS       1
+#define TEST_FS_JFFS2       2
 
-#define USE_TEST_TYPE       TEST_FS_FATFS
+#define USE_TEST_TYPE       TEST_FS_JFFS2
 
 #define SPIFFS_PATH         "/spiffs"
 #define FATFS_PATH          "/fatfs"
+#define JFFS2_PATH          "/jffs2"
 
 #define LOS_FILE            "f.txt"
 #define LOS_DIR             "d"
+
 /* Typedefs -----------------------------------------------------------------*/
+/* Macros -------------------------------------------------------------------*/
 #ifndef FS_PRINTF
-#define FS_PRINTF(fmt, arg...)  printf("[%s:%d]" fmt "\r\n", __func__, __LINE__, ##arg)
+#define FS_PRINTF(fmt, arg...)  printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
 #endif
 
 #ifndef MIN
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
-/* Macros -------------------------------------------------------------------*/
 /* Local variables ----------------------------------------------------------*/
-static char s_ucaWriteBuffer[] = "IP:192.168.0.100\r\nMASK:255.255.255.0\r\nGW:192.168.0.1";
+static char s_ucaWriteBuffer[] = "IP:192.168.0.100\nMASK:255.255.255.0\nGW:192.168.0.1";
 static char s_ucaReadBuffer[100] = {"spiffs read failed"};
 
 char file_name[100] = {0};
 char dir_name[100] = {0};
 
 /* Extern variables ---------------------------------------------------------*/
+extern int stm32f4xx_spiffs_init (int need_erase);
+extern int stm32f4xx_fatfs_init(int need_erase);
+extern int stm32f4xx_jffs2_init(int need_erase);
 
-extern int stm32f4xx_spiffs_init(void);
-extern int stm32f4xx_fatfs_init(void);
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
 /* Public functions ---------------------------------------------------------*/
@@ -81,7 +86,7 @@ int write_file(const char *name, char *buff, int len)
 {
     int fd;
     int ret;
-    
+
     if(name == NULL || buff == NULL || len <= 0)
     {
         FS_PRINTF("invalid parameter.");
@@ -108,7 +113,7 @@ int read_file(const char *name, char *buff, int len)
 {
     int fd;
     int ret;
-    
+
     if(name == NULL || buff == NULL || len <= 0)
     {
         FS_PRINTF("invalid parameter.");
@@ -141,8 +146,8 @@ int open_dir(const char *name, struct dir **dir)
         FS_PRINTF("invalid parameter.");
         return -1;
     }
-    
-    do 
+
+    do
     {
         *dir = los_opendir(name);
         if(*dir == NULL)
@@ -158,7 +163,7 @@ int open_dir(const char *name, struct dir **dir)
                 FS_PRINTF("los_mkdir %s successfully.", name);
             }
         }
-    }while(*dir == NULL && ret != 0 && --counter > 0);
+    }while(*dir == NULL && --counter > 0);
 
     if(counter <= 0)
     {
@@ -178,7 +183,7 @@ int read_dir(const char *name, struct dir *dir)
         FS_PRINTF("invalid parameter.");
         return -1;
     }
-    
+
     while(1)
     {
         pDirent = los_readdir(dir);
@@ -192,7 +197,7 @@ int read_dir(const char *name, struct dir *dir)
             else break;
         }
         flag = 0;
-        printf("los_readdir %s: name=%s, type=%ld, size=%ld\n", name, pDirent->name, 
+        printf("los_readdir %s: name=%s, type=%d, size=%d\n", name, pDirent->name,
             pDirent->type, pDirent->size);
     }
     return 0;
@@ -204,22 +209,22 @@ void los_fs_test(void)
     struct dir *pDir = NULL;
     int wrlen = sizeof(s_ucaWriteBuffer) - 1;
     int rdlen = sizeof(s_ucaReadBuffer);
-    
+
     rdlen = MIN(wrlen, rdlen);
 
     /**************************
-     *  file operation test 
+     *  file operation test
      **************************/
     ret = write_file(file_name, s_ucaWriteBuffer, wrlen);
     if(ret < 0) return;
-    
+
     ret = read_file(file_name, s_ucaReadBuffer, rdlen);
     if(ret < 0) return;
     printf("*********** readed %d data ***********\r\n%s\r\n"
            "**************************************\r\n", rdlen, s_ucaReadBuffer);
 
     /****************************
-     *  dir operation test   
+     *  dir operation test
      ****************************/
     sprintf(file_name, "%s/%s", dir_name, LOS_FILE);
     ret = open_dir(dir_name, &pDir);
@@ -241,12 +246,188 @@ void los_fs_test(void)
     los_unlink(file_name); // remove file_name
 }
 
+static void make_dir(const char *name)
+{
+    int count = 0;
+    char tmp_dir[128];
+
+    int num = snprintf(tmp_dir, sizeof(tmp_dir)-2, "%s", name);
+    if (num <= 0)
+    {
+        return;
+    }
+    else if (tmp_dir[num-1] != '/')
+    {
+        tmp_dir[num] = '/';
+        tmp_dir[num+1] = 0;
+    }
+
+    for (int i = 0; tmp_dir[i] != 0; i++)
+    {
+        if (tmp_dir[i] == '/')
+        {
+            count++;
+            if (count > 2)
+            {
+                tmp_dir[i] = 0;
+
+                int ret = los_mkdir(tmp_dir, 0);
+                if (ret < 0)
+                {
+                    FS_PRINTF("los_mkdir %s failed: %d", tmp_dir, ret);
+                    return;
+                }
+
+                tmp_dir[i] = '/';
+            }
+        }
+    }
+}
+
+static void print_dir(const char *name, int level)
+{
+    if (level <= 1)
+        printf("%s\n", name);
+    else if (level > 10)
+        return;
+
+    struct dir *dir = los_opendir(name);
+    if(dir == NULL)
+    {
+        FS_PRINTF("los_opendir %s failed", name);
+        return;
+    }
+
+    while(1)
+    {
+        struct dirent *dirent = los_readdir(dir);
+        if(dirent == NULL || dirent->name[0] == 0)
+        {
+            break;
+        }
+
+        if (dirent->type == VFS_TYPE_DIR
+            && strcmp(dirent->name, ".")
+            && strcmp(dirent->name, ".."))
+        {
+            char tmp_path[128];
+            printf("|%*s%s/\n", level*4, "--->", dirent->name);
+            snprintf(tmp_path, sizeof(tmp_path), "%s/%s", name, dirent->name);
+            print_dir(tmp_path, level+1);
+        }
+        else
+        {
+            printf("|%*s%s\n", level*4, "--->", dirent->name);
+        }
+    }
+
+    if (los_closedir(dir) < 0)
+    {
+        FS_PRINTF("los_closedir %s failed", name);
+        return;
+    }
+}
+
+void los_jffs2_test(void)
+{
+    int fd;
+    int ret = 0;
+
+    /****************************
+     *  dir operation test
+     ****************************/
+    make_dir("/jffs2/base/.more/.less");
+    make_dir("/jffs2/test/case");
+    make_dir("/jffs2/zone");
+
+    /**************************
+     *  file operation test
+     **************************/
+    ret = write_file("/jffs2/test/case/one", s_ucaWriteBuffer, sizeof(s_ucaWriteBuffer));
+    if(ret < 0)
+        FS_PRINTF("write_file failed: %d", ret);
+
+    fd = los_open("/jffs2/test/case/one", O_RDWR);
+    if(fd < 0)
+        FS_PRINTF("los_open failed: %d\n", fd);
+
+    ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
+    if(ret < 0)
+        FS_PRINTF("los_read failed: %d", ret);
+
+    printf("*********** read %d bytes ***********\n%s\n"
+           "**************************************\n", ret, s_ucaReadBuffer);
+
+    los_lseek(fd, 22, 0);
+    ret = los_write(fd, "108", 3);
+    if(ret < 0)
+        FS_PRINTF("los_write failed: %d", ret);
+
+    los_lseek(fd, -1, 2);
+    ret = los_write(fd, "00", 3);
+    if(ret < 0)
+        FS_PRINTF("los_write failed: %d", ret);
+
+    los_close(fd);
+
+    fd = los_open("/jffs2/test/case/one", O_RDONLY);
+    if(fd < 0)
+        FS_PRINTF("los_open failed: %d\n", fd);
+
+    ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
+    if(ret < 0)
+        FS_PRINTF("los_read failed: %d", ret);
+
+    printf("*********** read %d bytes ***********\n%s\n"
+           "**************************************\n", ret, s_ucaReadBuffer);
+
+    los_close(fd);
+
+    struct stat s;
+    los_stat("/jffs2/test/case/one", &s);
+    printf("/jffs2/test/case/one size: %ld, ctime: %ld, mtime: %ld\n",
+        s.st_size, s.st_ctime, s.st_mtime);
+
+    fd = los_open("/jffs2/base/.more/.less/junk", O_CREAT | O_WRONLY | O_TRUNC);
+    if(fd < 0)
+        FS_PRINTF("los_open failed: %d\n", fd);
+
+    los_close(fd);
+
+    /****************************
+     *  rename test
+     ****************************/
+    print_dir("/jffs2", 1);
+    printf("\n");
+
+    ret = los_rename("/jffs2/base/.more/.less/junk", "/jffs2/base/.more/.less/trash");
+    if(ret)
+        FS_PRINTF("los_rename failed: %d", ret);
+
+    ret = los_rename("/jffs2/base/.more/.less", "/jffs2/test/case/null");
+    if(ret)
+        FS_PRINTF("los_rename failed: %d", ret);
+
+    print_dir("/jffs2", 1);
+
+    /****************************
+     *  unlink test
+     ****************************/
+    ret = los_unlink("/jffs2/test/case/null/trash");
+    if(ret)
+        FS_PRINTF("los_unlink failed: %d", ret);
+
+    ret = los_unlink("/jffs2/test/case/null");
+    if(ret)
+        FS_PRINTF("los_unlink failed: %d", ret);
+}
+
 #if (USE_TEST_TYPE == TEST_FS_SPIFFS)
 void spiffs_demo(void)
 {
     int ret = 0;
 
-    ret = stm32f4xx_spiffs_init();
+    ret = stm32f4xx_spiffs_init(0);
     if(ret == LOS_NOK)
     {
         FS_PRINTF("stm32f4xx_spiffs_init failed.");
@@ -264,7 +445,7 @@ void fatfs_demo(void)
 {
     int8_t drive;
 
-    drive = stm32f4xx_fatfs_init();
+    drive = stm32f4xx_fatfs_init(0);
     if(drive < 0)
     {
         FS_PRINTF("stm32f4xx_fatfs_init failed.");
@@ -277,18 +458,36 @@ void fatfs_demo(void)
 }
 #endif
 
+#if (USE_TEST_TYPE == TEST_FS_JFFS2)
+void jffs2_demo(void)
+{
+    int ret = stm32f4xx_jffs2_init(1);
+    if(ret < 0)
+    {
+        FS_PRINTF("stm32f4xx_jffs2_init failed.");
+        return;
+    }
+    sprintf(file_name, "%s/%s", JFFS2_PATH, LOS_FILE);
+    sprintf(dir_name,  "%s/%s", JFFS2_PATH, LOS_DIR);
+
+    los_jffs2_test();
+}
+#endif
+
 void fs_demo(void)
 {
-    printf("Huawei LiteOS File System Demo.\r\n");
+    printf("Huawei LiteOS File System Demo.\n");
 
-#if (USE_TEST_TYPE == TEST_FS_SPIFFS)  
+#if (USE_TEST_TYPE == TEST_FS_SPIFFS)
     spiffs_demo();
 #elif (USE_TEST_TYPE == TEST_FS_FATFS)
     fatfs_demo();
+#elif (USE_TEST_TYPE == TEST_FS_JFFS2)
+    jffs2_demo();
 #endif
+
     while(1)
     {
-
     }
 }
 

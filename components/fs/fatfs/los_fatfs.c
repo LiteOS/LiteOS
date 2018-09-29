@@ -93,7 +93,7 @@ static int fatfs_link_driver(const struct diskio_drv *drv, uint8_t lun)
     {
         if(disk.dev[i].drv != 0)
             continue;
-        
+
         disk.dev[disk.num].state = 0;
         disk.dev[disk.num].drv = drv;
         disk.dev[disk.num].lun = lun;
@@ -213,14 +213,14 @@ static int fatfs_op_close (struct file *file)
     FIL     *fp = (FIL *)file->f_data;
 
     POINTER_ASSERT(fp);
-    
+
     res = f_close(fp);
     if(res == FR_OK)
     {
         free(fp);
         file->f_data = NULL;
     }
-    
+
     return res;
 }
 
@@ -230,9 +230,12 @@ static ssize_t fatfs_op_read (struct file *file, char *buff, size_t bytes)
     FRESULT res;
     FIL     *fp = (FIL *)file->f_data;
 
+    if (buff == NULL || bytes == 0)
+        return -1;
+
     POINTER_ASSERT(fp);
     res = f_read (fp, buff, bytes, (UINT *)&size);
-    if(res != FR_OK || size == 0)
+    if(res != FR_OK)
     {
         PRINT_ERR ("failed to read, res=%d\n", res);
         return -1;
@@ -245,7 +248,10 @@ static ssize_t fatfs_op_write (struct file *file, const char *buff, size_t bytes
     ssize_t  size = 0;
     FRESULT  res;
     FIL     *fp = (FIL *)file->f_data;
-    
+
+    if (buff == NULL || bytes == 0)
+        return -1;
+
     POINTER_ASSERT(fp);
     res = f_write (fp, buff, bytes, (UINT *)&size);
     if(res != FR_OK || size == 0)
@@ -259,9 +265,39 @@ static ssize_t fatfs_op_write (struct file *file, const char *buff, size_t bytes
 static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
 {
     FIL *fp = (FIL *)file->f_data;
-    
+
     POINTER_ASSERT(fp);
-    return f_lseek(fp, off);
+
+    switch (whence)
+    {
+    case 0: // SEEK_SET
+        break;
+    case 1: // SEEK_CUR
+        off += f_tell(fp);
+        break;
+    case 2: // SEEK_END
+        off += f_size(fp);
+        break;
+    default:
+        return -1;
+    }
+
+    FRESULT res = f_lseek(fp, off);
+    if (res == FR_OK)
+        return off;
+    else
+        return -1;
+}
+
+int fatfs_op_stat (struct file *file, struct stat *stat)
+{
+    FIL *fp = (FIL *)file->f_data;
+    POINTER_ASSERT(fp);
+
+    memset(stat, 0, sizeof(*stat));
+    stat->st_size = f_size(fp);
+
+    return 0;
 }
 
 static int fatfs_op_unlink (struct mount_point *mp, const char *path_in_mp)
@@ -278,7 +314,7 @@ static int fatfs_op_rename (struct mount_point *mp, const char *path_in_mp_old,
 static int fatfs_op_sync (struct file *file)
 {
     FIL *fp = (FIL *)file->f_data;
-    
+
     POINTER_ASSERT(fp);
     return f_sync(fp);
 }
@@ -296,7 +332,7 @@ static int fatfs_op_opendir (struct dir *dir, const char *path)
                    "make sure it is added\n");
         return -1;
     }
-    
+
     res = f_opendir(dp, path);
     if(res != FR_OK)
     {
@@ -324,7 +360,7 @@ static int fatfs_op_readdir (struct dir *dir, struct dirent *dent)
     {
         return -1;
     }
-    
+
     len = MIN(sizeof(e.fname), LOS_MAX_FILE_NAME_LEN) - 1;
     strncpy ((char *)dent->name, (const char *) e.fname, len);
     dent->name [len] = '\0';
@@ -340,7 +376,6 @@ static int fatfs_op_readdir (struct dir *dir, struct dirent *dent)
     }
 
     return FR_OK;
-
 }
 
 static int fatfs_op_closedir (struct dir *dir)
@@ -349,7 +384,7 @@ static int fatfs_op_closedir (struct dir *dir)
     DIR     *dp = (DIR *) dir->d_data;
 
     POINTER_ASSERT(dp);
-    
+
     res = f_closedir (dp);
     if(res == FR_OK)
     {
@@ -372,7 +407,7 @@ static struct file_ops fatfs_ops =
     fatfs_op_read,
     fatfs_op_write,
     fatfs_op_lseek,
-    NULL,               /* stat not supported for now */
+    fatfs_op_stat,
     fatfs_op_unlink,
     fatfs_op_rename,
     NULL,               /* ioctl not supported for now */
@@ -380,7 +415,7 @@ static struct file_ops fatfs_ops =
     fatfs_op_opendir,
     fatfs_op_readdir,
     fatfs_op_closedir,
-    fatfs_op_mkdir      /* fatfs do not support mkdir */
+    fatfs_op_mkdir
 };
 
 static struct file_system fatfs_fs =
@@ -394,7 +429,7 @@ static struct file_system fatfs_fs =
 int fatfs_init (void)
 {
     static int fatfs_inited = FALSE;
-    
+
     if (fatfs_inited)
     {
         return LOS_OK;
@@ -480,18 +515,18 @@ err_free:
         free(fs);
 err:
     fatfs_unregister(s_drive);
-    return ret; 
+    return ret;
 }
 
 int fatfs_unmount(const char *path, uint8_t drive)
 {
     char dpath[10] = {0};
-    
+
     sprintf(dpath, "%d:/", drive);
     fatfs_unregister(drive);
     f_mount(NULL, (const TCHAR *)dpath, 1);
-    los_fs_unmount(path); // need free fs(in fatfs_mount) 
-    
+    los_fs_unmount(path); // need free fs(in fatfs_mount)
+
     return 0;
 }
 
