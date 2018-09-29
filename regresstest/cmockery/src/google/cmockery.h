@@ -38,15 +38,6 @@
 #define LargestIntegralType unsigned long long
 #endif // LargestIntegralType
 
-// Printf format used to display LargestIntegralType.
-#ifndef LargestIntegralTypePrintfFormat
-#ifdef _WIN32
-#define LargestIntegralTypePrintfFormat "%I64x"
-#else
-#define LargestIntegralTypePrintfFormat "%llx"
-#endif // _WIN32
-#endif // LargestIntegralTypePrintfFormat
-
 // Perform an unsigned cast to LargestIntegralType.
 #define cast_to_largest_integral_type(value) \
     ((LargestIntegralType)((unsigned)(value)))

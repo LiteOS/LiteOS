@@ -57,14 +57,16 @@ VOID main_task(VOID)
 {
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
-    net_init(); 
+    //net_init();
 #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
     extern at_adaptor_api at_interface;
     at_api_register(&at_interface);
 #endif
-    extern int agenttiny_test_main(void);
-    agenttiny_test_main();
 
+    extern int agenttiny_test_main(void);
+    extern int fs_test_main(void);
+    //agenttiny_test_main();
+    fs_test_main();
 }
 
 
