@@ -82,11 +82,12 @@ void TestNBApi::test_los_nb_init()
 	sec_param_s sec;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
-	
     //g_state = TEST_STATE_ERR;
     setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
 	
-    ret = los_nb_init(NULL, port, &sec);
+    printf("in test_los_nb_init 89\n");
+    ret = los_nb_init(host, port, &sec);
+    printf("in test_los_nb_init 91\n");
 	printf("ret is %d in test_los_nb_init\n",ret);
     TEST_ASSERT_MSG((ret == -1), "test at_api_connect for connect is NULL failed!");
     
@@ -136,10 +137,10 @@ void TestNBApi::test_los_nb_notify()
 {
     int ret = 0;
     printf("come in test_los_nb_notify\n");
-    ret = los_nb_notify(NULL, 0, NULL);
+    ret = los_nb_notify(NULL, 0, NULL,NULL);//last NULL added by shensheng
     TEST_ASSERT_MSG((ret == -1), "test at_api_recv for recv_func is NULL failed!");
     
-    ret = los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl_test);
+    ret = los_nb_notify("+NNMI:",strlen("+NNMI:"),nb_data_ioctl_test,NULL);//last NULL added by shensheng
     TEST_ASSERT_MSG((ret == AT_OK), "test at_api_recv for recv_func is normal failed!");
     return;
 }

@@ -45,7 +45,9 @@ int main(){
   html.open("Result.htm");
   
   Test::HtmlOutput output;
+  printf("in main 48\n");
   ts.run(output);
+  printf("in main 50\n");
   output.generate(html);
   html.close();
 }

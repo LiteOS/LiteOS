@@ -79,17 +79,27 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestAtinyRpt::TestAtinyRpt()
 {
+	printf("in TestAtinyRpt 82\n");
     TEST_ADD(TestAtinyRpt::test_atiny_init_rpt);
+	printf("in TestAtinyRpt 84\n");
     TEST_ADD(TestAtinyRpt::test_atiny_add_rpt_uri);
+	printf("in TestAtinyRpt 86\n");
     TEST_ADD(TestAtinyRpt::test_atiny_rm_rpt_uri);
-
+	printf("in TestAtinyRpt 88\n");
+	
     TEST_ADD(TestAtinyRpt::test_atiny_dequeue_rpt_data);
+	printf("in TestAtinyRpt 91\n");
     TEST_ADD(TestAtinyRpt::test_atiny_queue_rpt_data);
+	printf("in TestAtinyRpt 93\n");
     TEST_ADD(TestAtinyRpt::test_atiny_clear_rpt_data);
+	printf("in TestAtinyRpt 95\n");
 
     TEST_ADD(TestAtinyRpt::test_atiny_step_rpt);
+	printf("in TestAtinyRpt 98\n");
     TEST_ADD(TestAtinyRpt::test_atiny_destroy_rpt);
+	printf("in TestAtinyRpt 100\n");
     TEST_ADD(TestAtinyRpt::test_atiny_set_max_rpt_cnt);
+	printf("in TestAtinyRpt 102\n");
 }
 TestAtinyRpt::~TestAtinyRpt()
 {

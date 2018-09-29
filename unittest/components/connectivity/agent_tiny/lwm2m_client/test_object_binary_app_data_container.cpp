@@ -94,17 +94,29 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestObjectBinaryAppDataContainer::TestObjectBinaryAppDataContainer()
 {
+	printf("in TestObjectBinaryAppDataContainer 97\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_get_binary_app_data_object);
-    TEST_ADD(TestObjectBinaryAppDataContainer::test_display_binary_app_data_object);
-    TEST_ADD(TestObjectBinaryAppDataContainer::test_free_binary_app_data_object);
+	printf("in TestObjectBinaryAppDataContainer 99\n");
+
+	TEST_ADD(TestObjectBinaryAppDataContainer::test_display_binary_app_data_object);
+    printf("in TestObjectBinaryAppDataContainer 102\n");
+	TEST_ADD(TestObjectBinaryAppDataContainer::test_free_binary_app_data_object);
+	printf("in TestObjectBinaryAppDataContainer 104\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_set_binary_app_data_object_rpt_max_cnt);
 
+	printf("in TestObjectBinaryAppDataContainer 107\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_read);
+	printf("in TestObjectBinaryAppDataContainer 109\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_discover);
+	printf("in TestObjectBinaryAppDataContainer 111\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_write);
+	printf("in TestObjectBinaryAppDataContainer 113\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_create);
+	printf("in TestObjectBinaryAppDataContainer 115\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_delete);
+	printf("in TestObjectBinaryAppDataContainer 117\n");
     TEST_ADD(TestObjectBinaryAppDataContainer::test_prv_exec);
+	printf("in TestObjectBinaryAppDataContainer 119\n");
 }
 TestObjectBinaryAppDataContainer::~TestObjectBinaryAppDataContainer()
 {

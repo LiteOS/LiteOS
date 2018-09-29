@@ -33,9 +33,9 @@
  *---------------------------------------------------------------------------*/
 
 #include "test_at_api_interface.h"
-
+#ifdef __cplusplus
 extern "C" {
-
+#endif
     #include "atadapter.h"
     
     int32_t demo_init()
@@ -68,7 +68,7 @@ extern "C" {
     {
         return AT_OK;
     }
-    
+#if 0
     at_adaptor_api api = {
         .init = NULL,
         .get_localmac = NULL,
@@ -81,7 +81,13 @@ extern "C" {
         .recv_cb = NULL,
         .deinit = NULL,
     };
+#endif
+    at_adaptor_api api = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+//added by shensheng
+#ifdef __cplusplus
 }
+#endif
+
 
 void TestAtApiInterface::test_at_api_register()
 {
@@ -143,11 +149,11 @@ void TestAtApiInterface::test_at_api_recv_timeout()
 {
     int ret = 0;
     
-    ret = at_api_recv_timeout(0, NULL, 0, 0xffff);
+    ret = at_api_recv_timeout(0, NULL, 0, 0xffff,NULL,0);//last 2 paras added by shensheng
     TEST_ASSERT_MSG((ret == AT_FAILED), "test at_api_recv_timeout for recv_timeout_func is NULL failed!");
     
     api.recv_timeout = demo_recv_timeout;
-    ret = at_api_recv_timeout(0, NULL, 0, 0xffff);
+    ret = at_api_recv_timeout(0, NULL, 0, 0xffff,NULL,0);//last 2 paras added by shensheng
     TEST_ASSERT_MSG((ret == AT_OK), "test at_api_recv_timeout for recv_timeout_func is normal failed!");
     return;
 }

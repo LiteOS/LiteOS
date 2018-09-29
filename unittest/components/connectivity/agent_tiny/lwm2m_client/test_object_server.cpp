@@ -93,17 +93,28 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestObjectServer::TestObjectServer()
 {
+	printf("in TestObjectServer 96\n");
     TEST_ADD(TestObjectServer::test_copy_server_object);
+	printf("in TestObjectServer 98\n");
     TEST_ADD(TestObjectServer::test_display_server_object);
+	printf("in TestObjectServer 100\n");
     TEST_ADD(TestObjectServer::test_get_server_object);
+	printf("in TestObjectServer 102\n");
     TEST_ADD(TestObjectServer::test_clean_server_object);
+	printf("in TestObjectServer 104\n");
 
     TEST_ADD(TestObjectServer::test_prv_server_read);
+	printf("in TestObjectServer 107\n");
     TEST_ADD(TestObjectServer::test_prv_server_discover);
+	printf("in TestObjectServer 109\n");
     TEST_ADD(TestObjectServer::test_prv_server_write);
+	printf("in TestObjectServer 111\n");
     TEST_ADD(TestObjectServer::test_prv_server_create);
+	printf("in TestObjectServer 113\n");
     TEST_ADD(TestObjectServer::test_prv_server_delete);
+	printf("in TestObjectServer 115\n");
     TEST_ADD(TestObjectServer::test_prv_server_execute);
+	printf("in TestObjectServer 117\n");
 }
 
 TestObjectServer::~TestObjectServer()

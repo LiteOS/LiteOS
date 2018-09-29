@@ -361,22 +361,33 @@ void TestObjectDevice::test_display_device_object()
 }
 TestObjectDevice::TestObjectDevice()
 {
+printf("in TestObjectDevice 364\n");
     TEST_ADD(TestObjectDevice::test_prv_device_read);
+	
+	printf("in TestObjectDevice 367\n");
     TEST_ADD(TestObjectDevice::test_prv_device_execute);
+	
+	printf("in TestObjectDevice 370\n");
     TEST_ADD(TestObjectDevice::test_prv_device_discover);
+	
+	printf("in TestObjectDevice 373\n");
     TEST_ADD(TestObjectDevice::test_prv_device_write);
+	
+	printf("in TestObjectDevice 376\n");
     TEST_ADD(TestObjectDevice::test_display_device_object);
+	
+	printf("in TestObjectDevice 379\n");
 
 }
 
 void TestObjectDevice::setup()
 {
-    std::cout << "in steup\n";
+    std::cout << "in steup --- test_object_device.cpp\n";
 }
 
 void TestObjectDevice::tear_down()
 {
-    std::cout << "in teardown\n";
+    std::cout << "in teardown --- test_object_device.cpp\n";
 
 }
 

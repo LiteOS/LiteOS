@@ -40,7 +40,12 @@
 extern "C" {
 #include "connection.h"
 #include "object_comm.h"
-
+extern connection_t *connection_create(connection_t *connList,
+                                lwm2m_object_t *securityObj,
+                                int instanceId,
+                                lwm2m_context_t *lwm2mH,
+                                int client_or_server);
+extern void connection_free(connection_t *connP);
 #define SERVER_URI_MAX_LEN 64
     typedef struct
     {
@@ -85,26 +90,26 @@ void TestConnection::test_connection_create()
     lwm2m_list_t instanceList;
 
     securityObj0.instanceList = NULL;
-    connection_t *connP = connection_create(&conn, &securityObj0, 0, NULL);
+    connection_t *connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
     memset(&instanceList, 0, sizeof(lwm2m_list_t));
     securityObj0.instanceList = &instanceList;
     ((security_instance_t*)(securityObj0.instanceList))->uri = NULL;
-    connP = connection_create(&conn, &securityObj0, 0, NULL);
+    connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
     ((security_instance_t*)(securityObj0.instanceList))->uri = "coaps://";
-    connP = connection_create(&conn, &securityObj0, 0, NULL);
+    connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
     ((security_instance_t*)(securityObj0.instanceList))->uri = "coa://";
-    connP = connection_create(&conn, &securityObj0, 0, NULL);
+    connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
     char uri[] = "coap://[192.168.1.12]:[5683]";
     ((security_instance_t*)(securityObj0.instanceList))->uri = uri;
-    connP = connection_create(&conn, &securityObj0, 0, NULL);
+    connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
     connP = NULL;
@@ -116,7 +121,7 @@ void TestConnection::test_connection_create()
     lwm2m_object_t *securityObj = get_security_object(serverId, atiny_params, &context);
     TEST_ASSERT((securityObj != NULL));
     
-    connP = connection_create(&conn, securityObj, 0, &context);
+    connP = connection_create(&conn, securityObj, 0, &context,0);//last 0 added by shensheng
     TEST_ASSERT_MSG((connP != NULL), "Test in connection_create when atiny_net_connect is Failed!");
     TEST_ASSERT((connP->next == &conn));
     TEST_ASSERT((connP->securityObj == securityObj));
@@ -128,7 +133,7 @@ void TestConnection::test_connection_create()
     stubInfo si;
     setStub((void *)atiny_net_connect, (void *)stub_atiny_net_connect, &si);
     
-    connP = connection_create(&conn, securityObj, 0, &context);
+    connP = connection_create(&conn, securityObj, 0, &context,0);//last 0 added by shensheng
     TEST_ASSERT_MSG((connP == NULL), "Test in connection_create when atiny_net_connect return NULL is Failed!");
     lwm2m_free(connP);
     cleanStub(&si);
@@ -139,7 +144,7 @@ void TestConnection::test_connection_create()
 int stub_atiny_net_send1( void *ctx, const unsigned char *buf, size_t len )
 {
     //stub func for test lwm2m_buffer_send(), return len
-    std::cout << "return " << len << "\n";
+    std::cout << "in stub_atiny_net_send1 return " << len << "\n";
     return len;
 }
 
@@ -154,7 +159,9 @@ void TestConnection::test_lwm2m_buffer_send()
     TEST_ASSERT(ret == COAP_500_INTERNAL_SERVER_ERROR);
 
     setStub((void *)atiny_net_send, (void *)stub_atiny_net_send1, &si);
+    printf("in test_lwm2m_buffer_send 163\n");
     ret = lwm2m_buffer_send(&conn, buf, 0, NULL);
+    printf("in test_lwm2m_buffer_send 165\n");
     TEST_ASSERT(ret == 0);
     cleanStub(&si);
 
@@ -165,11 +172,14 @@ void TestConnection::test_lwm2m_buffer_send()
     conn.net_context = &anc;
     anc.fd = open("./demo", O_CREAT | O_RDWR, 0777);
     unlink("./demo");
+    printf("in test_lwm2m_buffer_send 175\n");
     ret = lwm2m_buffer_send(&conn, buf, strlen((char *)buf), NULL);
+    printf("in test_lwm2m_buffer_send 177\n");
 
     read(anc.fd, buf2, 64);
     TEST_ASSERT((strncmp((char *)buf, buf2, strlen((char *)buf))));
     close(anc.fd);
+    printf("in test_lwm2m_buffer_send 182\n");
 }
 
 void TestConnection::test_lwm2m_connect_server()
@@ -247,18 +257,27 @@ void TestConnection::test_lwm2m_buffer_recv()
     sessionH->net_context = (int *)malloc(sizeof(int));
 
     stubInfo si;
+    printf("in test_lwm2m_buffer_recv 255\n");
     setStub((void *)atiny_net_recv_timeout, (void *)stub_atiny_net_recv_timeout, &si);
+    printf("in test_lwm2m_buffer_recv 257\n");
+
     sessionH->dtls_flag = false;
     sessionH->errs[1] = 0;
+	printf("in test_lwm2m_buffer_recv 266\n");
     result = lwm2m_buffer_recv(sessionH, NULL, 0, 1);
+	printf("in test_lwm2m_buffer_recv 268\n");
     TEST_ASSERT_EQUALS_MSG(result, -1, result);
     sessionH->errs[1] = 11;
+
+	printf("in test_lwm2m_buffer_recv 272\n");
     result = lwm2m_buffer_recv(sessionH, NULL, 0, 1);
+	printf("in test_lwm2m_buffer_recv 274\n");
     TEST_ASSERT_EQUALS_MSG(result, -1, result);
     cleanStub(&si);
 
     free(sessionH->net_context);
     free(sessionH);
+	printf("in test_lwm2m_buffer_recv 280\n");
 
 }
 void TestConnection::test_connection_free()
@@ -303,14 +322,23 @@ void TestConnection::test_lwm2m_register_connection_err_notify()
 TestConnection::TestConnection()
 {
 
+	printf("in TestConnection 1\n");
     TEST_ADD(TestConnection::test_connection_create);
+	printf("in TestConnection 2\n");
     TEST_ADD(TestConnection::test_lwm2m_buffer_send);
+	printf("in TestConnection 3\n");
     TEST_ADD(TestConnection::test_lwm2m_session_is_equal);
+	printf("in TestConnection 4\n");
     TEST_ADD(TestConnection::test_lwm2m_connect_server);
+	printf("in TestConnection 5\n");
     TEST_ADD(TestConnection::test_lwm2m_close_connection);
+	printf("in TestConnection 6\n");
     TEST_ADD(TestConnection::test_lwm2m_buffer_recv);
+	printf("in TestConnection 7\n");
     TEST_ADD(TestConnection::test_connection_free);
+	printf("in TestConnection 8\n");
     TEST_ADD(TestConnection::test_lwm2m_register_connection_err_notify);
+	printf("in TestConnection 9end\n");
 }
 
 void TestConnection::setup()

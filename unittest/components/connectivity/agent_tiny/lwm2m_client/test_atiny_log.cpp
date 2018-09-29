@@ -52,9 +52,13 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestAtinyLog::TestAtinyLog()
 {
+	printf("in TestAtinyLog 55\n");
     TEST_ADD(TestAtinyLog::test_atiny_set_log_level);
+	printf("in TestAtinyLog 57\n");
     TEST_ADD(TestAtinyLog::test_atiny_get_log_level);
+	printf("in TestAtinyLog 59\n");
     TEST_ADD(TestAtinyLog::test_atiny_get_log_level_name);
+	printf("in TestAtinyLog 61\n");
 }
 TestAtinyLog::~TestAtinyLog()
 {

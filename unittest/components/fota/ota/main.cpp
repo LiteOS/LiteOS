@@ -6,6 +6,7 @@
 #include "test_ota.h"
 int main()
 {
+        printf("in main 9\n");
     Test::Suite ts;
 
 //    ts.add(std::auto_ptr<Test::Suite>(new TestConnection));
@@ -26,14 +27,14 @@ int main()
 
 //    ts.add(std::auto_ptr<Test::Suite>(new TestObjectAccessControl));
 //    ts.add(std::auto_ptr<Test::Suite>(new TestAtinyFotaManager));   //mce7
-	ts.add(std::auto_ptr<Test::Suite>(new TestOtaDefault));
+      ts.add(std::auto_ptr<Test::Suite>(new TestOtaDefault));
 	ts.add(std::auto_ptr<Test::Suite>(new TestOta));
-	
     std::ofstream html;
     html.open("Result.htm");
-
     Test::HtmlOutput output;
+    printf("in main 39 \n");
     ts.run(output);
+    printf("in main 41 \n");
     output.generate(html);
     html.close();
 }

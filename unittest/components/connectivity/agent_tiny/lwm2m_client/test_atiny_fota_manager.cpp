@@ -127,23 +127,39 @@ atiny_update_info_s * si_atiny_update_info_get_instance(void)
 
 TestAtinyFotaManager::TestAtinyFotaManager()
 {
+	printf("in TestAtinyFotaManager 130 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_start_download);
+	printf("in TestAtinyFotaManager 132 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_execute_update);
+	printf("in TestAtinyFotaManager 134 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_finish_download);
+	printf("in TestAtinyFotaManager 136 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_repot_result);
+	printf("in TestAtinyFotaManager 138 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_set_state);
+	printf("in TestAtinyFotaManager 140 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_set_storage_device);
+	printf("in TestAtinyFotaManager 142 \n");
 //    TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_storage_device);
 //    TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_update_notify);
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_destroy);
+	printf("in TestAtinyFotaManager 146 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_set_lwm2m_context);
+	printf("in TestAtinyFotaManager 148 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_lwm2m_context);
+	printf("in TestAtinyFotaManager 150 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_instance);
+	printf("in TestAtinyFotaManager 152 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_pkg_uri);
+	printf("in TestAtinyFotaManager 154 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_data_cfg);
+	printf("in TestAtinyFotaManager 156 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_update_result);
+	printf("in TestAtinyFotaManager 158 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_get_deliver_method);
+	printf("in TestAtinyFotaManager 160 \n");
     TEST_ADD(TestAtinyFotaManager::test_atiny_fota_manager_update_notify);
+	printf("in TestAtinyFotaManager 162 \n");
 
 
 }
@@ -417,12 +433,12 @@ TestAtinyFotaManager::~TestAtinyFotaManager()
 
 void TestAtinyFotaManager::setup()
 {
-    std::cout<<"in steup\n";
+    std::cout<<"in steup --- test_atiny_fota_manager.cpp\n";
 }
 
 void TestAtinyFotaManager::tear_down()
 {
-    std::cout<<"in teardown\n";
+    std::cout<<"in teardown --- test_atiny_fota_manager.cpp\n";
 }
 
 

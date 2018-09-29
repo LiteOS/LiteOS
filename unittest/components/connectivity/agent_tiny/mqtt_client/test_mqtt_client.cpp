@@ -76,11 +76,13 @@ stubInfo si_atiny_strdup;
 
 typedef struct
 {
-	atiny_device_info_t device_info;
-	MQTTClient client;
-	atiny_param_t atiny_params;
-	char atiny_quit;
-}handle_data_t;
+    atiny_device_info_t device_info;
+    MQTTClient client;
+    atiny_param_t atiny_params;
+    char atiny_quit;
+    char bind_quit;
+} handle_data_t;
+
 
 void message_test(cloud_msg_t *msg)
 {
@@ -400,6 +402,7 @@ void TestMQTT_Client::test_atiny_init(void)
 	result = atiny_init(&test_atiny_params, (void **)&test_g_p);
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_init(...) failed");
 
+    test_g_p->atiny_quit = 1;
 	atiny_deinit(test_g_p);
 	
 	
@@ -416,6 +419,7 @@ void TestMQTT_Client::test_atiny_init(void)
 	result = atiny_init(&test_atiny_params, (void **)&test_g_p);
 	TEST_ASSERT_MSG((result == ATINY_OK), "atiny_init(...) failed");
 	printf("start deinit...,client_id is %p\n",test_g_p->device_info.client_id);
+    test_g_p->atiny_quit = 1;
 	atiny_deinit(test_g_p);
 
 
@@ -892,6 +896,7 @@ void TestMQTT_Client::test_atiny_bind()
 	cleanStub(&si_device_info_dup);
     
 #if 1
+    test_g_p->bind_quit = 0;
     result = atiny_init(&test_atiny_params, (void **)&test_g_p);
 
 	cloud_will_options_t test_cloud;

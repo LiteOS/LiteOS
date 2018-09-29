@@ -92,6 +92,12 @@ UINT32 LOS_TaskDelete(UINT32 uwTaskID)
     return 0;
 }
 
+CHAR* LOS_TaskNameGet(uint32_t uwTaskID)
+{
+    return NULL;
+}
+
+
 /************************************* semaphore ***********************************/
 UINT32 LOS_BinarySemCreate (UINT16 usCount, UINT32 *puwSemHandle)
 {
@@ -190,6 +196,11 @@ UINT32 LOS_SwtmrCreate(UINT32 uwInterval, UINT8 ucMode, SWTMR_PROC_FUNC pfnHandl
     return 0;
 }
 
+UINT32 LOS_SwtmrDelete(UINT16 usSwTmrID)
+{
+    
+}
+
 
 /*###################################   Agent Tiny   #######################################*/
 
@@ -235,6 +246,18 @@ int read_resp(uint8_t * buf)
     return 0;
 }
 
+void write_at_task_msg(at_msg_type_e type)
+{
+
+}
+/*###################################    nb_iot    ######################################*/
+#if 1
+int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
+{
+	return 0;
+}
+#endif
+
 /*###################################     FOTA    #######################################*/
 
 void hal_spi_flash_config(void)
@@ -271,14 +294,15 @@ int board_rollback_copy(int32_t image_len,
 
 /*###################################     DTLS    #######################################*/
 #ifndef TEST_WITH_DTLS
-mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity)
+mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type)
 {
     return NULL;
 }
-int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port)
+int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 {
     return 0;
 }
+
 void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
 {
     return;
@@ -328,7 +352,6 @@ uint32_t sys_now(void)
     static int i = 0;
     return i++;
 }
-
 
 /*###################################     OTHERS    #######################################*/
 

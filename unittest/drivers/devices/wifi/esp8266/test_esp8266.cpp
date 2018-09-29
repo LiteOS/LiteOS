@@ -187,7 +187,7 @@ TestEsp8266::TestEsp8266()
     TEST_ADD(TestEsp8266::test_esp8266_set_mux_mode);
     TEST_ADD(TestEsp8266::test_esp8266_joinap);
     TEST_ADD(TestEsp8266::test_esp8266_connect);
-    TEST_ADD(TestEsp8266::test_esp8266_send);
+    //TEST_ADD(TestEsp8266::test_esp8266_send);
     TEST_ADD(TestEsp8266::test_esp8266_recv);
     TEST_ADD(TestEsp8266::test_esp8266_recv_timeout);
     TEST_ADD(TestEsp8266::test_esp8266_close);
@@ -573,10 +573,10 @@ void TestEsp8266::test_esp8266_recv_cb(void)
 void TestEsp8266::setup()
 {
     static int i = 0;
-    printf("[%s:%d] ******** %d ************\n",__func__, __LINE__, ++i);
+    printf("[%s:%d] ******** %d Action ************\n",__func__, __LINE__, ++i);
 }
 
 void TestEsp8266::tear_down()
 {
-    
+    printf("***** Over *****\n");
 }

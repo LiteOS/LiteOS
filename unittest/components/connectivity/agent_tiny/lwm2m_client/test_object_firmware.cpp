@@ -144,19 +144,26 @@ void TestObjectFirmware::test_prv_firmware_write()
 
 TestObjectFirmware::TestObjectFirmware()
 {
+printf("in TestObjectFirmware 147\n");
     TEST_ADD(TestObjectFirmware::test_prv_firmware_read);
+	
+	printf("in TestObjectFirmware 150\n");
     TEST_ADD(TestObjectFirmware::test_prv_firmware_execute);
+	
+	printf("in TestObjectFirmware 153\n");
     TEST_ADD(TestObjectFirmware::test_prv_firmware_write);
+	
+	printf("in TestObjectFirmware 156\n");
 }
 
 void TestObjectFirmware::setup()
 {
-    std::cout << "in steup\n";
+    std::cout << "in steup --- test_object_firmware.cpp\n";
 }
 
 void TestObjectFirmware::tear_down()
 {
-    std::cout << "in teardown\n";
+    std::cout << "in teardown --- test_object_firmware.cpp\n";
 }
 
 

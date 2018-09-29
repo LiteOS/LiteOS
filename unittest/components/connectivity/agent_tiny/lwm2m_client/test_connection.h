@@ -37,7 +37,6 @@
 
 #include <cpptest.h>
 #include "agenttiny.h"
-
 class TestConnection: public Test::Suite {
 
  public:

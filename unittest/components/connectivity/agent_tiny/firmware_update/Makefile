@@ -23,8 +23,8 @@ CFLAGS :=
 endif
 
 
-CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
+CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_BOOTSTRAP -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS
 CFLAGS += -DWITH_LOGS -DLWM2M_WITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
@@ -39,6 +39,8 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 

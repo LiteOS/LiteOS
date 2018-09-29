@@ -511,25 +511,35 @@ void TestObjectAccessControl::test_acc_auth_operate()
 
 
 TestObjectAccessControl::TestObjectAccessControl(){
+	printf("in TestObjectAccessControl 514\n");
 	TEST_ADD(TestObjectAccessControl::test_prv_write);
+	printf("in TestObjectAccessControl 516\n");
 	TEST_ADD(TestObjectAccessControl::test_prv_create);
+	printf("in TestObjectAccessControl 518\n");
 	TEST_ADD(TestObjectAccessControl::test_prv_read);
+	printf("in TestObjectAccessControl 520\n");
 	TEST_ADD(TestObjectAccessControl::test_prv_delete);
+	printf("in TestObjectAccessControl 522\n");
 	TEST_ADD(TestObjectAccessControl::test_acc_ctrl_create_object);
+	printf("in TestObjectAccessControl 524\n");
 	TEST_ADD(TestObjectAccessControl::test_acl_ctrl_free_object);
+	printf("in TestObjectAccessControl 526\n");
 	TEST_ADD(TestObjectAccessControl::test_acc_ctrl_obj_add_inst);
+	printf("in TestObjectAccessControl 528\n");
 	TEST_ADD(TestObjectAccessControl::test_acc_ctrl_oi_add_ac_val);
+	printf("in TestObjectAccessControl 530\n");
 	TEST_ADD(TestObjectAccessControl::test_acc_auth_operate);
+	printf("in TestObjectAccessControl 532\n");
 
 }
 
 
 void TestObjectAccessControl::setup(){
-    std::cout<<"in steup\n";
+    std::cout<<" test_object_access_control.cpp --- in steup\n";
 }
 
 void TestObjectAccessControl::tear_down(){
-    std::cout<<"in teardown\n";
+    std::cout<<" test_object_access_control.cpp --- in teardown\n";
 }
 
 

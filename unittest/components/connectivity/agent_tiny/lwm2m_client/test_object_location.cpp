@@ -85,11 +85,16 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestObjectLocation::TestObjectLocation()
 {
+	printf("in TestObjectLocation 88\n");
     TEST_ADD(TestObjectLocation::test_get_object_location);
+	printf("in TestObjectLocation 90\n");
     TEST_ADD(TestObjectLocation::test_display_location_object);
+	printf("in TestObjectLocation 92\n");
     TEST_ADD(TestObjectLocation::test_free_object_location);
+	printf("in TestObjectLocation 94\n");
 
     TEST_ADD(TestObjectLocation::test_prv_location_read);
+	printf("in TestObjectLocation 97\n");
 }
 TestObjectLocation::~TestObjectLocation()
 {
