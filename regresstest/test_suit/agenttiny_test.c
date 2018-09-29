@@ -81,7 +81,7 @@ void test_init_task(UINT32 uwArg){
     atiny_params->server_params.life_time = 20;
     atiny_params->server_params.storing_cnt = 0;
 
-    atiny_params->bootstrap_mode = BOOTSTRAP_FACTORY;
+    atiny_params->server_params.bootstrap_mode = BOOTSTRAP_FACTORY;
 
     //pay attention: index 0 for iot server, index 1 for bootstrap server.
     iot_security_param = &(atiny_params->security_params[0]);
