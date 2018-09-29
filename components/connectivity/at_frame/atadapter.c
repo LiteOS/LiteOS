@@ -45,7 +45,7 @@
 
 extern uint8_t buff_full;
 /* FUNCTION */
-void at_init();
+void at_init(void);
 //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
 int32_t at_get_unuse_linkid();
@@ -54,7 +54,7 @@ void at_listner_list_del(at_listener *p);
 int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 
-void at_deinit();
+void at_deinit(void);
 //init function for at struct
 
 at_oob_t at_oob;
@@ -283,7 +283,7 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
 
     memset(&listener, 0, sizeof(listener));
     listener.cmd_info = *cmd_info;
-    print_len = ((cmd_info->resp_buf && cmd_info->resp_len) ? *(cmd_info->resp_len) : -1);
+    print_len = ((cmd_info->resp_buf && cmd_info->resp_len) ? (int)*(cmd_info->resp_len) : -1);
     AT_LOG("cmd:%s len %d", cmd, print_len);
 
     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);
@@ -781,7 +781,7 @@ int32_t at_struct_deinit(at_task *at)
     return ret;
 }
 
-void at_init()
+void at_init(void)
 {
     AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
@@ -813,7 +813,7 @@ void at_init()
 }
 
 
-void at_deinit()
+void at_deinit(void)
 {
 
 
