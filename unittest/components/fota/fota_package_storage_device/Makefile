@@ -24,7 +24,8 @@ CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE
 CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA
 CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage 
+
 #CFLAGS += -DUSE_BOOTLOADER
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
@@ -81,7 +82,8 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
-	-I$(HW_LITEOSDIR)/unittest/stub 
+	-I$(HW_LITEOSDIR)/unittest/stub \
+#	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include/lwip/ 
 	
 
 CPP_SRC := $(wildcard *.cpp)

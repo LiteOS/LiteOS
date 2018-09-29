@@ -93,11 +93,16 @@ extern "C"
 
 TestObjectConnectivityMoni::TestObjectConnectivityMoni()
 {
+	printf("in TestObjectConnectivityMoni 96\n");
     TEST_ADD(TestObjectConnectivityMoni::test_get_object_conn_m);
+	printf("in TestObjectConnectivityMoni 98\n");
     TEST_ADD(TestObjectConnectivityMoni::test_free_object_conn_m);
+	printf("in TestObjectConnectivityMoni 100\n");
     TEST_ADD(TestObjectConnectivityMoni::test_connectivity_moni_change);
+	printf("in TestObjectConnectivityMoni 102\n");
 
     TEST_ADD(TestObjectConnectivityMoni::test_prv_read);
+	printf("in TestObjectConnectivityMoni 105\n");
 }
 TestObjectConnectivityMoni::~TestObjectConnectivityMoni()
 {

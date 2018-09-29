@@ -69,6 +69,7 @@ extern int atiny_net_send(void *ctx, const unsigned char *buf, size_t len);
 extern void atiny_net_close(void *ctx);
 extern int getaddrinfo(const char *nodename, const char *servername, const struct addrinfo *hints, struct addrinfo **res);
 extern int fcntl(int s, int cmd, int val);
+extern int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len );
 
 
 int recv_flag = 0;
@@ -85,6 +86,7 @@ TestAtiny_Socket::TestAtiny_Socket()
     TEST_ADD(TestAtiny_Socket::test_atiny_net_recv_timeout);
     TEST_ADD(TestAtiny_Socket::test_atiny_net_send);
     TEST_ADD(TestAtiny_Socket::test_atiny_net_close);
+    TEST_ADD(TestAtiny_Socket::test_atiny_net_accept);
 #endif	
 }
 
@@ -145,6 +147,11 @@ int stub_send(int s, const void *data, size_t size, int flags)
 TestAtiny_Socket::~TestAtiny_Socket(void)
 {
 
+}
+
+void TestAtiny_Socket::test_atiny_net_accept(void)
+{
+    
 }
 
 void TestAtiny_Socket::test_atiny_net_connect(void)

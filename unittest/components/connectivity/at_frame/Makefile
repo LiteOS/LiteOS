@@ -20,7 +20,7 @@ CFLAGS :=
 endif
 CFLAGS += -w -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DWITH_AT_FRAMEWORK -DUSE_NB_NEUL95 -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0 -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage -fpermissive -g
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 #compile dynamic library of agenttiny.c
 
@@ -30,6 +30,7 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/atadapter.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/drivers/devices/nb/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c)
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
 
@@ -69,8 +70,8 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/unittest/stub/ 
-	
+	-I$(HW_LITEOSDIR)/unittest/stub/ \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE_CubeMx/Inc/
 CPP_SRC:= $(wildcard *.cpp)
 CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
 C_SRC:=$(wildcard *.c)

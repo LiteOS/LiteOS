@@ -1,3 +1,4 @@
+#if 1
 #include <cpptest.h>
 #include <iostream>
 #include <fstream>
@@ -8,10 +9,11 @@
 #include "test_fota_package_storage_device.h"
 #include "option/test_fota_package_sha256.h"
 #include "option/test_fota_package_sha256_rsa2048.h"
+#endif
 int main()
 {
+#if 1
     Test::Suite ts;
-
 
 	ts.add(std::auto_ptr<Test::Suite>(new TestFotaFirmwareWrite));
 	ts.add(std::auto_ptr<Test::Suite>(new TestFotaPackageCheckSum));
@@ -27,4 +29,6 @@ int main()
     ts.run(output);
     output.generate(html);
     html.close();
+#endif
+    return 0;
 }

@@ -49,9 +49,12 @@ extern "C"{
 #include "dtls_interface.h"
 #include "fota_package_storage_device.h"
 
+
 /* Defines ------------------------------------------------------------------*/
 /* Macros -------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
+typedef uint32_t at_msg_type_e;
+
 /* Extern variables ---------------------------------------------------------*/
 /* Functions API ------------------------------------------------------------*/
 
@@ -63,6 +66,8 @@ extern VOID LOS_IntRestore(UINTPTR uvIntSave);
 extern UINT32 LOS_TaskCreate(UINT32 *puwTaskID, TSK_INIT_PARAM_S *pstInitParam);
 extern UINT32 LOS_TaskDelay(UINT32 uwTick);
 extern UINT32 LOS_TaskDelete(UINT32 uwTaskID);
+extern CHAR* LOS_TaskNameGet(uint32_t uwTaskID);
+
 /* semaphore */
 extern UINT32 LOS_BinarySemCreate (UINT16 usCount, UINT32 *puwSemHandle);
 extern UINT32 LOS_SemCreate (UINT16 usCount, UINT32 *puwSemHandle);
@@ -111,16 +116,19 @@ extern int board_update_copy(int32_t image_len,
 extern int board_rollback_copy(int32_t image_len,
                         void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
                         int (*func_set_update_record)(uint8_t state, uint32_t offset));
+extern void write_at_task_msg(at_msg_type_e type);
 
 
 /*###################################     DTLS    #######################################*/
 #ifndef TEST_WITH_DTLS
-
 extern int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t timeout);
-extern int dtls_shakehand(mbedtls_ssl_context *ssl, const char *host, const char *port);
 extern void dtls_ssl_destroy(mbedtls_ssl_context *ssl);
-extern mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity);
 extern int dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len);
+
+extern mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type);
+
+extern int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info);
+
 #endif
 /*###################################     LWIP    #######################################*/
 extern int lwip_fcntl(int s, int cmd, int val);

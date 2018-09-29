@@ -140,21 +140,30 @@ void TestAtinyUpdateInfo::test_atiny_update_info_get_instance()
 
 TestAtinyUpdateInfo::TestAtinyUpdateInfo()
 {
+printf("in TestAtinyUpdateInfo 143\n");
     TEST_ADD(TestAtinyUpdateInfo::test_atiny_update_info_set);
+	
+	printf("in TestAtinyUpdateInfo 146\n");
     TEST_ADD(TestAtinyUpdateInfo::test_atiny_update_info_write);
+	
+	printf("in TestAtinyUpdateInfo 149\n");
     TEST_ADD(TestAtinyUpdateInfo::test_atiny_update_info_read);
+	
+	printf("in TestAtinyUpdateInfo 152\n");
     TEST_ADD(TestAtinyUpdateInfo::test_atiny_update_info_get_instance);
+	
+	printf("in TestAtinyUpdateInfo 155\n");
 
 }
 
 void TestAtinyUpdateInfo::setup()
 {
-    std::cout << "in steup\n";
+    std::cout << "in steup -- test_atiny_update_info.cpp\n";
 }
 
 void TestAtinyUpdateInfo::tear_down()
 {
-    std::cout << "in teardown\n";
+    std::cout << "in teardown -- test_atiny_update_info.cpp\n";
 }
 
 

@@ -81,13 +81,20 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestObjectSecurity::TestObjectSecurity()
 {
+	printf("in TestObjectSecurity 84\n");
     TEST_ADD(TestObjectSecurity::test_copy_security_object);
+	printf("in TestObjectSecurity 86\n");
     TEST_ADD(TestObjectSecurity::test_display_security_object);
+	printf("in TestObjectSecurity 88\n");
     TEST_ADD(TestObjectSecurity::test_clean_security_object);
+	printf("in TestObjectSecurity 90\n");
     TEST_ADD(TestObjectSecurity::test_get_security_object);
+	printf("in TestObjectSecurity 92\n");
     TEST_ADD(TestObjectSecurity::test_security_get_uri);
+	printf("in TestObjectSecurity 94\n");
 
     TEST_ADD(TestObjectSecurity::test_prv_security_read);
+	printf("in TestObjectSecurity 97\n");
 }
 TestObjectSecurity::~TestObjectSecurity()
 {
@@ -217,23 +224,23 @@ void TestObjectSecurity::test_get_security_object(void)
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_CLIENT_INITIATED;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_CLIENT_INITIATED;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_SEQUENCE;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_SEQUENCE;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    context.bs_sequence_state = BS_SEQUENCE_STATE_FACTORY;
+    //context.bs_sequence_state = BS_SEQUENCE_STATE_FACTORY;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = (atiny_bootstrap_type_e)0xff;
+    s_atiny_params.server_params.bootstrap_mode = (atiny_bootstrap_type_e)0xff;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_FACTORY;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_FACTORY;
     s_malloc_failed_index = 1;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
@@ -242,16 +249,16 @@ void TestObjectSecurity::test_get_security_object(void)
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_CLIENT_INITIATED;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_CLIENT_INITIATED;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_SEQUENCE;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_SEQUENCE;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject == NULL), "get_security_object(...) failed");
 
     s_malloc_failed_index = 3;
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_FACTORY;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_FACTORY;
     pSecurityObject = get_security_object(serverId, &s_atiny_params, &context);
     TEST_ASSERT_MSG((pSecurityObject != NULL), "get_security_object(...) failed");
     clean_security_object(pSecurityObject);
@@ -357,7 +364,7 @@ void TestObjectSecurity::setup()
     s_atiny_params.server_params.life_time = 20;
     s_atiny_params.server_params.storing_cnt = 0;
 
-    s_atiny_params.bootstrap_mode = BOOTSTRAP_FACTORY;
+    s_atiny_params.server_params.bootstrap_mode = BOOTSTRAP_FACTORY;
 
     iot_security_param = &(s_atiny_params.security_params[0]);
     bs_security_param = &(s_atiny_params.security_params[1]);

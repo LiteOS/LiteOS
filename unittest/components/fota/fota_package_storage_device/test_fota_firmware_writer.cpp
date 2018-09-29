@@ -82,6 +82,7 @@ static fota_firmware_writer_s test_writer;
 void TestFotaFirmwareWrite::test_fota_fmw_wr_init()
 {
     //fota_firmware_writer_s test_writer;
+    printf("in test_fota_fmw_wr_init()\n");
     fota_fmw_wr_init(&test_writer);
     TEST_ASSERT_MSG((test_writer.offset == 0), "fota_fmw_wr_init() is failed");
 }
@@ -248,6 +249,7 @@ void TestFotaFirmwareWrite::test_fota_fmw_wr_write_end()
 
 TestFotaFirmwareWrite::TestFotaFirmwareWrite()
 {
+	printf("in TestFotaFirmwareWrite consfunc\n");
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_init);
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_free_save_buffer);
     TEST_ADD(TestFotaFirmwareWrite::test_fota_fmw_wr_destroy);

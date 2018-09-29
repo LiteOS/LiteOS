@@ -6,7 +6,7 @@ AR=ar
 
 BUILD_DIR=build
 
-FILE_PATTERN = "*utility*.c"
+FILE_PATTERN = "*sota*.c"
 
 FOR32 := true
 BIN:= bin
@@ -19,26 +19,30 @@ else
 CFLAGS := 
 endif
 
-
-CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
-CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG
+CFLAGS +=  -w
+CFLAGS += -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_AT_FRAMEWORK -DUSE_NB_NEUL95 -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DWITH_LINUX
 CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
-CFLAGS += -DUSE_BOOTLOADER
+#CFLAGS += -DUSE_BOOTLOADER
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
 SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/at_frame/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/sota/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/drivers/devices/nb/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
 #SRC+= $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 
@@ -58,6 +62,7 @@ INCLUDES:= \
     -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client/ \
 	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/ \
     -I$(HW_LITEOSDIR)/components/connectivity/at_frame/ \
+    -I$(HW_LITEOSDIR)/components/connectivity/sota/ \
 	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
@@ -79,7 +84,8 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
-	-I$(HW_LITEOSDIR)/unittest/stub/
+	-I$(HW_LITEOSDIR)/unittest/stub/ \
+	-I$(HW_LITEOSDIR)/drivers/devices/nb/ 
 	
 
 CPP_SRC := $(wildcard *.cpp)
@@ -89,7 +95,7 @@ C_SRC   := $(wildcard *.c)
 C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN) 
-	@echo "	ota utility OK"
+	echo "sota OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
 TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
@@ -100,7 +106,7 @@ TEST_GCNO+=$(patsubst %.o, %.gcno, $(C_OBJ))
 TEST_GCNO+=$(patsubst %.o, %.gcno, $(LIB_OBJ))
 	
 $(BIN):$(C_OBJ) $(CPP_OBJ)
-	@$(CPP) $(CFLAGS) $(INCLUDES) -o  $@ $^ -lliteos -L$(BUILD_DIR) -lcpptest -lpthread
+	@$(CPP) $(CFLAGS) $(INCLUDES) -o $@ $^ -lliteos -L$(BUILD_DIR) -lcpptest -lpthread
 
 $(CPP_OBJ):$(BUILD_DIR)/%.o:%.cpp
 	@$(CPP) -c $< $(INCLUDES) $(CFLAGS) -o $@

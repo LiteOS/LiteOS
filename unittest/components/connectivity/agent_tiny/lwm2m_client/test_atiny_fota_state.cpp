@@ -576,31 +576,46 @@ void TestAtinyFotaState::test_atiny_fota_updating_state_init()
 TestAtinyFotaState::TestAtinyFotaState()
 {
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_state_default_handle);
+	printf("in TestAtinyFotaState 579\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_state_init);
+		printf("in TestAtinyFotaState 581\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_init);
+		printf("in TestAtinyFotaState 583\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_start_download);
+		printf("in TestAtinyFotaState 585\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_report_result);
+		printf("in TestAtinyFotaState 587\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_manager_update_notify);
+		printf("in TestAtinyFotaState 589\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloading_state_finish_download);
+		printf("in TestAtinyFotaState 591\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloading_state_init);
+		printf("in TestAtinyFotaState 593\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_init);
+		printf("in TestAtinyFotaState 595\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_updating_state_init);
+		printf("in TestAtinyFotaState 597\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_execute_update);
+		printf("in TestAtinyFotaState 599\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_recv_notify_ack);
+		printf("in TestAtinyFotaState 601\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_int_report_result);
-    TEST_ADD(TestAtinyFotaState::atiny_fota_downloading_state_recv_notify_ack)
-    TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack)
+		printf("in TestAtinyFotaState 603\n");
+    TEST_ADD(TestAtinyFotaState::atiny_fota_downloading_state_recv_notify_ack);
+		printf("in TestAtinyFotaState 605\n");
+    TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack);
+		printf("in TestAtinyFotaState 607\n");
 }
 
 
 void TestAtinyFotaState::setup()
 {
-    std::cout << "in steup\n";
+    std::cout << "in steup  --- test_atiny_fota_state.cpp\n";
 }
 
 void TestAtinyFotaState::tear_down()
 {
-    std::cout << "in teardown\n";
+    std::cout << "in teardown --- test_atiny_fota_state.cpp\n";
 }
 
 

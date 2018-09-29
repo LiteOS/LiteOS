@@ -7,7 +7,7 @@ SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client \
 	$(TOP_DIR)/components/connectivity/agent_tiny/osadapter \
 	$(TOP_DIR)/components/connectivity/at_frame \
-	$(TOP_DIR)/components/connectivity/at_fota \
+	$(TOP_DIR)/components/connectivity/sota \
 	$(TOP_DIR)/components/connectivity/nb_iot \
 	$(TOP_DIR)/components/connectivity/paho.mqtt.embedded-c-1.1.0/MQTTClient-C \
 	$(TOP_DIR)/drivers/devices/gprs \
@@ -18,6 +18,7 @@ SUB_DIR := \
 	$(TOP_DIR)/components/fota/fota_package_storage_device
 #	$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
 #	$(TOP_DIR)/drivers/devices/wifi/mavell \
+
 
 GCOV_INFO_SUFFIX := /gcov/gcov.info 
 	

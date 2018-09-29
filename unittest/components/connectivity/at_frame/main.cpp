@@ -42,12 +42,12 @@ int main(){
   Test::Suite ts;
   ts.add(std::auto_ptr<Test::Suite>(new TestAtadapter));
   ts.add(std::auto_ptr<Test::Suite>(new TestAtApiInterface));
-  
   std::ofstream html;
   html.open("Result.htm");
-  
   Test::HtmlOutput output;
+  printf("in main 53\n");
   ts.run(output);
   output.generate(html);
   html.close();
+  printf("in main 55\n");
 }

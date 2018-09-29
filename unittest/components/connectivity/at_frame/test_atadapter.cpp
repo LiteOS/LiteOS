@@ -42,7 +42,6 @@
 #include "test_atadapter.h"
 #include "atadapter.h"
 #include "stub.h"
-
 int32_t BUFLEN = 10;
 extern at_task at;
 extern at_config at_user_conf;
@@ -66,7 +65,8 @@ extern "C" {
     extern int32_t at_get_unuse_linkid();
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
-    extern int32_t at_oob_register(char* featurestr,int cmdlen, oob_callback callback);
+    extern int32_t (*at_oob_register)(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
+    extern int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
     extern void at_init_oob(void);
     extern int32_t at_init();
     extern int32_t at_struct_init(at_task * at);
@@ -75,7 +75,6 @@ extern "C" {
     extern int cloud_cmd_matching(int8_t * buf, int32_t len);
     extern void* atiny_malloc(size_t size);
     extern void atiny_free(void* ptr);
-
     extern void *LOS_MemAlloc (VOID *pPool, UINT32  uwSize);
     extern UINT32 LOS_QueueCreate(CHAR *pcQueueName,
                                           UINT16 usLen,
@@ -96,11 +95,21 @@ extern "C" {
     extern UINT32  LOS_MuxCreate (UINT32 *puwMuxHandle);
     extern int read_resp(uint8_t * buf);
     
+    int test_by_shensheng(void){
+        printf("I am a test\n");
+        return 0;
+    }
     static UINT32 stub_LOS_SemPend(UINT32 uwSemHandle, UINT32 uwTimeout)	
     {
     	return -1;
     }
+#if 0
     int32_t obb_callback_handler(void * arg, int8_t * buf, int32_t len)
+    {
+    	return BUFLEN;
+    }
+#endif
+    int32_t obb_callback_handler(const char * arg, char * buf, int len)
     {
     	return BUFLEN;
     }
@@ -167,8 +176,9 @@ void TestAtadapter::test_at_listener_list_add()
 {
    int32_t ret  = -1;
    at_listener listener;
-   listener.suffix = (int8_t *)"OK";
-   listener.resp = (int8_t*)"\r\n";
+   //listener.suffix = (int8_t *)"OK";
+   //listener.resp = (int8_t*)"\r\n";
+   //2 lines above commented by shensheng
    at_listener_list_add(&listener);
    TEST_ASSERT_MSG(( ret == -1), "Test at_listener_list_add() Failed");
 }
@@ -177,8 +187,9 @@ void TestAtadapter::test_at_listner_list_del()
 {  
    int32_t ret  = -1;
    at_listener listener;
-   listener.suffix = (int8_t *)"OK";
-   listener.resp = (int8_t*)"\r\n";
+   //listener.suffix = (int8_t *)"OK";
+   //listener.resp = (int8_t*)"\r\n";
+	// 2 lines above commented by shensheng
    at.head = &listener;
    at_listner_list_del(&listener);
    TEST_ASSERT_MSG(( ret == -1), "Test at_listener_list_del() Failed");
@@ -200,10 +211,12 @@ void TestAtadapter::test_store_resp_buf()
    int8_t resp_buf[100] = {0};
    int8_t buf[] = "OK";
    uint32_t len = 100;
-   store_resp_buf(resp_buf, sizeof(resp_buf), NULL, len);
+   int8_t src[100] = {0};
+   int maxlen = 0;
+   store_resp_buf(resp_buf, src, sizeof(src), &maxlen);
    TEST_ASSERT_MSG(( ret == -1), "Test store_resp_buf() Failed");
    //abnormal
-   store_resp_buf(resp_buf, sizeof(resp_buf), buf, len);
+   store_resp_buf(resp_buf, src, sizeof(src), &maxlen);
    TEST_ASSERT_MSG(( ret == -1), "Test store_resp_buf() Failed");
 }
 
@@ -247,19 +260,27 @@ void TestAtadapter::test_cloud_cmd_matching()
    at_init_oob();
    char featurestr[] = "\r\n+RECEIVE";
    int cmdlen = strlen(featurestr);
-   ret = at_oob_register(featurestr, cmdlen, obb_callback_handler);
    int8_t buf[] = "\r\n+RECEIVE,1,4:\r\ndAbc";
    int8_t buf_str[] = "+RECEIVE,1,4:\r\ndAbc";
    int32_t len = strlen((char*)buf);
+   printf("featurestr is %s cmdlen is %d test_by_shensheng addr is %p obb_callback_handler addr is %p\n",featurestr,cmdlen,test_by_shensheng,obb_callback_handler);
+   //at_oob_register(featurestr, cmdlen, NULL ,obb_callback_handler);
+   printf("in test_cloud_cmd_matching 259\n");
+   
    ret = cloud_cmd_matching(buf, len);
+   printf("in test_cloud_cmd_matching 260\n");
    TEST_ASSERT_MSG(( ret == BUFLEN), "Test1 cloud_cmd_matching() Failed");
    //abnormal
    ret = cloud_cmd_matching(buf_str, len);
    TEST_ASSERT_MSG(( ret == 0), "Test2 cloud_cmd_matching() Failed");
+   printf("in test_cloud_cmd_matching 265\n");
 }
 
 void TestAtadapter::test_at_recv_task()
 {
+    int oldstate = 0,oldtype = 0;
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,&oldstate);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,&oldtype);
     pthread_t pid = 0;
     at_listener l;
     char buf[2048] = {0};
@@ -267,12 +288,13 @@ void TestAtadapter::test_at_recv_task()
     stubInfo si_read_resp;
     setStub((void *)read_resp,(void *)stub_read_resp,&si_read_resp);
         
-    l.suffix = (int8_t*)"TEST_SUFFIX";
-    l.resp = NULL;
-    l.resp_len = 0;
+    //l.suffix = (int8_t*)"TEST_SUFFIX";
+    //l.resp = NULL;
+    //l.resp_len = 0;
+    //3 lines above commented by shensheng
     l.next = NULL;
     at_init();
-    at_oob_register("+IPD", strlen("+IPD"), oob_callback2);
+    //at_oob_register("+IPD", strlen("+IPD"), NULL,oob_callback2);
     pthread_create(&pid, NULL, (void* (*)(void*))at_recv_task, NULL);
 
     #define NULL_STR ""
@@ -299,8 +321,9 @@ void TestAtadapter::test_at_recv_task()
     TEST_ASSERT_MSG((strlen(buf) == 0), "test listener got resp failed, should be 0!");
     at_listner_list_del(&l);
 
-    l.resp = (int8_t*)buf;
-    l.resp_len = sizeof(buf);
+    //l.resp = (int8_t*)buf;
+    //l.resp_len = sizeof(buf);
+    //2 lines above commented by shensheng
     at_listener_list_add(&l);
     gp_resp_ptr = (uint8_t*)TEST_LISTENER_STR;
     sleep(1);
@@ -315,16 +338,21 @@ void TestAtadapter::test_at_recv_task()
     TEST_ASSERT_MSG((strncmp(buf, TEST_NONLISTENER_STR, strlen(TEST_NONLISTENER_STR)) == 0), "test listener got resp failed!");
     at_listner_list_del(&l);
 
-    l.suffix = NULL;
+    //l.suffix = NULL; commented by shensheng
+    
     at_listener_list_add(&l);
     gp_resp_ptr = (uint8_t*)TEST_NONLISTENER_STR;
     sleep(1);
     TEST_ASSERT_MSG((strncmp(buf, TEST_NONLISTENER_STR, strlen(TEST_NONLISTENER_STR)) == 0), "test listener got resp failed!");
 
     at_listner_list_del(&l);
-    pthread_cancel(pid);
-    
-    pthread_join(pid, NULL);
+    int rv_cancel = pthread_cancel(pid);
+    printf("rv_cancel is %d\n",rv_cancel);
+    printf("before pthread_join \n");
+    int retval = 42;
+    int * p_rv = &retval;
+    //pthread_join(pid, &p_rv);
+    printf("after pthread_join \n");
     cleanStub(&si_read_resp);
     at_deinit();
 }
@@ -400,25 +428,24 @@ void TestAtadapter::test_at_struct_init()
 
 TestAtadapter::TestAtadapter()
 {
+
    TEST_ADD(TestAtadapter::test_at_listener_list_add);
    TEST_ADD(TestAtadapter::test_at_listner_list_del);
    TEST_ADD(TestAtadapter::test_at_get_unuse_linkid);
    TEST_ADD(TestAtadapter::test_store_resp_buf);
    TEST_ADD(TestAtadapter::test_at_cmd);
    TEST_ADD(TestAtadapter::test_at_write);
-   TEST_ADD(TestAtadapter::test_cloud_cmd_matching);
-   //TEST_ADD(TestAtadapter::test_at_init);
-   TEST_ADD(TestAtadapter::test_at_recv_task);
-   TEST_ADD(TestAtadapter::test_at_struct_init);
+
+    TEST_ADD(TestAtadapter::test_cloud_cmd_matching);
+//   TEST_ADD(TestAtadapter::test_at_init);
+    TEST_ADD(TestAtadapter::test_create_at_recv_task);
+    TEST_ADD(TestAtadapter::test_at_recv_task);
+    TEST_ADD(TestAtadapter::test_at_struct_init);
    
    
    
-   #if 0
-   TEST_ADD(TestAtadapter::test_create_at_recv_task);
-   TEST_ADD(TestAtadapter::test_at_init_oob);
-   TEST_ADD(TestAtadapter::test_at_init);
-   TEST_ADD(TestAtadapter::test_at_oob_register);
-   #endif
+    TEST_ADD(TestAtadapter::test_at_init_oob);
+//by shensheng undefined ref    TEST_ADD(TestAtadapter::test_at_oob_register);
 }
 
 //protected:

@@ -132,18 +132,27 @@ void TestObjectObjectConnectivityStat::test_conn_s_updateRxStatistic()
 
 TestObjectObjectConnectivityStat::TestObjectObjectConnectivityStat()
 {
-    TEST_ADD(TestObjectObjectConnectivityStat::test_prv_read);
-    TEST_ADD(TestObjectObjectConnectivityStat::test_prv_exec);
-    TEST_ADD(TestObjectObjectConnectivityStat::test_conn_s_updateTxStatistic);
-    TEST_ADD(TestObjectObjectConnectivityStat::test_conn_s_updateRxStatistic);
-}
+printf("in TestObjectObjectConnectivityStat 135\n");
+      TEST_ADD(TestObjectObjectConnectivityStat::test_prv_read);
+	  
+	  printf("in TestObjectObjectConnectivityStat 138\n");
+      TEST_ADD(TestObjectObjectConnectivityStat::test_prv_exec);
+	  
+	  printf("in TestObjectObjectConnectivityStat 141\n");
+      TEST_ADD(TestObjectObjectConnectivityStat::test_conn_s_updateTxStatistic);
+	  
+	  printf("in TestObjectObjectConnectivityStat 144\n");
+      TEST_ADD(TestObjectObjectConnectivityStat::test_conn_s_updateRxStatistic);
+	  
+	  printf("in TestObjectObjectConnectivityStat 147\n");
+ }
 
 void TestObjectObjectConnectivityStat::setup()
 {
-    std::cout << "in steup\n";
+    std::cout << "in steup --- test_object_connectivity_stat.cpp\n";
 }
 
 void TestObjectObjectConnectivityStat::tear_down()
 {
-    std::cout << "in teardown\n";
+    std::cout << "in teardown --- test_object_connectivity_stat.cpp\n";
 }

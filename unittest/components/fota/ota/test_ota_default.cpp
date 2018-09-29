@@ -364,6 +364,7 @@ void TestOtaDefault::test_ota_roll_back_image()
 
 TestOtaDefault::TestOtaDefault()
 {
+#if 1
     TEST_ADD(TestOtaDefault::test_ota_default_init);
     TEST_ADD(TestOtaDefault::test_ota_default_set_reboot);
     TEST_ADD(TestOtaDefault::test_ota_default_check_update_state);
@@ -377,10 +378,20 @@ TestOtaDefault::TestOtaDefault()
     TEST_ADD(TestOtaDefault::test_ota_register_module);
     TEST_ADD(TestOtaDefault::test_ota_register_assist);
     //TEST_ADD(TestOtaDefault::test_ota_init);
+
     TEST_ADD(TestOtaDefault::test_ota_update_process);
     TEST_ADD(TestOtaDefault::test_ota_jump_to_application);
+
     TEST_ADD(TestOtaDefault::test_ota_roll_back_image);
-    TEST_ADD(TestOtaDefault::test_prv_get_update_record);
+
+    //shensheng TEST_ADD(TestOtaDefault::test_prv_get_update_record);
+#endif
+
+
+
+
+
+	
     // USE_BOOTLOADER NO!
 //    TEST_ADD(TestOtaDefault::test_ota_set_reboot);
 //    TEST_ADD(TestOtaDefault::test_ota_check_update_state);

@@ -28,7 +28,6 @@
 int main()
 {
     Test::Suite ts;
-
     ts.add(std::auto_ptr<Test::Suite>(new TestConnection));
     ts.add(std::auto_ptr<Test::Suite>(new TestObjectDevice));     // mce20
     ts.add(std::auto_ptr<Test::Suite>(new TestObjectFirmware));
@@ -36,7 +35,7 @@ int main()
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyUpdateInfo));
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyFotaState));
 
-    ts.add(std::auto_ptr<Test::Suite>(new TestAgenttiny));  // mce41
+    ts.add(std::auto_ptr<Test::Suite>(new TestAgenttiny));  // mce41 //it will block
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyLog));
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyRpt));
     ts.add(std::auto_ptr<Test::Suite>(new TestObjectLocation));
@@ -48,12 +47,13 @@ int main()
     ts.add(std::auto_ptr<Test::Suite>(new TestObjectAccessControl));
     ts.add(std::auto_ptr<Test::Suite>(new TestAtinyFotaManager));   //mce7
     ts.add(std::auto_ptr<Test::Suite>(new Test_Platform_Adapter));
-
     std::ofstream html;
     html.open("Result.htm");
 
     Test::HtmlOutput output;
+    printf("in main 73 \n");
     ts.run(output);
     output.generate(html);
     html.close();
+    printf("in main 79 \n");
 }
