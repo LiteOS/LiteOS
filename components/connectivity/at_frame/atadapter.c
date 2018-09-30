@@ -531,7 +531,7 @@ void at_recv_task()
         if (recv_len <= 0)
             continue;
 
-        int32_t data_len = 0;
+        //int32_t data_len = 0;
         AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
 
         if (recv_len <= 0)
@@ -540,7 +540,7 @@ void at_recv_task()
             continue;
         }
 
-        ret = cloud_cmd_matching((int8_t *)tmp, data_len);
+        ret = cloud_cmd_matching((int8_t *)tmp, recv_len);
         if(ret > 0)
         {
             continue;
