@@ -439,7 +439,7 @@ TestAtadapter::TestAtadapter()
     TEST_ADD(TestAtadapter::test_cloud_cmd_matching);
 //   TEST_ADD(TestAtadapter::test_at_init);
     TEST_ADD(TestAtadapter::test_create_at_recv_task);
-    TEST_ADD(TestAtadapter::test_at_recv_task);
+//    TEST_ADD(TestAtadapter::test_at_recv_task);
     TEST_ADD(TestAtadapter::test_at_struct_init);
    
    

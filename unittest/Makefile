@@ -3,7 +3,6 @@ TOP_DIR := .
 
 SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/agent_tiny/firmware_update \
-	$(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
 	$(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client \
 	$(TOP_DIR)/components/connectivity/agent_tiny/osadapter \
 	$(TOP_DIR)/components/connectivity/at_frame \
@@ -18,6 +17,7 @@ SUB_DIR := \
 	$(TOP_DIR)/components/fota/fota_package_storage_device
 #	$(TOP_DIR)/drivers/devices/wifi/esp8266_anylink_spi \
 #	$(TOP_DIR)/drivers/devices/wifi/mavell \
+	$(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client \
 
 
 GCOV_INFO_SUFFIX := /gcov/gcov.info 

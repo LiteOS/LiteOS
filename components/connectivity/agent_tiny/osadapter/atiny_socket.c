@@ -212,7 +212,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
 
         ret = getsockname(client_fd, (struct sockaddr*)&local_addr, &n);
 
-        snprintf(port_s, sizeof(port_s), "%d", lwip_ntohs(local_addr.sin_port));
+        snprintf(port_s, sizeof(port_s), "%d", ntohs(local_addr.sin_port));
         ((atiny_net_context*)bind_ctx)->fd = socket(local_addr.sin_family, SOCK_DGRAM, IPPROTO_UDP);
         if( (ret = setsockopt( ((atiny_net_context*)bind_ctx)->fd, SOL_SOCKET, SO_REUSEADDR,
 					(const char *) &one, sizeof( one )) ) != 0 )
