@@ -43,7 +43,6 @@
 #include "los_sys.ph"
 #include "los_tick.ph"
 
-extern uint8_t buff_full;
 /* FUNCTION */
 void at_init(void);
 //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
@@ -533,11 +532,11 @@ void at_recv_task()
             continue;
 
         //int32_t data_len = 0;
-        AT_LOG_DEBUG("recv len = %lu buf = %s buff_full = %d", recv_len, tmp, buff_full);
+        AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
 
         if (recv_len <= 0)
         {
-            AT_LOG("err, recv_len = %ld, buff_full = %d", recv_len, buff_full);
+            AT_LOG("err, recv_len = %ld", recv_len);
             continue;
         }
 
