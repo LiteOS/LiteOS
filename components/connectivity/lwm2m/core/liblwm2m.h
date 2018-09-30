@@ -169,7 +169,7 @@ int lwm2m_rand(void *output, size_t len);
 // sessionH: session handle identifying the peer (opaque to the core)
 // buffer, length: data to send
 // userData: parameter to lwm2m_init()
-uint8_t lwm2m_buffer_send(void* sessionH, uint8_t* buffer, size_t length, void* userData);
+//uint8_t lwm2m_buffer_send(void* sessionH, uint8_t* buffer, size_t length, void* userData);
 // Compare two session handles
 // Returns true if the two sessions identify the same peer. false otherwise.
 // userData: parameter to lwm2m_init()
