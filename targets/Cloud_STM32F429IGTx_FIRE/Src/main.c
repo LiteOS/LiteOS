@@ -62,20 +62,26 @@ VOID HardWare_Init(VOID)
     dwt_delay_init(SystemCoreClock);
 }
 
-
-VOID main_task(VOID)
+void demo_agenttiny_with_lwip(void)
 {
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
-#elif defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-#define AT_DTLS 0
-#if AT_DTLS
+    agent_tiny_entry();
+#else
+    printf("Please checkout if open WITH_LWIP\n");
+#endif
+}
+void demo_nbiot_without_agenttiny(void)
+{
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+    #define AT_DTLS 0
+    #if AT_DTLS
     sec_param_s sec;
     sec.setpsk = 1;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
-#endif
+    #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
@@ -87,16 +93,21 @@ VOID main_task(VOID)
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    //los_nb_notify("\r\n+NNMI:",strlen("\r\n+NNMI:"),nb_data_rcv_handler,nb_cmd_match);
-    //osDelay(3000);
+    
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
     los_nb_report("22", 2);
     los_nb_report("23", 1);
-    //los_nb_deinit();
+    
+#else
+    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95\n");
+#endif
 
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
+}
+void demo_agenttiny_with_nbiot(void)
+{
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
     extern at_adaptor_api at_interface;
     printf("\r\n=============agent_tiny_entry============================\n");
     los_nb_init((const int8_t *)"172.25.233.98",(const int8_t *)"5600",NULL);
@@ -104,25 +115,40 @@ VOID main_task(VOID)
     los_nb_notify("\r\n+NSONMI:",strlen("\r\n+NSONMI:"),NULL,nb_cmd_match);
     at_api_register(&at_interface);
     agent_tiny_entry();
-
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
-		extern at_adaptor_api at_interface;
-		printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
-		at_api_register(&at_interface);
-		agent_tiny_entry();
-
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
-				extern at_adaptor_api at_interface;
-				printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
-				at_api_register(&at_interface);
-				agent_tiny_entry();
-
-		
-	
+#else
+    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95\n");
 #endif
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+}
+void demo_agenttiny_with_gprs(void)
+{
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
+    extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
+    at_api_register(&at_interface);
     agent_tiny_entry();
+#else
+    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_SIM900A\n");
 #endif
+}
+
+void demo_agenttiny_with_wifi(void)
+{
+
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
+    extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
+    at_api_register(&at_interface);
+    agent_tiny_entry();
+#else
+    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_ESP8266\n");
+#endif
+
+}
+
+
+VOID main_task(VOID)
+{
+    demo_agenttiny_with_nbiot();
 }
 
 UINT32 creat_main_task()
@@ -165,21 +191,21 @@ int main(void)
     uart_init();
     extern VOID *main_ppp(UINT32  args);
     task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
-#else
+#endif
     uwRet = creat_main_task();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
 
-    #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+#if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
     uwRet = create_dtls_server_task();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
-    #endif
 #endif
+
     (void)LOS_Start();
     return 0;
 }
