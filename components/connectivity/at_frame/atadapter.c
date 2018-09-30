@@ -43,7 +43,7 @@
 #include "los_sys.ph"
 #include "los_tick.ph"
 
-extern uint8_t buff_full;
+uint8_t buff_full = 0;
 /* FUNCTION */
 void at_init(void);
 //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
