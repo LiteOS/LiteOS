@@ -173,7 +173,7 @@ int lwm2m_rand(void *output, size_t len);
 // Compare two session handles
 // Returns true if the two sessions identify the same peer. false otherwise.
 // userData: parameter to lwm2m_init()
-bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
+//bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
 
 /*
  * Error code
