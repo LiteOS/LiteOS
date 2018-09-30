@@ -219,9 +219,13 @@ void store_resp_buf(int8_t *resp_buf, const int8_t *src, uint32_t src_len, uint3
 
     int copy_len;
 
+    //printf("resp_buf is %p\t src is %p\t maxlen is %p\n",resp_buf,src,maxlen);
+    //printf("src_len is %d\n",src_len);
+    //printf(" *maxlen is %d\n",*maxlen);
     copy_len = MIN(*maxlen, src_len);
     memcpy((char *)resp_buf, (char *)src, copy_len);
     *maxlen = copy_len;
+	printf("in store_resp_buf 230\n");
 }
 
 int32_t at_cmd_in_callback(const int8_t *cmd, int32_t len,
@@ -379,13 +383,19 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
     int i;
     //    int rlen;
     //    memset(wbuf, 0, AT_DATA_LEN);
-
     for(i = 0; i < at_oob.oob_num; i++)
     {
+
         //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
-        ret = at_oob.oob[i].cmd_match((const char *)buf, at_oob.oob[i].featurestr,at_oob.oob[i].len);
+        printf("buf is %s \n",(const char *)buf);
+		printf("featurestr is %s \n",at_oob.oob[i].featurestr);
+		printf("at_oob.oob[i].len is %d \n",at_oob.oob[i].len);
+		printf("cmd_match addr is %p\n",at_oob.oob[i].cmd_match);
+        ret = at_oob.oob[i].cmd_match((const char *)buf, \
+			at_oob.oob[i].featurestr,at_oob.oob[i].len);
         if(ret == 0)
         {
+        	printf("ret==0\n");
             cmp += at_oob.oob[i].len;
             //            sscanf(cmp,"%d,%s",&rlen,wbuf);
             if(at_oob.oob[i].callback != NULL)
@@ -395,6 +405,7 @@ int cloud_cmd_matching(int8_t *buf, int32_t len)
             return len;
         }
     }
+
     return 0;
 }
 
@@ -425,6 +436,11 @@ static void at_handle_resp(int8_t *resp_buf, uint32_t resp_len)
         return;
 
     if (at_handle_callback_cmd_resp(listener, resp_buf, resp_len) == AT_OK)
+    {
+        return;
+    }
+
+    if (listener->cmd_info.suffix == NULL)
     {
         return;
     }
@@ -577,7 +593,9 @@ uint32_t create_at_recv_task()
 void at_init_oob(void)
 {
     at_oob.oob_num = 0;
+	//printf("589\n");
     memset(at_oob.oob, 0, OOB_MAX_NUM * sizeof(struct oob_s));
+	//printf("591\n");
 }
 
 int32_t at_struct_init(at_task *at)
@@ -849,13 +867,18 @@ void at_deinit()
 
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
 {
-    oob_t *oob;
+	printf("in at_oob_register 870\n");
+	oob_t *oob;
     if(featurestr == NULL || cmd_match == NULL || at_oob.oob_num == OOB_MAX_NUM || cmdlen >= OOB_CMD_LEN - 1)
         return -1;
+	printf("in at_oob_register 873\n");
     oob = &(at_oob.oob[at_oob.oob_num++]);
     memcpy(oob->featurestr, featurestr, cmdlen);
+	
+	printf("in at_oob_register 877\n");
     oob->len = strlen(featurestr);
     oob->callback = callback;
+	printf("in at_oob_register 880\n");
     oob->cmd_match = cmd_match;
     return 0;
 }
