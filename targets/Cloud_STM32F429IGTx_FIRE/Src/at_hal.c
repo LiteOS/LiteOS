@@ -48,18 +48,11 @@ static uint32_t s_uwIRQn = USART2_IRQn;
 //uint32_t list_mux;
 uint8_t buff_full = 0;
 static uint32_t g_disscard_cnt = 0;
-#ifndef USE_USARTRX_DMA
+
 uint32_t wi = 0;
 uint32_t wi_bak = 0;
 uint32_t ri = 0;
-#else
-/*DMA操作*/
-DMA_HandleTypeDef  at_hdma_usart3_rx;
-uint8_t dma_wbi = 0;
-uint8_t dma_rbi = 0;
-uint16_t *dma_wi = NULL;
-uint8_t dma_wi_coun;
-#endif
+
 
 static void at_usart_adapter(uint32_t port)
 {
@@ -82,76 +75,23 @@ static void at_usart_adapter(uint32_t port)
     }
 }
 
-#ifdef USE_USARTRX_DMA
-int32_t at_dmawi_init(void)
-{
-    dma_wi_coun = at_user_conf.recv_buf_len / at_user_conf.user_buf_len;
-    dma_wi = at_malloc(dma_wi_coun * sizeof(*dma_wi));
-    if (NULL == dma_wi)
-    {
-        AT_LOG("malloc dma_wi failed!");
-        return AT_FAILED;
-    }
-
-    return AT_OK;
-}
-
-void at_usart3rx_dma_irqhandler(void)
-{
-    HAL_DMA_IRQHandler(&at_hdma_usart3_rx);
-}
-
-void at_usart3rx_dma_config(DMA_HandleTypeDef *hdma)
-{
-    printf("Now Init DMA1\n");
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    hdma->Instance = DMA1_Stream1;
-    hdma->Init.Channel = DMA_CHANNEL_4;
-    hdma->Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma->Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma->Init.MemInc = DMA_MINC_ENABLE;
-    hdma->Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma->Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-
-    hdma->Init.Mode = DMA_NORMAL;
-    hdma->Init.Priority = DMA_PRIORITY_HIGH;//DMA_PRIORITY_LOW;
-    hdma->Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    hdma->Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    hdma->Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma->Init.PeriphBurst = DMA_PBURST_SINGLE;
-    HAL_DMA_Init(hdma);
-
-    __HAL_LINKDMA(&at_usart, hdmarx, *hdma);
-
-    LOS_HwiCreate(DMA1_Stream1_IRQn, 0, 0, at_usart3rx_dma_irqhandler, NULL);
-}
-#endif
 
 
 void at_irq_handler(void)
 {
     recv_buff recv_buf;
-#ifndef USE_USARTRX_DMA
+
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
         at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
         if(wi == ri)buff_full = 1;
         if (wi >= at_user_conf.user_buf_len)wi = 0;
     }
-    else
-#endif
-    if (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_IDLE) != RESET)
+    else if (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_IDLE) != RESET)
     {
         __HAL_UART_CLEAR_IDLEFLAG(&at_usart);
-#ifdef USE_USARTRX_DMA
-        HAL_UART_DMAStop(&at_usart);
-        uint32_t empty = __HAL_DMA_GET_COUNTER(&at_hdma_usart3_rx);
-        dma_wi[dma_wbi++] = at_user_conf.user_buf_len - empty;
-        if(dma_wbi >= dma_wi_coun)
-            dma_wbi = 0;
-#else
+
         wi_bak = wi;
-#endif
 
         recv_buf.ori = ri;
         recv_buf.end = wi;
@@ -163,11 +103,6 @@ void at_irq_handler(void)
         {
             g_disscard_cnt++;
         }
-
-
-#ifdef USE_USARTRX_DMA
-        HAL_UART_Receive_DMA(&at_usart, &at.recv_buf[at_user_conf.user_buf_len * dma_wbi], at_user_conf.user_buf_len);
-#endif
     }
 }
 
@@ -192,17 +127,8 @@ int32_t at_usart_init(void)
     __HAL_UART_CLEAR_FLAG(usart, UART_FLAG_TC);
     LOS_HwiCreate(s_uwIRQn, 0, 0, at_irq_handler, 0);
     __HAL_UART_ENABLE_IT(usart, UART_IT_IDLE);
-
-#ifdef USE_USARTRX_DMA
-    if( AT_OK != at_dmawi_init)
-    {
-        return AT_FAILED;
-    }
-    HAL_UART_Receive_DMA(&at_usart, &at.recv_buf[at_user_conf.user_buf_len * 0], at_user_conf.user_buf_len);
-    at_usart3rx_dma_config(&at_hdma_usart3_rx);
-#else
     __HAL_UART_ENABLE_IT(usart, UART_IT_RXNE);
-#endif
+
     return AT_OK;
 }
 
@@ -211,17 +137,8 @@ void at_usart_deinit(void)
     UART_HandleTypeDef *husart = &at_usart;
     __HAL_UART_DISABLE(husart);
     __HAL_UART_DISABLE_IT(husart, UART_IT_IDLE);
-
-#ifdef USE_USARTRX_DMA
-    __HAL_RCC_DMA1_CLK_DISABLE();
-    if(NULL != dma_wi)
-    {
-        at_free(dma_wi);
-        dma_wi = NULL;
-    }
-#else
     __HAL_UART_DISABLE_IT(husart, UART_IT_RXNE);
-#endif
+
 }
 
 void at_transmit(uint8_t *cmd, int32_t len, int flag)
@@ -237,15 +154,14 @@ void at_transmit(uint8_t *cmd, int32_t len, int flag)
 int read_resp(uint8_t *buf, recv_buff* recv_buf)
 {
     uint32_t len = 0;
-#ifndef USE_USARTRX_DMA
+
     uint32_t tmp_len = 0;
-#endif
+
     if (NULL == buf)
     {
         return -1;
     }
     NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
-#ifndef USE_USARTRX_DMA
 
     //wi = recv_buf->end;//wi_bak
     if (recv_buf->end == recv_buf->ori)
@@ -266,23 +182,8 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
         memcpy(buf + tmp_len, at.recv_buf, recv_buf->end);
         len = recv_buf->end + tmp_len;
     }
-#else
-    if (dma_wbi == dma_rbi)
-    {
-        len = 0;
-        goto END;
-    }
-    memcpy(buf, &at.recv_buf[dma_rbi * at_user_conf.user_buf_len], dma_wi[dma_rbi]);
-    len = dma_wi[dma_rbi];
-    dma_rbi++;
-    if(dma_rbi >= dma_wi_coun)
-    {
-        dma_rbi = 0;
-    }
-#endif
-#ifndef USE_USARTRX_DMA
+
     ri = recv_buf->end;
-#endif
 END:
     NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
     return len;

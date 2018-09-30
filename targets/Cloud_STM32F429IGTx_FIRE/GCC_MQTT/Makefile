@@ -139,6 +139,10 @@ MQTT_SRC = \
 OS_ADAPTER_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/osadapter/*.c}
         C_SOURCES += $(OS_ADAPTER_SRC)
+		
+NEWLIB_SRC = \
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
+        C_SOURCES += $(NEWLIB_SRC)
 
 ATINY_TINY_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}

@@ -121,26 +121,6 @@ char *atiny_strdup(const char *ch)
     return copy;
 }
 
-void *malloc(size_t size) /*lint !e31 !e10*/
-{
-    void *ptr = NULL; /*lint !e64 !e10*/
-
-    if (size == 0)
-        return NULL; /*lint !e64*/
-
-    ptr = LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)size);
-
-    return ptr;
-}
-
-void free(void *ptr)
-{
-    if (ptr == NULL)
-        return;
-
-    LOS_MemFree((void *)OS_SYS_MEM_ADDR, ptr);/*lint !e534*/
-}
-
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
 void *atiny_mutex_create(void)
