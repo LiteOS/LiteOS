@@ -111,10 +111,13 @@ int32_t sim900a_connect(const int8_t *host, const int8_t *port, int32_t proto)
     return id;
 }
 
-int32_t  sim900a_recv_timeout(int32_t id, uint8_t *buf, uint32_t len, int32_t timeout)
+int32_t  sim900a_recv_timeout(int32_t id, uint8_t *buf, uint32_t len, char* ipaddr,int* port, int32_t timeout)
 {
     uint32_t qlen = sizeof(QUEUE_BUFF);
     uint32_t rxlen = 0;
+
+    (void)ipaddr; //gprs not need remote ip
+    (void)port;   //gprs not need remote port
 
     QUEUE_BUFF  qbuf = {0, NULL};
     AT_LOG("****at.linkid[id].qid=%d***\n", at.linkid[id].qid);
@@ -136,7 +139,7 @@ int32_t  sim900a_recv_timeout(int32_t id, uint8_t *buf, uint32_t len, int32_t ti
 
 int32_t  sim900a_recv(int32_t id, uint8_t *buf, uint32_t len)
 {
-    return sim900a_recv_timeout(id, buf, len, LOS_WAIT_FOREVER);
+    return sim900a_recv_timeout(id, buf, len, NULL,NULL,LOS_WAIT_FOREVER);
 }
 
 int32_t sim900a_send(int32_t id , const uint8_t  *buf, uint32_t len)

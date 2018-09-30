@@ -235,7 +235,7 @@ static ssize_t fatfs_op_read (struct file *file, char *buff, size_t bytes)
 
     POINTER_ASSERT(fp);
     res = f_read (fp, buff, bytes, (UINT *)&size);
-    if(res != FR_OK || size == 0)
+    if(res != FR_OK)
     {
         PRINT_ERR ("failed to read, res=%d\n", res);
         return -1;

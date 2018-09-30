@@ -45,7 +45,7 @@
 
 extern uint8_t buff_full;
 /* FUNCTION */
-void at_init();
+void at_init(void);
 //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
 int32_t at_get_unuse_linkid();
@@ -54,7 +54,7 @@ void at_listner_list_del(at_listener *p);
 int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
 int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 
-void at_deinit();
+void at_deinit(void);
 //init function for at struct
 
 at_oob_t at_oob;
@@ -282,8 +282,8 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
     }
 
     memset(&listener, 0, sizeof(listener));
-    listener.cmd_info = cmd_info;
-    print_len = ((cmd_info->resp_buf && cmd_info->resp_len) ? *(cmd_info->resp_len) : -1);
+    listener.cmd_info = *cmd_info;
+    print_len = ((cmd_info->resp_buf && cmd_info->resp_len) ? (int)*(cmd_info->resp_len) : -1);
     AT_LOG("cmd:%s len %d", cmd, print_len);
 
     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);
@@ -334,9 +334,9 @@ int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len)
     int ret = AT_FAILED;
 
     memset(&listener, 0, sizeof(listener));
-    listener.cmd_info->suffix_num = 1;
+    listener.cmd_info.suffix_num = 1;
     suffix_array[0] = ">";
-    listener.cmd_info->suffix = suffix_array;
+    listener.cmd_info.suffix = suffix_array;
 
     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);
 
@@ -429,12 +429,7 @@ static void at_handle_resp(int8_t *resp_buf, uint32_t resp_len)
         return;
     }
 
-    if (listener->cmd_info == NULL)
-    {
-        return;
-    }
-
-    if(listener->cmd_info->suffix == NULL)
+    if(listener->cmd_info.suffix == NULL)
     {
 
         //store_resp_buf((int8_t *)listener->resp, (int8_t*)p1, p2 - p1);
@@ -443,23 +438,23 @@ static void at_handle_resp(int8_t *resp_buf, uint32_t resp_len)
         return;
     }
 
-    for (uint32_t i = 0;  i < listener->cmd_info->suffix_num; i++)
+    for (uint32_t i = 0;  i < listener->cmd_info.suffix_num; i++)
     {
         char *suffix;
 
-        if (listener->cmd_info->suffix[i] == NULL)
+        if (listener->cmd_info.suffix[i] == NULL)
         {
             continue;
         }
 
-        suffix = strstr((char *)resp_buf, (const char *)listener->cmd_info->suffix[i]);
+        suffix = strstr((char *)resp_buf, (const char *)listener->cmd_info.suffix[i]);
         if (suffix != NULL)
         {
-            if ((NULL != listener->cmd_info->resp_buf) && (NULL != listener->cmd_info->resp_len) && (resp_len > 0))
+            if ((NULL != listener->cmd_info.resp_buf) && (NULL != listener->cmd_info.resp_len) && (resp_len > 0))
             {
-                store_resp_buf((int8_t *)listener->cmd_info->resp_buf, resp_buf, resp_len, listener->cmd_info->resp_len);//suffix + strlen((char *)listener->suffix) - p1
+                store_resp_buf((int8_t *)listener->cmd_info.resp_buf, resp_buf, resp_len, listener->cmd_info.resp_len);//suffix + strlen((char *)listener->suffix) - p1
             }
-            listener->cmd_info->match_idx = i;
+            listener->cmd_info.match_idx = i;
             (void)LOS_SemPost(at.resp_sem);
             break;
         }
@@ -786,7 +781,7 @@ int32_t at_struct_deinit(at_task *at)
     return ret;
 }
 
-void at_init()
+void at_init(void)
 {
     AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
@@ -818,7 +813,7 @@ void at_init()
 }
 
 
-void at_deinit()
+void at_deinit(void)
 {
 
 

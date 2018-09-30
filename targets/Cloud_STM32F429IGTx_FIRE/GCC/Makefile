@@ -152,6 +152,10 @@ LWM2M_SRC = \
 OS_ADAPTER_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/osadapter/*.c}
         C_SOURCES += $(OS_ADAPTER_SRC)
+		
+NEWLIB_SRC = \
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
+        C_SOURCES += $(NEWLIB_SRC)
 
 ATINY_TINY_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/*.c}
@@ -254,9 +258,7 @@ C_DEFS =  \
         -D LWIP_TIMEVAL_PRIVATE=0 \
         -D WITH_DTLS \
         -D ATINY_DEBUG \
-        -D LWM2M_WITH_LOGS \
-        -D AT_INTO \
-        -D AT_DEBUG \
+        -D LWM2M_WITH_LOGS
 #        -D SUPPORT_DTLS_SRV
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
 
