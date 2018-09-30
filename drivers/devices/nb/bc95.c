@@ -211,7 +211,7 @@ int32_t nb_set_cdpserver(char* host, char* port)
 	char tmpbuf[128] = {0};
 	int ret = -1;
     char ipaddr[100] = {0};
-    if(strlen(host) > 70 || strlen(port) > 20 || (host==NULL && port == NULL))
+    if( (host==NULL && port == NULL)||strlen(host)>70 || strlen(port)>20)
     {
         ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), "OK", NULL,NULL);
         ret = at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), "OK", NULL,NULL);
