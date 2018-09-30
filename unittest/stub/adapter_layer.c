@@ -250,6 +250,7 @@ void write_at_task_msg(at_msg_type_e type)
 {
 
 }
+
 /*###################################    nb_iot    ######################################*/
 #if 1
 int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len)
@@ -355,10 +356,26 @@ uint32_t sys_now(void)
 
 /*###################################     OTHERS    #######################################*/
 
-void delayus(uint32_t usec)
-{
-    usleep(usec);
-}
+//void delayus(uint32_t usec)
+//{
+//    usleep(usec);
+//}
+
+//char *strnstr(const char *s1, const char *s2, size_t len)  
+//{  
+//    size_t l2;  
+//  
+//    l2 = strlen(s2);  
+//    if (!l2)  
+//        return (char *)s1;  
+//    while (len >= l2) {  
+//        len--;  
+//        if (!memcmp(s1, s2, l2))  
+//            return (char *)s1;  
+//        s1++;  
+//    }  
+//    return NULL;  
+//}
 
 
 /* Private functions --------------------------------------------------------*/
