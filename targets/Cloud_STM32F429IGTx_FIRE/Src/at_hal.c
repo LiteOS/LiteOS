@@ -161,6 +161,10 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
     {
         return -1;
     }
+    if(1 == buff_full)
+    {
+        AT_LOG("buf maybe full,buff_full is %d",buff_full);
+    }
     NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
 
     //wi = recv_buf->end;//wi_bak
