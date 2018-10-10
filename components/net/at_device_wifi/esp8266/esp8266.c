@@ -432,9 +432,6 @@ at_config at_user_conf =
     .buardrate = AT_BUARDRATE,
     .linkid_num = AT_MAX_LINK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
-#ifdef  USE_USARTRX_DMA
-    .recv_buf_len = MAX_AT_RECV_LEN,
-#endif
     .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
     .mux_mode = 1, //support multi connection mode
