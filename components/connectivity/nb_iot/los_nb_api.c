@@ -34,7 +34,7 @@
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "nb_iot/los_nb_api.h"
-#include "at/at_api_interface.h"
+#include "at/at_api.h"
 //#include "atiny_socket.h"
 #include "at/bc95.h"
 

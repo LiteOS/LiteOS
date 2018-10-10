@@ -455,12 +455,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>drivers</GroupName>
+          <GroupName>at_device</GroupName>
           <Files>
             <File>
               <FileName>bc95.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\net\at_device_nb\bc95\bc95.c</FilePath>
+              <FilePath>..\..\..\components\net\at_device\nb_bc95\bc95.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1120,16 +1120,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>er-coap</GroupName>
-          <Files>
-            <File>
-              <FileName>er-coap-13.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>lwm2m</GroupName>
           <Files>
             <File>
@@ -1217,20 +1207,20 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</FilePath>
             </File>
+            <File>
+              <FileName>er-coap-13.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>os_adapter</GroupName>
+          <GroupName>os_depends</GroupName>
           <Files>
             <File>
-              <FileName>atiny_adapter.c</FileName>
+              <FileName>atiny_osdep.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\osdepends\liteos\atiny_adapter.c</FilePath>
-            </File>
-            <File>
-              <FileName>atiny_socket.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\net\sal\atiny_socket.c</FilePath>
+              <FilePath>..\..\..\osdepends\liteos\atiny_osdep.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1330,7 +1320,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>agent_demo</GroupName>
+          <GroupName>atiny_demo</GroupName>
           <Files>
             <File>
               <FileName>agent_tiny_cmd_ioctl.c</FileName>
@@ -1348,14 +1338,14 @@
           <GroupName>at_framework</GroupName>
           <Files>
             <File>
-              <FileName>at_api_interface.c</FileName>
+              <FileName>at_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\net\at_frame\at_api_interface.c</FilePath>
+              <FilePath>..\..\..\components\net\at_frame\at_api.c</FilePath>
             </File>
             <File>
-              <FileName>atadapter.c</FileName>
+              <FileName>at_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\net\at_frame\atadapter.c</FilePath>
+              <FilePath>..\..\..\components\net\at_frame\at_main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1425,12 +1415,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>newlib</GroupName>
+          <GroupName>atiny_dep</GroupName>
           <Files>
             <File>
               <FileName>malloc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\lib\libc\malloc.c</FilePath>
+            </File>
+            <File>
+              <FileName>atiny_socket.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\sal\atiny_socket.c</FilePath>
             </File>
           </Files>
         </Group>
