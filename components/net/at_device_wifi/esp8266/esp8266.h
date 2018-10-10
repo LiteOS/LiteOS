@@ -48,12 +48,9 @@
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
 
-#ifndef USE_USARTRX_DMA
+
 #define MAX_AT_USERDATA_LEN (1024*5)
-#else
-#define MAX_AT_RECV_LEN     (1024*5)
-#define MAX_AT_USERDATA_LEN (1024)
-#endif
+
 
 #define AT_CMD_RST    		"AT+RST"
 #define AT_CMD_ECHO_OFF 	"ATE0"
