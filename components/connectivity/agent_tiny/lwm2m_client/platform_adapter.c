@@ -51,7 +51,7 @@
 #include <stdarg.h>
 
 #include "internals.h"
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 
 #ifndef LWM2M_MEMORY_TRACE
 

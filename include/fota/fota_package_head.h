@@ -42,7 +42,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 #include "fota_package_checksum.h"
 
 #define FOTA_LOG(fmt, ...) \

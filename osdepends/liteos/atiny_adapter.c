@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 #include "los_memory.h"
 #include "los_sys.ph"
 #include "los_sem.ph"

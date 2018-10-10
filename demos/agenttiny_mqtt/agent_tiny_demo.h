@@ -40,7 +40,7 @@
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "mqtt_client.h"
-#include "atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 
 void agent_tiny_entry(void);
 

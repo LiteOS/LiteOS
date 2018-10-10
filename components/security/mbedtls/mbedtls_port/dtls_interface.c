@@ -54,7 +54,7 @@
  */
 
 #include "dtls_interface.h"
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 #include "mbedtls/net_sockets.h"
 #include "sal/atiny_socket.h"
 

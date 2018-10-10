@@ -283,7 +283,7 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
     memset(&listener, 0, sizeof(listener));
     listener.cmd_info = *cmd_info;
     print_len = ((cmd_info->resp_buf && cmd_info->resp_len) ? (int)*(cmd_info->resp_len) : -1);
-    AT_LOG("cmd:%s len %d", cmd, print_len);
+    AT_LOG("cmd:%s len %d, %p,%d", cmd, print_len,cmd_info->resp_buf,cmd_info->resp_len);
 
     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);
 
@@ -304,7 +304,7 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
 
     if (ret != LOS_OK)
     {
-        AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x)!", ret);
+        AT_LOG("LOS_SemPend for listener.resp_sem failed(ret = %x, cmd = %s)!", ret,cmd);
         return AT_FAILED;
     }
 

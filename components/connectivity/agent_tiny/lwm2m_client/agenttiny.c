@@ -39,7 +39,7 @@
 #include "agent_tiny/connection.h"
 #include "agent_tiny/atiny_log.h"
 #include "agent_tiny/atiny_rpt.h"
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
 #include "agent_tiny/atiny_fota_manager.h"
 #endif

@@ -101,7 +101,7 @@ extern "C" {
 #include <time.h>
 
 #include "er-coap-13/er-coap-13.h"
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 
 #ifdef LWM2M_SERVER_MODE
 #ifndef LWM2M_SUPPORT_JSON

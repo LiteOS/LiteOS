@@ -34,7 +34,7 @@
 
 #ifndef ATINY_LOG_H
 #define ATINY_LOG_H
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 
 #ifdef __cplusplus
 extern "C" {

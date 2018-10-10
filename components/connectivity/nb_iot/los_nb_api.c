@@ -59,6 +59,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     while(1)
     {
         ret = nb_hw_detect();
+        printf("call nb_hw_detect,ret is %d\n",ret);
         if(ret == AT_OK)
             break;
         //LOS_TaskDelay(1000);

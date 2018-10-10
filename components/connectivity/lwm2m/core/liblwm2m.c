@@ -84,7 +84,7 @@
 */
 
 #include "internals.h"
-#include "osdepends/liteos/atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 #include <stdlib.h>
 #include <string.h>
 
