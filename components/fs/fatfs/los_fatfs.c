@@ -33,15 +33,15 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
-#include "los_fatfs.h"
+#include "fs/los_fatfs.h"
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <los_vfs.h>
+#include "fs/sys/stat.h"
+#include "fs/los_vfs.h"
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #endif
 
 #ifdef __GNUC__

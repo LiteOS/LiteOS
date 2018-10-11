@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <los_typedef.h>
-#include <sys/stat.h>
+#include "fs/sys/stat.h"
 
 #define LOS_MAX_FILE_NAME_LEN               16
 #define LOS_FS_MAX_NAME_LEN                 LOS_MAX_FILE_NAME_LEN

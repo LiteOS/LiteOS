@@ -38,16 +38,16 @@
 
 #ifdef __GNUC__
 #include <sys/unistd.h>
-#include <sys/stat.h>
+#include "fs/sys/stat.h"
 #endif
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #include <los_printf.h>
 #endif
 
-#include <los_vfs.h>
-#include <los_fatfs.h>
+#include "fs/los_vfs.h"
+#include "fs/los_fatfs.h"
 
 #include <hal_spi_flash.h>
 /* Defines ------------------------------------------------------------------*/
