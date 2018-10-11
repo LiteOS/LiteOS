@@ -35,7 +35,7 @@
 #if defined(WITH_AT_FRAMEWORK)
 
 #include "los_memory.h"
-#include "at/atadapter.h"
+#include "at_frame/at_main.h"
 #include "at_hal.h"
 #ifdef WITH_SOTA
 #include "sota.h"

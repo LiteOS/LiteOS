@@ -35,7 +35,7 @@
 #ifndef __AT_HAL_H__
 #define __AT_HAL_H__
 
-#include "at/atadapter.h"
+#include "at_frame/at_main.h"
 
 void at_transmit(uint8_t * cmd, int32_t len,int flag);
 int32_t at_usart_init(void);

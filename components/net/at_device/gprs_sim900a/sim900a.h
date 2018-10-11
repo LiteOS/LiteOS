@@ -34,7 +34,7 @@
 #ifndef __SIM900A_H__
 #define __SIM900A_H__
 
-#include "atadapter.h"
+#include "at_frame/at_main.h"
 
 #define AT_MODU_NAME        "SIM900A"
 #define AT_USART_PORT       2

@@ -51,7 +51,7 @@
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
 #elif defined(WITH_AT_FRAMEWORK)
-#include "at/at_api.h"
+#include "at_frame/at_api.h"
 
 #else
 // TODO

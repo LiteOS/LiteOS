@@ -34,7 +34,7 @@
 #include <string.h>
 #include <ctype.h>
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-#include "at/bc95.h"
+#include "at_device/bc95.h"
 #define NB_STAT_LOCALPORT 56
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
