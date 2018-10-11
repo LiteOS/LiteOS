@@ -34,7 +34,7 @@
 
 #include "stm32f4xx.h"
 #include "board.h"
-#include "ota.h"
+#include "fota/ota.h"
 #include "hal_flash.h"
 #include "hal_spi_flash.h"
 

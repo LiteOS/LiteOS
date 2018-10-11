@@ -163,12 +163,20 @@ NEWLIB_SRC = \
         C_SOURCES += $(NEWLIB_SRC)
 
 ATINY_TINY_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c}
         C_SOURCES += $(ATINY_TINY_SRC)
+
+ATINY_LOG = \
+        ${wildcard $(TOP_DIR)/components/log/*.c}
+        C_SOURCES += $(ATINY_LOG)
 
 AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
+		
+FS_DEMO_SRC = \
+        #${wildcard $(TOP_DIR)/demos/fs/*.c}
+        C_SOURCES += $(FS_DEMO_SRC)
 
 
 USER_SRC =  \
@@ -206,9 +214,7 @@ endif
 
 ifeq ($(USE_FOTA), yes)
 FOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/fota/ota/*.c} \
-        ${wildcard $(TOP_DIR)/components/ota/fota/utility/*.c} \
-		${wildcard  $(TOP_DIR)/components/ota/fota/fota_package_storage_device/*.c}
+		${wildcard  $(TOP_DIR)/components/ota/fota/*.c}
         C_SOURCES += $(FOTA_SRC)
 
 FIRMWARE_UPDATE_SRC = \
@@ -286,7 +292,9 @@ AS_INCLUDES =
 
 # C includes
 KERNEL_INC = \
-        -I $(TOP_DIR)/include/liteos
+        -I $(TOP_DIR)/kernel/include \
+		-I $(TOP_DIR)/kernel/base/include \
+		-I $(TOP_DIR)/kernel/extended/include
         C_INCLUDES += $(KERNEL_INC)
 
 INCLUDE_INC = \
@@ -294,7 +302,7 @@ INCLUDE_INC = \
         C_INCLUDES += $(INCLUDE_INC)
 
 ARCH_INC = \
-        -I $(TOP_DIR)/include/arch/arm-m \
+        -I $(TOP_DIR)/arch/arm/arm-m/include \
 		-I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(ARCH_INC)
 
@@ -332,43 +340,18 @@ ER_COAP_INC = \
 
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
-		-I $(TOP_DIR)/components/connectivity/lwm2m//examples/shared
+		-I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
-#OS_ADAPTER_INC = \
-#        C_INCLUDES += $(OS_ADAPTER_INC)
-
-#ATINY_TINY_INC = \
-#        C_INCLUDES += $(ATINY_TINY_INC)
-
-AGENT_DEMO_INC = \
-        -I $(TOP_DIR)/demos/agenttiny_lwm2m
-        C_INCLUDES += $(AGENT_DEMO_INC)
+DEMO_INC = \
+        -I $(TOP_DIR)/demos
+        C_INCLUDES += $(DEMO_INC)
 
 USER_INC = \
 		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
 		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
 		C_INCLUDES += $(USER_INC)
-		
-ifeq ($(USE_FOTA), yes)
-#FOTA_INC = \
-#        C_INCLUDES += $(FOTA_INC)
-		
-#FIRMWARE_UPDATE_INC = \
-#        C_INCLUDES += $(FIRMWARE_UPDATE_INC)
 
-
-#C_INCLUDES += -I $(TOP_DIR)/components/fota/fota_package_storage_device
-endif
-
-ifeq ($(USE_SOTA), yes)
-#SOTA_INC = \
-#        C_INCLUDES += $(SOTA_INC)
-endif
-
-#ifeq ($(USE_AT_FRAMEWORK), yes)
-
-#endif
 
 
 # compile gcc flags

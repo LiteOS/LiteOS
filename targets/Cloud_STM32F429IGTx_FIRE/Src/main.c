@@ -34,8 +34,8 @@
 #include "main.h"
 #include "sys_init.h"
 
-#include "agent_tiny_demo.h"
-#include "fs_demo.h"
+#include "agenttiny_lwm2m/agent_tiny_demo.h"
+#include "fs/fs_demo.h"
 
 #include "los_base.h"
 #include "los_task.ph"
@@ -149,7 +149,7 @@ void demo_agenttiny_with_wifi(void)
 
 VOID main_task(VOID)
 {
-    fs_demo();
+    //fs_demo();
     demo_agenttiny_with_nbiot();
 }
 
