@@ -36,38 +36,46 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_PORT_H_
-#define _FOTA_PORT_H_
-#include "firmware_update/atiny_fota_api.h"
+#ifndef _FOTA_PACKAGE_CHECKSUM_H_
+#define _FOTA_PACKAGE_CHECKSUM_H_
+
 #include "fota/fota_package_storage_device.h"
+
+
+struct fota_pack_checksum_tag_s;
+
+struct fota_pack_checksum_tag_s;
+typedef struct fota_pack_checksum_tag_s fota_pack_checksum_s;
+
+struct fota_pack_head_tag_s;
+
+typedef struct fota_pack_checksum_alg_tag_s
+{
+    void (*reset)(struct fota_pack_checksum_alg_tag_s *thi);
+    int (*update)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t *buff, uint16_t len);
+    int (*check)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t  *checksum, uint16_t checksum_len);
+    void (*destroy)(struct fota_pack_checksum_alg_tag_s *thi);
+}fota_pack_checksum_alg_s;
+
+
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
-int hal_init_fota(void);
+
+fota_pack_checksum_s * fota_pack_checksum_create(struct fota_pack_head_tag_s *head);
+void fota_pack_checksum_delete(fota_pack_checksum_s * thi);
+int fota_pack_checksum_update_head(fota_pack_checksum_s *thi, struct fota_pack_head_tag_s *head);
+int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware);
+int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
 
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PORT_H_
+#endif //_FOTA_PACKAGE_CHECKSUM_H_
 
 

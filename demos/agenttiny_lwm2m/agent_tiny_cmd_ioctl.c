@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_cmd_ioctl.h"
-#include "agent_tiny/agenttiny.h"
+#include "atiny_lwm2m/agenttiny.h"
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
 #include "fota/fota_package_storage_device.h"

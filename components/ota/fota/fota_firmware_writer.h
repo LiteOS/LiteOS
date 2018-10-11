@@ -36,38 +36,42 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_PORT_H_
-#define _FOTA_PORT_H_
-#include "firmware_update/atiny_fota_api.h"
+#ifndef _FOTA_FIRMWARE_WRITER_H_
+#define _FOTA_FIRMWARE_WRITER_H_
+
 #include "fota/fota_package_storage_device.h"
 
+
+typedef struct
+{
+    uint32_t offset;
+    int offset_flag;
+
+    uint8_t * buffer;
+    uint16_t buffer_len;
+    uint16_t buffer_stored_len;
+    atiny_fota_storage_device_s *storage_device;
+    fota_hardware_s *hardware;
+}fota_firmware_writer_s;
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
-int hal_init_fota(void);
+void fota_fmw_wr_init(fota_firmware_writer_s *writer);
+void fota_fmw_wr_destroy(fota_firmware_writer_s *writer);
+void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, atiny_fota_storage_device_s *storage_device, fota_hardware_s *hardware);
+int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len);
+int fota_fmw_wr_write_end(fota_firmware_writer_s *writer);
+
+
+
 
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PORT_H_
+#endif //_FOTA_FIRMWARE_WRITER_H_
 
 

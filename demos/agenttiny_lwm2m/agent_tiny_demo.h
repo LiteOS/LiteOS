@@ -39,7 +39,7 @@
 #include "los_task.ph"
 #include "los_typedef.h"
 #include "los_sys.h"
-#include "agent_tiny/agenttiny.h"
+#include "atiny_lwm2m/agenttiny.h"
 #include "osdepends/atiny_osdep.h"
 
 void agent_tiny_entry(void);

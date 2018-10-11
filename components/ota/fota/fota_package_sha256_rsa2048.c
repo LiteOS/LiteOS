@@ -31,75 +31,92 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifdef INCLUDE_FOTA_PACK_OPTION_FILE
+#include "fota_package_sha256_rsa2048.h"
+#include <string.h>
+#include "mbedtls/rsa.h"
 
-#include "internals.h"
-#include "atiny_lwm2m/agenttiny.h"
-#include "firmware_update/atiny_update_info.h"
+#define FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN 256
+#define FOTA_PACK_SHA256_CHECKSUM_LEN 32
 
-#define OFFSET_BASE_TOCKEN_INFO (0U)
-#define OFFSET_BASE_FW_DOWNLOAD_INFO (32U)
 
-struct atiny_update_info_tag_s
+static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
 {
-    atiny_fota_storage_device_s *device;
-};
+    fota_pack_sha256_rsa2048_s *rsa = (fota_pack_sha256_rsa2048_s *)thi;
+    mbedtls_rsa_context *dtls_rsa = NULL;
+    fota_pack_key_s *key = NULL;
+    uint8_t real_sha256[FOTA_PACK_SHA256_CHECKSUM_LEN];
+    int ret = FOTA_ERR;
 
-static atiny_update_info_s g_update_info = {0};
-
-int atiny_update_info_set(atiny_update_info_s *thi, atiny_fota_storage_device_s *device)
-{
-    if(NULL == thi || NULL == device)
-        return -1;
-
-    thi->device = device;
-
-    return 0;
-}
-
-int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, const uint8_t *info, uint32_t len)
-{
-    uint32_t offset = 0;
-
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
+    if(checksum_len != FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN)
     {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
+        FOTA_LOG("checksum_len err %d", checksum_len);
+        return FOTA_ERR;
     }
-    return thi->device->write_update_info(thi->device, offset, info, len);
-}
 
-int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, uint8_t *info, uint32_t len)
-{
-    uint32_t offset = 0;
-
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
+    key = fota_pack_head_get_key(rsa->head);
+    if(NULL == key
+            || (NULL == key->rsa_E)
+            || (NULL == key->rsa_N))
     {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
+        FOTA_LOG("key null");
+        return FOTA_ERR;
     }
-    return thi->device->read_update_info(thi->device, offset, info, len);
+
+    dtls_rsa = (mbedtls_rsa_context *)atiny_malloc(sizeof(*dtls_rsa));
+    if(NULL == dtls_rsa)
+    {
+        FOTA_LOG("atiny_malloc null");
+        return FOTA_ERR;
+    }
+
+    mbedtls_rsa_init(dtls_rsa, MBEDTLS_RSA_PKCS_V21, 0);
+    dtls_rsa->len = FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN;
+    if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != FOTA_OK)
+    {
+        FOTA_LOG("mbedtls_mpi_read_string fail");
+        goto EXIT;
+    }
+
+    if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != FOTA_OK)
+    {
+        FOTA_LOG("mbedtls_mpi_read_string fail");
+        goto EXIT;
+    }
+
+    if(mbedtls_rsa_check_pubkey(dtls_rsa) != FOTA_OK)
+    {
+        FOTA_LOG("mbedtls_rsa_check_pubkey fail");
+        goto EXIT;
+    }
+
+    mbedtls_sha256_finish(&rsa->sha256.sha256_context, real_sha256);
+
+    if( mbedtls_rsa_pkcs1_verify(dtls_rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 0,
+                                 real_sha256, checksum) != FOTA_OK)
+    {
+        FOTA_LOG("mbedtls_rsa_pkcs1_verify fail");
+        goto EXIT;
+    }
+
+    ret = FOTA_OK;
+EXIT:
+
+    mbedtls_rsa_free(dtls_rsa);
+    atiny_free(dtls_rsa);
+    return ret;
+
 }
 
-atiny_update_info_s *atiny_update_info_get_instance(void)
+
+
+int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_head_s *head)
 {
-    return &g_update_info;
+    (void)fota_pack_sha256_init(&thi->sha256);
+    thi->sha256.base.check = fota_pack_sha256_rsa2048_check;
+    thi->head = head;
+    return FOTA_OK;
 }
+#endif
+
 

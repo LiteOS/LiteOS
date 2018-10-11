@@ -37,7 +37,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "hal_spi_flash.h"
-#include "at_main.h"
+#include "atadapter.h"
 
 extern unsigned char *flashbuf;
 

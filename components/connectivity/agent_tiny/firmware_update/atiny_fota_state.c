@@ -32,9 +32,9 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "agent_tiny/atiny_fota_state.h"
+#include "firmware_update/atiny_fota_state.h"
 #include <string.h>
-#include "agent_tiny/firmware_update.h"
+#include "firmware_update/firmware_update.h"
 
 
 //TODO:set the update detail result

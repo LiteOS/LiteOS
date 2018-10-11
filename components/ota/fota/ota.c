@@ -32,74 +32,96 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "internals.h"
-#include "atiny_lwm2m/agenttiny.h"
-#include "firmware_update/atiny_update_info.h"
+#include "fota/ota.h"
+#include "ota_default.h"
 
-#define OFFSET_BASE_TOCKEN_INFO (0U)
-#define OFFSET_BASE_FW_DOWNLOAD_INFO (32U)
+ota_module g_ota_module;
+ota_assist g_ota_assist;
 
-struct atiny_update_info_tag_s
+void ota_register_module(ota_module *module)
 {
-    atiny_fota_storage_device_s *device;
-};
-
-static atiny_update_info_s g_update_info = {0};
-
-int atiny_update_info_set(atiny_update_info_s *thi, atiny_fota_storage_device_s *device)
-{
-    if(NULL == thi || NULL == device)
-        return -1;
-
-    thi->device = device;
-
-    return 0;
+    g_ota_module.func_init = module->func_init;
+#ifndef USE_BOOTLOADER
+    g_ota_module.func_set_reboot = module->func_set_reboot;
+    g_ota_module.func_check_update_state = module->func_check_update_state;
+#else
+    g_ota_module.func_update_process = module->func_update_process;
+    g_ota_module.func_jump_to_application = module->func_jump_to_application;
+    g_ota_module.func_roll_back_image = module->func_roll_back_image;
+#endif
 }
 
-int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, const uint8_t *info, uint32_t len)
+void ota_register_assist(ota_assist *assist)
 {
-    uint32_t offset = 0;
+    g_ota_assist.func_printf = assist->func_printf;
+    g_ota_assist.func_ota_read = assist->func_ota_read;
+    g_ota_assist.func_ota_write = assist->func_ota_write;
+}
 
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
+int ota_init(void)
+{
+    if (g_ota_assist.func_printf == NULL
+            || g_ota_assist.func_ota_read == NULL
+            || g_ota_assist.func_ota_write == NULL)
     {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
+        OTA_LOG("must call ota_register_assist first");
+        return OTA_ERRNO_INTERNEL;
     }
-    return thi->device->write_update_info(thi->device, offset, info, len);
-}
 
-int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, uint8_t *info, uint32_t len)
-{
-    uint32_t offset = 0;
-
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
+    if (g_ota_module.func_init == NULL)
     {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
+        g_ota_module.func_init = ota_default_init;
     }
-    return thi->device->read_update_info(thi->device, offset, info, len);
+    return g_ota_module.func_init();
 }
 
-atiny_update_info_s *atiny_update_info_get_instance(void)
+#ifndef USE_BOOTLOADER
+
+int ota_set_reboot(int32_t image_len)
 {
-    return &g_update_info;
+    if (g_ota_module.func_set_reboot == NULL)
+    {
+        g_ota_module.func_set_reboot = ota_default_set_reboot;
+    }
+    return g_ota_module.func_set_reboot(image_len);
 }
 
+int ota_check_update_state(ota_state *st)
+{
+    if (g_ota_module.func_check_update_state == NULL)
+    {
+        g_ota_module.func_check_update_state = ota_default_check_update_state;
+    }
+    return g_ota_module.func_check_update_state(st);
+}
+
+#else
+
+int ota_update_process(void)
+{
+    if (g_ota_module.func_update_process == NULL)
+    {
+        g_ota_module.func_update_process = ota_default_update_process;
+    }
+    return g_ota_module.func_update_process();
+}
+
+int ota_jump_to_application(void)
+{
+    if (g_ota_module.func_jump_to_application == NULL)
+    {
+        g_ota_module.func_jump_to_application = ota_default_jump_to_application;
+    }
+    return g_ota_module.func_jump_to_application();
+}
+
+int ota_roll_back_image(void)
+{
+    if (g_ota_module.func_roll_back_image == NULL)
+    {
+        g_ota_module.func_roll_back_image = ota_default_roll_back_image;
+    }
+    return g_ota_module.func_roll_back_image();
+}
+
+#endif /* USE_BOOTLOADER */

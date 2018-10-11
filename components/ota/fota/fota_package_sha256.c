@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,43 +31,58 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifdef INCLUDE_FOTA_PACK_OPTION_FILE
+#include "fota_package_sha256.h"
+#include <string.h>
+#include "fota_package_head.h"/*lint !e451*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
- * @ingroup agent
- */
+static void fota_pack_sha256_reset(fota_pack_checksum_alg_s *thi)
+{
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_init(&sha256->sha256_context);
+    mbedtls_sha256_starts(&sha256->sha256_context, false);
+}
+static int fota_pack_sha256_update(fota_pack_checksum_alg_s *thi, const uint8_t *buff, uint16_t len)
+{
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_update(&sha256->sha256_context, buff, len);
+    return FOTA_OK;
+}
+static int fota_pack_sha256_check(fota_pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
+{
+    uint8_t real_value[32];
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
 
-#ifndef _FOTA_PORT_H_
-#define _FOTA_PORT_H_
-#include "firmware_update/atiny_fota_api.h"
-#include "fota/fota_package_storage_device.h"
+    ASSERT_THIS(return FOTA_ERR);
 
+    if(sizeof(real_value) != checksum_len)
+    {
+        FOTA_LOG("len %d not the same", checksum_len);
+        return FOTA_ERR;
+    }
+    mbedtls_sha256_finish(&sha256->sha256_context, real_value);
+    if(memcmp(real_value, checksum, checksum_len) != 0)
+    {
+        FOTA_LOG("checksum err");
+        return FOTA_ERR;
+    }
+    return FOTA_OK;
+}
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+static void fota_pack_sha256_destroy(struct fota_pack_checksum_alg_tag_s *thi)
+{
+    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+    mbedtls_sha256_free(&sha256->sha256_context);
+}
 
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
-int hal_init_fota(void);
-
-
-#if defined(__cplusplus)
+int fota_pack_sha256_init(fota_pack_sha256_s *thi)
+{
+    thi->base.reset = fota_pack_sha256_reset;
+    thi->base.update = fota_pack_sha256_update;
+    thi->base.check = fota_pack_sha256_check;
+    thi->base.destroy = fota_pack_sha256_destroy;
+    fota_pack_sha256_reset(&thi->base);
+    return FOTA_OK;
 }
 #endif
-
-#endif //_FOTA_PORT_H_
-
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,42 +32,36 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
- * @ingroup agent
- */
+#include "log/atiny_log.h"
 
-#ifndef _FOTA_PORT_H_
-#define _FOTA_PORT_H_
-#include "firmware_update/atiny_fota_api.h"
-#include "fota/fota_package_storage_device.h"
+static atiny_log_e g_atiny_log_level = LOG_ERR;
 
+static const char *g_log_names[] =
+{
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERR",
+    "FATAL",
+};
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
-int hal_init_fota(void);
-
-
-#if defined(__cplusplus)
+void atiny_set_log_level(atiny_log_e level)
+{
+    g_atiny_log_level = level;
 }
-#endif
 
-#endif //_FOTA_PORT_H_
+atiny_log_e atiny_get_log_level(void)
+{
+    return g_atiny_log_level;
+}
 
+const char *atiny_get_log_level_name(atiny_log_e log_level)
+{
+    if (log_level >= LOG_MAX)
+    {
+        return "UNKOWN";
+    }
+
+    return g_log_names[log_level];
+}
 

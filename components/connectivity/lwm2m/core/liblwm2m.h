@@ -90,7 +90,7 @@
 #define _LWM2M_CLIENT_H_
 
 #include "liblwm2m_api.h"
-#include "agent_tiny/connection.h"
+#include "atiny_lwm2m/connection.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

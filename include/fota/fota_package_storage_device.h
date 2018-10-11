@@ -39,7 +39,7 @@
 #ifndef _FOTA_PACKAGE_STORAGE_DEVICE_H_
 #define _FOTA_PACKAGE_STORAGE_DEVICE_H_
 
-#include "agent_tiny/atiny_fota_api.h"
+#include "firmware_update/atiny_fota_api.h"
 
 #define FOTA_PACK_SHA256_RSA2048 0
 #define FOTA_PACK_SHA256 1
