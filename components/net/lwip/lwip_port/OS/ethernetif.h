@@ -42,9 +42,9 @@
 
 struct ethernet_api
 {
-    int8_t          (*init)     (struct netif* netif);
-    int8_t          (*output)   (struct netif* netif, struct pbuf *p);
-    struct pbuf*    (*input)    (struct netif* netif);
+    int8_t          (*init)(struct netif* netif);
+    int8_t          (*output)(struct netif* netif, struct pbuf *p);
+    struct pbuf*    (*input)(struct netif* netif);
 };
 
 int8_t ethernetif_api_register(struct ethernet_api *api);

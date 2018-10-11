@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#ifdef WITH_LWIP
 #include "eth.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_eth.h"
@@ -449,13 +449,11 @@ static struct pbuf *eth_input(struct netif *netif)
 
     return p;
 }
-
-struct ethernet_api g_eth_api =
-{
+struct ethernet_api g_eth_api = {
     .init     = eth_init,
     .output   = eth_output,
-    .input    = eth_input
+    .input    = eth_input,
 };
-
+#endif
 
 

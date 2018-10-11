@@ -21,8 +21,8 @@ OPT = -Og
 #######################################
 # network
 #######################################
-USE_AT_FRAMEWORK := yes
-ifeq ($(USE_AT_FRAMEWORK), yes)
+WITH_AT_FRAMEWORK := yes
+ifeq ($(WITH_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
 	NETWORK_TYPE := NB_NEUL95
 endif
@@ -194,7 +194,7 @@ SOTA_SRC = \
         C_SOURCES += $(SOTA_SRC)
 endif
 
-ifeq ($(USE_AT_FRAMEWORK), yes)
+ifeq ($(WITH_AT_FRAMEWORK), yes)
 AT_FRAME_SRC = \
     ${wildcard $(TOP_DIR)/components/net/at_frame/*.c} \
      $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c

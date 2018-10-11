@@ -367,9 +367,9 @@
             <v6LangP>1</v6LangP>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1294,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,USE_NB_NEUL95,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,AT_NBONLY,__LITEOS__</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,USE_NB_NEUL95,WITH_LWIP,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,AT_NBONLY,__LITEOS__</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos\agenttiny_lwm2m;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\demos\fs;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis</IncludePath>
+              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -466,6 +466,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>eth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\eth.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1721,6 +1726,196 @@
               <FileName>atiny_log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\log\atiny_log.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lwip</GroupName>
+          <Files>
+            <File>
+              <FileName>api_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\api_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>api_msg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\api_msg.c</FilePath>
+            </File>
+            <File>
+              <FileName>err.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\err.c</FilePath>
+            </File>
+            <File>
+              <FileName>netbuf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\netbuf.c</FilePath>
+            </File>
+            <File>
+              <FileName>netdb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\netdb.c</FilePath>
+            </File>
+            <File>
+              <FileName>netifapi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\netifapi.c</FilePath>
+            </File>
+            <File>
+              <FileName>sockets.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\sockets.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcpip.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\api\tcpip.c</FilePath>
+            </File>
+            <File>
+              <FileName>def.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\def.c</FilePath>
+            </File>
+            <File>
+              <FileName>dns.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\dns.c</FilePath>
+            </File>
+            <File>
+              <FileName>inet_chksum.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\inet_chksum.c</FilePath>
+            </File>
+            <File>
+              <FileName>init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\init.c</FilePath>
+            </File>
+            <File>
+              <FileName>ip.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ip.c</FilePath>
+            </File>
+            <File>
+              <FileName>mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>memp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\memp.c</FilePath>
+            </File>
+            <File>
+              <FileName>netif.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\netif.c</FilePath>
+            </File>
+            <File>
+              <FileName>pbuf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\pbuf.c</FilePath>
+            </File>
+            <File>
+              <FileName>raw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\raw.c</FilePath>
+            </File>
+            <File>
+              <FileName>stats.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\stats.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\tcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcp_in.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\tcp_in.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcp_out.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\tcp_out.c</FilePath>
+            </File>
+            <File>
+              <FileName>timeouts.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\timeouts.c</FilePath>
+            </File>
+            <File>
+              <FileName>udp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\udp.c</FilePath>
+            </File>
+            <File>
+              <FileName>autoip.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\autoip.c</FilePath>
+            </File>
+            <File>
+              <FileName>dhcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\dhcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>etharp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\etharp.c</FilePath>
+            </File>
+            <File>
+              <FileName>icmp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\icmp.c</FilePath>
+            </File>
+            <File>
+              <FileName>igmp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\igmp.c</FilePath>
+            </File>
+            <File>
+              <FileName>ip4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\ip4.c</FilePath>
+            </File>
+            <File>
+              <FileName>ip4_addr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\ip4_addr.c</FilePath>
+            </File>
+            <File>
+              <FileName>ip4_frag.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\core\ipv4\ip4_frag.c</FilePath>
+            </File>
+            <File>
+              <FileName>ethernet.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip-2.0.3\src\netif\ethernet.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lwip_port</GroupName>
+          <Files>
+            <File>
+              <FileName>ethernetif.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip_port\OS\ethernetif.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys_arch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\lwip\lwip_port\OS\sys_arch.c</FilePath>
             </File>
           </Files>
         </Group>

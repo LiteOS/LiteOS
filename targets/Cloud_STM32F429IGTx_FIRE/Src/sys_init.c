@@ -34,7 +34,7 @@
 
 #include "sys_init.h"
 
-#ifndef AT_NBONLY
+#ifdef WITH_LWIP
 
 struct netif gnetif;
 ip4_addr_t ipaddr;
@@ -167,7 +167,7 @@ void SystemClock_Config(void)
 
     SystemCoreClockUpdate();
 }
-#ifndef AT_NBONLY
+#ifdef WITH_LWIP
 void hieth_hw_init(void)
 {
     extern void ETH_IRQHandler(void);
