@@ -37,11 +37,11 @@
 #include "hal_spi_flash.h"
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #include <los_printf.h>
 #endif
 
-#include "los_vfs.h"
+#include "fs/los_vfs.h"
 
 /* Defines ------------------------------------------------------------------*/
 #define TEST_FS_SPIFFS      0

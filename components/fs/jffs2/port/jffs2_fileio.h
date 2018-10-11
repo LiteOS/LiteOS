@@ -48,7 +48,7 @@ extern "C"{
 #include "jffs2_fs_sb.h"
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #endif
 
 /* Variable names for pathconf()			*/

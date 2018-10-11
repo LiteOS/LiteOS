@@ -1,7 +1,7 @@
 #ifndef _LOS_SPIFFS_CONFIG_H
 #define _LOS_SPIFFS_CONFIG_H
 
-#include "los_vfs.h"
+#include "fs/los_vfs.h"
 
 //////////////// TEST PARAMS ////////////////
 

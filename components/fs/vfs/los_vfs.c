@@ -38,7 +38,7 @@
 #include <stdarg.h>
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #include <los_mux.h>
 #endif
 
@@ -47,7 +47,7 @@
 #endif
 
 #include <los_config.h>
-#include <los_vfs.h>
+#include "fs/los_vfs.h"
 
 #if (LOSCFG_ENABLE_VFS == YES)
 
