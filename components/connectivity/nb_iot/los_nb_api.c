@@ -34,9 +34,9 @@
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "nb_iot/los_nb_api.h"
-#include "at/at_api.h"
+#include "at_frame/at_api.h"
 //#include "atiny_socket.h"
-#include "at/bc95.h"
+#include "at_device/bc95.h"
 
 int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
 {

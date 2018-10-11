@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #if defined(WITH_AT_FRAMEWORK)
-#include "at/at_api.h"
+#include "at_frame/at_api.h"
 
 static at_adaptor_api  *gp_at_adaptor_api = NULL;
 

@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 #include "sota.h"
 #include "sota_hal.h"
-#include "atadapter.h"
+#include "at_frame/at_main.h"
 #include "ota.h"
 #if USE_DIFF_UPGRADE
 #include "ota_diff_upgrade.h"

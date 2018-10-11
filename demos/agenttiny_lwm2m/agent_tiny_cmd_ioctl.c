@@ -40,7 +40,7 @@
 #endif
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-#include "at/bc95.h"
+#include "at_device/bc95.h"
 #endif
 
 
