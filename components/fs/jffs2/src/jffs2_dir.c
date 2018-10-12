@@ -16,6 +16,8 @@
 #include "jffs2_nodelist.h"
 #include "jffs2_stat.h"
 
+extern time_t jffs2_get_timestamp(void);
+
 /***********************************************************************/
 
 /* Takes length argument because it can be either NUL-terminated or '/'-terminated */

@@ -36,6 +36,7 @@
 #include "fs/los_fatfs.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "fs/sys/stat.h"
 #include "fs/los_vfs.h"

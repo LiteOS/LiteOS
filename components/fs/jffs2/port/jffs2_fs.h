@@ -228,6 +228,10 @@ static inline void jffs2_erase_pending_trigger(struct jffs2_sb_info *c)
 #error no nand yet
 #endif
 
+#ifndef BUG
+#define BUG() do { printf("BUG() at %s %d\n", __FILE__, __LINE__); } while (0)
+#endif
+
 #ifndef BUG_ON
 #define BUG_ON(x) do { if (unlikely(x)) BUG(); } while(0)
 #endif

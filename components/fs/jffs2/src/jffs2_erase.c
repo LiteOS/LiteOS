@@ -25,7 +25,7 @@ struct erase_priv_struct
     struct jffs2_sb_info *c;
 };
 
-#ifndef __LITEOS__
+#ifndef __LITEOS_JFFS2__
 static void jffs2_erase_callback(struct erase_info *);
 #endif
 static void jffs2_erase_failed(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb, uint32_t bad_offset);
@@ -38,7 +38,7 @@ static void jffs2_erase_block(struct jffs2_sb_info *c,
 {
     int ret;
     uint32_t bad_offset;
-#ifdef __LITEOS__
+#ifdef __LITEOS_JFFS2__
     ret = jffs2_flash_erase(c, jeb);
     if (!ret)
     {
@@ -83,7 +83,7 @@ static void jffs2_erase_block(struct jffs2_sb_info *c,
 
     bad_offset = instr->fail_addr;
     kfree(instr);
-#endif /* __LITEOS__ */
+#endif /* __LITEOS_JFFS2__ */
 
     if (ret == -ENOMEM || ret == -EAGAIN)
     {

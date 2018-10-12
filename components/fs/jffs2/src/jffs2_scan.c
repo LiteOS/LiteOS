@@ -20,18 +20,6 @@
 
 #define DEFAULT_EMPTY_SCAN_SIZE 1024
 
-//#define DIRTY_SPACE(x) do { typeof(x) _x = (x); \
-//		c->free_size -= _x; c->dirty_size += _x; \
-//		jeb->free_size -= _x ; jeb->dirty_size += _x; \
-//		}while(0)
-//#define USED_SPACE(x) do { typeof(x) _x = (x); \
-//		c->free_size -= _x; c->used_size += _x; \
-//		jeb->free_size -= _x ; jeb->used_size += _x; \
-//		}while(0)
-//#define UNCHECKED_SPACE(x) do { typeof(x) _x = (x); \
-//		c->free_size -= _x; c->unchecked_size += _x; \
-//		jeb->free_size -= _x ; jeb->unchecked_size += _x; \
-//		}while(0)
 
 #define DIRTY_SPACE(x) do { \
 		c->free_size -= x; c->dirty_size += x; \
@@ -677,9 +665,12 @@ more_empty:
                 c->flags |= JFFS2_SB_FLAG_RO;
                 if (!(jffs2_is_readonly(c)))
                     return -EROFS;
+
+#ifndef CONFIG_JFFS2_WRITABLE
                 DIRTY_SPACE(PAD(je32_to_cpu(node->totlen)));
                 ofs += PAD(je32_to_cpu(node->totlen));
                 break;
+#endif
 
             case JFFS2_FEATURE_INCOMPAT:
                 printk(KERN_NOTICE "Incompatible feature node (0x%04x) found at offset 0x%08x\n", je16_to_cpu(node->nodetype), ofs);

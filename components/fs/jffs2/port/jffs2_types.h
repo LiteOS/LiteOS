@@ -53,14 +53,16 @@ typedef unsigned short  nlink_t;
 typedef long            off_t;
 typedef unsigned short  gid_t;
 typedef unsigned short  uid_t;
-typedef unsigned int    ino_t;
 typedef int             pid_t;
 typedef int             ssize_t;
 typedef unsigned long   mode_t;
-typedef unsigned int    dev_t;
-typedef int             time_t;
 typedef unsigned char   u_char;
 
+#ifndef __GNUC__
+typedef unsigned int    ino_t;
+typedef unsigned int    dev_t;
+typedef int             time_t;
+#endif
 
 #define loff_t          off_t
 #define kvec            iovec

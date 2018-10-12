@@ -28,7 +28,7 @@ int jffs2_read_dnode(struct jffs2_sb_info *c, struct jffs2_inode_info *f,
     uint32_t crc;
     unsigned char *decomprbuf = NULL;
     unsigned char *readbuf = NULL;
-    int ret = 0, i = 0;
+    int ret = 0;
 
     ri = jffs2_alloc_raw_inode();
     if (!ri)
