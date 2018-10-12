@@ -38,7 +38,7 @@
 #include "at_frame/at_main.h"
 #include "at_hal.h"
 #ifdef WITH_SOTA
-#include "sota.h"
+#include "sota/sota.h"
 #endif
 #include "los_sys.ph"
 #include "los_tick.ph"

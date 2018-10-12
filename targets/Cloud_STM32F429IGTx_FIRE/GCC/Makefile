@@ -5,7 +5,7 @@
 # ------------------------------------------------
 # Generic Makefile (based on gcc)
 # ------------------------------------------------
-
+include config.mk
 ######################################
 # target
 ######################################
@@ -31,16 +31,6 @@ endif
 # bootloader
 #######################################
 USE_BOOTLOADER := no
-
-#######################################
-# fota
-#######################################
-USE_FOTA := yes
-
-#######################################
-# sota
-#######################################
-USE_SOTA := no
 
 #######################################
 # binaries
@@ -120,7 +110,8 @@ HAL_DRIVER_SRC =  \
 HARDWARE_SRC =  \
         ${wildcard $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Src/*.c}
         C_SOURCES += $(HARDWARE_SRC)
-
+		
+ifeq ($(WITH_LWIP), yes)
 LWIP_SRC =  \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/api/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/ipv4/*.c} \
@@ -131,8 +122,9 @@ LWIP_SRC =  \
 LWIP_PORT_SRC = \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip_port/OS/*.c}
         C_SOURCES += $(LWIP_PORT_SRC)
+endif
 
-
+ifneq ($(USE_FOTA)_$(WITH_DTLS), no_no)
 MBEDTLS_SRC = \
         ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c}
         C_SOURCES += $(MBEDTLS_SRC)
@@ -140,6 +132,7 @@ MBEDTLS_SRC = \
 MBEDTLS_PORT_SRC = \
         ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls_port/*.c}
         C_SOURCES += $(MBEDTLS_PORT_SRC)
+endif
 
 ER_COAP_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13/er-coap-13.c}
@@ -208,6 +201,12 @@ else ifeq ($(NETWORK_TYPE), NB_NEUL95)
     USER_DRIVERS_SRC = \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
+else ifeq ($(NETWORK_TYPE), ALL)
+    USER_DRIVERS_SRC = \
+	${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c} \
+	${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c} \
+	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
+	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
@@ -259,33 +258,56 @@ AS_DEFS =
 C_DEFS =  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
-        -D USE_MBED_TLS \
         -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE \
         -D NDEBUG \
-		-D LWM2M_BOOTSTRAP \
-        -D LWIP_TIMEVAL_PRIVATE=0 \
-#        -D WITH_DTLS \
-        -D ATINY_DEBUG \
-        -D LWM2M_WITH_LOGS
-#        -D SUPPORT_DTLS_SRV
-#       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
+        -D LWIP_TIMEVAL_PRIVATE=0 
 
 
-ifeq ($(USE_AT_FRAMEWORK), yes)
-        C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
-else
-        C_DEFS += -D WITH_LWIP
+ifeq ($(WITH_LWIP), yes)
+		C_DEFS += -DWITH_LWIP
+endif
+ifeq ($(WITH_AT_FRAMEWORK), yes)
+		C_DEFS += -DWITH_AT_FRAMEWORK
+		ifneq ($(NETWORK_TYPE), ALL)
+		C_DEFS += -DUSE_$(NETWORK_TYPE)
+		else
+		C_DEFS += -DUSE_ESP8266 -DSIM900A -DNB_NEUL95
+		endif
+endif
+
+ifeq ($(WITH_DTLS), yes)
+		C_DEFS += -DWITH_DTLS
+endif
+
+
+ifeq ($(USE_FOTA), yes)
+		C_DEFS += -DCONFIG_FEATURE_FOTA
 endif
 
 ifeq ($(USE_SOTA), yes)
 		C_DEFS += -DWITH_SOTA
 endif
 
-ifeq ($(USE_FOTA), yes)
-		C_DEFS += -DCONFIG_FEATURE_FOTA
+ifeq ($(LWM2M_BOOTSTRAP), yes)
+		C_DEFS += -DLWM2M_BOOTSTRAP
 endif
+
+ifeq ($(SUPPORT_DTLS_SRV), yes)
+		C_DEFS += -DSUPPORT_DTLS_SRV
+endif
+
+ifeq ($(LWM2M_WITH_LOGS), yes)
+		C_DEFS += -DLWM2M_WITH_LOGS
+endif
+
+ifeq ($(ATINY_DEBUG), yes)
+		C_DEFS += -DATINY_DEBUG
+endif
+
+
+
 
 # AS includes
 AS_INCLUDES =
@@ -386,7 +408,6 @@ LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BU
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
-
 
 #######################################
 # build the application

@@ -31,10 +31,10 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "sota.h"
+#include "sota/sota.h"
 #include "sota_hal.h"
 #include "at_frame/at_main.h"
-#include "ota.h"
+#include "fota/ota.h"
 #if USE_DIFF_UPGRADE
 #include "ota_diff_upgrade.h"
 #endif
