@@ -24,7 +24,7 @@ OPT = -Og
 USE_AT_FRAMEWORK := yes
 ifeq ($(USE_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := SIM900A
 endif
 
 #######################################
@@ -152,6 +152,10 @@ LWM2M_SRC = \
 OS_ADAPTER_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/osadapter/*.c}
         C_SOURCES += $(OS_ADAPTER_SRC)
+		
+NEWLIB_SRC = \
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
+        C_SOURCES += $(NEWLIB_SRC)
 
 ATINY_TINY_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/lwm2m_client/*.c}
@@ -173,7 +177,7 @@ USER_SRC =  \
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/at_fota/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/sota/*.c}
         C_SOURCES += $(SOTA_SRC)
 endif
 
@@ -254,10 +258,10 @@ C_DEFS =  \
         -D LWIP_TIMEVAL_PRIVATE=0 \
         -D WITH_DTLS \
         -D ATINY_DEBUG \
-        -D LWM2M_WITH_LOGS \
-        -D AT_INTO \
-        -D AT_DEBUG \
+        -D LWM2M_WITH_LOGS
+#        -D SUPPORT_DTLS_SRV
 #       WITH_DTLS change the place with LWIP_TIMEVAL_PRIVATE
+
 
 ifeq ($(USE_AT_FRAMEWORK), yes)
         C_DEFS += -DWITH_AT_FRAMEWORK -DUSE_$(NETWORK_TYPE)
@@ -366,7 +370,7 @@ endif
 
 ifeq ($(USE_SOTA), yes)
 SOTA_INC = \
-        -I $(TOP_DIR)/components/connectivity/at_fota
+        -I $(TOP_DIR)/components/connectivity/sota
         C_INCLUDES += $(SOTA_INC)
 endif
 
@@ -443,7 +447,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile $(LD_FILE)
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 

@@ -1202,7 +1202,7 @@ static uint32_t SDMMC_GetCmdResp1(SDIO_TypeDef *SDIOx, uint8_t SD_CMD, uint32_t 
   /* Check response received is of desired command */
   if(SDIO_GetCommandResponse(SDIOx) != SD_CMD)
   {
-    return SDMMC_ERROR_CMD_CRC_FAIL;
+    return SDMMC_ERROR_ILLEGAL_CMD;
   }
   
   /* Clear all the static flags */
@@ -1463,8 +1463,8 @@ static uint32_t SDMMC_GetCmdResp7(SDIO_TypeDef *SDIOx)
 
   if(__SDIO_GET_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT))
   {
-    /* Card is SD V2.0 compliant */
-    __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CMDREND);
+    /* Card is not V2.0 complient or card does not support the set voltage range */
+    __SDIO_CLEAR_FLAG(SDIOx, SDIO_FLAG_CTIMEOUT);
     
     return SDMMC_ERROR_CMD_RSP_TIMEOUT;
   }

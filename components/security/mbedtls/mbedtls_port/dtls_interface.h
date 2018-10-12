@@ -73,15 +73,41 @@
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
 
+typedef struct
+{
+    union
+    {
+        struct
+        {
+            const char *host;
+            const char *port;
+        }c;
+        struct
+        {
+            uint32_t timeout;
+            const char *local_port;
+        }s;
+    }u;
+    int client_or_server;
+    void (*step_notify)(void *param);
+    void (*finish_notify)(void *param);
+    void *param;
+}dtls_shakehand_info_s;
+
 void dtls_int(void);
 
-mbedtls_ssl_context* dtls_ssl_new_with_psk(char* psk, unsigned psk_len, char* psk_identity);
+mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type);
 
-int dtls_shakehand(mbedtls_ssl_context* ssl, const char* host, const char* port);
+int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info);
 
 void dtls_ssl_destroy(mbedtls_ssl_context* ssl);
 
 int dtls_write(mbedtls_ssl_context* ssl, const unsigned char* buf, size_t len);
 
 int dtls_read(mbedtls_ssl_context* ssl, unsigned char* buf, size_t len, uint32_t timeout);
+
+int dtls_accept( mbedtls_net_context *bind_ctx,
+                            mbedtls_net_context *client_ctx,
+                            void *client_ip, size_t buf_size, size_t *ip_len );
+
 

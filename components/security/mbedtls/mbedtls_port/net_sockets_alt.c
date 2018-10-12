@@ -89,13 +89,9 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
 {
     int ret = atiny_net_recv_timeout(ctx, buf, len, timeout);
 
-    if (ret == -2)
+    if (ret < 0)
     {
         return MBEDTLS_ERR_SSL_TIMEOUT;
-    }
-    else if (ret < 0)
-    {
-        return MBEDTLS_ERR_NET_RECV_FAILED;
     }
     else if (ret == 0)
     {
@@ -126,5 +122,26 @@ void mbedtls_net_free(mbedtls_net_context *ctx)
     atiny_net_close(ctx);
 }
 
+int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
+                        mbedtls_net_context *client_ctx,
+                        void *client_ip, size_t buf_size, size_t *ip_len )
+{
+    int ret = atiny_net_accept(bind_ctx, client_ctx, client_ip, buf_size, ip_len);
+
+    if (ret == ATINY_NET_ERR)
+       return MBEDTLS_ERR_NET_UNKNOWN_HOST;
+    else if (ret == ATINY_NET_SOCKET_FAILED)
+       return MBEDTLS_ERR_NET_SOCKET_FAILED;
+    else if (ret == ATINY_NET_BIND_FAILED)
+      return MBEDTLS_ERR_NET_BIND_FAILED;
+    else if (ret == ATINY_NET_LISTEN_FAILED)
+        return MBEDTLS_ERR_NET_LISTEN_FAILED;
+    else if (ret == ATINY_NET_ACCEPT_FAILED)
+        return MBEDTLS_ERR_NET_ACCEPT_FAILED;
+    else if(ret == ATINY_NET_BUF_SMALL_FAILED)
+        return MBEDTLS_ERR_NET_BUFFER_TOO_SMALL;
+
+    return ret;
+}
 #endif /* MBEDTLS_NET_C */
 

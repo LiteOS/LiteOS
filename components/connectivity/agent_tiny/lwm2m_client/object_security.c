@@ -79,8 +79,6 @@
 #include "internals.h"
 #include "object_comm.h"
 
-#define SECURITY_HOLD_OFF_TIME 10
-
 static uint8_t prv_get_value(lwm2m_data_t *dataP,
                              security_instance_t *targetP)
 {
@@ -566,14 +564,14 @@ lwm2m_object_t *get_security_object(uint16_t serverId, atiny_param_t *atiny_para
     uint8_t security_params_index = 0;
 
 
-    switch(atiny_params->bootstrap_mode)
+    switch(atiny_params->server_params.bootstrap_mode)
     {
     case BOOTSTRAP_FACTORY:
         ins_flag |= INS_IOT_SERVER_FLAG;
         total_ins = 1;
         break;
     case BOOTSTRAP_SEQUENCE:
-        if(lwm2m_context->bs_sequence_state == BS_SEQUENCE_STATE_FACTORY)
+        if ((atiny_params->security_params[0].server_ip != NULL) && (atiny_params->security_params[0].server_port != NULL))
         {
             ins_flag |= INS_IOT_SERVER_FLAG;
             ins_flag |= INS_BS_SERVER_FLAG;
@@ -646,15 +644,23 @@ lwm2m_object_t *get_security_object(uint16_t serverId, atiny_param_t *atiny_para
         psk = atiny_params->security_params[security_params_index].psk;
         pskLen = atiny_params->security_params[security_params_index].psk_len;
 
-        if (psk != NULL)
+
+        if (atiny_params->security_params[security_params_index].server_ip && atiny_params->security_params[security_params_index].server_port)
         {
-            (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coaps://%s:%s", atiny_params->security_params[security_params_index].server_ip,
-                                 atiny_params->security_params[security_params_index].server_port);
+            if (psk != NULL)
+            {
+                (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coaps://%s:%s", atiny_params->security_params[security_params_index].server_ip,
+                                     atiny_params->security_params[security_params_index].server_port);
+            }
+            else
+            {
+                (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coap://%s:%s", atiny_params->security_params[security_params_index].server_ip,
+                                     atiny_params->security_params[security_params_index].server_port);
+            }
         }
         else
         {
-            (void)atiny_snprintf(serverUri, URI_MAX_LEN, "coap://%s:%s", atiny_params->security_params[security_params_index].server_ip,
-                                 atiny_params->security_params[security_params_index].server_port);
+            serverUri[0] = '\0';
         }
 
         targetP->uri = (char *)lwm2m_strdup(serverUri);
@@ -692,7 +698,7 @@ lwm2m_object_t *get_security_object(uint16_t serverId, atiny_param_t *atiny_para
 
         targetP->shortID = serverId;
         //10? is suitable? it could be changed by the bs server. for lwm2m_server_t member lifetime.
-        targetP->clientHoldOffTime = SECURITY_HOLD_OFF_TIME;
+        targetP->clientHoldOffTime = atiny_params->server_params.hold_off_time;
     } //end for loop
 
 

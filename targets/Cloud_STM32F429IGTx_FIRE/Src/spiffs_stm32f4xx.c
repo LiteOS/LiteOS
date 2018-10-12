@@ -76,8 +76,14 @@ static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size
     return SPIFFS_OK;
 }
 
-int stm32f4xx_spiffs_init (void)
+int stm32f4xx_spiffs_init (int need_erase)
 {
+    hal_spi_flash_config();
+    if (need_erase)
+    {
+        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
+    }
+
     (void)spiffs_init ();
 
     if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,

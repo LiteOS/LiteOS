@@ -48,7 +48,7 @@ VOID liteos_task(VOID)
     while(1)
     {
         printf("this is testing\r\n");  
-        delayus(200);
+        LOS_TaskDelay(200);
 	}
 }
 UINT32 creat_main_task()

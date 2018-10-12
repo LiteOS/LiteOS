@@ -45,12 +45,12 @@
 *                                  EXPORT FUNCTIONS
 ****************************************************************************************/
 
-    .global  osExcNMI
-    .global  osExcHardFault
-    .global  osExcMemFault
-    .global  osExcBusFault
-    .global  osExcUsageFault
-    .global  osExcSvcCall
+    .global  NMI_Handler
+    .global  HardFault_Handler
+    .global  MemManage_Handler
+    .global  BusFault_Handler
+    .global  UsageFault_Handler
+    .global  SVC_Handler
 
 /****************************************************************************************
 *                                  EXTERN PARAMETERS
@@ -88,12 +88,12 @@
 
 /****************************************************************************************
 * Function:
-*        VOID osExcNMI(VOID);
+*        VOID NMI_Handler(VOID);
 * Description:
 *        NMI Handler.
 ****************************************************************************************/
-    .type osExcNMI, %function
-osExcNMI:
+    .type NMI_Handler, %function
+NMI_Handler:
     /**
      * Before executing instruction 'B osExcDispatch', the value of R0 is as follows.
      * < R0 >:
@@ -110,12 +110,12 @@ osExcNMI:
 
 /****************************************************************************************
 * Function:
-*        VOID osExcHardFault(VOID);
+*        VOID HardFault_Handler(VOID);
 * Description:
 *        HardFault Handler.
 ****************************************************************************************/
-    .type osExcHardFault, %function
-osExcHardFault:
+    .type HardFault_Handler, %function
+HardFault_Handler:
     /**
      * Check HardFault state register.
      *
@@ -239,12 +239,12 @@ osHFExcCommonBMU:
 
 /****************************************************************************************
 * Function:
-*        VOID osExcSvcCall(VOID);
+*        VOID SVC_Handler(VOID);
 * Description:
 *        SVC Handler.
 ****************************************************************************************/
-    .type osExcSvcCall, %function
-osExcSvcCall:
+    .type SVC_Handler, %function
+SVC_Handler:
     TST   LR, #0x4                     /* EXC_RETURN[b2] --- PSP or MSP */
     ITE   EQ
     MRSEQ R0, MSP
@@ -258,12 +258,12 @@ _SvcLoop:
 
 /****************************************************************************************
 * Function:
-*        VOID osExcBusFault(VOID);
+*        VOID BusFault_Handler(VOID);
 * Description:
 *        BusFault Handler.
 ****************************************************************************************/
-    .type osExcBusFault, %function
-osExcBusFault:
+    .type BusFault_Handler, %function
+BusFault_Handler:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
     LDR  R2, =OS_EXC_CAUSE_BUSFAULT
@@ -284,12 +284,12 @@ _ExcBusNoADDR:
 
 /****************************************************************************************
 * Function:
-*        VOID osExcMemFault(VOID);
+*        VOID MemManage_Handler(VOID);
 * Description:
 *        MemManage Handler.
 ****************************************************************************************/
-    .type osExcMemFault, %function
-osExcMemFault:
+    .type MemManage_Handler, %function
+MemManage_Handler:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
     LDR  R2, =OS_EXC_CAUSE_MEMFAULT
@@ -310,12 +310,12 @@ _ExcMemNoADDR:
 
 /****************************************************************************************
 * Function:
-*        VOID osExcUsageFault(VOID);
+*        VOID UsageFault_Handler(VOID);
 * Description:
 *        UsageFault Handler.
 ****************************************************************************************/
-    .type osExcUsageFault, %function
-osExcUsageFault:
+    .type UsageFault_Handler, %function
+UsageFault_Handler:
     LDR  R0, =OS_NVIC_CFSR
     LDR  R0, [R0]
     LDR  R2, =OS_EXC_CAUSE_USAGEFAULT
@@ -326,7 +326,7 @@ osExcUsageFault:
     MOV  R12, #0                       /* R12: Fault addr invalid */
 
     /**
-     * osExcCommonBMU: osExcBusFault,osExcMemFault and osExcUsageFault share.
+     * osExcCommonBMU: BusFault_Handler,MemManage_Handler and UsageFault_Handler share.
      * Get specific error status from table g_uwExcTbl, stored in R0.
      * Before executing osExcDispatch, the value of R0 is as follows.
      * < R0 >:
@@ -350,8 +350,8 @@ osExcCommonBMU:
     ORR  R0, R0, R12
 
     /****************************************************************************************
-    * osExcDispatch: osExcNMI, osExcHardFault, osExcSvcCall, osExcBusFault, osExcMemFault,
-    *                  osExcUsageFault sharing.
+    * osExcDispatch: NMI_Handler, HardFault_Handler, SVC_Handler, BusFault_Handler, MemManage_Handler,
+    *                  UsageFault_Handler sharing.
     ****************************************************************************************/
 
     /**

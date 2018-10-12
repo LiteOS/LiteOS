@@ -204,7 +204,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of mutexes
  */
-#define LOSCFG_BASE_IPC_MUX_LIMIT                           15              // the max mutex-num
+#define LOSCFG_BASE_IPC_MUX_LIMIT                           20              // the max mutex-num
 
 
 /*=============================================================================
@@ -394,6 +394,18 @@ extern UINT32 g_sys_mem_addr_end;
  * Max count of track items
  */
 #define LOSCFG_BASE_MISC_TRACK_MAX_COUNT                    1024
+
+/*=============================================================================
+                                       VFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS VFS
+ */
+#ifndef LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   YES
+#endif
 
 
 #ifdef __cplusplus
