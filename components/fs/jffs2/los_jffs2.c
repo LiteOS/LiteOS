@@ -370,7 +370,6 @@ static int jffs2_op_readdir (struct dir *dir, struct dirent *dent)
     cyg_iovec iovec;
     cyg_dirent jffs2_d;
     struct dirent * d;
-    uint32_t index;
 #if !defined (CYGPKG_FS_JFFS2_RET_DIRENT_DTYPE)
     cyg_stat s;
     struct inode *d_inode = NULL;

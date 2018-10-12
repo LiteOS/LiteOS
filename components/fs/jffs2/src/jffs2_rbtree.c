@@ -60,11 +60,11 @@
 
 #define RB_ROTATE_LEFT(head, elm, tmp) do {			\
 	(tmp) = RB_RIGHT(elm);					\
-	if ((RB_RIGHT(elm) = RB_LEFT(tmp))) {			\
+	if (NULL != (RB_RIGHT(elm) = RB_LEFT(tmp))) {			\
 		RB_PARENT(RB_LEFT(tmp)) = (elm);		\
 	}							\
 	RB_AUGMENT(elm);					\
-	if ((RB_PARENT(tmp) = RB_PARENT(elm))) {		\
+	if (NULL != (RB_PARENT(tmp) = RB_PARENT(elm))) {		\
 		if ((elm) == RB_LEFT(RB_PARENT(elm)))		\
 			RB_LEFT(RB_PARENT(elm)) = (tmp);	\
 		else						\
@@ -80,11 +80,11 @@
 
 #define RB_ROTATE_RIGHT(head, elm, tmp) do {			\
 	(tmp) = RB_LEFT(elm);					\
-	if ((RB_LEFT(elm) = RB_RIGHT(tmp))) {			\
+	if (NULL != (RB_LEFT(elm) = RB_RIGHT(tmp))) {			\
 		RB_PARENT(RB_RIGHT(tmp)) = (elm);		\
 	}							\
 	RB_AUGMENT(elm);					\
-	if ((RB_PARENT(tmp) = RB_PARENT(elm))) {		\
+	if (NULL != (RB_PARENT(tmp) = RB_PARENT(elm))) {		\
 		if ((elm) == RB_LEFT(RB_PARENT(elm)))		\
 			RB_LEFT(RB_PARENT(elm)) = (tmp);	\
 		else						\
@@ -102,7 +102,7 @@
 void rb_insert_color(struct rb_node *elm, struct rb_root *head)
 {
     struct rb_node *parent, *gparent, *tmp;
-    while ((parent = RB_PARENT(elm)) &&
+    while (NULL != (parent = RB_PARENT(elm)) &&
             RB_COLOR(parent) == RB_RED)
     {
         gparent = RB_PARENT(parent);
@@ -182,7 +182,7 @@ static void rb_remove_color(struct rb_root *head, struct rb_node *parent,
                         RB_COLOR(RB_RIGHT(tmp)) == RB_BLACK)
                 {
                     struct rb_node *oleft;
-                    if ((oleft = RB_LEFT(tmp)))
+                    if (NULL != (oleft = RB_LEFT(tmp)))
                         RB_COLOR(oleft) = RB_BLACK;
                     RB_COLOR(tmp) = RB_RED;
                     RB_ROTATE_RIGHT(head, tmp, oleft);
@@ -221,7 +221,7 @@ static void rb_remove_color(struct rb_root *head, struct rb_node *parent,
                         RB_COLOR(RB_LEFT(tmp)) == RB_BLACK)
                 {
                     struct rb_node *oright;
-                    if ((oright = RB_RIGHT(tmp)))
+                    if (NULL != (oright = RB_RIGHT(tmp)))
                         RB_COLOR(oright) = RB_BLACK;
                     RB_COLOR(tmp) = RB_RED;
                     RB_ROTATE_LEFT(head, tmp, oright);
@@ -254,7 +254,7 @@ void rb_erase(struct rb_node *elm, struct rb_root *head)
     {
         struct rb_node *left;
         elm = RB_RIGHT(elm);
-        while ((left = RB_LEFT(elm)))
+        while (NULL != (left = RB_LEFT(elm)))
             elm = left;
         child = RB_RIGHT(elm);
         parent = RB_PARENT(elm);
@@ -294,7 +294,7 @@ void rb_erase(struct rb_node *elm, struct rb_root *head)
             {
                 RB_AUGMENT(left);
             }
-            while ((left = RB_PARENT(left)));
+            while (NULL != (left = RB_PARENT(left)));
         }
         goto color;
     }

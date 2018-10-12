@@ -150,7 +150,7 @@ retry:
             printk(KERN_NOTICE "Not marking the space at 0x%08x as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
             jffs2_free_raw_node_ref(raw);
         }
-        if (!retried && alloc_mode != ALLOC_NORETRY && (raw = jffs2_alloc_raw_node_ref()))
+        if (!retried && alloc_mode != ALLOC_NORETRY && NULL != (raw = jffs2_alloc_raw_node_ref()))
         {
             /* Try to reallocate space and retry */
             uint32_t dummy;
@@ -312,7 +312,7 @@ retry:
             printk(KERN_NOTICE "Not marking the space at 0x%08x as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
             jffs2_free_raw_node_ref(raw);
         }
-        if (!retried && (raw = jffs2_alloc_raw_node_ref()))
+        if (!retried && NULL != (raw = jffs2_alloc_raw_node_ref()))
         {
             /* Try to reallocate space and retry */
             uint32_t dummy;
