@@ -72,16 +72,6 @@
 #endif
 
 
-static void *atiny_calloc(size_t n, size_t size)
-{
-    void *p = atiny_malloc(n * size);
-    if(p)
-    {
-        memset(p, 0, n * size);
-    }
-
-    return p;
-}
 
 mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type)
 {
@@ -155,6 +145,7 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
     }
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if !(defined(WITH_CA_UNI) || defined(WITH_CA_BI))
 
     if ((ret = mbedtls_ssl_set_hostname(ssl, SERVER_NAME)) != 0)
     {
@@ -162,6 +153,7 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
         goto exit_fail;
     }
 
+#endif
 #endif
 
     mbedtls_ssl_set_timer_cb( ssl, timer, mbedtls_timing_set_delay,
@@ -198,7 +190,6 @@ exit_fail:
     }
     return NULL;
 }
-
 
 static inline uint32_t dtls_gettime()
 {
@@ -315,6 +306,15 @@ void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
     mbedtls_entropy_context      *entropy = NULL;
     mbedtls_net_context          *server_fd = NULL;
     mbedtls_timing_delay_context *timer = NULL;
+#if defined(WITH_CA_UNI)
+    mbedtls_x509_crt *cacert = NULL;
+#elif defined(WITH_CA_BI)
+    mbedtls_x509_crt *cacert = NULL;
+    mbedtls_x509_crt *clicert = NULL;
+    mbedtls_pk_context *pkey = NULL;
+    mbedtls_ssl_key_cert *head = NULL;
+    mbedtls_ssl_key_cert *cur = NULL;
+#endif
 
     if (ssl == NULL)
     {
@@ -324,6 +324,19 @@ void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
     conf       = ssl->conf;
     server_fd  = (mbedtls_net_context *)ssl->p_bio;
     timer      = (mbedtls_timing_delay_context *)ssl->p_timer;
+#if defined(WITH_CA_UNI)
+    cacert     = conf->ca_chain;
+#elif defined(WITH_CA_BI)
+	head = conf->key_cert;
+	cur = head;
+
+    while( cur->next != NULL )
+        cur = cur->next;
+
+    cacert     = conf->ca_chain;
+    clicert    = cur->cert;
+    pkey       = cur->key;
+#endif
 
     if (conf)
     {
@@ -334,6 +347,31 @@ void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
             entropy =  ctr_drbg->p_entropy;
         }
     }
+
+#if defined(WITH_CA_UNI)
+    if(cacert)
+    {
+		mbedtls_x509_crt_free(cacert);
+        mbedtls_free(cacert);
+    }
+#elif defined(WITH_CA_BI)
+    if(cacert)
+    {
+        mbedtls_x509_crt_free(cacert);
+        mbedtls_free(cacert);
+    }
+    if(clicert)
+    {
+        mbedtls_x509_crt_free(clicert);
+        mbedtls_free(clicert);
+    }
+	if(pkey)
+    {
+        mbedtls_pk_free(pkey);
+        mbedtls_free(pkey);
+    }
+#endif
+
 
     if (server_fd)
     {

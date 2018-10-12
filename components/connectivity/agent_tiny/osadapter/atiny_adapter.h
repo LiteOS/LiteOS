@@ -114,6 +114,24 @@ void* atiny_malloc(size_t size);
 
 /**
  *@ingroup atiny_adapter
+ *@brief allocates a block of size bytes of memory
+ *
+ *@par Description:
+ *This API is used to allocates  memory  for an array of n elements of size bytes each and returns a pointer to the
+ *allocated memory.  The memory is set to zero.
+ *@attention none.
+ *
+ *@param n              [IN] Specify the number of elements.
+ *@param size           [IN] specify element size in bytes.
+ *
+ *@retval #pointer      pointer to the beginning of the allocated memory.
+ *@par Dependency: none.
+ *@see none
+ */
+void *atiny_calloc(size_t n, size_t size);
+
+/**
+ *@ingroup atiny_adapter
  *@brief deallocate memory block.
  *
  *@par Description:

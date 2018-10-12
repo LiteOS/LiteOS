@@ -148,7 +148,7 @@ void demo_agenttiny_with_wifi(void)
 
 VOID main_task(VOID)
 {
-    demo_agenttiny_with_nbiot();
+    demo_agenttiny_with_lwip();
 }
 
 UINT32 creat_main_task()
@@ -161,9 +161,9 @@ UINT32 creat_main_task()
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
 
 #ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
+    task_init_param.uwStackSize = 0x5000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
 #else
-    task_init_param.uwStackSize = 0x2000;
+    task_init_param.uwStackSize = 0x5000;
 #endif
 
     uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
