@@ -272,7 +272,7 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
         if ( !c->used_size && ((c->nr_free_blocks + empty_blocks + bad_blocks) != c->nr_blocks || bad_blocks == c->nr_blocks) )
         {
             printk(KERN_NOTICE "Cowardly refusing to erase blocks on filesystem with no valid JFFS2 nodes\n");
-            printk(KERN_NOTICE "empty_blocks %d, bad_blocks %d, c->nr_blocks %d\n", empty_blocks, bad_blocks, c->nr_blocks);
+            printk(KERN_NOTICE "empty_blocks %ld, bad_blocks %ld, c->nr_blocks %ld\n", empty_blocks, bad_blocks, c->nr_blocks);
             ret = -EIO;
             goto out;
         }
@@ -422,13 +422,13 @@ scan_more:
 
         if (ofs & 3)
         {
-            printk(KERN_WARNING "Eep. ofs 0x%08x not word-aligned!\n", ofs);
+            printk(KERN_WARNING "Eep. ofs 0x%08lx not word-aligned!\n", ofs);
             ofs = PAD(ofs);
             continue;
         }
         if (ofs == prevofs)
         {
-            printk(KERN_WARNING "ofs 0x%08x has already been seen. Skipping\n", ofs);
+            printk(KERN_WARNING "ofs 0x%08lx has already been seen. Skipping\n", ofs);
             DIRTY_SPACE(4);
             ofs += 4;
             continue;
@@ -471,7 +471,7 @@ more_empty:
             {
                 if (*(uint32_t *)(&buf[inbuf_ofs]) != 0xffffffff)
                 {
-                    printk(KERN_WARNING "Empty flash at 0x%08x ends at 0x%08x\n",
+                    printk(KERN_WARNING "Empty flash at 0x%08lx ends at 0x%08lx\n",
                            empty_start, ofs);
                     DIRTY_SPACE(ofs - empty_start);
                     goto scan_more;
@@ -512,7 +512,7 @@ more_empty:
 
         if (ofs == jeb->offset && je16_to_cpu(node->magic) == KSAMTIB_CIGAM_2SFFJ)
         {
-            printk(KERN_WARNING "Magic bitmask is backwards at offset 0x%08x. Wrong endian filesystem?\n", ofs);
+            printk(KERN_WARNING "Magic bitmask is backwards at offset 0x%08lx. Wrong endian filesystem?\n", ofs);
             DIRTY_SPACE(4);
             ofs += 4;
             continue;
@@ -526,7 +526,7 @@ more_empty:
         }
         if (je16_to_cpu(node->magic) == JFFS2_OLD_MAGIC_BITMASK)
         {
-            printk(KERN_WARNING "Old JFFS2 bitmask found at 0x%08x\n", ofs);
+            printk(KERN_WARNING "Old JFFS2 bitmask found at 0x%08lx\n", ofs);
             printk(KERN_WARNING "You cannot use older JFFS2 filesystems with newer kernels\n");
             DIRTY_SPACE(4);
             ofs += 4;
@@ -535,7 +535,7 @@ more_empty:
         if (je16_to_cpu(node->magic) != JFFS2_MAGIC_BITMASK)
         {
             /* OK. We're out of possibilities. Whinge and move on */
-            noisy_printk(&noise, "jffs2_scan_eraseblock(): Magic bitmask 0x%04x not found at 0x%08x: 0x%04x instead\n",
+            noisy_printk(&noise, "jffs2_scan_eraseblock(): Magic bitmask 0x%04x not found at 0x%08lx: 0x%04x instead\n",
                          JFFS2_MAGIC_BITMASK, ofs,
                          je16_to_cpu(node->magic));
             DIRTY_SPACE(4);
@@ -550,7 +550,7 @@ more_empty:
 
         if (hdr_crc != je32_to_cpu(node->hdr_crc))
         {
-            noisy_printk(&noise, "jffs2_scan_eraseblock(): Node at 0x%08x {0x%04x, 0x%04x, 0x%08x) has invalid CRC 0x%08x (calculated 0x%08x)\n",
+            noisy_printk(&noise, "jffs2_scan_eraseblock(): Node at 0x%08lx {0x%04x, 0x%04x, 0x%08lx) has invalid CRC 0x%08lx (calculated 0x%08lx)\n",
                          ofs, je16_to_cpu(node->magic),
                          je16_to_cpu(node->nodetype),
                          je32_to_cpu(node->totlen),
@@ -565,7 +565,7 @@ more_empty:
                 jeb->offset + c->sector_size)
         {
             /* Eep. Node goes over the end of the erase block. */
-            printk(KERN_WARNING "Node at 0x%08x with length 0x%08x would run over the end of the erase block\n",
+            printk(KERN_WARNING "Node at 0x%08lx with length 0x%08lx would run over the end of the erase block\n",
                    ofs, je32_to_cpu(node->totlen));
             printk(KERN_WARNING "Perhaps the file system was created with the wrong erase size?\n");
             DIRTY_SPACE(4);
@@ -622,14 +622,14 @@ more_empty:
             D1(printk(KERN_DEBUG "CLEANMARKER node found at 0x%08x\n", ofs));
             if (je32_to_cpu(node->totlen) != c->cleanmarker_size)
             {
-                printk(KERN_NOTICE "CLEANMARKER node found at 0x%08x has totlen 0x%x != normal 0x%x\n",
+                printk(KERN_NOTICE "CLEANMARKER node found at 0x%08lx has totlen 0x%lx != normal 0x%lx\n",
                        ofs, je32_to_cpu(node->totlen), c->cleanmarker_size);
                 DIRTY_SPACE(PAD(sizeof(struct jffs2_unknown_node)));
                 ofs += PAD(sizeof(struct jffs2_unknown_node));
             }
             else if (jeb->first_node)
             {
-                printk(KERN_NOTICE "CLEANMARKER node found at 0x%08x, not first node in block (0x%08x)\n", ofs, jeb->offset);
+                printk(KERN_NOTICE "CLEANMARKER node found at 0x%08lx, not first node in block (0x%08lx)\n", ofs, jeb->offset);
                 DIRTY_SPACE(PAD(sizeof(struct jffs2_unknown_node)));
                 ofs += PAD(sizeof(struct jffs2_unknown_node));
             }
@@ -661,7 +661,7 @@ more_empty:
             switch (je16_to_cpu(node->nodetype) & JFFS2_COMPAT_MASK)
             {
             case JFFS2_FEATURE_ROCOMPAT:
-                printk(KERN_NOTICE "Read-only compatible feature node (0x%04x) found at offset 0x%08x\n", je16_to_cpu(node->nodetype), ofs);
+                printk(KERN_NOTICE "Read-only compatible feature node (0x%04x) found at offset 0x%08lx\n", je16_to_cpu(node->nodetype), ofs);
                 c->flags |= JFFS2_SB_FLAG_RO;
                 if (!(jffs2_is_readonly(c)))
                     return -EROFS;
@@ -673,7 +673,7 @@ more_empty:
 #endif
 
             case JFFS2_FEATURE_INCOMPAT:
-                printk(KERN_NOTICE "Incompatible feature node (0x%04x) found at offset 0x%08x\n", je16_to_cpu(node->nodetype), ofs);
+                printk(KERN_NOTICE "Incompatible feature node (0x%04x) found at offset 0x%08lx\n", je16_to_cpu(node->nodetype), ofs);
                 return -EINVAL;
 
             case JFFS2_FEATURE_RWCOMPAT_DELETE:
@@ -785,7 +785,7 @@ static int jffs2_scan_inode_node(struct jffs2_sb_info *c, struct jffs2_erasebloc
 
         if (crc != je32_to_cpu(ri->node_crc))
         {
-            printk(KERN_NOTICE "jffs2_scan_inode_node(): CRC failed on node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
+            printk(KERN_NOTICE "jffs2_scan_inode_node(): CRC failed on node at 0x%08lx: Read 0x%08lx, calculated 0x%08lx\n",
                    ofs, je32_to_cpu(ri->node_crc), crc);
             /* We believe totlen because the CRC on the node _header_ was OK, just the node itself failed. */
             DIRTY_SPACE(PAD(je32_to_cpu(ri->totlen)));
@@ -841,7 +841,7 @@ static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblo
 
     if (crc != je32_to_cpu(rd->node_crc))
     {
-        printk(KERN_NOTICE "jffs2_scan_dirent_node(): Node CRC failed on node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
+        printk(KERN_NOTICE "jffs2_scan_dirent_node(): Node CRC failed on node at 0x%08lx: Read 0x%08lx, calculated 0x%08lx\n",
                ofs, je32_to_cpu(rd->node_crc), crc);
         /* We believe totlen because the CRC on the node _header_ was OK, just the node itself failed. */
         DIRTY_SPACE(PAD(je32_to_cpu(rd->totlen)));
@@ -861,7 +861,7 @@ static int jffs2_scan_dirent_node(struct jffs2_sb_info *c, struct jffs2_eraseblo
     crc = crc32(0, fd->name, rd->nsize);
     if (crc != je32_to_cpu(rd->name_crc))
     {
-        printk(KERN_NOTICE "jffs2_scan_dirent_node(): Name CRC failed on node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
+        printk(KERN_NOTICE "jffs2_scan_dirent_node(): Name CRC failed on node at 0x%08lx: Read 0x%08lx, calculated 0x%08lx\n",
                ofs, je32_to_cpu(rd->name_crc), crc);
         D1(printk(KERN_NOTICE "Name for which CRC failed is (now) '%s', ino #%d\n", fd->name, je32_to_cpu(rd->ino)));
         jffs2_free_full_dirent(fd);

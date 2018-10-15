@@ -16,9 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#ifdef __GNUC__
-#include <unistd.h>
-#endif
+
 #ifdef _SPIFFS_TEST
 #include "testrunner.h"
 #endif

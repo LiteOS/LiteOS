@@ -118,7 +118,7 @@ uint16_t jffs2_compress(struct jffs2_sb_info *c, struct jffs2_inode_info *f,
                 spin_lock(&jffs2_compressor_list_lock);
                 if (!tmp_buf)
                 {
-                    printk(KERN_WARNING "JFFS2: No memory for compressor allocation. (%d bytes)\n", orig_dlen);
+                    printk(KERN_WARNING "JFFS2: No memory for compressor allocation. (%ld bytes)\n", orig_dlen);
                     continue;
                 }
                 else

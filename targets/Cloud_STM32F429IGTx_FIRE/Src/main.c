@@ -149,7 +149,7 @@ void demo_agenttiny_with_wifi(void)
 
 VOID main_task(VOID)
 {
-    //fs_demo();
+    fs_demo();
     demo_agenttiny_with_nbiot();
 }
 

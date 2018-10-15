@@ -539,6 +539,9 @@ static int jffs2_find(jffs2_dirsearch *d)
         while (*(d->path) == '/')
             d->path++; // skip dirname separators
     }
+#ifdef __GNUC__
+    return err; // For GCC warning
+#endif
 }
 
 struct inode *jffs2_iget(struct super_block *sb, uint32_t ino)
@@ -808,7 +811,7 @@ uint32_t jffs2_from_os_mode(uint32_t osmode)
         return jmode | 0001000;
 #endif
     }
-    printf("os_to_jffs2_mode() cannot convert 0x%x\n", osmode);
+    printf("os_to_jffs2_mode() cannot convert 0x%lx\n", osmode);
     BUG();
     return 0;
 }
@@ -850,7 +853,7 @@ uint32_t jffs2_to_os_mode (uint32_t jmode)
         return osmode | S_ISVTX;
 #endif
     }
-    printf("jffs2_to_os_mode() cannot convert 0x%x\n", osmode);
+    printf("jffs2_to_os_mode() cannot convert 0x%lx\n", osmode);
     BUG();
     return 0;
 }

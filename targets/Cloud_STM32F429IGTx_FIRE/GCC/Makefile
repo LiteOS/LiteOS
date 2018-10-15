@@ -166,9 +166,31 @@ ATINY_LOG = \
 AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
-		
+
+FS_SRC = \
+        ${wildcard $(TOP_DIR)/components/fs/vfs/*.c}
+        C_SOURCES += $(FS_SRC)
+
+FS_SPIFFS_SRC = \
+        ${wildcard $(TOP_DIR)/components/fs/spiffs/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/*.c}
+        C_SOURCES += $(FS_SPIFFS_SRC)
+
+FS_FATFS_SRC = \
+        ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
+        C_SOURCES += $(FS_FATFS_SRC)
+
+FS_JFFS2_SRC = \
+        ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/jffs2/src/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
+        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
+        C_SOURCES += $(FS_JFFS2_SRC)
+
 FS_DEMO_SRC = \
-        #${wildcard $(TOP_DIR)/demos/fs/*.c}
+        ${wildcard $(TOP_DIR)/demos/fs/*.c}
         C_SOURCES += $(FS_DEMO_SRC)
 
 
@@ -178,7 +200,10 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/dwt.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_stm32f4xx.c
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_SOTA), yes)
@@ -368,6 +393,21 @@ LWM2M_INC = \
 DEMO_INC = \
         -I $(TOP_DIR)/demos
         C_INCLUDES += $(DEMO_INC)
+
+FS_SPIFFS_INC = \
+		-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
+		-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
+		C_INCLUDES += $(FS_SPIFFS_INC)
+
+FS_FATFS_INC = \
+		-I $(TOP_DIR)/components/fs/fatfs/ff13b/source
+		C_INCLUDES += $(FS_FATFS_INC)
+
+FS_JFFS2_INC = \
+		-I $(TOP_DIR)/components/fs/jffs2 \
+		-I $(TOP_DIR)/components/fs/jffs2/src \
+		-I $(TOP_DIR)/components/fs/jffs2/port
+		C_INCLUDES += $(FS_JFFS2_INC)
 
 USER_INC = \
 		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \

@@ -43,10 +43,6 @@
 #include "fs/sys/fcntl.h"
 #endif
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#endif
-
 #include <los_printf.h>
 
 #include "spiffs.h"

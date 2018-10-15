@@ -97,7 +97,7 @@ static void jffs2_fragtree_insert(struct jffs2_node_frag *newfrag, struct jffs2_
             link = &base->rb.rb_left;
         else
         {
-            JFFS2_ERROR("duplicate frag at %08x (%p,%p)\n", newfrag->ofs, newfrag, base);
+            JFFS2_ERROR("duplicate frag at %08lx (%p,%p)\n", newfrag->ofs, newfrag, base);
             BUG();
         }
     }

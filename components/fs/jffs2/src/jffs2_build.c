@@ -63,7 +63,7 @@ static inline void jffs2_build_inode_pass1(struct jffs2_sb_info *c, struct jffs2
         child_ic = jffs2_get_ino_cache(c, fd->ino);
         if (!child_ic)
         {
-            printk(KERN_NOTICE "Eep. Child \"%s\" (ino #%u) of dir ino #%u doesn't exist!\n",
+            printk(KERN_NOTICE "Eep. Child \"%s\" (ino #%lu) of dir ino #%lu doesn't exist!\n",
                    fd->name, fd->ino, ic->ino);
             jffs2_mark_node_obsolete(c, fd->raw);
             continue;
@@ -71,7 +71,7 @@ static inline void jffs2_build_inode_pass1(struct jffs2_sb_info *c, struct jffs2
 
         if (child_ic->nlink++ && fd->type == DT_DIR)
         {
-            printk(KERN_NOTICE "Child dir \"%s\" (ino #%u) of dir ino #%u appears to be a hard link\n", fd->name, fd->ino, ic->ino);
+            printk(KERN_NOTICE "Child dir \"%s\" (ino #%lu) of dir ino #%lu appears to be a hard link\n", fd->name, fd->ino, ic->ino);
             if (fd->ino == 1 && ic->ino == 1)
             {
                 printk(KERN_NOTICE "This is mostly harmless, and probably caused by creating a JFFS2 image\n");
@@ -239,7 +239,7 @@ static void jffs2_build_remove_unlinked_inode(struct jffs2_sb_info *c, struct jf
             if (!whinged)
             {
                 whinged = 1;
-                printk(KERN_NOTICE "Inode #%u was a directory with children - removing those too...\n", ic->ino);
+                printk(KERN_NOTICE "Inode #%lu was a directory with children - removing those too...\n", ic->ino);
             }
 
             D1(printk(KERN_DEBUG "Removing child \"%s\", ino #%u\n",
@@ -248,7 +248,7 @@ static void jffs2_build_remove_unlinked_inode(struct jffs2_sb_info *c, struct jf
             child_ic = jffs2_get_ino_cache(c, fd->ino);
             if (!child_ic)
             {
-                printk(KERN_NOTICE "Cannot remove child \"%s\", ino #%u, because it doesn't exist\n", fd->name, fd->ino);
+                printk(KERN_NOTICE "Cannot remove child \"%s\", ino #%lu, because it doesn't exist\n", fd->name, fd->ino);
                 jffs2_free_full_dirent(fd);
                 continue;
             }
