@@ -53,7 +53,7 @@
 #define ATINY_FOTA_STATE_H_
 #include "atiny_fota_manager.h"
 #include "log/atiny_log.h"
-#include "firmware_update/atiny_update_info.h"
+#include "atiny_update_info.h"
 #include "atiny_lwm2m/object_comm.h"
 
 
