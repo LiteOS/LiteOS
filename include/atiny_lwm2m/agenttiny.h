@@ -43,7 +43,7 @@
 #include <stdint.h>
 #include "log/atiny_log.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "firmware_update/atiny_fota_api.h"
+#include "atiny_lwm2m/atiny_fota_api.h"
 #endif
 #include "liblwm2m_api.h"
 

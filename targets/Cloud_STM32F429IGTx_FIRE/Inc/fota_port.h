@@ -38,7 +38,7 @@
 
 #ifndef _FOTA_PORT_H_
 #define _FOTA_PORT_H_
-#include "firmware_update/atiny_fota_api.h"
+#include "atiny_lwm2m/atiny_fota_api.h"
 #include "fota/fota_package_storage_device.h"
 
 

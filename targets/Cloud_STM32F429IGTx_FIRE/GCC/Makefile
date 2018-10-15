@@ -240,10 +240,6 @@ ifeq ($(USE_FOTA), yes)
 FOTA_SRC = \
 		${wildcard  $(TOP_DIR)/components/ota/fota/*.c}
         C_SOURCES += $(FOTA_SRC)
-
-FIRMWARE_UPDATE_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/firmware_update/*.c}
-        C_SOURCES += $(FIRMWARE_UPDATE_SRC)
 		
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c

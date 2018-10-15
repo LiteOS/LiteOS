@@ -39,7 +39,7 @@
 #ifndef _FOTA_PACKAGE_STORAGE_DEVICE_H_
 #define _FOTA_PACKAGE_STORAGE_DEVICE_H_
 
-#include "firmware_update/atiny_fota_api.h"
+#include "atiny_lwm2m/atiny_fota_api.h"
 
 //#ifdef WITH_SOTA
 #include "ota_api.h"

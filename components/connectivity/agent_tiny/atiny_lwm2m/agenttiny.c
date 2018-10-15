@@ -41,7 +41,7 @@
 #include "atiny_lwm2m/atiny_rpt.h"
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "firmware_update/atiny_fota_manager.h"
+#include "atiny_lwm2m/atiny_fota_manager.h"
 #endif
 
 #define SERVER_URI_MAX_LEN      (64)
