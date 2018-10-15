@@ -11,9 +11,6 @@
  *
  */
 #include "jffs2_config.h"
-#if !defined(__KERNEL__) && !defined(__LITEOS__)
-#error "The userspace support got too messy and was removed. Update your mkfs.jffs2"
-#endif
 
 #include <jffs2_kernel.h>
 #include <jffs2_slab.h>

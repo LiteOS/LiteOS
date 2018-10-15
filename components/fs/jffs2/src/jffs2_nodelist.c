@@ -277,7 +277,7 @@ static int jffs2_add_frag_to_fragtree(struct jffs2_sb_info *c, struct rb_root *l
     /* OK, now we have newfrag added in the correct place in the tree, but
        frag_next(newfrag) may be a fragment which is overlapped by it
     */
-    while ((this = frag_next(newfrag)) && newfrag->ofs + newfrag->size >= this->ofs + this->size)
+    while (NULL != (this = frag_next(newfrag)) && newfrag->ofs + newfrag->size >= this->ofs + this->size)
     {
         /* 'this' frag is obsoleted completely. */
         JFFS2_DBG_FRAGTREE2("obsoleting node frag %p (%x-%x) and removing from tree\n",

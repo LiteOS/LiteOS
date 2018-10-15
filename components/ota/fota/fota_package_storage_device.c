@@ -245,10 +245,21 @@ atiny_fota_storage_device_s *fota_get_pack_device(void)
     return &device->interface;
 }
 
+#ifdef WITH_SOTA
+void ota_pack_set_flash_type(void *param, ota_flash_type_e type)
+{
+    fota_pack_storage_device_s *pack_device = (fota_pack_storage_device_s *)param;
+    ota_set_adaptor_flash_type(pack_device->storage_device, type);
+}
+#endif
+
 
 int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_info_s *device_info)
 {
     fota_pack_storage_device_s *pack_device;
+
+    void (*set_flash_type)(void *param) = NULL;
+    void *param = NULL;
 
     dtls_int();
 
@@ -261,7 +272,12 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     pack_device = fota_pack_storage_get_storage_device(device);
 
-    if(fota_pack_head_set_head_info(&pack_device->head,  device_info) != FOTA_OK)
+#ifdef WITH_SOTA
+    param = device;
+    set_flash_type = ota_pack_set_flash_type;
+#endif
+
+    if(fota_pack_head_set_head_info(&pack_device->head,  device_info, set_flash_type, param) != FOTA_OK)
     {
         return FOTA_ERR;
     }
@@ -272,4 +288,22 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     return FOTA_OK;
 }
+
+#ifdef WITH_SOTA
+int ota_init_pack_device(int (*get_ota_opt)(ota_opt_t *ota_opt))
+{
+    fota_pack_device_info_s device_info;
+
+    fota_pack_storage_device_s *device = fota_get_pack_device();
+
+    if (ota_init_pack_adaptor(get_ota_opt, &device_info) != FOTA_OK)
+    {
+        FOTA_LOG("ota_init_pack_adaptor fail");
+        return FOTA_ERR;
+    }
+    return fota_set_pack_device(device, &device_info);
+}
+
+#endif
+
 

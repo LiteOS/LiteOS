@@ -35,6 +35,8 @@
 #ifndef __JFFS2_SLAB_H__
 #define __JFFS2_SLAB_H__
 
+#include <stdlib.h>
+
 
 #ifdef __cplusplus
 #if __cplusplus

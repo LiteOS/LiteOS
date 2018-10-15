@@ -53,6 +53,11 @@
 #include <jffs2_fileio.h>
 #include "jffs2_mtd.h"
 
+extern time_t jffs2_get_timestamp(void);
+
+#ifdef CONFIG_JFFS2_WRITABLE
+static int jffs2_truncate_file (struct inode *inode);
+#endif
 
 static unsigned char gc_buffer[PAGE_CACHE_SIZE]; //avoids malloc when user may be under memory pressure
 static unsigned char n_fs_mounted = 0;  // a counter to track the number of jffs2 instances mounted

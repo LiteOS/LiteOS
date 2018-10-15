@@ -101,8 +101,6 @@ void jffs2_start_garbage_collect_thread(struct jffs2_sb_info *c)
 void jffs2_stop_garbage_collect_thread(struct jffs2_sb_info *c)
 {
     struct super_block *sb = OFNI_BS_2SFFJ(c);
-    uint32_t  e;
-
 
     D1(printk("jffs2_stop_garbage_collect_thread\n"));
     /* Stop the thread and wait for it if necessary */

@@ -37,6 +37,7 @@
 
 #include "los_config.h"
 
+#define __LITEOS_JFFS2__ /* must be defined */
 #define CONFIG_JFFS2_DIRECT  /* unuse mtd */
 
 #define FILE_PATH_MAX                128  /* the longest file path */

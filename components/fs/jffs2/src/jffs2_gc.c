@@ -681,7 +681,7 @@ retry:
             printk(KERN_NOTICE "Not marking the space at 0x%08x as dirty because the flash driver returned retlen zero\n", nraw->flash_offset);
             jffs2_free_raw_node_ref(nraw);
         }
-        if (!retried && (nraw = jffs2_alloc_raw_node_ref()))
+        if (!retried && NULL != (nraw = jffs2_alloc_raw_node_ref()))
         {
             /* Try to reallocate space and retry */
             uint32_t dummy;
@@ -1196,9 +1196,8 @@ static int jffs2_garbage_collect_dnode(struct jffs2_sb_info *c, struct jffs2_era
         BUG_ON(frag->ofs != start);
 
         /* First grow down... */
-        while((frag = frag_prev(frag)) && frag->ofs >= min)
+        while(NULL != (frag = frag_prev(frag)) && frag->ofs >= min)
         {
-
             /* If the previous frag doesn't even reach the beginning, there's
                excessive fragmentation. Just merge. */
             if (frag->ofs > min)
@@ -1253,7 +1252,7 @@ static int jffs2_garbage_collect_dnode(struct jffs2_sb_info *c, struct jffs2_era
         /* Find last frag which is actually part of the node we're to GC. */
         frag = jffs2_lookup_node_frag(&f->fragtree, end - 1);
 
-        while((frag = frag_next(frag)) && frag->ofs + frag->size <= max)
+        while(NULL != (frag = frag_next(frag)) && frag->ofs + frag->size <= max)
         {
 
             /* If the previous frag doesn't even reach the beginning, there's lots

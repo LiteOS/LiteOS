@@ -15,7 +15,6 @@
 
 #include "jffs2_compr.h"
 
-static DEFINE_SPINLOCK(jffs2_compressor_list_lock);
 
 /* Available compressors are on this list */
 static LIST_HEAD(jffs2_compressor_list);
