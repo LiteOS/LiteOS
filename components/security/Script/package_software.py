@@ -169,7 +169,7 @@ class checksum(object):
 	def attribute(self):
 		return -1
 		
-	def udpate(self, buffer):
+	def update(self, buffer):
 		pass
 	
 	def get_checksum(self):
@@ -230,6 +230,10 @@ class sha256_rsa2048_checksum(sha256_checksum):
 class crc256_checksum(checksum):
 	def name(self):
 		return 'crc256'
+		
+class none_checksum(checksum):
+	def name(self):
+		return 'none'
 
 	
 class tlv_type(object):
@@ -336,7 +340,7 @@ class software_header(object):
 		if len(checksum) == 0:
 			print "no checksum tag in config file"
 			return RET_XML_CONFIG_ERR
-		algs = [sha256_checksum(), crc256_checksum(), sha256_rsa2048_checksum(self.config.key_file)]
+		algs = [sha256_checksum(), crc256_checksum(), sha256_rsa2048_checksum(self.config.key_file), none_checksum()]
 		for alg in algs:
 			if alg.name() == checksum[0].firstChild.data:
 				self.checksum_alg = alg
