@@ -32,10 +32,10 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "firmware_update/atiny_fota_manager.h"
-#include "firmware_update/atiny_fota_state.h"
+#include "atiny_lwm2m/atiny_fota_manager.h"
+#include "atiny_lwm2m/atiny_fota_state.h"
 #include <string.h>
-#include "firmware_update/firmware_update.h"
+#include "atiny_lwm2m/firmware_update.h"
 
 struct atiny_fota_manager_tag_s
 {

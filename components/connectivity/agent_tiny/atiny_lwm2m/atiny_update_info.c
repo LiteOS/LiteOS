@@ -34,7 +34,7 @@
 
 #include "internals.h"
 #include "atiny_lwm2m/agenttiny.h"
-#include "firmware_update/atiny_update_info.h"
+#include "atiny_lwm2m/atiny_update_info.h"
 
 #define OFFSET_BASE_TOCKEN_INFO (0U)
 #define OFFSET_BASE_FW_DOWNLOAD_INFO (32U)

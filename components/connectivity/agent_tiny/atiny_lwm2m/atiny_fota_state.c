@@ -32,9 +32,9 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "firmware_update/atiny_fota_state.h"
+#include "atiny_lwm2m/atiny_fota_state.h"
 #include <string.h>
-#include "firmware_update/firmware_update.h"
+#include "atiny_lwm2m/firmware_update.h"
 
 
 //TODO:set the update detail result
