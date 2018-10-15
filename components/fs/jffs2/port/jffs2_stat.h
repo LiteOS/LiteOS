@@ -111,6 +111,38 @@
 #define __stat_mode_LNK    (1<<8)
 #define __stat_mode_SOCK   (1<<9)
 
+#ifdef __GNUC__
+#undef S_IFDIR
+#undef S_IFCHR
+#undef S_IFBLK
+#undef S_IFREG
+#undef S_IFIFO
+#undef S_IFLNK
+#undef S_IFSOCK
+#undef S_IFMT
+#undef S_ISDIR
+#undef S_ISCHR
+#undef S_ISBLK
+#undef S_ISREG
+#undef S_ISFIFO
+#undef S_ISLNK
+#undef S_ISSOCK
+#undef S_IRUSR
+#undef S_IWUSR
+#undef S_IXUSR
+#undef S_IRWXU
+#undef S_IRGRP
+#undef S_IWGRP
+#undef S_IXGRP
+#undef S_IRWXG
+#undef S_IROTH
+#undef S_IWOTH
+#undef S_IXOTH
+#undef S_IRWXO
+#undef S_ISUID
+#undef S_ISGID
+#endif
+
 #if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE >= 200112L)
 #define S_IFDIR          (__stat_mode_DIR)
 #define S_IFCHR          (__stat_mode_CHR)

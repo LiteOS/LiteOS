@@ -160,7 +160,7 @@ read_direntry(struct jffs2_sb_info *c,
     /* Sanity check */
     if (unlikely(PAD((rd->nsize + sizeof(*rd))) != PAD(je32_to_cpu(rd->totlen))))
     {
-        JFFS2_ERROR("illegal nsize in node at %#08x: nsize %#02x, totlen %#04x\n",
+        JFFS2_ERROR("illegal nsize in node at %#08lx: nsize %#02x, totlen %#04lx\n",
                     ref_offset(ref), rd->nsize, je32_to_cpu(rd->totlen));
         return 1;
     }
@@ -197,7 +197,7 @@ read_direntry(struct jffs2_sb_info *c,
         int already = read - sizeof(*rd);
 
         err = jffs2_flash_read(c, (ref_offset(ref)) + read,
-                               rd->nsize - already, &read, &fd->name[already]);
+                               rd->nsize - already, (size_t *)&read, &fd->name[already]);
         if (unlikely(read != rd->nsize - already) && likely(!err))
             return -EIO;
 
@@ -253,7 +253,7 @@ read_dnode(struct jffs2_sb_info *c,
         crc = crc32(0, rd, sizeof(*rd) - 8);
         if (unlikely(crc != je32_to_cpu(rd->node_crc)))
         {
-            JFFS2_NOTICE("header CRC failed on node at %#08x: read %#08x, calculated %#08x\n",
+            JFFS2_NOTICE("header CRC failed on node at %#08lx: read %#08lx, calculated %#08lx\n",
                          ref_offset(ref), je32_to_cpu(rd->node_crc), crc);
             return 1;
         }
@@ -262,7 +262,7 @@ read_dnode(struct jffs2_sb_info *c,
         if (unlikely(je32_to_cpu(rd->offset) > je32_to_cpu(rd->isize)) ||
                 unlikely(PAD(je32_to_cpu(rd->csize) + sizeof(*rd)) != PAD(je32_to_cpu(rd->totlen))))
         {
-            JFFS2_WARNING("inode node header CRC is corrupted at %#08x\n", ref_offset(ref));
+            JFFS2_WARNING("inode node header CRC is corrupted at %#08lx\n", ref_offset(ref));
             jffs2_dbg_dump_node(c, ref_offset(ref));
             return 1;
         }
@@ -298,7 +298,7 @@ read_dnode(struct jffs2_sb_info *c,
                     return -ENOMEM;
 
                 err = jffs2_flash_read(c, ref_offset(ref) + sizeof(*rd), je32_to_cpu(rd->csize),
-                                       &read, buf);
+                                       (size_t *)&read, buf);
                 if (unlikely(read != je32_to_cpu(rd->csize)) && likely(!err))
                     err = -EIO;
                 if (err)
@@ -317,7 +317,7 @@ read_dnode(struct jffs2_sb_info *c,
 
             if (crc != je32_to_cpu(rd->data_crc))
             {
-                JFFS2_NOTICE("data CRC failed on node at %#08x: read %#08x, calculated %#08x\n",
+                JFFS2_NOTICE("data CRC failed on node at %#08lx: read %#08lx, calculated %#08lx\n",
                              ref_offset(ref), je32_to_cpu(rd->data_crc), crc);
                 return 1;
             }
@@ -412,7 +412,7 @@ read_unknown(struct jffs2_sb_info *c,
     if (crc32(0, un, sizeof(struct jffs2_unknown_node) - 4) != je32_to_cpu(un->hdr_crc))
     {
         /* Hmmm. This should have been caught at scan time. */
-        JFFS2_NOTICE("node header CRC failed at %#08x. But it must have been OK earlier.\n", ref_offset(ref));
+        JFFS2_NOTICE("node header CRC failed at %#08lx. But it must have been OK earlier.\n", ref_offset(ref));
         jffs2_dbg_dump_node(c, ref_offset(ref));
         return 1;
     }
@@ -422,25 +422,25 @@ read_unknown(struct jffs2_sb_info *c,
         {
 
         case JFFS2_FEATURE_INCOMPAT:
-            JFFS2_ERROR("unknown INCOMPAT nodetype %#04X at %#08x\n",
+            JFFS2_ERROR("unknown INCOMPAT nodetype %#04X at %#08lx\n",
                         je16_to_cpu(un->nodetype), ref_offset(ref));
             /* EEP */
             BUG();
             break;
 
         case JFFS2_FEATURE_ROCOMPAT:
-            JFFS2_ERROR("unknown ROCOMPAT nodetype %#04X at %#08x\n",
+            JFFS2_ERROR("unknown ROCOMPAT nodetype %#04X at %#08lx\n",
                         je16_to_cpu(un->nodetype), ref_offset(ref));
             BUG_ON(!(c->flags & JFFS2_SB_FLAG_RO));
             break;
 
         case JFFS2_FEATURE_RWCOMPAT_COPY:
-            JFFS2_NOTICE("unknown RWCOMPAT_COPY nodetype %#04X at %#08x\n",
+            JFFS2_NOTICE("unknown RWCOMPAT_COPY nodetype %#04X at %#08lx\n",
                          je16_to_cpu(un->nodetype), ref_offset(ref));
             break;
 
         case JFFS2_FEATURE_RWCOMPAT_DELETE:
-            JFFS2_NOTICE("unknown RWCOMPAT_DELETE nodetype %#04X at %#08x\n",
+            JFFS2_NOTICE("unknown RWCOMPAT_DELETE nodetype %#04X at %#08lx\n",
                          je16_to_cpu(un->nodetype), ref_offset(ref));
             return 1;
         }
@@ -473,7 +473,7 @@ static int jffs2_get_inode_nodes(struct jffs2_sb_info *c, struct jffs2_inode_inf
     valid_ref = jffs2_first_valid_node(f->inocache->nodes);
 
     if (!valid_ref && (f->inocache->ino != 1))
-        JFFS2_WARNING("no valid nodes for ino #%u\n", f->inocache->ino);
+        JFFS2_WARNING("no valid nodes for ino #%lu\n", f->inocache->ino);
 
     while (valid_ref)
     {
@@ -495,7 +495,7 @@ static int jffs2_get_inode_nodes(struct jffs2_sb_info *c, struct jffs2_inode_inf
                                &retlen, (void *)&node);
         if (err)
         {
-            JFFS2_ERROR("error %d reading node at 0x%08x in get_inode_nodes()\n", err, ref_offset(ref));
+            JFFS2_ERROR("error %d reading node at 0x%08lx in get_inode_nodes()\n", err, ref_offset(ref));
             goto free_out;
         }
 
@@ -507,7 +507,7 @@ static int jffs2_get_inode_nodes(struct jffs2_sb_info *c, struct jffs2_inode_inf
 
             if (retlen < sizeof(node.d))
             {
-                JFFS2_ERROR("short read dirent at %#08x\n", ref_offset(ref));
+                JFFS2_ERROR("short read dirent at %#08lx\n", ref_offset(ref));
                 err = -EIO;
                 goto free_out;
             }
@@ -531,7 +531,7 @@ static int jffs2_get_inode_nodes(struct jffs2_sb_info *c, struct jffs2_inode_inf
 
             if (retlen < sizeof(node.i))
             {
-                JFFS2_ERROR("short read dnode at %#08x\n", ref_offset(ref));
+                JFFS2_ERROR("short read dnode at %#08lx\n", ref_offset(ref));
                 err = -EIO;
                 goto free_out;
             }
@@ -557,7 +557,7 @@ static int jffs2_get_inode_nodes(struct jffs2_sb_info *c, struct jffs2_inode_inf
             /* Check we've managed to read at least the common node header */
             if (retlen < sizeof(struct jffs2_unknown_node))
             {
-                JFFS2_ERROR("short read unknown node at %#08x\n", ref_offset(ref));
+                JFFS2_ERROR("short read unknown node at %#08lx\n", ref_offset(ref));
                 return -EIO;
             }
 
@@ -608,7 +608,7 @@ static int jffs2_do_read_inode_internal(struct jffs2_sb_info *c,
 
     if (ret)
     {
-        JFFS2_ERROR("cannot read nodes for ino %u, returned error is %d\n", f->inocache->ino, ret);
+        JFFS2_ERROR("cannot read nodes for ino %lu, returned error is %d\n", f->inocache->ino, ret);
         if (f->inocache->state == INO_STATE_READING)
             jffs2_set_inocache_state(c, f->inocache, INO_STATE_CHECKEDABSENT);
         return ret;
@@ -636,7 +636,7 @@ static int jffs2_do_read_inode_internal(struct jffs2_sb_info *c,
             else
             {
                 /* This should never happen. */
-                JFFS2_ERROR("Er. New metadata at 0x%08x with ver %d is actually older than previous ver %d at 0x%08x\n",
+                JFFS2_ERROR("Er. New metadata at 0x%08lx with ver %ld is actually older than previous ver %ld at 0x%08lx\n",
                             ref_offset(fn->raw), tn->version, mdata_ver, ref_offset(f->metadata->raw));
                 jffs2_mark_node_obsolete(c, fn->raw);
                 jffs2_free_full_dnode(fn);
@@ -694,7 +694,7 @@ next_tn:
         /* No data nodes for this inode. */
         if (f->inocache->ino != 1)
         {
-            JFFS2_WARNING("no data nodes found for ino #%u\n", f->inocache->ino);
+            JFFS2_WARNING("no data nodes found for ino #%lu\n", f->inocache->ino);
             if (!fd_list)
             {
                 if (f->inocache->state == INO_STATE_READING)
@@ -728,7 +728,7 @@ next_tn:
     crc = crc32(0, latest_node, sizeof(*latest_node) - 8);
     if (crc != je32_to_cpu(latest_node->node_crc))
     {
-        JFFS2_ERROR("CRC failed for read_inode of inode %u at physical location 0x%x\n",
+        JFFS2_ERROR("CRC failed for read_inode of inode %lu at physical location 0x%lx\n",
                     f->inocache->ino, ref_offset(fn->raw));
         up(&f->sem);
         jffs2_do_clear_inode(c, f);
@@ -797,7 +797,7 @@ next_tn:
            kept as the metadata node */
         if (f->metadata)
         {
-            JFFS2_ERROR("Argh. Special inode #%u with mode 0%o had metadata node\n",
+            JFFS2_ERROR("Argh. Special inode #%lu with mode 0%lo had metadata node\n",
                         f->inocache->ino, jemode_to_cpu(latest_node->mode));
             up(&f->sem);
             jffs2_do_clear_inode(c, f);
@@ -805,7 +805,7 @@ next_tn:
         }
         if (!frag_first(&f->fragtree))
         {
-            JFFS2_ERROR("Argh. Special inode #%u with mode 0%o has no fragments\n",
+            JFFS2_ERROR("Argh. Special inode #%lu with mode 0%lo has no fragments\n",
                         f->inocache->ino, jemode_to_cpu(latest_node->mode));
             up(&f->sem);
             jffs2_do_clear_inode(c, f);
@@ -814,7 +814,7 @@ next_tn:
         /* ASSERT: f->fraglist != NULL */
         if (frag_next(frag_first(&f->fragtree)))
         {
-            JFFS2_ERROR("Argh. Special inode #%u with mode 0x%x had more than one node\n",
+            JFFS2_ERROR("Argh. Special inode #%lu with mode 0x%lx had more than one node\n",
                         f->inocache->ino, jemode_to_cpu(latest_node->mode));
             /* FIXME: Deal with it - check crc32, check for duplicate node, check times and discard the older one */
             up(&f->sem);
@@ -867,7 +867,7 @@ retry_inocache:
             /* Eep. This should never happen. It can
             happen if Linux calls read_inode() again
             before clear_inode() has finished though. */
-            JFFS2_ERROR("Eep. Trying to read_inode #%u when it's already in state %d!\n", ino, f->inocache->state);
+            JFFS2_ERROR("Eep. Trying to read_inode #%lu when it's already in state %d!\n", ino, f->inocache->state);
             /* Fail. That's probably better than allowing it to succeed */
             f->inocache = NULL;
             break;
@@ -896,7 +896,7 @@ retry_inocache:
     }
     if (!f->inocache)
     {
-        JFFS2_ERROR("requestied to read an nonexistent ino %u\n", ino);
+        JFFS2_ERROR("requestied to read an nonexistent ino %lu\n", ino);
         return -ENOENT;
     }
 

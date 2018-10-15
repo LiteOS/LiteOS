@@ -34,15 +34,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "fs/sys/stat.h"
 #include "fs/los_vfs.h"
 
 #if defined (__GNUC__) || defined (__CC_ARM)
 #include "fs/sys/fcntl.h"
-#endif
-
-#ifdef __GNUC__
-#include <sys/unistd.h>
 #endif
 
 #include <los_printf.h>

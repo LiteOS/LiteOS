@@ -85,7 +85,7 @@ struct jffs2_full_dnode *jffs2_write_dnode(struct jffs2_sb_info *c, struct jffs2
 
     if (je32_to_cpu(ri->totlen) != sizeof(*ri) + datalen)
     {
-        printk(KERN_WARNING "jffs2_write_dnode: ri->totlen (0x%08x) != sizeof(*ri) (0x%08zx) + datalen (0x%08x)\n", je32_to_cpu(ri->totlen), sizeof(*ri), datalen);
+        printk(KERN_WARNING "jffs2_write_dnode: ri->totlen (0x%08lx) != sizeof(*ri) (0x%08zx) + datalen (0x%08lx)\n", je32_to_cpu(ri->totlen), sizeof(*ri), datalen);
     }
     raw = jffs2_alloc_raw_node_ref();
     if (!raw)
@@ -127,7 +127,7 @@ retry:
 
     if (ret || (retlen != sizeof(*ri) + datalen))
     {
-        printk(KERN_NOTICE "Write of %zd bytes at 0x%08x failed. returned %d, retlen %zd\n",
+        printk(KERN_NOTICE "Write of %ld bytes at 0x%08lx failed. returned %d, retlen %zd\n",
                sizeof(*ri) + datalen, flash_ofs, ret, retlen);
 
         /* Mark the space as dirtied */
@@ -147,7 +147,7 @@ retry:
         }
         else
         {
-            printk(KERN_NOTICE "Not marking the space at 0x%08x as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
+            printk(KERN_NOTICE "Not marking the space at 0x%08lx as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
             jffs2_free_raw_node_ref(raw);
         }
         if (!retried && alloc_mode != ALLOC_NORETRY && NULL != (raw = jffs2_alloc_raw_node_ref()))
@@ -297,7 +297,7 @@ retry:
                              (alloc_mode == ALLOC_GC) ? 0 : je32_to_cpu(rd->pino));
     if (ret || (retlen != sizeof(*rd) + namelen))
     {
-        printk(KERN_NOTICE "Write of %zd bytes at 0x%08x failed. returned %d, retlen %zd\n",
+        printk(KERN_NOTICE "Write of %ld bytes at 0x%08lx failed. returned %d, retlen %zd\n",
                sizeof(*rd) + namelen, flash_ofs, ret, retlen);
         /* Mark the space as dirtied */
         if (retlen)
@@ -309,7 +309,7 @@ retry:
         }
         else
         {
-            printk(KERN_NOTICE "Not marking the space at 0x%08x as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
+            printk(KERN_NOTICE "Not marking the space at 0x%08lx as dirty because the flash driver returned retlen zero\n", raw->flash_offset);
             jffs2_free_raw_node_ref(raw);
         }
         if (!retried && NULL != (raw = jffs2_alloc_raw_node_ref()))
@@ -679,7 +679,7 @@ int jffs2_do_unlink(struct jffs2_sb_info *c, struct jffs2_inode_info *dir_f,
 
                 if (fd->ino)
                 {
-                    printk(KERN_WARNING "Deleting inode #%u with active dentry \"%s\"->ino #%u\n",
+                    printk(KERN_WARNING "Deleting inode #%lu with active dentry \"%s\"->ino #%lu\n",
                            dead_f->inocache->ino, fd->name, fd->ino);
                 }
                 else

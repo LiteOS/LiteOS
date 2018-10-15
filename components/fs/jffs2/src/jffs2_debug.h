@@ -251,9 +251,9 @@ jffs2_dbg_acct_sanity_check_nolock(struct jffs2_sb_info *c,
 	if (unlikely(jeb && jeb->used_size + jeb->dirty_size +
 			jeb->free_size + jeb->wasted_size +
 			jeb->unchecked_size != c->sector_size)) {
-		JFFS2_ERROR("eeep, space accounting for block at 0x%08x is screwed.\n", jeb->offset);
-		JFFS2_ERROR("free %#08x + dirty %#08x + used %#08x + wasted %#08x + unchecked "
-			"%#08x != total %#08x.\n", jeb->free_size, jeb->dirty_size, jeb->used_size,
+		JFFS2_ERROR("eeep, space accounting for block at 0x%08lx is screwed.\n", jeb->offset);
+		JFFS2_ERROR("free %#08lx + dirty %#08lx + used %#08lx + wasted %#08lx + unchecked "
+			"%#08lx != total %#08lx.\n", jeb->free_size, jeb->dirty_size, jeb->used_size,
 			jeb->wasted_size, jeb->unchecked_size, c->sector_size);
 		BUG();
 	}
@@ -261,8 +261,8 @@ jffs2_dbg_acct_sanity_check_nolock(struct jffs2_sb_info *c,
 	if (unlikely(c->used_size + c->dirty_size + c->free_size + c->erasing_size + c->bad_size
 				+ c->wasted_size + c->unchecked_size != c->flash_size)) {
 		JFFS2_ERROR("eeep, space accounting superblock info is screwed.\n");
-		JFFS2_ERROR("free %#08x + dirty %#08x + used %#08x + erasing %#08x + bad %#08x + "
-			"wasted %#08x + unchecked %#08x != total %#08x.\n",
+		JFFS2_ERROR("free %#08lx + dirty %#08lx + used %#08lx + erasing %#08lx + bad %#08lx + "
+			"wasted %#08lx + unchecked %#08lx != total %#08lx.\n",
 			c->free_size, c->dirty_size, c->used_size, c->erasing_size, c->bad_size,
 			c->wasted_size, c->unchecked_size, c->flash_size);
 		BUG();

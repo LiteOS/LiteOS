@@ -256,7 +256,7 @@ restart:
             {
                 /* Ouch. We're in GC, or we wouldn't have got here.
                    And there's no space left. At all. */
-                printk(KERN_CRIT "Argh. No free space left for GC. nr_erasing_blocks is %d. nr_free_blocks is %d. (erasableempty: %s, erasingempty: %s, erasependingempty: %s)\n",
+                printk(KERN_CRIT "Argh. No free space left for GC. nr_erasing_blocks is %ld. nr_free_blocks is %ld. (erasableempty: %s, erasingempty: %s, erasependingempty: %s)\n",
                        c->nr_erasing_blocks, c->nr_free_blocks, list_empty(&c->erasable_list) ? "yes" : "no",
                        list_empty(&c->erasing_list) ? "yes" : "no", list_empty(&c->erase_pending_list) ? "yes" : "no");
                 return -ENOSPC;
@@ -280,7 +280,7 @@ restart:
 
         if (jeb->free_size != c->sector_size - c->cleanmarker_size)
         {
-            printk(KERN_WARNING "Eep. Block 0x%08x taken from free_list had free_size of 0x%08x!!\n", jeb->offset, jeb->free_size);
+            printk(KERN_WARNING "Eep. Block 0x%08lx taken from free_list had free_size of 0x%08lx!!\n", jeb->offset, jeb->free_size);
             goto restart;
         }
     }
@@ -430,7 +430,7 @@ void jffs2_mark_node_obsolete(struct jffs2_sb_info *c, struct jffs2_raw_node_ref
     blocknr = ref->flash_offset / c->sector_size;
     if (blocknr >= c->nr_blocks)
     {
-        printk(KERN_NOTICE "raw node at 0x%08x is off the end of device!\n", ref->flash_offset);
+        printk(KERN_NOTICE "raw node at 0x%08lx is off the end of device!\n", ref->flash_offset);
         BUG();
     }
     jeb = &c->blocks[blocknr];
@@ -612,17 +612,17 @@ void jffs2_mark_node_obsolete(struct jffs2_sb_info *c, struct jffs2_raw_node_ref
     ret = jffs2_flash_read(c, ref_offset(ref), sizeof(n), &retlen, (unsigned char *)&n);
     if (ret)
     {
-        printk(KERN_WARNING "Read error reading from obsoleted node at 0x%08x: %d\n", ref_offset(ref), ret);
+        printk(KERN_WARNING "Read error reading from obsoleted node at 0x%08lx: %d\n", ref_offset(ref), ret);
         goto out_erase_sem;
     }
     if (retlen != sizeof(n))
     {
-        printk(KERN_WARNING "Short read from obsoleted node at 0x%08x: %zd\n", ref_offset(ref), retlen);
+        printk(KERN_WARNING "Short read from obsoleted node at 0x%08lx: %zd\n", ref_offset(ref), retlen);
         goto out_erase_sem;
     }
     if (PAD(je32_to_cpu(n.totlen)) != PAD(ref_totlen(c, jeb, ref)))
     {
-        printk(KERN_WARNING "Node totlen on flash (0x%08x) != totlen from node ref (0x%08x)\n", je32_to_cpu(n.totlen), ref_totlen(c, jeb, ref));
+        printk(KERN_WARNING "Node totlen on flash (0x%08lx) != totlen from node ref (0x%08lx)\n", je32_to_cpu(n.totlen), ref_totlen(c, jeb, ref));
         goto out_erase_sem;
     }
     if (!(je16_to_cpu(n.nodetype) & JFFS2_NODE_ACCURATE))
@@ -635,12 +635,12 @@ void jffs2_mark_node_obsolete(struct jffs2_sb_info *c, struct jffs2_raw_node_ref
     ret = jffs2_flash_write(c, ref_offset(ref), sizeof(n), &retlen, (unsigned char *)&n);
     if (ret)
     {
-        printk(KERN_WARNING "Write error in obliterating obsoleted node at 0x%08x: %d\n", ref_offset(ref), ret);
+        printk(KERN_WARNING "Write error in obliterating obsoleted node at 0x%08lx: %d\n", ref_offset(ref), ret);
         goto out_erase_sem;
     }
     if (retlen != sizeof(n))
     {
-        printk(KERN_WARNING "Short write in obliterating obsoleted node at 0x%08x: %zd\n", ref_offset(ref), retlen);
+        printk(KERN_WARNING "Short write in obliterating obsoleted node at 0x%08lx: %zd\n", ref_offset(ref), retlen);
         goto out_erase_sem;
     }
 

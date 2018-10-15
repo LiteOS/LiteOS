@@ -108,6 +108,7 @@ static inline unsigned int full_name_hash(const unsigned char * name, unsigned i
 #define JFFS2_F_I_RDEV_MIN(f) ((OFNI_EDONI_2SFFJ(f)->i_rdev)&0xff)
 #define JFFS2_F_I_RDEV_MAJ(f) ((OFNI_EDONI_2SFFJ(f)->i_rdev)>>8)
 
+time_t jffs2_get_timestamp(void);
 #define get_seconds jffs2_get_timestamp
 
 struct inode

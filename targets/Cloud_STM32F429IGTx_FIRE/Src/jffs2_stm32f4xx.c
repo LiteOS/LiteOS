@@ -36,11 +36,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include "fs/sys/stat.h"
-#endif
-
 #if defined (__GNUC__) || defined (__CC_ARM)
 #include "fs/sys/fcntl.h"
 #include <los_printf.h>

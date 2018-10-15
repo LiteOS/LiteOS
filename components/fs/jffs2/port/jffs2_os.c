@@ -57,7 +57,7 @@ int jffs2_mutex_init( jffs2_mutex_t *mutex )
     uwRet = LOS_MuxCreate((UINT32 *)&mutex->mux);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_MuxCreate failed! ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_MuxCreate failed! ret = %x\n", uwRet);
         return -1;
     }
     return 0;
@@ -71,7 +71,7 @@ int jffs2_mutex_lock( jffs2_mutex_t *mutex )
     uwRet = LOS_MuxPend(mutex->mux, LOS_WAIT_FOREVER);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_MuxPend failed! ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_MuxPend failed! ret = %x\n", uwRet);
         return -1;
     }
     return 0;
@@ -98,7 +98,7 @@ int jffs2_mutex_unlock( jffs2_mutex_t *mutex )
     uwRet = LOS_MuxPost(mutex->mux);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_MuxPost failed! ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_MuxPost failed! ret = %x\n", uwRet);
         return -1;
     }
     return 0;
@@ -112,7 +112,7 @@ int jffs2_mutex_release( jffs2_mutex_t *mutex )
     uwRet = LOS_MuxDelete(mutex->mux);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_MuxDelete failed!, ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_MuxDelete failed!, ret = %x\n", uwRet);
         return -1;
     }
     mutex->mux = JFFS2_INVALID_VALUE;
@@ -128,7 +128,7 @@ int jffs2_event_init(jffs2_flag_t *event)
     uwRet = LOS_EventInit(event);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_EventInit failed!, ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_EventInit failed!, ret = %x\n", uwRet);
         return -1;
     }
     return 0;
@@ -142,7 +142,7 @@ int jffs2_event_destroy(jffs2_flag_t *event)
     uwRet = LOS_EventDestory(event);
     if(uwRet != LOS_OK)
     {
-        JFFS2_ERROR("LOS_EventDestory failed!, ret = %lx\n", uwRet);
+        JFFS2_ERROR("LOS_EventDestory failed!, ret = %x\n", uwRet);
         return -1;
     }
     return 0;
@@ -165,7 +165,7 @@ int jffs2_thread_new(jffs2_thread_t *thread, char *name, jffs2_thread_fn functio
     task.pcName = (char *)name;
     task.usTaskPrio = prio;
     task.uwArg = (UINT32)arg;
-    ret = LOS_TaskCreate(&thread->taskid, &task);
+    ret = LOS_TaskCreate((UINT32 *)&thread->taskid, &task);
 
     if (LOS_OK != ret )
     {

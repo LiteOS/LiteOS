@@ -35,11 +35,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#include "fs/sys/stat.h"
-#endif
-
 #if defined (__GNUC__) || defined (__CC_ARM)
 #include "fs/sys/fcntl.h"
 #include <los_printf.h>
@@ -64,7 +59,7 @@ static s32_t stm32f4xx_spiffs_read (struct spiffs_t *fs, u32_t addr, u32_t size,
 
 static s32_t stm32f4xx_spiffs_write (struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *buff)
 {
-    (void)hal_spi_flash_write ((void *) buff, size, &addr);
+    (void)hal_spi_flash_write ((void *) buff, size, (uint32_t *)&addr);
 
     return SPIFFS_OK;
 }
