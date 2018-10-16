@@ -39,45 +39,6 @@
 #include "hal_spi_flash.h"
 #include "at_frame/at_main.h"
 
-extern unsigned char *flashbuf;
-
-int at_fota_write(int offset, char *buffer, int len)
-{
-    static uint32_t writed_len = 0;
-    static int cnt = 0;
-    int ret;
-    ret = hal_spi_flash_read(flashbuf, offset - writed_len, OTA_IMAGE_DOWNLOAD_ADDR + writed_len);
-    if(ret)
-        AT_LOG("flash read err:%d", ret);
-    if(offset + len < writed_len + 0x1000)
-    {
-        memcpy(flashbuf + offset - writed_len, buffer, len);
-        ret = hal_spi_flash_erase_write(flashbuf, 0x1000, OTA_IMAGE_DOWNLOAD_ADDR + writed_len);
-        if(ret)
-            AT_LOG("flash write err in:%d", ret);
-        cnt++;
-    }
-    else
-    {
-
-        memcpy(flashbuf + offset - writed_len, buffer, 0x1000 - (offset - writed_len));
-        AT_LOG("flash SP:%02X%02X%02X%02X", *flashbuf, *(flashbuf + 1), *(flashbuf + 2), *(flashbuf + 3));
-        AT_LOG("flash PC:%02X%02X%02X%02X", *(flashbuf + 4), *(flashbuf + 5), *(flashbuf + 6), *(flashbuf + 7));
-        ret = hal_spi_flash_erase_write(flashbuf, 0x1000, OTA_IMAGE_DOWNLOAD_ADDR + writed_len);
-        if(ret)
-            AT_LOG("flash write err ex1000:%d", ret);
-        memset(flashbuf, 0, 0x1000);
-        memcpy(flashbuf, buffer + 0x1000 - (offset - writed_len), len + (offset - writed_len) - 0x1000);
-        ret = hal_spi_flash_erase_write(flashbuf, 0x1000, OTA_IMAGE_DOWNLOAD_ADDR + writed_len + 0x1000);
-        if(ret)
-            AT_LOG("flash write err ex2:%d", ret);
-        writed_len += 0x1000;
-        cnt = 0;
-    }
-    AT_LOG("writ:%d", cnt);
-    return 0;
-}
-
 int crc16_ccitt_table[] = { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a,
                             0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef, 0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6, 0x9339, 0x8318, 0xb37b,
                             0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de, 0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485, 0xa56a, 0xb54b, 0x8528,
@@ -106,9 +67,7 @@ int do_crc(int reg_init, unsigned char *massage, int len)
     for(i = 0; i < len; i++)
     {
         crc_reg = (crc_reg >> 8) ^ crc16_ccitt_table[(crc_reg ^ massage[i]) & 0xff];
-        //printf("crc_reg%d:%d\n",i,crc_reg);
     }
-    //printf("crc end\n");
     return crc_reg;
 }
 

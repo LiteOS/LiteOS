@@ -33,8 +33,6 @@
  *---------------------------------------------------------------------------*/
 #ifndef __AT_FOTA_HAL_H__
 #define __AT_FOTA_HAL_H__
-
-int at_fota_write(int offset, char *buffer, int len);
 int crc_check(unsigned char *message,int len);
 int sota_str_to_hex(const char *bufin, int len, unsigned char *bufout);
 void HexStrToByte(const unsigned char* source, unsigned char* dest, int sourceLen);

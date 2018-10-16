@@ -805,9 +805,7 @@ void at_init(void)
         (void)at_struct_deinit(&at);
         return;
     }
-#ifdef WITH_SOTA
-    at_ota_init("\r\n+NNMI:",strlen("\r\n+NNMI:"));
-#endif
+
     AT_LOG("Config complete!!\n");
 }
 
