@@ -52,6 +52,15 @@
 #ifdef SUPPORT_DTLS_SRV
 #include "test_dtls_server.h"
 #endif
+
+#ifdef WITH_SOTA
+#include "sota.h"
+#include "sota_hal.h"
+#include "ota.h"
+#include "board.h"
+#include "hal_spi_flash.h"
+#endif
+
 UINT32 g_TskHandle;
 
 void USART3_UART_Init(void);
@@ -63,17 +72,91 @@ VOID HardWare_Init(VOID)
     dwt_delay_init(SystemCoreClock);
 }
 
-void demo_agenttiny_with_lwip(void)
+#ifdef WITH_SOTA
+extern int nb_send_str(const char* buf, int len);
+
+int read_ver(char* buf, uint32_t len)
 {
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    net_init();
-    agent_tiny_entry();
-#else
-    printf("Please checkout if open WITH_LWIP\n");
-#endif
+    memcpy(buf,"V0.0",len);
+    return 0;
 }
-void demo_nbiot_without_agenttiny(void)
+void atiny_reboot(void);
+int notify_new_ver(char* buf, uint32_t len)
+{
+    return 0;
+}
+int write_ver(char* buf, uint32_t len)
+{
+    memcpy(buf,"V0.0",len);
+    return 0;
+}
+
+#ifdef WITH_SOTA
+int hal_init_sota(void)
+{
+    ota_assist assist;
+    int ret;
+#if USE_DIFF_UPGRADE
+    ota_module module;
+
+    module.func_init = ota_du_init;
+    module.func_set_reboot = ota_du_set_reboot;
+    module.func_check_update_state = ota_du_check_update_state;
+    ota_register_module(&module);
+#endif
+    hal_spi_flash_config();
+    assist.func_printf = printf;
+    assist.func_ota_read = hal_spi_flash_read;
+    assist.func_ota_write = hal_spi_flash_erase_write;
+    ota_register_assist(&assist);
+
+    ret = ota_init();
+    if (ret != OTA_OK)
+    {
+        SOTA_LOG("read/write boot information failed");
+    }
+    ota_check_update_state(NULL);
+    return ret;
+}
+
+int32_t sota_cmd_match(const char *buf, char* featurestr,int len)
+{
+    //printf("buf:%s feature:%s\n",buf,featurestr);
+    if(strstr(buf,featurestr) != NULL)
+        return 0;
+    else
+        return -1;
+}
+
+#endif
+
+void nb_sota_demo()
+{
+    sota_op_t flash_op =
+    {
+    .sota_send = nb_send_str,
+    .read_ver = read_ver,
+    .notify_new_ver = notify_new_ver,
+    .write_ver = write_ver,
+    .sota_send = nb_send_str,
+    .sota_exec = atiny_reboot,
+    .read_block_flash = hal_spi_flash_read,
+    .write_block_flash = hal_spi_flash_erase_write,
+    .erase_block_flash = NULL,
+    //.read_upgrade_info = NULL,
+    //.write_upgrade_info = NULL,
+    .image_addr = OTA_IMAGE_DOWNLOAD_ADDR,
+    .sota_flag_addr = OTA_IMAGE_BCK_ADDR+OTA_DEFAULT_IMAGE_ADDR,
+    .flash_block_size = 0X1000,
+    };
+    hal_init_sota();
+    sota_init(&flash_op);
+    (void)at.oob_register("\r\n+NNMI:", strlen("\r\n+NNMI:"), ota_process_main,sota_cmd_match);
+}
+
+#endif
+
+void demo_without_agenttiny_nbiot(void)
 {
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
     #define AT_DTLS 0
@@ -91,16 +174,19 @@ void demo_nbiot_without_agenttiny(void)
 #else
     los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5683", NULL); //"139.159.140.34"
 #endif
+#ifdef WITH_SOTA
+    nb_sota_demo();
+#endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP2: Register Command( NB Notify )");
     printf("\r\n=====================================================\r\n");
-    
+
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
     los_nb_report("22", 2);
     los_nb_report("23", 1);
-    
+
 #else
     printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95\n");
 #endif
@@ -150,7 +236,7 @@ void demo_agenttiny_with_wifi(void)
 VOID main_task(VOID)
 {
     fs_demo();
-    demo_agenttiny_with_nbiot();
+    demo_without_agenttiny_nbiot();
 }
 
 UINT32 creat_main_task()

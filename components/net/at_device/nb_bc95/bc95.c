@@ -35,6 +35,7 @@
 #include <ctype.h>
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
 #include "at_device/bc95.h"
+#include "at_hal.h"
 #define NB_STAT_LOCALPORT 56
 #define AT_LINE_END 		"\r\n"
 #define AT_CMD_BEGIN		"\r\n"
@@ -81,20 +82,20 @@ static nb_data_ind_info_s g_data_ind_info;
 
 
 #if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
-char *strnstr(const char *s1, const char *s2, size_t len)  
-{  
-    size_t l2;  
-  
-    l2 = strlen(s2);  
-    if (!l2)  
-        return (char *)s1;  
-    while (len >= l2) {  
-        len--;  
-        if (!memcmp(s1, s2, l2))  
-            return (char *)s1;  
-        s1++;  
-    }  
-    return NULL;  
+char *strnstr(const char *s1, const char *s2, size_t len)
+{
+    size_t l2;
+
+    l2 = strlen(s2);
+    if (!l2)
+        return (char *)s1;
+    while (len >= l2) {
+        len--;
+        if (!memcmp(s1, s2, l2))
+            return (char *)s1;
+        s1++;
+    }
+    return NULL;
 }
 #endif
 
@@ -250,34 +251,28 @@ int32_t nb_set_no_encrypt(void)
     return at.cmd((int8_t*)cmd, strlen(cmd), "OK", NULL,NULL);
 }
 
-int32_t nb_send_str(const char* buf, int len)
+#ifdef WITH_SOTA
+int sota_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
+{
+    AT_LOG("sota_cmd:%s", cmd);
+    LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
+    at_transmit((uint8_t *)cmd, len, 1);
+    LOS_MuxPost(at.cmd_mux);
+
+    return AT_OK;
+
+}
+
+int nb_send_str(const char* buf, int len)
 {
     char *cmd1 = "AT+NMGS=";
-    char *cmd2 = "AT+NQMGS\r";
-    int ret;
-    char* str = NULL;
-    int curcnt = 0;
-    int rbuflen;
-    static int sndcnt = 0;
     memset(wbuf, 0, AT_DATA_LEN);
     memset(rbuf, 0, AT_DATA_LEN);
     snprintf(wbuf, AT_DATA_LEN, "%s%d,%s%c",cmd1,(int)len/2,buf,'\r');
-    ret = at.cmd((int8_t*)wbuf, strlen(wbuf), NULL, NULL,NULL);
-    if(ret < 0)
-        return -1;
-    ret = at.cmd((int8_t*)cmd2, strlen(cmd2), "SENT=", rbuf,&rbuflen);
-    if(ret < 0)
-        return -1;
-    str = strstr(rbuf,"SENT=");
-    if(str == NULL)
-        return -1;
-    sscanf(str,"SENT=%d,%s",&curcnt,wbuf);
-    if(curcnt == sndcnt)
-        return -1;
-    sndcnt = curcnt;
-    return ret;
-}
+    return sota_cmd((int8_t*)wbuf, strlen(wbuf), "OK", NULL,NULL);
 
+}
+#endif
 int32_t nb_send_payload(const char* buf, int len)
 {
     char *cmd1 = "AT+NMGS=";
