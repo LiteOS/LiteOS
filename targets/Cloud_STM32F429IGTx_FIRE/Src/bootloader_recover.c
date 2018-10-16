@@ -153,7 +153,6 @@ static int register_info(void)
     info.old_image_addr = OTA_DEFAULT_IMAGE_ADDR;
     info.new_image_addr = OTA_IMAGE_DIFF_UPGRADE_ADDR;
     info.patch_addr = OTA_IMAGE_DOWNLOAD_ADDR;
-    info.flag_addr = OTA_FLAG_ADDR1;
     info.flash_erase_unit = 0x1000;
     info.recover_on_oldimage = 0;
 

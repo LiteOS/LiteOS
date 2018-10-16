@@ -44,6 +44,7 @@ typedef struct
     uint32_t image_size;
     uint32_t old_image_size;
     uint32_t recover_verify;
+    uint32_t verify_length;
     uint32_t crc_flag;
 } upgrade_flag_s;
 
@@ -116,14 +117,18 @@ int flag_upgrade_get_result(upgrade_state_e *state)
     return save_flag();
 }
 
-int flag_set_recover_verify(uint32_t recover_verify)
+int flag_set_recover_verify(uint32_t recover_verify, uint32_t verify_length)
 {
     g_flag.recover_verify = recover_verify;
+    g_flag.verify_length = verify_length;
 
     return save_flag();
 }
 
-uint32_t flag_get_recover_verify(void)
+void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)
 {
-    return g_flag.recover_verify;
+    if (NULL != recover_verify)
+        *recover_verify = g_flag.recover_verify;
+    if (NULL != verify_length)
+        *verify_length = g_flag.verify_length;
 }
