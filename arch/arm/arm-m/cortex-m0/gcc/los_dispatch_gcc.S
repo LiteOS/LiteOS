@@ -1,174 +1,380 @@
- .syntax unified
- .arch armv6-m
- .thumb
+/** ----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/** ----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
 
-.equ    OS_NVIC_INT_CTRL,            0xE000ED04
-.equ    OS_NVIC_SYSPRI2,             0xE000ED20
-.equ    OS_NVIC_PENDSV_PRI,          0xF0F00000
-.equ    OS_NVIC_PENDSVSET,           0x10000000
-.equ    OS_TASK_STATUS_RUNNING,      0x0010
+/****************************************************************************************
+*                                  EXPORT FUNCTIONS
+****************************************************************************************/
+
+    .global  LOS_IntLock
+    .global  LOS_IntUnLock
+    .global  LOS_IntRestore
+    .global  LOS_StartToRun
+    .global  osTaskSchedule
+    .global  PendSV_Handler
+
+/****************************************************************************************
+*                                  EXTERN PARAMETERS
+****************************************************************************************/
+
+    .extern  g_stLosTask
+    .extern  g_pfnTskSwitchHook
+    .extern  g_bTaskScheduled
+
+/****************************************************************************************
+*                                  EQU
+****************************************************************************************/
+
+.equ    OS_NVIC_INT_CTRL,              0xE000ED04  /* Interrupt Control and State Register. */
+.equ    OS_NVIC_PENDSVSET,             0x10000000  /* Value to trigger PendSV exception. */
+
+.equ    OS_NVIC_SYSPRI2,               0xE000ED20  /* System Handler Priority Register 2. */
+.equ    OS_NVIC_PENDSV_SYSTICK_PRI,    0xC0C00000  /* SysTick + PendSV priority level (lowest). */
+
+.equ    OS_TASK_STATUS_RUNNING,        0x0010      /* Task Status Flag (RUNNING). */
+
+/****************************************************************************************
+*                                  CODE GENERATION DIRECTIVES
+****************************************************************************************/
 
     .section .text
     .thumb
+    .syntax unified
+    .arch armv6-m
 
+/****************************************************************************************
+* Function:
+*        VOID LOS_StartToRun(VOID);
+* Description:
+*        Start the first task, which is the highest priority task in the priority queue.
+*        Other tasks are started by task scheduling.
+****************************************************************************************/
     .type LOS_StartToRun, %function
-    .global LOS_StartToRun
-
 LOS_StartToRun:
-    .fnstart
-    .cantunwind
+    CPSID   I
 
-    ldr     r4, =OS_NVIC_SYSPRI2
-    ldr     r5, =OS_NVIC_PENDSV_PRI
-    str     r5, [r4]
+    /**
+     * Set PendSV and SysTick prority to the lowest.
+     * read ---> modify ---> write-back.
+     */
+    LDR     R0, =OS_NVIC_SYSPRI2
+    LDR     R1, =OS_NVIC_PENDSV_SYSTICK_PRI
+    LDR     R2, [R0]
+    ORRS    R1, R1, R2
+    STR     R1, [R0]
 
-    ldr     r0, =g_bTaskScheduled
-    movs    r1, #1
-    str     r1, [r0]
+    /**
+     * Set g_bTaskScheduled = 1.
+     */
+    LDR     R0, =g_bTaskScheduled
+    MOVS    R1, #1
+    STR     R1, [R0]
 
-    movs    r0, #2
-    msr     CONTROL, r0
+    /**
+     * Now PSP is an invalid value, R13 uses MSP as the stack pointer.
+     * After setting the control register, R13 will switch to PSP.
+     * To ensure that R13 is valid, set PSP = MSP.
+     */
+    MRS     R0, MSP
+    MSR     PSP, R0
 
-    ldr     r0, =g_stLosTask
-    ldr     r2, [r0, #4]
-    ldr     r0, =g_stLosTask
-    str     r2, [r0]
+    /**
+     * Set the CONTROL register, after schedule start, privilege level and stack = PSP.
+     */
+    MOVS    R0, #2
+    MSR     CONTROL, R0
 
-    ldr     r3, =g_stLosTask
-    ldr     r0, [r3]
-    ldrh    r7, [r0, #4]
-    movs    r6, #OS_TASK_STATUS_RUNNING
-    orrs    r7, r7, r6
-    strh    r7, [r0, #4]
+    /**
+     * Set g_stLosTask.pstRunTask = g_stLosTask.pstNewTask.
+     */
+    LDR     R0, =g_stLosTask
+    LDR     R1, [R0, #4]
+    STR     R1, [R0]
 
-    ldr     r3, [r0]
-    adds    r3, r3, #36
+    /**
+     * Set g_stLosTask.pstRunTask->usTaskStatus |= OS_TASK_STATUS_RUNNING.
+     */
+    LDR     R1, [R0]
+    LDRH    R2, [R1, #4]
+    MOVS    R3, #OS_TASK_STATUS_RUNNING
+    ORRS    R2, R2, R3
+    STRH    R2, [R1, #4]
 
-    ldmfd   r3!, {r0-r2}
-    adds    r3, r3, #4
-    ldmfd   r3!, {r4-r7}
-    msr     PSP, r3
-    subs    r3, r3, #20
-    ldr     r3, [r3]
+    /**
+     * Restore the default stack frame(R0-R3,R12,LR,PC,xPSR) of g_stLosTask.pstRunTask to R0-R7.
+     * Return by setting the CONTROL register.
+     *
+     * The initial stack of the current running task is as follows:
+     *
+     *                 POP: Restore the context of the current running task ===>|
+     *                                                             High addr--->|
+     *                                                   Bottom of the stack--->|
+     * ----------+-----------------------+--------------------------------------+
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+
+     *           |<---Top of the stack, restored from g_stLosTask.pstRunTask->pStackPointer
+     *           |<---      skip     --->|<---        copy to R0-R7         --->|
+     *                                                             R3 to PSP--->|
+     *                                    Stack pointer after LOS_StartToRun--->|
+     */
+    LDR     R3, [R1]
+    ADDS    R3, R3, #36            /* skip R4-R11, PRIMASK. */
 
-    mov     lr, r5
+    LDMFD   R3!, {R0-R2}           /* restore R0-R2. */
+    ADDS    R3, R3, #4             /* skip R3. */
+    LDMFD   R3!, {R4-R7}           /* restore R12,LR,PC,xPSR. */
 
-    cpsie   i
-    bx      r6
-    .fnend
+    /**
+     * Set the stack pointer of g_stLosTask.pstRunTask to PSP.
+     */
+    MSR     PSP, R3
 
+    SUBS    R3, R3, #20
+    LDR     R3, [R3]               /* restore R3. */
 
+    /**
+     * Enable interrupt. (The default PRIMASK value is 0, so enable directly)
+     */
+    MOV     LR, R5
+    CPSIE   I
+
+    /**
+     * Jump directly to the default PC of g_stLosTask.pstRunTask, the field information
+     * of the main function will be destroyed and will never be returned.
+     */
+    BX      R6
+
+/****************************************************************************************
+* Function:
+*        UINTPTR LOS_IntLock(VOID);
+* Description:
+*        Disable all interrupts except Reset,NMI and HardFault.
+*        The value of currnet interruption state will be returned to the caller to save.
+*
+* Function:
+*        VOID LOS_IntRestore(UINTPTR uvIntSave);
+* Description:
+*        Restore the locked interruption of LOS_IntLock.
+*        The caller must pass in the value of interruption state previously saved.
+****************************************************************************************/
     .type LOS_IntLock, %function
-    .global LOS_IntLock
 LOS_IntLock:
-    .fnstart
-    .cantunwind
-
-    mrs r0, PRIMASK
-    cpsid i
-    bx lr
-    .fnend
-
+    MRS     R0, PRIMASK
+    CPSID   I
+    BX      LR
 
     .type LOS_IntUnLock, %function
-    .global LOS_IntUnLock
 LOS_IntUnLock:
-    .fnstart
-    .cantunwind
-
-    mrs r0, PRIMASK
-    cpsie i
-    bx lr
-    .fnend
-
+    MRS     R0, PRIMASK
+    CPSIE   I
+    BX      LR
 
     .type LOS_IntRestore, %function
-    .global LOS_IntRestore
 LOS_IntRestore:
-    .fnstart
-    .cantunwind
+    MSR     PRIMASK, R0
+    BX      LR
 
-    msr PRIMASK, r0
-    bx lr
-    .fnend
-
-
+/****************************************************************************************
+* Function:
+*        VOID osTaskSchedule(VOID);
+* Description:
+*        Start the task swtich process by software trigger PendSV interrupt.
+****************************************************************************************/
     .type osTaskSchedule, %function
-    .global osTaskSchedule
 osTaskSchedule:
-    .fnstart
-    .cantunwind
+    LDR     R0, =OS_NVIC_INT_CTRL
+    LDR     R1, =OS_NVIC_PENDSVSET
+    STR     R1, [R0]
+    BX      LR
 
-    ldr     r0, =OS_NVIC_INT_CTRL
-    ldr     r1, =OS_NVIC_PENDSVSET
-    str     r1, [r0]
-    bx      lr
-   .fnend
+/****************************************************************************************
+* Function:
+*        VOID PendSV_Handler(VOID);
+* Description:
+*        PendSV interrupt handler, switch the context of the task.
+*        First: Save the context of the current running task(g_stLosTask.pstRunTask)
+*               to its own stack.
+*        Second: Restore the context of the next running task(g_stLosTask.pstNewTask)
+*                from its own stack.
+****************************************************************************************/
+    .type PendSV_Handler, %function
+PendSV_Handler:
+    /**
+     * R12: Save the interruption state of the current running task.
+     * Disable all interrupts except Reset,NMI and HardFault
+     */
+    MRS     R12, PRIMASK
+    CPSID   I
 
-
-    .type osPendSV, %function
-    .global osPendSV
-osPendSV:
-    .fnstart
-    .cantunwind
-
-    mrs     r12, PRIMASK
-    cpsid   i
-
-    ldr     r2, =g_pfnTskSwitchHook
-    ldr     r2, [r2]
-    cmp     r2, #0
-    beq     TaskSwitch
-    mov     r1, lr
-    push    {r0, r1}
-    blx     r2
-    pop     {r0, r1}
-    mov     lr, r1
+    /**
+     * Call task switch hook.
+     */
+    LDR     R2, =g_pfnTskSwitchHook
+    LDR     R2, [R2]
+    CMP     R2, #0
+    BEQ     TaskSwitch
+    MOV     R1, LR
+    PUSH    {R0, R1}
+    BLX     R2
+    POP     {R0, R1}
+    MOV     LR, R1
 
 TaskSwitch:
-    mrs     r0, PSP
+    /**
+     * R0 = now stack pointer of the current running task.
+     */
+    MRS     R0, PSP
 
-    subs    r0, #36
-    stmia   r0!, {r4-r7}
-    mov     r3, r8
-    mov     r4, r9
-    mov     r5, r10
-    mov     r6, r11
-    mov     r7, r12
-    stmia   r0!, {r3-r7}
+    /**
+     * Save the stack frame(R4-R11) of the current running task.
+     * R12 save the PRIMASK value of the current running task.
+     * NOTE: Before entering the exception handler function, these registers
+     *       (xPSR,PC,LR,R12,R3-R0) have been automatically
+     *       saved by the CPU in the stack of the current running task.
+     *
+     * The stack of the current running task is as follows:
+     *
+     *           |<=== PUSH: Save the context of the current running task
+     *           |                                                      High addr--->|
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+-----
+     *                               Stack pointer before entering exception--->|
+     *                                   |<---        cpu auto saved        --->|
+     *                                   |<---PSP to R0
+     *           |<---Top of the stack, save to g_stLosTask.pstRunTask->pStackPointer
+     */
+    SUBS    R0, #36
+    STMIA   R0!, {R4-R7}           /* save R4-R7. */
+    MOV     R3, R8                 /* copy R8-r12 to R3-r7. */
+    MOV     R4, R9
+    MOV     R5, R10
+    MOV     R6, R11
+    MOV     R7, R12
+    STMIA   R0!, {R3-R7}           /* save R8-R12. */
+    SUBS    R0, #36
 
-    subs    r0, #36
+    /**
+     * R5,R3.
+     */
+    LDR     R5, =g_stLosTask
+    MOVS    R3, #OS_TASK_STATUS_RUNNING
 
-    ldr     r5, =g_stLosTask
-    ldr     r6, [r5]
-    str     r0, [r6]
+    /**
+     * Save the stack pointer of the current running task to TCB.
+     * (g_stLosTask.pstRunTask->pStackPointer = R0)
+     */
+    LDR     R6, [R5]
+    STR     R0, [R6]
 
-    ldrh    r7, [r6, #4]
-    movs    r3, #OS_TASK_STATUS_RUNNING
-    bics    r7, r7, r3
-    strh    r7, [r6, #4]
+    /**
+     * Clear the RUNNING state of the current running task.
+     * (g_stLosTask.pstRunTask->usTaskStatus &= ~OS_TASK_STATUS_RUNNING)
+     */
+    LDRH    R7, [R6, #4]
+    BICS    R7, R7, R3
+    STRH    R7, [R6, #4]
 
-    ldr     r0, =g_stLosTask
-    ldr     r0, [r0, #4]
-    str     r0, [r5]
+    /**
+     * Switch the current running task to the next running task.
+     * (g_stLosTask.pstRunTask = g_stLosTask.pstNewTask)
+     */
+    LDR     R0, [R5, #4]
+    STR     R0, [R5]
 
-    ldrh    r7, [r0, #4]
-    movs    r3, #OS_TASK_STATUS_RUNNING
-    orrs    r7, r7, r3
-    strh    r7, [r0 , #4]
+    /**
+     * Set the RUNNING state of the next running task.
+     * (g_stLosTask.pstNewTask->usTaskStatus |= OS_TASK_STATUS_RUNNING)
+     */
+    LDRH    R7, [R0, #4]
+    ORRS    R7, R7, R3
+    STRH    R7, [R0, #4]
 
-    ldr     r1, [r0]
-    adds    r1, #16
-    ldmfd   r1!, {r3-r7}
-    mov     r8, r3
-    mov     r9, r4
-    mov     r10, r5
-    mov     r11, r6
-    mov     r12, r7
-    msr     PSP, r1
-    subs    r1, #36
-    ldmfd   r1!, {r4-r7}
+    /**
+     * Restore the stack pointer of the next running task from TCB.
+     * (R1 = g_stLosTask.pstNewTask->pStackPointer)
+     */
+    LDR     R1, [R0]
 
-    msr     PRIMASK, r12
-    bx      lr
-    .fnend
+    /**
+     * Restore the stack frame(R4-R11) of the next running task.
+     * R12 restore the PRIMASK value of the next running task.
+     * NOTE: After exiting the exception handler function, these registers
+     *       (xPSR,R0-R3,R12,LR,PC) will be automatically
+     *       restored by the CPU from the stack of the next running task.
+     *
+     * 1. The stack of the next running task is as follows:
+     *
+     *                    POP: Restore the context of the next running task ===>|
+     *                                                                  High addr--->|
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+-----
+     *           |<---Top of the stack, restored from g_stLosTask.pstNewTask->pStackPointer
+     *                      R1 to PSP--->|
+     *                                   |<---      cpu auto restoring      --->|
+     *                                 Stack pointer after exiting exception--->|
+     *
+     * 2. If the next running task is run for the first time, the stack is as follows:
+     *
+     *                    POP: Restore the context of the next running task ===>|
+     *                                                             High addr--->|
+     *                                                   Bottom of the stack--->|
+     * ----------+-----------------------+--------------------------------------+
+     *           |   R4-R11,   PRIMASK   |   R0-R3,   R12,   LR,   PC,   xPSR   |
+     * ----------+-----------------------+--------------------------------------+
+     *           |<---Top of the stack, restored from g_stLosTask.pstNewTask->pStackPointer
+     *                      R1 to PSP--->|
+     *                                   |<---      cpu auto restoring      --->|
+     *                                 Stack pointer after exiting exception--->|
+     */
+    ADDS    R1, #16
+    LDMFD   R1!, {R3-R7}           /* restore R8-R12 to R3-R7. */
+    MOV     R8, R3                 /* copy R3-R7 to R8-R12. */
+    MOV     R9, R4
+    MOV     R10, R5
+    MOV     R11, R6
+    MOV     R12, R7
+    /**
+     * Set the stack pointer of the next running task to PSP.
+     */
+    MSR     PSP, R1
+    SUBS    R1, #36
+    LDMFD   R1!, {R4-R7}           /* restore R4-R7. */
+
+    /**
+     * Restore the interruption state of the next running task.
+     */
+    MSR     PRIMASK, R12
+    BX      LR
+

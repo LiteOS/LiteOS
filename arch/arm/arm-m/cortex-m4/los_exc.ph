@@ -63,32 +63,45 @@ typedef struct tagExcInfoCallBackArray
 }EXC_INFO_ARRAY_S;
 
 
+#define OS_NVIC_SHCSR                       0xE000ED24
+#define OS_NVIC_CCR                         0xE000ED14
+
+#define OS_NVIC_INT_ENABLE_SIZE             0x20
+#define OS_NVIC_INT_PRI_SIZE                0xF0
+
+#define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
+#define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
+
 
 #define MAX_SCENE_INFO_SIZE     (8 + sizeof(EXC_INFO_S) - 4 + sizeof(EXC_CONTEXT_S))
-#define MAX_TSK_INFO_SIZE       (8 + sizeof(TSK_INFO_S)* (LOSCFG_BASE_CORE_TSK_LIMIT + 1))
+#define MAX_TSK_INFO_SIZE       (8 + sizeof(TSK_INFO_S) * (LOSCFG_BASE_CORE_TSK_LIMIT + 1))
 #define MAX_INT_INFO_SIZE       (8 + 0x164)
 
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-#define MAX_QUEUE_INFO_SIZE     (8 + sizeof(QUEUE_INFO_S)* LOSCFG_BASE_IPC_QUEUE_LIMIT)
+#define MAX_QUEUE_INFO_SIZE     (8 + sizeof(QUEUE_INFO_S) * LOSCFG_BASE_IPC_QUEUE_LIMIT)
 #else
 #define MAX_QUEUE_INFO_SIZE     (0)
 #endif
 
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == YES)
-#define MAX_SWITCH_INFO_SIZE    (8 + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN)* OS_TASK_SWITCH_INFO_COUNT)
+#define MAX_SWITCH_INFO_SIZE    (8 + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN) * OS_TASK_SWITCH_INFO_COUNT)
 #else
 #define MAX_SWITCH_INFO_SIZE    (0)
 #endif
 
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
-#define MAX_MEM_INFO_SIZE       (8 + sizeof(MEM_INFO_S)* OS_SYS_MEM_NUM)
+#define MAX_MEM_INFO_SIZE       (8 + sizeof(MEM_INFO_S) * OS_SYS_MEM_NUM)
 #else
 #define MAX_MEM_INFO_SIZE       (0)
 #endif
 
+#if (LOSCFG_SAVE_EXC_INFO == YES)
 #define MAX_EXC_MEM_SIZE ( 4 + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE + 4)
+#else
+#define MAX_EXC_MEM_SIZE ( 0 )
+#endif
 
-VOID osExcRegister(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID* pArg);
+extern VOID osExcRegister(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID *pArg);
 
 #ifdef __cplusplus
 #if __cplusplus

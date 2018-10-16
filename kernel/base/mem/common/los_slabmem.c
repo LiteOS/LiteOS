@@ -66,7 +66,7 @@ BOOL osSlabMemInit(VOID *pPool)
 
     for (uwIdx = 0; uwIdx < SLAB_MEM_COUNT; uwIdx++)
     {
-        uwBlkSz = (0x10 << uwIdx);
+        uwBlkSz = (SLAB_MEM_CALSS_STEP_SIZE << uwIdx);
         uwBlkCnt = SLAB_MEM_ALLOCATOR_SIZE / uwBlkSz;
         pstSlabMemHead->stSlabClass[uwIdx].blkSz = uwBlkSz;
         pstSlabMemHead->stSlabClass[uwIdx].blkCnt = uwBlkCnt;
@@ -99,6 +99,11 @@ VOID *osSlabMemAlloc(VOID *pPool, UINT32 uwSz)
     struct LOS_SLAB_CONTROL_HEADER *pstSlabMem = osSlabCtrlHdrGet(pPool);
     OS_SLAB_MEM *pstSlabAlloc = NULL;
     UINT32 uwIdx = 0;
+
+    if (uwSz > (SLAB_MEM_CALSS_STEP_SIZE << (SLAB_MEM_COUNT - 1)))
+    {
+        return NULL;
+    }
 
     for (uwIdx = 0; uwIdx < SLAB_MEM_COUNT; uwIdx++)
     {
@@ -227,7 +232,7 @@ UINT32 osSlabMemCheck(VOID *pPool, VOID* pPtr)
     UINT32 uwIdx = 0;
     OS_SLAB_BLOCK_NODE *pstSlabNode = OS_SLAB_BLOCK_HEAD_GET(pPtr);
 
-    if ((!OS_ALLOC_FROM_SLAB_CHECK(pstSlabNode)) 
+    if ((!OS_ALLOC_FROM_SLAB_CHECK(pstSlabNode))
         || (OS_SLAB_BLOCK_SIZE_GET(pstSlabNode) > pstSlabMem->stSlabClass[SLAB_MEM_COUNT - 1].blkSz))
     {
         return uwRetBlkSz;

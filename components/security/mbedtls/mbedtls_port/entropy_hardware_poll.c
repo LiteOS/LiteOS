@@ -32,13 +32,13 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "atiny_adapter.h"
-#include "entropy.h"
+#include "osdepends/atiny_osdep.h"
+#include "mbedtls/entropy.h"
 
 int mbedtls_hardware_poll(void *data,
-                            unsigned char *output,size_t len, size_t *olen);
+                          unsigned char *output, size_t len, size_t *olen);
 int mbedtls_hardware_poll(void *data,
-                            unsigned char *output,size_t len, size_t *olen)
+                          unsigned char *output, size_t len, size_t *olen)
 {
     ((void)data);
     *olen = 0;

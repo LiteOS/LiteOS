@@ -49,13 +49,20 @@ extern "C" {
 #include "los_slab.ph"
 #endif
 
-#define RAM_HEAP_SIZE                   ((OS_SYS_MEM_SIZE) &~ 7)
-#define RAM_HEAP_START                  (OS_SYS_MEM_ADDR)
+#define IS_ALIGNED(value)                       (0 == (((UINT32)(value)) & ((UINT32)(value - 1))))
+#define OS_MEM_ALIGN(value, uwAlign)            (((UINT32)(value) + (UINT32)(uwAlign - 1)) & (~(UINT32)(uwAlign - 1)))
+#define OS_MEM_ALIGN_FLAG                       (0x80000000)
+#define OS_MEM_SET_ALIGN_FLAG(uwAlign)          (uwAlign = ((uwAlign) | OS_MEM_ALIGN_FLAG))
+#define OS_MEM_GET_ALIGN_FLAG(uwAlign)          ((uwAlign) & OS_MEM_ALIGN_FLAG)
+#define OS_MEM_GET_ALIGN_GAPSIZE(uwAlign)       ((uwAlign) & (~OS_MEM_ALIGN_FLAG))
+
+#define RAM_HEAP_SIZE                           ((OS_SYS_MEM_SIZE) &~ 7)
+#define RAM_HEAP_START                          (OS_SYS_MEM_ADDR)
 
 #ifdef CONFIG_DDR_HEAP
-#define DDR_HEAP_INIT()                 osHeapInit((VOID *)DDR_HEAP_START, DDR_HEAP_SIZE)
-#define DDR_HEAP_ALLOC(sz)              osHeapAlloc((VOID *)DDR_HEAP_START, sz)
-#define DDR_HEAP_FREE(p)                osHeapFree((VOID *)DDR_HEAP_START, p)
+#define DDR_HEAP_INIT()                         osHeapInit((VOID *)DDR_HEAP_START, DDR_HEAP_SIZE)
+#define DDR_HEAP_ALLOC(sz)                      osHeapAllocAlign((VOID *)DDR_HEAP_START, OS_MEM_ALIGN(sz, DCACHE_LINE_SIZE), DCACHE_LINE_SIZE)
+#define DDR_HEAP_FREE(p)                        osHeapFree((VOID *)DDR_HEAP_START, p)
 #endif
 
 struct LOS_HEAP_NODE {
@@ -63,7 +70,7 @@ struct LOS_HEAP_NODE {
     struct LOS_HEAP_NODE* pstPrev;
     UINT32 uwSize:30;
     UINT32 uwUsed: 1;
-    UINT32 uwAlignFlag: 1; /* Little-Endian, MSB. Big-Endian, LSB */
+    UINT32 uwAlign:1;
     UINT8  ucData[];/*lint !e43*/
 };
 
@@ -78,8 +85,6 @@ struct LOS_HEAP_MANAGER{
     struct LOS_SLAB_CONTROL_HEADER stSlabCtrlHdr;
 #endif
 };
-
-extern struct LOS_HEAP_MANAGER g_stDdrHeap;
 
 /**
  *@ingroup los_heap
@@ -125,6 +130,29 @@ extern BOOL osHeapInit(VOID *pPool, UINT32 uwSz);
  *@since Huawei LiteOS V100R001C00
  */
 extern VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz);
+
+/**
+ *@ingroup los_heap
+ *@brief Alloc aligned memory block from heap memory.
+ *
+ *@par Description:
+ *This API is used to alloc aligned  memory block from heap memory.
+ *@attention
+ *<ul>
+ *<li>None.</li>
+ *</ul>
+ *
+ *@param pPool   [IN/OUT] A pointer pointed to the memory pool.
+ *@param uwSz   [IN] Size of heap memory.
+ *@param uwBoundary   [IN] Boundary the heap needs align
+ *
+ *@retval VOID*
+ *@par Dependency:
+ *<ul><li>los_heap.h: the header file that contains the API declaration.</li></ul>
+ *@see osHeapFree
+ *@since Huawei LiteOS V100R001C00
+ */
+extern VOID* osHeapAllocAlign(VOID *pPool, UINT32 uwSz, UINT32 uwBoundary);
 
 /**
  *@ingroup los_heap
