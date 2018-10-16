@@ -66,9 +66,9 @@ int flag_upgrade_set_result(upgrade_state_e state);
 
 int flag_upgrade_get_result(upgrade_state_e *state);
 
-int flag_set_recover_verify(uint32_t recover_verify);
+int flag_set_recover_verify(uint32_t recover_verify, uint32_t verify_length);
 
-uint32_t flag_get_recover_verify(void);
+void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length);
 
 int flag_enable_hwpatch(const uint8_t *patch_head, int32_t patch_len);
 
