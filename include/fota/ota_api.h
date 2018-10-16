@@ -76,7 +76,7 @@ typedef struct
     void (*download_end)(ota_flash_type_e type, ota_download_result_e result);
     uint32_t flash_block_size;
     ota_key_s key;
-}ota_opt_t;
+}ota_opt_s;
 
 
 #ifdef __cplusplus

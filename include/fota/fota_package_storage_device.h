@@ -41,6 +41,7 @@
 
 #include "atiny_lwm2m/atiny_fota_api.h"
 
+
 //#ifdef WITH_SOTA
 #include "ota_api.h"
 //#endif
@@ -99,7 +100,7 @@ atiny_fota_storage_device_s *fota_get_pack_device(void);
 int fota_set_pack_device(atiny_fota_storage_device_s *device, fota_pack_device_info_s *device_info);
 
 #ifdef WITH_SOTA
-int ota_init_pack_device(const ota_opt_t *ato_opt);
+int ota_init_pack_device(const ota_opt_s *ato_opt);
 #endif
 
 

@@ -39,10 +39,10 @@
 #ifndef _OTA_PACK_ADAPTOR_H_
 #define _OTA_PACK_ADAPTOR_H_
 
-#include "fota_package_storage_device.h"
+#include "fota/fota_package_storage_device.h"
 
 #ifdef WITH_SOTA
-int ota_init_pack_adaptor(int (*get_ota_opt)(ota_opt_t *ota_opt)£¬ fota_pack_device_info_s *device_info);
+int ota_init_pack_adaptor(ota_opt_s *(*get_ota_opt)(void), fota_pack_device_info_s *device_info);
 int ota_set_adaptor_flash_type(atiny_fota_storage_device_s *thi, ota_flash_type_e type);
 #endif
 

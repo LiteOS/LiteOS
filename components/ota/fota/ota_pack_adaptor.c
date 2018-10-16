@@ -34,6 +34,7 @@
 
 #ifdef WITH_SOTA
 #include "ota_pack_adaptor.h"
+#include "fota_package_head.h"
 #include "stddef.h"
 
 
@@ -41,55 +42,53 @@ typedef struct
 {
     atiny_fota_storage_device_s device;
     fota_hardware_s hardware;
-    int (*get_ota_opt)(ota_opt_t *ota_opt);
+    ota_opt_s *(*get_ota_opt)(void);
     ota_flash_type_e type;
 } ota_adaptor_device_s;
 
 
-ota_adaptor_device_s *ota_pack_get_adaptor_device();
+static ota_adaptor_device_s *ota_pack_get_adaptor_device();
+
+static ota_opt_s * ota_pack_adaptor_get_ota_opt(ota_adaptor_device_s *device)
+{
+     if (device->get_ota_opt == NULL)
+    {
+        FOTA_LOG("ota_opt null");
+        return NULL;
+    }
+
+    return device->get_ota_opt();
+}
 
 static int ota_pack_adaptor_write_software(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
     ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
-    ota_opt_t ota_opt;
+    ota_opt_s *ota_opt = ota_pack_adaptor_get_ota_opt(device);
 
     (void)thi;
-
-    if (device->get_ota_opt == NULL)
-    {
-        FOTA_LOG("ota_opt null");
-        return FOTA_ERR;
-    }
-
-    if (device->get_ota_opt(&ota_opt) != FOTA_OK)
+    if (ota_opt == NULL)
     {
         FOTA_LOG("get_ota_opt fail");
         return FOTA_ERR;
     }
-    return ota_opt.write_flash(device->type, buffer, len, offset);
+    return ota_opt->write_flash(device->type, buffer, len, offset);
 }
 
 static int ota_adaptor_read_software(struct fota_hardware_api_tag_s *this, uint32_t offset, uint8_t *buffer, uint32_t len)
 {
     ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
-    ota_opt_t ota_opt;
+    ota_opt_s *ota_opt = ota_pack_adaptor_get_ota_opt(device);
 
-    if (device->get_ota_opt == NULL)
-    {
-        FOTA_LOG("ota_opt null");
-        return FOTA_ERR;
-    }
-
-    if (device->get_ota_opt(&ota_opt) != FOTA_OK)
+    if (ota_opt == NULL)
     {
         FOTA_LOG("get_ota_opt fail");
         return FOTA_ERR;
     }
-    return ota_opt.read_flash(device->type, buffer, len, offset);
+    return ota_opt->read_flash(device->type, buffer, len, offset);
 }
 
 
-static int  hal_fota_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
+static int  ota_adaptor_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
 {
     (void)thi;
     (void)result;
@@ -100,26 +99,20 @@ static int  hal_fota_write_software_end(atiny_fota_storage_device_s *thi, atiny_
 static uint32_t ota_pack_adator_get_block_size(struct fota_hardware_api_tag_s *this, uint32_t offset)
 {
     ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
-    ota_opt_t ota_opt;
-
-    if (device->get_ota_opt == NULL)
-    {
-        FOTA_LOG("ota_opt null");
-        return 0;
-    }
-
-    if (device->get_ota_opt(&ota_opt) != FOTA_OK)
+    ota_opt_s *ota_opt = ota_pack_adaptor_get_ota_opt(device);
+    if (ota_opt == NULL)
     {
         FOTA_LOG("get_ota_opt fail");
-        return 0;
+        return FOTA_ERR;
     }
-    return ota_opt.flash_block_size;
+
+    return ota_opt->flash_block_size;
 }
 
 
 
-static ota_adaptor_device_s g_hal_storage_device = {.device = {.write_software = hal_fota_write_software,
-                                                    .write_software_end = hal_fota_write_software_end},
+static ota_adaptor_device_s g_hal_storage_device = {.device = {.write_software = ota_pack_adaptor_write_software,
+                                                    .write_software_end = ota_adaptor_write_software_end},
 
                                          .hardware = {.get_block_size = ota_pack_adator_get_block_size,
                                                       .read_software = ota_adaptor_read_software}};
@@ -129,32 +122,27 @@ static ota_adaptor_device_s *ota_pack_get_adaptor_device()
     return &g_hal_storage_device;
 }
 
-int ota_init_pack_adaptor(int (*get_ota_opt)(ota_opt_t *ota_opt)£¬ fota_pack_device_info_s *device_info)
+int ota_init_pack_adaptor(ota_opt_s *(*get_ota_opt)(void), fota_pack_device_info_s *device_info)
 {
     ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
-    ota_opt_t ota_opt;
 
-    if (ota_opt == NULL)
-    {
-        FOTA_LOG("ota_opt null");
-        return FOTA_ERR;
-    }
+    ota_opt_s *ota_opt;
 
-    device->get_ota_opt = get_ota_opt;
-    if (get_ota_opt(&ota_opt) != FOTA_OK)
+    if (get_ota_opt == NULL)
     {
         FOTA_LOG("get_ota_opt fail");
         return FOTA_ERR;
     }
 
+    ota_opt = ota_pack_adaptor_get_ota_opt(device);
     memset(device_info, 0, sizeof(*device_info));
 
     device_info->storage_device = &device->device;
     device_info->hardware = &device->hardware;
     device_info->storage_device = &device->device;
     device_info->hardware = &device->hardware;
-    device_info->key.rsa_N = &device->key.rsa_N;
-    device_info->key.rsa_E = &device->key.rsa_E;
+    device_info->key.rsa_N = ota_opt->key.rsa_N;
+    device_info->key.rsa_E = ota_opt->key.rsa_E;
 
     return FOTA_OK;
 }

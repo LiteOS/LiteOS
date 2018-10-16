@@ -36,7 +36,7 @@
 #include "fota_package_head.h"
 #include "fota_firmware_writer.h"
 #include "dtls_interface.h"
-
+#include "ota_pack_adaptor.h"
 
 
 typedef struct
@@ -44,10 +44,9 @@ typedef struct
     atiny_fota_storage_device_s interface;
     atiny_fota_storage_device_s *storage_device;
     fota_hardware_s *hardware;
-
+    ota_opt_s ota_opt;
     fota_pack_head_s head;
     fota_firmware_writer_s writer;
-    fota_pack_checksum_s *checksum;
     uint32_t total_len;
     int init_flag;
 } fota_pack_storage_device_s;
@@ -258,7 +257,7 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 {
     fota_pack_storage_device_s *pack_device;
 
-    void (*set_flash_type)(void *param) = NULL;
+    void (*set_flash_type)(void *param, ota_flash_type_e type) = NULL;
     void *param = NULL;
 
     dtls_int();
@@ -290,13 +289,24 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 }
 
 #ifdef WITH_SOTA
-int ota_init_pack_device(int (*get_ota_opt)(ota_opt_t *ota_opt))
+static ota_opt_s *ota_pack_get_opt(void)
+{
+    fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
+    return &device->ota_opt;
+}
+int ota_init_pack_device(const ota_opt_s *ota_opt)
 {
     fota_pack_device_info_s device_info;
 
-    fota_pack_storage_device_s *device = fota_get_pack_device();
+    fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
 
-    if (ota_init_pack_adaptor(get_ota_opt, &device_info) != FOTA_OK)
+    if (ota_opt == NULL)
+    {
+        FOTA_LOG("ota_opt null");
+        return FOTA_ERR;
+    }
+
+    if (ota_init_pack_adaptor(ota_pack_get_opt, &device_info) != FOTA_OK)
     {
         FOTA_LOG("ota_init_pack_adaptor fail");
         return FOTA_ERR;
