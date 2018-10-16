@@ -1,5 +1,5 @@
-#ifndef HWERROR_CODE_H
-#define HWERROR_CODE_H
+#ifndef HWPATCH_ERRNO_H
+#define HWPATCH_ERRNO_H
 
 #define ERR_OK                      0
 #define ERR_ILEGAL_PARAM            -0x01
@@ -31,4 +31,4 @@
 #define ERR_PATCH_LAST_RECOVER      -0x20B
 #define ERR_PATCH_FLAG_INIT         -0x20C
 
-#endif /* HWERROR_CODE_H */
+#endif /* HWPATCH_ERRNO_H */

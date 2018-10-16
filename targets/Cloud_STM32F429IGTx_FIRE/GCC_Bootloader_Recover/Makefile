@@ -143,6 +143,10 @@ FLAG_INC = \
         -I $(TOP_DIR)/components/ota/flag_operate
         C_INCLUDES += $(FLAG_INC)
 
+PATCH_INC = \
+        -I $(TOP_DIR)/include/fota
+        C_INCLUDES += $(PATCH_INC)
+
 USER_INC = \
         -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
         -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
