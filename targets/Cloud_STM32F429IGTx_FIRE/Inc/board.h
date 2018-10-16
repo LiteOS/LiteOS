@@ -41,6 +41,18 @@
 extern "C" {
 #endif
 
+// error code
+#define OTA_ERRNO_OK                0
+#define OTA_ERRNO_ILEGAL_PARAM      -1
+#define OTA_ERRNO_INTEGRITY_CHECK   -2
+#define OTA_ERRNO_SPI_FLASH_READ    -3
+#define OTA_ERRNO_SPI_FLASH_WRITE   -4
+#define OTA_ERRNO_INNER_FLASH_READ  -5
+#define OTA_ERRNO_INNER_FLASH_WRITE -6
+#define OTA_ERRNO_ILEGAL_PC         -7
+#define OTA_ERRNO_ILEGAL_STACK      -8
+#define OTA_ERRNO_INTERNEL          -9
+
 // SPI flash address
 #define OTA_FLAG_ADDR1                0x00000000
 #define OTA_FLAG_ADDR2                0x00004000
@@ -49,18 +61,16 @@ extern "C" {
 #define OTA_IMAGE_DOWNLOAD_ADDR       (UPDATE_INFO_ADDR + UPDATE_INFO_SIZE)
 #define OTA_IMAGE_DOWNLOAD_SIZE       0x00040000
 #define OTA_IMAGE_BCK_ADDR            (OTA_IMAGE_DOWNLOAD_ADDR + OTA_IMAGE_DOWNLOAD_SIZE)
+#define OTA_IMAGE_BCK_SIZE            0x00040000
+#define OTA_IMAGE_DIFF_UPGRADE_ADDR   (OTA_IMAGE_BCK_ADDR + OTA_IMAGE_BCK_SIZE)
+#define OTA_IMAGE_DIFF_UPGRADE_SIZE   0x00040000
 
 // Built in flash address
 #define OTA_DEFAULT_IMAGE_ADDR        0x08020000
 
 int board_jump2app(void);
-int board_update_copy(int32_t old_image_len, int32_t new_image_len,
-                      uint32_t new_image_addr,
-                      void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
-                      int (*func_set_update_record)(uint8_t state, uint32_t offset));
-int board_rollback_copy(int32_t image_len,
-                        void (*func_get_update_record)(uint8_t* state, uint32_t* offset),
-                        int (*func_set_update_record)(uint8_t state, uint32_t offset));
+int board_update_copy(int32_t old_image_len, int32_t new_image_len, uint32_t new_image_addr);
+int board_rollback_copy(int32_t image_len);
 
 #if defined(__cplusplus)
 }

@@ -35,16 +35,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "stm32f4xx.h"
 #include "hal_flash.h"
 #include "hal_spi_flash.h"
 #include "usart.h"
-#include "ota.h"
 #include "board.h"
-
-#ifdef USE_IWDG
-#include "hal_iwdg.h"
-#endif
+#include "upgrade_flag.h"
+#include "recover_image.h"
 
 void SysTick_Handler(void)
 {
@@ -112,55 +110,139 @@ void SystemClock_Config(void)
     SystemCoreClockUpdate();
 }
 
+static int flash_read(flash_type_e flash_type, void *buf, int32_t len, uint32_t offset)
+{
+    switch (flash_type)
+    {
+    case FLASH_OLDBIN_READ:
+        return hal_flash_read(buf, len, OTA_DEFAULT_IMAGE_ADDR + offset);
+    case FLASH_PATCH:
+        return hal_spi_flash_read(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+    case FLASH_UPDATE_INFO:
+        return hal_spi_flash_read(buf, len, OTA_FLAG_ADDR1);
+    default:
+        printf("wrong flash type detected %d\n", flash_type);
+        return -1;
+    }
+}
+
+static int flash_write(flash_type_e flash_type, const void *buf, int32_t len, uint32_t offset)
+{
+    switch (flash_type)
+    {
+    case FLASH_NEWBIN_WRITE:
+        return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DIFF_UPGRADE_ADDR + offset);
+    case FLASH_PATCH:
+        return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+    case FLASH_UPDATE_INFO:
+        return hal_spi_flash_erase_write(buf, len, OTA_FLAG_ADDR1);
+    default:
+        return -1;
+    }
+}
+
+static int register_info(void)
+{
+    recover_info_s info;
+    recover_assist_s assist;
+    recover_flash_s flash;
+
+    info.max_new_image_size = OTA_IMAGE_DIFF_UPGRADE_SIZE;
+    info.max_old_image_size = OTA_IMAGE_DIFF_UPGRADE_SIZE;
+    info.max_patch_size = OTA_IMAGE_DOWNLOAD_SIZE;
+    info.old_image_addr = OTA_DEFAULT_IMAGE_ADDR;
+    info.new_image_addr = OTA_IMAGE_DIFF_UPGRADE_ADDR;
+    info.patch_addr = OTA_IMAGE_DOWNLOAD_ADDR;
+    info.flag_addr = OTA_FLAG_ADDR1;
+    info.flash_erase_unit = 0x1000;
+    info.recover_on_oldimage = 0;
+
+    assist.func_printf = printf;
+    assist.func_malloc = malloc;
+    assist.func_free = free;
+
+    flash.func_flash_read = flash_read;
+    flash.func_flash_write = flash_write;
+
+    return recover_init(&info, &assist, &flash);
+}
+
+static int jump(uint32_t oldbin_size)
+{
+    int ret;
+
+    printf("info: begin to jump to application\n");
+    ret = board_jump2app();
+    if (ret != 0)
+    {
+        printf("warning: jump to app failed, try to roll back now\n");
+        ret = board_rollback_copy(oldbin_size);
+        if (ret != 0)
+        {
+            printf("fatal: roll back failed, system start up failed\n");
+            _Error_Handler(__FILE__, __LINE__);
+        }
+    }
+    printf("info: begin to try to jump to application again\n");
+    ret = board_jump2app();
+    if (ret != 0)
+    {
+        printf("fatal: roll back succeed, system start up failed\n");
+        _Error_Handler(__FILE__, __LINE__);
+    }
+
+    return ret;
+}
+
 int main(void)
 {
     int ret;
-    ota_assist assist;
+    recover_upgrade_type_e upgrade_type = RECOVER_UPGRADE_NONE;
+    uint32_t newbin_size = 0;
+    uint32_t oldbin_size = 0;
 
+    HAL_Init();
     SystemClock_Config();
     Debug_USART1_UART_Init();
     hal_spi_flash_config();
 
     printf("bootloader begin\n");
 
-    assist.func_printf = printf;
-    assist.func_ota_read = hal_spi_flash_read;
-    assist.func_ota_write = hal_spi_flash_erase_write;
-    ota_register_assist(&assist);
+    ret = register_info();
+    if (ret != 0)
+        printf("warning: recover register failed\n");
 
-    ret = ota_init();
-    if (ret < 0)
+    printf("info: begin to process upgrade\n");
+    ret = recover_image(&upgrade_type, &newbin_size, &oldbin_size);
+    if (oldbin_size == 0)
+        oldbin_size = OTA_IMAGE_DOWNLOAD_SIZE;
+    if (ret == 0)
     {
-        OTA_LOG("read/write boot information failed");
+        switch (upgrade_type)
+        {
+        case RECOVER_UPGRADE_NONE:
+            printf("info: normal start up\n");
+            break;
+        case RECOVER_UPGRADE_FULL:
+            printf("info: full upgrade\n");
+            ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DOWNLOAD_ADDR);
+            if (ret != 0)
+                printf("warning: [full] copy newimage to inner flash failed\n");
+            break;
+        case RECOVER_UPGRADE_DIFF:
+            printf("info: diff upgrade\n");
+            ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DIFF_UPGRADE_ADDR);
+            if (ret != 0)
+                printf("warning: [diff] copy newimage to inner flash failed\n");
+            break;
+        default:
+            break;
+        }
     }
-    ret = ota_update_process();
-    if (ret < 0)
-    {
-        OTA_LOG("update process failed, try to start up with origin image now");
-    }
+    else
+        printf("warning: upgrade failed with ret %d\n", ret);
 
-#ifdef USE_IWDG
-    // feed interval: 10s
-    hal_iwdg_config(IWDG_PRESCALER_64, 6250);
-#endif
+    ret = jump(oldbin_size);
 
-    OTA_LOG("begin to jump to application");
-    ret = ota_jump_to_application();
-    if (ret < 0)
-    {
-        OTA_LOG("start up image failed, try to roll back now");
-    }
-    ret = ota_roll_back_image();
-    if (ret < 0)
-    {
-        OTA_LOG("roll back image failed, system start up failed");
-        _Error_Handler(__FILE__, __LINE__);
-    }
-    ret = ota_jump_to_application();
-    if (ret < 0)
-    {
-        OTA_LOG("start up roll back image failed, system start up failed");
-        _Error_Handler(__FILE__, __LINE__);
-    }
     return ret;
 }

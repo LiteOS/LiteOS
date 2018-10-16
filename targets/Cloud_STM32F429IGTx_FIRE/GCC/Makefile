@@ -208,8 +208,12 @@ USER_SRC =  \
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
+        ${wildcard $(TOP_DIR)/components/ota/sota/*.c} \
+        ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
+        ${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
         C_SOURCES += $(SOTA_SRC)
+		
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 endif
 
 ifeq ($(WITH_AT_FRAMEWORK), yes)
@@ -238,7 +242,9 @@ endif
 
 ifeq ($(USE_FOTA), yes)
 FOTA_SRC = \
-		${wildcard  $(TOP_DIR)/components/ota/fota/*.c}
+	${wildcard  $(TOP_DIR)/components/ota/fota/*.c} \
+        ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
+        ${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
         C_SOURCES += $(FOTA_SRC)
 		
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
@@ -336,8 +342,8 @@ AS_INCLUDES =
 # C includes
 KERNEL_INC = \
         -I $(TOP_DIR)/kernel/include \
-		-I $(TOP_DIR)/kernel/base/include \
-		-I $(TOP_DIR)/kernel/extended/include
+	-I $(TOP_DIR)/kernel/base/include \
+	-I $(TOP_DIR)/kernel/extended/include
         C_INCLUDES += $(KERNEL_INC)
 
 INCLUDE_INC = \
@@ -346,7 +352,7 @@ INCLUDE_INC = \
 
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
-		-I $(TOP_DIR)/arch/arm/common/cmsis
+	-I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(ARCH_INC)
 
 HAL_DRIVER_INC = \
@@ -383,32 +389,37 @@ ER_COAP_INC = \
 
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
-		-I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
+	-I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
 DEMO_INC = \
         -I $(TOP_DIR)/demos
         C_INCLUDES += $(DEMO_INC)
 
+OTA_INC = \
+        -I $(TOP_DIR)/components/ota/flag_operate \
+        -I $(TOP_DIR)/components/ota/utility
+        C_INCLUDES += $(OTA_INC)
+
 FS_SPIFFS_INC = \
-		-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
-		-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
-		C_INCLUDES += $(FS_SPIFFS_INC)
+	-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
+	-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
+	C_INCLUDES += $(FS_SPIFFS_INC)
 
 FS_FATFS_INC = \
-		-I $(TOP_DIR)/components/fs/fatfs/ff13b/source
-		C_INCLUDES += $(FS_FATFS_INC)
+	-I $(TOP_DIR)/components/fs/fatfs/ff13b/source
+	C_INCLUDES += $(FS_FATFS_INC)
 
 FS_JFFS2_INC = \
-		-I $(TOP_DIR)/components/fs/jffs2 \
-		-I $(TOP_DIR)/components/fs/jffs2/src \
-		-I $(TOP_DIR)/components/fs/jffs2/port
-		C_INCLUDES += $(FS_JFFS2_INC)
+	-I $(TOP_DIR)/components/fs/jffs2 \
+	-I $(TOP_DIR)/components/fs/jffs2/src \
+	-I $(TOP_DIR)/components/fs/jffs2/port
+	C_INCLUDES += $(FS_JFFS2_INC)
 
 USER_INC = \
-		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
-		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
-		C_INCLUDES += $(USER_INC)
+	-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
+	-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
+	C_INCLUDES += $(USER_INC)
 
 
 
