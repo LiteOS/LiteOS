@@ -33,8 +33,9 @@
  *---------------------------------------------------------------------------*/
 
 #include "fota_port.h"
-#include "fota/ota.h"
 #include "hal_spi_flash.h"
+#include "flag_manager.h"
+#include "upgrade_flag.h"
 #include <string.h>
 #include <stdlib.h>
 #include "osdepends/atiny_osdep.h"
@@ -245,19 +246,19 @@ static int hal_fota_active_software(atiny_fota_storage_device_s *this)
         return ERR;
     }
 
-    return ota_set_reboot(hal->total_len);
+    return flag_set_info(UPGRADE_FULL, hal->total_len);
 }
 
 static int hal_fota_get_software_result(atiny_fota_storage_device_s *this)
 {
-    ota_state state;
-    memset(&state, 0, sizeof(ota_state));
-    if(ota_check_update_state(&state) != OK)
+    upgrade_state_e state;
+    memset(&state, 0, sizeof(upgrade_state_e));
+    if(flag_upgrade_get_result(&state) != OK)
     {
         HAL_FOTA_LOG("ota_check_update_state fail");
     }
 
-    return (OTA_S_SUCCEED == state) ? OK : ERR;
+    return (OTA_SUCCEED == state) ? OK : ERR;
 }
 
 static int hal_fota_write_update_info(atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len)
@@ -320,21 +321,34 @@ int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardw
     return OK;
 }
 
+static int fota_flag_read(void* buf, int32_t len)
+{
+    if (NULL == buf || len <= 0)
+        return -1;
+
+    return hal_spi_flash_read(buf, len, OTA_FLAG_ADDR1);
+}
+
+static int fota_flag_write(const void* buf, int32_t len)
+{
+    if (NULL == buf || len <= 0)
+        return -1;
+
+    return hal_spi_flash_erase_write(buf, len, OTA_FLAG_ADDR1);
+}
+
 int hal_init_fota(void)
 {
-    ota_assist assist;
     int ret;
+    flag_op_s flag_op;
 
-    hal_spi_flash_config();
-    assist.func_printf = printf;
-    assist.func_ota_read = hal_spi_flash_read;
-    assist.func_ota_write = hal_spi_flash_erase_write;
-    ota_register_assist(&assist);
-
-    ret = ota_init();
+    flag_op.func_flag_read = fota_flag_read;
+    flag_op.func_flag_write = fota_flag_write;
+    (void)flag_init(&flag_op);
+    ret = flag_upgrade_init();
     if (ret != OK)
     {
-        OTA_LOG("read/write boot information failed");
+        HAL_FOTA_LOG("read/write boot information failed");
     }
 
     return ret;
