@@ -28,14 +28,14 @@ WITH_DTLS := yes
 
 
 #######################################
-# Firmware Over-The-Air 
+# Firmware Over-The-Air
 #######################################
-USE_FOTA := yes
+USE_FOTA := no
 
 #######################################
-# Firmware Over-The-Air 
+# Firmware Over-The-Air
 #######################################
-USE_SOTA := no
+USE_SOTA := yes
 
 #######################################
 # Lwm2m bootstrap program 

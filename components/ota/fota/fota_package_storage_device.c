@@ -306,12 +306,14 @@ int ota_init_pack_device(const ota_opt_s *ota_opt)
         return FOTA_ERR;
     }
 
+    memcpy(&device->ota_opt, ota_opt, sizeof(device->ota_opt));
+
     if (ota_init_pack_adaptor(ota_pack_get_opt, &device_info) != FOTA_OK)
     {
         FOTA_LOG("ota_init_pack_adaptor fail");
         return FOTA_ERR;
     }
-    return fota_set_pack_device(device, &device_info);
+    return fota_set_pack_device((atiny_fota_storage_device_s *)device, &device_info);
 }
 
 #endif

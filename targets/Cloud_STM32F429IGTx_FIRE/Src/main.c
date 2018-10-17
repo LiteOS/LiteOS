@@ -54,9 +54,9 @@
 #endif
 
 #ifdef WITH_SOTA
-#include "sota.h"
-#include "sota_hal.h"
-#include "ota.h"
+#include "sota/sota.h"
+#include "../components/ota/sota/sota_hal.h"
+//#include "ota.h"
 #include "board.h"
 #include "hal_spi_flash.h"
 #endif
@@ -92,32 +92,6 @@ int write_ver(char* buf, uint32_t len)
 }
 
 #ifdef WITH_SOTA
-int hal_init_sota(void)
-{
-    ota_assist assist;
-    int ret;
-#if USE_DIFF_UPGRADE
-    ota_module module;
-
-    module.func_init = ota_du_init;
-    module.func_set_reboot = ota_du_set_reboot;
-    module.func_check_update_state = ota_du_check_update_state;
-    ota_register_module(&module);
-#endif
-    hal_spi_flash_config();
-    assist.func_printf = printf;
-    assist.func_ota_read = hal_spi_flash_read;
-    assist.func_ota_write = hal_spi_flash_erase_write;
-    ota_register_assist(&assist);
-
-    ret = ota_init();
-    if (ret != OTA_OK)
-    {
-        SOTA_LOG("read/write boot information failed");
-    }
-    ota_check_update_state(NULL);
-    return ret;
-}
 
 int32_t sota_cmd_match(const char *buf, char* featurestr,int len)
 {
@@ -149,7 +123,7 @@ void nb_sota_demo()
     .sota_flag_addr = OTA_IMAGE_BCK_ADDR+OTA_DEFAULT_IMAGE_ADDR,
     .flash_block_size = 0X1000,
     };
-    hal_init_sota();
+    hal_init_ota();
     sota_init(&flash_op);
     (void)at.oob_register("\r\n+NNMI:", strlen("\r\n+NNMI:"), ota_process_main,sota_cmd_match);
 }
