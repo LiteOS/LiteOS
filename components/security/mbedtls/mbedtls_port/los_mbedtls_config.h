@@ -142,7 +142,7 @@
         MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256
 #endif
 
-#ifdef CONFIG_FEATURE_FOTA
+#if defined(CONFIG_FEATURE_FOTA) ||  defined(WITH_SOTA)
 #define MBEDTLS_RSA_C
 #define MBEDTLS_BIGNUM_C
 #define MBEDTLS_OID_C

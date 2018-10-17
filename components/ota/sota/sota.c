@@ -34,7 +34,7 @@
 #include "sota/sota.h"
 #include "sota_hal.h"
 #include "at_frame/at_main.h"
-#include "fota/ota.h"
+//#include "fota/ota_api.h"
 #if USE_DIFF_UPGRADE
 #include "ota_diff_upgrade.h"
 #endif
@@ -375,7 +375,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
         ver_to_hex(tmpbuf, 1, sbuf);
         at_fota_send(sbuf, 2);
         g_at_update_record.msg_code = MSG_NOTIFY_STATE;
-        ota_set_reboot(g_at_update_record.block_tolen);
+        //ota_set_reboot(g_at_update_record.block_tolen);
     }
     //break;
     case UPDATING:

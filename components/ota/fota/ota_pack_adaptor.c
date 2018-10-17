@@ -36,6 +36,8 @@
 #include "ota_pack_adaptor.h"
 #include "fota_package_head.h"
 #include "stddef.h"
+#include "../components/ota/flag_operate/upgrade_flag.h"
+
 
 
 typedef struct
@@ -44,6 +46,7 @@ typedef struct
     fota_hardware_s hardware;
     ota_opt_s *(*get_ota_opt)(void);
     ota_flash_type_e type;
+    uint32_t total_len;
 } ota_adaptor_device_s;
 
 
@@ -90,9 +93,11 @@ static int ota_adaptor_read_software(struct fota_hardware_api_tag_s *this, uint3
 
 static int  ota_adaptor_write_software_end(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len)
 {
+    ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
+
     (void)thi;
     (void)result;
-    (void)total_len;
+    device->total_len = total_len;
     return FOTA_OK;
 }
 
@@ -109,17 +114,24 @@ static uint32_t ota_pack_adator_get_block_size(struct fota_hardware_api_tag_s *t
     return ota_opt->flash_block_size;
 }
 
+static int ota_pack_active_software(atiny_fota_storage_device_s *thi)
+{
+    ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
+    return flag_set_info(device->type, device->total_len);
+}
 
 
-static ota_adaptor_device_s g_hal_storage_device = {.device = {.write_software = ota_pack_adaptor_write_software,
-                                                    .write_software_end = ota_adaptor_write_software_end},
+
+static ota_adaptor_device_s g_ota_storage_device = {.device = {.write_software = ota_pack_adaptor_write_software,
+                                                    .write_software_end = ota_adaptor_write_software_end,
+                                                    .active_software = ota_pack_active_software},
 
                                          .hardware = {.get_block_size = ota_pack_adator_get_block_size,
                                                       .read_software = ota_adaptor_read_software}};
 
 static ota_adaptor_device_s *ota_pack_get_adaptor_device()
 {
-    return &g_hal_storage_device;
+    return &g_ota_storage_device;
 }
 
 int ota_init_pack_adaptor(ota_opt_s *(*get_ota_opt)(void), fota_pack_device_info_s *device_info)
@@ -134,6 +146,7 @@ int ota_init_pack_adaptor(ota_opt_s *(*get_ota_opt)(void), fota_pack_device_info
         return FOTA_ERR;
     }
 
+    device->get_ota_opt = get_ota_opt;
     ota_opt = ota_pack_adaptor_get_ota_opt(device);
     memset(device_info, 0, sizeof(*device_info));
 

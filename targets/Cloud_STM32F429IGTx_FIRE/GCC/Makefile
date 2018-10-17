@@ -31,6 +31,14 @@ endif
 # bootloader
 #######################################
 USE_BOOTLOADER := no
+USE_OTA = no
+ifeq ($(USE_FOTA), yes)
+	USE_OTA = yes
+endif
+ifeq ($(USE_SOTA), yes)
+	USE_OTA = yes
+endif
+
 
 #######################################
 # binaries
@@ -124,7 +132,7 @@ LWIP_PORT_SRC = \
         C_SOURCES += $(LWIP_PORT_SRC)
 endif
 
-ifneq ($(USE_FOTA)_$(WITH_DTLS), no_no)
+ifneq ($(USE_OTA)_$(WITH_DTLS), no_no)
 MBEDTLS_SRC = \
         ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c}
         C_SOURCES += $(MBEDTLS_SRC)
@@ -208,12 +216,8 @@ USER_SRC =  \
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/sota/*.c} \
-        ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
-        ${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
+        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
         C_SOURCES += $(SOTA_SRC)
-		
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 endif
 
 ifeq ($(WITH_AT_FRAMEWORK), yes)
@@ -240,13 +244,13 @@ endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
 
-ifeq ($(USE_FOTA), yes)
-FOTA_SRC = \
+ifeq ($(USE_OTA), yes)
+OTA_SRC = \
 	${wildcard  $(TOP_DIR)/components/ota/fota/*.c} \
         ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
         ${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
-        C_SOURCES += $(FOTA_SRC)
-		
+        C_SOURCES += $(OTA_SRC)
+
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
 endif
@@ -449,8 +453,8 @@ endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries
-LIBS = -lc -lm -lnosys
-LIBDIR =
+LIBS = -lc -lm -lnosys -lhwpatch
+LIBDIR = -L$(PROJECTBASE)/../Lib
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all

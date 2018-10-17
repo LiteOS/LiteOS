@@ -34,6 +34,7 @@
 
 #include "fota_firmware_writer.h"
 #include "fota_package_head.h"
+#include "../components/ota/flag_operate/upgrade_flag.h"
 
 
 void fota_fmw_wr_init(fota_firmware_writer_s *writer)
@@ -120,11 +121,22 @@ static inline uint32_t fota_fmw_wr_get_offset_info(fota_firmware_writer_s *write
     return FOTA_OK;
 }
 
+static int fota_fmw_write_data(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buffer, uint32_t len)
+{
+
+    int ret = writer->storage_device->write_software(writer->storage_device,  offset, buffer, len);
+
+    if (0 == offset)
+    {
+        (void)flag_enable_hwpatch(buffer, len);
+    }
+    return ret;
+}
 int fota_fmw_wr_write_stored_data(fota_firmware_writer_s *writer)
 {
     int ret;
 
-    ret = writer->storage_device->write_software(writer->storage_device,  writer->offset, writer->buffer, writer->buffer_stored_len);
+    ret = fota_fmw_write_data(writer,  writer->offset, writer->buffer, writer->buffer_stored_len);
     if(ret != FOTA_OK)
     {
         FOTA_LOG("write_software err ret %d, offset %u, len %u", ret, writer->offset, writer->buffer_stored_len);
@@ -202,7 +214,7 @@ int fota_fmw_wr_write_buffer_data(fota_firmware_writer_s *writer, uint32_t offse
     {
         uint16_t write_len = block_end - offset;
 
-        ret = writer->storage_device->write_software(writer->storage_device, offset, buff, write_len);
+        ret = fota_fmw_write_data(writer, offset, buff, write_len);
         if(ret != FOTA_OK)
         {
             FOTA_LOG("write_software err ret %d, offset %u, len %u", ret, offset, block_end - offset);

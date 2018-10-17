@@ -44,7 +44,6 @@
 
 
 
-#define FLASH_BLOCK_SIZE 0x1000
 #define FLASH_BLOCK_MASK 0xfff
 #define HAL_FOTA_LOG(fmt, ...) \
 (void)printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t) atiny_gettime_ms(),  ##__VA_ARGS__)
@@ -57,12 +56,15 @@
 #define ERR -1
 
 
+#ifdef CONFIG_FEATURE_FOTA
 typedef struct
 {
     atiny_fota_storage_device_s device;
     fota_hardware_s hardware;
     uint32_t total_len;
 } ota_hal_s;
+
+#endif
 
 static int hal_fota_write_begin_not_aligned_buffer(uint32_t offset, const uint8_t *buffer, uint32_t len, uint32_t *used_len, uint8_t **block_buff)
 {
@@ -205,6 +207,7 @@ EXIT:
 }
 
 
+#ifdef CONFIG_FEATURE_FOTA
 static int hal_fota_write_software(atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
     if((offset + len) > OTA_IMAGE_DOWNLOAD_SIZE)
@@ -214,6 +217,18 @@ static int hal_fota_write_software(atiny_fota_storage_device_s *this, uint32_t o
     }
     return hal_fota_write_flash(OTA_IMAGE_DOWNLOAD_ADDR + offset, buffer, len);
 }
+
+static int hal_fota_read_software(struct fota_hardware_api_tag_s *this, uint32_t offset, uint8_t *buffer, uint32_t len)
+{
+    if((offset + len) > OTA_IMAGE_DOWNLOAD_SIZE)
+    {
+        HAL_FOTA_LOG("err offset %lu, len %lu", offset, len);
+        return ERR;
+    }
+
+    return hal_spi_flash_read(buffer, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+}
+
 
 static int  hal_fota_write_software_end(atiny_fota_storage_device_s *this, atiny_download_result_e result, uint32_t total_len)
 {
@@ -290,19 +305,6 @@ static uint32_t hal_fota_get_max_size(struct fota_hardware_api_tag_s *this)
     return OTA_IMAGE_DOWNLOAD_SIZE;
 }
 
-static int hal_fota_read_software(struct fota_hardware_api_tag_s *this, uint32_t offset, uint8_t *buffer, uint32_t len)
-{
-    if((offset + len) > OTA_IMAGE_DOWNLOAD_SIZE)
-    {
-        HAL_FOTA_LOG("err offset %lu, len %lu", offset, len);
-        return ERR;
-    }
-
-    return hal_spi_flash_read(buffer, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
-}
-
-
-
 ota_hal_s g_hal_storage_device = {{hal_fota_write_software, hal_fota_write_software_end, hal_fota_active_software,
                                    hal_fota_get_software_result, hal_fota_write_update_info, hal_fota_read_update_info},
                                   {hal_fota_get_block_size, hal_fota_get_max_size, hal_fota_read_software},
@@ -342,6 +344,7 @@ int hal_init_fota(void)
     int ret;
     flag_op_s flag_op;
 
+    hal_spi_flash_config();
     flag_op.func_flag_read = fota_flag_read;
     flag_op.func_flag_write = fota_flag_write;
     (void)flag_init(&flag_op);
@@ -354,5 +357,54 @@ int hal_init_fota(void)
     return ret;
 
 }
+#endif
+
+
+#ifdef WITH_SOTA
+void hal_init_ota(void)
+{
+    hal_spi_flash_config();
+}
+
+static const uint32_t g_flash_base_addrs[] = {OTA_IMAGE_DOWNLOAD_ADDR, OTA_IMAGE_DOWNLOAD_ADDR, UPDATE_INFO_ADDR};
+static const uint32_t g_flash_max_size[] = {OTA_IMAGE_DOWNLOAD_SIZE, OTA_IMAGE_DOWNLOAD_SIZE, UPDATE_INFO_SIZE};
+
+static int hal_check_flash_param(ota_flash_type_e type, int32_t len, uint32_t location)
+{
+    if (type > OTA_UPDATE_INFO)
+    {
+        HAL_FOTA_LOG("err type %d", type);
+        return ERR;
+    }
+
+    if((g_flash_base_addrs[type] + len) > g_flash_max_size[type])
+    {
+        HAL_FOTA_LOG("err offset %lu, len %lu", location, len);
+        return ERR;
+    }
+
+    return OK;
+}
+
+int hal_read_flash(ota_flash_type_e type, void *buf, int32_t len, uint32_t location)
+{
+    if (hal_check_flash_param(type, len, location) != OK)
+    {
+        return ERR;
+    }
+
+    return hal_spi_flash_read(buf, len, g_flash_base_addrs[type] + location);
+}
+
+int hal_write_flash(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location)
+{
+    if (hal_check_flash_param(type, len, location) != OK)
+    {
+        return ERR;
+    }
+
+    return hal_fota_write_flash(g_flash_base_addrs[type] + location, (const uint8_t *)buf, len);
+}
+#endif
 
 
