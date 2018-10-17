@@ -158,7 +158,7 @@ OS_DEPENDS_SRC = \
 SOCKET_ADAPTER_SRC = \
         ${wildcard $(TOP_DIR)/components/net/sal/*.c}
         C_SOURCES += $(SOCKET_ADAPTER_SRC)
-		
+
 NEWLIB_SRC = \
         ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
         C_SOURCES += $(NEWLIB_SRC)
@@ -175,19 +175,22 @@ AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
         C_SOURCES += $(AGENT_DEMO_SRC)
 
+ifeq ($(WITH_FILESYSTEM), yes)
 FS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/vfs/*.c}
         C_SOURCES += $(FS_SRC)
 
+FS_DEMO_SRC = \
+        ${wildcard $(TOP_DIR)/demos/fs/*.c}
+        C_SOURCES += $(FS_DEMO_SRC)
+
 FS_SPIFFS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/*.c}
-        C_SOURCES += $(FS_SPIFFS_SRC)
 
 FS_FATFS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
-        C_SOURCES += $(FS_FATFS_SRC)
 
 FS_JFFS2_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
@@ -195,12 +198,26 @@ FS_JFFS2_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
+
+ifeq ($(FILESYSTEM_TYPE), SPIFFS)
+        C_SOURCES += $(FS_SPIFFS_SRC)
+else ifeq ($(FILESYSTEM_TYPE), FATFS)
+        C_SOURCES += $(FS_FATFS_SRC)
+else ifeq ($(FILESYSTEM_TYPE), JFFS2)
         C_SOURCES += $(FS_JFFS2_SRC)
+else ifeq ($(FILESYSTEM_TYPE), ALL)
+        C_SOURCES += $(FS_SPIFFS_SRC)
+        C_SOURCES += $(FS_FATFS_SRC)
+        C_SOURCES += $(FS_JFFS2_SRC)
+endif
+endif
 
-FS_DEMO_SRC = \
-        ${wildcard $(TOP_DIR)/demos/fs/*.c}
-        C_SOURCES += $(FS_DEMO_SRC)
-
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+CMOCKERY_TEST_SRC = \
+        ${wildcard $(TOP_DIR)/tests/cmockery/src/cmockery.c} \
+        ${wildcard $(TOP_DIR)/tests/test_suit/*.c}
+        C_SOURCES += $(CMOCKERY_TEST_SRC)
+endif
 
 USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/main.c \
@@ -393,7 +410,7 @@ ER_COAP_INC = \
 
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
-	-I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
+        -I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
 DEMO_INC = \
@@ -405,25 +422,43 @@ OTA_INC = \
         -I $(TOP_DIR)/components/ota/utility
         C_INCLUDES += $(OTA_INC)
 
+ifeq ($(WITH_FILESYSTEM), yes)
 FS_SPIFFS_INC = \
-	-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
-	-I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
-	C_INCLUDES += $(FS_SPIFFS_INC)
+        -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
+        -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
 
 FS_FATFS_INC = \
-	-I $(TOP_DIR)/components/fs/fatfs/ff13b/source
-	C_INCLUDES += $(FS_FATFS_INC)
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source
 
 FS_JFFS2_INC = \
-	-I $(TOP_DIR)/components/fs/jffs2 \
-	-I $(TOP_DIR)/components/fs/jffs2/src \
-	-I $(TOP_DIR)/components/fs/jffs2/port
-	C_INCLUDES += $(FS_JFFS2_INC)
+        -I $(TOP_DIR)/components/fs/jffs2 \
+        -I $(TOP_DIR)/components/fs/jffs2/src \
+        -I $(TOP_DIR)/components/fs/jffs2/port
+
+ifeq ($(FILESYSTEM_TYPE), SPIFFS)
+        C_INCLUDES += $(FS_SPIFFS_INC)
+else ifeq ($(FILESYSTEM_TYPE), FATFS)
+        C_INCLUDES += $(FS_FATFS_INC)
+else ifeq ($(FILESYSTEM_TYPE), JFFS2)
+        C_INCLUDES += $(FS_JFFS2_INC)
+else ifeq ($(FILESYSTEM_TYPE), ALL)
+        C_INCLUDES += $(FS_SPIFFS_INC)
+        C_INCLUDES += $(FS_FATFS_INC)
+        C_INCLUDES += $(FS_JFFS2_INC)
+endif
+endif
+
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+CMOCKERY_TEST_INC = \
+        -I $(TOP_DIR)/tests/cmockery/src/google \
+        -I $(TOP_DIR)/tests/test_suit
+        C_INCLUDES += $(CMOCKERY_TEST_INC)
+endif
 
 USER_INC = \
-	-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
-	-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
-	C_INCLUDES += $(USER_INC)
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
+        C_INCLUDES += $(USER_INC)
 
 
 
@@ -438,7 +473,7 @@ endif
 
 
 # Generate dependency information
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 
 
 #######################################
@@ -503,6 +538,7 @@ clean:
 #######################################
 # dependencies
 #######################################
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+#-include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+-include $(wildcard $(BUILD_DIR)/*.d)
 
 # *** EOF ***

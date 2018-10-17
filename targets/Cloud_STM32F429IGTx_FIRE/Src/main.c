@@ -207,8 +207,11 @@ void demo_agenttiny_with_wifi(void)
 }
 
 
+//extern int fs_test_main(void);
+
 VOID main_task(VOID)
 {
+    //fs_test_main();
     fs_demo();
     demo_without_agenttiny_nbiot();
 }

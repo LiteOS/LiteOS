@@ -44,11 +44,11 @@
 #include "fs/los_vfs.h"
 
 /* Defines ------------------------------------------------------------------*/
-#define TEST_FS_SPIFFS      0
-#define TEST_FS_FATFS       1
-#define TEST_FS_JFFS2       2
+#define DEMO_FS_SPIFFS      0
+#define DEMO_FS_FATFS       1
+#define DEMO_FS_JFFS2       2
 
-#define USE_TEST_TYPE       TEST_FS_JFFS2
+#define USE_DEMO_TYPE       DEMO_FS_JFFS2
 
 #define SPIFFS_PATH         "/spiffs"
 #define FATFS_PATH          "/fatfs"
@@ -75,10 +75,6 @@ char file_name[100] = {0};
 char dir_name[100] = {0};
 
 /* Extern variables ---------------------------------------------------------*/
-extern int stm32f4xx_spiffs_init (int need_erase);
-extern int stm32f4xx_fatfs_init(int need_erase);
-extern int stm32f4xx_jffs2_init(int need_erase);
-
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
 /* Public functions ---------------------------------------------------------*/
@@ -422,7 +418,9 @@ void los_jffs2_test(void)
         FS_PRINTF("los_unlink failed: %d", ret);
 }
 
-#if (USE_TEST_TYPE == TEST_FS_SPIFFS)
+#if (USE_DEMO_TYPE == DEMO_FS_SPIFFS)
+extern int stm32f4xx_spiffs_init (int need_erase);
+
 void spiffs_demo(void)
 {
     int ret = 0;
@@ -440,7 +438,9 @@ void spiffs_demo(void)
 }
 #endif
 
-#if (USE_TEST_TYPE == TEST_FS_FATFS)
+#if (USE_DEMO_TYPE == DEMO_FS_FATFS)
+extern int stm32f4xx_fatfs_init(int need_erase);
+
 void fatfs_demo(void)
 {
     int8_t drive;
@@ -458,7 +458,9 @@ void fatfs_demo(void)
 }
 #endif
 
-#if (USE_TEST_TYPE == TEST_FS_JFFS2)
+#if (USE_DEMO_TYPE == DEMO_FS_JFFS2)
+extern int stm32f4xx_jffs2_init(int need_erase);
+
 void jffs2_demo(void)
 {
     int ret = stm32f4xx_jffs2_init(1);
@@ -478,11 +480,11 @@ void fs_demo(void)
 {
     printf("Huawei LiteOS File System Demo.\n");
 
-#if (USE_TEST_TYPE == TEST_FS_SPIFFS)
+#if (USE_DEMO_TYPE == DEMO_FS_SPIFFS)
     spiffs_demo();
-#elif (USE_TEST_TYPE == TEST_FS_FATFS)
+#elif (USE_DEMO_TYPE == DEMO_FS_FATFS)
     fatfs_demo();
-#elif (USE_TEST_TYPE == TEST_FS_JFFS2)
+#elif (USE_DEMO_TYPE == DEMO_FS_JFFS2)
     jffs2_demo();
 #endif
 }

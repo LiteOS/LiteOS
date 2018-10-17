@@ -33,8 +33,8 @@
 #include "lwip/timeouts.h"
 #include "ethernetif.h"
 
-#include "net.h"
-#include "ssl.h"
+#include "mbedtls/net.h"
+#include "mbedtls/ssl.h"
 #include "eth.h"
 
 
