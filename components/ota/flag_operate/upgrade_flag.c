@@ -34,8 +34,8 @@
 
 #include <stddef.h>
 #include "flag_operate/upgrade_flag.h"
-#include "flag_manager.h"
-#include "ota_crc.h"
+#include "flag_operate/flag_manager.h"
+#include "utility/ota_crc.h"
 
 typedef struct
 {

@@ -34,7 +34,7 @@
 
 #include "fota_port.h"
 #include "hal_spi_flash.h"
-#include "flag_manager.h"
+#include "flag_operate/flag_manager.h"
 #include "flag_operate/upgrade_flag.h"
 #include <string.h>
 #include <stdlib.h>
