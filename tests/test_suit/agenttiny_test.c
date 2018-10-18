@@ -16,8 +16,9 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
-#include <cmockery.h>
-#include "agenttiny.h"
+#include "cmockery.h"
+#include "atiny_lwm2m/agenttiny.h"
+#include "osdepends/liteos/cmsis_os2.h"
 #include "regresstest.h"
 
 
@@ -26,11 +27,11 @@
 #include "fota_port.h"
 #endif
 
-#define DEFAULT_SERVER_IPV4 "192.168.1.102" 
+#define DEFAULT_SERVER_IPV4 "192.168.1.102"
 
 #define LWM2M_LIFE_TIME     50000
 
-static char * g_endpoint_name = "44440003";
+//static char * g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
 
 static char* g_endpoint_name_s = "18602560533";
@@ -46,7 +47,7 @@ static atiny_param_t g_atiny_params;
 
 static uint32_t g_TskHandle;
 
-extern void agent_tiny_entry(void);
+extern UINT32 creat_report_task();
 
 void test_init_task(UINT32 uwArg){
 
@@ -56,9 +57,9 @@ void test_init_task(UINT32 uwArg){
     atiny_security_param_t  *bs_security_param = NULL;
 
     atiny_device_info_t *device_info = &g_device_info;
-    
+
     printf("now call test_init_task!!!\n");
-    
+
 #ifdef CONFIG_FEATURE_FOTA
     extern void agent_tiny_fota_init(void);
     agent_tiny_fota_init();
@@ -126,8 +127,6 @@ void test_init_task(UINT32 uwArg){
     }
     printf("now call atiny_bind!!!\n");
     (void)atiny_bind(device_info, g_phandle);
-
-
 }
 
 
@@ -135,7 +134,7 @@ UINT32 creat_init_task()
 {
     uint32_t uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
-    
+
     memset(&task_init_param,0,sizeof(TSK_INIT_PARAM_S));
     task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "test_deinit_task";
@@ -147,14 +146,13 @@ UINT32 creat_init_task()
     task_init_param.uwStackSize = 0x1000;
 #endif
 
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    uwRet = LOS_TaskCreate((UINT32 *)&g_TskHandle, &task_init_param);
     if(LOS_OK != uwRet)
     {
         return uwRet;
     }
     return uwRet;
 }
-
 
 
 void *test_deinit_task(UINT32 uwArg)
@@ -169,7 +167,7 @@ UINT32 creat_deinit_task()
 {
     uint32_t uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
-    
+
     memset(&task_init_param,0,sizeof(TSK_INIT_PARAM_S));
     task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "test_deinit_task";
@@ -181,14 +179,13 @@ UINT32 creat_deinit_task()
     task_init_param.uwStackSize = 0x1000;
 #endif
 
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    uwRet = LOS_TaskCreate((UINT32 *)&g_TskHandle, &task_init_param);
     if(LOS_OK != uwRet)
     {
         return uwRet;
     }
     return uwRet;
 }
-
 
 
 // Test case that fails as leak_memory() leaks a dynamically allocated block.
@@ -200,7 +197,7 @@ void agenttiny_init_test(void **state) {
 
 void agenttiny_deinit_test(void **state){
     creat_deinit_task();
-    
+
 }
 
 
@@ -209,6 +206,6 @@ int agenttiny_test_main(void) {
         unit_test(agenttiny_init_test),
         unit_test(agenttiny_deinit_test),
     };
-    
+
     return run_tests(tests);
 }
