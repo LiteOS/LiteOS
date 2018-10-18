@@ -62,11 +62,11 @@ ATINY_DEBUG := yes
 #######################################
 WITH_FILESYSTEM := yes
 ifeq ($(WITH_FILESYSTEM), yes)
-#SPIFFS   #FATFS   #JFFS2   #ALL
-	FILESYSTEM_TYPE := ALL
+#SPIFFS   #FATFS   #JFFS2
+	FILESYSTEM_TYPE := FATFS
 endif
 
 #######################################
 # CMockery Test
 #######################################
-WITH_CMOCKERY_TEST := yes
+WITH_CMOCKERY_TEST := no

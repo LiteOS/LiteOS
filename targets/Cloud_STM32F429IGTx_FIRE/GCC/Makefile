@@ -185,37 +185,42 @@ FS_DEMO_SRC = \
         C_SOURCES += $(FS_DEMO_SRC)
 
 FS_SPIFFS_SRC = \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/*.c}
 
 FS_FATFS_SRC = \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_stm32f4xx.c \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
 
 FS_JFFS2_SRC = \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_stm32f4xx.c \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/src/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
 
-ifeq ($(FILESYSTEM_TYPE), SPIFFS)
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+CMOCKERY_TEST_FS_SRC = \
+        ${wildcard $(TOP_DIR)/tests/test_suit/fs_test.c}
+        C_SOURCES += $(CMOCKERY_TEST_FS_SRC)
+        C_SOURCES += $(FS_SPIFFS_SRC)
+        C_SOURCES += $(FS_FATFS_SRC)
+        C_SOURCES += $(FS_JFFS2_SRC)
+else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
         C_SOURCES += $(FS_SPIFFS_SRC)
 else ifeq ($(FILESYSTEM_TYPE), FATFS)
         C_SOURCES += $(FS_FATFS_SRC)
 else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_SOURCES += $(FS_JFFS2_SRC)
-else ifeq ($(FILESYSTEM_TYPE), ALL)
-        C_SOURCES += $(FS_SPIFFS_SRC)
-        C_SOURCES += $(FS_FATFS_SRC)
         C_SOURCES += $(FS_JFFS2_SRC)
 endif
 endif
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_SRC = \
-        ${wildcard $(TOP_DIR)/tests/cmockery/src/cmockery.c} \
-        ${wildcard $(TOP_DIR)/tests/test_suit/*.c}
+        ${wildcard $(TOP_DIR)/tests/cmockery/src/cmockery.c}
         C_SOURCES += $(CMOCKERY_TEST_SRC)
 endif
 
@@ -225,10 +230,7 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/dwt.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_stm32f4xx.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_stm32f4xx.c
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
 ifeq ($(USE_SOTA), yes)
@@ -354,7 +356,9 @@ ifeq ($(ATINY_DEBUG), yes)
 		C_DEFS += -DATINY_DEBUG
 endif
 
-
+ifeq ($(WITH_FILESYSTEM), yes)
+		C_DEFS += -DFS_$(FILESYSTEM_TYPE)
+endif
 
 
 # AS includes
@@ -435,23 +439,22 @@ FS_JFFS2_INC = \
         -I $(TOP_DIR)/components/fs/jffs2/src \
         -I $(TOP_DIR)/components/fs/jffs2/port
 
-ifeq ($(FILESYSTEM_TYPE), SPIFFS)
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+        C_INCLUDES += $(FS_SPIFFS_INC)
+        C_INCLUDES += $(FS_FATFS_INC)
+        C_INCLUDES += $(FS_JFFS2_INC)
+else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
         C_INCLUDES += $(FS_SPIFFS_INC)
 else ifeq ($(FILESYSTEM_TYPE), FATFS)
         C_INCLUDES += $(FS_FATFS_INC)
 else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_INCLUDES += $(FS_JFFS2_INC)
-else ifeq ($(FILESYSTEM_TYPE), ALL)
-        C_INCLUDES += $(FS_SPIFFS_INC)
-        C_INCLUDES += $(FS_FATFS_INC)
         C_INCLUDES += $(FS_JFFS2_INC)
 endif
 endif
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_INC = \
-        -I $(TOP_DIR)/tests/cmockery/src/google \
-        -I $(TOP_DIR)/tests/test_suit
+        -I $(TOP_DIR)/tests/cmockery/src/google
         C_INCLUDES += $(CMOCKERY_TEST_INC)
 endif
 
