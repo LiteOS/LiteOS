@@ -64,5 +64,6 @@
 #define ERR_PATCH_RECOVER_VERIFY    -0x20A
 #define ERR_PATCH_LAST_RECOVER      -0x20B
 #define ERR_PATCH_FLAG_INIT         -0x20C
+#define ERR_PATCH_WRONG_FLAG        -0x20D
 
 #endif /* HWPATCH_ERRNO_H */

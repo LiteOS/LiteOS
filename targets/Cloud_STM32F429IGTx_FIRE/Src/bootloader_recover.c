@@ -200,7 +200,6 @@ int main(void)
     uint32_t newbin_size = 0;
     uint32_t oldbin_size = 0;
 
-    HAL_Init();
     SystemClock_Config();
     Debug_USART1_UART_Init();
     hal_spi_flash_config();
