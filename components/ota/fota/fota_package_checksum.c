@@ -32,14 +32,14 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_package_checksum.h"
+#include "fota/fota_package_checksum.h"
 #include <string.h>
-#include "fota_package_head.h"
+#include "fota/fota_package_head.h"
 
 #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
-#include "fota_package_sha256_rsa2048.h"
+#include "opt/fota_package_sha256_rsa2048.h"
 #elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
-#include "fota_package_sha256.h"
+#include "opt/fota_package_sha256.h"
 #else
 #error FOTA_PACK_CHECKSUM not define
 #endif
@@ -236,10 +236,10 @@ int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_
 }
 #define INCLUDE_FOTA_PACK_OPTION_FILE
 #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
-#include "fota_package_sha256.c"
-#include "fota_package_sha256_rsa2048.c"
+#include "opt/fota_package_sha256.c"
+#include "opt/fota_package_sha256_rsa2048.c"
 #elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
-#include "fota_package_sha256.c"
+#include "opt/fota_package_sha256.c"
 #endif
 
 

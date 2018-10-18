@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_package_head.h"
+#include "fota/fota_package_head.h"
 #include "fota_firmware_writer.h"
 #include "stddef.h"
 

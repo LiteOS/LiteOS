@@ -43,7 +43,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "osdepends/atiny_osdep.h"
-#include "fota_package_checksum.h"
+#include "fota/fota_package_checksum.h"
 
 #define FOTA_LOG(fmt, ...) \
 (void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)

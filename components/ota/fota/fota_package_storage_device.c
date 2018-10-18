@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "fota/fota_package_storage_device.h"
-#include "fota_package_head.h"
+#include "fota/fota_package_head.h"
 #include "fota_firmware_writer.h"
 #include "dtls_interface.h"
 #include "ota_pack_adaptor.h"
