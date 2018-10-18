@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <stddef.h>
-#include "upgrade_flag.h"
+#include "flag_operate/upgrade_flag.h"
 #include "flag_manager.h"
 #include "ota_crc.h"
 

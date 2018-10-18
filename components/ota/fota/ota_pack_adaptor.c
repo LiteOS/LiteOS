@@ -34,9 +34,9 @@
 
 #ifdef WITH_SOTA
 #include "ota_pack_adaptor.h"
-#include "fota_package_head.h"
+#include "fota/fota_package_head.h"
 #include "stddef.h"
-#include "../components/ota/flag_operate/upgrade_flag.h"
+#include "flag_operate/upgrade_flag.h"
 
 
 
