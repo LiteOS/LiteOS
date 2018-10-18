@@ -40,7 +40,7 @@
 #define _FOTA_PACKAGE_SHA256_RSA2048_H_
 
 #include "fota_package_sha256.h"
-#include "fota_package_head.h"
+#include "fota/fota_package_head.h"
 
 typedef struct
 {
