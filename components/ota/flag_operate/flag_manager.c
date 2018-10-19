@@ -34,7 +34,7 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "flag_operate/flag_manager.h"
+#include "flag_manager.h"
 
 static flag_op_s g_flag_op;
 

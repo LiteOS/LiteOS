@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include "utility/ota_crc.h"
+#include "ota_crc.h"
 
 static const uint32_t crc_table[256] =
 {
