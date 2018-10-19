@@ -67,7 +67,6 @@ extern "C" {
 
 fota_pack_checksum_s * fota_pack_checksum_create(struct fota_pack_head_tag_s *head);
 void fota_pack_checksum_delete(fota_pack_checksum_s * thi);
-int fota_pack_checksum_update_head(fota_pack_checksum_s *thi, struct fota_pack_head_tag_s *head);
 int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware);
 int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
 

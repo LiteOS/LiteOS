@@ -160,14 +160,17 @@ static int fota_pack_storage_write_software(atiny_fota_storage_device_s *this,
         return ret;
     }
 
-    ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
-                                         buffer, len, device->hardware);
-    if(ret != FOTA_OK)
+    if (fota_pack_head_get_checksum(&device->head))
     {
-        FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
+        ret = fota_pack_checksum_update_data(fota_pack_head_get_checksum(&device->head), offset,
+                                             buffer, len, device->hardware);
+        if(ret != FOTA_OK)
+        {
+            FOTA_LOG("fota_pack_checksum_update_data fail %d", ret);
+        }
     }
 
-    return ret;
+    return FOTA_OK;
 
 }
 

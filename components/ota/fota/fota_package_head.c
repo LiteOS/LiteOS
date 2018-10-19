@@ -208,7 +208,7 @@ static int ota_pack_head_handle_bin_type_tlv(fota_pack_head_s *head, uint8_t *va
     if (head->set_flash_type)
     {
         uint32_t flash_type =  GET_DWORD(value, 0);
-        if (flash_type > OTA_UPDATE_INFO)
+        if (flash_type >= OTA_UPDATE_INFO)
         {
             FOTA_LOG("flash_type %d invalid", flash_type);
             return FOTA_ERR;
@@ -260,13 +260,16 @@ static int fota_pack_head_parse_tlvs(fota_pack_head_s *head, uint8_t *buff, uint
         left_len -= (FOTA_PACK_TLV_T_LEN  + FOTA_PACK_TLV_L_LEN + tlv_len);
     }
 
-#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
     if(NULL == head->checksum_pos)
     {
         FOTA_LOG("head empty checksum info");
+#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
         return FOTA_ERR;
-    }
+#else
+        return FOTA_OK;
 #endif
+    }
+
 
     if(head->checksum)
     {
@@ -386,7 +389,11 @@ int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len)
         return FOTA_OK;
     }
 
-    return fota_pack_checksum_check(head->checksum, head->checksum_pos, head->checksum_len);
+    if (head->checksum)
+    {
+        return fota_pack_checksum_check(head->checksum, head->checksum_pos, head->checksum_len);
+    }
+    return FOTA_OK;
 }
 
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head)
