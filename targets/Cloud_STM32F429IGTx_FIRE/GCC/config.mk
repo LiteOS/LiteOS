@@ -57,4 +57,16 @@ LWM2M_WITH_LOGS := yes
 #######################################
 ATINY_DEBUG := yes
 
+#######################################
+# File System
+#######################################
+WITH_FILESYSTEM := yes
+ifeq ($(WITH_FILESYSTEM), yes)
+#SPIFFS   #FATFS   #JFFS2
+	FILESYSTEM_TYPE := FATFS
+endif
 
+#######################################
+# CMockery Test
+#######################################
+WITH_CMOCKERY_TEST := no

@@ -31,7 +31,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif // _WIN32
-#include <cmockery.h>
+#include "cmockery.h"
 
 #ifdef _WIN32
 #define vsnprintf _vsnprintf
@@ -221,7 +221,7 @@ static const int exception_signals[] = {
     SIGFPE,
     SIGILL,
     SIGSEGV,
-#ifdef _LINUX	
+#ifdef _LINUX
     SIGBUS,
     SIGSYS,
 #endif
@@ -275,10 +275,10 @@ static void exit_test(const int quit_application) {
     if (global_running_test) {
         longjmp(global_run_test_env, 1);
     } else if (quit_application) {
-#ifdef _LINUX    
+#ifdef _LINUX
         exit(-1);
 #else
-        return;  
+        return;
 #endif
     }
 }
@@ -1579,7 +1579,7 @@ int _run_test(
         heap_check_point : check_point_allocated_blocks();
     void *current_state = NULL;
     int rc = 1;
-    int handle_exceptions = 1;
+    int handle_exceptions = 0;
 #ifdef _WIN32
     handle_exceptions = !IsDebuggerPresent();
 #endif // _WIN32

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,74 +32,34 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <stddef.h>
-#include <string.h>
-#include "flag_operate/flag_manager.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-static flag_op_s g_flag_op;
+#ifndef _FOTA_PACKAGE_SHA256_RSA2048_H_
+#define _FOTA_PACKAGE_SHA256_RSA2048_H_
 
-#define FLASH_UNIT_SIZE (256)
-#define FLASH_FLAG_SIZE (512)
+#include "fota_package_sha256.h"
+#include "fota/fota_package_head.h"
 
-int flag_init(flag_op_s *flag)
+typedef struct
 {
-    if (NULL == flag
-        || NULL == flag->func_flag_read
-        || NULL == flag->func_flag_write)
-    return -1;
+    fota_pack_sha256_s sha256;
+    fota_pack_head_s *head;
+}fota_pack_sha256_rsa2048_s;
 
-    g_flag_op.func_flag_read = flag->func_flag_read;
-    g_flag_op.func_flag_write = flag->func_flag_write;
 
-    return 0;
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_head_s *head);
+
+
+#if defined(__cplusplus)
 }
+#endif
 
-int flag_read(flag_type_e flag_type, void *buf, int32_t len)
-{
-    uint8_t flag_buf[FLASH_FLAG_SIZE];
+#endif //_FOTA_PACKAGE_SHA256_RSA2048_H_
 
-    if (NULL == buf
-        || len < 0
-        || len > FLASH_UNIT_SIZE
-        || g_flag_op.func_flag_read(flag_buf, FLASH_FLAG_SIZE) != 0)
-        return -1;
 
-    switch (flag_type)
-    {
-    case FLAG_BOOTLOADER:
-        memcpy(buf, flag_buf, len);
-        break;
-    case FLAG_APP:
-        memcpy(buf, flag_buf + FLASH_UNIT_SIZE, len);
-        break;
-    default:
-        break;
-    }
-
-    return 0;
-}
-
-int flag_write(flag_type_e flag_type, const void *buf, int32_t len)
-{
-    uint8_t flag_buf[FLASH_FLAG_SIZE];
-
-    if (NULL == buf
-        || len < 0
-        || len > FLASH_UNIT_SIZE
-        || g_flag_op.func_flag_read(flag_buf, FLASH_FLAG_SIZE) != 0)
-        return -1;
-
-    switch (flag_type)
-    {
-    case FLAG_BOOTLOADER:
-        memcpy(flag_buf, buf, len);
-        break;
-    case FLAG_APP:
-        memcpy(flag_buf + FLASH_UNIT_SIZE, buf, len);
-        break;
-    default:
-        break;
-    }
-
-    return g_flag_op.func_flag_write(flag_buf, FLASH_FLAG_SIZE);
-}

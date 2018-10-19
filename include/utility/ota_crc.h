@@ -31,58 +31,20 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifdef INCLUDE_FOTA_PACK_OPTION_FILE
-#include "fota_package_sha256.h"
-#include <string.h>
-#include "fota_package_head.h"/*lint !e451*/
 
-static void fota_pack_sha256_reset(fota_pack_checksum_alg_s *thi)
-{
-    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
-    mbedtls_sha256_init(&sha256->sha256_context);
-    mbedtls_sha256_starts(&sha256->sha256_context, false);
-}
-static int fota_pack_sha256_update(fota_pack_checksum_alg_s *thi, const uint8_t *buff, uint16_t len)
-{
-    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
-    mbedtls_sha256_update(&sha256->sha256_context, buff, len);
-    return FOTA_OK;
-}
-static int fota_pack_sha256_check(fota_pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
-{
-    uint8_t real_value[32];
-    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
+#ifndef CRC_H
+#define CRC_H
 
-    ASSERT_THIS(return FOTA_ERR);
+#include <stdint.h>
 
-    if(sizeof(real_value) != checksum_len)
-    {
-        FOTA_LOG("len %d not the same", checksum_len);
-        return FOTA_ERR;
-    }
-    mbedtls_sha256_finish(&sha256->sha256_context, real_value);
-    if(memcmp(real_value, checksum, checksum_len) != 0)
-    {
-        FOTA_LOG("checksum err");
-        return FOTA_ERR;
-    }
-    return FOTA_OK;
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-static void fota_pack_sha256_destroy(struct fota_pack_checksum_alg_tag_s *thi)
-{
-    fota_pack_sha256_s *sha256 = (fota_pack_sha256_s *)thi;
-    mbedtls_sha256_free(&sha256->sha256_context);
-}
+uint32_t calc_crc32(uint32_t origin, const void *buf, int32_t len);
 
-int fota_pack_sha256_init(fota_pack_sha256_s *thi)
-{
-    thi->base.reset = fota_pack_sha256_reset;
-    thi->base.update = fota_pack_sha256_update;
-    thi->base.check = fota_pack_sha256_check;
-    thi->base.destroy = fota_pack_sha256_destroy;
-    fota_pack_sha256_reset(&thi->base);
-    return FOTA_OK;
+#ifdef __cplusplus
 }
 #endif
 
+#endif /* CRC_H */

@@ -33,8 +33,8 @@
  *---------------------------------------------------------------------------*/
 
 #include "fota_firmware_writer.h"
-#include "fota_package_head.h"
-#include "../components/ota/flag_operate/upgrade_flag.h"
+#include "fota/fota_package_head.h"
+#include "flag_operate/upgrade_flag.h"
 
 
 void fota_fmw_wr_init(fota_firmware_writer_s *writer)

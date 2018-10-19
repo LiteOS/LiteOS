@@ -16,23 +16,20 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
-#include <cmockery.h>
-#include "regresstest.h"
+#include "cmockery.h"
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#include <sys/fcntl.h>
+#include "fs/sys/fcntl.h"
 #include <los_printf.h>
 #endif
 
-#include "los_vfs.h"
+#include "fs/los_vfs.h"
 
 
 /* Defines ------------------------------------------------------------------*/
 #define TEST_FS_SPIFFS      0
 #define TEST_FS_FATFS       1
 #define TEST_FS_JFFS2       2
-
-#define USE_TEST_TYPE       TEST_FS_JFFS2
 
 #define SPIFFS_PATH         "/spiffs"
 #define FATFS_PATH          "/fatfs"
@@ -143,7 +140,6 @@ static void test_file_open_normal(void **state)
 static void test_file_open_exception(void **state)
 {
     int fd;
-    int ret;
 
     (void)los_unlink(file_name);
 
@@ -187,7 +183,6 @@ static void test_file_read_exception(void **state)
 {
     int fd;
     int ret;
-    size_t wrlen = sizeof(write_buf);
 
     fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     assert_in_range(fd, 0, LOS_MAX_FILES);
@@ -331,7 +326,6 @@ static void test_file_sync_exception(void **state)
 {
     int fd;
     int ret;
-    size_t wrlen = sizeof(write_buf);
 
     fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     assert_in_range(fd, 0, LOS_MAX_FILES);
@@ -511,7 +505,6 @@ static void test_dir_make_exception(void **state)
 
 static void test_dir_open_normal(void **state)
 {
-    int fd;
     int ret;
 
     if (fs_type != TEST_FS_SPIFFS)
@@ -625,7 +618,6 @@ static void test_dir_read_exception(void **state)
 
 static void test_dir_close_normal(void **state)
 {
-    int fd;
     int ret;
 
     if (fs_type != TEST_FS_SPIFFS)

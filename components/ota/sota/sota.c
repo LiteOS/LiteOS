@@ -70,7 +70,7 @@ unsigned int flash_block_size;
 
 void sota_deinit(void)
 {
-    if(at_fota_timer!=-1)
+    if(at_fota_timer!=(uint16_t)-1)
         (void)LOS_SwtmrDelete(at_fota_timer);
     if(rabuf != NULL)
         at_free(rabuf);
@@ -101,7 +101,7 @@ int sota_flash_write(const void* buffer, int32_t len, uint32_t offset)
         if(ret)
             AT_LOG("flash write err ex1000:%d", ret);
         memset(flashbuf, 0, flash_block_size);
-        memcpy(flashbuf, buffer + flash_block_size - (offset - writed_len), len + (offset - writed_len) - flash_block_size);
+        memcpy(flashbuf, (unsigned char *)buffer + flash_block_size - (offset - writed_len), len + (offset - writed_len) - flash_block_size);
         ret = g_flash_op.write_block_flash(flashbuf, flash_block_size, image_download_addr + writed_len + flash_block_size);
         if(ret)
             AT_LOG("flash write err ex2:%d", ret);
