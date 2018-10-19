@@ -40,6 +40,7 @@
 #include "los_queue.h"
 #include "los_config.h"
 #include "los_memcheck.h"
+#include "los_hw.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -53,15 +54,6 @@ extern "C" {
 
 #define OS_EXC_MAX_BUF_LEN                  25
 #define OS_EXC_MAX_NEST_DEPTH               1
-
-#define OS_NVIC_SHCSR                       0xE000ED24
-#define OS_NVIC_CCR                         0xE000ED14
-
-#define OS_NVIC_INT_ENABLE_SIZE             0x20
-#define OS_NVIC_INT_PRI_SIZE                0xF0
-
-#define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
-#define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
 
 #define OS_EXC_FLAG_NO_FLOAT                0x10000000
 #define OS_EXC_FLAG_FAULTADDR_VALID         0x01
@@ -79,9 +71,7 @@ extern "C" {
  */
 typedef struct tagExcContext
 {
-    //handler save
-#if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
+#if FPU_EXIST
     UINT32 S16;
     UINT32 S17;
     UINT32 S18;
@@ -108,7 +98,6 @@ typedef struct tagExcContext
     UINT32 uwR10;
     UINT32 uwR11;
     UINT32 uwPriMask;
-    //auto save
     UINT32 uwSP;
     UINT32 uwR0;
     UINT32 uwR1;
@@ -118,8 +107,7 @@ typedef struct tagExcContext
     UINT32 uwLR;
     UINT32 uwPC;
     UINT32 uwxPSR;
-#if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
+#if FPU_EXIST
     UINT32 S0;
     UINT32 S1;
     UINT32 S2;
@@ -165,12 +153,12 @@ VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UINT32 uwPid, EXC_CO
  */
 VOID osExcInit(UINT32 uwArraySize);
 
-extern VOID osExcNMI(VOID);
-extern VOID osExcHardFault(VOID);
-extern VOID osExcMemFault(VOID);
-extern VOID osExcBusFault(VOID);
-extern VOID osExcUsageFault(VOID);
-extern VOID osExcSvcCall(VOID);
+extern VOID NMI_Handler(VOID);
+extern VOID HardFault_Handler(VOID);
+extern VOID MemManage_Handler(VOID);
+extern VOID BusFault_Handler(VOID);
+extern VOID UsageFault_Handler(VOID);
+extern VOID SVC_Handler(VOID);
 extern VOID osBackTrace(VOID);
 extern UINT8 m_aucTaskArray[];
 
@@ -195,155 +183,190 @@ void LOS_Panic(const char * fmt, ...);
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器入栈时发生错误
+ *Cortex-M异常具体类型:总线状态寄存器入栈时发生错误
  */
 #define OS_EXC_BF_STKERR           1
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器出栈时发生错误
+ *Cortex-M异常具体类型:总线状态寄存器出栈时发生错误
  */
 #define OS_EXC_BF_UNSTKERR         2
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器不精确的数据访问违例
+ *Cortex-M异常具体类型:总线状态寄存器不精确的数据访问违例
  */
 #define OS_EXC_BF_IMPRECISERR      3
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器精确的数据访问违例
+ *Cortex-M异常具体类型:总线状态寄存器精确的数据访问违例
  */
 #define OS_EXC_BF_PRECISERR        4
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器取指时的访问违例
+ *Cortex-M异常具体类型:总线状态寄存器取指时的访问违例
  */
 #define OS_EXC_BF_IBUSERR          5
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器入栈时发生错误
+ *Cortex-M异常具体类型:总线错误，浮点惰性压栈错误，具有浮点单元的cortex-m4及cortex-m7中存在
  */
-#define OS_EXC_MF_MSTKERR          6
+#define OS_EXC_BF_LSPERR           6
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器出栈时发生错误
+ *Cortex-M异常具体类型:存储器管理状态寄存器入栈时发生错误
  */
-#define OS_EXC_MF_MUNSTKERR        7
+#define OS_EXC_MF_MSTKERR          7
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器数据访问违例
+ *Cortex-M异常具体类型:存储器管理状态寄存器出栈时发生错误
  */
-#define OS_EXC_MF_DACCVIOL         8
+#define OS_EXC_MF_MUNSTKERR        8
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器取指访问违例
+ *Cortex-M异常具体类型:存储器管理状态寄存器数据访问违例
  */
-#define OS_EXC_MF_IACCVIOL         9
-
+#define OS_EXC_MF_DACCVIOL         9
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，表示除法运算时除数为零
+ *Cortex-M异常具体类型:存储器管理状态寄存器取指访问违例
  */
-#define OS_EXC_UF_DIVBYZERO        10
+#define OS_EXC_MF_IACCVIOL         10
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，未对齐访问导致的错误
+ *Cortex-M异常具体类型:存储器管理错误，浮点惰性压栈错误，具有浮点单元的cortex-m4及cortex-m7中存在
  */
-#define OS_EXC_UF_UNALIGNED        11
+#define OS_EXC_MF_MLSPERR          11
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图执行协处理器相关指令
+ *Cortex-M异常具体类型:用法错误，表示除法运算时除数为零
  */
-#define OS_EXC_UF_NOCP             12
+#define OS_EXC_UF_DIVBYZERO        12
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
+ *Cortex-M异常具体类型:用法错误，未对齐访问导致的错误
  */
-#define OS_EXC_UF_INVPC            13
+#define OS_EXC_UF_UNALIGNED        13
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图切入ARM状态
+ *Cortex-M异常具体类型:用法错误，试图执行协处理器相关指令
  */
-#define OS_EXC_UF_INVSTATE         14
+#define OS_EXC_UF_NOCP             14
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
+ *Cortex-M异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
  */
-#define OS_EXC_UF_UNDEFINSTR       15
+#define OS_EXC_UF_INVPC            15
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:NMI中断
+ *Cortex-M异常具体类型:用法错误，试图切入ARM状态
  */
-
-#define OS_EXC_CAUSE_NMI           16
-
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:硬fault
- */
-#define OS_EXC_CAUSE_HARDFAULT     17
+#define OS_EXC_UF_INVSTATE         16
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:任务处理函数退出
+ *Cortex-M异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
  */
-#define OS_EXC_CAUSE_TASK_EXIT     18
+#define OS_EXC_UF_UNDEFINSTR       17
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:致命错误
+ *Cortex-M异常具体类型:NMI中断
  */
-#define OS_EXC_CAUSE_FATAL_ERR     19
+#define OS_EXC_CAUSE_NMI           18
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:调试事件导致的硬fault
+ *Cortex-M异常具体类型:硬fault
  */
-#define OS_EXC_CAUSE_DEBUGEVT      20
+#define OS_EXC_CAUSE_HARDFAULT     19
 
 /**
  *@ingroup los_exc
- *Cortex-M3异常具体类型:取向量时发生的硬fault
+ *Cortex-M异常具体类型:存储器管理fault
  */
-#define OS_EXC_CAUSE_VECTBL        21
+#define OS_EXC_CAUSE_MEMFAULT      20
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:总线fault
+ */
+#define OS_EXC_CAUSE_BUSFAULT      21
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:使用fault
+ */
+#define OS_EXC_CAUSE_USAGEFAULT    22
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:SVC调用
+ */
+#define OS_EXC_CAUSE_SVC           23
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:调试事件导致的硬fault
+ */
+#define OS_EXC_CAUSE_DEBUGEVT      24
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:取向量时发生的硬fault
+ */
+#define OS_EXC_CAUSE_VECTBL        25
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:任务处理函数退出
+ */
+#define OS_EXC_CAUSE_TASK_EXIT     26
+
+/**
+ *@ingroup los_exc
+ *Cortex-M异常具体类型:致命错误
+ */
+#define OS_EXC_CAUSE_FATAL_ERR     27
 
 /**
  *@ingroup los_exc
  * 异常信息结构体
  *
- * 描述:M4平台下的异常触发时保存的异常信息
+ * 描述:Cortex-M平台下的异常触发时保存的异常信息
  *
  */
 typedef struct tagExcInfo
 {
     UINT16 usPhase;              /**< 异常发生阶段： 0表示异常发生在初始化中，1表示异常发生在任务中，2表示异常发生在中断中 */
-    UINT16 usType;               /**< 异常类型,出异常时对照上面列出的1-19号 */
+    UINT16 usType;               /**< 异常类型，分高低两字节，出异常时高低字节分别对照上面列出的异常编号 */
     UINT32 uwFaultAddr;          /**< 若为精确地址访问错误表示异常发生时的错误访问地址 */
     UINT32 uwThrdPid;            /**< 在中断中发生异常，表示中断号。在任务中发生异常，表示任务id，如果发生在初始化中，则为0xffffffff */
     UINT16 usNestCnt;            /**< 异常嵌套个数，目前仅支持第一次进入异常时执行注册的钩子函数 */
-    UINT16 usReserved;           /**< 保留 */
-    EXC_CONTEXT_S * pstContext;  /**< 自动压栈浮点寄存器的异常发生时刻的硬件上下文 */
+    UINT16 usFpuContext;         /**< 是否保存浮点寄存器，1表示需要保存浮点寄存器 */
+    UINT32 uwCallStackDepth;     /**< 异常时调用栈分析深度 */
+    UINT32 uwCallStack[LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH];  /**< 函数调用地址 */
+    EXC_CONTEXT_S *pstContext;   /**< 异常发生时的寄存器值，由usFpuContext决定寄存器中是否包含浮点寄存器的值 */
 }EXC_INFO_S;
 
 extern UINT32 g_uwCurNestCount;
 extern UINT32 g_vuwIntCount;
 extern EXC_INFO_S m_stExcInfo;
 
-static VOID osExcSave2DDR(VOID);
 VOID osExcInfoDisplay(EXC_INFO_S *pstExc);
 
 extern OS_TASK_SWITCH_INFO g_astTskSwitchInfo;

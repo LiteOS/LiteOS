@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/LiteOS/LiteOS.svg?branch=master)](https://travis-ci.org/LiteOS/LiteOS)
+[![Build Status](https://travis-ci.org/LiteOS/LiteOS.svg?branch=develop)](https://travis-ci.org/LiteOS/LiteOS)
 
 ## Huawei LiteOS简介
 
@@ -17,7 +17,9 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 ## LiteOS 开发指南
 
-[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide.md)
+[LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide_zh.md)  
+
+[LiteOS移植指南](./targets/Standard_STM32F0Discovery/README.md)  
 
 该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以根据该文档学习各模块的使用。
 
@@ -25,8 +27,12 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 ## LiteOS 接入云平台开发指南
 
 * [LiteOS接入华为云平台](https://github.com/SuYai/OceanConnectHelp)
+  * [LiteOS SDK端云互通组件开发指南](./doc/Huawei_LiteOS_SDK_Developer_Guide.md)
+
+LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），通过LiteOS SDK端云互通组件，简单快速地实现与华为 OceanConnect IoT平台安全可靠连接，可以大大减少开发周期，快速构建IoT产品。
 
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
+  * [LiteOS接入OneNET](https://github.com/LiteOS/LiteOS/tree/develop/thirdparty/OneNET)
 
 
 ## LiteOS 支持的硬件
@@ -44,11 +50,11 @@ Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经
 
 ## LiteOS Git入门必读
 
-- [LiteOS Commit Message规则](./doc/LiteOS_Commit_rules.md)
+- [LiteOS Commit Message规则](./doc/LiteOS_Commit_Message.md)
 
 该文档描述如何提交commit到LiteOS仓库，这是LiteOS开发必须遵守的commit规则，否则提交的commit会被驳回。请点链接了解详细信息。
 
-- [Huawei LiteOS代码贡献流程](./doc/LiteOS_Contribute_Guide.md)
+- [Huawei LiteOS代码贡献流程](./doc/LiteOS_Contribute_Guide_GitGUI.md)
 
 该文档描述开发者如何创建自己的仓库，开发然后贡献代码到LiteOS仓库。请点链接了解详细信息。
 

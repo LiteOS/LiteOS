@@ -473,7 +473,7 @@ extern UINT32 LOS_MemFree(VOID *pPool, VOID *pMem);
  *@attention
  *<ul>
  *<li>The input pPool parameter must be initialized via func LOS_MemInit.</li>
- *<li>The input pPtr parameter must be allocated by LOS_MemAlloc or LOS_MemAllocAlign.</li>
+ *<li>The input pPtr parameter must be allocated by LOS_MemAlloc.</li>
  *<li>The size of the input parameter uwSize can not be greater than the memory pool size that specified at the second input parameter of LOS_MemInit.</li>
  *<li>The size of the input parameter uwSize must be aligned as follows: 1) if the pPtr is allocated by LOS_MemAlloc, it must be four byte-aligned; 2) if the pPtr is allocated by LOS_MemAllocAlign, it must be aligned with the size of the input parameter uwBoundary of LOS_MemAllocAlign.</li>
  *</ul>

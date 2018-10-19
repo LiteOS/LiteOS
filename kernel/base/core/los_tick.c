@@ -52,7 +52,8 @@ LITE_OS_SEC_BSS UINT64      g_ullTickCount;
 LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
 LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
-LITE_OS_SEC_BSS UINT32      g_uwSysClock ;
+LITE_OS_SEC_BSS UINT32      g_uwSysClock;
+LITE_OS_SEC_DATA_INIT BOOL  g_bSysTickStart = FALSE;
 
 #if (LOSCFG_KERNEL_TICKLESS == YES)
 /*****************************************************************************
@@ -100,6 +101,13 @@ LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
         g_bReloadSysTickFlag = 0;
     }
     g_bTickIrqFlag = g_bTicklessFlag;
+
+    #if (LOSCFG_PLATFORM_HWI == NO)
+    if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_WAIT)
+    {
+        g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_SET;
+    }
+    #endif
 #endif
 
 #if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)

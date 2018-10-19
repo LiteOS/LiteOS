@@ -51,6 +51,7 @@ extern "C" {
  * @ingroup los_hwi
  * Maximum number of used hardware interrupts.
  */
+/*lint -e553*/
 #ifndef OS_HWI_MAX_NUM
 #if (__CORTEX_M == 0U)
 /* Cortex-m0 and Cortex-m0plus default 32 */
@@ -60,6 +61,7 @@ extern "C" {
 #define OS_HWI_MAX_NUM              240
 #endif
 #endif
+/*lint +e553*/
 
 /**
  * @ingroup los_hwi
@@ -569,7 +571,7 @@ extern VOID Reset_Handler(VOID);
  * @see None.
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID  osPendSV(VOID);
+extern VOID PendSV_Handler(VOID);
 
  /**
  *@ingroup los_hwi
@@ -667,10 +669,6 @@ ul>
  *@since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-extern VOID LOS_SysTickReload(UINT32 uwCyclesPerTick);
-#endif
 
 extern UINT32 LOS_SysTickCurrCycleGet(VOID);
 
