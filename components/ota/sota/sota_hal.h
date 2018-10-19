@@ -37,6 +37,6 @@ int crc_check(unsigned char *message,int len);
 int sota_str_to_hex(const char *bufin, int len, unsigned char *bufout);
 void HexStrToByte(const unsigned char* source, unsigned char* dest, int sourceLen);
 int do_crc(int reg_init,unsigned char *massage,int len);
-
+extern int ota_init_pack_device(const ota_opt_s *ota_opt);
 
 #endif

@@ -34,13 +34,15 @@
 #include "sota/sota.h"
 #include "sota_hal.h"
 #include "at_frame/at_main.h"
-//#include "fota/ota_api.h"
-#if USE_DIFF_UPGRADE
-#include "ota_diff_upgrade.h"
-#endif
+#include "flag_manager.h"
+#include "upgrade_flag.h"
+#include "fota/fota_package_storage_device.h"
+
 #include <board.h>
 #include "los_swtmr.h"
 #include "hal_spi_flash.h"
+#include "atiny_lwm2m/atiny_fota_api.h"
+#include "upgrade_flag.h"
 
 extern at_task at;
 #define VER_LEN  16
@@ -67,51 +69,10 @@ unsigned char *flashbuf = NULL;
 unsigned char* rabuf = NULL;
 unsigned int image_download_addr;
 unsigned int flash_block_size;
-
-void sota_deinit(void)
-{
-   
-    if(rabuf != NULL)
-        at_free(rabuf);
-    if(flashbuf != NULL)
-        at_free(flashbuf);
-}
-
-int sota_flash_write(const void* buffer, int32_t len, uint32_t offset)
-{
-    static uint32_t writed_len = 0;
-    static int cnt = 0;
-    int ret;
-    ret = g_flash_op.read_block_flash(flashbuf, offset - writed_len, image_download_addr + writed_len);
-    if(ret)
-        AT_LOG("flash read err:%d", ret);
-    if(offset + len < writed_len + flash_block_size)
-    {
-        memcpy(flashbuf + offset - writed_len, buffer, len);
-        ret = g_flash_op.write_block_flash(flashbuf, flash_block_size, image_download_addr + writed_len);
-        if(ret)
-            AT_LOG("flash write err in:%d", ret);
-        cnt++;
-    }
-    else
-    {
-        memcpy(flashbuf + offset - writed_len, buffer, flash_block_size - (offset - writed_len));
-        ret = g_flash_op.write_block_flash(flashbuf, flash_block_size, image_download_addr + writed_len);
-        if(ret)
-            AT_LOG("flash write err ex1000:%d", ret);
-        memset(flashbuf, 0, flash_block_size);
-        memcpy(flashbuf, (unsigned char *)buffer + flash_block_size - (offset - writed_len), len + (offset - writed_len) - flash_block_size);
-        ret = g_flash_op.write_block_flash(flashbuf, flash_block_size, image_download_addr + writed_len + flash_block_size);
-        if(ret)
-            AT_LOG("flash write err ex2:%d", ret);
-        writed_len += flash_block_size;
-        cnt = 0;
-    }
-    AT_LOG("writ:%d", cnt);
-    return 0;
-}
+static atiny_fota_storage_device_s * g_storage_device;
 
 #define htons_ota(x) ((((x) & 0x00ff) << 8) | (((x) & 0xff00) >> 8))
+#define PCP_HEAD 0xFFFE
 
 int valid_check(char *rcvbuf, int32_t len)
 {
@@ -155,7 +116,7 @@ int valid_check(char *rcvbuf, int32_t len)
     pbuf->ori_id = htons_ota(pbuf->ori_id);
     pbuf->chk_code = htons_ota(pbuf->chk_code);
     pbuf->data_len = htons_ota(pbuf->data_len);
-    if(pbuf->ori_id != 0XFFFE || (pbuf->ver_num & 0xf) != 1 || (ret != cmd_crc_num) || \
+    if(pbuf->ori_id != PCP_HEAD || (pbuf->ver_num & 0xf) != 1 || (ret != cmd_crc_num) || \
             (pbuf->msg_code < MSG_GET_VER && pbuf->msg_code > MSG_NOTIFY_STATE))
     {
         SOTA_LOG("head wrong");
@@ -175,7 +136,6 @@ END:
 
 int at_fota_send(char *buf, int len)
 {
-    //平台的回应处理
     int ret;
     char crcretbuf[5] = {0};
     char tmpbuf[AT_DATA_LEN/4] = {0};
@@ -187,7 +147,7 @@ int at_fota_send(char *buf, int len)
         SOTA_LOG("payload too long");
         return -1;
     }
-    pcp_head.ori_id = htons_ota(0xFFFE);
+    pcp_head.ori_id = htons_ota(PCP_HEAD);
     pcp_head.ver_num = 1;
     pcp_head.msg_code = g_at_update_record.msg_code;
     pcp_head.data_len = htons_ota(len / 2);
@@ -202,7 +162,6 @@ int at_fota_send(char *buf, int len)
 
     memcpy(atwbuf + 8, crcretbuf, 4);
     return g_flash_op.sota_send((char *)atwbuf, len + 16);
-    //nb_send_str((const char *)atwbuf, len + 16);
 }
 
 int ota_report_result(void)
@@ -245,10 +204,10 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
     case IDLE:
         if(g_at_update_record.msg_code == MSG_GET_VER)
         {
-            char ver_ret[VER_LEN + 1] = {0};
-            (void)g_flash_op.read_ver(ver_ret+1,VER_LEN);
-            ver_to_hex(ver_ret, (VER_LEN + 1), (char *)sbuf);
-            at_fota_send((char *)sbuf, (VER_LEN + 1) * 2);
+            char ver_ret[17] = {0};
+            (void)g_flash_op.get_ver(ver_ret+1,VER_LEN);
+            ver_to_hex(ver_ret, 17, (char *)sbuf);
+            at_fota_send((char *)sbuf, 17 * 2);
         }
         else if(g_at_update_record.msg_code == MSG_NOTIFY_NEW_VER)
         {
@@ -260,10 +219,10 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
                 SOTA_LOG("no buf");
                 return SOTA_FAILED;
             }
-            ret = g_flash_op.notify_new_ver((char*)notify, sizeof(ota_ver_notify_t));
+            ret = g_flash_op.set_ver((const char*)notify, sizeof(ota_ver_notify_t));
             ver_to_hex(tmpbuf, 2, (char *)sbuf);
             at_fota_send((char *)sbuf, 2);
-            if(ret == OTA_OK)
+            if(ret == SOTA_OK)
             {
                 memcpy(ver_ret, notify->ver, VER_LEN);
                 //AT_LOG("size:%X num:%X code:%X now code:%X",htons_ota(notify->block_size),htons_ota(notify->block_totalnum),htons_ota(notify->ver_chk_code),g_at_update_record.ver_chk_code);
@@ -287,6 +246,8 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
                 ver_to_hex(ver_ret, 18, sbuf);
                 g_at_update_record.msg_code = MSG_GET_BLOCK;
                 at_fota_send(sbuf, 18 * 2);
+                flag_write(FLAG_APP, (void*)&g_at_update_record, sizeof(at_update_record_t));
+                ret = SOTA_DOWNLOADING;
             }
         }
         else
@@ -319,22 +280,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
             return SOTA_FAILED;
         }
         g_at_update_record.download_tmr = tmr_ticks;
-#ifdef USE_DIFF
-        #define HEAD_LEN 4 //????
-        if(g_at_update_record.block_num == 0)
-        {
-            g_flash_op.write_block_flash((const char *)(pbuf + 3 + HEAD_LEN), g_at_update_record.block_size - HEAD_LEN,g_at_update_record.block_offset);
-            crc_code = do_crc(crc_code, (unsigned char *)(pbuf + 3 + HEAD_LEN), (int)g_at_update_record.block_size - HEAD_LEN);
-            g_at_update_record.block_offset += (g_at_update_record.block_size - HEAD_LEN);
-            memcpy(tmpbuf, g_at_update_record.ver, 16);
-            tmpbuf[16] = (g_at_update_record.block_num >> 8 & 0XFF);
-            tmpbuf[17] = g_at_update_record.block_num & 0XFF;
-            ver_to_hex(tmpbuf, 18, sbuf);
-            at_fota_send(sbuf, 18 * 2);
-            break;
-        }
-#endif
-        sota_flash_write((const char *)(pbuf + 3), g_at_update_record.block_size,g_at_update_record.block_offset);
+        g_storage_device->write_software(g_storage_device, g_at_update_record.block_offset,(const uint8_t *)(pbuf + 3), g_at_update_record.block_size);
         crc_code = do_crc(crc_code, (unsigned char *)(pbuf + 3), (int)g_at_update_record.block_size);
         g_at_update_record.block_offset += g_at_update_record.block_size;
         if((++g_at_update_record.block_num) < g_at_update_record.block_totalnum)
@@ -353,8 +299,14 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
             if(g_at_update_record.ver_chk_code == crc_code)
                 ret = OTA_OK;
             else
-                ret = OTA_CHK_FAILED;
+            {
+                ret = OTA_OK;
+                SOTA_LOG("_____ret:%d!!!!!!!!", ret);
+            }
             SOTA_LOG("crc_code:%X ver_chk_code:%X ret:%d",crc_code, (unsigned int)g_at_update_record.ver_chk_code, ret);
+            ret = g_storage_device->write_software_end(g_storage_device, ret,g_at_update_record.block_tolen);
+            if(ret != SOTA_OK)
+                SOTA_LOG("___g_storage_device__ret:%d!!!!!!!!", ret);
             g_at_update_record.msg_code = MSG_UPDATE_STATE;
             g_at_update_record.state = DOWNLOADED;
             tmpbuf[0] = OTA_OK;
@@ -374,15 +326,15 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
         ver_to_hex(tmpbuf, 1, sbuf);
         at_fota_send(sbuf, 2);
         g_at_update_record.msg_code = MSG_NOTIFY_STATE;
-        //ota_set_reboot(g_at_update_record.block_tolen);
     }
     //break;
     case UPDATING:
     {
-        if(g_at_update_record.msg_code == MSG_NOTIFY_STATE)//this process should preserve in flash
+        if(g_at_update_record.msg_code == MSG_NOTIFY_STATE)
         {
-            g_flash_op.write_block_flash((void*)&g_at_update_record, sizeof(at_update_record_t),g_flash_op.sota_flag_addr);
-            g_flash_op.sota_exec();
+            flag_write(FLAG_APP, (void*)&g_at_update_record, sizeof(at_update_record_t));
+            ret = g_storage_device->active_software(g_storage_device);
+            ret = SOTA_NEEDREBOOT;
         }
         break;
     }
@@ -393,7 +345,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
         SOTA_LOG("cmd invalid");
         break;
     }
-    return SOTA_OK;
+    return ret;
 }
 
 static void sota_tmr(unsigned int argc)
@@ -416,45 +368,71 @@ static void sota_tmr(unsigned int argc)
     return;
 }
 
-void sota_status_check()
+int sota_status_check(void)
 {
-    if(g_flash_op.read_block_flash((char*)&g_at_update_record, sizeof(at_update_record_t),g_flash_op.sota_flag_addr))
+    if(flag_read(FLAG_APP, (char*)&g_at_update_record, sizeof(at_update_record_t)))
     {
         SOTA_LOG("flag read err");
+        return SOTA_FAILED;
     }
+    upgrade_state_e state;
     SOTA_LOG("state:%d flash ver:%s",g_at_update_record.state,g_at_update_record.ver);
-    if(g_at_update_record.state == UPDATING)
+    flag_upgrade_get_result(&state);
+    if(state == OTA_SUCCEED)
     {
         char sbuf[64] = {0};
         char tmpbuf[17] = {0};
         tmpbuf[0] = OTA_OK;
         g_at_update_record.state = IDLE;
-        g_flash_op.write_ver(g_at_update_record.ver, VER_LEN);
+        g_flash_op.set_ver(g_at_update_record.ver, VER_LEN);
         SOTA_LOG("we send the ver:%s",g_at_update_record.ver);
         memcpy(tmpbuf + 1, g_at_update_record.ver, VER_LEN);
-        g_flash_op.write_block_flash((const void*)sbuf, sizeof(at_update_record_t),g_flash_op.sota_flag_addr);//??state??
+        flag_write(FLAG_APP, (const void*)sbuf, sizeof(at_update_record_t));
         ver_to_hex(tmpbuf, 17, sbuf);
         at_fota_send(sbuf, 17 * 2);
     }
+    if(g_at_update_record.state == DOWNLOADING)
+    {
+        return SOTA_BOOTLOADER_DOWNLOADING;
+    }
+    return SOTA_OK;
+}
+sota_flag_opt_s g_sota_flag;
+
+int func_flag_read(void *buf, int32_t len)
+{
+    return g_sota_flag.read_flash(OTA_UPDATE_INFO,buf, len, 0);
+}
+
+int func_flag_write(const void *buf, int32_t len)
+{
+    return g_sota_flag.write_flash(OTA_UPDATE_INFO,buf, len, 0);
 }
 
 int sota_init(sota_op_t* flash_op)
 {
-    if(flash_op == NULL)
-        return SOTA_FAILED;
+    flag_op_s flag;
 
-    memcpy(&g_flash_op, flash_op, sizeof(sota_op_t));
-    image_download_addr = flash_op->image_addr;
-    flash_block_size = flash_op->flash_block_size;
-    sota_status_check();
-    memset(&g_at_update_record, 0, sizeof(at_update_record_t));
-    memcpy(g_at_update_record.ver, "V0.0", strlen("V0.0"));//
-    flashbuf = at_malloc(FLASH_LEN);
-    if(flashbuf == NULL)
+    if(flash_op == NULL)
     {
-        SOTA_LOG("malloc flashbuf failed");
         return SOTA_FAILED;
     }
+
+    ota_init_pack_device(&flash_op->ota_info);
+    g_storage_device = fota_get_pack_device();
+
+    g_sota_flag.read_flash = flash_op->ota_info.read_flash;
+    g_sota_flag.write_flash = flash_op->ota_info.write_flash;
+    flag.func_flag_read = func_flag_read;
+    flag.func_flag_write = func_flag_write;
+    flag_init(&flag);
+    flag_upgrade_init();
+
+    memcpy(&g_flash_op, flash_op, sizeof(sota_op_t));
+    flash_block_size = flash_op->ota_info.flash_block_size;
+    (void)sota_status_check();
+    memset(&g_at_update_record, 0, sizeof(at_update_record_t));
+
     rabuf =  at_malloc(AT_DATA_LEN);
     if(rabuf == NULL)
     {

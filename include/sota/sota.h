@@ -35,6 +35,7 @@
 #define __SOTA_H__
 
 #include<stdint.h>
+#include"fota/ota_api.h"
 
 typedef enum{
     OTA_GET_VER,
@@ -135,15 +136,28 @@ typedef struct
     int (*write_ver)(char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
     void (*sota_exec)(void);
-    int (*read_block_flash)(void* buf, int32_t len, uint32_t offset);
-    int (*write_block_flash)(const void* buf, int32_t len, uint32_t offset);
-    int (*erase_block_flash)(void* buf, int32_t len, uint32_t offset);
+
     //int (*read_upgrade_info)(char* buf, uint32_t len);
     //int (*write_upgrade_info)(char* buf, uint32_t len);
     unsigned int image_addr;
     unsigned int sota_flag_addr;
     unsigned int flash_block_size;
+} sota_op_ss;
+
+typedef struct
+{
+    int (*get_ver)(char* buf, uint32_t len);
+    int (*set_ver)(const char* buf, uint32_t len);
+    int (*sota_send)(const char* buf, int len);
+    void (*sota_reboot_notify)(void);
+    ota_opt_s ota_info;
 } sota_op_t;
+
+typedef struct
+{
+    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
+    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
+}sota_flag_opt_s;
 
 int sota_init(sota_op_t* flash_op);
 int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen);
@@ -156,14 +170,15 @@ void    sota_timer(void);
 #define SOTA_LOG(fmt, arg...)
 #endif
 
-//extern void atiny_reboot(void);
-//extern int nb_send_str(const char* buf, int len);
-//extern int str_to_hex(const char *bufin, int len, char *bufout);
 int ver_to_hex(const char *bufin, int len, char *bufout);
 
-//int ota_cmd_ioctl(OTA_CMD_E cmd, char* arg, int len);
-
-#define SOTA_OK    		 0
-#define SOTA_FAILED 		-1
-#define SOTA_TIMEOUT      -2
+typedef enum
+{
+SOTA_OK=0,
+SOTA_DOWNLOADING = 1,
+SOTA_NEEDREBOOT = 2,
+SOTA_BOOTLOADER_DOWNLOADING = 3,
+SOTA_FAILED = -1,
+SOTA_TIMEOUT = -2,
+}SOTA_RET;
 #endif
