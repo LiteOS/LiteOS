@@ -56,7 +56,7 @@
 #ifdef WITH_SOTA
 #include "sota/sota.h"
 #include "../components/ota/sota/sota_hal.h"
-//#include "ota.h"
+#include "fota_port.h"
 #include "board.h"
 #include "hal_spi_flash.h"
 #endif
@@ -77,7 +77,7 @@ extern int nb_send_str(const char* buf, int len);
 
 int read_ver(char* buf, uint32_t len)
 {
-    memcpy(buf,"V0.0",len);
+    memcpy(buf,"V0.0",strlen("V0.0"));
     return 0;
 }
 void atiny_reboot(void);
@@ -85,47 +85,51 @@ int notify_new_ver(char* buf, uint32_t len)
 {
     return 0;
 }
-int write_ver(char* buf, uint32_t len)
+int set_ver(const char* buf, uint32_t len)
 {
-    memcpy(buf,"V0.0",len);
+    //memcpy("V1.0",buf,len);
     return 0;
 }
 
-#ifdef WITH_SOTA
-
 int32_t sota_cmd_match(const char *buf, char* featurestr,int len)
 {
-    //printf("buf:%s feature:%s\n",buf,featurestr);
+    //printf("buf:%s featurestr:%s\n",buf, featurestr);
     if(strstr(buf,featurestr) != NULL)
         return 0;
     else
         return -1;
 }
 
-#endif
+int32_t sota_callback(void *arg, int8_t* buf, int32_t buflen)
+{
+    int ret;
+    ret = ota_process_main(arg, buf, buflen);
+    if (ret == SOTA_NEEDREBOOT)
+    {
+        atiny_reboot();
+    }
+    return 0;
+}
 
 void nb_sota_demo()
 {
     sota_op_t flash_op =
     {
+    .get_ver = read_ver,
+    .set_ver = set_ver,
     .sota_send = nb_send_str,
-    .read_ver = read_ver,
-    .notify_new_ver = notify_new_ver,
-    .write_ver = write_ver,
-    .sota_send = nb_send_str,
-    .sota_exec = atiny_reboot,
-    .read_block_flash = hal_spi_flash_read,
-    .write_block_flash = hal_spi_flash_erase_write,
-    .erase_block_flash = NULL,
-    //.read_upgrade_info = NULL,
-    //.write_upgrade_info = NULL,
-    .image_addr = OTA_IMAGE_DOWNLOAD_ADDR,
-    .sota_flag_addr = OTA_IMAGE_BCK_ADDR+OTA_DEFAULT_IMAGE_ADDR,
-    .flash_block_size = 0X1000,
+    .sota_reboot_notify = atiny_reboot,
     };
+    flash_op.ota_info.read_flash = hal_read_flash,//wait for jingsheng,
+    flash_op.ota_info.write_flash = hal_write_flash,
+    flash_op.ota_info.download_end = NULL,
+    flash_op.ota_info.flash_block_size = FLASH_BLOCK_SIZE;
+    flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    flash_op.ota_info.key.rsa_E = "10001";
     hal_init_ota();
+
     sota_init(&flash_op);
-    (void)at.oob_register("\r\n+NNMI:", strlen("\r\n+NNMI:"), ota_process_main,sota_cmd_match);
+    (void)at.oob_register("+NNMI:", strlen("+NNMI:"), sota_callback,sota_cmd_match);
 }
 
 #endif

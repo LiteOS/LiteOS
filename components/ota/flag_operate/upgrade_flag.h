@@ -43,8 +43,8 @@ extern "C" {
 
 typedef enum
 {
-    UPGRADE_DIFF = 0,
-    UPGRADE_FULL,
+    UPGRADE_FULL = 0,
+    UPGRADE_DIFF = 1,
 } upgrade_type_e;
 
 typedef enum
