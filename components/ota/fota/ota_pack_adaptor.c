@@ -36,7 +36,7 @@
 #include "ota_pack_adaptor.h"
 #include "fota/fota_package_head.h"
 #include "stddef.h"
-#include "flag_operate/upgrade_flag.h"
+#include "upgrade_flag.h"
 
 
 
