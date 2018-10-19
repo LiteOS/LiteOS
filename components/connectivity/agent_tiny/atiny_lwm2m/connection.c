@@ -149,6 +149,14 @@ int connection_parse_host_ip(security_instance_t *targetP, char **parsed_host, c
     return COAP_NO_ERROR;
 }
 
+#ifdef LWM2M_BOOTSTRAP
+void connection_striger_server_initiated_bs(connection_t * sessionH)
+{
+    (void)sessionH;
+    (void)atiny_cmd_ioctl(ATINY_TRIGER_SERVER_INITIATED_BS, NULL, 0);
+}
+#endif
+
 #ifdef WITH_DTLS
 int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, const char *host, const char *port, int client_or_server)
 {
@@ -165,7 +173,7 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
 
     memset(&info, 0, sizeof(info));
     info.client_or_server = client_or_server;
-    info.finish_notify = (void(*)(void *))lwm2m_stop_striger_server_initiated_bs;
+    info.finish_notify = NULL;
     info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
     info.param = (void(*)(void *))connP;
     if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
@@ -177,8 +185,11 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     {
         info.u.s.timeout = targetP->clientHoldOffTime;
         info.u.s.local_port = port;
+        timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
+        timer_start(&connP->server_triger_timer);
     }
     ret = dtls_shakehand(connP->net_context, &info);
+    timer_stop(&connP->server_triger_timer);
     if (ret != 0)
     {
         ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
@@ -192,14 +203,6 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     return COAP_NO_ERROR;
 }
 
-#endif
-
-#ifdef LWM2M_BOOTSTRAP
-void connection_striger_server_initiated_bs(connection_t * sessionH)
-{
-    (void)sessionH;
-    (void)atiny_cmd_ioctl(ATINY_TRIGER_SERVER_INITIATED_BS, NULL, 0);
-}
 #endif
 
 
@@ -359,6 +362,8 @@ void lwm2m_close_connection(void *sessionH, void *userData)
 
     app_data = (client_data_t *)userData;
     targetP = (connection_t *)sessionH;
+
+    timer_stop(&targetP->server_triger_timer);
 
     if (targetP == app_data->connList)
     {

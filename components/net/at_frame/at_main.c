@@ -308,6 +308,7 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
         return AT_FAILED;
     }
 
+    *cmd_info = listener.cmd_info;
     return AT_OK;
 
 }

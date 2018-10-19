@@ -432,7 +432,7 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     tv.tv_sec  = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
 
-    ret = select(fd + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv);
+   ret = select(fd + 1, &read_fds, NULL, NULL, &tv);
 
     if (ret == 0)
     {
