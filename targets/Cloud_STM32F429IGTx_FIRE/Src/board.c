@@ -58,8 +58,6 @@
 #define OTA_STACK_MASK             0x2FF00000
 
 #define OTA_COPY_BUF_SIZE          0x1000
-#define OTA_INNER_FLASH_BLOCK_SIZE 0x20000
-#define OTA_RECORD_OFFSET_SIZE     0x4000
 
 typedef void (*jump_func)(void);
 
