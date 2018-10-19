@@ -69,9 +69,6 @@ struct atiny_fota_storage_device_tag_s
     int (*write_software)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
     int (*write_software_end)(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len);
     int (*active_software)(atiny_fota_storage_device_s *thi);
-    int (*get_software_result)(atiny_fota_storage_device_s *thi);
-    int (*write_update_info)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
-    int (*read_update_info)(atiny_fota_storage_device_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
 };
 
 

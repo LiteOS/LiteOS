@@ -170,9 +170,6 @@ static int atiny_check_psk_init_param(atiny_param_t *atiny_params)
 
 int  atiny_init(atiny_param_t *atiny_params, void **phandle)
 {
-#ifdef CONFIG_FEATURE_FOTA
-    atiny_fota_storage_device_s *device = NULL;
-#endif
     int result;
     
     result = atiny_init_rpt();
@@ -214,14 +211,8 @@ int  atiny_init(atiny_param_t *atiny_params, void **phandle)
     *phandle = &g_atiny_handle;
 
 #ifdef CONFIG_FEATURE_FOTA
-    (void)atiny_cmd_ioctl(ATINY_GET_FOTA_STORAGE_DEVICE, (char * )&device, sizeof(device));
-    if (NULL == device)
-    {
-        ATINY_LOG(LOG_FATAL, "Invalid args");
-        return ATINY_ERR;
-    }
-    return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance(),
-            device);
+
+    return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance());
 #else
     return ATINY_OK;
 #endif

@@ -43,7 +43,7 @@
 #include <stdint.h>
 #include "log/atiny_log.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "atiny_lwm2m/atiny_fota_api.h"
+#include "fota/ota_api.h"
 #endif
 #include "liblwm2m_api.h"
 
@@ -90,7 +90,7 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
-    ATINY_GET_FOTA_STORAGE_DEVICE,
+    ATINY_GET_OTA_OPT,
     ATINY_TRIGER_SERVER_INITIATED_BS
 } atiny_cmd_e;
 
