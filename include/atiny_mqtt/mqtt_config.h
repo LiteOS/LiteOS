@@ -32,16 +32,16 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __AGENT_TINY_DEMO_H_
-#define __AGENT_TINY_DEMO_H_
+#ifndef __MQTT_CONFIG_H__
+#define __MQTT_CONFIG_H__
 
-#include "los_base.h"
-#include "los_task.ph"
-#include "los_typedef.h"
-#include "los_sys.h"
-#include "atiny_mqtt/mqtt_client.h"
-#include "osdepends/atiny_osdep.h"
+#define ATINY_INTEREST_URI_MAX_NUM (5)
+#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
+#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
+#define MQTT_KEEPALIVE_INTERVAL_S (100)
+#define MQTT_SENDBUF_SIZE (1024)
+#define MQTT_READBUF_SIZE (1024)
+#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
 
-void agent_tiny_entry(void);
+#endif /* __MQTT_CONFIG_H__ */
 
-#endif 

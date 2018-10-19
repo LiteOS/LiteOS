@@ -33,8 +33,10 @@
  *---------------------------------------------------------------------------*/
 #include "main.h"
 #include "sys_init.h"
-
+#ifdef WITH_LWM2M
 #include "agenttiny_lwm2m/agent_tiny_demo.h"
+#endif
+
 #include "fs/fs_demo.h"
 
 #include "los_base.h"
@@ -220,8 +222,8 @@ void demo_agenttiny_with_eth(void)
 VOID main_task(VOID)
 {
     //fs_test_main();
-    fs_demo();
-    demo_without_agenttiny_nbiot();
+    //fs_demo();
+    //demo_without_agenttiny_nbiot();
 }
 
 UINT32 creat_main_task()

@@ -18,14 +18,6 @@ DEBUG = 1
 # optimization
 OPT = -Og
 
-#######################################
-# network
-#######################################
-WITH_AT_FRAMEWORK := yes
-ifeq ($(WITH_AT_FRAMEWORK), yes)
-#ESP8266   # SIM900A  # NB_NEUL95
-	NETWORK_TYPE := NB_NEUL95
-endif
 
 #######################################
 # bootloader
@@ -142,6 +134,7 @@ MBEDTLS_PORT_SRC = \
         C_SOURCES += $(MBEDTLS_PORT_SRC)
 endif
 
+ifeq ($(WITH_LWM2M), yes)
 ER_COAP_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13/er-coap-13.c}
         C_SOURCES += $(ER_COAP_SRC)
@@ -150,6 +143,18 @@ LWM2M_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/lwm2m/core/*.c} \
 		${wildcard $(TOP_DIR)/components/connectivity/lwm2m/examples/shared/*.c}
         C_SOURCES += $(LWM2M_SRC)
+
+ATINY_TINY_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c}
+        C_SOURCES += $(ATINY_TINY_SRC)
+		
+AGENT_DEMO_SRC = \
+        ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
+        C_SOURCES += $(AGENT_DEMO_SRC)
+
+endif
+
+
 
 OS_DEPENDS_SRC = \
         ${wildcard $(TOP_DIR)/osdepends/liteos/*.c}
@@ -162,18 +167,26 @@ SOCKET_ADAPTER_SRC = \
 NEWLIB_SRC = \
         ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
         C_SOURCES += $(NEWLIB_SRC)
-
-ATINY_TINY_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c}
-        C_SOURCES += $(ATINY_TINY_SRC)
+		
 
 ATINY_LOG = \
         ${wildcard $(TOP_DIR)/components/log/*.c}
         C_SOURCES += $(ATINY_LOG)
 
-AGENT_DEMO_SRC = \
-        ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
-        C_SOURCES += $(AGENT_DEMO_SRC)
+
+ifeq ($(WITH_MQTT), yes)
+MQTT_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src/*.c} \
+        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c \
+        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
+        C_SOURCES += $(MQTT_SRC)
+ATINY_TINY_MQTT_SRC = \
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        C_SOURCES += $(ATINY_TINY_MQTT_SRC)
+AGENT_DEMO_MQTT_SRC = \
+        ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
+        C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
+endif
 
 ifeq ($(WITH_FILESYSTEM), yes)
 FS_SRC = \
@@ -233,6 +246,7 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
+ifeq ($(WITH_LWM2M), yes)
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
@@ -272,6 +286,7 @@ OTA_SRC = \
 
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
+endif
 endif
 
 # ASM sources
@@ -411,20 +426,32 @@ MBEDTLS_PORT_INC = \
 ER_COAP_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13
         C_INCLUDES += $(ER_COAP_INC)
-
+		
+ifeq ($(WITH_LWM2M), yes)
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
         -I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
 
-DEMO_INC = \
-        -I $(TOP_DIR)/demos
-        C_INCLUDES += $(DEMO_INC)
-
 OTA_INC = \
         -I $(TOP_DIR)/components/ota/flag_operate \
         -I $(TOP_DIR)/components/ota/utility
         C_INCLUDES += $(OTA_INC)
+endif
+
+ifeq ($(WITH_MQTT), yes)	
+MQTT_INC = \
+        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src \
+        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
+		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src
+        C_INCLUDES += $(MQTT_INC)
+endif
+
+DEMO_INC = \
+        -I $(TOP_DIR)/demos
+        C_INCLUDES += $(DEMO_INC)
+
+
 
 ifeq ($(WITH_FILESYSTEM), yes)
 FS_SPIFFS_INC = \
