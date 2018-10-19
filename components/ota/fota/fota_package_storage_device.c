@@ -199,22 +199,6 @@ DEFINE_PROXY_FUNC(fota_pack_storage_active_software, active_software,
                   (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
 
 
-DEFINE_PROXY_FUNC(fota_pack_storage_get_software_result, get_software_result,
-                  (atiny_fota_storage_device_s *this), (((fota_pack_storage_device_s *)this)->storage_device))
-
-
-
-DEFINE_PROXY_FUNC(fota_pack_storage_write_update_info, write_update_info,
-                  (atiny_fota_storage_device_s *this, uint32_t offset, const uint8_t *buffer, uint32_t len),
-                  (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
-
-
-DEFINE_PROXY_FUNC(fota_pack_storage_read_update_info, read_update_info,
-                  (atiny_fota_storage_device_s *this, uint32_t offset, uint8_t *buffer, uint32_t len),
-                  (((fota_pack_storage_device_s *)this)->storage_device, offset, buffer, len))
-
-
-
 
 static void fota_init_pack_device(fota_pack_storage_device_s *device)
 {
@@ -230,9 +214,6 @@ static void fota_init_pack_device(fota_pack_storage_device_s *device)
     device->interface.write_software = fota_pack_storage_write_software;
     device->interface.write_software_end = fota_pack_storage_write_software_end;
     device->interface.active_software = fota_pack_storage_active_software;
-    device->interface.get_software_result = fota_pack_storage_get_software_result;
-    device->interface.write_update_info = fota_pack_storage_write_update_info;
-    device->interface.read_update_info = fota_pack_storage_read_update_info;
     device->init_flag = true;
 }
 
@@ -247,16 +228,14 @@ atiny_fota_storage_device_s *fota_get_pack_device(void)
     return &device->interface;
 }
 
-#ifdef WITH_SOTA
 void ota_pack_set_flash_type(void *param, ota_flash_type_e type)
 {
     fota_pack_storage_device_s *pack_device = (fota_pack_storage_device_s *)param;
     ota_set_adaptor_flash_type(pack_device->storage_device, type);
 }
-#endif
 
 
-int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_info_s *device_info)
+static int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_info_s *device_info)
 {
     fota_pack_storage_device_s *pack_device;
 
@@ -274,10 +253,8 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
 
     pack_device = fota_pack_storage_get_storage_device(device);
 
-#ifdef WITH_SOTA
     param = device;
     set_flash_type = ota_pack_set_flash_type;
-#endif
 
     if(fota_pack_head_set_head_info(&pack_device->head,  device_info, set_flash_type, param) != FOTA_OK)
     {
@@ -291,7 +268,6 @@ int fota_set_pack_device(atiny_fota_storage_device_s *device,  fota_pack_device_
     return FOTA_OK;
 }
 
-#ifdef WITH_SOTA
 static ota_opt_s *ota_pack_get_opt(void)
 {
     fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
@@ -319,6 +295,5 @@ int ota_init_pack_device(const ota_opt_s *ota_opt)
     return fota_set_pack_device((atiny_fota_storage_device_s *)device, &device_info);
 }
 
-#endif
 
 

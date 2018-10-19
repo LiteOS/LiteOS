@@ -40,45 +40,16 @@
 #define _FOTA_PORT_H_
 #include "atiny_lwm2m/atiny_fota_api.h"
 #include "fota/fota_package_storage_device.h"
-#ifdef WITH_SOTA
 #include "fota/ota_api.h"
-#endif
 
-
-#define FLASH_BLOCK_SIZE 0x1000
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#ifdef CONFIG_FEATURE_FOTA
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-int hal_get_fota_device(atiny_fota_storage_device_s **storage_device, fota_hardware_s **hardware);
-int hal_init_fota(void);
-#endif
-
-
-#ifdef WITH_SOTA
 void hal_init_ota(void);
-int hal_read_flash(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-int hal_write_flash(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-#endif
-
-
+void hal_get_ota_opt(ota_opt_s *opt);
 
 #if defined(__cplusplus)
 }
