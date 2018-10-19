@@ -384,7 +384,7 @@ lwm2m_client_state_t lwm2m_getBsCtrlStat(const lwm2m_context_t *contextP)
     return contextP->bsCtrl.state;
 }
 
-bool lwm2m_delayBs(lwm2m_context_t *contextP)
+bool lwm2m_delayBs(lwm2m_context_t *contextP, time_t *timeoutP)
 {
     time_t current = lwm2m_gettime();
     uint32_t delayBase;
@@ -419,6 +419,15 @@ bool lwm2m_delayBs(lwm2m_context_t *contextP)
     if(current >= contextP->bsCtrl.expireTime)
     {
         contextP->bsCtrl.startFlag = false;
+    }
+    else
+    {
+
+        time_t timeout = contextP->bsCtrl.expireTime - current;
+        if (timeout <= *timeoutP)
+        {
+            *timeoutP = timeout;
+        }
     }
 
     return !contextP->bsCtrl.startFlag;
@@ -634,9 +643,9 @@ do{\
     contextP->state = STATE_DELAY;\
 }while(0)
 
-#define DELAY_BS(contextP)\
+#define DELAY_BS(contextP, timeoutP)\
    {\
-       if (!lwm2m_delayBs(contextP))\
+       if (!lwm2m_delayBs(contextP, timeoutP))\
        {\
             break;\
        }\
@@ -771,7 +780,7 @@ next_step:
         break;
 
    case STATE_DELAY:
-        DELAY_BS(contextP);
+        DELAY_BS(contextP, timeoutP);
 
     default:
         // do nothing
