@@ -206,6 +206,14 @@ void demo_agenttiny_with_wifi(void)
 
 }
 
+void demo_agenttiny_with_eth(void)
+{
+    #if defined(WITH_LINUX) || defined(WITH_LWIP)
+    hieth_hw_init();
+    net_init();
+    agent_tiny_entry();
+    #endif
+}
 
 //extern int fs_test_main(void);
 

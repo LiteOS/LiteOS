@@ -33,8 +33,10 @@
  *---------------------------------------------------------------------------*/
 
 #include "fota/fota_package_checksum.h"
-#include <string.h>
 #include "fota/fota_package_head.h"
+
+#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
+#include <string.h>
 
 #if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
 #include "opt/fota_package_sha256_rsa2048.h"
@@ -242,4 +244,32 @@ int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_
 #include "opt/fota_package_sha256.c"
 #endif
 
+#else
+fota_pack_checksum_s * fota_pack_checksum_create(struct fota_pack_head_tag_s *head)
+{
+    (void)head;
+    return NULL;
+}
+void fota_pack_checksum_delete(fota_pack_checksum_s * thi)
+{
+    (void)thi;
+}
+int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware)
+{
+    (void)thi;
+    (void)offset;
+    (void)buff;
+    (void)len;
+    (void)hardware;
+    return FOTA_ERR;
+}
+int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len)
+{
+    (void)thi;
+    (void)expected_value;
+    (void)len;
+    return FOTA_ERR;
+}
+
+#endif
 
