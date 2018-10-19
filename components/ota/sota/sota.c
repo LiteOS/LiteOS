@@ -70,8 +70,7 @@ unsigned int flash_block_size;
 
 void sota_deinit(void)
 {
-    if(at_fota_timer!=(uint16_t)-1)
-        (void)LOS_SwtmrDelete(at_fota_timer);
+   
     if(rabuf != NULL)
         at_free(rabuf);
     if(flashbuf != NULL)
@@ -443,16 +442,7 @@ int sota_init(sota_op_t* flash_op)
 {
     if(flash_op == NULL)
         return SOTA_FAILED;
-#if 0
-    uint16_t at_fota_timer = -1;
-    if(LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_PERIOD, sota_tmr, &at_fota_timer, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE) != 0)
-    {
-        AT_LOG("create stmr failed");
-        return SOTA_FAILED;
-    }//deinit:delete timer.
-    LOS_SwtmrStart(at_fota_timer);
 
-#endif
     memcpy(&g_flash_op, flash_op, sizeof(sota_op_t));
     image_download_addr = flash_op->image_addr;
     flash_block_size = flash_op->flash_block_size;
