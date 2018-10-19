@@ -53,8 +53,10 @@
 #define ATINY_FOTA_STATE_H_
 #include "atiny_fota_manager.h"
 #include "log/atiny_log.h"
-#include "atiny_update_info.h"
 #include "atiny_lwm2m/object_comm.h"
+#include "flag_manager.h"
+#include "upgrade_flag.h"
+
 
 
 #define ASSERT_THIS(do_something) \

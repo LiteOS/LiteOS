@@ -32,7 +32,6 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifdef WITH_SOTA
 #include "ota_pack_adaptor.h"
 #include "fota/fota_package_head.h"
 #include "stddef.h"
@@ -117,7 +116,8 @@ static uint32_t ota_pack_adator_get_block_size(struct fota_hardware_api_tag_s *t
 static int ota_pack_active_software(atiny_fota_storage_device_s *thi)
 {
     ota_adaptor_device_s *device = ota_pack_get_adaptor_device();
-    return flag_set_info(device->type, device->total_len);
+    return flag_set_info((OTA_FULL_SOFTWARE == device->type) ? UPGRADE_FULL : UPGRADE_DIFF,
+                        device->total_len);
 }
 
 
@@ -167,7 +167,5 @@ int ota_set_adaptor_flash_type(atiny_fota_storage_device_s *thi, ota_flash_type_
     device->type = type;
     return FOTA_OK;
 }
-
-#endif
 
 

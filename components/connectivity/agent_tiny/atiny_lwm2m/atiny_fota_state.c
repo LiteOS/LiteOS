@@ -111,20 +111,32 @@ static int atiny_fota_idle_state_recv_notify_ack(atiny_fota_state_s *thi, data_s
 
 }
 
+static int atiny_fota_idle_state_get_result(void)
+{
+   upgrade_state_e state;
+
+   if(flag_upgrade_get_result(&state) != ATINY_OK)
+   {
+        ATINY_LOG(LOG_ERR, "ota_check_update_state fail");
+        return ATINY_ERR;
+   }
+
+   return (OTA_SUCCEED == state) ? ATINY_OK : ATINY_ERR;
+}
+
 int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s *thi)
 {
     lwm2m_observe_info_t observe_info;
     int ret = ATINY_ERR;
-    atiny_fota_storage_device_s *device = NULL;
     int result = ATINY_ERR;
 
     ASSERT_THIS(return ATINY_ARG_INVALID);
 
     thi->report_flag = false;
     memset(&observe_info, 0, sizeof(lwm2m_observe_info_t));
-    if(atiny_update_info_read(atiny_update_info_get_instance(), TOCKEN_INFO, (uint8_t *)&observe_info, sizeof(observe_info)) != ATINY_OK)
+    if(flag_read(FLAG_APP, &observe_info, sizeof(observe_info)) != ATINY_OK)
     {
-        ATINY_LOG(LOG_ERR, "lwm2m_get_observe_info fail");
+        ATINY_LOG(LOG_ERR, "flag_write fail");
         goto EXIT;
     }
 
@@ -133,8 +145,7 @@ int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s *thi)
         return ATINY_OK;
     }
 
-    device = atiny_fota_manager_get_storage_device(thi->interface.manager);
-    CALL_MEM_FUNCTION_R(device, get_software_result, ret, device);
+    ret = atiny_fota_idle_state_get_result();
     if(ret != ATINY_OK)
     {
         ATINY_LOG(LOG_ERR, "get_software_result fail");
@@ -147,9 +158,9 @@ int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s *thi)
     ATINY_LOG(LOG_INFO, "need to rpt result %d", ret);
 EXIT:
     memset(&observe_info, 0, sizeof(observe_info));
-    if(atiny_update_info_write(atiny_update_info_get_instance(), TOCKEN_INFO, (uint8_t *)&observe_info, sizeof(observe_info)) != ATINY_OK)
+    if(flag_write(FLAG_APP, &observe_info, sizeof(observe_info)) != ATINY_OK)
     {
-        ATINY_LOG(LOG_ERR, "atiny_update_info_write fail");
+        ATINY_LOG(LOG_ERR, "flag_write fail");
     }
     return result;
 }
@@ -306,10 +317,9 @@ static int atiny_fota_downloaded_state_recv_notify_ack(atiny_fota_state_s *thi, 
         goto EXIT_DOWNLOADED;
     }
 
-    if(atiny_update_info_write(atiny_update_info_get_instance(), TOCKEN_INFO,
-                               (uint8_t *)&observe_info, sizeof(observe_info)) != ATINY_OK)
+    if(flag_write(FLAG_APP, &observe_info, sizeof(observe_info)) != ATINY_OK)
     {
-        ATINY_LOG(LOG_ERR, "atiny_update_info_write fail");
+        ATINY_LOG(LOG_ERR, "flag_write fail");
         goto EXIT_DOWNLOADED;
     }
 

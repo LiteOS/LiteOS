@@ -50,7 +50,6 @@
 #define FOTA_PACK_SHA256 1
 #define FOTA_PACK_NO_CHECKSUM 2
 
-#define FOTA_PACK_CHECKSUM FOTA_PACK_NO_CHECKSUM
 #ifndef FOTA_PACK_CHECKSUM
 #define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
 #endif
@@ -100,11 +99,7 @@ typedef struct
  *@see none
  */
 atiny_fota_storage_device_s *fota_get_pack_device(void);
-int fota_set_pack_device(atiny_fota_storage_device_s *device, fota_pack_device_info_s *device_info);
-
-#ifdef WITH_SOTA
 int ota_init_pack_device(const ota_opt_s *ato_opt);
-#endif
 
 
 #if defined(__cplusplus)
