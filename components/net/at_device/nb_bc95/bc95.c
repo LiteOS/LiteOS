@@ -212,7 +212,7 @@ int32_t nb_set_cdpserver(char* host, char* port)
 	char tmpbuf[128] = {0};
 	int ret = -1;
     char ipaddr[100] = {0};
-    if(strlen(host) > 70 || strlen(port) > 20 || (host==NULL && port == NULL))
+    if(strlen(host) > 70 || strlen(port) > 20 || host==NULL || port == NULL)
     {
         ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), "OK", NULL,NULL);
         ret = at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), "OK", NULL,NULL);
@@ -220,18 +220,18 @@ int32_t nb_set_cdpserver(char* host, char* port)
     }
 
     snprintf(ipaddr, sizeof(ipaddr) - 1, "%s,%s\r", host, port);
-
 	snprintf(tmpbuf, sizeof(tmpbuf) - 1, "%s%s%c", cmd, ipaddr, '\r');
+
     ret = at.cmd((int8_t*)tmpbuf, strlen(tmpbuf), "OK", NULL,NULL);
 	if(ret < 0)
 	{
 		return ret;
 	}
 	ret = at.cmd((int8_t*)cmd2, strlen(cmd2), ipaddr, NULL,NULL);
-	LOS_TaskDelay(1000);
+	//LOS_TaskDelay(1000);
 	ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), "OK", NULL,NULL);
-   //at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), "OK", NULL, NULL);
-	//ret = at.cmd((int8_t*)cmdCGP, strlen(cmdCGP), NULL, NULL);
+	//at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), "OK", NULL, NULL);
+    //ret = at.cmd((int8_t*)cmdCGP, strlen(cmdCGP), NULL, NULL);
 	return ret;
 }
 
