@@ -210,10 +210,18 @@ void los_fs_demo(void)
      *  file operation
      **************************/
     ret = write_file(file_name, s_ucaWriteBuffer, wrlen);
-    if(ret < 0) return;
+    if(ret < 0)
+    {
+       (void)los_unlink(file_name);
+        return;
+    }
 
     ret = read_file(file_name, s_ucaReadBuffer, rdlen);
-    if(ret < 0) return;
+    if(ret < 0)
+    {
+        (void)los_unlink(file_name);
+        return;
+    }
     printf("*********** readed %d data ***********\r\n%s\r\n"
            "**************************************\r\n", rdlen, s_ucaReadBuffer);
 
@@ -222,22 +230,37 @@ void los_fs_demo(void)
      ****************************/
     sprintf(file_name, "%s/%s", dir_name, LOS_FILE);
     ret = open_dir(dir_name, &pDir);
-    if(ret < 0) return;
+    if(ret < 0)
+    {
+        (void)los_unlink(file_name);
+        return;
+    }
 
-    // comment this to test los_unlink
+
     ret = write_file(file_name, s_ucaWriteBuffer, wrlen);
-    if(ret < 0) return;
+    if(ret < 0)
+    {
+        (void)los_closedir(pDir);
+        (void)los_unlink(file_name);
+        return;
+    }
 
     ret = read_dir(dir_name, pDir);
-    if(ret < 0) return;
+    if(ret < 0)
+    {
+        (void)los_closedir(pDir);
+        (void)los_unlink(file_name);
+        return;
+    }
 
     ret = los_closedir(pDir);
     if(ret < 0)
     {
         FS_PRINTF("los_closedir %s failed.", dir_name);
+        (void)los_unlink(file_name); // remove file_name
         return;
     }
-    los_unlink(file_name); // remove file_name
+    (void)los_unlink(file_name); // remove file_name
 }
 
 static void make_dir(const char *name)

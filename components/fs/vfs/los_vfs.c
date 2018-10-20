@@ -478,8 +478,12 @@ int los_stat (const char *path, struct stat *stat)
     int           ret = -1;
     int           fd = los_open (path, 0);
 
-    file = los_attach_file (fd);
+    if(fd < 0)
+    {
+        return ret;
+    }
 
+    file = los_attach_file (fd);
     if (file == NULL)   /* means closed by others :-(, not likely true */
     {
         return ret;
