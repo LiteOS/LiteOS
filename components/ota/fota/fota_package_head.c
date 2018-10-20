@@ -205,7 +205,7 @@ static int ota_pack_head_handle_checksum_tlv(fota_pack_head_s *head, uint8_t *va
 
 static int ota_pack_head_handle_bin_type_tlv(fota_pack_head_s *head, uint8_t *value, uint32_t len)
 {
-    if (head->set_flash_type)
+    if (head->hardware->set_flash_type)
     {
         uint32_t flash_type =  GET_DWORD(value, 0);
         if (flash_type >= OTA_UPDATE_INFO)
@@ -213,7 +213,7 @@ static int ota_pack_head_handle_bin_type_tlv(fota_pack_head_s *head, uint8_t *va
             FOTA_LOG("flash_type %d invalid", flash_type);
             return FOTA_ERR;
         }
-        head->set_flash_type(head->set_flash_type_param, (ota_flash_type_e)flash_type);
+        head->hardware->set_flash_type(head->hardware, (ota_flash_type_e)flash_type);
     }
 
     return FOTA_OK;
@@ -407,15 +407,12 @@ const uint8_t *fota_pack_head_get_head_info(const fota_pack_head_s *head)
 }
 
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info,
-                                    void (*set_flash_type)(void *param, ota_flash_type_e type), void *param)
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info)
 {
     head->hardware = device_info->hardware;
     head->update_check = NULL;
     head->param = NULL;
     (void)memcpy(&head->key, &device_info->key, sizeof(head->key));
-    head->set_flash_type = set_flash_type;
-    head->set_flash_type_param = param;
     return FOTA_OK;
 }
 
@@ -424,7 +421,7 @@ fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head)
     return head->checksum;
 }
 
-fota_pack_key_s  *fota_pack_head_get_key(fota_pack_head_s *head)
+ota_key_s  *fota_pack_head_get_key(fota_pack_head_s *head)
 {
     return &head->key;
 }
