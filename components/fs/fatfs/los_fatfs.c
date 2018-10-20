@@ -480,7 +480,7 @@ int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive)
     {
         work_buff = (BYTE *)malloc(FF_MAX_SS);
         if(work_buff == NULL)
-            goto err;
+            goto err_free;
         memset(work_buff, 0, FF_MAX_SS);
         res = f_mkfs((const TCHAR *)dpath, FM_ANY, 0, work_buff, FF_MAX_SS);
         if(res == FR_OK)
