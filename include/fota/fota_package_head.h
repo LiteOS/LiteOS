@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include "osdepends/atiny_osdep.h"
 #include "fota/fota_package_checksum.h"
+#include "upgrade_flag.h"
 
 #define FOTA_LOG(fmt, ...) \
 (void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
@@ -70,18 +71,32 @@ enum
     FOTA_ERR
 };
 
+
+typedef struct fota_hardware_tag_s
+{
+    int (*read_software)(struct fota_hardware_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
+    int (*write_software)(struct fota_hardware_tag_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    void (*set_flash_type)(struct fota_hardware_tag_s *thi, ota_flash_type_e type);
+    uint32_t (*get_block_size)(struct fota_hardware_tag_s *thi, uint32_t offset);
+    uint32_t (*get_max_size)(struct fota_hardware_tag_s *thi);
+}fota_hardware_s;
+
+
+typedef struct
+{
+    fota_hardware_s *hardware;
+    ota_key_s key;
+}fota_pack_device_info_s;
+
 struct fota_pack_head_tag_s;
 typedef int (*head_update_check)(const uint8_t *head_buff , uint16_t len, void *param);
-
 
 typedef struct fota_pack_head_tag_s
 {
     fota_hardware_s *hardware;
     head_update_check update_check;
     void *param;
-    fota_pack_key_s key;
-    void (*set_flash_type)(void *param, ota_flash_type_e type);
-    void *set_flash_type_param;
+    ota_key_s key;
 
     /* following data will be memset  when destroy */
     uint8_t *buff;
@@ -105,10 +120,9 @@ int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len);
 uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head);
 const uint8_t* fota_pack_head_get_head_info(const fota_pack_head_s *head);
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info,
-                                    void (*set_flash_type)(void *param, ota_flash_type_e type), void *param);
+int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info);
 fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head);
-fota_pack_key_s  *fota_pack_head_get_key(fota_pack_head_s *head);
+ota_key_s  *fota_pack_head_get_key(fota_pack_head_s *head);
 
 
 

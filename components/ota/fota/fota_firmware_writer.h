@@ -50,7 +50,6 @@ typedef struct
     uint8_t * buffer;
     uint16_t buffer_len;
     uint16_t buffer_stored_len;
-    atiny_fota_storage_device_s *storage_device;
     fota_hardware_s *hardware;
 }fota_firmware_writer_s;
 
@@ -60,7 +59,7 @@ extern "C" {
 
 void fota_fmw_wr_init(fota_firmware_writer_s *writer);
 void fota_fmw_wr_destroy(fota_firmware_writer_s *writer);
-void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, atiny_fota_storage_device_s *storage_device, fota_hardware_s *hardware);
+void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, fota_hardware_s *hardware);
 int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len);
 int fota_fmw_wr_write_end(fota_firmware_writer_s *writer);
 

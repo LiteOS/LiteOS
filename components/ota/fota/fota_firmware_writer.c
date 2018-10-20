@@ -60,18 +60,14 @@ void fota_fmw_wr_destroy(fota_firmware_writer_s *writer)
 }
 
 
-void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, atiny_fota_storage_device_s *storage_device, fota_hardware_s *hardware)
+void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, fota_hardware_s *hardware)
 {
-    writer->storage_device = storage_device;
     writer->hardware = hardware;
 }
 
 int fota_fmw_wr_check(fota_firmware_writer_s *writer)
 {
-    if((NULL == writer->hardware)
-            || ((NULL == writer->hardware->get_block_size))
-            || (NULL == writer->storage_device)
-            || (NULL == writer->storage_device->write_software))
+    if(NULL == writer->hardware)
     {
         FOTA_LOG("null poiter");
         return FOTA_ERR;
@@ -124,7 +120,7 @@ static inline uint32_t fota_fmw_wr_get_offset_info(fota_firmware_writer_s *write
 static int fota_fmw_write_data(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
 
-    int ret = writer->storage_device->write_software(writer->storage_device,  offset, buffer, len);
+    int ret = writer->hardware->write_software(writer->hardware,  offset, buffer, len);
 
     if (0 == offset)
     {
