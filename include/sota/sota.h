@@ -131,21 +131,6 @@ typedef enum
 
 typedef struct
 {
-    int (*read_ver)(char* buf, uint32_t len);
-    int (*notify_new_ver)(char* buf, uint32_t len);
-    int (*write_ver)(char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    void (*sota_exec)(void);
-
-    //int (*read_upgrade_info)(char* buf, uint32_t len);
-    //int (*write_upgrade_info)(char* buf, uint32_t len);
-    unsigned int image_addr;
-    unsigned int sota_flag_addr;
-    unsigned int flash_block_size;
-} sota_op_ss;
-
-typedef struct
-{
     int (*get_ver)(char* buf, uint32_t len);
     int (*set_ver)(const char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
@@ -161,7 +146,7 @@ typedef struct
 
 int sota_init(sota_op_t* flash_op);
 int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void    sota_timer(void);
+void sota_tmr(void);
 
 #define SOTA_DEBUG
 #ifdef SOTA_DEBUG
@@ -178,6 +163,7 @@ SOTA_OK=0,
 SOTA_DOWNLOADING = 1,
 SOTA_NEEDREBOOT = 2,
 SOTA_BOOTLOADER_DOWNLOADING = 3,
+SOTA_MEM_FAILED = 4,
 SOTA_FAILED = -1,
 SOTA_TIMEOUT = -2,
 }SOTA_RET;

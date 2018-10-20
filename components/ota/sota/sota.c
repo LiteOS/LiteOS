@@ -117,7 +117,7 @@ int valid_check(char *rcvbuf, int32_t len)
     pbuf->chk_code = htons_ota(pbuf->chk_code);
     pbuf->data_len = htons_ota(pbuf->data_len);
     if(pbuf->ori_id != PCP_HEAD || (pbuf->ver_num & 0xf) != 1 || (ret != cmd_crc_num) || \
-            (pbuf->msg_code < MSG_GET_VER && pbuf->msg_code > MSG_NOTIFY_STATE))
+            (pbuf->msg_code < MSG_GET_VER || pbuf->msg_code > MSG_NOTIFY_STATE))
     {
         SOTA_LOG("head wrong");
         goto END;
@@ -136,13 +136,13 @@ END:
 
 int at_fota_send(char *buf, int len)
 {
-    int ret;
+    uint32_t ret;
     char crcretbuf[5] = {0};
     char tmpbuf[AT_DATA_LEN/4] = {0};
     ota_pcp_head_s pcp_head = {0};
-    unsigned char atwbuf[AT_DATA_LEN/4] = {0};
+    unsigned char atwbuf[AT_DATA_LEN] = {0};
     unsigned char hbuf[64] = {0};
-    if(len > AT_DATA_LEN)
+    if(len > AT_DATA_LEN/2)
     {
         SOTA_LOG("payload too long");
         return -1;
@@ -157,8 +157,8 @@ int at_fota_send(char *buf, int len)
     memcpy(atwbuf + 16, buf, len);
 
     HexStrToByte(atwbuf, (unsigned char*)tmpbuf, len + 16); //strlen(atwbuf)
-    ret = crc_check((unsigned char*)tmpbuf, (len + 16) / 2);
-    sprintf(crcretbuf, "%04X", ret);
+    ret = (uint32_t)crc_check((unsigned char*)tmpbuf, (len + 16) / 2);
+    sprintf(crcretbuf, "%04X", (unsigned int)ret);
 
     memcpy(atwbuf + 8, crcretbuf, 4);
     return g_flash_op.sota_send((char *)atwbuf, len + 16);
@@ -225,7 +225,6 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
             if(ret == SOTA_OK)
             {
                 memcpy(ver_ret, notify->ver, VER_LEN);
-                //AT_LOG("size:%X num:%X code:%X now code:%X",htons_ota(notify->block_size),htons_ota(notify->block_totalnum),htons_ota(notify->ver_chk_code),g_at_update_record.ver_chk_code);
                 if(htons_ota(notify->ver_chk_code) != g_at_update_record.ver_chk_code)
                 {
                     g_at_update_record.block_offset = 0;
@@ -296,17 +295,17 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
         {
             g_at_update_record.state = DOWNLOADED;
             SOTA_LOG("DOWNLOADED");
-            if(g_at_update_record.ver_chk_code == crc_code)
-                ret = OTA_OK;
-            else
+            if(g_at_update_record.ver_chk_code != crc_code)
             {
-                ret = OTA_OK;
-                SOTA_LOG("_____ret:%d!!!!!!!!", ret);
+                SOTA_LOG("crc_code wrong:%d!", ret);
             }
             SOTA_LOG("crc_code:%X ver_chk_code:%X ret:%d",crc_code, (unsigned int)g_at_update_record.ver_chk_code, ret);
             ret = g_storage_device->write_software_end(g_storage_device, ret,g_at_update_record.block_tolen);
             if(ret != SOTA_OK)
-                SOTA_LOG("___g_storage_device__ret:%d!!!!!!!!", ret);
+            {
+                SOTA_LOG("write_software_end ret:%d! return", ret);
+                return SOTA_FAILED;
+            }
             g_at_update_record.msg_code = MSG_UPDATE_STATE;
             g_at_update_record.state = DOWNLOADED;
             tmpbuf[0] = OTA_OK;
@@ -348,7 +347,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
     return ret;
 }
 
-static void sota_tmr(unsigned int argc)
+void sota_tmr(void)
 {
     if(g_at_update_record.state == DOWNLOADING)
     {

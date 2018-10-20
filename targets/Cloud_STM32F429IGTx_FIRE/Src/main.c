@@ -64,6 +64,12 @@
 #endif
 
 UINT32 g_TskHandle;
+#define TELECON_IP "180.101.147.115"
+#define OCEAN_IP "139.159.140.34"
+#define SECURITY_PORT "5684"
+#define NON_SECURITY_PORT "5683"
+#define DEV_PSKID = "868744031131026"
+#define DEV_PSK = "d1e1be0c05ac5b8c78ce196412f0cdb0"
 
 void USART3_UART_Init(void);
 VOID HardWare_Init(VOID)
@@ -76,10 +82,10 @@ VOID HardWare_Init(VOID)
 
 #ifdef WITH_SOTA
 extern int nb_send_str(const char* buf, int len);
-
+#define DEVICE_VER "V0.0"
 int read_ver(char* buf, uint32_t len)
 {
-    memcpy(buf,"V0.0",strlen("V0.0"));
+    memcpy(buf,DEVICE_VER,strlen(DEVICE_VER));
     return 0;
 }
 void atiny_reboot(void);
@@ -140,16 +146,16 @@ void demo_without_agenttiny_nbiot(void)
     #if AT_DTLS
     sec_param_s sec;
     sec.setpsk = 1;
-    sec.pskid = "868744031131026";
-    sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
+    sec.pskid = DEV_PSKID;
+    sec.psk = DEV_PSK;
     #endif
     printf("\r\n=====================================================");
     printf("\r\nSTEP1: Init NB Module( NB Init )");
     printf("\r\n=====================================================\r\n");
 #if AT_DTLS
-    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5684", &sec);
+    los_nb_init((const int8_t *)TELECON_IP, (const int8_t *)SECURITY_PORT, &sec);
 #else
-    los_nb_init((const int8_t *)"180.101.147.115", (const int8_t *)"5683", NULL); //"139.159.140.34"
+    los_nb_init((const int8_t *)TELECON_IP, (const int8_t *)NON_SECURITY_PORT, NULL);
 #endif
 #ifdef WITH_SOTA
     nb_sota_demo();
@@ -169,6 +175,7 @@ void demo_without_agenttiny_nbiot(void)
 #endif
 
 }
+
 void demo_agenttiny_with_nbiot(void)
 {
 #if defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
