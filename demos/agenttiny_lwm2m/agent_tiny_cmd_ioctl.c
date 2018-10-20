@@ -37,6 +37,7 @@
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
 #include "fota/ota_api.h"
+#include "fota_port.h"
 #endif
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
