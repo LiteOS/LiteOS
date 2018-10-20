@@ -138,11 +138,11 @@ int at_fota_send(char *buf, int len)
 {
     uint32_t ret;
     char crcretbuf[5] = {0};
-    char tmpbuf[AT_DATA_LEN/4] = {0};
+    char tmpbuf[AT_DATA_LEN/2] = {0};
     ota_pcp_head_s pcp_head = {0};
     unsigned char atwbuf[AT_DATA_LEN] = {0};
     unsigned char hbuf[64] = {0};
-    if(len > AT_DATA_LEN/2)
+    if(len > AT_DATA_LEN/4)
     {
         SOTA_LOG("payload too long");
         return -1;
@@ -153,15 +153,15 @@ int at_fota_send(char *buf, int len)
     pcp_head.data_len = htons_ota(len / 2);
     ver_to_hex((const char *)&pcp_head, sizeof(ota_pcp_head_s), (char *)hbuf);
 
-    memcpy(atwbuf, hbuf, 16);
-    memcpy(atwbuf + 16, buf, len);
+    memcpy(atwbuf, hbuf, VER_LEN);
+    memcpy(atwbuf + VER_LEN, buf, len);
 
-    HexStrToByte(atwbuf, (unsigned char*)tmpbuf, len + 16); //strlen(atwbuf)
-    ret = (uint32_t)crc_check((unsigned char*)tmpbuf, (len + 16) / 2);
+    HexStrToByte(atwbuf, (unsigned char*)tmpbuf, len + VER_LEN); //strlen(atwbuf)
+    ret = (uint32_t)crc_check((unsigned char*)tmpbuf, (len + VER_LEN) / 2);
     sprintf(crcretbuf, "%04X", (unsigned int)ret);
 
     memcpy(atwbuf + 8, crcretbuf, 4);
-    return g_flash_op.sota_send((char *)atwbuf, len + 16);
+    return g_flash_op.sota_send((char *)atwbuf, len + VER_LEN);
 }
 
 int ota_report_result(void)
@@ -204,10 +204,10 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
     case IDLE:
         if(g_at_update_record.msg_code == MSG_GET_VER)
         {
-            char ver_ret[17] = {0};
+            char ver_ret[VER_LEN + 1] = {0};
             (void)g_flash_op.get_ver(ver_ret+1,VER_LEN);
-            ver_to_hex(ver_ret, 17, (char *)sbuf);
-            at_fota_send((char *)sbuf, 17 * 2);
+            ver_to_hex(ver_ret, (VER_LEN + 1), (char *)sbuf);
+            at_fota_send((char *)sbuf, (VER_LEN + 1) * 2);
         }
         else if(g_at_update_record.msg_code == MSG_NOTIFY_NEW_VER)
         {
@@ -231,7 +231,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
                     g_at_update_record.block_size = htons_ota(notify->block_size);
                     g_at_update_record.block_totalnum = htons_ota(notify->block_totalnum);
                     memcpy(g_at_update_record.ver, notify->ver, VER_LEN);
-                    ver_ret[16] = ver_ret[17] = 0;
+                    ver_ret[VER_LEN] = ver_ret[VER_LEN + 1] = 0;
                     g_at_update_record.block_num = 0;
                     g_at_update_record.ver_chk_code = htons_ota(notify->ver_chk_code);
                     g_at_update_record.state = DOWNLOADING;
@@ -239,12 +239,12 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
                 }
                 else
                 {
-                    ver_ret[16] = (g_at_update_record.block_num >> 8) & 0XFF;
-                    ver_ret[17] = g_at_update_record.block_num & 0XFF;
+                    ver_ret[VER_LEN] = (g_at_update_record.block_num >> 8) & 0XFF;
+                    ver_ret[VER_LEN + 1] = g_at_update_record.block_num & 0XFF;
                 }
-                ver_to_hex(ver_ret, 18, sbuf);
+                ver_to_hex(ver_ret, (VER_LEN + 2), sbuf);
                 g_at_update_record.msg_code = MSG_GET_BLOCK;
-                at_fota_send(sbuf, 18 * 2);
+                at_fota_send(sbuf, (VER_LEN + 2) * 2);
                 flag_write(FLAG_APP, (void*)&g_at_update_record, sizeof(at_update_record_t));
                 ret = SOTA_DOWNLOADING;
             }
@@ -284,11 +284,11 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
         g_at_update_record.block_offset += g_at_update_record.block_size;
         if((++g_at_update_record.block_num) < g_at_update_record.block_totalnum)
         {
-            memcpy(tmpbuf, g_at_update_record.ver, 16);
-            tmpbuf[16] = (g_at_update_record.block_num >> 8 & 0XFF);
-            tmpbuf[17] = g_at_update_record.block_num & 0XFF;
-            ver_to_hex(tmpbuf, 18, sbuf);
-            at_fota_send(sbuf, 18 * 2);
+            memcpy(tmpbuf, g_at_update_record.ver, VER_LEN);
+            tmpbuf[VER_LEN] = (g_at_update_record.block_num >> 8 & 0XFF);
+            tmpbuf[VER_LEN + 1] = g_at_update_record.block_num & 0XFF;
+            ver_to_hex(tmpbuf, (VER_LEN + 2), sbuf);
+            at_fota_send(sbuf, (VER_LEN + 2) * 2);
             break;
         }
         else//if((g_at_update_record.block_num) >= g_at_update_record.block_totalnum)
@@ -300,7 +300,7 @@ int32_t ota_process_main(void *arg, int8_t *buf, int32_t buflen)
                 SOTA_LOG("crc_code wrong:%d!", ret);
             }
             SOTA_LOG("crc_code:%X ver_chk_code:%X ret:%d",crc_code, (unsigned int)g_at_update_record.ver_chk_code, ret);
-            ret = g_storage_device->write_software_end(g_storage_device, ret,g_at_update_record.block_tolen);
+            ret = g_storage_device->write_software_end(g_storage_device, (atiny_download_result_e)ret,g_at_update_record.block_tolen);
             if(ret != SOTA_OK)
             {
                 SOTA_LOG("write_software_end ret:%d! return", ret);
