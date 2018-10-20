@@ -44,7 +44,7 @@ static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const u
 {
     fota_pack_sha256_rsa2048_s *rsa = (fota_pack_sha256_rsa2048_s *)thi;
     mbedtls_rsa_context *dtls_rsa = NULL;
-    fota_pack_key_s *key = NULL;
+    ota_key_s *key = NULL;
     uint8_t real_sha256[FOTA_PACK_SHA256_CHECKSUM_LEN];
     int ret = FOTA_ERR;
 

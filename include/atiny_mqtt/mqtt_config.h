@@ -32,74 +32,16 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "internals.h"
-#include "atiny_lwm2m/agenttiny.h"
-#include "atiny_lwm2m/atiny_update_info.h"
+#ifndef __MQTT_CONFIG_H__
+#define __MQTT_CONFIG_H__
 
-#define OFFSET_BASE_TOCKEN_INFO (0U)
-#define OFFSET_BASE_FW_DOWNLOAD_INFO (32U)
+#define ATINY_INTEREST_URI_MAX_NUM (5)
+#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
+#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
+#define MQTT_KEEPALIVE_INTERVAL_S (100)
+#define MQTT_SENDBUF_SIZE (1024)
+#define MQTT_READBUF_SIZE (1024)
+#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
 
-struct atiny_update_info_tag_s
-{
-    atiny_fota_storage_device_s *device;
-};
-
-static atiny_update_info_s g_update_info = {0};
-
-int atiny_update_info_set(atiny_update_info_s *thi, atiny_fota_storage_device_s *device)
-{
-    if(NULL == thi || NULL == device)
-        return -1;
-
-    thi->device = device;
-
-    return 0;
-}
-
-int atiny_update_info_write(atiny_update_info_s *thi, atiny_update_info_e type, const uint8_t *info, uint32_t len)
-{
-    uint32_t offset = 0;
-
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
-    {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
-    }
-    return thi->device->write_update_info(thi->device, offset, info, len);
-}
-
-int atiny_update_info_read(atiny_update_info_s *thi, atiny_update_info_e type, uint8_t *info, uint32_t len)
-{
-    uint32_t offset = 0;
-
-    if(NULL == thi || type >= ATINY_UPDATE_INFO_MAX || NULL == info)
-        return -1;
-
-    switch ( type )
-    {
-    case TOCKEN_INFO:
-        offset = OFFSET_BASE_TOCKEN_INFO;
-        break;
-    case FW_DOWNLOAD_INFO:
-        offset = OFFSET_BASE_FW_DOWNLOAD_INFO;
-        break;
-    default:
-        return -1;
-    }
-    return thi->device->read_update_info(thi->device, offset, info, len);
-}
-
-atiny_update_info_s *atiny_update_info_get_instance(void)
-{
-    return &g_update_info;
-}
+#endif /* __MQTT_CONFIG_H__ */
 

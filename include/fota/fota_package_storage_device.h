@@ -50,7 +50,6 @@
 #define FOTA_PACK_SHA256 1
 #define FOTA_PACK_NO_CHECKSUM 2
 
-#define FOTA_PACK_CHECKSUM FOTA_PACK_NO_CHECKSUM
 #ifndef FOTA_PACK_CHECKSUM
 #define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
 #endif
@@ -61,28 +60,7 @@ extern "C" {
 #endif
 
 
-typedef struct fota_hardware_api_tag_s
-{
-    uint32_t (*get_block_size)(struct fota_hardware_api_tag_s *thi, uint32_t offset);
-    uint32_t (*get_max_size)(struct fota_hardware_api_tag_s *thi);
-    int (*read_software)(struct fota_hardware_api_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
-}fota_hardware_s;
-
-typedef struct
-{
-    const char *rsa_N; /* RSA public key N, should valid all the time */
-    const char *rsa_E; /* RSA public key E, should valid all the time */
-}fota_pack_key_s;
-
-
-typedef struct
-{
-    atiny_fota_storage_device_s *storage_device;
-    fota_hardware_s *hardware;
-    void (*head_info_notify)(atiny_fota_storage_device_s *device, void *head_info, uint32_t info_len);
-    fota_pack_key_s key;
-}fota_pack_device_info_s;
-
+typedef struct fota_hardware_tag_s fota_hardware_s;
 
 
 /**
@@ -100,11 +78,7 @@ typedef struct
  *@see none
  */
 atiny_fota_storage_device_s *fota_get_pack_device(void);
-int fota_set_pack_device(atiny_fota_storage_device_s *device, fota_pack_device_info_s *device_info);
-
-#ifdef WITH_SOTA
 int ota_init_pack_device(const ota_opt_s *ato_opt);
-#endif
 
 
 #if defined(__cplusplus)

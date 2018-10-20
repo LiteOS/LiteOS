@@ -10,23 +10,23 @@
 #######################################
 # use ethernet
 #######################################
-WITH_LWM2M  := yes
+WITH_LWM2M  := no
 
 #######################################
 # use ethernet
 #######################################
-WITH_MQTT  := no
+WITH_MQTT  := yes
 
 
 #######################################
 # use ethernet
 #######################################
-WITH_LWIP  := no
+WITH_LWIP  := yes
 
 #######################################
 # use usart AT command
 #######################################
-WITH_AT_FRAMEWORK := yes
+WITH_AT_FRAMEWORK := no
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95  # ALL
 	NETWORK_TYPE := NB_NEUL95
@@ -46,12 +46,12 @@ USE_FOTA := no
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_SOTA := yes
+USE_SOTA := no
 
 #######################################
 # Lwm2m bootstrap program 
 #######################################
-LWM2M_BOOTSTRAP := yes
+LWM2M_BOOTSTRAP := no
 
 #######################################
 # Lwm2m bootstrap used 
@@ -61,7 +61,7 @@ SUPPORT_DTLS_SRV := no
 #######################################
 # Lwm2m core log
 #######################################
-LWM2M_WITH_LOGS := yes
+LWM2M_WITH_LOGS := no
 
 #######################################
 # Agenttiny log
@@ -71,7 +71,7 @@ ATINY_DEBUG := yes
 #######################################
 # File System
 #######################################
-WITH_FILESYSTEM := yes
+WITH_FILESYSTEM := no
 ifeq ($(WITH_FILESYSTEM), yes)
 #SPIFFS   #FATFS   #JFFS2
 	FILESYSTEM_TYPE := FATFS

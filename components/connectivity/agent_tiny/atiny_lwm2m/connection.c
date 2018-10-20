@@ -362,9 +362,9 @@ void lwm2m_close_connection(void *sessionH, void *userData)
 
     app_data = (client_data_t *)userData;
     targetP = (connection_t *)sessionH;
-
+#ifdef LWM2M_BOOTSTRAP
     timer_stop(&targetP->server_triger_timer);
-
+#endif
     if (targetP == app_data->connList)
     {
         app_data->connList = targetP->next;

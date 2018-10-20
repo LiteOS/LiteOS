@@ -36,7 +36,8 @@
 #include "atiny_lwm2m/agenttiny.h"
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "fota/fota_package_storage_device.h"
+#include "fota/ota_api.h"
+#include "fota_port.h"
 #endif
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
@@ -443,11 +444,17 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
     case ATINY_GET_VELOCITY:
         result = atiny_get_velocity((atiny_velocity_s *)arg);
         break;
+
 #ifdef CONFIG_FEATURE_FOTA
-    case ATINY_GET_FOTA_STORAGE_DEVICE:
-        *((atiny_fota_storage_device_s **)arg) = fota_get_pack_device();
+    case ATINY_GET_OTA_OPT:
+    {
+        ota_opt_s *opt = (ota_opt_s *)arg;
+        hal_get_ota_opt(opt);
+        opt->key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+        opt->key.rsa_E = "10001";
         result = ATINY_OK;
         break;
+    }
 #endif
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)

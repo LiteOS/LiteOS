@@ -96,7 +96,7 @@ int atiny_fota_manager_start_download(atiny_fota_manager_s *thi, const char *uri
 int atiny_fota_manager_execute_update(atiny_fota_manager_s *thi);
 int atiny_fota_manager_repot_result(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e state);
-int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device);
+int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi);
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t*  lwm2m_context);
 lwm2m_context_t* atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi);

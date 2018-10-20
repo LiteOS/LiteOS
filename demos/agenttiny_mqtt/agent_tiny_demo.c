@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
-#include "atiny_log.h"
+#include "log/atiny_log.h"
 
 void message_cb(cloud_msg_t *msg);
 

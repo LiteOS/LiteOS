@@ -36,6 +36,7 @@
 #include "atiny_lwm2m/atiny_fota_state.h"
 #include <string.h>
 #include "atiny_lwm2m/firmware_update.h"
+#include "fota/fota_package_storage_device.h"
 
 struct atiny_fota_manager_tag_s
 {
@@ -52,6 +53,7 @@ struct atiny_fota_manager_tag_s
     uint32_t cookie;
     bool wait_ack_flag;
     atiny_fota_state_e rpt_state;
+    ota_opt_s ota_opt;
     bool init_flag;
 };
 
@@ -235,14 +237,65 @@ void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_sta
 }
 
 
-int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi, atiny_fota_storage_device_s *device)
+static int atiny_fota_manager_flag_read(void* buf, int32_t len)
+{
+    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location) =
+                atiny_fota_manager_get_instance()->ota_opt.read_flash;
+    if (read_flash)
+    {
+        return read_flash(OTA_UPDATE_INFO, buf, len, 0);
+    }
+    ATINY_LOG(LOG_ERR, "write_flash null");
+    return -1;
+}
+
+static int atiny_fota_manager_flag_write(const void* buf, int32_t len)
+{
+    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location) =
+                atiny_fota_manager_get_instance()->ota_opt.write_flash;
+
+    if (write_flash)
+    {
+        return write_flash(OTA_UPDATE_INFO, buf, len, 0);
+    }
+    ATINY_LOG(LOG_ERR, "write_flash null");
+    return -1;
+}
+
+
+int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi)
 {
     int ret;
+    flag_op_s flag_op;
+
     ASSERT_THIS(return ATINY_ARG_INVALID);
-    thi->device = device;
-    ret = atiny_update_info_set(atiny_update_info_get_instance(), device);
-    ret |= atiny_fota_idle_state_int_report_result(&thi->idle_state);
-    return ret;
+
+    ret = atiny_cmd_ioctl(ATINY_GET_OTA_OPT, (char * )&thi->ota_opt, sizeof(thi->ota_opt));
+    if (ret != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_cmd_ioctl fail");
+        return ret;
+    }
+
+    flag_op.func_flag_read = atiny_fota_manager_flag_read;
+    flag_op.func_flag_write = atiny_fota_manager_flag_write;
+    (void)flag_init(&flag_op);
+    ret = flag_upgrade_init();
+    if (ret != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "flag_upgrade_init fail");
+        return ret;
+    }
+
+    ret = ota_init_pack_device(&thi->ota_opt);
+    if (ret != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "ota_init_pack_device fail");
+        return ret;
+    }
+
+    thi->device = fota_get_pack_device();
+    return atiny_fota_idle_state_int_report_result(&thi->idle_state);
 }
 
 atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
