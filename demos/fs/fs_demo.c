@@ -42,7 +42,7 @@
 #endif
 
 #include "fs/los_vfs.h"
-#include "fs/los_fatfs.h"
+
 
 /* Defines ------------------------------------------------------------------*/
 #if !defined(FS_SPIFFS) && !defined(FS_FATFS) && !defined(FS_JFFS2) // For keil
@@ -442,6 +442,7 @@ void los_jffs2_demo(void)
 
 #ifdef FS_SPIFFS
 extern int stm32f4xx_spiffs_init (int need_erase);
+extern int spiffs_unmount(const char *path);
 
 void spiffs_demo(void)
 {
@@ -457,11 +458,14 @@ void spiffs_demo(void)
     sprintf(dir_name, "%s/%s", SPIFFS_PATH, LOS_DIR);
 
     los_fs_demo();
+
+    spiffs_unmount("/spiffs/");
 }
 #endif
 
 #ifdef FS_FATFS
 extern int stm32f4xx_fatfs_init(int need_erase);
+extern int fatfs_unmount(const char *path, uint8_t drive);
 
 void fatfs_demo(void)
 {
