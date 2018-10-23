@@ -63,6 +63,9 @@ static int fs_type;
 extern int stm32f4xx_spiffs_init(int need_erase);
 extern int stm32f4xx_fatfs_init(int need_erase);
 extern int stm32f4xx_jffs2_init(int need_erase);
+extern int spiffs_unmount(const char *path);
+extern int fatfs_unmount(const char *path, uint8_t drive);
+extern int jffs2_unmount(const char *path);
 
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
@@ -692,6 +695,7 @@ int fs_test_main(void)
     print_dir("/jffs2", 1);
     fs_type = TEST_FS_JFFS2;
     run_tests(tests);
+    jffs2_unmount("/jffs2/");
 
     // spiffs
     ret = stm32f4xx_spiffs_init(0);
@@ -709,6 +713,7 @@ int fs_test_main(void)
     print_dir("/spiffs", 1);
     fs_type = TEST_FS_SPIFFS;
     run_tests(tests);
+    spiffs_unmount("/spiffs/");
 
     // fatfs
     int drive = stm32f4xx_fatfs_init(0);
@@ -725,6 +730,7 @@ int fs_test_main(void)
     print_dir("/fatfs/0:", 1);
     fs_type = TEST_FS_FATFS;
     run_tests(tests);
+    fatfs_unmount("/fatfs/", drive);
 
     return 0;
 }

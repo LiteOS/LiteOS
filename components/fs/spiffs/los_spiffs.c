@@ -370,11 +370,9 @@ err_free:
 
 int spiffs_unmount(const char *path)
 {
-    SPIFFS_unmount(fs_ptr);
-    los_fs_unmount(path);
-
     if (fs_ptr)
     {
+        SPIFFS_unmount(fs_ptr);
         free(fs_ptr);
         fs_ptr = NULL;
     }
@@ -393,6 +391,8 @@ int spiffs_unmount(const char *path)
         free(cache_ptr);
         cache_ptr = NULL;
     }
+
+    los_fs_unmount(path);
 
     return 0;
 }
