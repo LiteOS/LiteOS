@@ -450,6 +450,7 @@ int fatfs_init (void)
     return LOS_OK;
 }
 
+static FATFS *fatfs_ptr = NULL;
 
 int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive)
 {
@@ -502,6 +503,7 @@ int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive)
     {
         PRINT_INFO ("fatfs mount at %s done!\n", path);
         *drive = s_drive;
+        fatfs_ptr = fs;
         return LOS_OK;
     }
 
@@ -522,7 +524,12 @@ int fatfs_unmount(const char *path, uint8_t drive)
     sprintf(dpath, "%d:/", drive);
     fatfs_unregister(drive);
     f_mount(NULL, (const TCHAR *)dpath, 1);
-    los_fs_unmount(path); // need free fs(in fatfs_mount)
+    los_fs_unmount(path);
+    if (fatfs_ptr)
+    {
+        free(fatfs_ptr);
+        fatfs_ptr = NULL;
+    }
 
     return 0;
 }
