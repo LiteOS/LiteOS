@@ -489,6 +489,7 @@ void fatfs_demo(void)
 
 #ifdef FS_JFFS2
 extern int stm32f4xx_jffs2_init(int need_erase);
+extern int jffs2_unmount(const char *path);
 
 void jffs2_demo(void)
 {
@@ -502,6 +503,8 @@ void jffs2_demo(void)
     sprintf(dir_name,  "%s/%s", JFFS2_PATH, LOS_DIR);
 
     los_jffs2_demo();
+
+    jffs2_unmount("/jffs2/");
 }
 #endif
 
