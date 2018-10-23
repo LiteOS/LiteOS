@@ -235,7 +235,7 @@ connection_t *connection_create(connection_t *connList,
     else
     {
         host = NULL;
-        port = ((targetP->securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);
+        port = (char *)((targetP->securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);
     }
 
     connP = (connection_t *)lwm2m_malloc(sizeof(connection_t));
