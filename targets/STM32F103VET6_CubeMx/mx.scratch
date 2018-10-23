@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+<ProjectName>D:\Huawei_LiteOS\LiteOS\targets\STM32F103VET6_CubeMx\STM32F103VTET6_INDUSTRIAL\STM32F103VTET6_INDUSTRIAL</ProjectName>
+<ProjectNature>C</ProjectNature> 
+<CMSIS>..\..\Drivers\CMSIS</CMSIS>
+<HAL_Driver>C:\Users\Administrator\STM32Cube\Repository\STM32Cube_FW_F1_V1.6.1\Drivers\CMSIS</HAL_Driver>
+<Toolchain>MDK-ARM</Toolchain>
+	<Toolversion>5</Toolversion>
+<Version>0</Version>
+
+<filestoremove>
+    <file>
+    <name>..\..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\arm\startup_stm32f103xe.s</name>
+    <name>..\Src\main.c</name>
+    <name>..\Src\gpio.c</name>
+    <name>..\Src\usart.c</name>
+    <name>..\Src\stm32f1xx_it.c</name>
+    <name>..\Src\stm32f1xx_hal_msp.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio_ex.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim_ex.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_uart.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc_ex.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_dma.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_cortex.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_pwr.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash.c</name>
+    <name>..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash_ex.c</name>
+    <name>..\\Src\system_stm32f1xx.c</name>
+    <name>..\Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c</name>
+    </file>
+</filestoremove>
+
+<inctoremove>
+	<Aincludes>
+	   <include></include>
+    </Aincludes>
+	<Cincludes>
+	   		<include>..\Drivers\STM32F1xx_HAL_Driver\Inc</include>
+	   		<include>..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy</include>
+	   		<include>..\Drivers\CMSIS\Device\ST\STM32F1xx\Include</include>
+	   		<include>..\Drivers\CMSIS\Include</include>
+	   		<include>..\Inc</include>
+    </Cincludes>
+</inctoremove>
+
+<configs>
+  <config>
+    <name>STM32F103VTET6_INDUSTRIAL</name>				
+    <device>STM32F103VETx</device>		 
+    <heapSize>0x200</heapSize>
+    <stackSize>0x400</stackSize>
+    
+    	<cpuclock>72</cpuclock>
+    	<board>custom</board>
+			
+    <usedDebug>true</usedDebug>
+    	<debugprobe>jtag</debugprobe>
+    <optimization></optimization>
+    <icfloc>1</icfloc>
+    <Adefines>
+        <define></define>
+    </Adefines>   
+
+    <UsedFreeRTOS></UsedFreeRTOS>
+    <Aincludes>
+
+
+	    	<include></include>
+    </Aincludes>
+    <Cdefines>
+    </Cdefines>
+    <definestoremove>
+        <Adefines>
+            <define></define>
+        </Adefines>
+        <Cdefines>
+            <define>USE_FULL_LL_DRIVER</define>
+            <define>MBEDTLS_CONFIG_FILE=&lt;mbedtls_config.h&gt;</define>
+            <define>_TIMEVAL_DEFINED</define>
+            <define>_SYS_TIME_H_</define>
+        </Cdefines>         
+    </definestoremove>
+    
+	<Cincludes>
+	   <include>..\..\Inc</include>
+	   <include>..\..\Drivers\STM32F1xx_HAL_Driver\Inc</include>
+	   <include>..\..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy</include>
+	   <include>..\..\Drivers\CMSIS\Device\ST\STM32F1xx\Include</include>
+	   <include>..\..\Drivers\CMSIS\Include</include>
+
+    </Cincludes>
+      </config>
+    </configs> 
+
+    <underRoot>false</underRoot>
+
+	   <group>
+	    <name>Drivers</name> 
+		   <group>
+		 		<name>STM32F1xx_HAL_Driver</name>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c</name>
+						</file>
+						<file>
+							<name>../../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c</name>
+						</file>
+		    </group>
+		    <group>
+		    	<name>CMSIS</name>
+							<file>
+								<name>../../\Src/system_stm32f1xx.c</name>
+							</file>
+		    	</group>
+	  </group>   
+	  <group>
+	  <name>Application</name>
+	    <group>
+	      <name>User</name>  
+                                <file>
+                                 <name>..\..\Src\main.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\..\Src\gpio.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\..\Src\usart.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\..\Src\stm32f1xx_it.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\..\Src\stm32f1xx_hal_msp.c</name>
+                                </file>
+
+
+
+
+</group> 
+  </group>
+</Project>

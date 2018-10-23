@@ -50,7 +50,12 @@
 #define AT_BUARDRATE        9600
 #define AT_CMD_TIMEOUT      10000    //ms
 #define AT_MAX_LINK_NUM     4
+#if defined STM32F103xE
+#define MAX_AT_USERDATA_LEN (1024*2)
+#else
 #define MAX_AT_USERDATA_LEN (1024*5)
+#endif
+
 #define AT_MAX_PAYLOADLEN     512
 
 #define IP_LEN 16
