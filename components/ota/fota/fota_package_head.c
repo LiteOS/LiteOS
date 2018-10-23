@@ -234,6 +234,8 @@ static int fota_pack_head_parse_tlvs(fota_pack_head_s *head, uint8_t *buff, uint
     attributes[0] = ota_pack_head_get_checksum_attribute();
     while(left_len > 0)
     {
+        uint32_t i;
+
         attribute = GET_WORD(cur, 0);
         cur += FOTA_PACK_TLV_T_LEN;
         tlv_len = GET_WORD(cur, 0);
@@ -244,7 +246,7 @@ static int fota_pack_head_parse_tlvs(fota_pack_head_s *head, uint8_t *buff, uint
             return FOTA_ERR;
         }
 
-        for (uint32_t i = 0; i < array_size(tlv_handles); i++)
+        for (i = 0; i < array_size(tlv_handles); i++)
         {
             if (attributes[i] == attribute)
             {
