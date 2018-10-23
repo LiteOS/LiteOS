@@ -1333,11 +1333,6 @@
               <FilePath>..\..\..\components\connectivity\agent_tiny\atiny_lwm2m\atiny_fota_state.c</FilePath>
             </File>
             <File>
-              <FileName>atiny_update_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\agent_tiny\atiny_lwm2m\atiny_update_info.c</FilePath>
-            </File>
-            <File>
               <FileName>firmware_update.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\agent_tiny\atiny_lwm2m\firmware_update.c</FilePath>
@@ -1416,11 +1411,6 @@
               <FileName>upgrade_flag.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\ota\flag_operate\upgrade_flag.c</FilePath>
-            </File>
-            <File>
-              <FileName>ota_pack_adaptor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\ota\fota\ota_pack_adaptor.c</FilePath>
             </File>
             <File>
               <FileName>sota.c</FileName>
