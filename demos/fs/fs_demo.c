@@ -43,6 +43,7 @@
 
 #include "fs/los_vfs.h"
 
+
 /* Defines ------------------------------------------------------------------*/
 #if !defined(FS_SPIFFS) && !defined(FS_FATFS) && !defined(FS_JFFS2) // For keil
 #define FS_JFFS2
@@ -57,8 +58,8 @@
 
 /* Typedefs -----------------------------------------------------------------*/
 /* Macros -------------------------------------------------------------------*/
-#ifndef FS_PRINTF
-#define FS_PRINTF(fmt, arg...)  printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
+#ifndef FS_LOG_ERR
+#define FS_LOG_ERR(fmt, arg...)  printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
 #endif
 
 #ifndef MIN
@@ -83,19 +84,19 @@ int write_file(const char *name, char *buff, int len)
 
     if(name == NULL || buff == NULL || len <= 0)
     {
-        FS_PRINTF("invalid parameter.");
+        FS_LOG_ERR("invalid parameter.");
         return -1;
     }
     fd = los_open(name, O_CREAT | O_WRONLY | O_TRUNC);
     if(fd < 0)
     {
-        FS_PRINTF("los_open file %s failed.", name);
+        FS_LOG_ERR("los_open file %s failed.", name);
         return -1;
     }
     ret = los_write(fd, buff, len);
     if(ret < 0)
     {
-        FS_PRINTF("los_write file %s failed.", name);
+        FS_LOG_ERR("los_write file %s failed.", name);
         los_close(fd);
         return -1;
     }
@@ -110,19 +111,19 @@ int read_file(const char *name, char *buff, int len)
 
     if(name == NULL || buff == NULL || len <= 0)
     {
-        FS_PRINTF("invalid parameter.");
+        FS_LOG_ERR("invalid parameter.");
         return -1;
     }
     fd = los_open(name, O_RDONLY);
     if(fd < 0)
     {
-        FS_PRINTF("los_open file %s failed.", name);
+        FS_LOG_ERR("los_open file %s failed.", name);
         return -1;
     }
     ret  = los_read(fd, buff, len);
     if(ret <= 0)
     {
-        FS_PRINTF("los_read file %s failed.", name);
+        FS_LOG_ERR("los_read file %s failed.", name);
         los_close(fd);
         return -1;
     }
@@ -137,7 +138,7 @@ int open_dir(const char *name, struct dir **dir)
 
     if(name == NULL || dir == NULL)
     {
-        FS_PRINTF("invalid parameter.");
+        FS_LOG_ERR("invalid parameter.");
         return -1;
     }
 
@@ -146,22 +147,22 @@ int open_dir(const char *name, struct dir **dir)
         *dir = los_opendir(name);
         if(*dir == NULL)
         {
-            FS_PRINTF("los_opendir %s failed, ret=%d.", name, ret);
+            FS_LOG_ERR("los_opendir %s failed, ret=%d.", name, ret);
             ret = los_mkdir(name, 0);
             if(ret != 0)
             {
-                FS_PRINTF("los_mkdir %s failed, ret=%d.", name, ret);
+                FS_LOG_ERR("los_mkdir %s failed, ret=%d.", name, ret);
             }
             else
             {
-                FS_PRINTF("los_mkdir %s successfully.", name);
+                FS_LOG_ERR("los_mkdir %s successfully.", name);
             }
         }
     }while(*dir == NULL && --counter > 0);
 
     if(counter <= 0)
     {
-        FS_PRINTF("los_opendir/los_mkdir %s failed, ret=%d.", name, ret);
+        FS_LOG_ERR("los_opendir/los_mkdir %s failed, ret=%d.", name, ret);
         return -1;
     }
     return 0;
@@ -174,7 +175,7 @@ int read_dir(const char *name, struct dir *dir)
 
     if(name == NULL || dir == NULL)
     {
-        FS_PRINTF("invalid parameter.");
+        FS_LOG_ERR("invalid parameter.");
         return -1;
     }
 
@@ -185,7 +186,7 @@ int read_dir(const char *name, struct dir *dir)
         {
             if(flag == 1)
             {
-                FS_PRINTF("los_readdir %s failed.", name);
+                FS_LOG_ERR("los_readdir %s failed.", name);
                 return -1;
             }
             else break;
@@ -256,7 +257,7 @@ void los_fs_demo(void)
     ret = los_closedir(pDir);
     if(ret < 0)
     {
-        FS_PRINTF("los_closedir %s failed.", dir_name);
+        FS_LOG_ERR("los_closedir %s failed.", dir_name);
         (void)los_unlink(file_name); // remove file_name
         return;
     }
@@ -291,7 +292,7 @@ static void make_dir(const char *name)
                 int ret = los_mkdir(tmp_dir, 0);
                 if (ret < 0)
                 {
-                    FS_PRINTF("los_mkdir %s failed: %d", tmp_dir, ret);
+                    FS_LOG_ERR("los_mkdir %s failed: %d", tmp_dir, ret);
                     return;
                 }
 
@@ -311,7 +312,7 @@ static void print_dir(const char *name, int level)
     struct dir *dir = los_opendir(name);
     if(dir == NULL)
     {
-        FS_PRINTF("los_opendir %s failed", name);
+        FS_LOG_ERR("los_opendir %s failed", name);
         return;
     }
 
@@ -340,7 +341,7 @@ static void print_dir(const char *name, int level)
 
     if (los_closedir(dir) < 0)
     {
-        FS_PRINTF("los_closedir %s failed", name);
+        FS_LOG_ERR("los_closedir %s failed", name);
         return;
     }
 }
@@ -362,15 +363,15 @@ void los_jffs2_demo(void)
      **************************/
     ret = write_file("/jffs2/test/case/one", s_ucaWriteBuffer, sizeof(s_ucaWriteBuffer));
     if(ret < 0)
-        FS_PRINTF("write_file failed: %d", ret);
+        FS_LOG_ERR("write_file failed: %d", ret);
 
     fd = los_open("/jffs2/test/case/one", O_RDWR);
     if(fd < 0)
-        FS_PRINTF("los_open failed: %d\n", fd);
+        FS_LOG_ERR("los_open failed: %d\n", fd);
 
     ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
     if(ret < 0)
-        FS_PRINTF("los_read failed: %d", ret);
+        FS_LOG_ERR("los_read failed: %d", ret);
 
     printf("*********** read %d bytes ***********\n%s\n"
            "**************************************\n", ret, s_ucaReadBuffer);
@@ -378,22 +379,22 @@ void los_jffs2_demo(void)
     los_lseek(fd, 22, 0);
     ret = los_write(fd, "108", 3);
     if(ret < 0)
-        FS_PRINTF("los_write failed: %d", ret);
+        FS_LOG_ERR("los_write failed: %d", ret);
 
     los_lseek(fd, -1, 2);
     ret = los_write(fd, "00", 3);
     if(ret < 0)
-        FS_PRINTF("los_write failed: %d", ret);
+        FS_LOG_ERR("los_write failed: %d", ret);
 
     los_close(fd);
 
     fd = los_open("/jffs2/test/case/one", O_RDONLY);
     if(fd < 0)
-        FS_PRINTF("los_open failed: %d\n", fd);
+        FS_LOG_ERR("los_open failed: %d\n", fd);
 
     ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
     if(ret < 0)
-        FS_PRINTF("los_read failed: %d", ret);
+        FS_LOG_ERR("los_read failed: %d", ret);
 
     printf("*********** read %d bytes ***********\n%s\n"
            "**************************************\n", ret, s_ucaReadBuffer);
@@ -407,7 +408,7 @@ void los_jffs2_demo(void)
 
     fd = los_open("/jffs2/base/.more/.less/junk", O_CREAT | O_WRONLY | O_TRUNC);
     if(fd < 0)
-        FS_PRINTF("los_open failed: %d\n", fd);
+        FS_LOG_ERR("los_open failed: %d\n", fd);
 
     los_close(fd);
 
@@ -419,11 +420,11 @@ void los_jffs2_demo(void)
 
     ret = los_rename("/jffs2/base/.more/.less/junk", "/jffs2/base/.more/.less/trash");
     if(ret)
-        FS_PRINTF("los_rename failed: %d", ret);
+        FS_LOG_ERR("los_rename failed: %d", ret);
 
     ret = los_rename("/jffs2/base/.more/.less", "/jffs2/test/case/null");
     if(ret)
-        FS_PRINTF("los_rename failed: %d", ret);
+        FS_LOG_ERR("los_rename failed: %d", ret);
 
     print_dir("/jffs2", 1);
 
@@ -432,15 +433,16 @@ void los_jffs2_demo(void)
      ****************************/
     ret = los_unlink("/jffs2/test/case/null/trash");
     if(ret)
-        FS_PRINTF("los_unlink failed: %d", ret);
+        FS_LOG_ERR("los_unlink failed: %d", ret);
 
     ret = los_unlink("/jffs2/test/case/null");
     if(ret)
-        FS_PRINTF("los_unlink failed: %d", ret);
+        FS_LOG_ERR("los_unlink failed: %d", ret);
 }
 
 #ifdef FS_SPIFFS
 extern int stm32f4xx_spiffs_init (int need_erase);
+extern int spiffs_unmount(const char *path);
 
 void spiffs_demo(void)
 {
@@ -449,18 +451,21 @@ void spiffs_demo(void)
     ret = stm32f4xx_spiffs_init(1);
     if(ret == LOS_NOK)
     {
-        FS_PRINTF("stm32f4xx_spiffs_init failed.");
+        FS_LOG_ERR("stm32f4xx_spiffs_init failed.");
         return;
     }
     sprintf(file_name, "%s/%s", SPIFFS_PATH, LOS_FILE);
     sprintf(dir_name, "%s/%s", SPIFFS_PATH, LOS_DIR);
 
     los_fs_demo();
+
+    spiffs_unmount("/spiffs/");
 }
 #endif
 
 #ifdef FS_FATFS
 extern int stm32f4xx_fatfs_init(int need_erase);
+extern int fatfs_unmount(const char *path, uint8_t drive);
 
 void fatfs_demo(void)
 {
@@ -469,13 +474,15 @@ void fatfs_demo(void)
     drive = stm32f4xx_fatfs_init(1);
     if(drive < 0)
     {
-        FS_PRINTF("stm32f4xx_fatfs_init failed.");
+        FS_LOG_ERR("stm32f4xx_fatfs_init failed.");
         return;
     }
     sprintf(file_name, "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_FILE);
     sprintf(dir_name,  "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_DIR);
 
     los_fs_demo();
+
+    fatfs_unmount("/fatfs/", drive);
 }
 #endif
 
@@ -488,7 +495,7 @@ void jffs2_demo(void)
     int ret = stm32f4xx_jffs2_init(1);
     if(ret < 0)
     {
-        FS_PRINTF("stm32f4xx_jffs2_init failed.");
+        FS_LOG_ERR("stm32f4xx_jffs2_init failed.");
         return;
     }
     sprintf(file_name, "%s/%s", JFFS2_PATH, LOS_FILE);

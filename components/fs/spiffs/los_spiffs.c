@@ -274,6 +274,11 @@ static struct file_system spiffs_fs =
     0
 };
 
+static spiffs *fs_ptr = NULL;
+static u8_t *wbuf_ptr = NULL;
+static u8_t *fds_ptr = NULL;
+static u8_t *cache_ptr = NULL;
+
 int spiffs_mount (const char *path, u32_t phys_addr, u32_t phys_size,
                   u32_t phys_erase_block, u32_t log_block_size,
                   u32_t log_page_size,
@@ -338,6 +343,10 @@ int spiffs_mount (const char *path, u32_t phys_addr, u32_t phys_size,
 
     if (ret == LOS_OK)
     {
+        fs_ptr = fs;
+        wbuf_ptr = wbuf;
+        fds_ptr = fds;
+        cache_ptr = cache;
         PRINT_INFO ("spiffs mount at %s done!\n", path);
         return LOS_OK;
     }
@@ -357,6 +366,35 @@ err_free:
         free (cache);
 
     return ret;
+}
+
+int spiffs_unmount(const char *path)
+{
+    SPIFFS_unmount(fs_ptr);
+    los_fs_unmount(path);
+
+    if (fs_ptr)
+    {
+        free(fs_ptr);
+        fs_ptr = NULL;
+    }
+    if (wbuf_ptr)
+    {
+        free(wbuf_ptr);
+        wbuf_ptr = NULL;
+    }
+    if (fds_ptr)
+    {
+        free(fds_ptr);
+        fds_ptr = NULL;
+    }
+    if (cache_ptr)
+    {
+        free(cache_ptr);
+        cache_ptr = NULL;
+    }
+
+    return 0;
 }
 
 int spiffs_init (void)
@@ -385,4 +423,3 @@ int spiffs_init (void)
 
     return LOS_OK;
 }
-

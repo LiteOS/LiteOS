@@ -45,6 +45,7 @@ int spiffs_mount (const char * path, u32_t phys_addr, u32_t phys_size,
                   s32_t (*spi_rd) (struct spiffs_t *, u32_t, u32_t, u8_t *),
                   s32_t (*spi_wr) (struct spiffs_t *, u32_t, u32_t, u8_t *),
                   s32_t (*spi_er) (struct spiffs_t *, u32_t, u32_t));
+int spiffs_unmount(const char *path);
 
 #endif
 
