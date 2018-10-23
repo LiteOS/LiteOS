@@ -168,7 +168,7 @@ int fota_pack_storage_active_software(atiny_fota_storage_device_s *thi)
 {
     fota_pack_storage_device_s *device = fota_pack_storage_get_storage_device(thi);
 
-     if(NULL == thi)
+    if(NULL == thi)
     {
         FOTA_LOG("null err");
         return FOTA_ERR;
@@ -176,7 +176,7 @@ int fota_pack_storage_active_software(atiny_fota_storage_device_s *thi)
 
     return flag_set_info((OTA_FULL_SOFTWARE == device->type) ? UPGRADE_FULL : UPGRADE_DIFF,
                         device->total_len);
-}
+    }
 
 static void fota_init_pack_device(fota_pack_storage_device_s *device)
 {

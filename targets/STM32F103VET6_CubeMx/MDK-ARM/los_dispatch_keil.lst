@@ -1,0 +1,742 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;-------------------------------------------------------
+                       ---------------------
+    2 00000000         ; Copyright (c) <2016-2018>, <Huawei Technologies Co., L
+                       td>
+    3 00000000         ; All rights reserved.
+    4 00000000         ; Redistribution and use in source and binary forms, wit
+                       h or without modification,
+    5 00000000         ; are permitted provided that the following conditions a
+                       re met:
+    6 00000000         ; 1. Redistributions of source code must retain the abov
+                       e copyright notice, this list of
+    7 00000000         ; conditions and the following disclaimer.
+    8 00000000         ; 2. Redistributions in binary form must reproduce the a
+                       bove copyright notice, this list
+    9 00000000         ; of conditions and the following disclaimer in the docu
+                       mentation and/or other materials
+   10 00000000         ; provided with the distribution.
+   11 00000000         ; 3. Neither the name of the copyright holder nor the na
+                       mes of its contributors may be used
+   12 00000000         ; to endorse or promote products derived from this softw
+                       are without specific prior written
+   13 00000000         ; permission.
+   14 00000000         ; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+                        CONTRIBUTORS
+   15 00000000         ; "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDI
+                       NG, BUT NOT LIMITED TO,
+   16 00000000         ; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+                       FOR A PARTICULAR
+   17 00000000         ; PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGH
+                       T HOLDER OR
+   18 00000000         ; CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCID
+                       ENTAL, SPECIAL,
+   19 00000000         ; EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NO
+                       T LIMITED TO,
+   20 00000000         ; PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF U
+                       SE, DATA, OR PROFITS;
+   21 00000000         ; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY TH
+                       EORY OF LIABILITY,
+   22 00000000         ; WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUD
+                       ING NEGLIGENCE OR
+   23 00000000         ; OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS S
+                       OFTWARE, EVEN IF
+   24 00000000         ; ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   25 00000000         ;-------------------------------------------------------
+                       --------------------*/
+   26 00000000         ;-------------------------------------------------------
+                       ---------------------
+   27 00000000         ; Notice of Export Control Law
+   28 00000000         ; ===============================================
+   29 00000000         ; Huawei LiteOS may be subject to applicable export cont
+                       rol laws and regulations, which might
+   30 00000000         ; include those applicable to Huawei LiteOS of U.S. and 
+                       the country in which you are located.
+   31 00000000         ; Import, export and usage of Huawei LiteOS in any manne
+                       r by you shall be in compliance with such
+   32 00000000         ; applicable export control laws and regulations.
+   33 00000000         ;-------------------------------------------------------
+                       --------------------*/
+   34 00000000         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   35 00000000         ;*******************************************************
+                       *********************************
+   36 00000000         ;                                  EXPORT FUNCTIONS
+   37 00000000         ;*******************************************************
+                       *********************************
+   38 00000000         
+   39 00000000                 EXPORT           LOS_IntLock
+   40 00000000                 EXPORT           LOS_IntUnLock
+   41 00000000                 EXPORT           LOS_IntRestore
+   42 00000000                 EXPORT           LOS_StartToRun
+   43 00000000                 EXPORT           osTaskSchedule
+   44 00000000                 EXPORT           PendSV_Handler
+   45 00000000         
+   46 00000000         ;*******************************************************
+                       *********************************
+   47 00000000         ;                                  EXTERN PARAMETERS
+   48 00000000         ;*******************************************************
+                       *********************************
+   49 00000000         
+   50 00000000                 IMPORT           g_stLosTask
+   51 00000000                 IMPORT           g_pfnTskSwitchHook
+   52 00000000                 IMPORT           g_bTaskScheduled
+   53 00000000         
+   54 00000000         ;*******************************************************
+                       *********************************
+   55 00000000         ;                                  EQU
+   56 00000000         ;*******************************************************
+                       *********************************
+   57 00000000         
+   58 00000000 E000ED04 
+                       OS_NVIC_INT_CTRL
+                               EQU              0xE000ED04  ; Interrupt Control
+                                                             and State Register
+                                                            .
+   59 00000000 10000000 
+                       OS_NVIC_PENDSVSET
+                               EQU              0x10000000  ; Value to trigger 
+                                                            PendSV exception.
+   60 00000000         
+   61 00000000 E000ED20 
+                       OS_NVIC_SYSPRI2
+                               EQU              0xE000ED20  ; System Handler Pr
+                                                            iority Register 2.
+   62 00000000 FFFF0000 
+                       OS_NVIC_PENDSV_SYSTICK_PRI
+                               EQU              0xFFFF0000  ; SysTick + PendSV 
+                                                            priority level (low
+                                                            est).
+   63 00000000         
+   64 00000000 00000010 
+                       OS_TASK_STATUS_RUNNING
+                               EQU              0x0010      ; Task Status Flag 
+                                                            (RUNNING).
+   65 00000000         
+   66 00000000         ;*******************************************************
+                       *********************************
+   67 00000000         ;                                  CODE GENERATION DIREC
+                       TIVES
+   68 00000000         ;*******************************************************
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+                       *********************************
+   69 00000000         
+   70 00000000                 AREA             |.text|, CODE, READONLY
+   71 00000000                 THUMB
+   72 00000000                 REQUIRE8
+   73 00000000                 PRESERVE8
+   74 00000000         
+   75 00000000         ;*******************************************************
+                       *********************************
+   76 00000000         ; Function:
+   77 00000000         ;        VOID LOS_StartToRun(VOID);
+   78 00000000         ; Description:
+   79 00000000         ;        Start the first task, which is the highest prio
+                       rity task in the priority queue.
+   80 00000000         ;        Other tasks are started by task scheduling.
+   81 00000000         ;*******************************************************
+                       *********************************
+   82 00000000         LOS_StartToRun
+   83 00000000 B672            CPSID            I
+   84 00000002         
+   85 00000002         ;/**
+   86 00000002         ; * Set PendSV and SysTick prority to the lowest.
+   87 00000002         ; * read ---> modify ---> write-back.
+   88 00000002         ; */
+   89 00000002 482C            LDR              R0, =OS_NVIC_SYSPRI2
+   90 00000004 492C            LDR              R1, =OS_NVIC_PENDSV_SYSTICK_PRI
+   91 00000006 6802            LDR              R2, [R0]
+   92 00000008 EA41 0102       ORR              R1, R1, R2
+   93 0000000C 6001            STR              R1, [R0]
+   94 0000000E         
+   95 0000000E         ;/**
+   96 0000000E         ; * Set g_bTaskScheduled = 1.
+   97 0000000E         ; */
+   98 0000000E 482B            LDR              R0, =g_bTaskScheduled
+   99 00000010 F04F 0101       MOV              R1, #1
+  100 00000014 6001            STR              R1, [R0]
+  101 00000016         
+  102 00000016         ;/**
+  103 00000016         ; * Set g_stLosTask.pstRunTask = g_stLosTask.pstNewTask.
+                       
+  104 00000016         ; */
+  105 00000016 482A            LDR              R0, =g_stLosTask
+  106 00000018 6841            LDR              R1, [R0, #4]
+  107 0000001A 6001            STR              R1, [R0]
+  108 0000001C         
+  109 0000001C         ;/**
+  110 0000001C         ; * Set g_stLosTask.pstRunTask->usTaskStatus |= OS_TASK_
+                       STATUS_RUNNING.
+  111 0000001C         ; */
+  112 0000001C 6801            LDR              R1, [R0]
+  113 0000001E 888A            LDRH             R2, [R1, #4]
+  114 00000020 F04F 0310       MOV              R3, #OS_TASK_STATUS_RUNNING
+  115 00000024 EA42 0203       ORR              R2, R2, R3
+  116 00000028 808A            STRH             R2, [R1, #4]
+  117 0000002A         
+  118 0000002A         ;/**
+  119 0000002A         ; * Restore the default stack frame(R0-R3,R12,LR,PC,xPSR
+                       ) of g_stLosTask.pstRunTask to R0-R7.
+  120 0000002A         ; * Return by setting the CONTROL register.
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  121 0000002A         ; *
+  122 0000002A         ; * The initial stack of the current running task is as 
+                       follows:
+  123 0000002A         ; *
+  124 0000002A         ; *                 POP: Restore the context of the curr
+                       ent running task ===>|
+  125 0000002A         ; *                                                     
+                               High addr--->|
+  126 0000002A         ; *                                                   Bo
+                       ttom of the stack--->|
+  127 0000002A         ; * ----------+-----------------------+-----------------
+                       ---------------------+
+  128 0000002A         ; *           |   R4-R11,   PRIMASK   |   R0-R3,   R12, 
+                         LR,   PC,   xPSR   |
+  129 0000002A         ; * ----------+-----------------------+-----------------
+                       ---------------------+
+  130 0000002A         ; *           |<---Top of the stack, restored from g_stL
+                       osTask.pstRunTask->pStackPointer
+  131 0000002A         ; *           |<---      skip     --->|<---        copy 
+                       to R0-R7         --->|
+  132 0000002A         ; *                                                     
+                              R12 to PSP--->|
+  133 0000002A         ; *                                    Stack pointer aft
+                       er LOS_StartToRun--->|
+  134 0000002A         ; */
+  135 0000002A F8D1 C000       LDR              R12, [R1]
+  136 0000002E F10C 0C24       ADD              R12, R12, #36 ; skip R4-R11, PR
+                                                            IMASK.
+  137 00000032 E8BC 00FF       LDMFD            R12!, {R0-R7}
+  138 00000036         
+  139 00000036         ;/**
+  140 00000036         ; * Set the stack pointer of g_stLosTask.pstRunTask to P
+                       SP.
+  141 00000036         ; */
+  142 00000036 F38C 8809       MSR              PSP, R12
+  143 0000003A         
+  144 0000003A         ;/**
+  145 0000003A         ; * Set the CONTROL register, after schedule start, priv
+                       ilege level and stack = PSP.
+  146 0000003A         ; */
+  147 0000003A F04F 0C02       MOV              R12, #2
+  148 0000003E F38C 8814       MSR              CONTROL, R12
+  149 00000042         
+  150 00000042         ;/**
+  151 00000042         ; * Enable interrupt. (The default PRIMASK value is 0, s
+                       o enable directly)
+  152 00000042         ; */
+  153 00000042 46AE            MOV              LR, R5
+  154 00000044 B662            CPSIE            I
+  155 00000046         
+  156 00000046         ;/**
+  157 00000046         ; * Jump directly to the default PC of g_stLosTask.pstRu
+                       nTask, the field information
+  158 00000046         ; * of the main function will be destroyed and will neve
+                       r be returned.
+  159 00000046         ; */
+  160 00000046 4730            BX               R6
+  161 00000048         
+  162 00000048         ;*******************************************************
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+                       *********************************
+  163 00000048         ; Function:
+  164 00000048         ;        UINTPTR LOS_IntLock(VOID);
+  165 00000048         ; Description:
+  166 00000048         ;        Disable all interrupts except Reset,NMI and Har
+                       dFault.
+  167 00000048         ;        The value of currnet interruption state will be
+                        returned to the caller to save.
+  168 00000048         ;
+  169 00000048         ; Function:
+  170 00000048         ;        VOID LOS_IntRestore(UINTPTR uvIntSave);
+  171 00000048         ; Description:
+  172 00000048         ;        Restore the locked interruption of LOS_IntLock.
+                       
+  173 00000048         ;        The caller must pass in the value of interrupti
+                       on state previously saved.
+  174 00000048         ;*******************************************************
+                       *********************************
+  175 00000048         LOS_IntLock
+  176 00000048 F3EF 8010       MRS              R0, PRIMASK
+  177 0000004C B672            CPSID            I
+  178 0000004E 4770            BX               LR
+  179 00000050         
+  180 00000050         LOS_IntUnLock
+  181 00000050 F3EF 8010       MRS              R0, PRIMASK
+  182 00000054 B662            CPSIE            I
+  183 00000056 4770            BX               LR
+  184 00000058         
+  185 00000058         LOS_IntRestore
+  186 00000058 F380 8810       MSR              PRIMASK, R0
+  187 0000005C 4770            BX               LR
+  188 0000005E         
+  189 0000005E         ;*******************************************************
+                       *********************************
+  190 0000005E         ; Function:
+  191 0000005E         ;        VOID osTaskSchedule(VOID);
+  192 0000005E         ; Description:
+  193 0000005E         ;        Start the task swtich process by software trigg
+                       er PendSV interrupt.
+  194 0000005E         ;*******************************************************
+                       *********************************
+  195 0000005E         osTaskSchedule
+  196 0000005E 4819            LDR              R0, =OS_NVIC_INT_CTRL
+  197 00000060 F04F 5180       LDR              R1, =OS_NVIC_PENDSVSET
+  198 00000064 6001            STR              R1, [R0]
+  199 00000066 4770            BX               LR
+  200 00000068         
+  201 00000068         ;*******************************************************
+                       *********************************
+  202 00000068         ; Function:
+  203 00000068         ;        VOID PendSV_Handler(VOID);
+  204 00000068         ; Description:
+  205 00000068         ;        PendSV interrupt handler, switch the context of
+                        the task.
+  206 00000068         ;        First: Save the context of the current running 
+                       task(g_stLosTask.pstRunTask)
+  207 00000068         ;               to its own stack.
+  208 00000068         ;        Second: Restore the context of the next running
+                        task(g_stLosTask.pstNewTask)
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+  209 00000068         ;                from its own stack.
+  210 00000068         ;*******************************************************
+                       *********************************
+  211 00000068         PendSV_Handler
+  212 00000068         ;/**
+  213 00000068         ; * R12: Save the interruption state of the current runn
+                       ing task.
+  214 00000068         ; * Disable all interrupts except Reset,NMI and HardFaul
+                       t
+  215 00000068         ; */
+  216 00000068 F3EF 8C10       MRS              R12, PRIMASK
+  217 0000006C B672            CPSID            I
+  218 0000006E         
+  219 0000006E         ;/**
+  220 0000006E         ; * Call task switch hook.
+  221 0000006E         ; */
+  222 0000006E 4A16            LDR              R2, =g_pfnTskSwitchHook
+  223 00000070 6812            LDR              R2, [R2]
+  224 00000072 B122            CBZ              R2, TaskSwitch
+  225 00000074 E92D 5000       PUSH             {R12, LR}
+  226 00000078 4790            BLX              R2
+  227 0000007A E8BD 5000       POP              {R12, LR}
+  228 0000007E         
+  229 0000007E         TaskSwitch
+  230 0000007E         ;/**
+  231 0000007E         ; * R0 = now stack pointer of the current running task.
+  232 0000007E         ; */
+  233 0000007E F3EF 8009       MRS              R0, PSP
+  234 00000082         
+  235 00000082         ;/**
+  236 00000082         ; * Save the stack frame(R4-R11) of the current running 
+                       task.
+  237 00000082         ; * R12 save the PRIMASK value of the current running ta
+                       sk.
+  238 00000082         ; * NOTE: Before entering the exception handler function
+                       , these registers
+  239 00000082         ; *       (xPSR,PC,LR,R12,R3-R0) have been automatically
+                       
+  240 00000082         ; *       saved by the CPU in the stack of the current r
+                       unning task.
+  241 00000082         ; *
+  242 00000082         ; * The stack of the current running task is as follows:
+                       
+  243 00000082         ; *
+  244 00000082         ; *           |<=== PUSH: Save the context of the curren
+                       t running task
+  245 00000082         ; *           |                                         
+                                    High addr--->|
+  246 00000082         ; * ----------+-----------------------+-----------------
+                       ---------------------+-----
+  247 00000082         ; *           |   R4-R11,   PRIMASK   |   R0-R3,   R12, 
+                         LR,   PC,   xPSR   |
+  248 00000082         ; * ----------+-----------------------+-----------------
+                       ---------------------+-----
+  249 00000082         ; *                               Stack pointer before e
+                       ntering exception--->|
+  250 00000082         ; *                                   |<---        cpu a
+                       uto saved        --->|
+  251 00000082         ; *                                   |<---PSP to R0
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  252 00000082         ; *           |<---Top of the stack, save to g_stLosTask
+                       .pstRunTask->pStackPointer
+  253 00000082         ; */
+  254 00000082 E920 1FF0       STMFD            R0!, {R4-R12} ; save the core r
+                                                            egisters and PRIMAS
+                                                            K.
+  255 00000086         
+  256 00000086         ;/**
+  257 00000086         ; * R5,R8.
+  258 00000086         ; */
+  259 00000086 4D0E            LDR              R5, =g_stLosTask
+  260 00000088 F04F 0810       MOV              R8, #OS_TASK_STATUS_RUNNING
+  261 0000008C         
+  262 0000008C         ;/**
+  263 0000008C         ; * Save the stack pointer of the current running task t
+                       o TCB.
+  264 0000008C         ; * (g_stLosTask.pstRunTask->pStackPointer = R0)
+  265 0000008C         ; */
+  266 0000008C 682E            LDR              R6, [R5]
+  267 0000008E 6030            STR              R0, [R6]
+  268 00000090         
+  269 00000090         ;/**
+  270 00000090         ; * Clear the RUNNING state of the current running task.
+                       
+  271 00000090         ; * (g_stLosTask.pstRunTask->usTaskStatus &= ~OS_TASK_ST
+                       ATUS_RUNNING)
+  272 00000090         ; */
+  273 00000090 88B7            LDRH             R7, [R6, #4]
+  274 00000092 EA27 0708       BIC              R7, R7, R8
+  275 00000096 80B7            STRH             R7, [R6, #4]
+  276 00000098         
+  277 00000098         ;/**
+  278 00000098         ; * Switch the current running task to the next running 
+                       task.
+  279 00000098         ; * (g_stLosTask.pstRunTask = g_stLosTask.pstNewTask)
+  280 00000098         ; */
+  281 00000098 6868            LDR              R0, [R5, #4]
+  282 0000009A 6028            STR              R0, [R5]
+  283 0000009C         
+  284 0000009C         ;/**
+  285 0000009C         ; * Set the RUNNING state of the next running task.
+  286 0000009C         ; * (g_stLosTask.pstNewTask->usTaskStatus |= OS_TASK_STA
+                       TUS_RUNNING)
+  287 0000009C         ; */
+  288 0000009C 8887            LDRH             R7, [R0, #4]
+  289 0000009E EA47 0708       ORR              R7, R7, R8
+  290 000000A2 8087            STRH             R7, [R0, #4]
+  291 000000A4         
+  292 000000A4         ;/**
+  293 000000A4         ; * Restore the stack pointer of the next running task f
+                       rom TCB.
+  294 000000A4         ; * (R1 = g_stLosTask.pstNewTask->pStackPointer)
+  295 000000A4         ; */
+  296 000000A4 6801            LDR              R1, [R0]
+  297 000000A6         
+  298 000000A6         ;/**
+  299 000000A6         ; * Restore the stack frame(R4-R11) of the next running 
+                       task.
+  300 000000A6         ; * R12 restore the PRIMASK value of the next running ta
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+                       sk.
+  301 000000A6         ; * NOTE: After exiting the exception handler function, 
+                       these registers
+  302 000000A6         ; *       (PC,xPSR,R0-R3,R12,LR) will be automatically
+  303 000000A6         ; *       restored by the CPU from the stack of the next
+                        running task.
+  304 000000A6         ; *
+  305 000000A6         ; * 1. The stack of the next running task is as follows:
+                       
+  306 000000A6         ; *
+  307 000000A6         ; *                    POP: Restore the context of the n
+                       ext running task ===>|
+  308 000000A6         ; *                                                     
+                                    High addr--->|
+  309 000000A6         ; * ----------+-----------------------+-----------------
+                       ---------------------+-----
+  310 000000A6         ; *           |   R4-R11,   PRIMASK   |   R0-R3,   R12, 
+                         LR,   PC,   xPSR   |
+  311 000000A6         ; * ----------+-----------------------+-----------------
+                       ---------------------+-----
+  312 000000A6         ; *           |<---Top of the stack, restored from g_stL
+                       osTask.pstNewTask->pStackPointer
+  313 000000A6         ; *                      R1 to PSP--->|
+  314 000000A6         ; *                                   |<---      cpu aut
+                       o restoring      --->|
+  315 000000A6         ; *                                 Stack pointer after 
+                       exiting exception--->|
+  316 000000A6         ; *
+  317 000000A6         ; * 2. If the next running task is run for the first tim
+                       e, the stack is as follows:
+  318 000000A6         ; *
+  319 000000A6         ; *                    POP: Restore the context of the n
+                       ext running task ===>|
+  320 000000A6         ; *                                                     
+                               High addr--->|
+  321 000000A6         ; *                                                   Bo
+                       ttom of the stack--->|
+  322 000000A6         ; * ----------+-----------------------+-----------------
+                       ---------------------+
+  323 000000A6         ; *           |   R4-R11,   PRIMASK   |   R0-R3,   R12, 
+                         LR,   PC,   xPSR   |
+  324 000000A6         ; * ----------+-----------------------+-----------------
+                       ---------------------+
+  325 000000A6         ; *           |<---Top of the stack, restored from g_stL
+                       osTask.pstNewTask->pStackPointer
+  326 000000A6         ; *                      R1 to PSP--->|
+  327 000000A6         ; *                                   |<---      cpu aut
+                       o restoring      --->|
+  328 000000A6         ; *                                 Stack pointer after 
+                       exiting exception--->|
+  329 000000A6         ; */
+  330 000000A6 E8B1 1FF0       LDMFD            R1!, {R4-R12} ; restore the cor
+                                                            e registers and PRI
+                                                            MASK.
+  331 000000AA         
+  332 000000AA         ;/**
+  333 000000AA         ; * Set the stack pointer of the next running task to PS
+                       P.
+  334 000000AA         ; */
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+  335 000000AA F381 8809       MSR              PSP, R1
+  336 000000AE         
+  337 000000AE         ;/**
+  338 000000AE         ; * Restore the interruption state of the next running t
+                       ask.
+  339 000000AE         ; */
+  340 000000AE F38C 8810       MSR              PRIMASK, R12
+  341 000000B2 4770            BX               LR
+  342 000000B4         
+  343 000000B4                 ALIGN
+  344 000000B4                 END
+              E000ED20 
+              FFFF0000 
+              00000000 
+              00000000 
+              E000ED04 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
+ork --depend=stm32f103vtet6_industrial\los_dispatch_keil.d -ostm32f103vtet6_ind
+ustrial\los_dispatch_keil.o -I.\RTE\_STM32F103VTET6_INDUSTRIAL -IC:\Keil_v5\ARM
+\PACK\ARM\CMSIS\5.3.0\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.
+1.0\Device\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSI
+ON SETA 525" --predefine="_RTE_ SETA 1" --predefine="STM32F10X_HD SETA 1" --lis
+t=los_dispatch_keil.lst ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_kei
+l.S
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 70 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      None
+Comment: .text unused
+LOS_IntLock 00000048
+
+Symbol: LOS_IntLock
+   Definitions
+      At line 175 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 39 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: LOS_IntLock used once
+LOS_IntRestore 00000058
+
+Symbol: LOS_IntRestore
+   Definitions
+      At line 185 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 41 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: LOS_IntRestore used once
+LOS_IntUnLock 00000050
+
+Symbol: LOS_IntUnLock
+   Definitions
+      At line 180 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 40 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: LOS_IntUnLock used once
+LOS_StartToRun 00000000
+
+Symbol: LOS_StartToRun
+   Definitions
+      At line 82 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 42 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: LOS_StartToRun used once
+PendSV_Handler 00000068
+
+Symbol: PendSV_Handler
+   Definitions
+      At line 211 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 44 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: PendSV_Handler used once
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+TaskSwitch 0000007E
+
+Symbol: TaskSwitch
+   Definitions
+      At line 229 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 224 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+Comment: TaskSwitch used once
+osTaskSchedule 0000005E
+
+Symbol: osTaskSchedule
+   Definitions
+      At line 195 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+   Uses
+      At line 43 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: osTaskSchedule used once
+8 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+OS_NVIC_INT_CTRL E000ED04
+
+Symbol: OS_NVIC_INT_CTRL
+   Definitions
+      At line 58 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 196 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+Comment: OS_NVIC_INT_CTRL used once
+OS_NVIC_PENDSVSET 10000000
+
+Symbol: OS_NVIC_PENDSVSET
+   Definitions
+      At line 59 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 197 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+Comment: OS_NVIC_PENDSVSET used once
+OS_NVIC_PENDSV_SYSTICK_PRI FFFF0000
+
+Symbol: OS_NVIC_PENDSV_SYSTICK_PRI
+   Definitions
+      At line 62 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 90 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: OS_NVIC_PENDSV_SYSTICK_PRI used once
+OS_NVIC_SYSPRI2 E000ED20
+
+Symbol: OS_NVIC_SYSPRI2
+   Definitions
+      At line 61 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 89 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: OS_NVIC_SYSPRI2 used once
+OS_TASK_STATUS_RUNNING 00000010
+
+Symbol: OS_TASK_STATUS_RUNNING
+   Definitions
+      At line 64 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 114 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+      At line 260 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+
+5 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+g_bTaskScheduled 00000000
+
+Symbol: g_bTaskScheduled
+   Definitions
+      At line 52 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 98 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+Comment: g_bTaskScheduled used once
+g_pfnTskSwitchHook 00000000
+
+Symbol: g_pfnTskSwitchHook
+   Definitions
+      At line 51 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 222 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+Comment: g_pfnTskSwitchHook used once
+g_stLosTask 00000000
+
+Symbol: g_stLosTask
+   Definitions
+      At line 50 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_ke
+il.S
+   Uses
+      At line 105 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+      At line 259 in file ..\..\..\arch\arm\arm-m\cortex-m3\keil\los_dispatch_k
+eil.S
+
+3 symbols
+352 symbols in table
