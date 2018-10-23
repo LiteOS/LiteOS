@@ -35,8 +35,9 @@
 #include "fota/fota_package_storage_device.h"
 #include "fota/fota_package_head.h"
 #include "fota_firmware_writer.h"
+#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
 #include "dtls_interface.h"
-
+#endif
 
 typedef struct
 {
@@ -260,9 +261,9 @@ int ota_init_pack_device(const ota_opt_s *ota_opt)
     }
 
     memcpy(&device->ota_opt, ota_opt, sizeof(device->ota_opt));
-
+#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
     dtls_int();
-
+#endif
     device->hardware.read_software = ota_pack_read_software;
     device->hardware.write_software = ota_pack_write_software;
     device->hardware.set_flash_type = ota_pack_set_flash_type;

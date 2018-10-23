@@ -10,7 +10,7 @@
 #######################################
 # use Lwm2m protocol
 #######################################
-WITH_LWM2M  := yes
+WITH_LWM2M  := no
 
 #######################################
 # use MQTT protocol
@@ -35,7 +35,7 @@ endif
 #######################################
 # use mbedtls
 #######################################
-WITH_DTLS := yes
+WITH_DTLS := no
 
 #######################################
 # whether OTA Pack use checksum
@@ -46,17 +46,17 @@ OTA_PACK_CHECKSUM := SHA256_RSA2048
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_FOTA := yes
+USE_FOTA := no
 
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_SOTA := no
+USE_SOTA := yes
 
 #######################################
 # Lwm2m bootstrap program 
 #######################################
-LWM2M_BOOTSTRAP := yes
+LWM2M_BOOTSTRAP := no
 
 #######################################
 # Lwm2m bootstrap used 
@@ -66,7 +66,7 @@ SUPPORT_DTLS_SRV := no
 #######################################
 # Lwm2m core log
 #######################################
-LWM2M_WITH_LOGS := yes
+LWM2M_WITH_LOGS := no
 
 #######################################
 # Agenttiny log
@@ -76,7 +76,7 @@ ATINY_DEBUG := yes
 #######################################
 # File System
 #######################################
-WITH_FILESYSTEM := yes
+WITH_FILESYSTEM := no
 ifeq ($(WITH_FILESYSTEM), yes)
 #SPIFFS   #FATFS   #JFFS2
 	FILESYSTEM_TYPE := FATFS
