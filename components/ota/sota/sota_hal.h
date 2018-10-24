@@ -33,8 +33,7 @@
  *---------------------------------------------------------------------------*/
 #ifndef __AT_FOTA_HAL_H__
 #define __AT_FOTA_HAL_H__
-int32_t crc_check(unsigned char *message,int len);
-int sota_str_to_hex(const char *bufin, int len, unsigned char *bufout);
+int32_t crc_check(const unsigned char *message,int len);
 void HexStrToByte(const unsigned char* source, unsigned char* dest, int sourceLen);
 int do_crc(int reg_init,unsigned char *massage,int len);
 extern int ota_init_pack_device(const ota_opt_s *ota_opt);
