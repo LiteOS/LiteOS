@@ -216,7 +216,7 @@ static int hal_check_flash_param(ota_flash_type_e type, int32_t len, uint32_t lo
         return ERR;
     }
 
-    if((g_flash_base_addrs[type] + len) > g_flash_max_size[type])
+    if(len > g_flash_max_size[type])
     {
         HAL_FOTA_LOG("err offset %lu, len %lu", location, len);
         return ERR;

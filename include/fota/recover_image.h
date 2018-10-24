@@ -72,14 +72,14 @@ typedef enum
 typedef struct
 {
     int (*func_flash_read)(flash_type_e flash_type, void *buf, int32_t len, uint32_t offset);
-    int (*func_flash_write)(flash_type_e, const void *buf, int32_t len, uint32_t offset);
+    int (*func_flash_write)(flash_type_e flash_type, const void *buf, int32_t len, uint32_t offset);
 } recover_flash_s;
 
 typedef enum
 {
-    RECOVER_UPGRADE_NONE = 0,
-    RECOVER_UPGRADE_DIFF,
-    RECOVER_UPGRADE_FULL,
+    RECOVER_UPGRADE_NONE = 0, // Normal startup
+    RECOVER_UPGRADE_DIFF,     // Diff upgrade
+    RECOVER_UPGRADE_FULL,     // Full upgrade
 } recover_upgrade_type_e;
 
 /**

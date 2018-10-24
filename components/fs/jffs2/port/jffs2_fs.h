@@ -183,6 +183,7 @@ uint32_t jffs2_from_os_mode(uint32_t osmode);
 uint32_t jffs2_to_os_mode (uint32_t jmode);
 
 int jffs2_do_mount(struct super_block *jffs2_sb, struct mtd_info *mtd, int flags);
+int jffs2_do_umount(struct super_block *jffs2_sb);
 
 
 /* flashio.c */
