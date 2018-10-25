@@ -48,7 +48,7 @@ typedef struct
     fota_firmware_writer_s writer;
     uint32_t total_len;
     ota_flash_type_e type;
-    int init_flag;
+    int32_t init_flag;
 } fota_pack_storage_device_s;
 
 static inline fota_pack_storage_device_s *fota_pack_storage_get_storage_device(atiny_fota_storage_device_s *this)
@@ -243,7 +243,7 @@ static void ota_pack_set_flash_type(struct fota_hardware_tag_s *thi, ota_flash_t
     FOTA_LOG("ota_pack_set_flash_type type %d", type);
 }
 
-static uint32_t ota_pack_get_block_size(struct fota_hardware_tag_s *thi, uint32_t offset)
+static uint32_t ota_pack_get_block_size(struct fota_hardware_tag_s *thi)
 {
     fota_pack_storage_device_s *device = (fota_pack_storage_device_s *)fota_get_pack_device();
     return device->ota_opt.flash_block_size;

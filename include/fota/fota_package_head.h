@@ -77,7 +77,7 @@ typedef struct fota_hardware_tag_s
     int (*read_software)(struct fota_hardware_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
     int (*write_software)(struct fota_hardware_tag_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
     void (*set_flash_type)(struct fota_hardware_tag_s *thi, ota_flash_type_e type);
-    uint32_t (*get_block_size)(struct fota_hardware_tag_s *thi, uint32_t offset);
+    uint32_t (*get_block_size)(struct fota_hardware_tag_s *thi);
     uint32_t (*get_max_size)(struct fota_hardware_tag_s *thi);
 }fota_hardware_s;
 

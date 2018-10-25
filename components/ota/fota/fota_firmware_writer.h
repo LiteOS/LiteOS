@@ -45,10 +45,10 @@
 typedef struct
 {
     uint32_t offset;
-    int offset_flag;
+    int32_t offset_flag;
 
     uint8_t * buffer;
-    uint16_t buffer_len;
+    uint16_t block_size;
     uint16_t buffer_stored_len;
     fota_hardware_s *hardware;
 }fota_firmware_writer_s;

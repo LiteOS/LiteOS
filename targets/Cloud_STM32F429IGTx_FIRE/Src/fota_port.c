@@ -41,161 +41,60 @@
 #include "osdepends/atiny_osdep.h"
 #include <board.h>
 
-
-
-
 #define FLASH_BLOCK_SIZE 0x1000
 
 #define FLASH_BLOCK_MASK 0xfff
 #define HAL_FOTA_LOG(fmt, ...) \
 (void)printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t) atiny_gettime_ms(),  ##__VA_ARGS__)
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b)? (a) : (b))
-#endif /* MIN */
 
 #define OK 0
 #define ERR -1
 
 
-static int hal_fota_write_begin_not_aligned_buffer(uint32_t offset, const uint8_t *buffer, uint32_t len, uint32_t *used_len, uint8_t **block_buff)
-{
-    uint32_t not_aligned = (offset & FLASH_BLOCK_MASK);
-    int ret;
-
-    *used_len = 0;
-    if(not_aligned > 0)
-    {
-        uint32_t not_aligned_size;
-        uint32_t aligned_offset = (offset & (~FLASH_BLOCK_MASK));
-        uint32_t copy_len;
-
-        if(NULL == *block_buff)
-        {
-            *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
-            if(NULL == *block_buff)
-            {
-                HAL_FOTA_LOG("atiny_malloc fail");
-                return ERR;
-            }
-        }
-
-        ret = hal_spi_flash_read(*block_buff, FLASH_BLOCK_SIZE, aligned_offset);
-        if(ret != OK)
-        {
-            HAL_FOTA_LOG("hal_spi_flash_read fail offset %lu, len %u", aligned_offset, FLASH_BLOCK_SIZE);
-            return ERR;
-        }
-        not_aligned_size =  FLASH_BLOCK_SIZE - not_aligned;
-        copy_len = MIN(len, not_aligned_size);
-        (void)memcpy(*block_buff + not_aligned, buffer, copy_len);
-        ret = hal_spi_flash_erase_write(*block_buff, FLASH_BLOCK_SIZE, aligned_offset);
-        if(ret != OK)
-        {
-            HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", aligned_offset, FLASH_BLOCK_SIZE);
-            return ERR;
-        }
-
-        *used_len = copy_len;
-
-    }
-
-    return OK;
-}
-
-
-static int hal_fota_write_end_not_aligned_buffer(uint32_t offset, const uint8_t *buffer, uint32_t len, uint8_t **block_buff)
-{
-    int ret;
-
-    if(NULL == *block_buff)
-    {
-        *block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
-        if(NULL == *block_buff)
-        {
-            HAL_FOTA_LOG("atiny_malloc fail");
-            return ERR;
-        }
-    }
-
-    ret = hal_spi_flash_read(*block_buff, FLASH_BLOCK_SIZE, offset);
-    if(ret != OK)
-    {
-        HAL_FOTA_LOG("hal_spi_flash_read fail offset %lu, len %lu", offset, len);
-        return ERR;
-    }
-    (void)memcpy(*block_buff, buffer, len);
-    ret = hal_spi_flash_erase_write(*block_buff, FLASH_BLOCK_SIZE, offset);
-    if(ret != OK)
-    {
-        HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
-        return ERR;
-    }
-
-    return OK;
-}
-
-
-
-
 static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
-    int ret = ERR;
-    uint32_t used_len = 0;
-    uint8_t *block_buff = NULL;
+    int ret;
+    uint8_t *block_buff;
 
-    if(NULL == buffer)
+    if((NULL == buffer) || (0 == len) || (len > FLASH_BLOCK_SIZE)
+        || ((offset & FLASH_BLOCK_MASK)))
     {
-        HAL_FOTA_LOG("null pointer");
-        return ERR;
-    }
-    if(0 == len)
-    {
-        HAL_FOTA_LOG("len 0");
+        HAL_FOTA_LOG("invalid param len %ld, offset %ld", len, offset);
         return ERR;
     }
 
-    ret  = hal_fota_write_begin_not_aligned_buffer(offset, buffer, len, &used_len, &block_buff);
-    if(ret != OK)
-    {
-        goto EXIT;
-    }
-
-    len -= used_len;
-    if(len == 0)
-    {
-        goto EXIT;
-    }
-    buffer += used_len;
-    offset += used_len;
-
-
-    while(len >= FLASH_BLOCK_SIZE)
+    if (len == FLASH_BLOCK_SIZE)
     {
         ret = hal_spi_flash_erase_write(buffer, FLASH_BLOCK_SIZE, offset);
         if(ret != OK)
         {
-            HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
-            goto EXIT;
+           HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
         }
-        len -= FLASH_BLOCK_SIZE;
-        buffer += FLASH_BLOCK_SIZE;
-        offset += FLASH_BLOCK_SIZE;
+        return ret;
     }
 
-    if(len > 0)
+    block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
+    if(NULL == block_buff)
     {
-        ret = hal_fota_write_end_not_aligned_buffer(offset, buffer, len, &block_buff);
+        HAL_FOTA_LOG("atiny_malloc fail");
+        return ERR;
     }
 
-EXIT:
-    if(block_buff != NULL)
+
+    ret = hal_spi_flash_read(block_buff + len, FLASH_BLOCK_SIZE - len, offset + len);
+    if(ret != OK)
     {
-        atiny_free(block_buff);
+        HAL_FOTA_LOG("hal_spi_flash_read fail offset %lu, len %lu", offset + len, FLASH_BLOCK_SIZE - len);
+        return ret;
     }
-
+    (void)memcpy(block_buff, buffer, len);
+    ret = hal_spi_flash_erase_write(block_buff, FLASH_BLOCK_SIZE, offset);
+    if(ret != OK)
+    {
+        HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
+    }
     return ret;
-
 }
 
 
