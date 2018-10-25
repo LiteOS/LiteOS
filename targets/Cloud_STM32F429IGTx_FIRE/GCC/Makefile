@@ -153,7 +153,7 @@ LWM2M_SRC = \
 ATINY_TINY_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c}
 
-ifeq ($(WITH_FOTA), yes)
+ifeq ($(USE_FOTA), yes)
 	C_SOURCES += $(ATINY_TINY_SRC)
 else
 	ATINY_TINY_SRC_NO_FOTA = \
