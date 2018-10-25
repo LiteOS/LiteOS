@@ -233,7 +233,7 @@ VOID main_task(VOID)
     //fs_test_main();
     //fs_demo();
     //demo_without_agenttiny_nbiot();
-    //demo_agenttiny_with_eth();
+    demo_agenttiny_with_eth();
 }
 
 UINT32 creat_main_task()
