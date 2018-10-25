@@ -303,7 +303,7 @@ endif
 
 ifeq ($(USE_OTA), yes)
 OTA_SRC = \
-    ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
+    ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c}
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
