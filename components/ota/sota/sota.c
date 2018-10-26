@@ -36,12 +36,11 @@
 #include "at_frame/at_main.h"
 #include "flag_manager.h"
 #include "upgrade_flag.h"
-#include "fota/fota_package_storage_device.h"
 
 #include <board.h>
 #include "los_swtmr.h"
 #include "hal_spi_flash.h"
-#include "atiny_lwm2m/atiny_fota_api.h"
+#include "ota/package.h"
 #include "upgrade_flag.h"
 
 extern at_task at;
@@ -127,7 +126,7 @@ unsigned char *flashbuf = NULL;
 unsigned char* rabuf = NULL;
 unsigned int image_download_addr;
 unsigned int flash_block_size;
-static atiny_fota_storage_device_s * g_storage_device;
+static pack_storage_device_api_s * g_storage_device;
 
 #define LITTLE_DNEIAN
 #ifdef LITTLE_DNEIAN
@@ -360,7 +359,7 @@ int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen)
         {
             g_at_update_record.state = DOWNLOADED;
             SOTA_LOG("DOWNLOADED");
-            ret = g_storage_device->write_software_end(g_storage_device, (atiny_download_result_e)ret,g_at_update_record.block_tolen);
+            ret = g_storage_device->write_software_end(g_storage_device, (pack_download_result_e)ret,g_at_update_record.block_tolen);
             if(ret != SOTA_OK)
             {
                 SOTA_LOG("write_software_end ret:%d! return", ret);
@@ -470,8 +469,8 @@ int sota_init(sota_op_t* flash_op)
         return SOTA_FAILED;
     }
 
-    (void)ota_init_pack_device(&flash_op->ota_info);
-    g_storage_device = fota_get_pack_device();
+    (void)pack_init_device(&flash_op->ota_info);
+    g_storage_device = pack_get_device();
 
     g_sota_flag.read_flash = flash_op->ota_info.read_flash;
     g_sota_flag.write_flash = flash_op->ota_info.write_flash;

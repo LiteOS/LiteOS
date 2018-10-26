@@ -35,7 +35,7 @@
 #define __SOTA_H__
 
 #include<stdint.h>
-#include"fota/ota_api.h"
+#include"ota/ota_api.h"
 
 typedef enum
 {

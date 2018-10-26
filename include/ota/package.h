@@ -32,49 +32,99 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
+/**@defgroup Agenttiny
  * @ingroup agent
  */
 
-#ifndef _FOTA_PACKAGE_CHECKSUM_H_
-#define _FOTA_PACKAGE_CHECKSUM_H_
+#ifndef PACKAGE_H
+#define PACKAGE_H
 
-#include "fota/fota_package_storage_device.h"
-
-
-struct fota_pack_checksum_tag_s;
-
-struct fota_pack_checksum_tag_s;
-typedef struct fota_pack_checksum_tag_s fota_pack_checksum_s;
-
-struct fota_pack_head_tag_s;
-
-typedef struct fota_pack_checksum_alg_tag_s
-{
-    void (*reset)(struct fota_pack_checksum_alg_tag_s *thi);
-    int (*update)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t *buff, uint16_t len);
-    int (*check)(struct fota_pack_checksum_alg_tag_s *thi, const uint8_t  *checksum, uint16_t checksum_len);
-    void (*destroy)(struct fota_pack_checksum_alg_tag_s *thi);
-}fota_pack_checksum_alg_s;
+#include "ota/package.h"
 
 
+//#ifdef WITH_SOTA
+#include "ota_api.h"
+//#endif
+
+/* use sha256 rsa2048 for checksum */
+#define PACK_SHA256_RSA2048 0
+/* use sha256 for checksum */
+#define PACK_SHA256 1
+/* no checksum info */
+#define PACK_NO_CHECKSUM 2
+
+#define PACK_NO 0
+#define PACK_YES 1
+
+/* should define checksum first */
+#ifndef PACK_CHECKSUM
+#define PACK_CHECKSUM PACK_SHA256_RSA2048
+#endif
+
+/* PACK_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
+flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
+write entire block size and need no buffer. but it is not suitable to write to fs system */
+#ifndef PACK_COMBINE_TO_WRITE_LAST_BLOCK
+#define PACK_COMBINE_TO_WRITE_LAST_BLOCK PACK_NO
+#endif
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+typedef struct pack_storage_device_api_tag_s pack_storage_device_api_s;
 
-fota_pack_checksum_s * fota_pack_checksum_create(struct fota_pack_head_tag_s *head);
-void fota_pack_checksum_delete(fota_pack_checksum_s * thi);
-int fota_pack_checksum_update_data(fota_pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  fota_hardware_s *hardware);
-int fota_pack_checksum_check(fota_pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
+typedef enum
+{
+    PACK_DOWNLOAD_OK,
+    PACK_DOWNLOAD_FAIL
+}pack_download_result_e;
+struct pack_storage_device_api_tag_s
+{
+    int (*write_software)(pack_storage_device_api_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    int (*write_software_end)(pack_storage_device_api_s *thi, pack_download_result_e result, uint32_t total_len);
+    int (*active_software)(pack_storage_device_api_s *thi);
+};
+
+
+/**
+ *@ingroup agenttiny
+ *@brief get storage device.
+ *
+ *@par Description:
+ *This API is used to get storage device.
+ *@attention none.
+ *
+ *@param none.
+ *
+ *@retval #pack_storage_device_api_s *     storage device.
+ *@par Dependency: none.
+ *@see none
+ */
+pack_storage_device_api_s *pack_get_device(void);
+
+/**
+ *@ingroup agenttiny
+ *@brief initiate storage device.
+ *
+ *@par Description:
+ *This API is used to initiate storage device.
+ *@attention none.
+ *
+ *@param ato_opt        [IN] Ota option.
+ *
+ *@retval #int          0 if succeed, or error.
+ *@par Dependency: none.
+ *@see none
+ */
+int pack_init_device(const ota_opt_s *ota_opt);
 
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PACKAGE_CHECKSUM_H_
+#endif //PACKAGE_H
 
 

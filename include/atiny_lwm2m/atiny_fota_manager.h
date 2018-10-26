@@ -54,7 +54,7 @@
 
 #include "atiny_lwm2m/agenttiny.h"
 #include "liblwm2m.h"
-#include "atiny_fota_api.h"
+#include "ota/package.h"
 
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
 
@@ -72,6 +72,17 @@
 9: Unsupported protocol
 
 */
+
+typedef int atiny_fota_state_e;
+enum //atiny_fota_state_e
+{
+    ATINY_FOTA_IDLE = 0,
+    ATINY_FOTA_DOWNLOADING,
+    ATINY_FOTA_DOWNLOADED,
+    ATINY_FOTA_UPDATING
+};
+
+
 typedef int atiny_update_result_e;
 enum
 {
@@ -97,7 +108,7 @@ int atiny_fota_manager_execute_update(atiny_fota_manager_s *thi);
 int atiny_fota_manager_repot_result(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e state);
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi);
-atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi);
+pack_storage_device_api_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t*  lwm2m_context);
 lwm2m_context_t* atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi);
 void atiny_fota_manager_get_data_cfg(const atiny_fota_manager_s *thi, lwm2m_data_cfg_t *data_cfg);

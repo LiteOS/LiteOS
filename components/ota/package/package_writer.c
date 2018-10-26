@@ -32,16 +32,16 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_firmware_writer.h"
-#include "fota/fota_package_head.h"
+#include "package_writer.h"
+#include "package_head.h"
 #include "upgrade_flag.h"
 
 
-void fota_fmw_wr_init(fota_firmware_writer_s *writer)
+void pack_wr_init(pack_writer_s *writer)
 {
     (void)memset(writer, 0, sizeof(*writer));
 }
-void fota_fmw_wr_free_save_buffer(fota_firmware_writer_s *writer)
+void pack_wr_free_save_buffer(pack_writer_s *writer)
 {
     if(writer->buffer)
     {
@@ -52,30 +52,30 @@ void fota_fmw_wr_free_save_buffer(fota_firmware_writer_s *writer)
     writer->block_size = 0;
 }
 
-void fota_fmw_wr_destroy(fota_firmware_writer_s *writer)
+void pack_wr_destroy(pack_writer_s *writer)
 {
     writer->offset_flag = false;
-    fota_fmw_wr_free_save_buffer(writer);
+    pack_wr_free_save_buffer(writer);
 
 }
 
 
-void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, fota_hardware_s *hardware)
+void pack_wr_set_device(pack_writer_s *writer, pack_hardware_s *hardware)
 {
     writer->hardware = hardware;
 }
 
-int fota_fmw_wr_check(fota_firmware_writer_s *writer)
+int pack_wr_check(pack_writer_s *writer)
 {
     if(NULL == writer->hardware)
     {
-        FOTA_LOG("null poiter");
-        return FOTA_ERR;
+        PACK_LOG("null poiter");
+        return PACK_ERR;
     }
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-static int fota_fmw_write_data(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buffer, uint32_t len)
+static int pack_write_data(pack_writer_s *writer, uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
 
     int ret = writer->hardware->write_software(writer->hardware,  offset, buffer, len);
@@ -86,18 +86,18 @@ static int fota_fmw_write_data(fota_firmware_writer_s *writer, uint32_t offset, 
     }
     return ret;
 }
-int fota_fmw_wr_write_stored_data(fota_firmware_writer_s *writer)
+int pack_wr_write_stored_data(pack_writer_s *writer)
 {
     int ret;
 
-#if (OTA_COMBINE_TO_WRITE_LAST_BLOCK == OTA_YES)
+#if (PACK_COMBINE_TO_WRITE_LAST_BLOCK == PACK_YES)
     if (writer->buffer_stored_len < writer->block_size)
     {
         ret = writer->hardware->read_software(writer->hardware,  writer->offset,
                     writer->buffer + writer->buffer_stored_len, writer->block_size - writer->buffer_stored_len);
-        if (ret != FOTA_OK)
+        if (ret != PACK_OK)
         {
-            FOTA_LOG("read_software fail offset %ld, size %ld ret %d", writer->offset,
+            PACK_LOG("read_software fail offset %ld, size %ld ret %d", writer->offset,
                                 writer->block_size - writer->buffer_stored_len, ret);
             return ret;
         }
@@ -106,20 +106,20 @@ int fota_fmw_wr_write_stored_data(fota_firmware_writer_s *writer)
     }
 #endif
 
-    ret = fota_fmw_write_data(writer,  writer->offset, writer->buffer, writer->buffer_stored_len);
-    if(ret != FOTA_OK)
+    ret = pack_write_data(writer,  writer->offset, writer->buffer, writer->buffer_stored_len);
+    if(ret != PACK_OK)
     {
-        FOTA_LOG("write_software err ret %d, offset %u, len %u", ret, writer->offset, writer->buffer_stored_len);
-        return FOTA_ERR;
+        PACK_LOG("write_software err ret %d, offset %u, len %u", ret, writer->offset, writer->buffer_stored_len);
+        return PACK_ERR;
     }
 
     writer->offset_flag = false;
-    return FOTA_OK;
+    return PACK_OK;
 }
 
 
 
-static int fota_fmw_wr_begin_not_aligned(fota_firmware_writer_s *writer, uint32_t block_begin_offset, uint32_t block_size,
+static int pack_wr_begin_not_aligned(pack_writer_s *writer, uint32_t block_begin_offset, uint32_t block_size,
                                 uint32_t offset, const uint8_t *buff, uint16_t len , uint16_t *out_len)
 {
        uint32_t block_left_len = (block_begin_offset + block_size) - offset;
@@ -138,8 +138,8 @@ static int fota_fmw_wr_begin_not_aligned(fota_firmware_writer_s *writer, uint32_
                 writer->buffer = atiny_malloc(block_size);
                 if (writer->buffer == NULL)
                 {
-                    FOTA_LOG("malloc null %d", block_size);
-                    return FOTA_ERR;
+                    PACK_LOG("malloc null %d", block_size);
+                    return PACK_ERR;
                 }
                 writer->block_size = block_size;
             }
@@ -147,9 +147,9 @@ static int fota_fmw_wr_begin_not_aligned(fota_firmware_writer_s *writer, uint32_
             writer->buffer_stored_len = (offset - block_begin_offset);
             ret = writer->hardware->read_software(writer->hardware, block_begin_offset, writer->buffer,
                     writer->buffer_stored_len);
-            if (ret != FOTA_OK)
+            if (ret != PACK_OK)
             {
-                FOTA_LOG("read_software fail offset %ld, size %ld ret %d", block_begin_offset, writer->buffer_stored_len, ret);
+                PACK_LOG("read_software fail offset %ld, size %ld ret %d", block_begin_offset, writer->buffer_stored_len, ret);
                 return ret;
             }
             memcpy(writer->buffer + writer->buffer_stored_len, buff, write_len);
@@ -161,10 +161,10 @@ static int fota_fmw_wr_begin_not_aligned(fota_firmware_writer_s *writer, uint32_
 
         if (writer->buffer_stored_len >= block_size)
         {
-            ret = fota_fmw_write_data(writer, writer->offset, writer->buffer, block_size);
-            if (ret != FOTA_OK)
+            ret = pack_write_data(writer, writer->offset, writer->buffer, block_size);
+            if (ret != PACK_OK)
             {
-                FOTA_LOG("fota_fmw_write_data fail,offset %ld, size %ld, ret %ld",
+                PACK_LOG("pack_write_data fail,offset %ld, size %ld, ret %ld",
                         writer->offset, block_size, ret);
                 return ret;
             }
@@ -173,10 +173,10 @@ static int fota_fmw_wr_begin_not_aligned(fota_firmware_writer_s *writer, uint32_
 
         *out_len = (uint16_t)write_len;
 
-        return FOTA_OK;
+        return PACK_OK;
 }
 
-static int fota_fmw_wr_entire_blocks(fota_firmware_writer_s *writer, uint32_t block_begin_offset,
+static int pack_wr_entire_blocks(pack_writer_s *writer, uint32_t block_begin_offset,
                                     uint32_t block_size, const uint8_t *buff, uint16_t len, uint16_t *out_len)
 {
     int ret;
@@ -186,20 +186,20 @@ static int fota_fmw_wr_entire_blocks(fota_firmware_writer_s *writer, uint32_t bl
     for (; len >= block_size; len -= block_size, block_begin_offset += block_size,
                                 buff += block_size, *out_len += block_size)
     {
-        ret = fota_fmw_write_data(writer, block_begin_offset, buff, block_size);
-        if (ret != FOTA_OK)
+        ret = pack_write_data(writer, block_begin_offset, buff, block_size);
+        if (ret != PACK_OK)
         {
-            FOTA_LOG("fota_fmw_write_data fail,offset %ld, size %ld, ret %ld",
+            PACK_LOG("pack_write_data fail,offset %ld, size %ld, ret %ld",
                     writer->offset, block_size, ret);
             return ret;
         }
     }
 
-    return FOTA_OK;
+    return PACK_OK;
 }
 
 
-static int fota_fmw_wr_end_not_aligned_block(fota_firmware_writer_s *writer, uint32_t block_begin_offset,
+static int pack_wr_end_not_aligned_block(pack_writer_s *writer, uint32_t block_begin_offset,
                                             uint32_t block_size, const uint8_t *buff, uint16_t len)
 {
     if (writer->buffer == NULL)
@@ -207,8 +207,8 @@ static int fota_fmw_wr_end_not_aligned_block(fota_firmware_writer_s *writer, uin
         writer->buffer = atiny_malloc(block_size);
         if (writer->buffer == NULL)
         {
-            FOTA_LOG("malloc null %d", block_size);
-            return FOTA_ERR;
+            PACK_LOG("malloc null %d", block_size);
+            return PACK_ERR;
         }
         writer->block_size = block_size;
     }
@@ -217,18 +217,18 @@ static int fota_fmw_wr_end_not_aligned_block(fota_firmware_writer_s *writer, uin
     writer->buffer_stored_len = len;
     writer->offset_flag = true;
     writer->offset = block_begin_offset;
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len)
+int pack_wr_write(pack_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len)
 {
     uint16_t write_len = 0;
     int ret;
     uint32_t block_size;
 
-    if(fota_fmw_wr_check(writer) != FOTA_OK)
+    if(pack_wr_check(writer) != PACK_OK)
     {
-        return FOTA_ERR;
+        return PACK_ERR;
     }
 
 
@@ -236,8 +236,8 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
         && (writer->buffer_stored_len > 0))
     {
 
-        ret = fota_fmw_wr_write_stored_data(writer);
-        if (ret != FOTA_OK)
+        ret = pack_wr_write_stored_data(writer);
+        if (ret != PACK_OK)
         {
             return ret;
         }
@@ -246,8 +246,8 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
     block_size = writer->hardware->get_block_size(writer->hardware);
     if (block_size == 0)
     {
-        FOTA_LOG("err block_size is 0");
-        return FOTA_ERR;
+        PACK_LOG("err block_size is 0");
+        return PACK_ERR;
     }
 
     if (offset % block_size)
@@ -255,8 +255,8 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
         uint32_t block_begin;
 
         block_begin = ((offset / block_size) * block_size);
-        ret = fota_fmw_wr_begin_not_aligned(writer, block_begin, block_size, offset, buff, len, &write_len);
-        if (ret != FOTA_OK)
+        ret = pack_wr_begin_not_aligned(writer, block_begin, block_size, offset, buff, len, &write_len);
+        if (ret != PACK_OK)
         {
             return ret;
         }
@@ -268,11 +268,11 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
 
     if (len <= 0)
     {
-        return FOTA_OK;
+        return PACK_OK;
     }
 
-    ret = fota_fmw_wr_entire_blocks(writer, offset, block_size, buff, len, &write_len);
-    if (ret != FOTA_OK)
+    ret = pack_wr_entire_blocks(writer, offset, block_size, buff, len, &write_len);
+    if (ret != PACK_OK)
     {
         return ret;
     }
@@ -283,21 +283,21 @@ int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uin
 
     if (len <= 0)
     {
-        return FOTA_OK;
+        return PACK_OK;
     }
 
-    return fota_fmw_wr_end_not_aligned_block(writer, offset, block_size, buff, len);
+    return pack_wr_end_not_aligned_block(writer, offset, block_size, buff, len);
 
 }
 
-int fota_fmw_wr_write_end(fota_firmware_writer_s *writer)
+int pack_wr_write_end(pack_writer_s *writer)
 {
     if(0 == writer->buffer_stored_len)
     {
-        return FOTA_OK;
+        return PACK_OK;
     }
 
-    return fota_fmw_wr_write_stored_data(writer);
+    return pack_wr_write_stored_data(writer);
 }
 
 

@@ -36,38 +36,24 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_PACKAGE_SHA256_H_
-#define _FOTA_PACKAGE_SHA256_H_
+#ifndef OTA_PORT_H
+#define OTA_PORT_H
+#include "ota/package.h"
+#include "ota/ota_api.h"
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
-
-
-#include "fota/fota_package_storage_device.h"
-#include "mbedtls/sha256.h"
-
-
-
-typedef struct
-{
-    fota_pack_checksum_alg_s base;
-    mbedtls_sha256_context sha256_context;
-}fota_pack_sha256_s;
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-int fota_pack_sha256_init(fota_pack_sha256_s *thi);
+void hal_init_ota(void);
+void hal_get_ota_opt(ota_opt_s *opt);
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PACKAGE_SHA256_H_
+#endif //OTA_PORT_H
 
 

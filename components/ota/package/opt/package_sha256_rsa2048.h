@@ -36,65 +36,30 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define _FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef PACKAGE_SHA256_RSA2048_H
+#define PACKAGE_SHA256_RSA2048_H
 
-#include "atiny_lwm2m/atiny_fota_api.h"
+#include "package_sha256.h"
+#include "../package_head.h"
 
-
-//#ifdef WITH_SOTA
-#include "ota_api.h"
-//#endif
-
-#define FOTA_PACK_SHA256_RSA2048 0
-#define FOTA_PACK_SHA256 1
-#define FOTA_PACK_NO_CHECKSUM 2
-
-#define OTA_NO 0
-#define OTA_YES 1
-
-#ifndef FOTA_PACK_CHECKSUM
-#define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
-#endif
-
-/* OTA_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
-flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
-write entire block size and need no buffer. but it is not suitable to write to fs system */
-#ifndef OTA_COMBINE_TO_WRITE_LAST_BLOCK
-#define OTA_COMBINE_TO_WRITE_LAST_BLOCK OTA_NO
-#endif
+typedef struct
+{
+    pack_sha256_s sha256;
+    pack_head_s *head;
+}pack_sha256_rsa2048_s;
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-
-typedef struct fota_hardware_tag_s fota_hardware_s;
-
-
-/**
- *@ingroup atiny_adapter
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #atiny_fota_storage_device_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-atiny_fota_storage_device_s *fota_get_pack_device(void);
-int ota_init_pack_device(const ota_opt_s *ato_opt);
+int pack_sha256_rsa2048_init(pack_sha256_rsa2048_s *thi, pack_head_s *head);
 
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#endif //PACKAGE_SHA256_RSA2048_H
 
 

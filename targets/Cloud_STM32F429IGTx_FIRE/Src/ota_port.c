@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota_port.h"
+#include "ota_port.h"
 #include "hal_spi_flash.h"
 #include "flag_manager.h"
 #include "upgrade_flag.h"
@@ -44,7 +44,7 @@
 #define FLASH_BLOCK_SIZE 0x1000
 
 #define FLASH_BLOCK_MASK 0xfff
-#define HAL_FOTA_LOG(fmt, ...) \
+#define HAL_OTA_LOG(fmt, ...) \
 (void)printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t) atiny_gettime_ms(),  ##__VA_ARGS__)
 
 
@@ -52,7 +52,7 @@
 #define ERR -1
 
 
-static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t len)
+static int hal_ota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
     int ret;
     uint8_t *block_buff;
@@ -60,7 +60,7 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
     if((NULL == buffer) || (0 == len) || (len > FLASH_BLOCK_SIZE)
         || ((offset & FLASH_BLOCK_MASK)))
     {
-        HAL_FOTA_LOG("invalid param len %ld, offset %ld", len, offset);
+        HAL_OTA_LOG("invalid param len %ld, offset %ld", len, offset);
         return ERR;
     }
 
@@ -69,7 +69,7 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
         ret = hal_spi_flash_erase_write(buffer, FLASH_BLOCK_SIZE, offset);
         if(ret != OK)
         {
-           HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
+           HAL_OTA_LOG("hal_ota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
         }
         return ret;
     }
@@ -77,7 +77,7 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
     block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
     if(NULL == block_buff)
     {
-        HAL_FOTA_LOG("atiny_malloc fail");
+        HAL_OTA_LOG("atiny_malloc fail");
         return ERR;
     }
 
@@ -85,14 +85,14 @@ static int hal_fota_write_flash(uint32_t offset, const uint8_t *buffer, uint32_t
     ret = hal_spi_flash_read(block_buff + len, FLASH_BLOCK_SIZE - len, offset + len);
     if(ret != OK)
     {
-        HAL_FOTA_LOG("hal_spi_flash_read fail offset %lu, len %lu", offset + len, FLASH_BLOCK_SIZE - len);
+        HAL_OTA_LOG("hal_spi_flash_read fail offset %lu, len %lu", offset + len, FLASH_BLOCK_SIZE - len);
         return ret;
     }
     (void)memcpy(block_buff, buffer, len);
     ret = hal_spi_flash_erase_write(block_buff, FLASH_BLOCK_SIZE, offset);
     if(ret != OK)
     {
-        HAL_FOTA_LOG("hal_fota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
+        HAL_OTA_LOG("hal_ota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
     }
     return ret;
 }
@@ -111,13 +111,13 @@ static int hal_check_flash_param(ota_flash_type_e type, int32_t len, uint32_t lo
 {
     if (type > OTA_UPDATE_INFO)
     {
-        HAL_FOTA_LOG("err type %d", type);
+        HAL_OTA_LOG("err type %d", type);
         return ERR;
     }
 
     if(len > g_flash_max_size[type])
     {
-        HAL_FOTA_LOG("err offset %lu, len %lu", location, len);
+        HAL_OTA_LOG("err offset %lu, len %lu", location, len);
         return ERR;
     }
 
@@ -141,7 +141,7 @@ static int hal_write_flash(ota_flash_type_e type, const void *buf, int32_t len, 
         return ERR;
     }
 
-    return hal_fota_write_flash(g_flash_base_addrs[type] + location, (const uint8_t *)buf, len);
+    return hal_ota_write_flash(g_flash_base_addrs[type] + location, (const uint8_t *)buf, len);
 }
 
 
@@ -149,7 +149,7 @@ void hal_get_ota_opt(ota_opt_s *opt)
 {
     if (opt == NULL)
     {
-        HAL_FOTA_LOG("opt NULL");
+        HAL_OTA_LOG("opt NULL");
         return;
     }
 

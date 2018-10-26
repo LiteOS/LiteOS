@@ -263,7 +263,7 @@ static int atiny_fota_downloaded_state_recv_notify_ack(atiny_fota_state_s *thi, 
     int ret;
     atiny_fota_state_e rpt_state;
     lwm2m_observe_info_t observe_info;
-    atiny_fota_storage_device_s *device;
+    pack_storage_device_api_s *device;
 
     ASSERT_THIS(return ATINY_ARG_INVALID);
     if(SENT_SUCCESS != status)
