@@ -34,7 +34,7 @@
 
 #include "agent_tiny_demo.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "fota_port.h"
+#include "ota_port.h"
 #endif
 
 #define DEFAULT_SERVER_IPV4 "180.101.147.115" /*dianxin*/

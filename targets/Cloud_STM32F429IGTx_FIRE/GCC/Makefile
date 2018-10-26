@@ -294,19 +294,14 @@ SOTA_SRC = \
         C_SOURCES += $(SOTA_SRC)
 endif
 
-ifeq ($(USE_FOTA), yes)
-FOTA_SRC = \
-	${wildcard  $(TOP_DIR)/components/ota/fota/*.c} \
-	${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
-	C_SOURCES += $(FOTA_SRC)
-endif
-
 ifeq ($(USE_OTA), yes)
 OTA_SRC = \
-    ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c}
+    ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
+    ${wildcard  $(TOP_DIR)/components/ota/package/*.c} \
+	${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
 endif
 
 
@@ -372,11 +367,11 @@ ifeq ($(WITH_AT_FRAMEWORK), yes)
 endif
 
 ifeq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
-		C_DEFS += -DFOTA_PACK_CHECKSUM=2
+		C_DEFS += -DPACK_CHECKSUM=2
 else ifeq ($(OTA_PACK_CHECKSUM), SHA256)
-		C_DEFS += -DFOTA_PACK_CHECKSUM=1
+		C_DEFS += -DPACK_CHECKSUM=1
 else ifeq ($(OTA_PACK_CHECKSUM), SHA256_RSA2048)
-		C_DEFS += -DFOTA_PACK_CHECKSUM=0
+		C_DEFS += -DPACK_CHECKSUM=0
 else
 endif
 

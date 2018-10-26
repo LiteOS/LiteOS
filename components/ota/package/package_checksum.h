@@ -36,10 +36,33 @@
  * @ingroup agent
  */
 
-#ifndef _ATINY_FOTA_API_H_
-#define _ATINY_FOTA_API_H_
-#include <stdbool.h>
-#include <stdint.h>
+#ifndef PACKAGE_CHECKSUM_H
+#define PACKAGE_CHECKSUM_H
+
+#include "ota/package.h"
+
+
+typedef struct pack_hardware_tag_s
+{
+    int (*read_software)(struct pack_hardware_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
+    int (*write_software)(struct pack_hardware_tag_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    void (*set_flash_type)(struct pack_hardware_tag_s *thi, ota_flash_type_e type);
+    uint32_t (*get_block_size)(struct pack_hardware_tag_s *thi);
+    uint32_t (*get_max_size)(struct pack_hardware_tag_s *thi);
+}pack_hardware_s;
+
+typedef struct pack_checksum_tag_s pack_checksum_s;
+
+struct pack_head_tag_s;
+
+typedef struct pack_checksum_alg_tag_s
+{
+    void (*reset)(struct pack_checksum_alg_tag_s *thi);
+    int (*update)(struct pack_checksum_alg_tag_s *thi, const uint8_t *buff, uint16_t len);
+    int (*check)(struct pack_checksum_alg_tag_s *thi, const uint8_t  *checksum, uint16_t checksum_len);
+    void (*destroy)(struct pack_checksum_alg_tag_s *thi);
+}pack_checksum_alg_s;
+
 
 
 
@@ -47,37 +70,17 @@
 extern "C" {
 #endif
 
-struct atiny_fota_storage_device_tag_s;
-typedef struct atiny_fota_storage_device_tag_s atiny_fota_storage_device_s;
 
-typedef int atiny_fota_state_e;
-enum //atiny_fota_state_e
-{
-    ATINY_FOTA_IDLE = 0,
-    ATINY_FOTA_DOWNLOADING,
-    ATINY_FOTA_DOWNLOADED,
-    ATINY_FOTA_UPDATING
-};
-
-typedef enum
-{
-    ATINY_FOTA_DOWNLOAD_OK,
-    ATINY_FOTA_DOWNLOAD_FAIL
-}atiny_download_result_e;
-struct atiny_fota_storage_device_tag_s
-{
-    int (*write_software)(atiny_fota_storage_device_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
-    int (*write_software_end)(atiny_fota_storage_device_s *thi, atiny_download_result_e result, uint32_t total_len);
-    int (*active_software)(atiny_fota_storage_device_s *thi);
-};
-
-
+pack_checksum_s * pack_checksum_create(struct pack_head_tag_s *head);
+void pack_checksum_delete(pack_checksum_s * thi);
+int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  pack_hardware_s *hardware);
+int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
 
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_ATINY_FOTA_API_H_
+#endif //PACKAGE_CHECKSUM_H
 
 

@@ -36,41 +36,38 @@
  * @ingroup agent
  */
 
-#ifndef _FOTA_FIRMWARE_WRITER_H_
-#define _FOTA_FIRMWARE_WRITER_H_
+#ifndef PACKAGE_SHA256_H
+#define PACKAGE_SHA256_H
 
-#include "fota/fota_package_storage_device.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+
+#include "ota/package.h"
+#include "mbedtls/sha256.h"
+
 
 
 typedef struct
 {
-    uint32_t offset;
-    int32_t offset_flag;
+    pack_checksum_alg_s base;
+    mbedtls_sha256_context sha256_context;
+}pack_sha256_s;
 
-    uint8_t * buffer;
-    uint16_t block_size;
-    uint16_t buffer_stored_len;
-    fota_hardware_s *hardware;
-}fota_firmware_writer_s;
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-void fota_fmw_wr_init(fota_firmware_writer_s *writer);
-void fota_fmw_wr_destroy(fota_firmware_writer_s *writer);
-void fota_fmw_wr_set_device(fota_firmware_writer_s *writer, fota_hardware_s *hardware);
-int fota_fmw_wr_write(fota_firmware_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len);
-int fota_fmw_wr_write_end(fota_firmware_writer_s *writer);
-
-
-
-
+int pack_sha256_init(pack_sha256_s *thi);
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif //_FOTA_FIRMWARE_WRITER_H_
+#endif //PACKAGE_SHA256_H
 
 

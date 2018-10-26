@@ -56,7 +56,7 @@
 #ifdef WITH_SOTA
 #include "sota/sota.h"
 #include "../components/ota/sota/sota_hal.h"
-#include "fota_port.h"
+#include "ota_port.h"
 #include "board.h"
 #include "hal_spi_flash.h"
 #endif

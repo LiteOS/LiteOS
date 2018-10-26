@@ -31,75 +31,75 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifdef INCLUDE_FOTA_PACK_OPTION_FILE
-#include "fota_package_sha256_rsa2048.h"
+#ifdef INCLUDE_PACK_OPTION_FILE
+#include "package_sha256_rsa2048.h"
 #include <string.h>
 #include "mbedtls/rsa.h"
 
-#define FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN 256
-#define FOTA_PACK_SHA256_CHECKSUM_LEN 32
+#define PACK_SHA256_RSA2048_CHECKSUM_LEN 256
+#define PACK_SHA256_CHECKSUM_LEN 32
 
 
-static int fota_pack_sha256_rsa2048_check(fota_pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
+static int pack_sha256_rsa2048_check(pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
 {
-    fota_pack_sha256_rsa2048_s *rsa = (fota_pack_sha256_rsa2048_s *)thi;
+    pack_sha256_rsa2048_s *rsa = (pack_sha256_rsa2048_s *)thi;
     mbedtls_rsa_context *dtls_rsa = NULL;
     ota_key_s *key = NULL;
-    uint8_t real_sha256[FOTA_PACK_SHA256_CHECKSUM_LEN];
-    int ret = FOTA_ERR;
+    uint8_t real_sha256[PACK_SHA256_CHECKSUM_LEN];
+    int ret = PACK_ERR;
 
-    if(checksum_len != FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN)
+    if(checksum_len != PACK_SHA256_RSA2048_CHECKSUM_LEN)
     {
-        FOTA_LOG("checksum_len err %d", checksum_len);
-        return FOTA_ERR;
+        PACK_LOG("checksum_len err %d", checksum_len);
+        return PACK_ERR;
     }
 
-    key = fota_pack_head_get_key(rsa->head);
+    key = pack_head_get_key(rsa->head);
     if(NULL == key
             || (NULL == key->rsa_E)
             || (NULL == key->rsa_N))
     {
-        FOTA_LOG("key null");
-        return FOTA_ERR;
+        PACK_LOG("key null");
+        return PACK_ERR;
     }
 
     dtls_rsa = (mbedtls_rsa_context *)atiny_malloc(sizeof(*dtls_rsa));
     if(NULL == dtls_rsa)
     {
-        FOTA_LOG("atiny_malloc null");
-        return FOTA_ERR;
+        PACK_LOG("atiny_malloc null");
+        return PACK_ERR;
     }
 
     mbedtls_rsa_init(dtls_rsa, MBEDTLS_RSA_PKCS_V21, 0);
-    dtls_rsa->len = FOTA_PACK_SHA256_RSA2048_CHECKSUM_LEN;
-    if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != FOTA_OK)
+    dtls_rsa->len = PACK_SHA256_RSA2048_CHECKSUM_LEN;
+    if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != PACK_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string fail");
+        PACK_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 
-    if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != FOTA_OK)
+    if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != PACK_OK)
     {
-        FOTA_LOG("mbedtls_mpi_read_string fail");
+        PACK_LOG("mbedtls_mpi_read_string fail");
         goto EXIT;
     }
 
-    if(mbedtls_rsa_check_pubkey(dtls_rsa) != FOTA_OK)
+    if(mbedtls_rsa_check_pubkey(dtls_rsa) != PACK_OK)
     {
-        FOTA_LOG("mbedtls_rsa_check_pubkey fail");
+        PACK_LOG("mbedtls_rsa_check_pubkey fail");
         goto EXIT;
     }
 
     mbedtls_sha256_finish(&rsa->sha256.sha256_context, real_sha256);
 
     if( mbedtls_rsa_pkcs1_verify(dtls_rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 0,
-                                 real_sha256, checksum) != FOTA_OK)
+                                 real_sha256, checksum) != PACK_OK)
     {
-        FOTA_LOG("mbedtls_rsa_pkcs1_verify fail");
+        PACK_LOG("mbedtls_rsa_pkcs1_verify fail");
         goto EXIT;
     }
 
-    ret = FOTA_OK;
+    ret = PACK_OK;
 EXIT:
 
     mbedtls_rsa_free(dtls_rsa);
@@ -110,12 +110,12 @@ EXIT:
 
 
 
-int fota_pack_sha256_rsa2048_init(fota_pack_sha256_rsa2048_s *thi, fota_pack_head_s *head)
+int pack_sha256_rsa2048_init(pack_sha256_rsa2048_s *thi, pack_head_s *head)
 {
-    (void)fota_pack_sha256_init(&thi->sha256);
-    thi->sha256.base.check = fota_pack_sha256_rsa2048_check;
+    (void)pack_sha256_init(&thi->sha256);
+    thi->sha256.base.check = pack_sha256_rsa2048_check;
     thi->head = head;
-    return FOTA_OK;
+    return PACK_OK;
 }
 #endif
 

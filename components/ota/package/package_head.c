@@ -32,8 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "fota/fota_package_head.h"
-#include "fota_firmware_writer.h"
+#include "package_head.h"
+#include "package_writer.h"
 #include "stddef.h"
 
 #define MAKE_DWORD(a, b, c, d) ((((uint32_t)(a)) << 24) | (((uint32_t)(b)) << 16) | (((uint32_t)(c)) <<8) | ((uint32_t)(d)))
@@ -43,20 +43,20 @@
 #define GET_WORD(buf, pos) MAKE_WORD(buf[pos], buf[pos + 1])
 
 
-#define FOTA_PACK_HEADER_MIN_LEN 12
-#define FOTA_TLV_START_POS FOTA_PACK_HEADER_MIN_LEN
+#define PACK_HEADER_MIN_LEN 12
+#define PACK_TLV_START_POS PACK_HEADER_MIN_LEN
 
-#define FOTA_PACK_VERSION_POS 0
-#define FOTA_PACK_HEADER_HEAD_LEN_POS 4
-#define FOTA_PACK_HEADER_TOTAL_LEN_POS 8
+#define PACK_VERSION_POS 0
+#define PACK_HEADER_HEAD_LEN_POS 4
+#define PACK_HEADER_TOTAL_LEN_POS 8
 
-#define FOTA_PACK_TLV_T_LEN 2
-#define FOTA_PACK_TLV_L_LEN 2
+#define PACK_TLV_T_LEN 2
+#define PACK_TLV_L_LEN 2
 
-#define FOTA_PACK_TLV_T_SHA256 1
-#define FOTA_PACK_TLV_T_SHA256_RSA2048 3
-#define OTA_PACK_INVALID_TLV_T 0xffff
-#define OTA_PACK_TLV_T_BIN_TYPE 4
+#define PACK_TLV_T_SHA256 1
+#define PACK_TLV_T_SHA256_RSA2048 3
+#define PACK_INVALID_TLV_T 0xffff
+#define PACK_TLV_T_BIN_TYPE 4
 
 
 
@@ -65,13 +65,13 @@
 
 
 
-void fota_pack_head_init(fota_pack_head_s *head)
+void pack_head_init(pack_head_s *head)
 {
     (void)memset(head, 0 , sizeof(*head));
 }
 
 
-void fota_pack_head_destroy(fota_pack_head_s *head)
+void pack_head_destroy(pack_head_s *head)
 {
     if(head->buff)
     {
@@ -87,18 +87,18 @@ void fota_pack_head_destroy(fota_pack_head_s *head)
 
     if(head->checksum)
     {
-        fota_pack_checksum_delete(head->checksum);
+        pack_checksum_delete(head->checksum);
         head->checksum = NULL;
     }
 
     memset(&(head->buff), 0, sizeof(*head) - (((uint8_t *) & (head->buff)) - ((uint8_t *)head)));
 }
 
-int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
+int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *buff,
                                   uint16_t len, uint16_t *used_len)
 {
     *used_len = 0;
-    if(offset < FOTA_PACK_HEADER_MIN_LEN)
+    if(offset < PACK_HEADER_MIN_LEN)
     {
         uint32_t copy_len;
         uint32_t head_len;
@@ -106,44 +106,44 @@ int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const
         uint32_t version;
         if(offset > head->stored_len)
         {
-            FOTA_LOG("head not continuous, len %u offset %u", head->stored_len, offset);
-            return FOTA_ERR;
+            PACK_LOG("head not continuous, len %u offset %u", head->stored_len, offset);
+            return PACK_ERR;
         }
 
         if(NULL == head->buff)
         {
-            head->buff = atiny_malloc(FOTA_PACK_HEADER_MIN_LEN);
+            head->buff = atiny_malloc(PACK_HEADER_MIN_LEN);
             if(NULL == head->buff)
             {
-                FOTA_LOG("atiny_malloc fail");
-                return FOTA_ERR;
+                PACK_LOG("atiny_malloc fail");
+                return PACK_ERR;
             }
-            head->head_len = FOTA_PACK_HEADER_MIN_LEN;
+            head->head_len = PACK_HEADER_MIN_LEN;
         }
-        copy_len = MIN(FOTA_PACK_HEADER_MIN_LEN - offset, len);
+        copy_len = MIN(PACK_HEADER_MIN_LEN - offset, len);
         memcpy(head->buff + offset, buff, copy_len);
         head->stored_len = offset + copy_len;
         *used_len = copy_len;
-        if(head->stored_len < FOTA_PACK_HEADER_MIN_LEN)
+        if(head->stored_len < PACK_HEADER_MIN_LEN)
         {
-            return FOTA_OK;
+            return PACK_OK;
         }
 
-        version = GET_DWORD(head->buff, FOTA_PACK_VERSION_POS);
+        version = GET_DWORD(head->buff, PACK_VERSION_POS);
         if(version != VERSION_NO)
         {
-            FOTA_LOG("invalid version %d", version);
+            PACK_LOG("invalid version %d", version);
             head->stored_len = 0;
-            return FOTA_ERR;
+            return PACK_ERR;
         }
 
-        head_len = GET_DWORD(head->buff, FOTA_PACK_HEADER_HEAD_LEN_POS);
-        total_len = GET_DWORD(head->buff, FOTA_PACK_HEADER_TOTAL_LEN_POS);
-        if(head_len < FOTA_PACK_HEADER_MIN_LEN || (head_len >= total_len))
+        head_len = GET_DWORD(head->buff, PACK_HEADER_HEAD_LEN_POS);
+        total_len = GET_DWORD(head->buff, PACK_HEADER_TOTAL_LEN_POS);
+        if(head_len < PACK_HEADER_MIN_LEN || (head_len >= total_len))
         {
-            FOTA_LOG("invalid head len %d, total len %d", head_len, total_len);
+            PACK_LOG("invalid head len %d, total len %d", head_len, total_len);
             head->stored_len = 0;
-            return FOTA_ERR;
+            return PACK_ERR;
         }
 
         if(head_len > head->head_len)
@@ -151,8 +151,8 @@ int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const
             uint8_t *new_buff = atiny_malloc(head_len);
             if(NULL == new_buff)
             {
-                FOTA_LOG("atiny_malloc fail");
-                return FOTA_ERR;
+                PACK_LOG("atiny_malloc fail");
+                return PACK_ERR;
             }
             memcpy(new_buff, head->buff, head->stored_len);
             atiny_free(head->buff);
@@ -161,22 +161,22 @@ int fota_pack_head_parse_head_len(fota_pack_head_s *head, uint32_t offset, const
         }
 
     }
-    return FOTA_OK;
+    return PACK_OK;
 }
 
 
-static uint32_t ota_pack_head_get_checksum_attribute(void)
+static uint32_t pack_head_get_checksum_attribute(void)
 {
-#if (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256_RSA2048)
-    return FOTA_PACK_TLV_T_SHA256_RSA2048;
-#elif (FOTA_PACK_CHECKSUM == FOTA_PACK_SHA256)
-    return FOTA_PACK_TLV_T_SHA256;
+#if (PACK_CHECKSUM == PACK_SHA256_RSA2048)
+    return PACK_TLV_T_SHA256_RSA2048;
+#elif (PACK_CHECKSUM == PACK_SHA256)
+    return PACK_TLV_T_SHA256;
 #else
-    return OTA_PACK_INVALID_TLV_T;
+    return PACK_INVALID_TLV_T;
 #endif
 }
 
-static int ota_pack_head_handle_checksum_tlv(fota_pack_head_s *head, uint8_t *value, uint32_t len)
+static int pack_head_handle_checksum_tlv(pack_head_s *head, uint8_t *value, uint32_t len)
 {
     if(head->checksum_pos)
     {
@@ -191,8 +191,8 @@ static int ota_pack_head_handle_checksum_tlv(fota_pack_head_s *head, uint8_t *va
         head->checksum_pos = atiny_malloc(len);
         if(NULL == head->checksum_pos)
         {
-            FOTA_LOG("atiny_malloc %d fail", len);
-            return FOTA_ERR;
+            PACK_LOG("atiny_malloc %d fail", len);
+            return PACK_ERR;
         }
         memcpy(head->checksum_pos, value, len);
     }
@@ -200,104 +200,104 @@ static int ota_pack_head_handle_checksum_tlv(fota_pack_head_s *head, uint8_t *va
     head->checksum_len = len;
     memset(value, 0, len);
 
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-static int ota_pack_head_handle_bin_type_tlv(fota_pack_head_s *head, uint8_t *value, uint32_t len)
+static int pack_head_handle_bin_type_tlv(pack_head_s *head, uint8_t *value, uint32_t len)
 {
     if (head->hardware->set_flash_type)
     {
         uint32_t flash_type =  GET_DWORD(value, 0);
         if (flash_type >= OTA_UPDATE_INFO)
         {
-            FOTA_LOG("flash_type %d invalid", flash_type);
-            return FOTA_ERR;
+            PACK_LOG("flash_type %d invalid", flash_type);
+            return PACK_ERR;
         }
         head->hardware->set_flash_type(head->hardware, (ota_flash_type_e)flash_type);
     }
 
-    return FOTA_OK;
+    return PACK_OK;
 }
 
 
-static int fota_pack_head_parse_tlvs(fota_pack_head_s *head, uint8_t *buff, uint32_t len)
+static int pack_head_parse_tlvs(pack_head_s *head, uint8_t *buff, uint32_t len)
 {
     uint32_t attribute;
     uint32_t tlv_len;
-    uint8_t *cur = buff + FOTA_TLV_START_POS;
-    uint32_t left_len = len - FOTA_TLV_START_POS;
+    uint8_t *cur = buff + PACK_TLV_START_POS;
+    uint32_t left_len = len - PACK_TLV_START_POS;
 
-    int (*tlv_handles[2])(fota_pack_head_s *head, uint8_t *value, uint32_t len) =
-                                {ota_pack_head_handle_checksum_tlv, ota_pack_head_handle_bin_type_tlv};
-    uint32_t attributes[array_size(tlv_handles)] = {OTA_PACK_INVALID_TLV_T, OTA_PACK_TLV_T_BIN_TYPE};
+    int (*tlv_handles[2])(pack_head_s *head, uint8_t *value, uint32_t len) =
+                                {pack_head_handle_checksum_tlv, pack_head_handle_bin_type_tlv};
+    uint32_t attributes[array_size(tlv_handles)] = {PACK_INVALID_TLV_T, PACK_TLV_T_BIN_TYPE};
 
-    attributes[0] = ota_pack_head_get_checksum_attribute();
+    attributes[0] = pack_head_get_checksum_attribute();
     while(left_len > 0)
     {
         uint32_t i;
 
         attribute = GET_WORD(cur, 0);
-        cur += FOTA_PACK_TLV_T_LEN;
+        cur += PACK_TLV_T_LEN;
         tlv_len = GET_WORD(cur, 0);
-        cur += FOTA_PACK_TLV_L_LEN;
-        if(left_len < (FOTA_PACK_TLV_T_LEN  + FOTA_PACK_TLV_L_LEN + tlv_len))
+        cur += PACK_TLV_L_LEN;
+        if(left_len < (PACK_TLV_T_LEN  + PACK_TLV_L_LEN + tlv_len))
         {
-            FOTA_LOG("tvl err attribute %d, tlv_len %d", attribute, tlv_len);
-            return FOTA_ERR;
+            PACK_LOG("tvl err attribute %d, tlv_len %d", attribute, tlv_len);
+            return PACK_ERR;
         }
 
         for (i = 0; i < array_size(tlv_handles); i++)
         {
             if (attributes[i] == attribute)
             {
-                if(tlv_handles[i](head, cur, tlv_len) != FOTA_OK)
+                if(tlv_handles[i](head, cur, tlv_len) != PACK_OK)
                 {
-                    return FOTA_ERR;
+                    return PACK_ERR;
                 }
                 break;
             }
         }
 
         cur += tlv_len ;
-        left_len -= (FOTA_PACK_TLV_T_LEN  + FOTA_PACK_TLV_L_LEN + tlv_len);
+        left_len -= (PACK_TLV_T_LEN  + PACK_TLV_L_LEN + tlv_len);
     }
 
     if(NULL == head->checksum_pos)
     {
-        FOTA_LOG("head empty checksum info");
-#if (FOTA_PACK_CHECKSUM != FOTA_PACK_NO_CHECKSUM)
-        return FOTA_ERR;
+        PACK_LOG("head empty checksum info");
+#if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
+        return PACK_ERR;
 #else
-        return FOTA_OK;
+        return PACK_OK;
 #endif
     }
 
 
     if(head->checksum)
     {
-        fota_pack_checksum_delete(head->checksum);
+        pack_checksum_delete(head->checksum);
         head->checksum = NULL;
     }
-    head->checksum = fota_pack_checksum_create(head);
+    head->checksum = pack_checksum_create(head);
     if(head->checksum == NULL)
     {
-        FOTA_LOG("fota_pack_checksum_create fail");
-        return FOTA_ERR;
+        PACK_LOG("pack_checksum_create fail");
+        return PACK_ERR;
     }
-    return FOTA_OK;
+    return PACK_OK;
 
 }
 
 
-int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t *buff,
+int pack_head_parse(pack_head_s *head, uint32_t offset, const uint8_t *buff,
                          uint16_t len, uint16_t *used_len)
 {
     int ret;
     uint16_t tmp_len = 0;
 
     *used_len = 0;
-    ret = fota_pack_head_parse_head_len(head, offset, buff, len, &tmp_len);
-    if(ret != FOTA_OK)
+    ret = pack_head_parse_head_len(head, offset, buff, len, &tmp_len);
+    if(ret != PACK_OK)
     {
         return ret;
     }
@@ -306,18 +306,18 @@ int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t 
     if((0 == len) && (head->stored_len < head->head_len))
     {
         *used_len = tmp_len;
-        return FOTA_OK;
+        return PACK_OK;
     }
 
     offset += tmp_len;
     buff += tmp_len;
 
-    if((head->head_len < FOTA_PACK_HEADER_MIN_LEN)
+    if((head->head_len < PACK_HEADER_MIN_LEN)
             || (NULL == head->buff)
             || ((head->stored_len < head->head_len) && (offset > head->stored_len)))
     {
-        FOTA_LOG("head not continuous, len %u offset %u", head->stored_len, offset);
-        return FOTA_ERR;
+        PACK_LOG("head not continuous, len %u offset %u", head->stored_len, offset);
+        return PACK_ERR;
     }
 
     if(offset < head->head_len)
@@ -331,11 +331,11 @@ int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t 
         if(head->stored_len >= head->head_len)
         {
             uint32_t save_len;
-            save_len = GET_DWORD(head->buff, FOTA_PACK_HEADER_TOTAL_LEN_POS);
+            save_len = GET_DWORD(head->buff, PACK_HEADER_TOTAL_LEN_POS);
             if(save_len <= head->head_len)
             {
-                FOTA_LOG("head len err, save len %d head len %u", save_len, head->head_len);
-                return FOTA_ERR;
+                PACK_LOG("head len err, save len %d head len %u", save_len, head->head_len);
+                return PACK_ERR;
             }
 
             if(head->hardware && head->hardware->get_max_size)
@@ -343,87 +343,87 @@ int fota_pack_head_parse(fota_pack_head_s *head, uint32_t offset, const uint8_t 
                 uint32_t max_len = head->hardware->get_max_size(head->hardware);
                 if(max_len < save_len - head->head_len)
                 {
-                    FOTA_LOG("size exceed, save len %u head len %u max_len %u", save_len, head->head_len, max_len);
-                    return FOTA_ERR;
+                    PACK_LOG("size exceed, save len %u head len %u max_len %u", save_len, head->head_len, max_len);
+                    return PACK_ERR;
                 }
             }
 
             if(head->update_check)
             {
-                if(head->update_check(head->buff, head->head_len, head->param) != FOTA_OK)
+                if(head->update_check(head->buff, head->head_len, head->param) != PACK_OK)
                 {
-                    return FOTA_ERR;
+                    return PACK_ERR;
                 }
             }
 
-            return fota_pack_head_parse_tlvs(head, head->buff, head->head_len);
+            return pack_head_parse_tlvs(head, head->buff, head->head_len);
         }
     }
 
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-static bool fota_pack_head_is_done(const fota_pack_head_s *head)
+static bool pack_head_is_done(const pack_head_s *head)
 {
-    return ((head->head_len >= FOTA_PACK_HEADER_MIN_LEN) && (head->stored_len == head->head_len));
+    return ((head->head_len >= PACK_HEADER_MIN_LEN) && (head->stored_len == head->head_len));
 }
 
-int fota_pack_head_check(const fota_pack_head_s *head, uint32_t len)
+int pack_head_check(const pack_head_s *head, uint32_t len)
 {
     uint32_t save_len;
 
-    if(!fota_pack_head_is_done(head))
+    if(!pack_head_is_done(head))
     {
-        FOTA_LOG("head invalid get len, stored len %u, head len %u", head->stored_len, head->head_len);
-        return FOTA_ERR;
+        PACK_LOG("head invalid get len, stored len %u, head len %u", head->stored_len, head->head_len);
+        return PACK_ERR;
     }
 
-    save_len = GET_DWORD(head->buff, FOTA_PACK_HEADER_TOTAL_LEN_POS);
+    save_len = GET_DWORD(head->buff, PACK_HEADER_TOTAL_LEN_POS);
     if(len != save_len)
     {
-        FOTA_LOG("len err save len %u, rcv len %u", save_len, len);
-        return FOTA_ERR;
+        PACK_LOG("len err save len %u, rcv len %u", save_len, len);
+        return PACK_ERR;
     }
 
     if((head->checksum_pos == NULL) || (head->checksum_len == 0))
     {
-        FOTA_LOG("fota no checksum exist");
-        return FOTA_OK;
+        PACK_LOG("fota no checksum exist");
+        return PACK_OK;
     }
 
     if (head->checksum)
     {
-        return fota_pack_checksum_check(head->checksum, head->checksum_pos, head->checksum_len);
+        return pack_checksum_check(head->checksum, head->checksum_pos, head->checksum_len);
     }
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-uint32_t fota_pack_head_get_head_len(const fota_pack_head_s *head)
+uint32_t pack_head_get_head_len(const pack_head_s *head)
 {
-    return fota_pack_head_is_done(head) ? (uint32_t)head->head_len : 0;
+    return pack_head_is_done(head) ? (uint32_t)head->head_len : 0;
 }
 
-const uint8_t *fota_pack_head_get_head_info(const fota_pack_head_s *head)
+const uint8_t *pack_head_get_head_info(const pack_head_s *head)
 {
-    return fota_pack_head_is_done(head) ? head->buff : 0;
+    return pack_head_is_done(head) ? head->buff : 0;
 }
 
 
-int fota_pack_head_set_head_info(fota_pack_head_s *head, fota_pack_device_info_s *device_info)
+int pack_head_set_head_info(pack_head_s *head, pack_device_info_s *device_info)
 {
     head->hardware = device_info->hardware;
     head->update_check = NULL;
     head->param = NULL;
     (void)memcpy(&head->key, &device_info->key, sizeof(head->key));
-    return FOTA_OK;
+    return PACK_OK;
 }
 
-fota_pack_checksum_s *fota_pack_head_get_checksum(fota_pack_head_s *head)
+pack_checksum_s *pack_head_get_checksum(pack_head_s *head)
 {
     return head->checksum;
 }
 
-ota_key_s  *fota_pack_head_get_key(fota_pack_head_s *head)
+ota_key_s  *pack_head_get_key(pack_head_s *head)
 {
     return &head->key;
 }
