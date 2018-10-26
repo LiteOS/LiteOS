@@ -19,10 +19,6 @@ DEBUG = 1
 OPT = -Og
 
 
-#######################################
-# bootloader
-#######################################
-USE_BOOTLOADER := no
 USE_OTA := no
 OTA_IS_NEED_DTLS := no
 ifeq ($(USE_FOTA), yes)
@@ -70,7 +66,40 @@ BUILD_DIR = build
 ######################################
 # source
 ######################################
+# ASM
+ASM_SOURCES_s =  \
+        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
 # C sources
+
+HAL_DRIVER_SRC =  \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
+        C_SOURCES += $(HAL_DRIVER_SRC)
+
+HARDWARE_SRC =  \
+        ${wildcard $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Src/*.c}
+        C_SOURCES += $(HARDWARE_SRC)
+		
+ifeq ($(USE_BOOTLOADER), no)
+HAL_DRIVER_SRC_NO_BOOTLOADER =  \
+		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
+		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
+		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c
+		C_SOURCES += $(HAL_DRIVER_SRC_NO_BOOTLOADER)
 KERNEL_SRC =  \
         ${wildcard $(TOP_DIR)/kernel/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
@@ -90,32 +119,6 @@ CMSIS_SRC =  \
 ARCH_SRC =  \
         ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c}
         C_SOURCES += $(ARCH_SRC)
-
-HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
-        C_SOURCES += $(HAL_DRIVER_SRC)
-
-HARDWARE_SRC =  \
-        ${wildcard $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Src/*.c}
-        C_SOURCES += $(HARDWARE_SRC)
 		
 ifeq ($(WITH_LWIP), yes)
 LWIP_SRC =  \
@@ -306,11 +309,25 @@ endif
 
 
 # ASM sources
-ASM_SOURCES_s =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
 
 ASM_SOURCES_S =  \
         ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
+
+#blow use bootloader
+else 
+
+FLAG_SRC = \
+        ${wildcard $(TOP_DIR)/components/ota/flag_operate/*.c}
+        C_SOURCES += $(FLAG_SRC)
+
+USER_SRC = \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/bootloader_recover.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c
+        C_SOURCES += $(USER_SRC)
+
+endif
 
 
 ######################################
@@ -410,30 +427,50 @@ endif
 AS_INCLUDES =
 
 # C includes
+HAL_DRIVER_INC = \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
+        C_INCLUDES += $(HAL_DRIVER_INC)
+		
+INCLUDE_INC = \
+        -I $(TOP_DIR)/include
+        C_INCLUDES += $(INCLUDE_INC)
+
+HARDWARE_INC = \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
+        C_INCLUDES += $(HARDWARE_INC)
+
+USER_INC = \
+        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc
+        C_INCLUDES += $(USER_INC)
+
+ifneq ($(USE_OTA)_$(USE_BOOTLOADER), no_no)
+OTA_INC = \
+        -I $(TOP_DIR)/components/ota/flag_operate \
+        -I $(TOP_DIR)/components/ota/utility
+        C_INCLUDES += $(OTA_INC)
+endif
+
+CMSIS_INC = \
+		-I $(TOP_DIR)/arch/arm/arm-m/include \
+        -I $(TOP_DIR)/arch/arm/common/cmsis
+        C_INCLUDES += $(CMSIS_INC)
+		
+ifeq ($(USE_BOOTLOADER), no)	
+OS_CONFIG_INC = \
+		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
+		C_INCLUDES += $(OS_CONFIG_INC)
 KERNEL_INC = \
         -I $(TOP_DIR)/kernel/include \
 	-I $(TOP_DIR)/kernel/base/include \
 	-I $(TOP_DIR)/kernel/extended/include
         C_INCLUDES += $(KERNEL_INC)
 
-INCLUDE_INC = \
-        -I $(TOP_DIR)/include
-        C_INCLUDES += $(INCLUDE_INC)
-
 ARCH_INC = \
-        -I $(TOP_DIR)/arch/arm/arm-m/include \
-	-I $(TOP_DIR)/arch/arm/common/cmsis
+        -I $(TOP_DIR)/arch/arm/arm-m/include
         C_INCLUDES += $(ARCH_INC)
 
-HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
-        C_INCLUDES += $(HAL_DRIVER_INC)
-
-HARDWARE_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
-        C_INCLUDES += $(HARDWARE_INC)
-		
+	
 ifeq ($(WITH_LWIP), yes)
 LWIP_INC = \
         -I $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/include
@@ -465,12 +502,7 @@ LWM2M_INC = \
         C_INCLUDES += $(LWM2M_INC)
 endif
 
-ifeq ($(USE_OTA), yes)
-OTA_INC = \
-        -I $(TOP_DIR)/components/ota/flag_operate \
-        -I $(TOP_DIR)/components/ota/utility
-        C_INCLUDES += $(OTA_INC)
-endif
+
 
 ifeq ($(WITH_MQTT), yes)	
 MQTT_INC = \
@@ -518,10 +550,13 @@ CMOCKERY_TEST_INC = \
         C_INCLUDES += $(CMOCKERY_TEST_INC)
 endif
 
-USER_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
-        C_INCLUDES += $(USER_INC)
+#below use bootloader
+else
+FLAG_INC = \
+        -I $(TOP_DIR)/components/ota/utility \
+        -I $(TOP_DIR)/components/ota/flag_operate
+        C_INCLUDES += $(FLAG_INC)
+endif
 
 
 
@@ -543,11 +578,9 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 # LDFLAGS
 #######################################
 # link script
-ifeq ($(USE_BOOTLOADER), yes)
-	LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
-else
-	LD_FILE = STM32F429IGTx_LiteOS.ld
-endif
+
+LD_FILE = STM32F429IGTx_LiteOS.ld
+
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries
@@ -567,8 +600,10 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_s:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES_s)))
+ifeq ($(USE_BOOTLOADER), no)
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
 vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
+endif
 
 $(BUILD_DIR)/%.o: %.c Makefile config.mk | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -576,8 +611,10 @@ $(BUILD_DIR)/%.o: %.c Makefile config.mk | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.s Makefile config.mk | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
+ifeq ($(USE_BOOTLOADER), no)
 $(BUILD_DIR)/%.o: %.S Makefile config.mk | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
+endif
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile config.mk
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@

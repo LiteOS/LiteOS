@@ -10,7 +10,7 @@
 #######################################
 # use USE_BOOTLOADER
 #######################################
-USE_BOOTLOADER  := no
+USE_BOOTLOADER  := yes
 
 #######################################
 # use Lwm2m protocol
@@ -20,18 +20,18 @@ WITH_LWM2M  := no
 #######################################
 # use MQTT protocol
 #######################################
-WITH_MQTT  := yes
+WITH_MQTT  := no
 
 
 #######################################
 # use ethernet
 #######################################
-WITH_LWIP  := yes
+WITH_LWIP  := no
 
 #######################################
 # use usart AT command
 #######################################
-WITH_AT_FRAMEWORK := no
+WITH_AT_FRAMEWORK := yes
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95  # ALL
 	NETWORK_TYPE := NB_NEUL95
@@ -40,7 +40,7 @@ endif
 #######################################
 # use mbedtls
 #######################################
-WITH_DTLS := yes
+WITH_DTLS := no
 
 #######################################
 # whether OTA Pack use checksum
@@ -56,7 +56,7 @@ USE_FOTA := no
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_SOTA := no
+USE_SOTA := yes
 
 #######################################
 # Lwm2m bootstrap program 
