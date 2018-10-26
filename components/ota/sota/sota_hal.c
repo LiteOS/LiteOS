@@ -58,7 +58,7 @@ int32_t crc16_ccitt_table[] = { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 
                             0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
                           };
 
-int32_t do_crc(int32_t reg_init, unsigned char *massage, int len)
+int32_t do_crc(int32_t reg_init, const unsigned char *massage, int len)
 {
     int32_t crc_reg = 0;
     int i = 0;
@@ -71,44 +71,22 @@ int32_t do_crc(int32_t reg_init, unsigned char *massage, int len)
     return crc_reg;
 }
 
-int32_t crc_check(unsigned char *message, int len)
+int32_t crc_check(const unsigned char *message, int len)
 {
     int32_t crc_reg = 0x0000;
     return do_crc(crc_reg, message, len);
 }
 
-
-void HexStrToByte(const unsigned char *source, unsigned char *dest, int sourceLen)
-{
-    short i;
-    unsigned char highByte, lowByte;
-    for (i = 0; i < sourceLen; i += 2)
-    {
-        highByte = toupper(source[i]);
-        lowByte  = toupper(source[i + 1]);
-        if (highByte > 0x39)
-            highByte -= 0x37;
-        else
-            highByte -= 0x30;
-        if (lowByte > 0x39)
-            lowByte -= 0x37;
-        else
-            lowByte -= 0x30;
-        dest[i / 2] = (highByte << 4) | lowByte;
-    }
-    return ;
-}
-
-int sota_str_to_hex(const char *bufin, uint32_t len, unsigned char *bufout)
+int HexStrToByte(const unsigned char *bufin, unsigned char *bufout, int sourceLen)
 {
     int i = 0;
     unsigned char tmp2 = 0x0;
     unsigned int tmp = 0;
-    if (NULL == bufin || len <= 0 || NULL == bufout)
+    if (NULL == bufin || sourceLen <= 0 || NULL == bufout)
     {
         return -1;
     }
-    for(i = 0; i < len; i = i + 2)
+    for(i = 0; i < sourceLen; i = i + 2)
     {
         tmp2 =  bufin[i];
         tmp2 =  tmp2 <= '9' ? tmp2 - 0x30 : tmp2 - 0x37;

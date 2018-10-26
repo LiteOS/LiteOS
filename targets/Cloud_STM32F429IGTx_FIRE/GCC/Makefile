@@ -23,12 +23,18 @@ OPT = -Og
 # bootloader
 #######################################
 USE_BOOTLOADER := no
-USE_OTA = no
+USE_OTA := no
+OTA_IS_NEED_DTLS := no
 ifeq ($(USE_FOTA), yes)
 	USE_OTA = yes
 endif
 ifeq ($(USE_SOTA), yes)
 	USE_OTA = yes
+endif
+ifeq ($(USE_OTA), yes)
+    ifneq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
+	OTA_IS_NEED_DTLS = yes
+    endif
 endif
 
 
@@ -124,7 +130,7 @@ LWIP_PORT_SRC = \
         C_SOURCES += $(LWIP_PORT_SRC)
 endif
 
-ifneq ($(USE_OTA)_$(WITH_DTLS), no_no)
+ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
 MBEDTLS_SRC = \
         ${wildcard $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c}
         C_SOURCES += $(MBEDTLS_SRC)
@@ -146,7 +152,16 @@ LWM2M_SRC = \
 
 ATINY_TINY_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c}
-        C_SOURCES += $(ATINY_TINY_SRC)
+
+ifeq ($(USE_FOTA), yes)
+	C_SOURCES += $(ATINY_TINY_SRC)
+else
+	ATINY_TINY_SRC_NO_FOTA = \
+			$(filter-out $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/atiny_fota_manager.c \
+			$(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/atiny_fota_state.c \
+			$(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m/firmware_update.c, $(ATINY_TINY_SRC))
+	C_SOURCES += $(ATINY_TINY_SRC_NO_FOTA)
+endif
 		
 AGENT_DEMO_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_lwm2m/*.c}
@@ -246,12 +261,8 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
         C_SOURCES += $(USER_SRC)
 
-ifeq ($(WITH_LWM2M), yes)
-ifeq ($(USE_SOTA), yes)
-SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
-        C_SOURCES += $(SOTA_SRC)
-endif
+
+
 
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 AT_FRAME_SRC = \
@@ -277,17 +288,22 @@ endif
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
 
+ifeq ($(USE_SOTA), yes)
+SOTA_SRC = \
+        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
+        C_SOURCES += $(SOTA_SRC)
+endif
+
 ifeq ($(USE_OTA), yes)
 OTA_SRC = \
-	${wildcard  $(TOP_DIR)/components/ota/fota/*.c} \
-        ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
-        ${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
-        C_SOURCES += $(OTA_SRC)
-
+    ${wildcard  $(TOP_DIR)/components/ota/flag_operate/*.c} \
+    ${wildcard  $(TOP_DIR)/components/ota/package/*.c} \
+	${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
+    C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fota_port.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
 endif
-endif
+
 
 # ASM sources
 ASM_SOURCES_s =  \
@@ -323,15 +339,23 @@ AS_DEFS =
 C_DEFS =  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
-        -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\" \
-        -D LWM2M_LITTLE_ENDIAN \
-        -D LWM2M_CLIENT_MODE \
-        -D NDEBUG \
-        -D LWIP_TIMEVAL_PRIVATE=0 
+        -D NDEBUG
 
-
+ifeq ($(WITH_LWM2M), yes)
+		C_DEFS += \
+			-D LWM2M_LITTLE_ENDIAN \
+			-D LWM2M_CLIENT_MODE
+endif
+ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
+		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+endif
+ifeq ($(WITH_DTLS), yes)
+		C_DEFS += -DWITH_DTLS
+endif
 ifeq ($(WITH_LWIP), yes)
-		C_DEFS += -DWITH_LWIP
+		C_DEFS += \
+			-DWITH_LWIP \
+			-D LWIP_TIMEVAL_PRIVATE=0 
 endif
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 		C_DEFS += -DWITH_AT_FRAMEWORK
@@ -342,9 +366,15 @@ ifeq ($(WITH_AT_FRAMEWORK), yes)
 		endif
 endif
 
-ifeq ($(WITH_DTLS), yes)
-		C_DEFS += -DWITH_DTLS
+ifeq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
+		C_DEFS += -DPACK_CHECKSUM=2
+else ifeq ($(OTA_PACK_CHECKSUM), SHA256)
+		C_DEFS += -DPACK_CHECKSUM=1
+else ifeq ($(OTA_PACK_CHECKSUM), SHA256_RSA2048)
+		C_DEFS += -DPACK_CHECKSUM=0
+else
 endif
+
 
 
 ifeq ($(USE_FOTA), yes)
@@ -404,7 +434,7 @@ HARDWARE_INC = \
         -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
         C_INCLUDES += $(HARDWARE_INC)
 		
-
+ifeq ($(WITH_LWIP), yes)
 LWIP_INC = \
         -I $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/include
         C_INCLUDES += $(LWIP_INC)
@@ -413,8 +443,9 @@ LWIP_PORT_INC = \
         -I $(TOP_DIR)/components/net/lwip/lwip_port \
         -I $(TOP_DIR)/components/net/lwip/lwip_port/OS
         C_INCLUDES += $(LWIP_PORT_INC)
+endif
 
-
+ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
 MBEDTLS_INC = \
         -I $(TOP_DIR)/components/security/mbedtls/mbedtls-2.6.0/include
         C_INCLUDES += $(MBEDTLS_INC)
@@ -422,17 +453,19 @@ MBEDTLS_INC = \
 MBEDTLS_PORT_INC = \
         -I $(TOP_DIR)/components/security/mbedtls/mbedtls_port
         C_INCLUDES += $(MBEDTLS_PORT_INC)
+endif
 
+ifeq ($(WITH_LWM2M), yes)
 ER_COAP_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core/er-coap-13
         C_INCLUDES += $(ER_COAP_INC)
-		
-ifeq ($(WITH_LWM2M), yes)
 LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
         -I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
+endif
 
+ifeq ($(USE_OTA), yes)
 OTA_INC = \
         -I $(TOP_DIR)/components/ota/flag_operate \
         -I $(TOP_DIR)/components/ota/utility

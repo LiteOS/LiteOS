@@ -8,12 +8,12 @@
 # compile option
 
 #######################################
-# use ethernet
+# use Lwm2m protocol
 #######################################
 WITH_LWM2M  := no
 
 #######################################
-# use ethernet
+# use MQTT protocol
 #######################################
 WITH_MQTT  := yes
 
@@ -37,6 +37,11 @@ endif
 #######################################
 WITH_DTLS := yes
 
+#######################################
+# whether OTA Pack use checksum
+#######################################
+#SHA256_RSA2048   #SHA256  #NO_CHECKSUM
+OTA_PACK_CHECKSUM := NO_CHECKSUM
 
 #######################################
 # Firmware Over-The-Air
