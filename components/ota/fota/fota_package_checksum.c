@@ -97,7 +97,7 @@ void fota_pack_checksum_delete(fota_pack_checksum_s *thi)
 
 static int fota_pack_checksum_init_head_data(fota_pack_checksum_s *thi)
 {
-    int len;
+    int32_t len;
     const uint8_t *buff;
 
     fota_pack_checksum_get_alg(thi)->reset(fota_pack_checksum_get_alg(thi));

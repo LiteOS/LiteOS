@@ -50,8 +50,18 @@
 #define FOTA_PACK_SHA256 1
 #define FOTA_PACK_NO_CHECKSUM 2
 
+#define OTA_NO 0
+#define OTA_YES 1
+
 #ifndef FOTA_PACK_CHECKSUM
 #define FOTA_PACK_CHECKSUM FOTA_PACK_SHA256_RSA2048
+#endif
+
+/* OTA_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
+flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
+write entire block size and need no buffer. but it is not suitable to write to fs system */
+#ifndef OTA_COMBINE_TO_WRITE_LAST_BLOCK
+#define OTA_COMBINE_TO_WRITE_LAST_BLOCK OTA_NO
 #endif
 
 
