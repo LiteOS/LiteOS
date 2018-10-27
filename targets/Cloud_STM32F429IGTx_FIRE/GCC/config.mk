@@ -15,7 +15,7 @@ USE_BOOTLOADER  := no
 #######################################
 # use Lwm2m protocol
 #######################################
-WITH_LWM2M  := no
+WITH_LWM2M  := yes
 
 #######################################
 # use MQTT protocol
@@ -26,7 +26,7 @@ WITH_MQTT  := no
 #######################################
 # use ethernet
 #######################################
-WITH_LWIP  := no
+WITH_LWIP  := yes
 
 #######################################
 # use usart AT command
@@ -40,7 +40,7 @@ endif
 #######################################
 # use mbedtls
 #######################################
-WITH_DTLS := no
+WITH_DTLS := yes
 
 #######################################
 # whether OTA Pack use checksum
@@ -51,17 +51,17 @@ OTA_PACK_CHECKSUM := NO_CHECKSUM
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_FOTA := no
+USE_FOTA := yes
 
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_SOTA := yes
+USE_SOTA := no
 
 #######################################
 # Lwm2m bootstrap program 
 #######################################
-LWM2M_BOOTSTRAP := no
+LWM2M_BOOTSTRAP := yes
 
 #######################################
 # Lwm2m bootstrap used 
@@ -71,7 +71,7 @@ SUPPORT_DTLS_SRV := no
 #######################################
 # Lwm2m core log
 #######################################
-LWM2M_WITH_LOGS := no
+LWM2M_WITH_LOGS := yes
 
 #######################################
 # Agenttiny log

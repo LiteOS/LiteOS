@@ -97,7 +97,9 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* ---------- TCP options ---------- */
+#if !defined ( __GNUC__ )  /* GCC*/
 #define LWIP_TCP                1
+#endif
 #define TCP_TTL                 255
 
 /* Controls if TCP should queue segments that arrive out of

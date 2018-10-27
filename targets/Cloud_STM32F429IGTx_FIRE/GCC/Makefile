@@ -6,6 +6,7 @@
 # Generic Makefile (based on gcc)
 # ------------------------------------------------
 include config.mk
+include prune.mk
 ######################################
 # target
 ######################################
@@ -365,15 +366,28 @@ ifeq ($(WITH_LWM2M), yes)
 endif
 ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
 		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+	ifeq ($(USE_MBEDTLS_DEBUG_C), yes)
+		C_DEFS += -DMBEDTLS_DEBUG_C
+	endif
+
+	ifeq ($(USE_MBEDTLS_AES_ROM_TABLES), yes)
+		C_DEFS += -DMBEDTLS_AES_ROM_TABLES
+	endif
 endif
 ifeq ($(WITH_DTLS), yes)
 		C_DEFS += -DWITH_DTLS
 endif
+
 ifeq ($(WITH_LWIP), yes)
 		C_DEFS += \
 			-DWITH_LWIP \
 			-D LWIP_TIMEVAL_PRIVATE=0 
+
+	ifeq ($(USE_LWIP_TCP), yes)
+		C_DEFS += -DLWIP_TCP=1
+	endif
 endif
+
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 		C_DEFS += -DWITH_AT_FRAMEWORK
 		ifneq ($(NETWORK_TYPE), ALL)
@@ -421,6 +435,8 @@ endif
 ifeq ($(WITH_FILESYSTEM), yes)
 		C_DEFS += -DFS_$(FILESYSTEM_TYPE)
 endif
+
+
 
 
 # AS includes
@@ -605,18 +621,18 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES_S:.S=.o)))
 vpath %.S $(sort $(dir $(ASM_SOURCES_S)))
 endif
 
-$(BUILD_DIR)/%.o: %.c Makefile config.mk | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.c Makefile config.mk prune.mk | $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s Makefile config.mk | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.s Makefile config.mk prune.mk | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 ifeq ($(USE_BOOTLOADER), no)
-$(BUILD_DIR)/%.o: %.S Makefile config.mk | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.S Makefile config.mk prune.mk | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 endif
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile config.mk
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile config.mk prune.mk
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
