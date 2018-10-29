@@ -36,8 +36,8 @@
 #include "atiny_lwm2m/agenttiny.h"
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "fota/ota_api.h"
-#include "fota_port.h"
+#include "ota/ota_api.h"
+#include "ota_port.h"
 #endif
 
 #if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,55 +31,47 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-typedef enum
-{
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+#ifndef PACKAGE_WRITER_H
+#define PACKAGE_WRITER_H
+
+#include "ota/package.h"
+#include "package_head.h"
+
 
 typedef struct
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
+    uint32_t offset;
+    int32_t offset_flag;
 
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
+    uint8_t * buffer;
+    uint16_t block_size;
+    uint16_t buffer_stored_len;
+    pack_hardware_s *hardware;
+}pack_writer_s;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
-
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
+void pack_wr_init(pack_writer_s *writer);
+void pack_wr_destroy(pack_writer_s *writer);
+void pack_wr_set_device(pack_writer_s *writer, pack_hardware_s *hardware);
+int pack_wr_write(pack_writer_s *writer, uint32_t offset, const uint8_t *buff, uint16_t len);
+int pack_wr_write_end(pack_writer_s *writer);
+
+
+
+
+
+#if defined(__cplusplus)
+}
 #endif
+
+#endif //PACKAGE_WRITER_H
+
+

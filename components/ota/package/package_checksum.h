@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,55 +31,56 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-typedef enum
+#ifndef PACKAGE_CHECKSUM_H
+#define PACKAGE_CHECKSUM_H
+
+#include "ota/package.h"
+
+
+typedef struct pack_hardware_tag_s
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+    int (*read_software)(struct pack_hardware_tag_s *thi, uint32_t offset, uint8_t *buffer, uint32_t len);
+    int (*write_software)(struct pack_hardware_tag_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    void (*set_flash_type)(struct pack_hardware_tag_s *thi, ota_flash_type_e type);
+    uint32_t (*get_block_size)(struct pack_hardware_tag_s *thi);
+    uint32_t (*get_max_size)(struct pack_hardware_tag_s *thi);
+}pack_hardware_s;
 
-typedef struct
+typedef struct pack_checksum_tag_s pack_checksum_s;
+
+struct pack_head_tag_s;
+
+typedef struct pack_checksum_alg_tag_s
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
+    void (*reset)(struct pack_checksum_alg_tag_s *thi);
+    int (*update)(struct pack_checksum_alg_tag_s *thi, const uint8_t *buff, uint16_t len);
+    int (*check)(struct pack_checksum_alg_tag_s *thi, const uint8_t  *checksum, uint16_t checksum_len);
+    void (*destroy)(struct pack_checksum_alg_tag_s *thi);
+}pack_checksum_alg_s;
 
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
 
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
+
+pack_checksum_s * pack_checksum_create(struct pack_head_tag_s *head);
+void pack_checksum_delete(pack_checksum_s * thi);
+int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  pack_hardware_s *hardware);
+int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len);
+
+
+#if defined(__cplusplus)
+}
 #endif
+
+#endif //PACKAGE_CHECKSUM_H
+
+

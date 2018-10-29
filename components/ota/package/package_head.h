@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,55 +31,95 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-typedef enum
+#ifndef PACKAGE_HEAD_H
+#define PACKAGE_HEAD_H
+#include "ota/package.h"
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include "osdepends/atiny_osdep.h"
+#include "package_checksum.h"
+#include "upgrade_flag.h"
+
+#define PACK_LOG(fmt, ...) \
+(void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
+
+
+#define ASSERT_THIS(do_something) \
+        if(NULL == thi)\
+        {\
+            PACK_LOG("this null pointer");\
+            do_something;\
+        }
+
+#ifndef MIN
+#define MIN(a, b) (((a) <= (b)) ? (a) : (b))
+#endif
+
+#ifndef array_size
+#define array_size(a) (sizeof(a)/sizeof(*(a)))
+#endif
+
+enum
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+    PACK_OK,
+    PACK_ERR
+};
+
 
 typedef struct
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
+    pack_hardware_s *hardware;
+    ota_key_s key;
+}pack_device_info_s;
 
-typedef struct
+struct pack_head_tag_s;
+typedef int (*head_update_check)(const uint8_t *head_buff , uint16_t len, void *param);
+
+typedef struct pack_head_tag_s
 {
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
+    pack_hardware_s *hardware;
+    head_update_check update_check;
+    void *param;
+    ota_key_s key;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
+    /* following data will be memset  when destroy */
+    uint8_t *buff;
+    uint16_t stored_len;
+    uint16_t head_len;
+    pack_checksum_s *checksum;
+    uint8_t *checksum_pos;
+    uint32_t checksum_len;
+}pack_head_s;
 
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
+
+void pack_head_init(pack_head_s *head);
+void pack_head_destroy(pack_head_s *head);
+int pack_head_parse(pack_head_s *head, uint32_t offset, const uint8_t *buff, uint16_t len,
+                    uint16_t *used_len);
+int pack_head_check(const pack_head_s *head, uint32_t len);
+uint32_t pack_head_get_head_len(const pack_head_s *head);
+const uint8_t* pack_head_get_head_info(const pack_head_s *head);
+
+int pack_head_set_head_info(pack_head_s *head, pack_device_info_s *device_info);
+pack_checksum_s *pack_head_get_checksum(pack_head_s *head);
+ota_key_s  *pack_head_get_key(pack_head_s *head);
+
+
+
+#if defined(__cplusplus)
+}
 #endif
+
+#endif //PACKAGE_HEAD_H
+
+

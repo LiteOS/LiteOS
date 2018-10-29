@@ -56,7 +56,7 @@
 #ifdef WITH_SOTA
 #include "sota/sota.h"
 #include "../components/ota/sota/sota_hal.h"
-#include "fota_port.h"
+#include "ota_port.h"
 #include "board.h"
 #include "hal_spi_flash.h"
 #endif
@@ -233,7 +233,7 @@ VOID main_task(VOID)
     //fs_test_main();
     //fs_demo();
     //demo_without_agenttiny_nbiot();
-    //demo_agenttiny_with_eth();
+    demo_agenttiny_with_eth();
 }
 
 UINT32 creat_main_task()

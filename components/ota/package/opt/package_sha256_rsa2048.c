@@ -31,55 +31,92 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
+#ifdef INCLUDE_PACK_OPTION_FILE
+#include "package_sha256_rsa2048.h"
+#include <string.h>
+#include "mbedtls/rsa.h"
 
-#include<stdint.h>
-#include"ota/ota_api.h"
+#define PACK_SHA256_RSA2048_CHECKSUM_LEN 256
+#define PACK_SHA256_CHECKSUM_LEN 32
 
-typedef enum
+
+static int pack_sha256_rsa2048_check(pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+    pack_sha256_rsa2048_s *rsa = (pack_sha256_rsa2048_s *)thi;
+    mbedtls_rsa_context *dtls_rsa = NULL;
+    ota_key_s *key = NULL;
+    uint8_t real_sha256[PACK_SHA256_CHECKSUM_LEN];
+    int ret = PACK_ERR;
 
-typedef struct
+    if(checksum_len != PACK_SHA256_RSA2048_CHECKSUM_LEN)
+    {
+        PACK_LOG("checksum_len err %d", checksum_len);
+        return PACK_ERR;
+    }
+
+    key = pack_head_get_key(rsa->head);
+    if(NULL == key
+            || (NULL == key->rsa_E)
+            || (NULL == key->rsa_N))
+    {
+        PACK_LOG("key null");
+        return PACK_ERR;
+    }
+
+    dtls_rsa = (mbedtls_rsa_context *)atiny_malloc(sizeof(*dtls_rsa));
+    if(NULL == dtls_rsa)
+    {
+        PACK_LOG("atiny_malloc null");
+        return PACK_ERR;
+    }
+
+    mbedtls_rsa_init(dtls_rsa, MBEDTLS_RSA_PKCS_V21, 0);
+    dtls_rsa->len = PACK_SHA256_RSA2048_CHECKSUM_LEN;
+    if(mbedtls_mpi_read_string(&dtls_rsa->N, 16, key->rsa_N) != PACK_OK)
+    {
+        PACK_LOG("mbedtls_mpi_read_string fail");
+        goto EXIT;
+    }
+
+    if(mbedtls_mpi_read_string(&dtls_rsa->E, 16, key->rsa_E) != PACK_OK)
+    {
+        PACK_LOG("mbedtls_mpi_read_string fail");
+        goto EXIT;
+    }
+
+    if(mbedtls_rsa_check_pubkey(dtls_rsa) != PACK_OK)
+    {
+        PACK_LOG("mbedtls_rsa_check_pubkey fail");
+        goto EXIT;
+    }
+
+    mbedtls_sha256_finish(&rsa->sha256.sha256_context, real_sha256);
+
+    if( mbedtls_rsa_pkcs1_verify(dtls_rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 0,
+                                 real_sha256, checksum) != PACK_OK)
+    {
+        PACK_LOG("mbedtls_rsa_pkcs1_verify fail");
+        goto EXIT;
+    }
+
+    ret = PACK_OK;
+EXIT:
+
+    mbedtls_rsa_free(dtls_rsa);
+    atiny_free(dtls_rsa);
+    return ret;
+
+}
+
+
+
+int pack_sha256_rsa2048_init(pack_sha256_rsa2048_s *thi, pack_head_s *head)
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
-
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
-
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
-
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+    (void)pack_sha256_init(&thi->sha256);
+    thi->sha256.base.check = pack_sha256_rsa2048_check;
+    thi->head = head;
+    return PACK_OK;
+}
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
-#endif
+

@@ -31,55 +31,58 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
+#ifdef INCLUDE_PACK_OPTION_FILE
+#include "package_sha256.h"
+#include <string.h>
+#include "../package_head.h"/*lint !e451*/
 
-#include<stdint.h>
-#include"ota/ota_api.h"
-
-typedef enum
+static void pack_sha256_reset(pack_checksum_alg_s *thi)
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
-
-typedef struct
+    pack_sha256_s *sha256 = (pack_sha256_s *)thi;
+    mbedtls_sha256_init(&sha256->sha256_context);
+    mbedtls_sha256_starts(&sha256->sha256_context, false);
+}
+static int pack_sha256_update(pack_checksum_alg_s *thi, const uint8_t *buff, uint16_t len)
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
-
-typedef struct
+    pack_sha256_s *sha256 = (pack_sha256_s *)thi;
+    mbedtls_sha256_update(&sha256->sha256_context, buff, len);
+    return PACK_OK;
+}
+static int pack_sha256_check(pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
 {
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
+    uint8_t real_value[32];
+    pack_sha256_s *sha256 = (pack_sha256_s *)thi;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
+    ASSERT_THIS(return PACK_ERR);
 
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+    if(sizeof(real_value) != checksum_len)
+    {
+        PACK_LOG("len %d not the same", checksum_len);
+        return PACK_ERR;
+    }
+    mbedtls_sha256_finish(&sha256->sha256_context, real_value);
+    if(memcmp(real_value, checksum, checksum_len) != 0)
+    {
+        PACK_LOG("checksum err");
+        return PACK_ERR;
+    }
+    return PACK_OK;
+}
+
+static void pack_sha256_destroy(struct pack_checksum_alg_tag_s *thi)
+{
+    pack_sha256_s *sha256 = (pack_sha256_s *)thi;
+    mbedtls_sha256_free(&sha256->sha256_context);
+}
+
+int pack_sha256_init(pack_sha256_s *thi)
+{
+    thi->base.reset = pack_sha256_reset;
+    thi->base.update = pack_sha256_update;
+    thi->base.check = pack_sha256_check;
+    thi->base.destroy = pack_sha256_destroy;
+    pack_sha256_reset(&thi->base);
+    return PACK_OK;
+}
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
-#endif

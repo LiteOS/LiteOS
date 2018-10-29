@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,55 +31,100 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
+/**@defgroup Agenttiny
+ * @ingroup agent
+ */
+
+#ifndef PACKAGE_H
+#define PACKAGE_H
+
+#include "ota/package.h"
+
+
+//#ifdef WITH_SOTA
+#include "ota_api.h"
+//#endif
+
+/* use sha256 rsa2048 for checksum */
+#define PACK_SHA256_RSA2048 0
+/* use sha256 for checksum */
+#define PACK_SHA256 1
+/* no checksum info */
+#define PACK_NO_CHECKSUM 2
+
+#define PACK_NO 0
+#define PACK_YES 1
+
+/* should define checksum first */
+#ifndef PACK_CHECKSUM
+#define PACK_CHECKSUM PACK_SHA256_RSA2048
+#endif
+
+/* PACK_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
+flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
+write entire block size and need no buffer. but it is not suitable to write to fs system */
+#ifndef PACK_COMBINE_TO_WRITE_LAST_BLOCK
+#define PACK_COMBINE_TO_WRITE_LAST_BLOCK PACK_NO
+#endif
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+typedef struct pack_storage_device_api_tag_s pack_storage_device_api_s;
 
 typedef enum
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
-
-typedef struct
+    PACK_DOWNLOAD_OK,
+    PACK_DOWNLOAD_FAIL
+}pack_download_result_e;
+struct pack_storage_device_api_tag_s
 {
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
-    ota_opt_s ota_info;
-} sota_op_t;
+    int (*write_software)(pack_storage_device_api_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
+    int (*write_software_end)(pack_storage_device_api_s *thi, pack_download_result_e result, uint32_t total_len);
+    int (*active_software)(pack_storage_device_api_s *thi);
+};
 
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
-void sota_tmr(void);
+/**
+ *@ingroup agenttiny
+ *@brief get storage device.
+ *
+ *@par Description:
+ *This API is used to get storage device.
+ *@attention none.
+ *
+ *@param none.
+ *
+ *@retval #pack_storage_device_api_s *     storage device.
+ *@par Dependency: none.
+ *@see none
+ */
+pack_storage_device_api_s *pack_get_device(void);
 
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+/**
+ *@ingroup agenttiny
+ *@brief initiate storage device.
+ *
+ *@par Description:
+ *This API is used to initiate storage device.
+ *@attention none.
+ *
+ *@param ato_opt        [IN] Ota option.
+ *
+ *@retval #int          0 if succeed, or error.
+ *@par Dependency: none.
+ *@see none
+ */
+int pack_init_device(const ota_opt_s *ota_opt);
+
+
+#if defined(__cplusplus)
+}
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
-#endif
+#endif //PACKAGE_H
+
+
