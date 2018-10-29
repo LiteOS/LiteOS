@@ -44,6 +44,8 @@
 
 #ifdef __GNUC__
 #include <sys/errno.h>
+#elif defined (__CC_ARM)
+#include "fs/sys/errno.h"
 #endif
 
 #include <los_config.h>
@@ -1067,7 +1069,7 @@ int los_vfs_init (void)
     return LOS_NOK;
 }
 
-#ifdef __CC_ARM
+
 int open (const char *path, int flags)
 {
     return los_open (path, flags);
@@ -1146,6 +1148,3 @@ int mkdir (const char *path, int mode)
 }
 
 #endif
-
-#endif
-
