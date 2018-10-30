@@ -65,7 +65,8 @@ typedef enum cloud_security_type
 {
     CLOUD_SECURITY_TYPE_NONE,
     CLOUD_SECURITY_TYPE_PSK,
-    CLOUD_SECURITY_TYPE_CA,
+    CLOUD_SECURITY_TYPE_CA_UNI,
+    CLOUD_SECURITY_TYPE_CA_BI,
     CLOUD_SECURITY_TYPE_MAX
 }cloud_security_type_e;
 
@@ -133,8 +134,8 @@ typedef struct cloud_security_psk
 typedef struct cloud_security_ca
 {
     char *ca_crt;
-    char *server_crt;
-    char *server_key;
+    char *client_crt;
+    char *client_key;
 }cloud_security_ca_t;
 
 typedef struct atiny_param

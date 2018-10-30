@@ -70,6 +70,18 @@ void *atiny_malloc(size_t size)
     return LOS_MemAlloc(m_aucSysMem0, size);
 }
 
+void *atiny_calloc(size_t n, size_t size)
+{
+    void *p = atiny_malloc(n * size);
+    if(p)
+    {
+        memset(p, 0, n * size);
+    }
+
+    return p;
+}
+
+
 void atiny_free(void *ptr)
 {
     (void)LOS_MemFree(m_aucSysMem0, ptr);

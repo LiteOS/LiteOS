@@ -71,7 +71,8 @@ typedef enum mqtt_proto
 {
     MQTT_PROTO_NONE = 0,
     MQTT_PROTO_TLS_PSK,
-    MQTT_PROTO_TLS_CA,
+    MQTT_PROTO_TLS_CA_UNI,
+    MQTT_PROTO_TLS_CA_BI,
     MQTT_PROTO_MAX
 }mqtt_proto_e;
 
@@ -86,8 +87,8 @@ typedef struct mqtt_security_psk
 typedef struct mqtt_security_ca
 {
     char *ca_crt;
-    char *server_crt;
-    char *server_key;
+    char *client_crt;
+    char *client_key;
 }mqtt_security_ca_t;
 
 typedef struct mqtt_context
