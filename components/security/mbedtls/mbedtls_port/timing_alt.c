@@ -40,9 +40,9 @@
 
 
 #include "timing_alt.h"
-#include "atiny_adapter.h"
+#include "osdepends/atiny_osdep.h"
 
-unsigned long mbedtls_timing_get_timer(struct mbedtls_timing_hr_time* val, int reset)
+unsigned long mbedtls_timing_get_timer(struct mbedtls_timing_hr_time *val, int reset)
 {
     struct mbedtls_timing_hr_time now;
     now.timer_ms = atiny_gettime_ms();
@@ -58,9 +58,9 @@ unsigned long mbedtls_timing_get_timer(struct mbedtls_timing_hr_time* val, int r
 /*
  * Set delays to watch
  */
-void mbedtls_timing_set_delay(void* data, uint32_t int_ms, uint32_t fin_ms)
+void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms)
 {
-    mbedtls_timing_delay_context* ctx = (mbedtls_timing_delay_context*) data;
+    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *) data;
 
     ctx->int_ms = int_ms;
     ctx->fin_ms = fin_ms;
@@ -74,9 +74,9 @@ void mbedtls_timing_set_delay(void* data, uint32_t int_ms, uint32_t fin_ms)
 /*
  * Get number of delays expired
  */
-int mbedtls_timing_get_delay(void* data)
+int mbedtls_timing_get_delay(void *data)
 {
-    mbedtls_timing_delay_context* ctx = (mbedtls_timing_delay_context*)data;
+    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *)data;
     unsigned long elapsed_ms;
 
     if (ctx->fin_ms == 0)

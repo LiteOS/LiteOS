@@ -64,6 +64,10 @@ extern "C" {
     #define WEAK                    __weak
   #endif
 
+  #ifndef   CLZ
+    #define CLZ                     __CLZ
+  #endif
+
 #elif defined (__CC_ARM)
 
   #ifndef   ASM
@@ -117,6 +121,60 @@ extern "C" {
   #ifndef   CLZ
   #define   CLZ                     __builtin_clz
   #endif
+
+#elif defined (__ICC430__)
+
+#ifndef   ASM
+  #define ASM                     __asm
+#endif
+
+#ifndef   INLINE
+  #define INLINE                  inline
+#endif
+
+#ifndef   STATIC_INLINE
+  #define STATIC_INLINE           static inline
+#endif
+
+#ifndef   USED
+  #define USED
+#endif
+
+#ifndef   WEAK
+  #define WEAK
+#endif
+
+#ifndef   CLZ
+  extern int __clz (unsigned long);
+  #define CLZ                     __clz
+#endif
+
+#elif defined (__TI_COMPILER_VERSION__)
+
+#ifndef   ASM
+  #define ASM                     __asm
+#endif
+
+#ifndef   INLINE
+  #define INLINE                  inline
+#endif
+
+#ifndef   STATIC_INLINE
+  #define STATIC_INLINE           static inline
+#endif
+
+#ifndef   USED
+  #define USED
+#endif
+
+#ifndef   WEAK
+  #define WEAK
+#endif
+
+#ifndef   CLZ
+  extern int __clz (unsigned long);
+  #define CLZ                     __clz
+#endif
 
 #else
   #error Unknown compiler.

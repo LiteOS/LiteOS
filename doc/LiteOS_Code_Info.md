@@ -71,8 +71,46 @@ int main(void)
 <tr>
 	<td></td>
 	<td></td>
+	<td>at_frame</td>
+	<td>LiteOS AT框架实现</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
 	<td>lwm2m</td>
 	<td>lwm2m协议实现</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>nbiot</td>
+	<td>LiteOS NB-IoT API</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td>paho.mqtt.embedded-c-1.1.0</td>
+	<td>MQTT开源协议实现</td>
+</tr>
+<tr>
+	<td></td>
+	<td>fota</td>
+	<td></td>
+	<td>固件升级代码</td>
+</tr>
+</tr>
+	<tr>
+	<td></td>
+	<td>fs</td>
+	<td></td>
+	<td>文件系统，含VFS、spiffs、ramfs、kifs、devfs</td>
+</tr>
+</tr>
+	<tr>
+	<td></td>
+	<td>lib</td>
+	<td>libc</td>
+	<td>LiteOS libc优化</td>
 </tr>
 <tr>
 	<td></td>
@@ -165,29 +203,100 @@ int main(void)
 	<td>tickless</td>
 	<td>低功耗框架代码</td>
 </tr>
-
 <tr>
 	<td>targets</td>
-	<td>FRDM_KW41Z</td>
+	<td>Cloud_NB-IoT_STM32F103RE_OneNET</td>
 	<td></td>
-	<td>FRDM（ARM Cortex M0+）板端工程代码（含原厂芯片驱动）</td>
+	<td>中国移动OneNet NB-IoT 端云demo工程</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F103RB_NUCLEO</td>
+	<td>Cloud_NXP51U68</td>
 	<td></td>
-	<td>F103（ARM Cortex M3）板端工程代码（含原厂芯片驱动）</td>
+	<td>NXP ARM Cortex M0 ENC28J60以太网LiteOS SDK端云demo</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F429IGTx_FIREL</td>
+	<td>Cloud_STM32F429IGTx_FIRE</td>
 	<td></td>
-	<td>F429（ARM Cortex M4）板端工程代码（含原厂芯片驱动）</td>
+	<td>野火STM32F429(ARM Cortex M4)以太网/ESP8266串口WiFi/SIM900A GPRS/NB-IoT BC95四种连接方式的LiteOS SDK端云demo，内部用编译宏区分，其中wifi、gprs、NB-IOT使用LiteOS SDK的AT框架实现</td>
 </tr>
 <tr>
 	<td></td>
-	<td>STM32F746ZG_NUCLEO</td>
+	<td>Cloud_STM32L431RxTx_IoTClub</td>
 	<td></td>
-	<td>F746（ARM Cortex M7）板端工程代码（含原厂芯片驱动）</td>
+	<td>物联网俱乐部EVB-M1 STM32L431（ARM Cortex M4）ESP8266WiFi/NB-IoT BC95两种连接方式的LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Cloud_STM3210E_EVAL</td>
+	<td></td>
+	<td>STM3210E（ARM Cortex M3）W5500 以太网LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Cloud_wifi_STM32F429ZI_NUCLEO</td>
+	<td></td>
+	<td>STM32F429（ARM Cortex M4）marvell SDIO wifi LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Cloud_wifi_STM32F767ZI_NUCLEO</td>
+	<td></td>
+	<td>STM32F767（ARM Cortex M7）esp8266 spi wifi LiteOS SDK端云demo</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Demo_Tutorial_STM32F103VC_TAIBI</td>
+	<td></td>
+	<td>STM32F103_TAIBI（ARM Cortex M3）LiteOS入门demo，最简单的LED点灯示例程序</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_FRDM_KW41Z</td>
+	<td></td>
+	<td>FRDM（ARM Cortex M0+）Standard前缀命名的工程仅为内核移植demo，下同（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_IMXRT1052_FIRE</td>
+	<td></td>
+	<td>IMXRT1052（ARM Cortex M7）跨界处理器NXP IMXRT1052内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_msp430f5438a_taurus_v4.2</td>
+	<td></td>
+	<td>MSP430（TI 16位低功耗单片机）LiteOS首个16位单片机内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_NRF51822_BLE</td>
+	<td></td>
+	<td>NRF51822（ARM Cortex M0）NRF51822蓝牙芯片内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_STM32F0Discovery</td>
+	<td></td>
+	<td>STM32F0Discovery（ARM Cortex M0）STM32F0 内核移植demo，RAM 8KB，资源裁剪可参考该工程配置（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_STM32F103RB_NUCLEO</td>
+	<td></td>
+	<td>F103（ARM Cortex M3）STM32F103内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_STM32F103VC_TAIBI</td>
+	<td></td>
+	<td>STM32F103VC_TAIBI（ARM Cortex M3）钛比STM32F103开发板内核移植demo（含原厂芯片驱动）</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Standard_STM32F746ZG_NUCLEO</td>
+	<td></td>
+	<td>F746（ARM Cortex M7）STM32F746内核移植demo（含原厂芯片驱动）</td>
 </tr>
 </table>

@@ -85,9 +85,17 @@
 //#define MBEDTLS_NET_C
 #define MBEDTLS_SHA256_C
 #define MBEDTLS_SSL_CLI_C
-//#define MBEDTLS_SSL_SRV_C
+#define MBEDTLS_SSL_SRV_C
 #define MBEDTLS_SSL_TLS_C
+#if !defined ( __GNUC__ )  /* GCC*/
 #define MBEDTLS_DEBUG_C
+#endif
+
+#ifdef USE_MRVL_SDIO_WIFI
+#define MBEDTLS_ARC4_C
+#define MBEDTLS_MD5_C
+#define MBEDTLS_SHA1_C
+#endif
 
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
@@ -100,7 +108,9 @@
 //#define MBEDTLS_PLATFORM_FREE_MACRO            free /**< Default free macro to use, can be undefined */
 
 /* Save RAM at the expense of ROM */
+#if !defined ( __GNUC__ )  /* GCC*/
 #define MBEDTLS_AES_ROM_TABLES
+#endif
 
 /* Save some RAM by adjusting to your exact needs */
 #define MBEDTLS_PSK_MAX_LEN    32 /* 128-bits keys are generally enough */
@@ -124,7 +134,7 @@
 #define MBEDTLS_SSL_RENEGOTIATION
 #define MBEDTLS_SSL_CACHE_C
 #define MBEDTLS_CIPHER_PADDING_ZEROS_AND_LEN
-#if 0
+#if 0 // We should support two encryption algorithm
 #define MBEDTLS_CCM_C
 #define MBEDTLS_SSL_CIPHERSUITES                        \
         MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8
@@ -134,6 +144,14 @@
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_SSL_CIPHERSUITES                        \
         MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256
+#endif
+
+#if defined(CONFIG_FEATURE_FOTA) ||  defined(WITH_SOTA)
+#define MBEDTLS_RSA_C
+#define MBEDTLS_BIGNUM_C
+#define MBEDTLS_OID_C
+#define MBEDTLS_PKCS1_V21
+#define MBEDTLS_ASN1_PARSE_C
 #endif
 
 #include "mbedtls/check_config.h"

@@ -99,6 +99,7 @@ extern "C" {
  *
  * */
 extern UINT32 LOS_SysClockGet(void);
+extern BOOL g_bSysTickStart;
 
 #ifdef __cplusplus
 #if __cplusplus

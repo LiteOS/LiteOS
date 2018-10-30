@@ -14,16 +14,7 @@ before_install:
 
 
 script:
-  -  cd targets/FRDM_KW41Z/GCC
-  -  make
-  -  cd ../../../
-  -  cd targets/STM32F103RB_NUCLEO/GCC
-  -  make
-  -  cd ../../../
-  -  cd targets/STM32F429IGTx_FIRE/GCC
-  -  make
-  -  cd ../../../
-  -  cd targets/STM32F746ZG_NUCLEO/GCC
+  -  cd targets/Cloud_STM32F429IGTx_FIRE/GCC
   -  make
 
 

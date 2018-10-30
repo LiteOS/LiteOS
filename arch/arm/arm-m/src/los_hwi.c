@@ -74,7 +74,7 @@ HWI_PROC_FUNC m_pstHwiForm[OS_VECTOR_CNT] =
     (HWI_PROC_FUNC)osHwiDefaultHandler,  // [11] SVCall Handler
     (HWI_PROC_FUNC)osHwiDefaultHandler,  // [12] Debug Monitor Handler
     (HWI_PROC_FUNC)0,                    // [13] Reserved
-    (HWI_PROC_FUNC)osPendSV,             // [14] PendSV Handler
+    (HWI_PROC_FUNC)PendSV_Handler,       // [14] PendSV Handler
     (HWI_PROC_FUNC)osHwiDefaultHandler,  // [15] SysTick Handler
 };
 #if (OS_HWI_WITH_ARG == YES)
@@ -266,19 +266,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_HwiDelete(HWI_HANDLE_T uwHwiNum)
 #else
 
 /*****************************************************************************
- Function    : PendSV_Handler
- Description : This function handles PendSVC exception, Call LiteOS interface
-               osPendSV.
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-void PendSV_Handler(void)
-{
-    osPendSV();
-}
-
-/*****************************************************************************
  Function    : SysTick_Handler
  Description : This function handles SysTick exception, Call LiteOS interface
                osTickHandler.
@@ -288,7 +275,14 @@ void PendSV_Handler(void)
  *****************************************************************************/
 void SysTick_Handler(void)
 {
-    osTickHandler();
+    if (g_bSysTickStart)
+    {
+        osTickHandler();
+    }
+    else
+    {
+        g_ullTickCount++;
+    }
 }
 
 #endif /*(LOSCFG_PLATFORM_HWI == YES)*/

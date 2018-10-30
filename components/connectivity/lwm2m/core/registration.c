@@ -98,8 +98,8 @@
 
 #ifdef LWM2M_CLIENT_MODE
 
-static int prv_getRegistrationQueryLength(lwm2m_context_t * contextP,
-                                          lwm2m_server_t * server)
+static int prv_getRegistrationQueryLength(lwm2m_context_t *contextP,
+        lwm2m_server_t *server)
 {
     int index;
     int res;
@@ -141,7 +141,7 @@ static int prv_getRegistrationQueryLength(lwm2m_context_t * contextP,
     if (0 != server->lifetime)
     {
         index += strlen(QUERY_DELIMITER QUERY_LIFETIME);//&lt=
-        res = utils_intToText(server->lifetime, (uint8_t*)buffer, sizeof(buffer));
+        res = utils_intToText(server->lifetime, (uint8_t *)buffer, sizeof(buffer));
         if (res == 0) return 0;
         index += res;
     }
@@ -149,9 +149,9 @@ static int prv_getRegistrationQueryLength(lwm2m_context_t * contextP,
     return index + 1;
 }
 
-static int prv_getRegistrationQuery(lwm2m_context_t * contextP,
-                                    lwm2m_server_t * server,
-                                    char * buffer,
+static int prv_getRegistrationQuery(lwm2m_context_t *contextP,
+                                    lwm2m_server_t *server,
+                                    char *buffer,
                                     size_t length)
 {
     int index;
@@ -204,7 +204,7 @@ static int prv_getRegistrationQuery(lwm2m_context_t * contextP,
         res = utils_stringCopy(buffer + index, length - index, QUERY_DELIMITER QUERY_LIFETIME);
         if (res < 0) return 0;
         index += res;
-        res = utils_intToText(server->lifetime, (uint8_t*)buffer + index, length - index);
+        res = utils_intToText(server->lifetime, (uint8_t *)buffer + index, length - index);
         if (res == 0) return 0;
         index += res;
     }
@@ -221,11 +221,11 @@ static int prv_getRegistrationQuery(lwm2m_context_t * contextP,
     return index;
 }
 
-static void prv_handleRegistrationReply(lwm2m_transaction_t * transacP,
-                                        void * message)
+static void prv_handleRegistrationReply(lwm2m_transaction_t *transacP,
+                                        void *message)
 {
-    coap_packet_t * packet = (coap_packet_t *)message;
-    lwm2m_server_t * targetP = (lwm2m_server_t *)(transacP->userData);
+    coap_packet_t *packet = (coap_packet_t *)message;
+    lwm2m_server_t *targetP = (lwm2m_server_t *)(transacP->userData);
 
     LOG("come into  prv_handleRegistrationReply!!");
     if (targetP->status == STATE_REG_PENDING)
@@ -244,7 +244,7 @@ static void prv_handleRegistrationReply(lwm2m_transaction_t * transacP,
             }
             targetP->location = coap_get_multi_option_as_string(packet->location_path);
 
-            LOG_ARG("Registration successful,location_path is %s",targetP->location);
+            LOG("Registration successful");
         }
         else
         {
@@ -255,14 +255,14 @@ static void prv_handleRegistrationReply(lwm2m_transaction_t * transacP,
 }
 
 // send the registration for a single server
-static uint8_t prv_register(lwm2m_context_t * contextP,
-                            lwm2m_server_t * server)
+static uint8_t prv_register(lwm2m_context_t *contextP,
+                            lwm2m_server_t *server)
 {
-    char * query;
+    char *query;
     int query_length;
-    uint8_t * payload;
+    uint8_t *payload;
     int payload_length;
-    lwm2m_transaction_t * transaction;
+    lwm2m_transaction_t *transaction;
 
     payload_length = object_getRegisterPayloadBufferLength(contextP);
     if(payload_length == 0) return COAP_500_INTERNAL_SERVER_ERROR;
@@ -313,7 +313,7 @@ static uint8_t prv_register(lwm2m_context_t * contextP,
         lwm2m_free(query);
         return COAP_503_SERVICE_UNAVAILABLE;
     }
-//    coap_pdu_t *pdu = (coap_pdu_t *)(transaction->message);
+    //    coap_pdu_t *pdu = (coap_pdu_t *)(transaction->message);
 
     coap_set_header_uri_path(transaction->message, "/"URI_REGISTRATION_SEGMENT);
     coap_set_header_uri_query(transaction->message, query);
@@ -339,11 +339,11 @@ static uint8_t prv_register(lwm2m_context_t * contextP,
     return COAP_NO_ERROR;
 }
 
-static void prv_handleRegistrationUpdateReply(lwm2m_transaction_t * transacP,
-                                              void * message)
+static void prv_handleRegistrationUpdateReply(lwm2m_transaction_t *transacP,
+        void *message)
 {
-    coap_packet_t * packet = (coap_packet_t *)message;
-    lwm2m_server_t * targetP = (lwm2m_server_t *)(transacP->userData);
+    coap_packet_t *packet = (coap_packet_t *)message;
+    lwm2m_server_t *targetP = (lwm2m_server_t *)(transacP->userData);
 
     if (targetP->status == STATE_REG_UPDATE_PENDING)
     {
@@ -365,12 +365,12 @@ static void prv_handleRegistrationUpdateReply(lwm2m_transaction_t * transacP,
     }
 }
 
-static int prv_updateRegistration(lwm2m_context_t * contextP,
-                                  lwm2m_server_t * server,
+static int prv_updateRegistration(lwm2m_context_t *contextP,
+                                  lwm2m_server_t *server,
                                   bool withObjects)
 {
-    lwm2m_transaction_t * transaction;
-    uint8_t * payload = NULL;
+    lwm2m_transaction_t *transaction;
+    uint8_t *payload = NULL;
     int payload_length;
 
     transaction = transaction_new(server->sessionH, COAP_POST, NULL, NULL, contextP->nextMID++, 4, NULL);
@@ -423,11 +423,11 @@ static int prv_updateRegistration(lwm2m_context_t * contextP,
 }
 
 // update the registration of a given server
-int lwm2m_update_registration(lwm2m_context_t * contextP,
+int lwm2m_update_registration(lwm2m_context_t *contextP,
                               uint16_t shortServerID,
                               bool withObjects)
 {
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
     uint8_t result;
 
     LOG_ARG("State: %s, shortServerID: %d", STR_STATE(contextP->state), shortServerID);
@@ -451,7 +451,7 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
             {
                 // found the server, trigger the update transaction
                 if (targetP->status == STATE_REGISTERED
-                 || targetP->status == STATE_REG_UPDATE_PENDING)
+                        || targetP->status == STATE_REG_UPDATE_PENDING)
                 {
                     if (withObjects == true)
                     {
@@ -464,7 +464,7 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
                     return COAP_NO_ERROR;
                 }
                 else if ((targetP->status == STATE_REG_FULL_UPDATE_NEEDED)
-                      || (targetP->status == STATE_REG_UPDATE_NEEDED))
+                         || (targetP->status == STATE_REG_UPDATE_NEEDED))
                 {
                     // if REG (FULL) UPDATE is already set, returns COAP_NO_ERROR
                     if (withObjects == true)
@@ -482,7 +482,7 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
         else
         {
             if (targetP->status == STATE_REGISTERED
-             || targetP->status == STATE_REG_UPDATE_PENDING)
+                    || targetP->status == STATE_REG_UPDATE_PENDING)
             {
                 if (withObjects == true)
                 {
@@ -498,7 +498,7 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
     }
 
     if (shortServerID != 0
-     && targetP == NULL)
+            && targetP == NULL)
     {
         // no server found
         result = COAP_404_NOT_FOUND;
@@ -507,9 +507,9 @@ int lwm2m_update_registration(lwm2m_context_t * contextP,
     return result;
 }
 //serverlist和objectlist已经赋值
-uint8_t registration_start(lwm2m_context_t * contextP)
+uint8_t registration_start(lwm2m_context_t *contextP)
 {
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
     uint8_t result;
 
     LOG_ARG("State: %s", STR_STATE(contextP->state));
@@ -520,7 +520,7 @@ uint8_t registration_start(lwm2m_context_t * contextP)
     while (targetP != NULL && result == COAP_NO_ERROR)
     {
         if (targetP->status == STATE_DEREGISTERED
-         || targetP->status == STATE_REG_FAILED)
+                || targetP->status == STATE_REG_FAILED)
         {
             result = prv_register(contextP, targetP);
         }
@@ -536,9 +536,9 @@ uint8_t registration_start(lwm2m_context_t * contextP)
  * Returns STATE_REGISTERED if no registration is pending and there is at least one server the client is registered to
  * Returns STATE_REG_FAILED if all registration failed.
  */
-lwm2m_status_t registration_getStatus(lwm2m_context_t * contextP)
+lwm2m_status_t registration_getStatus(lwm2m_context_t *contextP)
 {
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
     lwm2m_status_t reg_status;
 
     LOG_ARG("State: %s", STR_STATE(contextP->state));
@@ -551,25 +551,25 @@ lwm2m_status_t registration_getStatus(lwm2m_context_t * contextP)
         LOG_ARG("targetP->status: %s", STR_STATUS(targetP->status));
         switch (targetP->status)
         {
-            case STATE_REGISTERED:
-            case STATE_REG_UPDATE_NEEDED:
-            case STATE_REG_FULL_UPDATE_NEEDED:
-            case STATE_REG_UPDATE_PENDING:
-                if (reg_status == STATE_REG_FAILED)
-                {
-                    reg_status = STATE_REGISTERED;
-                }
-                break;
+        case STATE_REGISTERED:
+        case STATE_REG_UPDATE_NEEDED:
+        case STATE_REG_FULL_UPDATE_NEEDED:
+        case STATE_REG_UPDATE_PENDING:
+            if (reg_status == STATE_REG_FAILED)
+            {
+                reg_status = STATE_REGISTERED;
+            }
+            break;
 
-            case STATE_REG_PENDING:
-                reg_status = STATE_REG_PENDING;
-                break;
+        case STATE_REG_PENDING:
+            reg_status = STATE_REG_PENDING;
+            break;
 
-            case STATE_REG_FAILED:
-            case STATE_DEREG_PENDING:
-            case STATE_DEREGISTERED:
-            default:
-                break;
+        case STATE_REG_FAILED:
+        case STATE_DEREG_PENDING:
+        case STATE_DEREGISTERED:
+        default:
+            break;
         }
         LOG_ARG("reg_status: %s", STR_STATUS(reg_status));
 
@@ -579,10 +579,10 @@ lwm2m_status_t registration_getStatus(lwm2m_context_t * contextP)
     return reg_status;
 }
 
-static void prv_handleDeregistrationReply(lwm2m_transaction_t * transacP,
-                                          void * message)
+static void prv_handleDeregistrationReply(lwm2m_transaction_t *transacP,
+        void *message)
 {
-    lwm2m_server_t * targetP;
+    lwm2m_server_t *targetP;
 
     targetP = (lwm2m_server_t *)(transacP->userData);
     if (NULL != targetP)
@@ -594,18 +594,18 @@ static void prv_handleDeregistrationReply(lwm2m_transaction_t * transacP,
     }
 }
 
-void registration_deregister(lwm2m_context_t * contextP,
-                             lwm2m_server_t * serverP)
+void registration_deregister(lwm2m_context_t *contextP,
+                             lwm2m_server_t *serverP)
 {
-    lwm2m_transaction_t * transaction;
+    lwm2m_transaction_t *transaction;
 
     LOG_ARG("State: %s, serverP->status: %s", STR_STATE(contextP->state), STR_STATUS(serverP->status));
 
     if (serverP->status == STATE_DEREGISTERED
-     || serverP->status == STATE_REG_PENDING
-     || serverP->status == STATE_DEREG_PENDING
-     || serverP->status == STATE_REG_FAILED
-     || serverP->location == NULL)
+            || serverP->status == STATE_REG_PENDING
+            || serverP->status == STATE_DEREG_PENDING
+            || serverP->status == STATE_REG_FAILED
+            || serverP->location == NULL)
     {
         return;
     }
@@ -625,30 +625,56 @@ void registration_deregister(lwm2m_context_t * contextP,
     }
 }
 
-void registration_reset(lwm2m_context_t * contextP,
-                             lwm2m_server_t * serverP)
+void registration_reset(lwm2m_context_t *contextP,
+                        lwm2m_server_t *serverP)
 {
     //registration_deregister(contextP, serverP);
     if (serverP->sessionH != NULL)
     {
-         lwm2m_close_connection(serverP->sessionH, contextP->userData);
-         serverP->sessionH = NULL;
+        lwm2m_close_connection(serverP->sessionH, contextP->userData);
+        serverP->sessionH = NULL;
     }
     serverP->status = STATE_DEREGISTERED;
+}
+
+lwm2m_server_t *registration_get_registered_server(lwm2m_context_t *contextP)
+{
+    lwm2m_server_t *targetP;
+
+    if(NULL == contextP)
+    {
+        LOG("null pointer");
+        return NULL;
+    }
+
+    targetP = contextP->serverList;
+    while (targetP != NULL)
+    {
+        if ((STATE_REGISTERED == targetP->status)
+                || (STATE_REG_UPDATE_PENDING == targetP->status)
+                || (STATE_REG_UPDATE_NEEDED == targetP->status)
+                || (STATE_REG_FULL_UPDATE_NEEDED == targetP->status))
+        {
+            return targetP;
+        }
+        targetP = targetP->next;
+    }
+
+    return NULL;
 }
 
 #endif
 
 #ifdef LWM2M_SERVER_MODE
-static void prv_freeClientObjectList(lwm2m_client_object_t * objects)
+static void prv_freeClientObjectList(lwm2m_client_object_t *objects)
 {
     while (objects != NULL)
     {
-        lwm2m_client_object_t * objP;
+        lwm2m_client_object_t *objP;
 
         while (objects->instanceList != NULL)
         {
-            lwm2m_list_t * target;
+            lwm2m_list_t *target;
 
             target = objects->instanceList;
             objects->instanceList = objects->instanceList->next;
@@ -661,12 +687,12 @@ static void prv_freeClientObjectList(lwm2m_client_object_t * objects)
     }
 }
 
-static int prv_getParameters(multi_option_t * query,
-                             char ** nameP,
-                             uint32_t * lifetimeP,
-                             char ** msisdnP,
-                             lwm2m_binding_t * bindingP,
-                             char ** versionP)
+static int prv_getParameters(multi_option_t *query,
+                             char **nameP,
+                             uint32_t *lifetimeP,
+                             char **msisdnP,
+                             lwm2m_binding_t *bindingP,
+                             char **versionP)
 {
     *nameP = NULL;
     *lifetimeP = 0;
@@ -745,12 +771,12 @@ error:
     return -1;
 }
 
-static uint16_t prv_splitLinkAttribute(uint8_t * data,
+static uint16_t prv_splitLinkAttribute(uint8_t *data,
                                        uint16_t length,
-                                       uint16_t * keyStart,
-                                       uint16_t * keyLength,
-                                       uint16_t * valueStart,
-                                       uint16_t * valueLength)
+                                       uint16_t *keyStart,
+                                       uint16_t *keyLength,
+                                       uint16_t *valueStart,
+                                       uint16_t *valueLength)
 {
     uint16_t index;
     uint16_t end;
@@ -790,10 +816,10 @@ static uint16_t prv_splitLinkAttribute(uint8_t * data,
     return end;
 }
 
-static int prv_parseLinkAttributes(uint8_t * data,
+static int prv_parseLinkAttributes(uint8_t *data,
                                    uint16_t length,
-                                   bool * supportJSON,
-                                   char ** altPath)
+                                   bool *supportJSON,
+                                   char **altPath)
 {
     uint16_t index;
     uint16_t pathStart;
@@ -804,7 +830,7 @@ static int prv_parseLinkAttributes(uint8_t * data,
 
     // Expecting application/link-format (RFC6690)
     // leading space were removed before. Remove trailing spaces.
-    while (length > 0 && data[length-1] == ' ') length--;
+    while (length > 0 && data[length - 1] == ' ') length--;
 
     // strip open tag
     if (length >= 2 && data[0] == REG_URI_START)
@@ -846,22 +872,22 @@ static int prv_parseLinkAttributes(uint8_t * data,
         if (result == 0) return 0;
 
         if (keyLength == REG_ATTR_TYPE_KEY_LEN
-         && 0 == lwm2m_strncmp(REG_ATTR_TYPE_KEY, (char*)data + index + keyStart, keyLength))
+                && 0 == lwm2m_strncmp(REG_ATTR_TYPE_KEY, (char *)data + index + keyStart, keyLength))
         {
             if (isValid == true) return 0; // declared twice
             if (valueLength != REG_ATTR_TYPE_VALUE_LEN
-             || 0 != lwm2m_strncmp(REG_ATTR_TYPE_VALUE, (char*)data + index + valueStart, valueLength))
+                    || 0 != lwm2m_strncmp(REG_ATTR_TYPE_VALUE, (char *)data + index + valueStart, valueLength))
             {
                 return 0;
             }
             isValid = true;
         }
         else if (keyLength == REG_ATTR_CONTENT_KEY_LEN
-              && 0 == lwm2m_strncmp(REG_ATTR_CONTENT_KEY, (char*)data + index + keyStart, keyLength))
+                 && 0 == lwm2m_strncmp(REG_ATTR_CONTENT_KEY, (char *)data + index + keyStart, keyLength))
         {
             if (*supportJSON == true) return 0; // declared twice
             if (valueLength == REG_ATTR_CONTENT_JSON_LEN
-             && 0 == lwm2m_strncmp(REG_ATTR_CONTENT_JSON, (char*)data + index + valueStart, valueLength))
+                    && 0 == lwm2m_strncmp(REG_ATTR_CONTENT_JSON, (char *)data + index + valueStart, valueLength))
             {
                 *supportJSON = true;
             }
@@ -888,20 +914,20 @@ static int prv_parseLinkAttributes(uint8_t * data,
     return 1;
 }
 
-static int prv_getId(uint8_t * data,
+static int prv_getId(uint8_t *data,
                      uint16_t length,
-                     uint16_t * objId,
-                     uint16_t * instanceId)
+                     uint16_t *objId,
+                     uint16_t *instanceId)
 {
     int value;
     uint16_t limit;
 
     // Expecting application/link-format (RFC6690)
     // leading space were removed before. Remove trailing spaces.
-    while (length > 0 && data[length-1] == ' ') length--;
+    while (length > 0 && data[length - 1] == ' ') length--;
 
     // strip open and close tags
-    if (length >= 1 && data[0] == REG_URI_START && data[length-1] == REG_URI_END)
+    if (length >= 1 && data[0] == REG_URI_START && data[length - 1] == REG_URI_END)
     {
         data += 1;
         length -= 2;
@@ -948,13 +974,13 @@ static int prv_getId(uint8_t * data,
     return 1;
 }
 
-static lwm2m_client_object_t * prv_decodeRegisterPayload(uint8_t * payload,
-                                                         uint16_t payloadLength,
-                                                         bool * supportJSON,
-                                                         char ** altPath)
+static lwm2m_client_object_t *prv_decodeRegisterPayload(uint8_t *payload,
+        uint16_t payloadLength,
+        bool *supportJSON,
+        char **altPath)
 {
     uint16_t index;
-    lwm2m_client_object_t * objList;
+    lwm2m_client_object_t *objList;
     bool linkAttrFound;
 
     *altPath = NULL;
@@ -981,7 +1007,7 @@ static lwm2m_client_object_t * prv_decodeRegisterPayload(uint8_t * payload,
         result = prv_getId(payload + start, length, &id, &instance);
         if (result != 0)
         {
-            lwm2m_client_object_t * objectP;
+            lwm2m_client_object_t *objectP;
 
             objectP = (lwm2m_client_object_t *)lwm2m_list_find((lwm2m_list_t *)objList, id);
             if (objectP == NULL)
@@ -994,7 +1020,7 @@ static lwm2m_client_object_t * prv_decodeRegisterPayload(uint8_t * payload,
             }
             if (result == 2)
             {
-                lwm2m_list_t * instanceP;
+                lwm2m_list_t *instanceP;
 
                 instanceP = lwm2m_list_find(objectP->instanceList, instance);
                 if (instanceP == NULL)
@@ -1032,10 +1058,10 @@ error:
     return NULL;
 }
 
-static lwm2m_client_t * prv_getClientByName(lwm2m_context_t * contextP,
-                                            char * name)
+static lwm2m_client_t *prv_getClientByName(lwm2m_context_t *contextP,
+        char *name)
 {
-    lwm2m_client_t * targetP;
+    lwm2m_client_t *targetP;
 
     targetP = contextP->clientList;
     while (targetP != NULL && strcmp(name, targetP->name) != 0)
@@ -1046,7 +1072,7 @@ static lwm2m_client_t * prv_getClientByName(lwm2m_context_t * contextP,
     return targetP;
 }
 
-void registration_freeClient(lwm2m_client_t * clientP)
+void registration_freeClient(lwm2m_client_t *clientP)
 {
     LOG("Entering");
     if (clientP->name != NULL) lwm2m_free(clientP->name);
@@ -1055,7 +1081,7 @@ void registration_freeClient(lwm2m_client_t * clientP)
     prv_freeClientObjectList(clientP->objectList);
     while(clientP->observationList != NULL)
     {
-        lwm2m_observation_t * targetP;
+        lwm2m_observation_t *targetP;
 
         targetP = clientP->observationList;
         clientP->observationList = clientP->observationList->next;
@@ -1076,17 +1102,17 @@ static int prv_getLocationString(uint16_t id,
     if (result < 0) return 0;
     index = result;
 
-    result = utils_intToText(id, (uint8_t*)location + index, MAX_LOCATION_LENGTH - index);
+    result = utils_intToText(id, (uint8_t *)location + index, MAX_LOCATION_LENGTH - index);
     if (result == 0) return 0;
 
     return index + result;
 }
 
-uint8_t registration_handleRequest(lwm2m_context_t * contextP,
-                                   lwm2m_uri_t * uriP,
-                                   void * fromSessionH,
-                                   coap_packet_t * message,
-                                   coap_packet_t * response)
+uint8_t registration_handleRequest(lwm2m_context_t *contextP,
+                                   lwm2m_uri_t *uriP,
+                                   void *fromSessionH,
+                                   coap_packet_t *message,
+                                   coap_packet_t *response)
 {
     uint8_t result;
     time_t tv_sec;
@@ -1099,15 +1125,15 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
     {
     case COAP_POST:
     {
-        char * name = NULL;
+        char *name = NULL;
         uint32_t lifetime;
-        char * msisdn;
-        char * altPath;
-        char * version;
+        char *msisdn;
+        char *altPath;
+        char *version;
         lwm2m_binding_t binding;
-        lwm2m_client_object_t * objects;
+        lwm2m_client_object_t *objects;
         bool supportJSON;
-        lwm2m_client_t * clientP;
+        lwm2m_client_t *clientP;
         char location[MAX_LOCATION_LENGTH];
 
         if (0 != prv_getParameters(message->uri_query, &name, &lifetime, &msisdn, &binding, &version))
@@ -1115,7 +1141,7 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
             return COAP_400_BAD_REQUEST;
         }
         if (message->content_type != (coap_content_type_t)LWM2M_CONTENT_LINK
-         && message->content_type != (coap_content_type_t)LWM2M_CONTENT_TEXT)
+                && message->content_type != (coap_content_type_t)LWM2M_CONTENT_TEXT)
         {
             return COAP_400_BAD_REQUEST;
         }
@@ -1150,7 +1176,7 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
             }
             // version must be 1.0
             if (strlen(version) != LWM2M_VERSION_LEN
-                || lwm2m_strncmp(version, LWM2M_VERSION, LWM2M_VERSION_LEN))
+                    || lwm2m_strncmp(version, LWM2M_VERSION, LWM2M_VERSION_LEN))
             {
                 lwm2m_free(version);
                 lwm2m_free(name);
@@ -1246,14 +1272,14 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
 
             if (objects != NULL)
             {
-                lwm2m_observation_t * observationP;
+                lwm2m_observation_t *observationP;
 
                 // remove observations on object/instance no longer existing
                 observationP = clientP->observationList;
                 while (observationP != NULL)
                 {
-                    lwm2m_client_object_t * objP;
-                    lwm2m_observation_t * nextP;
+                    lwm2m_client_object_t *objP;
+                    lwm2m_observation_t *nextP;
 
                     nextP = observationP->next;
 
@@ -1299,15 +1325,15 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
             result = COAP_204_CHANGED;
             break;
 
-            default:
-                return COAP_400_BAD_REQUEST;
+        default:
+            return COAP_400_BAD_REQUEST;
         }
     }
     break;
 
     case COAP_DELETE:
     {
-        lwm2m_client_t * clientP;
+        lwm2m_client_t *clientP;
 
         if ((uriP->flag & LWM2M_URI_MASK_ID) != LWM2M_URI_FLAG_OBJECT_ID) return COAP_400_BAD_REQUEST;
 
@@ -1329,9 +1355,9 @@ uint8_t registration_handleRequest(lwm2m_context_t * contextP,
     return result;
 }
 
-void lwm2m_set_monitoring_callback(lwm2m_context_t * contextP,
+void lwm2m_set_monitoring_callback(lwm2m_context_t *contextP,
                                    lwm2m_result_callback_t callback,
-                                   void * userData)
+                                   void *userData)
 {
     LOG("Entering");
     contextP->monitorCallback = callback;
@@ -1341,12 +1367,12 @@ void lwm2m_set_monitoring_callback(lwm2m_context_t * contextP,
 
 // for each server update the registration if needed
 // for each client check if the registration expired
-void registration_step(lwm2m_context_t * contextP,
+void registration_step(lwm2m_context_t *contextP,
                        time_t currentTime,
-                       time_t * timeoutP)
+                       time_t *timeoutP)
 {
 #ifdef LWM2M_CLIENT_MODE
-    lwm2m_server_t * targetP = contextP->serverList;
+    lwm2m_server_t *targetP = contextP->serverList;
 
     LOG_ARG("contextP State: %s", STR_STATE(contextP->state));
 
@@ -1408,14 +1434,14 @@ void registration_step(lwm2m_context_t * contextP,
 
 #endif
 #ifdef LWM2M_SERVER_MODE
-    lwm2m_client_t * clientP;
+    lwm2m_client_t *clientP;
 
     LOG("Entering");
     // monitor clients lifetime
     clientP = contextP->clientList;
     while (clientP != NULL)
     {
-        lwm2m_client_t * nextP = clientP->next;
+        lwm2m_client_t *nextP = clientP->next;
 
         if (clientP->endOfLife <= currentTime)
         {

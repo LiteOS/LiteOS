@@ -158,7 +158,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrInit(VOID)
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0, LOSCFG_BASE_CORE_SWTMR_LIMIT);
+    (VOID)memset((VOID *)m_uwSwTmrAlignID, 0, LOSCFG_BASE_CORE_SWTMR_LIMIT * sizeof(UINT32));
  #endif
 
     m_pstSwtmrSortList = (SWTMR_CTRL_S *)NULL;
@@ -468,6 +468,7 @@ Input      : None
 Output     : None
 Return     : Count of the Timer list
 *****************************************************************************/
+#if (LOSCFG_KERNEL_TICKLESS == YES)
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
 LITE_OS_SEC_TEXT UINT32 osSwTmrGetNextTimeout(VOID)
 {
@@ -512,6 +513,7 @@ LITE_OS_SEC_TEXT UINT32 osSwTmrGetNextTimeout(VOID)
     return m_pstSwtmrSortList->uwCount;
 }
 #endif
+#endif
 
 /*****************************************************************************
 Function   : osSwtimerInsert
@@ -520,6 +522,7 @@ Input      : None
 Output     : None
 Return     : None
 *****************************************************************************/
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
 LITE_OS_SEC_TEXT VOID osSwtimerInsert(SWTMR_CTRL_S **pstHead, SWTMR_CTRL_S *pstSwtmr)
 {
     SWTMR_CTRL_S *pstPrev = NULL;
@@ -561,6 +564,8 @@ LITE_OS_SEC_TEXT VOID osSwtimerInsert(SWTMR_CTRL_S **pstHead, SWTMR_CTRL_S *pstS
 
     return;
 }
+#endif
+
 /*****************************************************************************
 Function   : osSwTmrAdjust
 Description: Adjust Software Timer list

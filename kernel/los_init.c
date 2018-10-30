@@ -35,9 +35,6 @@
 #include "los_tick.h"
 #include "los_task.ph"
 #include "los_config.h"
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
-#include "los_sr.h"
-#endif
 
 #if (LOSCFG_PLATFORM_EXC == YES)
 #include "los_exc.ph"
@@ -51,10 +48,9 @@ extern "C" {
 
 LITE_OS_SEC_BSS UINT8* m_aucSysMem0;
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
 LITE_OS_SEC_BSS UINT8 m_aucTaskArray[MAX_EXC_MEM_SIZE];
 #endif
-extern UINT32 osTickInit(UINT32 uwSystemClock, UINT32 uwTickPerSecond);
 
 LITE_OS_SEC_TEXT_INIT void osEnableFPU(void)
 {
@@ -116,6 +112,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
         return uwRet;
     }
 #endif
+
+#if (LOSCFG_LIB_LIBC_NEWLIB_REENT == YES)
+    extern VOID osTaskSwitchImpurePtr(VOID);
+    osTaskSwitchImpurePtr();
+#endif
+
     LOS_StartToRun();
 
     return uwRet;
