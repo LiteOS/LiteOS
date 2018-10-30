@@ -191,10 +191,10 @@ static void test_file_read_exception(void **state)
     assert_in_range(fd, 0, LOS_MAX_FILES);
 
     ret = los_read(fd, 0, sizeof(read_buf));
-    assert_int_equal(ret, -1);
+    assert_true(ret < 0);
 
     ret = los_read(fd, read_buf, 0);
-    assert_int_equal(ret, -1);
+    assert_true(ret < 0);
 
     ret = los_close(fd);
     assert_int_equal(ret, 0);

@@ -34,6 +34,7 @@
 
 /* NOTE: this is a demo for adapting the SPIFFS */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "fs/sys/stat.h"
@@ -43,10 +44,79 @@
 #include "fs/sys/fcntl.h"
 #endif
 
+#ifdef __GNUC__
+#include <sys/errno.h>
+#elif defined (__CC_ARM)
+#include "fs/sys/errno.h"
+#endif
+
 #include <los_printf.h>
 
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
+
+
+static int ret_to_errno(int ret)
+{
+    int err = 0;
+
+    switch (ret)
+    {
+    case SPIFFS_OK:
+        return 0;
+
+    case SPIFFS_ERR_NOT_MOUNTED:
+    case SPIFFS_ERR_NOT_A_FS:
+    case SPIFFS_ERR_PROBE_NOT_A_FS:
+        err = ENODEV;
+        break;
+
+    case SPIFFS_ERR_FULL:
+    case SPIFFS_ERR_PROBE_TOO_FEW_BLOCKS:
+        err = ENOSPC;
+        break;
+
+    case SPIFFS_ERR_BAD_DESCRIPTOR:
+    case SPIFFS_ERR_OUT_OF_FILE_DESCS:
+        err = EBADF;
+        break;
+
+    case SPIFFS_ERR_MOUNTED:
+    case SPIFFS_ERR_FILE_EXISTS:
+        err = EEXIST;
+        break;
+
+    case SPIFFS_ERR_NOT_FOUND:
+    case SPIFFS_ERR_NOT_A_FILE:
+    case SPIFFS_ERR_DELETED:
+    case SPIFFS_ERR_FILE_DELETED:
+        err = ENOENT;
+        break;
+
+    case SPIFFS_ERR_NAME_TOO_LONG:
+        err = ENAMETOOLONG;
+        break;
+
+    case SPIFFS_ERR_RO_NOT_IMPL:
+    case SPIFFS_ERR_RO_ABORTED_OPERATION:
+        err = EROFS;
+        break;
+
+    case SPIFFS_ERR_SEEK_BOUNDS:
+        err = ESPIPE;
+        break;
+
+    case SPIFFS_ERR_ERASE_FAIL:
+        err = EIO;
+        break;
+
+    default:
+        err = EIO;
+        break;
+    }
+
+    return VFS_ERRNO_SET (err);
+}
 
 static int spiffs_flags_get (int oflags)
 {
@@ -99,7 +169,7 @@ static int spiffs_op_open (struct file *file, const char *path_in_mp, int flags)
 
     if (s_file < SPIFFS_OK)
     {
-        return -1;
+        return ret_to_errno(s_file);
     }
 
     file->f_data = (void *) (uintptr_t) s_file;
@@ -116,38 +186,42 @@ static int spiffs_op_close (struct file *file)
 {
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
+    s32_t res = SPIFFS_close (fs, s_file);
 
-    return (SPIFFS_close (fs, s_file) == SPIFFS_OK) ? LOS_OK : LOS_NOK;
+    return ret_to_errno(res);
 }
 
 static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 {
     if (buff == NULL || bytes == 0)
-        return -1;
+        return -EINVAL;
 
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
+    s32_t res = SPIFFS_read (fs, s_file, buff, bytes);
 
-    return SPIFFS_read (fs, s_file, buff, bytes);
+    return res < 0 ? ret_to_errno(res) : res;
 }
 
 static ssize_t spiffs_op_write (struct file *file, const char *buff, size_t bytes)
 {
     if (buff == NULL || bytes == 0)
-        return -1;
+        return -EINVAL;
 
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
+    s32_t res = SPIFFS_write (fs, s_file, (void *) buff, bytes);
 
-    return SPIFFS_write (fs, s_file, (void *) buff, bytes);
+    return res < 0 ? ret_to_errno(res) : res;
 }
 
 static off_t spiffs_op_lseek (struct file *file, off_t off, int whence)
 {
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
+    s32_t res = SPIFFS_lseek (fs, s_file, off, whence);
 
-    return SPIFFS_lseek (fs, s_file, off, whence);
+    return res < 0 ? ret_to_errno(res) : res;
 }
 
 int spiffs_op_stat (struct file *file, struct stat *stat)
@@ -158,32 +232,35 @@ int spiffs_op_stat (struct file *file, struct stat *stat)
 
     memset(&s, 0, sizeof(s));
     memset(stat, 0, sizeof(*stat));
-    int ret = SPIFFS_fstat(fs, s_file, &s);
-    if (ret == SPIFFS_OK)
+    s32_t res = SPIFFS_fstat(fs, s_file, &s);
+    if (res == SPIFFS_OK)
     {
         stat->st_size = s.size;
     }
 
-    return ret;
+    return ret_to_errno(res);
 }
 
 static int spiffs_op_unlink (struct mount_point *mp, const char *path_in_mp)
 {
-    return SPIFFS_remove ((spiffs *) mp->m_data, path_in_mp);
+    s32_t res = SPIFFS_remove ((spiffs *) mp->m_data, path_in_mp);
+    return ret_to_errno(res);
 }
 
 static int spiffs_op_rename (struct mount_point *mp, const char *path_in_mp_old,
                              const char *path_in_mp_new)
 {
-    return SPIFFS_rename ((spiffs *) mp->m_data, path_in_mp_old, path_in_mp_new);
+    s32_t res = SPIFFS_rename ((spiffs *) mp->m_data, path_in_mp_old, path_in_mp_new);
+    return ret_to_errno(res);
 }
 
 static int spiffs_op_sync (struct file *file)
 {
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
+    s32_t res = SPIFFS_fflush (fs, s_file);
 
-    return SPIFFS_fflush (fs, s_file);
+    return res < 0 ? ret_to_errno(res) : res;
 }
 
 static int spiffs_op_opendir (struct dir *dir, const char *path)
@@ -197,7 +274,7 @@ static int spiffs_op_opendir (struct dir *dir, const char *path)
     {
         PRINT_ERR ("fail to malloc memory in SPIFFS, <malloc.c> is needed,"
                    "make sure it is added\n");
-        return -1;
+        return -ENOMEM;
     }
 
     dir->d_data   = (void *) SPIFFS_opendir (fs, path, sdir);
@@ -206,7 +283,7 @@ static int spiffs_op_opendir (struct dir *dir, const char *path)
     if (dir->d_data == 0)
     {
         free (sdir);
-        return -1;
+        return -ENOENT;
     }
 
     return LOS_OK;
@@ -218,7 +295,7 @@ int spiffs_op_readdir (struct dir *dir, struct dirent *dent)
 
     if (NULL == SPIFFS_readdir ((spiffs_DIR *) dir->d_data, &e))
     {
-        return -1;
+        return -ENOENT;
     }
 
     strncpy (dent->name, (const char *) e.name, LOS_MAX_FILE_NAME_LEN - 1);
@@ -241,11 +318,11 @@ static int spiffs_op_closedir (struct dir *dir)
 {
     spiffs_DIR *sdir = (spiffs_DIR *) dir->d_data;
 
-    SPIFFS_closedir (sdir);
+    s32_t res = SPIFFS_closedir (sdir);
 
     free (sdir);
 
-    return 0;
+    return ret_to_errno(res);
 }
 
 static struct file_ops spiffs_ops =

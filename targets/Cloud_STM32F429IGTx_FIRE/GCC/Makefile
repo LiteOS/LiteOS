@@ -594,8 +594,11 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 # LDFLAGS
 #######################################
 # link script
-
+ifeq ($(USE_BOOTLOADER), no)
 LD_FILE = STM32F429IGTx_LiteOS.ld
+else
+LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+endif
 
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 

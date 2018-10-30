@@ -46,7 +46,7 @@
 
 /* Defines ------------------------------------------------------------------*/
 #if !defined(FS_SPIFFS) && !defined(FS_FATFS) && !defined(FS_JFFS2) // For keil
-#define FS_JFFS2
+#define FS_FATFS
 #endif
 
 #define SPIFFS_PATH         "/spiffs"
@@ -448,7 +448,7 @@ void spiffs_demo(void)
 {
     int ret = 0;
 
-    ret = stm32f4xx_spiffs_init(1);
+    ret = stm32f4xx_spiffs_init(0);
     if(ret == LOS_NOK)
     {
         FS_LOG_ERR("stm32f4xx_spiffs_init failed.");
@@ -471,7 +471,7 @@ void fatfs_demo(void)
 {
     int8_t drive;
 
-    drive = stm32f4xx_fatfs_init(1);
+    drive = stm32f4xx_fatfs_init(0);
     if(drive < 0)
     {
         FS_LOG_ERR("stm32f4xx_fatfs_init failed.");
