@@ -281,7 +281,7 @@ extern "C" {
  * KEIL and IAR compiler, the program can`t get the end address of SRAM.
  */
 #define BOARD_SRAM_START_ADDR     0x20000000
-#define BOARD_SRAM_SIZE_KB        20
+#define BOARD_SRAM_SIZE_KB        32
 #define BOARD_SRAM_END_ADDR       (BOARD_SRAM_START_ADDR + 1024 * BOARD_SRAM_SIZE_KB)
 
 /**
@@ -359,10 +359,10 @@ extern "C" {
      *    have modified, please check the symobls shown above to make sure there is no error.
      */
     extern UINT32 _ebss;
-    extern UINT32 _Min_Stack_Size;
+    extern UINT32 _Stack_Size;
     extern UINT32 _Min_Heap_Size;
     #define LOS_HEAP_MEM_BEGIN    ((UINT32)(&_ebss) + (UINT32)(&_Min_Heap_Size))
-    #define LOS_HEAP_MEM_END      ((UINT32)BOARD_SRAM_END_ADDR - (UINT32)&_Min_Stack_Size)
+    #define LOS_HEAP_MEM_END      ((UINT32)BOARD_SRAM_END_ADDR - (UINT32)&_Stack_Size)
 #else
     #error "unknown compiler"
 #endif
