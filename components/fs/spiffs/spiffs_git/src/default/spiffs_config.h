@@ -8,21 +8,16 @@
 #ifndef SPIFFS_CONFIG_H_
 #define SPIFFS_CONFIG_H_
 
-// ----------- 8< ------------
-// Following includes are for the linux test build of spiffs
-// These may/should/must be removed/altered/replaced in your target
-#include "los_spiffs_config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stddef.h>
-
-#ifdef _SPIFFS_TEST
-#include "testrunner.h"
-#endif
-// ----------- >8 ------------
+#include "fs/los_vfs.h"
 
 // compile time switches
+#define SPIFFS_USE_MAGIC            1
+#define SPIFFS_USE_MAGIC_LENGTH     1
+#define SPIFFS_HAL_CALLBACK_EXTRA   1
+#define SPIFFS_FILEHDL_OFFSET       1
+#define TEST_SPIFFS_FILEHDL_OFFSET  0x1000
+#define SPIFFS_OBJ_NAME_LEN         LOS_MAX_FILE_NAME_LEN
 
 // Set generic spiffs debug output call.
 #ifndef SPIFFS_DBG
@@ -349,6 +344,27 @@
 #define SPIFFS_TEST_VIS_DATA_STR(id)      "d"
 #endif
 #endif
+
+
+#ifndef s32_t
+#define s32_t signed int
+#endif
+#ifndef u32_t
+#define u32_t unsigned int
+#endif
+#ifndef s16_t
+#define s16_t signed short
+#endif
+#ifndef u16_t
+#define u16_t unsigned short
+#endif
+#ifndef s8_t
+#define s8_t signed char
+#endif
+#ifndef u8_t
+#define u8_t unsigned char
+#endif
+
 
 // Types depending on configuration such as the amount of flash bytes
 // given to spiffs file system in total (spiffs_file_system_size),
