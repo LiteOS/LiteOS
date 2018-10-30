@@ -144,7 +144,7 @@ FLAG_INC = \
         C_INCLUDES += $(FLAG_INC)
 
 PATCH_INC = \
-        -I $(TOP_DIR)/include/ota
+        -I $(TOP_DIR)/include
         C_INCLUDES += $(PATCH_INC)
 
 USER_INC = \
