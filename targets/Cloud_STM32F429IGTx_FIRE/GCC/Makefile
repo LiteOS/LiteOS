@@ -212,9 +212,9 @@ FS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/vfs/*.c}
         C_SOURCES += $(FS_SRC)
 
-FS_DEMO_SRC = \
-        ${wildcard $(TOP_DIR)/demos/fs/*.c}
-        C_SOURCES += $(FS_DEMO_SRC)
+FS_DEMO_COMMON_SRC = \
+        ${wildcard $(TOP_DIR)/demos/fs/fs_common.c}
+        C_SOURCES += $(FS_DEMO_COMMON_SRC)
 
 FS_SPIFFS_SRC = \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
@@ -234,21 +234,30 @@ FS_JFFS2_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
 
+ifeq ($(IS_COMPILE_ALLFS), ALL)
+        C_SOURCES += $(FS_SPIFFS_SRC)
+        C_SOURCES += $(FS_FATFS_SRC)
+        C_SOURCES += $(FS_JFFS2_SRC)
+		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
+		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
+		C_SOURCES += $(TOP_DIR)/demos/fs/jiffs_demo.c
+else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
+        C_SOURCES += $(FS_SPIFFS_SRC)
+		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
+else ifeq ($(FILESYSTEM_TYPE), FATFS)
+        C_SOURCES += $(FS_FATFS_SRC)
+		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
+else ifeq ($(FILESYSTEM_TYPE), JFFS2)
+        C_SOURCES += $(FS_JFFS2_SRC)
+	C_SOURCES += $(TOP_DIR)/demos/fs/jiffs_demo.c
+endif
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_FS_SRC = \
         ${wildcard $(TOP_DIR)/tests/test_suit/fs_test.c}
         C_SOURCES += $(CMOCKERY_TEST_FS_SRC)
-        C_SOURCES += $(FS_SPIFFS_SRC)
-        C_SOURCES += $(FS_FATFS_SRC)
-        C_SOURCES += $(FS_JFFS2_SRC)
-else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
-        C_SOURCES += $(FS_SPIFFS_SRC)
-else ifeq ($(FILESYSTEM_TYPE), FATFS)
-        C_SOURCES += $(FS_FATFS_SRC)
-else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_SOURCES += $(FS_JFFS2_SRC)
 endif
 endif
+
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_SRC = \
@@ -547,7 +556,7 @@ FS_JFFS2_INC = \
         -I $(TOP_DIR)/components/fs/jffs2/src \
         -I $(TOP_DIR)/components/fs/jffs2/port
 
-ifeq ($(WITH_CMOCKERY_TEST), yes)
+ifeq ($(IS_COMPILE_ALLFS), ALL)
         C_INCLUDES += $(FS_SPIFFS_INC)
         C_INCLUDES += $(FS_FATFS_INC)
         C_INCLUDES += $(FS_JFFS2_INC)
