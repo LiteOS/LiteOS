@@ -606,7 +606,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 ifeq ($(USE_BOOTLOADER), yes)
 LD_FILE = STM32F429IGTx_LiteOS.ld
 else ifeq ($(USE_OTA), yes)
-LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+LD_FILE = STM32F429IGTx_LiteOS_bootloader.ld
 else
 LD_FILE = STM32F429IGTx_LiteOS.ld
 endif
