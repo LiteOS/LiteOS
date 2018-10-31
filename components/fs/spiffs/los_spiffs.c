@@ -65,9 +65,28 @@ static int ret_to_errno(int ret)
     case SPIFFS_OK:
         return 0;
 
+    case SPIFFS_ERR_DATA_SPAN_MISMATCH:
+    case SPIFFS_ERR_IS_INDEX:
+    case SPIFFS_ERR_INDEX_REF_FREE:
+    case SPIFFS_ERR_INDEX_REF_LU:
+    case SPIFFS_ERR_INDEX_REF_INVALID:
+    case SPIFFS_ERR_INDEX_FREE:
+    case SPIFFS_ERR_INDEX_LU:
+    case SPIFFS_ERR_INDEX_INVALID:
+    case SPIFFS_ERR_CONFLICTING_NAME:
+        err = EINVAL;
+        break;
+
+    case SPIFFS_ERR_NOT_WRITABLE:
+    case SPIFFS_ERR_NOT_READABLE:
+    case SPIFFS_ERR_NOT_CONFIGURED:
+        err = EACCES;
+        break;
+
     case SPIFFS_ERR_NOT_MOUNTED:
     case SPIFFS_ERR_NOT_A_FS:
     case SPIFFS_ERR_PROBE_NOT_A_FS:
+    case SPIFFS_ERR_MAGIC_NOT_POSSIBLE:
         err = ENODEV;
         break;
 
@@ -90,6 +109,11 @@ static int ret_to_errno(int ret)
     case SPIFFS_ERR_NOT_A_FILE:
     case SPIFFS_ERR_DELETED:
     case SPIFFS_ERR_FILE_DELETED:
+    case SPIFFS_ERR_NOT_FINALIZED:
+    case SPIFFS_ERR_NOT_INDEX:
+    case SPIFFS_ERR_IS_FREE:
+    case SPIFFS_ERR_INDEX_SPAN_MISMATCH:
+    case SPIFFS_ERR_FILE_CLOSED:
         err = ENOENT;
         break;
 
@@ -106,6 +130,11 @@ static int ret_to_errno(int ret)
         err = ESPIPE;
         break;
 
+    case SPIFFS_ERR_END_OF_OBJECT:
+    case SPIFFS_ERR_NO_DELETED_BLOCKS:
+        err = ENODATA;
+        break;
+
     case SPIFFS_ERR_ERASE_FAIL:
         err = EIO;
         break;
@@ -115,7 +144,8 @@ static int ret_to_errno(int ret)
         break;
     }
 
-    return VFS_ERRNO_SET (err);
+    VFS_ERRNO_SET (err);
+    return -err;
 }
 
 static int spiffs_flags_get (int oflags)

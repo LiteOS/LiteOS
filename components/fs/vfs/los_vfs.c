@@ -1080,7 +1080,7 @@ int close (int fd)
     return los_close (fd);
 }
 
-ssize_t read (int fd, char *buff, size_t bytes)
+ssize_t read (int fd, void *buff, size_t bytes)
 {
     return los_read (fd, buff, bytes);
 }
@@ -1122,7 +1122,7 @@ int ioctl (int fd, unsigned long func, ...)
     return los_ioctl (fd, func, arg);
 }
 
-int sync (int fd)
+int fsync (int fd)
 {
     return los_sync (fd);
 }
