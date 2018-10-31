@@ -150,7 +150,8 @@ static int ret_to_errno(FRESULT result)
         break;
     }
 
-    return VFS_ERRNO_SET (err);
+    VFS_ERRNO_SET (err);
+    return -err;
 }
 
 /**
@@ -402,7 +403,7 @@ static int fatfs_op_sync (struct file *file)
     POINTER_ASSERT(fp);
 
     res = f_sync(fp);
-    return res < 0 ? ret_to_errno(res) : res;
+    return ret_to_errno(res);
 }
 
 static int fatfs_op_opendir (struct dir *dir, const char *path)
