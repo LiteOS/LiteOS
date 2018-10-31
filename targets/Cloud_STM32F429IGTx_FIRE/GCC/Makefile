@@ -240,7 +240,7 @@ ifeq ($(IS_COMPILE_ALLFS), ALL)
         C_SOURCES += $(FS_JFFS2_SRC)
 		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
 		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
-		C_SOURCES += $(TOP_DIR)/demos/fs/jiffs_demo.c
+		C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
 else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
         C_SOURCES += $(FS_SPIFFS_SRC)
 		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
@@ -249,7 +249,7 @@ else ifeq ($(FILESYSTEM_TYPE), FATFS)
 		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
 else ifeq ($(FILESYSTEM_TYPE), JFFS2)
         C_SOURCES += $(FS_JFFS2_SRC)
-	C_SOURCES += $(TOP_DIR)/demos/fs/jiffs_demo.c
+	C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
 endif
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_FS_SRC = \
@@ -603,10 +603,12 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 # LDFLAGS
 #######################################
 # link script
-ifeq ($(USE_BOOTLOADER), no)
+ifeq ($(USE_BOOTLOADER), yes)
 LD_FILE = STM32F429IGTx_LiteOS.ld
+else ifeq ($(USE_OTA), yes)
+LD_FILE = STM32F429IGTx_LiteOS_bootloader.ld
 else
-LD_FILE = STM32F429IGTx_LiteOS_Bootloader.ld
+LD_FILE = STM32F429IGTx_LiteOS.ld
 endif
 
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
