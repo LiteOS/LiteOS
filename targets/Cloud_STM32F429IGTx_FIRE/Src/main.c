@@ -35,8 +35,6 @@
 #include "sys_init.h"
 
 
-#include "fs/fs_demo.h"
-
 #include "los_base.h"
 #include "los_task.ph"
 #include "los_typedef.h"
@@ -224,6 +222,26 @@ void demo_agenttiny_with_eth(void)
     net_init();
     agent_tiny_entry();
     #endif
+}
+
+void fs_demo(void)
+{
+    printf("Huawei LiteOS File System Demo.\n");
+    
+#if defined(FS_SPIFFS)
+    extern void spiffs_demo();
+    spiffs_demo();
+#endif
+
+#if defined(FS_FATFS)
+    extern void fatfs_demo();
+    fatfs_demo();
+#endif
+
+#if defined(FS_JFFS2)
+    extern void jffs2_demo();
+    jffs2_demo();
+#endif
 }
 
 //extern int fs_test_main(void);

@@ -165,13 +165,13 @@ int board_jump2app(void)
         }
         else
         {
-            OTA_LOG("stack value(%04X) of the image is ilegal", stack);
+            OTA_LOG("stack value(%lx) of the image is ilegal", stack);
             return OTA_ERRNO_ILEGAL_STACK;
         }
     }
     else
     {
-        OTA_LOG("PC value(%04X) of the image is ilegal", pc);
+        OTA_LOG("PC value(%lx) of the image is ilegal", pc);
         return OTA_ERRNO_ILEGAL_PC;
     }
 
@@ -184,7 +184,7 @@ int board_update_copy(int32_t old_image_len, int32_t new_image_len, uint32_t new
 
     if (old_image_len < 0 || new_image_len < 0)
     {
-        OTA_LOG("ilegal old_image_len(%d) or new_image_len(%d)", old_image_len, new_image_len);
+        OTA_LOG("ilegal old_image_len(%ld) or new_image_len(%ld)", old_image_len, new_image_len);
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 
@@ -211,7 +211,7 @@ int board_rollback_copy(int32_t image_len)
 
     if (image_len < 0)
     {
-        OTA_LOG("ilegal image_len:%d", image_len);
+        OTA_LOG("ilegal image_len:%ld", image_len);
         return OTA_ERRNO_ILEGAL_PARAM;
     }
 

@@ -31,34 +31,35 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-/* Define to prevent recursive inclusion ------------------------------------*/
-#ifndef __FS_DEMO_H__
-#define __FS_DEMO_H__
-
-
-#ifdef __cplusplus
-#if __cplusplus
-extern "C"{
-#endif
-#endif /* __cplusplus */
 
 /* Includes -----------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdint.h>
-/* Defines ------------------------------------------------------------------*/
-/* Macros -------------------------------------------------------------------*/
-/* Typedefs -----------------------------------------------------------------*/
-/* Extern variables ---------------------------------------------------------*/
-/* Functions API ------------------------------------------------------------*/
-void fs_demo(void);
+#include "fs_common.h"
 
 
+#define FATFS_PATH          "/fatfs"
 
-#ifdef __cplusplus
-#if __cplusplus
+char fatfs_file_name[100] = {0};
+char fatfs_dir_name[100] = {0};
+
+extern int stm32f4xx_fatfs_init(int need_erase);
+extern int fatfs_unmount(const char *path, uint8_t drive);
+
+void fatfs_demo(void)
+{
+    int8_t drive;
+
+    drive = stm32f4xx_fatfs_init(0);
+    if(drive < 0)
+    {
+        FS_LOG_ERR("stm32f4xx_fatfs_init failed.");
+        return;
+    }
+    sprintf(fatfs_file_name, "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_FILE);
+    sprintf(fatfs_dir_name,  "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_DIR);
+
+    los_vfs_io(fatfs_file_name,fatfs_dir_name);
+
+    fatfs_unmount("/fatfs/", drive);
 }
-#endif
-#endif /* __cplusplus */
 
 
-#endif /* __FS_DEMO_H__ */
