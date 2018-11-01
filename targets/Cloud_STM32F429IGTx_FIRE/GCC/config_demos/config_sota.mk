@@ -85,6 +85,8 @@ WITH_FILESYSTEM := no
 ifeq ($(WITH_FILESYSTEM), yes)
 #SPIFFS   #FATFS   #JFFS2
 	FILESYSTEM_TYPE := FATFS
+#ONLYONE  #ALL
+	IS_COMPILE_ALLFS := ALL
 endif
 
 #######################################

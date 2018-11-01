@@ -33,50 +33,14 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
-#include "fs_demo.h"
-#include "hal_spi_flash.h"
-
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include "fs/sys/fcntl.h"
-#include <los_printf.h>
-#endif
-
-#include "fs/los_vfs.h"
+#include "fs_common.h"
 
 
-/* Defines ------------------------------------------------------------------*/
-#if !defined(FS_SPIFFS) && !defined(FS_FATFS) && !defined(FS_JFFS2) // For keil
-#define FS_FATFS
-#endif
+static char s_ucaWriteBuffer[] = "hello world";
+static char s_ucaReadBuffer[100];
 
-#define SPIFFS_PATH         "/spiffs"
-#define FATFS_PATH          "/fatfs"
-#define JFFS2_PATH          "/jffs2"
 
-#define LOS_FILE            "f.txt"
-#define LOS_DIR             "d"
 
-/* Typedefs -----------------------------------------------------------------*/
-/* Macros -------------------------------------------------------------------*/
-#ifndef FS_LOG_ERR
-#define FS_LOG_ERR(fmt, arg...)  printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
-#endif
-
-#ifndef MIN
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
-#endif
-
-/* Local variables ----------------------------------------------------------*/
-static char s_ucaWriteBuffer[] = "IP:192.168.0.100\nMASK:255.255.255.0\nGW:192.168.0.1";
-static char s_ucaReadBuffer[100] = {"spiffs read failed"};
-
-char file_name[100] = {0};
-char dir_name[100] = {0};
-
-/* Extern variables ---------------------------------------------------------*/
-/* Global variables ---------------------------------------------------------*/
-/* Private function prototypes ----------------------------------------------*/
-/* Public functions ---------------------------------------------------------*/
 int write_file(const char *name, char *buff, int len)
 {
     int fd;
@@ -198,7 +162,7 @@ int read_dir(const char *name, struct dir *dir)
     return 0;
 }
 
-void los_fs_demo(void)
+void los_vfs_io(char *file_name, char *dir_name)
 {
     int ret = 0;
     struct dir *pDir = NULL;
@@ -229,7 +193,7 @@ void los_fs_demo(void)
     /****************************
      *  dir operation
      ****************************/
-    sprintf(file_name, "%s/%s", dir_name, LOS_FILE);
+    sprintf(file_name, "%s/%s", (char *)dir_name, LOS_FILE);
     ret = open_dir(dir_name, &pDir);
     if(ret < 0)
     {
@@ -264,7 +228,7 @@ void los_fs_demo(void)
     (void)los_unlink(file_name); // remove file_name
 }
 
-static void make_dir(const char *name)
+void make_dir(const char *name)
 {
     int count = 0;
     char tmp_dir[128];
@@ -302,7 +266,7 @@ static void make_dir(const char *name)
     }
 }
 
-static void print_dir(const char *name, int level)
+void print_dir(const char *name, int level)
 {
     if (level <= 1)
         printf("%s\n", name);
@@ -346,7 +310,7 @@ static void print_dir(const char *name, int level)
     }
 }
 
-void los_jffs2_demo(void)
+void los_vfs_io_ex(char *file_name, char *dir_name)
 {
     int fd;
     int ret = 0;
@@ -354,6 +318,9 @@ void los_jffs2_demo(void)
     /****************************
      *  dir operation
      ****************************/
+    (void)file_name;
+    (void)dir_name;
+    
     make_dir("/jffs2/base/.more/.less");
     make_dir("/jffs2/test/case");
     make_dir("/jffs2/zone");
@@ -440,86 +407,6 @@ void los_jffs2_demo(void)
         FS_LOG_ERR("los_unlink failed: %d", ret);
 }
 
-#ifdef FS_SPIFFS
-extern int stm32f4xx_spiffs_init (int need_erase);
-extern int spiffs_unmount(const char *path);
-
-void spiffs_demo(void)
-{
-    int ret = 0;
-
-    ret = stm32f4xx_spiffs_init(0);
-    if(ret == LOS_NOK)
-    {
-        FS_LOG_ERR("stm32f4xx_spiffs_init failed.");
-        return;
-    }
-    sprintf(file_name, "%s/%s", SPIFFS_PATH, LOS_FILE);
-    sprintf(dir_name, "%s/%s", SPIFFS_PATH, LOS_DIR);
-
-    los_fs_demo();
-
-    spiffs_unmount("/spiffs/");
-}
-#endif
-
-#ifdef FS_FATFS
-extern int stm32f4xx_fatfs_init(int need_erase);
-extern int fatfs_unmount(const char *path, uint8_t drive);
-
-void fatfs_demo(void)
-{
-    int8_t drive;
-
-    drive = stm32f4xx_fatfs_init(0);
-    if(drive < 0)
-    {
-        FS_LOG_ERR("stm32f4xx_fatfs_init failed.");
-        return;
-    }
-    sprintf(file_name, "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_FILE);
-    sprintf(dir_name,  "%s/%d:/%s", FATFS_PATH, (uint8_t)drive, LOS_DIR);
-
-    los_fs_demo();
-
-    fatfs_unmount("/fatfs/", drive);
-}
-#endif
-
-
-#ifdef FS_JFFS2
-extern int stm32f4xx_jffs2_init(int need_erase);
-extern int jffs2_unmount(const char *path);
-
-void jffs2_demo(void)
-{
-    int ret = stm32f4xx_jffs2_init(1);
-    if(ret < 0)
-    {
-        FS_LOG_ERR("stm32f4xx_jffs2_init failed.");
-        return;
-    }
-    sprintf(file_name, "%s/%s", JFFS2_PATH, LOS_FILE);
-    sprintf(dir_name,  "%s/%s", JFFS2_PATH, LOS_DIR);
-
-    los_jffs2_demo();
-
-    jffs2_unmount("/jffs2/");
-}
-#endif
-
-void fs_demo(void)
-{
-    printf("Huawei LiteOS File System Demo.\n");
-
-#if defined(FS_SPIFFS)
-    spiffs_demo();
-#elif defined(FS_FATFS)
-    fatfs_demo();
-#elif defined(FS_JFFS2)
-    jffs2_demo();
-#endif
-}
 
 /* Private functions --------------------------------------------------------*/
 
