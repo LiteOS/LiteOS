@@ -1613,7 +1613,7 @@ s32_t SPIFFS_vis(spiffs *fs)
 
         if (erase_count != (spiffs_obj_id) - 1)
         {
-            spiffs_printf("\tera_cnt: "_SPIPRIi"\n", erase_count);
+            spiffs_printf("\tera_cnt: %d\n", erase_count);
         }
         else
         {
@@ -1623,7 +1623,7 @@ s32_t SPIFFS_vis(spiffs *fs)
         bix++;
     } // per block
 
-    spiffs_printf("era_cnt_max: "_SPIPRIi"\n", fs->max_erase_count);
+    spiffs_printf("era_cnt_max: %d\n", fs->max_erase_count);
     spiffs_printf("last_errno:  "_SPIPRIi"\n", fs->err_code);
     spiffs_printf("blocks:      "_SPIPRIi"\n", fs->block_count);
     spiffs_printf("free_blocks: "_SPIPRIi"\n", fs->free_blocks);

@@ -46,7 +46,7 @@ WITH_DTLS := yes
 # whether OTA Pack use checksum
 #######################################
 #SHA256_RSA2048   #SHA256  #NO_CHECKSUM
-OTA_PACK_CHECKSUM := NO_CHECKSUM
+OTA_PACK_CHECKSUM := SHA256_RSA2048
 
 #######################################
 # Firmware Over-The-Air
@@ -56,7 +56,7 @@ USE_FOTA := yes
 #######################################
 # Firmware Over-The-Air
 #######################################
-USE_SOTA := no
+USE_SOTA := yes
 
 #######################################
 # Lwm2m bootstrap program 
@@ -81,13 +81,15 @@ ATINY_DEBUG := yes
 #######################################
 # File System
 #######################################
-WITH_FILESYSTEM := no
+WITH_FILESYSTEM := yes
 ifeq ($(WITH_FILESYSTEM), yes)
 #SPIFFS   #FATFS   #JFFS2
 	FILESYSTEM_TYPE := FATFS
+#ONLYONE  #ALL
+	IS_COMPILE_ALLFS := ALL
 endif
 
 #######################################
 # CMockery Test
 #######################################
-WITH_CMOCKERY_TEST := no
+WITH_CMOCKERY_TEST := yes
