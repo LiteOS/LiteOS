@@ -200,7 +200,7 @@ MQTT_SRC = \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
         C_SOURCES += $(MQTT_SRC)
 ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
