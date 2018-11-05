@@ -245,13 +245,14 @@ void fs_demo(void)
 }
 
 //extern int fs_test_main(void);
-
+//extern int sota_test_main(void);
 VOID main_task(VOID)
 {
     //fs_test_main();
     //fs_demo();
     //demo_without_agenttiny_nbiot();
     demo_agenttiny_with_eth();
+	//sota_test_main();
 }
 
 UINT32 creat_main_task()

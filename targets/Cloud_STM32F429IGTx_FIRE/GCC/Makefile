@@ -258,6 +258,13 @@ CMOCKERY_TEST_FS_SRC = \
 endif
 endif
 
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+ifeq ($(USE_SOTA),yes)
+CMOCKERY_TEST_SOTA_TEST = \
+         ${wildcard $(TOP_DIR)/tests/test_sota/sota_test.c}
+         C_SOURCES += $(CMOCKERY_TEST_SOTA_TEST)
+endif
+endif
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_SRC = \
