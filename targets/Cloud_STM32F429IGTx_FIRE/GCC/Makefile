@@ -200,7 +200,7 @@ MQTT_SRC = \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
         C_SOURCES += $(MQTT_SRC)
 ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
@@ -258,6 +258,13 @@ CMOCKERY_TEST_FS_SRC = \
 endif
 endif
 
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+ifeq ($(USE_SOTA),yes)
+CMOCKERY_TEST_SOTA_TEST = \
+         ${wildcard $(TOP_DIR)/tests/test_sota/sota_test.c}
+         C_SOURCES += $(CMOCKERY_TEST_SOTA_TEST)
+endif
+endif
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_SRC = \

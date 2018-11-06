@@ -246,7 +246,7 @@ static int los_mqtt_write(void *ctx, unsigned char *buffer, int len, int timeout
     修改内容   : 新生成函数
 
 *****************************************************************************/
-int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
+static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
 
