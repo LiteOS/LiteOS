@@ -17,7 +17,7 @@
  * @ingroup los_config
  * Number of Ticks in one second
  */
-#define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (OS_SYS_CLOCK)
+#define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (5)
 
 /**
  * @ingroup los_config
@@ -39,7 +39,7 @@
  * @ingroup los_config
  * Configuration item for hardware interrupt tailoring
  */
-#define LOSCFG_PLATFORM_HWI                                NO 
+#define LOSCFG_PLATFORM_HWI                                YES 
 
 /**
  * @ingroup los_config
@@ -68,19 +68,19 @@
  * @ingroup los_config
  * Size of the idle task stack
  */
-#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                (0x200U)        // IDLE task stack
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                (LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE)        // IDLE task stack
 
 /**
  * @ingroup los_config
  * Default task stack size
  */
-#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x2D0U)        // default stack
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (8192)        // default stack; use glibc's SIGSTKSZ 
 
 /**
  * @ingroup los_config
  * Minimum stack size.
  */
-#define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x130U)
+#define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (2048)              //use glibc's MINSIGSTKSZ
 
 /**
  * @ingroup los_config
@@ -193,7 +193,7 @@
 
 #define LOSCFG_BASE_CORE_SWTMR_ALIGN                        NO
 #if(LOSCFG_BASE_CORE_SWTMR == NO && LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    #error "swtmr align first need support swmtr, should make LOSCFG_BASE_CORE_SWTMR = YES"
+#error "swtmr align first need support swmtr, should make LOSCFG_BASE_CORE_SWTMR = YES"
 #endif
 
 /**

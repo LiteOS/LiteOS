@@ -1,6 +1,6 @@
 TARGET = Huawei_LiteOS
 DEBUG = 1
-OPT= -Og -std=c99
+OPT= -std=c11 
 
 HEX = objcopy -O ihex
 BIN = objcopy -O binary -S
@@ -69,9 +69,10 @@ endif
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 
 LIBS = -lc -lm 
-LDFLAGS = $(MCU) $(LIBDIR) $(LIBS) -Wl,-m,elf_i386 -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref,-e,main -Wl,--gc-sections
+LDFLAGS = $(MCU) $(LIBDIR) $(LIBS) -Wl,-m,elf_i386 -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref,-e,populateHeap -Wl,--gc-sections
 
 all:$(BUILD_DIR)/$(TARGET)
+	
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 

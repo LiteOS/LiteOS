@@ -3,11 +3,11 @@
 #include "string.h"
 #include "los_compiler.h"
 
-#define OS_LITTLE_ENDIAN	0x1234
-#define OS_BIG_ENDIAN		0x3412
+#define OS_LITTLE_ENDIAN 0x1234
+#define OS_BIG_ENDIAN  0x3412
 
 #ifndef OS_BYTE_ORDER
-#define OS_BYTE_ORDER		OS_LITTLE_ENDIAN
+#define OS_BYTE_ORDER  OS_LITTLE_ENDIAN
 #endif
 
 #ifndef LITE_OS_SEC_ALW_INLINE
@@ -157,4 +157,4 @@
 #define LIBC_SEC_TEXT
 #endif
 
-#endif /* _LOS_BUILDEF_H */		
+#endif /* _LOS_BUILDEF_H */  
