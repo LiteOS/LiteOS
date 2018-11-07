@@ -333,7 +333,7 @@ int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen)
         {
             SOTA_LOG("download wrong,we need %X, but is %X:",(int)g_at_update_record.block_num, (int)block_seq);
             g_at_update_record.state = IDLE;
-            tmpbuf[1] = SOTA_FAILED;
+            tmpbuf[1] = (char)SOTA_FAILED;
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)at_fota_send(sbuf, 2 * 2);
             return SOTA_FAILED;

@@ -10,13 +10,11 @@
       <TargetName>HuaweiLiteOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.11.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -126,6 +124,47 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
+          <Simulator>
+            <UseSimulator>0</UseSimulator>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>1</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>1</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Simulator>
+          <Target>
+            <UseTarget>1</UseTarget>
+            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
+            <RunToMain>0</RunToMain>
+            <RestoreBreakpoints>1</RestoreBreakpoints>
+            <RestoreWatchpoints>1</RestoreWatchpoints>
+            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
+            <RestoreFunctions>0</RestoreFunctions>
+            <RestoreToolbox>1</RestoreToolbox>
+            <RestoreTracepoints>1</RestoreTracepoints>
+            <RestoreSysVw>1</RestoreSysVw>
+          </Target>
+          <RunDebugAfterBuild>0</RunDebugAfterBuild>
+          <TargetSelection>12</TargetSelection>
+          <SimDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+          </SimDlls>
+          <TargetDlls>
+            <CpuDll></CpuDll>
+            <CpuDllArguments></CpuDllArguments>
+            <PeripheralDll></PeripheralDll>
+            <PeripheralDllArguments></PeripheralDllArguments>
+            <InitializationFile></InitializationFile>
+            <Driver>BIN\CMSIS_AGDI.dll</Driver>
+          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -190,7 +229,6 @@
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
-            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
@@ -324,18 +362,12 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
-            <vShortEn>1</vShortEn>
-            <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
-            <v6WtE>0</v6WtE>
-            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1294,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,USE_MBED_TLS,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,USE_NB_NEUL95,WITH_LWIP,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,AT_NBONLY</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,USE_NB_NEUL95,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA</Define>
               <Undefine></Undefine>
               <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google</IncludePath>
             </VariousControls>
@@ -350,7 +382,6 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls>--diag_suppress=A1581W</MiscControls>
               <Define></Define>
@@ -1677,9 +1708,24 @@
           <GroupName>fs_demo</GroupName>
           <Files>
             <File>
-              <FileName>fs_demo.c</FileName>
+              <FileName>fatfs_demo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\demos\fs\fs_demo.c</FilePath>
+              <FilePath>..\..\..\demos\fs\fatfs_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\fs\fs_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>jiffs_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\fs\jiffs_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\fs\spiffs_demo.c</FilePath>
             </File>
           </Files>
         </Group>

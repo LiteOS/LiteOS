@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# Cloud_STM32F429IGTx_FIRE GCC compiler Makefile
+# cortex-m4_without_driver GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -25,9 +25,7 @@ OTA_IS_NEED_DTLS := no
 ifeq ($(USE_FOTA), yes)
 	USE_OTA = yes
 endif
-ifeq ($(USE_SOTA), yes)
-	USE_OTA = yes
-endif
+
 ifeq ($(USE_OTA), yes)
     ifneq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
 	OTA_IS_NEED_DTLS = yes
@@ -72,35 +70,6 @@ ASM_SOURCES_s =  \
         ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
 # C sources
 
-HAL_DRIVER_SRC =  \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_iwdg.c
-        C_SOURCES += $(HAL_DRIVER_SRC)
-
-HARDWARE_SRC =  \
-        ${wildcard $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Src/*.c}
-        C_SOURCES += $(HARDWARE_SRC)
-		
-ifeq ($(USE_BOOTLOADER), no)
-HAL_DRIVER_SRC_NO_BOOTLOADER =  \
-		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
-		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
-		$(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c
-		C_SOURCES += $(HAL_DRIVER_SRC_NO_BOOTLOADER)
 KERNEL_SRC =  \
         ${wildcard $(TOP_DIR)/kernel/*.c} \
         ${wildcard $(TOP_DIR)/kernel/base/core/*.c} \
@@ -192,127 +161,11 @@ ATINY_LOG = \
         ${wildcard $(TOP_DIR)/components/log/*.c}
         C_SOURCES += $(ATINY_LOG)
 
-
-ifeq ($(WITH_MQTT), yes)
-MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src/*.c} \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
-        C_SOURCES += $(MQTT_SRC)
-ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
-        C_SOURCES += $(ATINY_TINY_MQTT_SRC)
-AGENT_DEMO_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
-        C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
-endif
-
-ifeq ($(WITH_FILESYSTEM), yes)
-FS_SRC = \
-        ${wildcard $(TOP_DIR)/components/fs/vfs/*.c}
-        C_SOURCES += $(FS_SRC)
-
-FS_DEMO_COMMON_SRC = \
-        ${wildcard $(TOP_DIR)/demos/fs/fs_common.c}
-        C_SOURCES += $(FS_DEMO_COMMON_SRC)
-
-FS_SPIFFS_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
-        ${wildcard $(TOP_DIR)/components/fs/spiffs/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/*.c}
-
-FS_FATFS_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_stm32f4xx.c \
-        ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
-
-FS_JFFS2_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_stm32f4xx.c \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/src/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
-
-ifeq ($(IS_COMPILE_ALLFS), ALL)
-        C_SOURCES += $(FS_SPIFFS_SRC)
-        C_SOURCES += $(FS_FATFS_SRC)
-        C_SOURCES += $(FS_JFFS2_SRC)
-		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
-		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
-		C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
-else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
-        C_SOURCES += $(FS_SPIFFS_SRC)
-		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
-else ifeq ($(FILESYSTEM_TYPE), FATFS)
-        C_SOURCES += $(FS_FATFS_SRC)
-		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
-else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_SOURCES += $(FS_JFFS2_SRC)
-	C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
-endif
-ifeq ($(WITH_CMOCKERY_TEST), yes)
-CMOCKERY_TEST_FS_SRC = \
-        ${wildcard $(TOP_DIR)/tests/test_suit/fs_test.c}
-        C_SOURCES += $(CMOCKERY_TEST_FS_SRC)
-endif
-endif
-
-ifeq ($(WITH_CMOCKERY_TEST), yes)
-ifeq ($(USE_SOTA),yes)
-CMOCKERY_TEST_SOTA_TEST = \
-         ${wildcard $(TOP_DIR)/tests/test_sota/sota_test.c}
-         C_SOURCES += $(CMOCKERY_TEST_SOTA_TEST)
-endif
-endif
-
-ifeq ($(WITH_CMOCKERY_TEST), yes)
-CMOCKERY_TEST_SRC = \
-        ${wildcard $(TOP_DIR)/tests/cmockery/src/cmockery.c}
-        C_SOURCES += $(CMOCKERY_TEST_SRC)
-endif
-
 USER_SRC =  \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/main.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/dwt.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
+        $(TOP_DIR)/targets/cortex-m4_without_driver/Src/main.c \
+		$(TOP_DIR)/targets/cortex-m4_without_driver/Src/__hal_simulate.c
         C_SOURCES += $(USER_SRC)
 
-
-
-
-ifeq ($(WITH_AT_FRAMEWORK), yes)
-AT_FRAME_SRC = \
-    ${wildcard $(TOP_DIR)/components/net/at_frame/*.c} \
-     $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/at_hal.c
-    C_SOURCES += $(AT_FRAME_SRC)
-
-ifeq ($(NETWORK_TYPE), ESP8266)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
-else ifeq ($(NETWORK_TYPE), SIM900A)
-    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
-else ifeq ($(NETWORK_TYPE), NB_NEUL95)
-    USER_DRIVERS_SRC = \
-	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
-	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
-else ifeq ($(NETWORK_TYPE), ALL)
-    USER_DRIVERS_SRC = \
-	${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c} \
-	${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c} \
-	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
-	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
-endif
-    C_SOURCES += $(USER_DRIVERS_SRC)
-endif
-
-ifeq ($(USE_SOTA), yes)
-SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
-        C_SOURCES += $(SOTA_SRC)
-endif
 
 ifeq ($(USE_OTA), yes)
 OTA_SRC = \
@@ -320,8 +173,6 @@ OTA_SRC = \
     ${wildcard  $(TOP_DIR)/components/ota/package/*.c} \
 	${wildcard  $(TOP_DIR)/components/ota/utility/*.c}
     C_SOURCES += $(OTA_SRC)
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
 endif
 
 
@@ -330,21 +181,7 @@ endif
 ASM_SOURCES_S =  \
         ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m4/gcc/los_dispatch_gcc.S}
 
-#blow use bootloader
-else 
 
-FLAG_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/flag_operate/*.c}
-        C_SOURCES += $(FLAG_SRC)
-
-USER_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/bootloader_recover.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/system_stm32f4xx.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c
-        C_SOURCES += $(USER_SRC)
-
-endif
 
 
 ######################################
@@ -370,10 +207,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS =
 
 # C defines
-C_DEFS =  \
-        -D USE_HAL_DRIVER \
-        -D STM32F429xx \
-        -D NDEBUG
+
 
 ifeq ($(WITH_LWM2M), yes)
 		C_DEFS += \
@@ -404,14 +238,6 @@ ifeq ($(WITH_LWIP), yes)
 	endif
 endif
 
-ifeq ($(WITH_AT_FRAMEWORK), yes)
-		C_DEFS += -DWITH_AT_FRAMEWORK
-		ifneq ($(NETWORK_TYPE), ALL)
-		C_DEFS += -DUSE_$(NETWORK_TYPE)
-		else
-		C_DEFS += -DUSE_ESP8266 -DSIM900A -DNB_NEUL95
-		endif
-endif
 
 ifeq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
 		C_DEFS += -DPACK_CHECKSUM=2
@@ -428,9 +254,6 @@ ifeq ($(USE_FOTA), yes)
 		C_DEFS += -DCONFIG_FEATURE_FOTA
 endif
 
-ifeq ($(USE_SOTA), yes)
-		C_DEFS += -DWITH_SOTA
-endif
 
 ifeq ($(LWM2M_BOOTSTRAP), yes)
 		C_DEFS += -DLWM2M_BOOTSTRAP
@@ -448,9 +271,6 @@ ifeq ($(ATINY_DEBUG), yes)
 		C_DEFS += -DATINY_DEBUG
 endif
 
-ifeq ($(WITH_FILESYSTEM), yes)
-		C_DEFS += -DFS_$(FILESYSTEM_TYPE)
-endif
 
 
 
@@ -459,21 +279,15 @@ endif
 AS_INCLUDES =
 
 # C includes
-HAL_DRIVER_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
-        C_INCLUDES += $(HAL_DRIVER_INC)
+
 		
 INCLUDE_INC = \
         -I $(TOP_DIR)/include
         C_INCLUDES += $(INCLUDE_INC)
 
-HARDWARE_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
-        C_INCLUDES += $(HARDWARE_INC)
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc
+        -I $(TOP_DIR)/targets/cortex-m4_without_driver/Inc
         C_INCLUDES += $(USER_INC)
 
 ifneq ($(USE_OTA)_$(USE_BOOTLOADER), no_no)
@@ -488,9 +302,9 @@ CMSIS_INC = \
         -I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(CMSIS_INC)
 		
-ifeq ($(USE_BOOTLOADER), no)	
+
 OS_CONFIG_INC = \
-		-I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG
+		-I $(TOP_DIR)/targets/cortex-m4_without_driver/OS_CONFIG
 		C_INCLUDES += $(OS_CONFIG_INC)
 KERNEL_INC = \
         -I $(TOP_DIR)/kernel/include \
@@ -550,47 +364,6 @@ DEMO_INC = \
 
 
 
-ifeq ($(WITH_FILESYSTEM), yes)
-FS_SPIFFS_INC = \
-        -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src \
-        -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
-
-FS_FATFS_INC = \
-        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source
-
-FS_JFFS2_INC = \
-        -I $(TOP_DIR)/components/fs/jffs2 \
-        -I $(TOP_DIR)/components/fs/jffs2/src \
-        -I $(TOP_DIR)/components/fs/jffs2/port
-
-ifeq ($(IS_COMPILE_ALLFS), ALL)
-        C_INCLUDES += $(FS_SPIFFS_INC)
-        C_INCLUDES += $(FS_FATFS_INC)
-        C_INCLUDES += $(FS_JFFS2_INC)
-else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
-        C_INCLUDES += $(FS_SPIFFS_INC)
-else ifeq ($(FILESYSTEM_TYPE), FATFS)
-        C_INCLUDES += $(FS_FATFS_INC)
-else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_INCLUDES += $(FS_JFFS2_INC)
-endif
-endif
-
-ifeq ($(WITH_CMOCKERY_TEST), yes)
-CMOCKERY_TEST_INC = \
-        -I $(TOP_DIR)/tests/cmockery/src/google
-        C_INCLUDES += $(CMOCKERY_TEST_INC)
-endif
-
-#below use bootloader
-else
-FLAG_INC = \
-        -I $(TOP_DIR)/components/ota/utility \
-        -I $(TOP_DIR)/components/ota/flag_operate
-        C_INCLUDES += $(FLAG_INC)
-endif
-
-
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -610,13 +383,8 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 # LDFLAGS
 #######################################
 # link script
-ifeq ($(USE_BOOTLOADER), yes)
-LD_FILE = STM32F429IGTx_LiteOS.ld
-else ifeq ($(USE_OTA), yes)
-LD_FILE = STM32F429IGTx_LiteOS_bootloader.ld
-else
-LD_FILE = STM32F429IGTx_LiteOS.ld
-endif
+
+LD_FILE = cortex-m4.ld
 
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
