@@ -1,10 +1,13 @@
 #include "los_base.h"
 #include "los_typedef.h"
 #include "los_task.h"
+#include <stdio.h>
 
 UINT32 mytaskA(void *arg)
 {
     while (1) {
+        LOS_TaskDelay(100);
+        fputs("A \n", stdout);
     };
     return 0;
 }
@@ -12,6 +15,8 @@ UINT32 mytaskA(void *arg)
 UINT32 mytaskB(void *arg)
 {
     while (1) {
+       LOS_TaskDelay(100);
+       fputs("B \n", stdout);
     };
     return 0;
 }

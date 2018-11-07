@@ -24,7 +24,6 @@ VOID LOS_SysTickReload(UINT32 uwCyclesPerTick)
 
 void alarm_handler(int sig, siginfo_t *info, void *context)
 {
-    puts("alarm!  \n");
     osTickHandler();
 }
 
