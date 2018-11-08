@@ -33,6 +33,16 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
+#include "sys_init.h"
+
+#if defined WITH_AT_FRAMEWORK
+#include "at_frame/at_api.h"
+#if defined USE_NB_NEUL95
+#include "nb_iot/los_nb_api.h"
+#include "at_device/bc95.h"
+#endif
+#endif
+
 #ifdef CONFIG_FEATURE_FOTA
 #include "ota_port.h"
 #endif
@@ -56,6 +66,7 @@ unsigned char g_psk_bs_value[] = {0x58,0xea,0xfd,0xab,0x2f,0x38,0x4d,0x39,0x80,0
 static void *g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
+static UINT32 g_TskHandle;
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
@@ -190,3 +201,124 @@ void agent_tiny_entry(void)
 
     (void)atiny_bind(device_info, g_phandle);
 }
+
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
+void demo_agenttiny_with_gprs(void)
+{
+    extern void agent_tiny_entry();
+    extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
+    at_api_register(&at_interface);
+    agent_tiny_entry();
+}
+
+VOID main_task(VOID)
+{
+    demo_agenttiny_with_gprs();
+}
+
+UINT32 creat_main_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
+
+#ifdef CONFIG_FEATURE_FOTA
+    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
+#else
+    task_init_param.uwStackSize = 0x1000;
+#endif
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
+#endif
+
+
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
+void demo_agenttiny_with_wifi(void)
+{
+    extern void agent_tiny_entry();
+    extern at_adaptor_api at_interface;
+    printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
+    at_api_register(&at_interface);
+    agent_tiny_entry();
+}
+
+VOID main_task(VOID)
+{
+    demo_agenttiny_with_wifi();
+}
+
+UINT32 creat_main_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
+
+#ifdef CONFIG_FEATURE_FOTA
+    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
+#else
+    task_init_param.uwStackSize = 0x1000;
+#endif
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
+#endif
+
+
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+void demo_agenttiny_with_eth(void)
+{
+    #if defined(WITH_LINUX) || defined(WITH_LWIP)
+    extern void agent_tiny_entry();
+    hieth_hw_init();
+    net_init();
+    agent_tiny_entry();
+    #endif
+}
+
+VOID main_task(VOID)
+{
+    demo_agenttiny_with_eth();
+}
+
+UINT32 creat_main_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
+
+#ifdef CONFIG_FEATURE_FOTA
+    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
+#else
+    task_init_param.uwStackSize = 0x1000;
+#endif
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
+#endif
+

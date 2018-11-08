@@ -39,9 +39,10 @@
 #include "los_task.ph"
 #include "los_typedef.h"
 #include "los_sys.h"
-
+#include "at_frame/at_main.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_frame/at_api.h"
+
 #if defined USE_NB_NEUL95
 #include "nb_iot/los_nb_api.h"
 #include "at_device/bc95.h"
@@ -59,7 +60,6 @@
 #include "hal_spi_flash.h"
 #endif
 
-UINT32 g_TskHandle;
 #define TELECON_IP "180.101.147.115"
 #define OCEAN_IP "139.159.140.34"
 #define SECURITY_PORT "5684"
@@ -75,6 +75,7 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
+
 
 #ifdef WITH_SOTA
 extern int nb_send_str(const char* buf, int len);
@@ -189,73 +190,12 @@ void demo_agenttiny_with_nbiot(void)
     printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95\n");
 #endif
 }
-void demo_agenttiny_with_gprs(void)
-{
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-#else
-    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_SIM900A\n");
-#endif
-}
+#if defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
+static UINT32 g_TskHandle;
 
-void demo_agenttiny_with_wifi(void)
-{
-
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-#else
-    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_ESP8266\n");
-#endif
-
-}
-
-void demo_agenttiny_with_eth(void)
-{
-    #if defined(WITH_LINUX) || defined(WITH_LWIP)
-    extern void agent_tiny_entry();
-    hieth_hw_init();
-    net_init();
-    agent_tiny_entry();
-    #endif
-}
-
-void fs_demo(void)
-{
-    printf("Huawei LiteOS File System Demo.\n");
-    
-#if defined(FS_SPIFFS)
-    extern void spiffs_demo();
-    spiffs_demo();
-#endif
-
-#if defined(FS_FATFS)
-    extern void fatfs_demo();
-    fatfs_demo();
-#endif
-
-#if defined(FS_JFFS2)
-    extern void jffs2_demo();
-    jffs2_demo();
-#endif
-}
-
-//extern int fs_test_main(void);
-//extern int sota_test_main(void);
 VOID main_task(VOID)
 {
-    //fs_test_main();
-    //fs_demo();
-    //demo_without_agenttiny_nbiot();
-    demo_agenttiny_with_eth();
-	//sota_test_main();
+    demo_agenttiny_with_nbiot();
 }
 
 UINT32 creat_main_task()
@@ -263,14 +203,14 @@ UINT32 creat_main_task()
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 2;
+    task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "main_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
 
 #ifdef CONFIG_FEATURE_FOTA
     task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
 #else
-    task_init_param.uwStackSize = 0x2000;
+    task_init_param.uwStackSize = 0x1000;
 #endif
 
     uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
@@ -280,6 +220,7 @@ UINT32 creat_main_task()
     }
     return uwRet;
 }
+#endif
 
 int main(void)
 {
@@ -299,6 +240,7 @@ int main(void)
     extern VOID *main_ppp(UINT32  args);
     task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
 #endif
+    extern UINT32 creat_main_task();
     uwRet = creat_main_task();
     if (uwRet != LOS_OK)
     {
@@ -316,3 +258,6 @@ int main(void)
     (void)LOS_Start();
     return 0;
 }
+
+
+

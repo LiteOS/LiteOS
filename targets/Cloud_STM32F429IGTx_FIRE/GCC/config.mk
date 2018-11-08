@@ -31,10 +31,10 @@ WITH_LWIP  := yes
 #######################################
 # use usart AT command
 #######################################
-WITH_AT_FRAMEWORK := yes
+WITH_AT_FRAMEWORK := no
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 #ESP8266   # SIM900A  # NB_NEUL95  # ALL
-	NETWORK_TYPE := NB_NEUL95
+	NETWORK_TYPE := SIM900A
 endif
 
 #######################################
@@ -81,7 +81,7 @@ ATINY_DEBUG := yes
 #######################################
 # File System
 #######################################
-WITH_FILESYSTEM := yes
+WITH_FILESYSTEM := no
 ifeq ($(WITH_FILESYSTEM), yes)
 #SPIFFS   #FATFS   #JFFS2
 	FILESYSTEM_TYPE := FATFS

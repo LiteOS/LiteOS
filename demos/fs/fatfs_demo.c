@@ -44,6 +44,8 @@ char fatfs_dir_name[100] = {0};
 extern int stm32f4xx_fatfs_init(int need_erase);
 extern int fatfs_unmount(const char *path, uint8_t drive);
 
+
+
 void fatfs_demo(void)
 {
     int8_t drive;

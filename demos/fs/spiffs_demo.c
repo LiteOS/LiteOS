@@ -45,6 +45,7 @@ char spiffs_dir_name[100] = {0};
 extern int stm32f4xx_spiffs_init (int need_erase);
 extern int spiffs_unmount(const char *path);
 
+
 void spiffs_demo(void)
 {
     int ret = 0;

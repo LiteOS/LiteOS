@@ -45,6 +45,8 @@ char jiffs2_dir_name[100] = {0};
 extern int stm32f4xx_jffs2_init(int need_erase);
 extern int jffs2_unmount(const char *path);
 
+
+
 void jffs2_demo(void)
 {
     int ret = stm32f4xx_jffs2_init(1);
