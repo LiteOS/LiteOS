@@ -50,7 +50,7 @@ BIN       = $(OBJCOPY) -O binary -S
 
 PROJECTBASE = $(PWD)
 override PROJECTBASE    := $(abspath $(PROJECTBASE))
-TOP_DIR = $(PROJECTBASE)/../../..
+TOP_DIR = $(PROJECTBASE)/../../../..
 
 
 #######################################
