@@ -468,7 +468,7 @@ int transaction_send(lwm2m_context_t *contextP,
             ret = lwm2m_buffer_send(transacP->peerH, transacP->buffer, transacP->buffer_len, contextP->userData);
             output_buffer(stderr, (uint8_t *)(transacP->buffer), transacP->buffer_len, 0);
             transacP->retrans_time += timeout;
-            LOG_ARG("send result is %d, retrans_counter:%d", ret, transacP->retrans_counter);
+            LOG_ARG("send result is %d, retrans_counter:%d buffer_len=%d", ret, transacP->retrans_counter,transacP->buffer_len);
             transacP->retrans_counter += 1;
 
             UNUSEX(ret);

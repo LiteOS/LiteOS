@@ -77,7 +77,7 @@
  */
 
 #include "internals.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 static uint8_t prv_get_value(lwm2m_data_t *dataP,
                              security_instance_t *targetP)

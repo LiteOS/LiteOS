@@ -37,11 +37,11 @@
 #include "ota_port.h"
 #endif
 
-#define DEFAULT_SERVER_IPV4 "180.101.147.115" /*dianxin*/
+#define DEFAULT_SERVER_IPV4  "183.230.40.40" // "180.101.147.115" "192.168.1.107"
 
 #define LWM2M_LIFE_TIME     50000
 
-char *g_endpoint_name = "44440003";
+char *g_endpoint_name =   "123456789234567;abcdef";//  "99990009";
 #ifdef WITH_DTLS
 
 char *g_endpoint_name_s = "99990009";
@@ -65,6 +65,10 @@ void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e statu
 void app_data_report(void)
 {
     uint8_t buf[5] = {0, 1, 6, 5, 9};
+
+    //uint8_t buf[100];
+    //memset(buf,1,100);
+
     data_report_t report_data;
     int ret = 0;
     int cnt = 0;
@@ -81,8 +85,8 @@ void app_data_report(void)
         ret = atiny_data_report(g_phandle, &report_data);
         ATINY_LOG(LOG_DEBUG, "data report ret: %d\n", ret);
         ret = atiny_data_change(g_phandle, DEVICE_MEMORY_FREE);
-        ATINY_LOG(LOG_DEBUG, "data change ret: %d\n", ret);
-        (void)LOS_TaskDelay(250 * 8);
+        //ATINY_LOG(LOG_DEBUG, "data change ret: %d\n", ret);
+        (void)LOS_TaskDelay(250000 * 8);
     }
 }
 /*lint +e550*/

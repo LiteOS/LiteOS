@@ -45,8 +45,8 @@
  *  Data |  0 |    R/W     |    No     |    Yes    | Opaque  |       |       |             |
  *
  */
-#include "atiny_lwm2m/object_comm.h"
-#include "atiny_lwm2m/atiny_rpt.h"
+#include "object_comm.h"
+#include "atiny_rpt.h"
 #include "log/atiny_log.h"
 
 

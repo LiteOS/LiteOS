@@ -532,6 +532,11 @@ LWM2M_INC = \
         -I $(TOP_DIR)/components/connectivity/lwm2m/core \
         -I $(TOP_DIR)/components/connectivity/lwm2m/examples/shared
         C_INCLUDES += $(LWM2M_INC)
+		
+LWM2M_ATINY_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m        
+        C_INCLUDES += $(LWM2M_ATINY_INC)		
+		
 endif
 
 
