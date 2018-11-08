@@ -11,5 +11,7 @@ I made this project to learn how real-time OS works. And this port helps acceler
 
 ### How to build
 cd target/process
+
 make
-the executable lays in target/process/build/Huawei\_LiteOS
+
+the executable lays in target/process/build/Huawei\_LiteOS. Execute it just like any normal program.
