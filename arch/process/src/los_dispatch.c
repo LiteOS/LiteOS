@@ -34,39 +34,40 @@ void osTaskSchedule()
 
 void switcher(int sig, siginfo_t *info, void *context)
 {
-    UINT32 cs, ss,ds,es,gs,fs;
     ucontext_t *oldcontext = GET_UCONTEXT(g_stLosTask.pstRunTask);
     ucontext_t *newcontext = GET_UCONTEXT(g_stLosTask.pstNewTask);
-    
-    *oldcontext = *(ucontext_t *)context;
+#ifndef PORTABLE
+    UINT32 cs, ss, ds, es, gs, fs;
+    *oldcontext = *(ucontext_t *) context;
+    *(ucontext_t *) context = *newcontext;
     cs = oldcontext->uc_mcontext.gregs[REG_CS];
     ss = oldcontext->uc_mcontext.gregs[REG_SS];
     ds = oldcontext->uc_mcontext.gregs[REG_DS];
     es = oldcontext->uc_mcontext.gregs[REG_ES];
     gs = oldcontext->uc_mcontext.gregs[REG_GS];
     fs = oldcontext->uc_mcontext.gregs[REG_FS];
-    
-    *(ucontext_t *)context = *newcontext;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_CS] = cs;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_SS] = ss;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_DS] = ds;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_ES] = es;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_GS] = gs;
-    ((ucontext_t *)context)->uc_mcontext.gregs[REG_FS] = fs;
-  
+
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_CS] = cs;
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_SS] = ss;
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_DS] = ds;
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_ES] = es;
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_GS] = gs;
+    ((ucontext_t *) context)->uc_mcontext.gregs[REG_FS] = fs;
+#endif
     LOS_IntLock();
     if (g_pfnTskSwitchHook != NULL)
         (*g_pfnTskSwitchHook)();
     //XXX not sure if it is working, need to dive in.....
-    g_stLosTask.pstRunTask->pStackPointer = (void *)((ucontext_t *) oldcontext)->uc_mcontext.gregs[REG_ESP];
+    g_stLosTask.pstRunTask->pStackPointer = (void *) ((ucontext_t *) oldcontext)->uc_mcontext.gregs[REG_ESP];
     g_stLosTask.pstRunTask->usTaskStatus &= ~(OS_TASK_STATUS_RUNNING);
     g_stLosTask.pstRunTask = g_stLosTask.pstNewTask;
     g_stLosTask.pstRunTask->usTaskStatus |= OS_TASK_STATUS_RUNNING;
     LOS_IntUnLock();
-    //swapcontext(oldcontext, newcontext);
+#ifdef PORTABLE
+    swapcontext(oldcontext, newcontext);
+#endif
 }
 //following declared in los_hwi.h
-
 UINTPTR LOS_IntLock()
 {
     g_bInterruptState = 0;
