@@ -1,5 +1,5 @@
 ##########################################################################################################################
-# cortex-m3_without_driver GCC compiler Makefile
+# cortex-m0_without_driver GCC compiler Makefile
 ##########################################################################################################################
 
 # ------------------------------------------------
@@ -181,8 +181,8 @@ endif
 
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/Mini_Project/cortex-m3_without_driver/Src/main.c \
-		$(TOP_DIR)/targets/Mini_Project/cortex-m3_without_driver/Src/__hal_simulate.c  
+        $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Src/main.c \
+		$(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Src/__hal_simulate.c  
    
         C_SOURCES += $(USER_SRC)
 
@@ -190,10 +190,10 @@ USER_SRC =  \
 
 # ASM sources
 ASM_SOURCES_s =  \
-        ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
+        ${wildcard $(PROJECTBASE)/startup_LPC51U68.s}
 
 ASM_SOURCES_S =  \
-       ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m3/gcc/los_dispatch_gcc.S}
+       ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m0/gcc/los_dispatch_gcc.S}
 
 
 ######################################
@@ -206,7 +206,7 @@ PERIFLIB_SOURCES =
 # CFLAGS
 #######################################
 # cpu
-CPU = -mcpu=cortex-m3
+CPU = -mcpu=cortex-m0plus
 # fpu
 #FPU = -mfpu=fpv4-sp-d16
 # float-abi
@@ -339,8 +339,8 @@ DEMO_INC = \
 
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m3_without_driver/Inc \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m3_without_driver/OS_CONFIG
+        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Inc \
+        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 
@@ -354,7 +354,8 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 
-
+CFLAGS += -DCPU_LPC51U68JBD64 -DNDEBUG -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
+CFLAGS += -mfloat-abi=soft
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 
@@ -364,7 +365,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$@"
 #######################################
 # link script
 
-LD_FILE = cortex-m3.ld
+LD_FILE = LPC51U68_flash.ld
 
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 

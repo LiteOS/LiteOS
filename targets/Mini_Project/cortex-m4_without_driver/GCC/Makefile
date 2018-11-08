@@ -162,8 +162,8 @@ ATINY_LOG = \
         C_SOURCES += $(ATINY_LOG)
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/cortex-m4_without_driver/Src/main.c \
-		$(TOP_DIR)/targets/cortex-m4_without_driver/Src/__hal_simulate.c
+        $(TOP_DIR)/targets/Mini_Project/cortex-m4_without_driver/Src/main.c \
+		$(TOP_DIR)/targets/Mini_Project/cortex-m4_without_driver/Src/__hal_simulate.c
         C_SOURCES += $(USER_SRC)
 
 
@@ -287,7 +287,7 @@ INCLUDE_INC = \
 
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/cortex-m4_without_driver/Inc
+        -I $(TOP_DIR)/targets/Mini_Project/cortex-m4_without_driver/Inc
         C_INCLUDES += $(USER_INC)
 
 ifneq ($(USE_OTA)_$(USE_BOOTLOADER), no_no)
@@ -304,7 +304,7 @@ CMSIS_INC = \
 		
 
 OS_CONFIG_INC = \
-		-I $(TOP_DIR)/targets/cortex-m4_without_driver/OS_CONFIG
+		-I $(TOP_DIR)/targets/Mini_Project/cortex-m4_without_driver/OS_CONFIG
 		C_INCLUDES += $(OS_CONFIG_INC)
 KERNEL_INC = \
         -I $(TOP_DIR)/kernel/include \
