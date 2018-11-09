@@ -69,7 +69,7 @@
  */
 
 #include "internals.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 typedef struct _server_instance_
 {
