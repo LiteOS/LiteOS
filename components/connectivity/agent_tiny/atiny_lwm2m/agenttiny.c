@@ -35,13 +35,13 @@
 #include "liblwm2m.h"
 #include "internals.h"
 #include "atiny_lwm2m/agenttiny.h"
-#include "atiny_lwm2m/object_comm.h"
-#include "atiny_lwm2m/connection.h"
+#include "object_comm.h"
+#include "connection.h"
 #include "log/atiny_log.h"
-#include "atiny_lwm2m/atiny_rpt.h"
+#include "atiny_rpt.h"
 #include "osdepends/atiny_osdep.h"
 #ifdef CONFIG_FEATURE_FOTA
-#include "atiny_lwm2m/atiny_fota_manager.h"
+#include "atiny_fota_manager.h"
 #endif
 
 #define SERVER_URI_MAX_LEN      (64)

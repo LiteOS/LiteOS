@@ -79,7 +79,7 @@
  */
 
 #include "internals.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 #ifdef LWM2M_CLIENT_MODE
 
 

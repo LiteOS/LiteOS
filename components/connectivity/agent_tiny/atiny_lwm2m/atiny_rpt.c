@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "liblwm2m.h"
-#include "atiny_lwm2m/atiny_rpt.h"
+#include "atiny_rpt.h"
 #include "log/atiny_log.h"
 
 typedef struct _atiny_rpt_list_t

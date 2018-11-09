@@ -50,7 +50,7 @@
  *
  *******************************************************************************/
 #include <ctype.h>
-#include "atiny_lwm2m/connection.h"
+#include "connection.h"
 
 
 #if defined (WITH_DTLS)
@@ -58,7 +58,7 @@
 #endif
 #include "sal/atiny_socket.h"
 #include "log/atiny_log.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 #define COAP_PORT "5683"
 #define COAPS_PORT "5684"
