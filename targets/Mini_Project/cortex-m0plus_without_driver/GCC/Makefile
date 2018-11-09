@@ -181,8 +181,8 @@ endif
 
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Src/main.c \
-		$(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Src/__hal_simulate.c  
+        $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Src/main.c \
+		$(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Src/__hal_simulate.c  
    
         C_SOURCES += $(USER_SRC)
 
@@ -339,8 +339,8 @@ DEMO_INC = \
 
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/Inc \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0_without_driver/OS_CONFIG
+        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Inc \
+        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 

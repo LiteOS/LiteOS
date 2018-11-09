@@ -60,7 +60,6 @@ extern "C" {
 /*=============================================================================
                                         System clock module configuration
 =============================================================================*/
-extern unsigned int SystemCoreClock;
 /**
  * @ingroup los_config
  * System clock (unit: HZ)
