@@ -184,7 +184,8 @@ SOCKET_ADAPTER_SRC = \
         C_SOURCES += $(SOCKET_ADAPTER_SRC)
 
 NEWLIB_SRC = \
-        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c} \
+        ${wildcard $(TOP_DIR)/components/lib/libc/errno.c}
         C_SOURCES += $(NEWLIB_SRC)
 		
 
