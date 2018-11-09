@@ -46,14 +46,14 @@ UINT32 osTickStart()
     //actually, SIGUSR1 is the context switch interrupt handler that has the lowest priority
     sigaddset(&action.sa_mask, SIGUSR1);
 
-    if (sigaction(SIGVTALRM, &action, NULL) != 0) {
+    if (sigaction(SIGALRM, &action, NULL) != 0) {
         puts(strerror(errno));
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
     timerval.it_interval.tv_sec = 0;
     timerval.it_interval.tv_usec = (suseconds_t) (1000 / LOSCFG_BASE_CORE_TICK_PER_SECOND); // 4 microseconds
     memcpy(&timerval.it_value, &timerval.it_interval, sizeof ( struct timeval));
-    if (setitimer(ITIMER_VIRTUAL, &timerval, NULL) != 0)
+    if (setitimer(ITIMER_REAL, &timerval, NULL) != 0)
         return LOS_ERRNO_TICK_CFG_INVALID;
 
     return 0;

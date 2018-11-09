@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <ucontext.h>
+#include <errno.h>
 
 #define GET_UCONTEXT(tcb)  (ucontext_t *)((tcb)->uwTopOfStack + (tcb)->uwStackSize - sizeof(ucontext_t))
 void populateHeap() __attribute__ ((constructor));
@@ -91,7 +92,11 @@ UINTPTR LOS_IntUnLock()
 void populateHeap()
 {
     puts("constructor called!\n");
-    __LOS_HEAP_ADDR_START__ = (UINT32) malloc(1 << 24);
+    if ((__LOS_HEAP_ADDR_START__ = (UINT32) malloc(1 << 24)) == NULL) 
+    {
+        perror("malloc failed!");
+        exit(-1);
+    }
     __LOS_HEAP_ADDR_END__ = __LOS_HEAP_ADDR_START__ + (1 << 20);
     main();
 }

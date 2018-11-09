@@ -32,7 +32,8 @@ EXAMPLES_SRC =  \
 C_SOURCES += $(EXAMPLES_SRC)
 
 USER_SRC = \
-	${wildcard $(TOP_DIR)/targets/process/*.c}
+	${wildcard $(TOP_DIR)/targets/process/*.c} \
+	${wildcard $(TOP_DIR)/apps/*/*.c}
 C_SOURCES += $(USER_SRC)
 
 CPU = 
@@ -52,7 +53,9 @@ ARCH_INC = \
 	-I $(TOP_DIR)/arch/process/include
 
 USER_INC = \
-	-I $(TOP_DIR)/targets/process/OS_CONFIG
+	-I $(TOP_DIR)/targets/process/OS_CONFIG \
+	-I $(TOP_DIR)/apps/osport \
+	-I $(TOP_DIR)/apps/shell
 
 EXAMPLE_INC = \
 	-I $(TOP_DIR)/examples/include

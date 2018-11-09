@@ -12,7 +12,7 @@ void switcher(int sig, siginfo_t *info, void *context);
 void osHwiInit()
 {
     sigemptyset(&registerred_signals);
-    sigaddset(&registerred_signals, SIGVTALRM);
+    sigaddset(&registerred_signals, SIGALRM);
     sigaddset(&registerred_signals, SIGUSR1);
 
     stack_t stk;
@@ -33,6 +33,7 @@ void osHwiInit()
         perror("add switch interrupt failed");
         exit(-1);
     }
+    
 
 }
 
