@@ -391,7 +391,6 @@ static u32_t shell_server_entry(void *args)
                             shell_put_string(matches->matches[i]);
                             shell_put_char('\t');
                         }
-                        shell_put_string("\n\r");
                         shell_put_index();
                         shell_put_string(shell_cmd_cache.curcmd);
                         shell_moves_cursor_left(strlen(shell_cmd_cache.curcmd) - shell_cmd_cache.curoffset);
