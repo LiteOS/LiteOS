@@ -97,6 +97,6 @@ void populateHeap()
         perror("malloc failed!");
         exit(-1);
     }
-    __LOS_HEAP_ADDR_END__ = __LOS_HEAP_ADDR_START__ + (1 << 20);
+    __LOS_HEAP_ADDR_END__ = __LOS_HEAP_ADDR_START__ + (1 << 20) - 1;
     main();
 }
