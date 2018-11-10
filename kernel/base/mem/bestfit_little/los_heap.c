@@ -332,7 +332,7 @@ LITE_OS_SEC_TEXT_MINOR VOID osAlarmHeapInfo(VOID *pPool)
     if (LOS_NOK == osHeapStatisticsGet(pPool, &stStatus))
         return;
 
-    PRINT_INFO("pool addr    pool size    total size     used size    free size   alloc Count    free Count\n0x%-8x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x\n",
+    PRINTK("pool addr    pool size    total size     used size    free size   alloc Count    free Count\n\r0x%-8x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x\n\r",
                         pPool, pstHeapMan->uwSize, stStatus.totalSize, stStatus.usedSize, stStatus.freeSize, stStatus.allocCount, stStatus.freeCount);
     (void)pstHeapMan;
 }
