@@ -141,7 +141,8 @@ static int chartoint(const char* port)
 static int packet_parse(const char *rcvbuf, int32_t len)
 {
     ota_pcp_head_s *phead;
-    char *databuf,*rlen;
+    char *databuf;
+    char *rlen;
     int buflen;
     int ret,cmd_crc_num;
     char *buf;
@@ -297,7 +298,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
             g_at_update_record.state = DOWNLOADING;
             memcpy(g_at_update_record.ver, notify->ver, VER_LEN);
             (void)flag_write(FLAG_APP, (void*)&g_at_update_record, sizeof(sota_update_info_t));
-           if (g_flash_op.run_mode == APP_MODE)
+            if (g_flash_op.run_mode == APP_MODE)
             {
                 sota_request_block((char*)notify->ver);
             }
@@ -384,8 +385,8 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
             rabuf = NULL;
         }
         ret = SOTA_NEEDREBOOT;
-        break;
     }
+    break;
     default:
     {
         SOTA_LOG("cmd invalid");
