@@ -36,20 +36,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include "fs/sys/fcntl.h"
-#include <los_mux.h>
-#endif
-
-#ifdef __GNUC__
-#include <sys/errno.h>
-#elif defined (__CC_ARM)
+#include "los_config.h"
+#include "los_mux.h"
 #include "fs/sys/errno.h"
-#endif
-
-#include <los_config.h>
+#include "fs/sys/fcntl.h"
 #include "fs/los_vfs.h"
+
 
 #if (LOSCFG_ENABLE_VFS == YES)
 
