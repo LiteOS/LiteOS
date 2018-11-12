@@ -183,7 +183,7 @@ int los_open (const char *path, int flags)
 {
     struct file         *file = NULL;
     int                  fd = -1;
-    const char          *path_in_mp;
+    const char          *path_in_mp = NULL;
     struct mount_point *mp;
 
     if (path == NULL)
@@ -218,7 +218,7 @@ int los_open (const char *path, int flags)
 
     mp = los_mp_find (path, &path_in_mp);
 
-    if ((mp == NULL) || (*path_in_mp == '\0') ||
+    if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0') ||
             (mp->m_fs->fs_fops->open == NULL))
     {
         VFS_ERRNO_SET (ENOENT);
@@ -537,7 +537,7 @@ int los_stat (const char *path, struct stat *stat)
 int los_unlink (const char *path)
 {
     struct mount_point *mp;
-    const char          *path_in_mp;
+    const char          *path_in_mp = NULL;
     int                  ret = -1;
 
     if (path == NULL)
@@ -550,7 +550,7 @@ int los_unlink (const char *path)
 
     mp = los_mp_find (path, &path_in_mp);
 
-    if ((mp == NULL) || (*path_in_mp == '\0') ||
+    if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0') ||
             (mp->m_fs->fs_fops->unlink == NULL))
     {
         VFS_ERRNO_SET (ENOENT);
@@ -569,8 +569,8 @@ int los_rename (const char *old, const char *new)
 {
     struct mount_point *mp_old;
     struct mount_point *mp_new;
-    const char          *path_in_mp_old;
-    const char          *path_in_mp_new;
+    const char          *path_in_mp_old = NULL;
+    const char          *path_in_mp_new = NULL;
     int                  ret = -1;
 
     if (old == NULL || new == NULL)
@@ -583,7 +583,7 @@ int los_rename (const char *old, const char *new)
 
     mp_old = los_mp_find (old, &path_in_mp_old);
 
-    if ((mp_old == NULL) || (*path_in_mp_old == '\0') ||
+    if ((mp_old == NULL) || (path_in_mp_old == NULL) || (*path_in_mp_old == '\0') ||
             (mp_old->m_fs->fs_fops->unlink == NULL))
     {
         VFS_ERRNO_SET (ENOENT);
@@ -592,7 +592,7 @@ int los_rename (const char *old, const char *new)
 
     mp_new = los_mp_find (new, &path_in_mp_new);
 
-    if ((mp_new == NULL) || (*path_in_mp_new == '\0') ||
+    if ((mp_new == NULL) || (path_in_mp_new == NULL) || (*path_in_mp_new == '\0') ||
             (mp_new->m_fs->fs_fops->unlink == NULL))
     {
         VFS_ERRNO_SET (ENOENT);
@@ -682,7 +682,7 @@ int los_sync (int fd)
 struct dir *los_opendir (const char *path)
 {
     struct mount_point *mp;
-    const char          *path_in_mp;
+    const char          *path_in_mp = NULL;
     struct dir          *dir = NULL;
     int                  ret = -1;
 
@@ -711,7 +711,7 @@ struct dir *los_opendir (const char *path)
 
     mp = los_mp_find (path, &path_in_mp);
 
-    if (mp == NULL)
+    if (mp == NULL || path_in_mp == NULL)
     {
         VFS_ERRNO_SET (ENOENT);
         LOS_MuxPost (fs_mutex);
@@ -836,7 +836,7 @@ int los_closedir (struct dir *dir)
 int los_mkdir (const char *path, int mode)
 {
     struct mount_point *mp;
-    const char          *path_in_mp;
+    const char          *path_in_mp = NULL;
     int                  ret = -1;
 
     (void) mode;
@@ -855,7 +855,7 @@ int los_mkdir (const char *path, int mode)
 
     mp = los_mp_find (path, &path_in_mp);
 
-    if (mp == NULL)
+    if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0'))
     {
         VFS_ERRNO_SET (ENOENT);
         LOS_MuxPost (fs_mutex);
@@ -1026,7 +1026,7 @@ int los_fs_mount (const char *fsname, const char *path, void *data)
 {
     struct file_system *fs;
     struct mount_point *mp;
-    const char          *tmp;
+    const char          *tmp = NULL;
 
     if (fsname == NULL || path == NULL ||
             path [0] == '\0' || path [0] != '/')
@@ -1045,7 +1045,7 @@ int los_fs_mount (const char *fsname, const char *path, void *data)
 
     mp = los_mp_find (path, &tmp);
 
-    if ((mp != NULL) && (*tmp == '\0'))
+    if ((mp != NULL) && (tmp != NULL) && (*tmp == '\0'))
     {
         goto err_post_exit;
     }
@@ -1091,7 +1091,7 @@ int los_fs_unmount (const char *path)
 {
     struct mount_point *mp;
     struct mount_point *prev;
-    const char          *tmp;
+    const char          *tmp = NULL;
     int                  ret = LOS_NOK;
 
     if (path == NULL)
@@ -1103,7 +1103,7 @@ int los_fs_unmount (const char *path)
 
     mp = los_mp_find (path, &tmp);
 
-    if ((mp == NULL) || (*tmp != '\0') || (mp->m_refs != 0))
+    if ((mp == NULL) || (tmp == NULL) || (*tmp != '\0') || (mp->m_refs != 0))
     {
         goto post_exit;
     }
