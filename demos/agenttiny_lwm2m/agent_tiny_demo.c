@@ -37,6 +37,9 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "ota_port.h"
 #endif
+#if defined WITH_AT_FRAMEWORK
+#include "at_frame/at_api.h"
+#endif
 
 #define DEFAULT_SERVER_IPV4 "180.101.147.115" /*dianxin*/
 
