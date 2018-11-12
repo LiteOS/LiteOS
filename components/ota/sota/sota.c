@@ -153,8 +153,8 @@ static int packet_parse(const char *rcvbuf, int32_t len)
         goto END;
     }
 
-    rlen = strstr(rcvbuf,":");
-    if(rlen == NULL)
+    rlen = strstr(rcvbuf,":");/*lint !e158*/
+    if(rlen == NULL)/*lint !e158*/
     {
         SOTA_LOG("buflen invalid");
         goto END;
@@ -433,7 +433,7 @@ static int sota_status_check(void)
         (void)sota_at_send(MSG_NOTIFY_STATE, sbuf, (VER_LEN+1) * 2);
     }
 
-     memset(&g_at_update_record, 0, sizeof(sota_update_info_t));
+    memset(&g_at_update_record, 0, sizeof(sota_update_info_t));
     (void)flag_write(FLAG_APP, (const void*)&g_at_update_record, sizeof(sota_update_info_t));
     return SOTA_OK;
 }
