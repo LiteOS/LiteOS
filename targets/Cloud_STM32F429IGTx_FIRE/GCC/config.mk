@@ -26,7 +26,7 @@ WITH_MQTT  := no
 #######################################
 # use ethernet
 #######################################
-WITH_LWIP  := yes
+WITH_LWIP  := no
 
 #######################################
 # use usart AT command
@@ -92,4 +92,4 @@ endif
 #######################################
 # CMockery Test
 #######################################
-WITH_CMOCKERY_TEST := yes
+WITH_CMOCKERY_TEST := no
