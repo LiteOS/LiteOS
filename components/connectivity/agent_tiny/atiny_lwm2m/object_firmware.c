@@ -73,7 +73,7 @@
 #include "log/atiny_log.h"
 
 #ifdef CONFIG_FEATURE_FOTA
-#include "atiny_lwm2m/atiny_fota_manager.h"
+#include "atiny_fota_manager.h"
 
 
 // ---- private object "Firmware" specific defines ----

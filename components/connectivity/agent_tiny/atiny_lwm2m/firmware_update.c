@@ -36,7 +36,7 @@
 #include "atiny_lwm2m/agenttiny.h"
 #include "log/atiny_log.h"
 #include "ota/package.h"
-#include "atiny_lwm2m/firmware_update.h"
+#include "firmware_update.h"
 
 #define FW_BLOCK_SIZE (512)
 

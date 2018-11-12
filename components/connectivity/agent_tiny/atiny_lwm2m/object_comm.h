@@ -62,7 +62,7 @@
 #define OBJECT_COMM_H_
 
 #include "internals.h"
-#include "agenttiny.h"
+#include "atiny_lwm2m/agenttiny.h"
 #include "connection.h"
 #include "agent_list.h"
 

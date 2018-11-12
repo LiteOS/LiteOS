@@ -34,7 +34,7 @@
 
 #ifdef LWM2M_BOOTSTRAP
 #ifdef LWM2M_CLIENT_MODE
-#include "atiny_lwm2m/util_timer.h"
+#include "util_timer.h"
 #include "liblwm2m.h"
 
 void timer_init(util_timer_t *timer, time_t interval, void(*callback)(void *param), void *param)
