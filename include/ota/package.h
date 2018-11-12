@@ -69,6 +69,10 @@ write entire block size and need no buffer. but it is not suitable to write to f
 #endif
 
 
+/* package head len should not bigger than this */
+#define PACK_MAX_HEAD_LEN (4 * 1024)
+
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
