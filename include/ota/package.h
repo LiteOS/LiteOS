@@ -70,7 +70,9 @@ write entire block size and need no buffer. but it is not suitable to write to f
 
 
 /* package head len should not bigger than this */
+#ifndef PACK_MAX_HEAD_LEN
 #define PACK_MAX_HEAD_LEN (4 * 1024)
+#endif
 
 
 #if defined(__cplusplus)
