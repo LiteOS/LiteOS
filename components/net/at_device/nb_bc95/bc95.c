@@ -380,7 +380,7 @@ int32_t nb_create_sock(int port,int proto)
 	nb_cmd_with_2_suffix((int8_t*)buf, cmd_len, "OK", "ERROR", rbuf, (uint32_t *)&rbuflen);
 	ret = sscanf(rbuf, "%d\r%s",&socket, tmpbuf);
     if ((2 == ret) && (socket >= 0)
-        && (strnstr(tmpbuf, "OK", sizeof(tmpbuf))))
+        && (strstr(tmpbuf, "OK")))
     {
         return socket;
     }

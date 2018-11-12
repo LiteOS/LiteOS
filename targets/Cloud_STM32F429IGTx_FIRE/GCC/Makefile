@@ -17,7 +17,7 @@ TARGET = Huawei_LiteOS
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -Og -std=c99
 
 
 USE_OTA := no
