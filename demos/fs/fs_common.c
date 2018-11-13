@@ -369,7 +369,7 @@ void los_vfs_io_ex(char *file_name, char *dir_name)
      ****************************/
     (void)file_name;
     (void)dir_name;
-    
+
     make_dir("/jffs2/base/.more/.less");
     make_dir("/jffs2/test/case");
     make_dir("/jffs2/zone");
@@ -418,6 +418,7 @@ void los_vfs_io_ex(char *file_name, char *dir_name)
     los_close(fd);
 
     struct stat s;
+    memset(&s, 0, sizeof(s));
     los_stat("/jffs2/test/case/one", &s);
     printf("/jffs2/test/case/one size: %ld, ctime: %ld, mtime: %ld\n",
         s.st_size, s.st_ctime, s.st_mtime);
