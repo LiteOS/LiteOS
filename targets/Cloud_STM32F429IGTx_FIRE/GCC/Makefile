@@ -626,7 +626,10 @@ endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries
-LIBS = -lc -lm -lnosys -lhwpatch
+LIBS = -lc -lm -lnosys
+ifeq ($(USE_OTA), yes)
+LIBS += -lhwpatch
+endif
 LIBDIR = -L$(PROJECTBASE)/../Lib
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
