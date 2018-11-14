@@ -237,7 +237,7 @@ UINT32 creat_agenttiny_task()
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_gprs;
 	#elif defined(WITH_AT_FRAMEWORK) && defined (USE_ESP8266)
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_wifi;
-    #elif defined(WITH_LINUX) && defined (WITH_LWIP)
+    #elif defined(WITH_LINUX) || defined (WITH_LWIP)
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_eth;
     #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
 	task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_nbiot;	
