@@ -120,6 +120,21 @@ int recover_init(recover_info_s *info, recover_assist_s *assist, recover_flash_s
  */
 int recover_image(recover_upgrade_type_e *recover_upgrade_type, uint32_t *newbin_size, uint32_t *oldbin_size);
 
+/**
+ *@ingroup recover_image
+ *@brief set update result to be failed.
+ *
+ *@par Description:
+ *This API is used to set update result to be failed.
+ *@attention none.
+ *
+ *@retval #int                error code @ref hwpatch_errno.h.
+ *
+ *@par Dependency: none.
+ *@see none.
+ */
+int recover_set_update_fail(void);
+
 #ifdef __cplusplus
 }
 #endif
