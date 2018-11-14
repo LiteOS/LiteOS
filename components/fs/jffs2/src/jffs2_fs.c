@@ -681,6 +681,75 @@ int jffs2_do_mount(struct super_block *jffs2_sb, struct mtd_info *mtd, int flags
     return ENOERR;
 }
 
+int jffs2_do_umount(struct super_block *jffs2_sb)
+{
+    struct inode *root = (struct inode *)jffs2_sb->s_root;
+    struct jffs2_sb_info *c = JFFS2_SB_INFO(jffs2_sb);
+    struct jffs2_full_dirent *fd, *next;
+
+    D2(printf("jffs2_umount\n"));
+
+    // Only really umount if this is the only mount
+    if (jffs2_sb->s_mount_count == 1)
+    {
+        icache_evict(root, NULL);
+        if (root->i_cache_next != NULL)
+        {
+            struct inode *inode = root;
+            printf("Refuse to unmount.\n");
+            while (inode)
+            {
+                printf("Ino #%lu has use count %d\n", inode->i_ino,
+                        inode->i_count);
+                inode = inode->i_cache_next;
+            }
+            // root icount was set to 1 on mount
+            return EBUSY;
+        }
+
+        if (root->i_count != 1)
+        {
+            printf("Ino #1 has use count %d\n", root->i_count);
+            return EBUSY;
+        }
+#ifdef CONFIG_JFFS2_GC_THREAD
+        jffs2_stop_garbage_collect_thread(c);
+#endif
+        jffs2_iput(root);   // Time to free the root inode
+
+        // free directory entries
+        for (fd = root->jffs2_i.dents; fd; fd = next)
+        {
+            next = fd->next;
+            jffs2_free_full_dirent(fd);
+        }
+
+        free(root);
+        jffs2_sb->s_root = NULL;
+        //Clear root inode
+        //root_i = NULL;
+
+        // Clean up the super block and root inode
+        jffs2_free_ino_caches(c);
+        jffs2_free_raw_node_refs(c);
+        free(c->blocks);
+        free(c->inocache_list);
+
+        // That's all folks.
+        D2(printf("jffs2_umount No current mounts\n"));
+    }
+    else
+    {
+        jffs2_sb->s_mount_count--;
+    }
+    if (--n_fs_mounted == 0)
+    {
+        jffs2_destroy_slab_caches();
+        jffs2_compressors_exit();
+    }
+    return ENOERR;
+}
+
 unsigned char *jffs2_gc_fetch_page(struct jffs2_sb_info *c,
                                    struct jffs2_inode_info *f,
                                    unsigned long offset,

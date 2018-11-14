@@ -42,7 +42,7 @@
 #include "usart.h"
 #include "board.h"
 #include "upgrade_flag.h"
-#include "recover_image.h"
+#include "ota/recover_image.h"
 
 void SysTick_Handler(void)
 {

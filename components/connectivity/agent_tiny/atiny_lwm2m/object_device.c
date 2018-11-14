@@ -89,7 +89,7 @@
  * manufacturer, model, etc...
  */
 
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 #define PRV_OFFSET_MAXLEN   7 //+HH:MM\0 at max
 #define PRV_TIMEZONE_MAXLEN 25

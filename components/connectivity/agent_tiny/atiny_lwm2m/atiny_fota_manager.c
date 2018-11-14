@@ -32,11 +32,11 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "atiny_lwm2m/atiny_fota_manager.h"
-#include "atiny_lwm2m/atiny_fota_state.h"
+#include "atiny_fota_manager.h"
+#include "atiny_fota_state.h"
 #include <string.h>
-#include "atiny_lwm2m/firmware_update.h"
-#include "fota/fota_package_storage_device.h"
+#include "firmware_update.h"
+#include "ota/package.h"
 
 struct atiny_fota_manager_tag_s
 {
@@ -48,7 +48,7 @@ struct atiny_fota_manager_tag_s
     atiny_fota_downloaded_state_s downloaded_state;
     atiny_fota_updating_state_s updating_state;
     atiny_fota_state_s *current;
-    atiny_fota_storage_device_s *device;
+    pack_storage_device_api_s *device;
     lwm2m_context_t  *lwm2m_context;
     uint32_t cookie;
     bool wait_ack_flag;
@@ -287,18 +287,18 @@ int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi)
         return ret;
     }
 
-    ret = ota_init_pack_device(&thi->ota_opt);
+    ret = pack_init_device(&thi->ota_opt);
     if (ret != ATINY_OK)
     {
-        ATINY_LOG(LOG_FATAL, "ota_init_pack_device fail");
+        ATINY_LOG(LOG_FATAL, "pack_init_device fail");
         return ret;
     }
 
-    thi->device = fota_get_pack_device();
+    thi->device = pack_get_device();
     return atiny_fota_idle_state_int_report_result(&thi->idle_state);
 }
 
-atiny_fota_storage_device_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
+pack_storage_device_api_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
 {
     ASSERT_THIS(return NULL);
     return thi->device;

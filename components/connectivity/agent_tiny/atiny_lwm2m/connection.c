@@ -50,7 +50,7 @@
  *
  *******************************************************************************/
 #include <ctype.h>
-#include "atiny_lwm2m/connection.h"
+#include "connection.h"
 
 
 #if defined (WITH_DTLS)
@@ -58,7 +58,7 @@
 #endif
 #include "sal/atiny_socket.h"
 #include "log/atiny_log.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 #define COAP_PORT "5683"
 #define COAPS_PORT "5684"
@@ -174,8 +174,12 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     memset(&info, 0, sizeof(info));
     info.client_or_server = client_or_server;
     info.finish_notify = NULL;
+    info.step_notify   = NULL; 
+#ifdef LWM2M_BOOTSTRAP
     info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
     info.param = (void(*)(void *))connP;
+#endif
+
     if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
     {
         info.u.c.host = host;
@@ -183,13 +187,17 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     }
     else
     {
+#ifdef LWM2M_BOOTSTRAP    
         info.u.s.timeout = targetP->clientHoldOffTime;
         info.u.s.local_port = port;
         timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
         timer_start(&connP->server_triger_timer);
+#endif
     }
     ret = dtls_shakehand(connP->net_context, &info);
+#ifdef LWM2M_BOOTSTRAP  
     timer_stop(&connP->server_triger_timer);
+#endif
     if (ret != 0)
     {
         ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
@@ -235,7 +243,7 @@ connection_t *connection_create(connection_t *connList,
     else
     {
         host = NULL;
-        port = ((targetP->securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);
+        port = (char *)((targetP->securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);
     }
 
     connP = (connection_t *)lwm2m_malloc(sizeof(connection_t));

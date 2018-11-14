@@ -35,8 +35,8 @@
 #include "internals.h"
 #include "atiny_lwm2m/agenttiny.h"
 #include "log/atiny_log.h"
-#include "atiny_lwm2m/atiny_fota_api.h"
-#include "atiny_lwm2m/firmware_update.h"
+#include "ota/package.h"
+#include "firmware_update.h"
 
 #define FW_BLOCK_SIZE (512)
 
@@ -55,7 +55,7 @@ typedef struct fw_update_record
 } fw_update_record_t;
 
 static char *g_ota_uri = NULL;
-static atiny_fota_storage_device_s *g_fota_storage_device = NULL;
+static pack_storage_device_api_s *g_fota_storage_device = NULL;
 static fw_update_record_t g_fw_update_record = {0};
 
 static firmware_update_notify g_firmware_update_notify = NULL;
@@ -150,7 +150,7 @@ static void firmware_download_reply(lwm2m_transaction_t *transacP,
     {
         ret = ATINY_ERR;
         if(g_fota_storage_device && g_fota_storage_device->write_software_end)
-            ret = g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_OK, len);
+            ret = g_fota_storage_device->write_software_end(g_fota_storage_device, PACK_DOWNLOAD_OK, len);
         else if(NULL == g_fota_storage_device)
             ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
         else
@@ -163,7 +163,7 @@ static void firmware_download_reply(lwm2m_transaction_t *transacP,
     return;
 failed_exit:
     if(g_fota_storage_device && g_fota_storage_device->write_software_end)
-        (void)g_fota_storage_device->write_software_end(g_fota_storage_device, ATINY_FOTA_DOWNLOAD_FAIL, len);
+        (void)g_fota_storage_device->write_software_end(g_fota_storage_device, PACK_DOWNLOAD_FAIL, len);
     else if(NULL == g_fota_storage_device)
         ATINY_LOG(LOG_ERR, "g_fota_storage_device NULL");
     else
@@ -277,7 +277,7 @@ int parse_firmware_uri(char *uri, int uri_len)
 }
 
 int start_firmware_download(lwm2m_context_t *contextP, char *uri,
-                            atiny_fota_storage_device_s *storage_device_p)
+                            pack_storage_device_api_s *storage_device_p)
 {
     lwm2m_transaction_t *transaction;
     unsigned char update_flag = 0;

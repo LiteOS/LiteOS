@@ -351,7 +351,10 @@ void lwm2m_setBsCtrlStat(lwm2m_context_t *contextP, lwm2m_client_state_t state)
 
         // bootstrapServerList not empty, int CIBS but bs ip not valid.
         if((!lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-               && (!bootstrap_isBsServerIpValid(contextP)))
+            #if defined(LWM2M_BOOTSTRAP)
+               && (!bootstrap_isBsServerIpValid(contextP))
+            #endif
+            )
         {
             //FBS
             if (contextP->serverList)

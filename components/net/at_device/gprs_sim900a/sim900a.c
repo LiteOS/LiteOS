@@ -287,7 +287,7 @@ int32_t sim900a_ini()
     {
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
-    at.oob_register((char *)prefix_name, strlen((char *)prefix_name), sim900a_data_handler,NULL);
+    at.oob_register((char *)prefix_name, strlen((char *)prefix_name), sim900a_data_handler,memcmp);
     sim900a_echo_off();
     sim900a_check();
     sim900a_reset();

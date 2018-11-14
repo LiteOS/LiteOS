@@ -54,11 +54,12 @@ typedef int                                 ssize_t;
 typedef long                                off_t;
 //#endif
 
-#ifdef __GNUC__
+#if defined (__GNUC__) || defined (__CC_ARM)
 #define VFS_ERRNO_SET(err)                  (errno = (-err))
 #else
 #define VFS_ERRNO_SET(err)
 #endif
+
 /*lint -e145*/
 struct file_ops
 {
@@ -151,5 +152,20 @@ extern int      los_fs_unregister (struct file_system *);
 extern int      los_fs_mount (const char *, const char *, void *);
 extern int      los_fs_unmount (const char *);
 extern int      los_vfs_init (void);
+
+extern int      open (const char *path, int flags);
+extern int      close (int fd);
+extern ssize_t  read (int fd, void *buff, size_t bytes);
+extern ssize_t  write (int fd, const void *buff, size_t bytes);
+extern off_t    lseek (int fd, off_t off, int whence);
+extern int      stat (const char *path, struct stat *stat);
+extern int      unlink (const char *path);
+extern int      rename (const char *old, const char *new);
+extern int      ioctl (int fd, unsigned long func, ...);
+extern int      fsync (int fd);
+extern struct dir *opendir (const char *path);
+extern struct dirent *readdir (struct dir *dir);
+extern int      closedir (struct dir *dir);
+extern int      mkdir (const char *path, int mode);
 
 #endif

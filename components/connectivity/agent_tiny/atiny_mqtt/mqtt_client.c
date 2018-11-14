@@ -36,8 +36,8 @@
 #include "los_task.ph"
 #include "los_typedef.h"
 #include "los_sys.h"
-#include "mqtt_client.h"
-#include "atiny_log.h"
+#include "atiny_mqtt/mqtt_client.h"
+#include "log/atiny_log.h"
 #include "MQTTClient.h"
 
 #define MQTT_CONN_FAILED_MAX_TIMES (6)

@@ -30,7 +30,7 @@ LiteOS目前已经适配了30多种开发板，其中包括ST、NXP、GD、MIDMO
 
 - FRDM_KL26Z
 
-## MIDMOTION
+## MindMotion
 
 - MM32F103
 

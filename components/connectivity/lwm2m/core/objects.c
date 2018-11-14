@@ -92,7 +92,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 uint8_t object_checkReadable(lwm2m_context_t *contextP,
                              lwm2m_uri_t *uriP)

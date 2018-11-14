@@ -87,7 +87,9 @@
 #define MBEDTLS_SSL_CLI_C
 #define MBEDTLS_SSL_SRV_C
 #define MBEDTLS_SSL_TLS_C
+#if !defined ( __GNUC__ )  /* GCC*/
 #define MBEDTLS_DEBUG_C
+#endif
 
 #ifdef USE_MRVL_SDIO_WIFI
 #define MBEDTLS_ARC4_C
@@ -106,7 +108,9 @@
 //#define MBEDTLS_PLATFORM_FREE_MACRO            free /**< Default free macro to use, can be undefined */
 
 /* Save RAM at the expense of ROM */
+#if !defined ( __GNUC__ )  /* GCC*/
 #define MBEDTLS_AES_ROM_TABLES
+#endif
 
 /* Save some RAM by adjusting to your exact needs */
 #define MBEDTLS_PSK_MAX_LEN    32 /* 128-bits keys are generally enough */

@@ -513,6 +513,8 @@ int jffs2_init (void)
     return LOS_OK;
 }
 
+static struct super_block *jffs2_sb_ptr = NULL;
+
 int jffs2_mount(const char *path, struct mtd_info *mtd)
 {
     struct super_block *jffs2_sb = NULL;
@@ -541,6 +543,7 @@ int jffs2_mount(const char *path, struct mtd_info *mtd)
 
     if (ret == LOS_OK)
     {
+        jffs2_sb_ptr = jffs2_sb;
         PRINT_INFO ("jffs2 mount at %s done!\n", path);
         return LOS_OK;
     }
@@ -552,4 +555,18 @@ err_free:
         free(jffs2_sb);
 err:
     return ret;
+}
+
+int jffs2_unmount(const char *path)
+{
+    if (jffs2_sb_ptr)
+    {
+        jffs2_do_umount(jffs2_sb_ptr);
+        free(jffs2_sb_ptr);
+        jffs2_sb_ptr = NULL;
+    }
+
+    los_fs_unmount(path);
+
+    return 0;
 }
