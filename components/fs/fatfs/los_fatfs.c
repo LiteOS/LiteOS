@@ -33,25 +33,18 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
-#include "fs/los_fatfs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "fs/sys/errno.h"
+#include "fs/sys/fcntl.h"
 #include "fs/sys/stat.h"
 #include "fs/los_vfs.h"
+#include "fs/los_fatfs.h"
+#include "los_printf.h"
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include "fs/sys/fcntl.h"
-#endif
 
-#ifdef __GNUC__
-#include <sys/errno.h>
-#elif defined (__CC_ARM)
-#include "fs/sys/errno.h"
-#endif
-
-#include <los_printf.h>
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
 

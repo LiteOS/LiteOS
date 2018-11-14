@@ -160,8 +160,9 @@ exit_failed:
     	atiny_free(ctx);
     	ctx = NULL;
     }
+		return ctx;
 #endif
-return ctx;
+
 }
 int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )
 {

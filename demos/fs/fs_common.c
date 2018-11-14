@@ -38,7 +38,56 @@
 
 static char s_ucaWriteBuffer[] = "hello world";
 static char s_ucaReadBuffer[100];
+static UINT32 g_TskHandle;
 
+void fs_demo(void)
+{
+    printf("Huawei LiteOS File System Demo.\n");
+
+#if defined(FS_SPIFFS)
+    extern void spiffs_demo();
+    spiffs_demo();
+#endif
+
+#if defined(FS_FATFS)
+    extern void fatfs_demo();
+    fatfs_demo();
+#endif
+
+#if defined(FS_JFFS2)
+    extern void jffs2_demo();
+    jffs2_demo();
+#endif
+
+}
+
+VOID fs_task(VOID)
+{
+	fs_demo();
+}
+
+UINT32 creat_fs_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_task;
+
+#ifdef CONFIG_FEATURE_FOTA
+    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
+#else
+    task_init_param.uwStackSize = 0x1000;
+#endif
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
 
 
 int write_file(const char *name, char *buff, int len)
@@ -320,7 +369,7 @@ void los_vfs_io_ex(char *file_name, char *dir_name)
      ****************************/
     (void)file_name;
     (void)dir_name;
-    
+
     make_dir("/jffs2/base/.more/.less");
     make_dir("/jffs2/test/case");
     make_dir("/jffs2/zone");
@@ -369,6 +418,7 @@ void los_vfs_io_ex(char *file_name, char *dir_name)
     los_close(fd);
 
     struct stat s;
+    memset(&s, 0, sizeof(s));
     los_stat("/jffs2/test/case/one", &s);
     printf("/jffs2/test/case/one size: %ld, ctime: %ld, mtime: %ld\n",
         s.st_size, s.st_ctime, s.st_mtime);
