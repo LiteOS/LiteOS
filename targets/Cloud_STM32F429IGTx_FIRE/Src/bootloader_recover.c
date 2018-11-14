@@ -175,6 +175,7 @@ static int jump(uint32_t oldbin_size)
     if (ret != 0)
     {
         printf("warning: jump to app failed, try to roll back now\n");
+        (void)recover_set_update_fail();
         ret = board_rollback_copy(oldbin_size);
         if (ret != 0)
         {
@@ -225,13 +226,19 @@ int main(void)
             printf("info: full upgrade\n");
             ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DOWNLOAD_ADDR);
             if (ret != 0)
+            {
                 printf("warning: [full] copy newimage to inner flash failed\n");
+                (void)recover_set_update_fail();
+            }
             break;
         case RECOVER_UPGRADE_DIFF:
             printf("info: diff upgrade\n");
             ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DIFF_UPGRADE_ADDR);
             if (ret != 0)
+            {
                 printf("warning: [diff] copy newimage to inner flash failed\n");
+                (void)recover_set_update_fail();
+            }
             break;
         default:
             break;
