@@ -81,39 +81,4 @@ int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
     return ret;
 }
 
-#if 1
-int hmac_test()
-{
-    int ret;
-    unsigned char secret[] = "a secret";
-    unsigned char buffer[] = "some data to hash";
-    unsigned char digest[32] = {0};
-    mbedtls_hmac_t hmac;
 
-
-    hmac.digest = digest;
-    hmac.digest_len = 32;
-    hmac.hmac_type = MBEDTLS_MD_SHA256;
-    hmac.input = buffer;
-    hmac.input_len = strlen((char*)buffer);
-    hmac.secret = secret;
-    hmac.secret_len = strlen((char*)secret);
-
-    dtls_int();
-    ret = mbedtls_hmac_calc(&hmac);
-    if (ret != 0)
-    {
-        return ret;
-    }
-
-    printf("HMAC: ");
-    for (int i = 0; i < sizeof(digest); i++)
-    {
-        mbedtls_printf("%02X", digest[i]);
-    }
-
-    printf("\n");
-
-    return 0;
-}
-#endif

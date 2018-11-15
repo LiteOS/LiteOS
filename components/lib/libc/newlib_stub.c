@@ -40,9 +40,9 @@
 #include <string.h>
 #include <sys/unistd.h>
 #include <los_memory.h>
-#include <los_vfs.h>
 #include <stdarg.h>
 
+#include "fs/los_vfs.h"
 #include "los_config.h"
 
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
@@ -52,122 +52,6 @@ int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *con
     return -1;
 }
 
-int _fcntl_r(struct _reent *ptr, int fd, int cmd, int arg)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _fork_r(struct _reent *ptr)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _getpid_r(struct _reent *ptr)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _isatty_r(struct _reent *ptr, int fd)
-{
-    if (fd >= 0 && fd < 3)
-    {
-        return 1;
-    }
-
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _kill_r(struct _reent *ptr, int pid, int sig)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _link_r(struct _reent *ptr, const char *old, const char *new)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-_off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
-{
-    return los_lseek (fd, pos, whence);
-}
-
-int closedir (struct dir *dir)
-{
-    return los_closedir (dir);
-}
-
-struct dir *opendir (const char *path)
-{
-    return los_opendir (path);
-}
-
-int mkdir (const char *path, int mode)
-{
-    return los_mkdir (path, mode);
-}
-
-int _mkdir_r(struct _reent *ptr, const char *name, int mode)
-{
-    ptr->_errno = ENOTSUP;
-    return 0;
-}
-
-int _open_r(struct _reent *ptr, const char *file, int flags, int mode)
-{
-    return los_open (file, flags);  /* mode not supported */
-}
-
-int _close_r(struct _reent *ptr, int fd)
-{
-    return los_close (fd);
-}
-
-_ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
-{
-    return los_read (fd, buf, nbytes);
-}
-
-_ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
-{
-    return los_write (fd, buf, nbytes);
-}
-
-int _fstat_r(struct _reent *ptr, int fd, struct stat *pstat)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _rename_r(struct _reent *ptr, const char *old, const char *new)
-{
-    return los_rename (old, new);
-}
-
-void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return NULL;
-}
-
-int _stat_r(struct _reent *ptr, const char *file, struct stat *pstat)
-{
-    return los_stat (file, pstat);;
-}
 
 _CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
 {
@@ -230,15 +114,4 @@ void abort(void)
     while (1);
 }
 
-int ioctl (int fd, unsigned long func, ...)
-{
-    va_list       ap;
-    unsigned long arg;
-
-    va_start (ap, func);
-    arg = va_arg (ap, unsigned long);
-    va_end (ap);
-
-    return los_ioctl (fd, func, arg);
-}
 

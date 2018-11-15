@@ -17,7 +17,7 @@ TARGET = Huawei_LiteOS
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og -std=c99
+OPT = -Og
 
 
 USE_OTA := no
@@ -184,8 +184,9 @@ SOCKET_ADAPTER_SRC = \
         C_SOURCES += $(SOCKET_ADAPTER_SRC)
 
 NEWLIB_SRC = \
-        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c} \
-        ${wildcard $(TOP_DIR)/components/lib/libc/errno.c}
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}\
+        ${wildcard $(TOP_DIR)/components/lib/libc/newlib_stub.c} \
+	${wildcard $(TOP_DIR)/components/lib/libc/errno.c}
         C_SOURCES += $(NEWLIB_SRC)
 		
 
@@ -206,6 +207,9 @@ ATINY_TINY_MQTT_SRC = \
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
         C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
+CJSON_SRC = \
+        ${wildcard $(TOP_DIR)/components/lib/cJSON/cJSON.c}
+        C_SOURCES += $(CJSON_SRC)
 endif
 
 ifeq ($(WITH_FILESYSTEM), yes)
@@ -545,7 +549,8 @@ ifeq ($(WITH_MQTT), yes)
 MQTT_INC = \
         -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src \
         -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
-		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src
+		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src \
+		-I $(TOP_DIR)/components/lib/cJSON
         C_INCLUDES += $(MQTT_INC)
 endif
 
@@ -632,6 +637,10 @@ LIBS += -lhwpatch
 endif
 LIBDIR = -L$(PROJECTBASE)/../Lib
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+
+ifeq ($(WITH_MQTT), yes)
+LDFLAGS += -u _printf_float
+endif
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

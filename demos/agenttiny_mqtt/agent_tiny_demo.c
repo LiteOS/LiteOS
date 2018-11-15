@@ -57,6 +57,7 @@ unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
 static void *g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
+static UINT32 g_TskHandle;
 
 atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] =
 {
@@ -154,4 +155,23 @@ void agent_tiny_entry(void)
 
     (void)atiny_bind(device_info, g_phandle);
     return ;
+}
+
+
+UINT32 creat_agenttiny_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 0;
+    task_init_param.pcName = "main_task";
+	task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)agent_tiny_entry;
+    task_init_param.uwStackSize = 0x2000;
+
+    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
 }
