@@ -132,3 +132,10 @@ void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)
     if (NULL != verify_length)
         *verify_length = g_flag.verify_length;
 }
+
+int recover_set_update_fail(void)
+{
+    g_flag.upgrade_state = OTA_FAILED;
+
+    return save_flag();
+}

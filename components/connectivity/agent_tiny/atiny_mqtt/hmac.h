@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,86 +32,33 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <reent.h>
-#include <stdlib.h>
-#include <sys/errno.h>
-#include <sys/unistd.h>
-#include <sys/time.h>
-#include <string.h>
-#include <sys/unistd.h>
-#include <los_memory.h>
-#include <stdarg.h>
+#ifndef _HMAC_H_
+#define _HMAC_H_
 
-#include "fs/los_vfs.h"
-#include "los_config.h"
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
+typedef struct _mbedtls_hmac_t
 {
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
+    const unsigned char *secret;
+    const unsigned char *input;
+    unsigned char *digest;
+    size_t secret_len;
+    size_t input_len;
+    size_t digest_len;
+    mbedtls_md_type_t hmac_type;
+}mbedtls_hmac_t;
+
+int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+
+
+#ifdef __cplusplus
+#if __cplusplus
 }
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-
-_CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _unlink_r(struct _reent *ptr, const char *file)
-{
-    return los_unlink (file);
-}
-
-int _wait_r(struct _reent *ptr, int *status)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-void *_malloc_r(struct _reent *ptr, size_t size)
-{
-    return malloc(size);
-}
-
-void *_realloc_r(struct _reent *ptr, void *old, size_t newlen)
-{
-    return realloc (old, newlen);
-}
-
-void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
-{
-    return calloc(size, len);
-}
-
-void _free_r(struct _reent *ptr, void *addr)
-{
-    free(addr);
-}
-
-void _exit(int status)
-{
-    while (1);
-}
-
-void _system(const char *s)
-{
-    return;
-}
-
-void abort(void)
-{
-    while (1);
-}
-
-
+#endif /* _HMAC_H_ */

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,87 +31,54 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#include "mbedtls/ssl.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/platform.h"
+#include "mbedtls/md.h"
+#include "mbedtls/md_internal.h"
+#include "osdepends/atiny_osdep.h"
+#include "dtls_interface.h"
+#include "hmac.h"
 
-#include <reent.h>
-#include <stdlib.h>
-#include <sys/errno.h>
-#include <sys/unistd.h>
-#include <sys/time.h>
-#include <string.h>
-#include <sys/unistd.h>
-#include <los_memory.h>
-#include <stdarg.h>
 
-#include "fs/los_vfs.h"
-#include "los_config.h"
-
-int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
+int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
 {
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
+    int ret;
 
+    mbedtls_md_context_t mbedtls_md_ctx;
+    const mbedtls_md_info_t *md_info;
 
-_CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
+    if (hmac_info == NULL || hmac_info->secret == NULL || hmac_info->input == NULL
+        || hmac_info->secret_len <= 0 || hmac_info->input_len <= 0 || hmac_info->digest_len <= 0)
+    {
+        return MBEDTLS_ERR_MD_BAD_INPUT_DATA;
+    }
 
-int _unlink_r(struct _reent *ptr, const char *file)
-{
-    return los_unlink (file);
-}
+    md_info = mbedtls_md_info_from_type(hmac_info->hmac_type);
+    if (md_info == NULL || md_info->size > hmac_info->digest_len)
+    {
+        return MBEDTLS_ERR_MD_BAD_INPUT_DATA;
+    }
 
-int _wait_r(struct _reent *ptr, int *status)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
+    mbedtls_md_init(&mbedtls_md_ctx);
+    memset(hmac_info->digest, 0x00, hmac_info->digest_len);
 
-int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
+    ret = mbedtls_md_setup(&mbedtls_md_ctx, md_info, 1);
+    if (ret != 0)
+    {
+        printf("mbedtls_md_setup() returned -0x%04x\n", -ret);
+        goto exit;
+    }
 
-void *_malloc_r(struct _reent *ptr, size_t size)
-{
-    return malloc(size);
-}
+    mbedtls_md_hmac_starts(&mbedtls_md_ctx, hmac_info->secret, hmac_info->secret_len);
+    mbedtls_md_hmac_update(&mbedtls_md_ctx, hmac_info->input, hmac_info->input_len);
+    mbedtls_md_hmac_finish(&mbedtls_md_ctx, hmac_info->digest);
 
-void *_realloc_r(struct _reent *ptr, void *old, size_t newlen)
-{
-    return realloc (old, newlen);
-}
+    exit:
+    mbedtls_md_free(&mbedtls_md_ctx);
 
-void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
-{
-    return calloc(size, len);
-}
-
-void _free_r(struct _reent *ptr, void *addr)
-{
-    free(addr);
-}
-
-void _exit(int status)
-{
-    while (1);
-}
-
-void _system(const char *s)
-{
-    return;
-}
-
-void abort(void)
-{
-    while (1);
+    return ret;
 }
 
 

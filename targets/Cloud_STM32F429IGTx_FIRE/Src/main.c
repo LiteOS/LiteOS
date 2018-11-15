@@ -210,12 +210,12 @@ int main(void)
     task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
 #endif
 
-extern UINT32 creat_agenttiny_task();
-uwRet = creat_agenttiny_task();
-if (uwRet != LOS_OK)
-{
-	return LOS_NOK;
-}
+	extern UINT32 creat_agenttiny_task();
+	uwRet = creat_agenttiny_task();
+	if (uwRet != LOS_OK)
+	{
+	    return LOS_NOK;
+	}
 
 #if defined(FS_SPIFFS) || defined(FS_SPIFFS) || defined(FS_SPIFFS)
     extern UINT32 creat_fs_task();
