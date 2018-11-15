@@ -36,7 +36,7 @@
 
 #include "at_frame/at_main.h"
 
-#define WIFI_SSID      		"TP-LINK_80D8BE"
+#define WIFI_SSID      		"APAP1234"
 #define WIFI_PASSWD    		"87654321"
 
 #define AT_MODU_NAME    	"ESP8266"

@@ -392,7 +392,7 @@ int32_t nb_create_sock(int port,int proto)
 static bool nb_is_addr_valid(const char *addr)
 {
     const int size = 4;
-    int tmp[size];
+    int tmp[4];
     int ret;
 
     ret = sscanf(addr, "%d.%d.%d.%d", &tmp[0], &tmp[1], &tmp[2], &tmp[3]);
