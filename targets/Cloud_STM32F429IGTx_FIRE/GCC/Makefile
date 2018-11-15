@@ -17,7 +17,7 @@ TARGET = Huawei_LiteOS
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -Og -std=c99
 
 
 USE_OTA := no
@@ -184,7 +184,8 @@ SOCKET_ADAPTER_SRC = \
         C_SOURCES += $(SOCKET_ADAPTER_SRC)
 
 NEWLIB_SRC = \
-        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c}
+        ${wildcard $(TOP_DIR)/components/lib/libc/malloc.c} \
+        ${wildcard $(TOP_DIR)/components/lib/libc/errno.c}
         C_SOURCES += $(NEWLIB_SRC)
 		
 
@@ -200,7 +201,7 @@ MQTT_SRC = \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
         C_SOURCES += $(MQTT_SRC)
 ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
@@ -258,6 +259,13 @@ CMOCKERY_TEST_FS_SRC = \
 endif
 endif
 
+ifeq ($(WITH_CMOCKERY_TEST), yes)
+ifeq ($(USE_SOTA),yes)
+CMOCKERY_TEST_SOTA_TEST = \
+         ${wildcard $(TOP_DIR)/tests/test_sota/sota_test.c}
+         C_SOURCES += $(CMOCKERY_TEST_SOTA_TEST)
+endif
+endif
 
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_SRC = \
@@ -460,6 +468,10 @@ HAL_DRIVER_INC = \
 INCLUDE_INC = \
         -I $(TOP_DIR)/include
         C_INCLUDES += $(INCLUDE_INC)
+		
+LWM2M_ATINY_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m        
+        C_INCLUDES += $(LWM2M_ATINY_INC)		
 
 HARDWARE_INC = \
         -I $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc
@@ -614,7 +626,10 @@ endif
 LDSCRIPT = $(PROJECTBASE)/$(LD_FILE)
 
 # libraries
-LIBS = -lc -lm -lnosys -lhwpatch
+LIBS = -lc -lm -lnosys
+ifeq ($(USE_OTA), yes)
+LIBS += -lhwpatch
+endif
 LIBDIR = -L$(PROJECTBASE)/../Lib
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 

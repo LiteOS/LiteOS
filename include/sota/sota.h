@@ -46,14 +46,24 @@ typedef enum
     UPDATED,
 }at_fota_state;
 
+typedef enum
+{
+    APP_MODE = 0,
+    BOOTLOADER_MODE,
+}run_mode_e;
+
 typedef struct
 {
     int (*get_ver)(char* buf, uint32_t len);
     int (*set_ver)(const char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
-    uint32_t user_data_len;
+    void* (*sota_malloc)(uint32_t size);
+    void (*sota_free)(void *ptr);
+    uint32_t frame_buf_len;
+    uint8_t  run_mode;
+    uint8_t  rsv[3];
     ota_opt_s ota_info;
-} sota_op_t;
+} sota_opt_t;
 
 typedef struct
 {
@@ -61,8 +71,8 @@ typedef struct
     int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
 }sota_flag_opt_s;
 
-int sota_init(sota_op_t* flash_op);
-int32_t sota_process_main(void *arg, int8_t *buf, int32_t buflen);
+int sota_init(sota_opt_t* flash_op);
+int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
 void sota_tmr(void);
 
 #define SOTA_DEBUG

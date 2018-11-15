@@ -139,7 +139,8 @@ int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *
 
         head_len = GET_DWORD(head->buff, PACK_HEADER_HEAD_LEN_POS);
         total_len = GET_DWORD(head->buff, PACK_HEADER_TOTAL_LEN_POS);
-        if(head_len < PACK_HEADER_MIN_LEN || (head_len >= total_len))
+        if(head_len < PACK_HEADER_MIN_LEN || (head_len >= total_len)
+            || (head_len > PACK_MAX_HEAD_LEN))
         {
             PACK_LOG("invalid head len %d, total len %d", head_len, total_len);
             head->stored_len = 0;

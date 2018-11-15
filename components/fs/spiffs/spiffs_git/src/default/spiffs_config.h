@@ -41,11 +41,10 @@
 #endif
 
 
-
 // Defines spiffs debug print formatters
 // some general signed number
 #ifndef _SPIPRIi
-#define _SPIPRIi   "%d"
+#define _SPIPRIi   "%ld"
 #endif
 // address
 #ifndef _SPIPRIad
@@ -346,24 +345,12 @@
 #endif
 
 
-#ifndef s32_t
-#define s32_t signed int
-#endif
-#ifndef u32_t
-#define u32_t unsigned int
-#endif
-#ifndef s16_t
-#define s16_t signed short
-#endif
-#ifndef u16_t
-#define u16_t unsigned short
-#endif
-#ifndef s8_t
-#define s8_t signed char
-#endif
-#ifndef u8_t
-#define u8_t unsigned char
-#endif
+typedef signed long s32_t;
+typedef unsigned long u32_t;
+typedef signed short s16_t;
+typedef unsigned short u16_t;
+typedef signed char s8_t;
+typedef unsigned char u8_t;
 
 
 // Types depending on configuration such as the amount of flash bytes

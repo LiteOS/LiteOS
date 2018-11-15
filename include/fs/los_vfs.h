@@ -155,14 +155,14 @@ extern int      los_vfs_init (void);
 
 extern int      open (const char *path, int flags);
 extern int      close (int fd);
-extern ssize_t  read (int fd, char *buff, size_t bytes);
+extern ssize_t  read (int fd, void *buff, size_t bytes);
 extern ssize_t  write (int fd, const void *buff, size_t bytes);
 extern off_t    lseek (int fd, off_t off, int whence);
 extern int      stat (const char *path, struct stat *stat);
 extern int      unlink (const char *path);
 extern int      rename (const char *old, const char *new);
 extern int      ioctl (int fd, unsigned long func, ...);
-extern int      sync (int fd);
+extern int      fsync (int fd);
 extern struct dir *opendir (const char *path);
 extern struct dirent *readdir (struct dir *dir);
 extern int      closedir (struct dir *dir);

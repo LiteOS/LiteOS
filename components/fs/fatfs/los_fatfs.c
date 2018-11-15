@@ -33,25 +33,18 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
-#include "fs/los_fatfs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "fs/sys/errno.h"
+#include "fs/sys/fcntl.h"
 #include "fs/sys/stat.h"
 #include "fs/los_vfs.h"
+#include "fs/los_fatfs.h"
+#include "los_printf.h"
 
-#if defined (__GNUC__) || defined (__CC_ARM)
-#include "fs/sys/fcntl.h"
-#endif
 
-#ifdef __GNUC__
-#include <sys/errno.h>
-#elif defined (__CC_ARM)
-#include "fs/sys/errno.h"
-#endif
-
-#include <los_printf.h>
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
 
@@ -150,7 +143,8 @@ static int ret_to_errno(FRESULT result)
         break;
     }
 
-    return VFS_ERRNO_SET (err);
+    VFS_ERRNO_SET (err);
+    return -err;
 }
 
 /**
@@ -402,7 +396,7 @@ static int fatfs_op_sync (struct file *file)
     POINTER_ASSERT(fp);
 
     res = f_sync(fp);
-    return res < 0 ? ret_to_errno(res) : res;
+    return ret_to_errno(res);
 }
 
 static int fatfs_op_opendir (struct dir *dir, const char *path)

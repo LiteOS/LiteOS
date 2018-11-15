@@ -39,9 +39,10 @@
 #include "los_task.ph"
 #include "los_typedef.h"
 #include "los_sys.h"
-
+#include "at_frame/at_main.h"
 #if defined WITH_AT_FRAMEWORK
 #include "at_frame/at_api.h"
+
 #if defined USE_NB_NEUL95
 #include "nb_iot/los_nb_api.h"
 #include "at_device/bc95.h"
@@ -59,7 +60,6 @@
 #include "hal_spi_flash.h"
 #endif
 
-UINT32 g_TskHandle;
 #define TELECON_IP "180.101.147.115"
 #define OCEAN_IP "139.159.140.34"
 #define SECURITY_PORT "5684"
@@ -75,6 +75,7 @@ VOID HardWare_Init(VOID)
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
+
 
 #ifdef WITH_SOTA
 extern int nb_send_str(const char* buf, int len);
@@ -117,16 +118,19 @@ int32_t sota_callback(void *arg, int8_t* buf, int32_t buflen)
 
 void nb_sota_demo()
 {
-    sota_op_t flash_op =
+    sota_opt_t flash_op =
     {
     .get_ver = read_ver,
     .set_ver = set_ver,
     .sota_send = nb_send_str,
+    .sota_malloc = at_malloc,
+    .sota_free = at_free,
     };
     hal_get_ota_opt(&flash_op.ota_info);
     flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
     flash_op.ota_info.key.rsa_E = "10001";
-    flash_op.user_data_len = 1224;
+    flash_op.frame_buf_len = 1224;
+    flash_op.run_mode = APP_MODE;
     hal_init_ota();
 
     sota_init(&flash_op);
@@ -186,96 +190,6 @@ void demo_agenttiny_with_nbiot(void)
     printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95\n");
 #endif
 }
-void demo_agenttiny_with_gprs(void)
-{
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-#else
-    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_SIM900A\n");
-#endif
-}
-
-void demo_agenttiny_with_wifi(void)
-{
-
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-#else
-    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_ESP8266\n");
-#endif
-
-}
-
-void demo_agenttiny_with_eth(void)
-{
-    #if defined(WITH_LINUX) || defined(WITH_LWIP)
-    extern void agent_tiny_entry();
-    hieth_hw_init();
-    net_init();
-    agent_tiny_entry();
-    #endif
-}
-
-void fs_demo(void)
-{
-    printf("Huawei LiteOS File System Demo.\n");
-    
-#if defined(FS_SPIFFS)
-    extern void spiffs_demo();
-    spiffs_demo();
-#endif
-
-#if defined(FS_FATFS)
-    extern void fatfs_demo();
-    fatfs_demo();
-#endif
-
-#if defined(FS_JFFS2)
-    extern void jffs2_demo();
-    jffs2_demo();
-#endif
-}
-
-//extern int fs_test_main(void);
-
-VOID main_task(VOID)
-{
-    //fs_test_main();
-    //fs_demo();
-    //demo_without_agenttiny_nbiot();
-    demo_agenttiny_with_eth();
-}
-
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 2;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-
-#ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
-#else
-    task_init_param.uwStackSize = 0x2000;
-#endif
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
 
 int main(void)
 {
@@ -295,11 +209,22 @@ int main(void)
     extern VOID *main_ppp(UINT32  args);
     task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
 #endif
-    uwRet = creat_main_task();
+
+extern UINT32 creat_agenttiny_task();
+uwRet = creat_agenttiny_task();
+if (uwRet != LOS_OK)
+{
+	return LOS_NOK;
+}
+
+#if defined(FS_SPIFFS) || defined(FS_SPIFFS) || defined(FS_SPIFFS)
+    extern UINT32 creat_fs_task();
+    uwRet = creat_fs_task();
     if (uwRet != LOS_OK)
     {
-        return LOS_NOK;
+    	return LOS_NOK;
     }
+#endif
 
 #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
     uwRet = create_dtls_server_task();
@@ -312,3 +237,4 @@ int main(void)
     (void)LOS_Start();
     return 0;
 }
+
