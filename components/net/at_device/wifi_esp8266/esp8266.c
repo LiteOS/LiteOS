@@ -336,7 +336,7 @@ int8_t esp8266_get_localmac(int8_t *mac) /*get local mac*/
     return AT_OK;
 }
 
-int32_t esp8266_bind(const char *host, const char *port, int proto)
+int32_t esp8266_bind(const int8_t *host, const int8_t *port, int32_t proto)
 {
 	int ret = AT_FAILED;
 	int port_i = 0;
@@ -399,11 +399,16 @@ int32_t esp8266_show_dinfo(int32_t s)
     return esp8266_cmd((int8_t *)cmd, strlen(cmd), "OK\r\n", NULL, NULL);
 }
 
+int32_t esp8266_cmd_match(const char *buf, char* featurestr,int len)
+{
+    return memcmp(buf,featurestr,len);
+}
+
 int32_t esp8266_init()
 {
     at.init();
     //at.add_listener((int8_t*)AT_DATAF_PREFIX, NULL, esp8266_data_handler);
-    at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler, memcmp);
+    at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), esp8266_data_handler, esp8266_cmd_match);
 
     esp8266_reset();
     esp8266_echo_off();
