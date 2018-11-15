@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,86 +32,61 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include <reent.h>
-#include <stdlib.h>
-#include <sys/errno.h>
-#include <sys/unistd.h>
-#include <sys/time.h>
-#include <string.h>
-#include <sys/unistd.h>
-#include <los_memory.h>
-#include <stdarg.h>
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
-#include "fs/los_vfs.h"
+/* Includes ------------------------------------------------------------------*/
+
+/* Includes LiteOS------------------------------------------------------------------*/
+
+#include "los_base.h"
 #include "los_config.h"
+#include "los_sys.h"
+#include "los_typedef.h"
+#include "los_task.ph"
 
-int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
+
+#ifdef WITH_LWIP
+
+#include "lwip/netif.h"
+#if defined ( __CC_ARM )  /* MDK ARM Compiler */
+#include "lwip/sio.h"
+#endif /* MDK ARM Compiler */
+#include "lwip/opt.h"
+#include "lwip/mem.h"
+#include "lwip/memp.h"
+#include "netif/etharp.h"
+#include "lwip/sockets.h"
+#include "lwip/tcpip.h"
+#include "lwip/init.h"
+#include "lwip/dhcp.h"
+#include "lwip/netif.h"
+#include "lwip/ip_addr.h"
+#include "lwip/timeouts.h"
+#include "ethernetif.h"
+
+#include "mbedtls/net.h"
+#include "mbedtls/ssl.h"
+#endif
+#ifdef __cplusplus
+ extern "C" {
+#endif
+#ifdef WITH_LWIP
+void net_init(void);
+#endif
+uint32_t HAL_GetTick(void);
+void SystemClock_Config(void);
+void _Error_Handler(char *, int);
+void hieth_hw_init(void);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+#ifdef __cplusplus
 }
+#endif
 
-
-_CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _unlink_r(struct _reent *ptr, const char *file)
-{
-    return los_unlink (file);
-}
-
-int _wait_r(struct _reent *ptr, int *status)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
-{
-    /* not support */
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-void *_malloc_r(struct _reent *ptr, size_t size)
-{
-    return malloc(size);
-}
-
-void *_realloc_r(struct _reent *ptr, void *old, size_t newlen)
-{
-    return realloc (old, newlen);
-}
-
-void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
-{
-    return calloc(size, len);
-}
-
-void _free_r(struct _reent *ptr, void *addr)
-{
-    free(addr);
-}
-
-void _exit(int status)
-{
-    while (1);
-}
-
-void _system(const char *s)
-{
-    return;
-}
-
-void abort(void)
-{
-    while (1);
-}
-
+#endif /* __SYS_H_ */
 
