@@ -125,24 +125,9 @@ void net_init(void)
 }
 
 
-VOID HardWare_Init(VOID)
-{
-    
-}
-
-
-void demo_agenttiny_with_eth(void)
-{
-    #if defined(WITH_LINUX) || defined(WITH_LWIP)
-    extern void agent_tiny_entry();
-    //hieth_hw_init();
-    net_init();
-    agent_tiny_entry();
-    #endif
-}
-
 VOID main_task(VOID)
 {
+	extern void demo_agenttiny_with_eth(void);
     demo_agenttiny_with_eth();
 }
 

@@ -25,6 +25,10 @@ __attribute__((weak)) void delayus(uint32_t usec)
 {
 }
 
+__attribute__((weak)) void hieth_hw_init(void)
+{
+}
+
 #ifdef CONFIG_FEATURE_FOTA
 #include "ota/ota_api.h"
 __attribute__((weak)) void hal_init_ota(void)
