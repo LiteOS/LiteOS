@@ -100,9 +100,10 @@ void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size,
         *upgrade_state = g_flag.upgrade_state;
 }
 
-int flag_upgrade_set_result(upgrade_state_e state)
+int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size)
 {
     g_flag.upgrade_state = state;
+    g_flag.image_size = image_size;
 
     return save_flag();
 }
@@ -111,8 +112,9 @@ int flag_upgrade_get_result(upgrade_state_e *state)
 {
     if (NULL != state)
         *state = g_flag.upgrade_state;
+    if (g_flag.upgrade_state == OTA_SUCCEED)
+        g_flag.old_image_size = g_flag.image_size;
     g_flag.upgrade_state = OTA_IDLE;
-    g_flag.old_image_size = g_flag.image_size;
 
     return save_flag();
 }
@@ -131,4 +133,11 @@ void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)
         *recover_verify = g_flag.recover_verify;
     if (NULL != verify_length)
         *verify_length = g_flag.verify_length;
+}
+
+int recover_set_update_fail(void)
+{
+    g_flag.upgrade_state = OTA_FAILED;
+
+    return save_flag();
 }

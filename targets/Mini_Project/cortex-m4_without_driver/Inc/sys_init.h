@@ -31,44 +31,62 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __ESP8266_H__
-#define __ESP8266_H__
 
-#include "at_frame/at_main.h"
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SYS_H_
+#define __SYS_H_
 
-#define WIFI_SSID      		"APAP1234"
-#define WIFI_PASSWD    		"87654321"
+/* Includes ------------------------------------------------------------------*/
 
-#define AT_MODU_NAME    	"ESP8266"
-#define AT_USART_PORT   	3
-#define AT_BUARDRATE   		115200
-#define AT_CMD_TIMEOUT		10000    //ms
-#define AT_MAX_LINK_NUM     4
+/* Includes LiteOS------------------------------------------------------------------*/
 
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
+#include "los_base.h"
+#include "los_config.h"
+#include "los_sys.h"
+#include "los_typedef.h"
+#include "los_task.ph"
 
+#include "stdlib.h"
+#include "string.h"
+#include <stdio.h>
 
-#define MAX_AT_USERDATA_LEN (1024*5)
+#ifdef WITH_LWIP
 
+#include "lwip/netif.h"
+#if defined ( __CC_ARM )  /* MDK ARM Compiler */
+#include "lwip/sio.h"
+#endif /* MDK ARM Compiler */
+#include "lwip/opt.h"
+#include "lwip/mem.h"
+#include "lwip/memp.h"
+#include "netif/etharp.h"
+#include "lwip/sockets.h"
+#include "lwip/tcpip.h"
+#include "lwip/init.h"
+#include "lwip/dhcp.h"
+#include "lwip/netif.h"
+#include "lwip/ip_addr.h"
+#include "lwip/timeouts.h"
+#include "ethernetif.h"
 
-#define AT_CMD_RST    		"AT+RST"
-#define AT_CMD_ECHO_OFF 	"ATE0"
-#define AT_CMD_CWMODE  		"AT+CWMODE_CUR"
-#define AT_CMD_JOINAP  		"AT+CWJAP_CUR"
-#define AT_CMD_MUX 			"AT+CIPMUX"
-#define AT_CMD_CONN			"AT+CIPSTART"
-#define AT_CMD_SEND			"AT+CIPSEND"
-#define AT_CMD_CLOSE		"AT+CIPCLOSE"
-#define AT_CMD_CHECK_IP		"AT+CIPSTA_CUR?"
-#define AT_CMD_CHECK_MAC	"AT+CIPSTAMAC_CUR?"
-#define AT_CMD_SHOW_DINFO   "AT+CIPDINFO"
-
-#define AT_DATAF_PREFIX      "\r\n+IPD"
-
-typedef enum {
-	STA = 1,
-	AP, 
-	ATA_AP,
-}enum_net_mode;
+#include "mbedtls/net.h"
+#include "mbedtls/ssl.h"
 #endif
+#ifdef __cplusplus
+ extern "C" {
+#endif
+#ifdef WITH_LWIP
+void net_init(void);
+#endif
+uint32_t HAL_GetTick(void);
+void SystemClock_Config(void);
+void _Error_Handler(char *, int);
+void hieth_hw_init(void);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __SYS_H_ */
+

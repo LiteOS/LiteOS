@@ -275,6 +275,12 @@ int32_t sim900a_data_handler(void *arg, int8_t *buf, int32_t len)
 END:
     return ret;
 }
+
+int32_t sim900a_cmd_match(const char *buf, char* featurestr,int len)
+{
+    return memcmp(buf,featurestr,len);
+}
+
 int32_t sim900a_ini()
 {
     at.init();
@@ -287,7 +293,7 @@ int32_t sim900a_ini()
     {
         memcpy(prefix_name, AT_DATAF_PREFIX, sizeof(AT_DATAF_PREFIX));
     }
-    at.oob_register((char *)prefix_name, strlen((char *)prefix_name), sim900a_data_handler,memcmp);
+    at.oob_register((char *)prefix_name, strlen((char *)prefix_name), sim900a_data_handler,sim900a_cmd_match);
     sim900a_echo_off();
     sim900a_check();
     sim900a_reset();

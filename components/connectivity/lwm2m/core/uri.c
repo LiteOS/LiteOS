@@ -98,8 +98,14 @@ lwm2m_uri_t *uri_decode(char *altPath,
 {
     lwm2m_uri_t *uriP;
     int readNum;
-
-    LOG_ARG("altPath: \"%s\"", altPath);
+    if(altPath != NULL)
+    {
+        LOG_ARG("altPath: \"%s\"", altPath);
+    }
+    else
+    {
+         LOG("altPath: NULL");
+    }
 
     uriP = (lwm2m_uri_t *)lwm2m_malloc(sizeof(lwm2m_uri_t));
     if (NULL == uriP) return NULL;
