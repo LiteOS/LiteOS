@@ -88,4 +88,3 @@ int main(void)
     (void)LOS_Start();
     return 0;
 }
-

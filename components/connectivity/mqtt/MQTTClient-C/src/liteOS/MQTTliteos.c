@@ -183,6 +183,7 @@ static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, in
 static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == buffer)
     {
@@ -190,16 +191,18 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
         ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
     }
 
@@ -249,6 +252,7 @@ static int los_mqtt_write(void *ctx, unsigned char *buffer, int len, int timeout
 static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == buffer)
     {
@@ -256,33 +260,36 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_write(n->ctx, buffer, len, timeout_ms);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
         ret = dtls_write(n->ctx, buffer, len);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
     }
 
     return ret;
 }
 
-void NetworkInit(Network *n)
+void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void))
 {
-    if(NULL == n)
+    if((NULL == n) ||
+       (NULL == get_security_info))
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return;
     }
     memset(n, 0x0, sizeof(Network));
-    n->proto = MQTT_PROTO_MAX;
     n->mqttread = los_read;
     n->mqttwrite = los_write;
+    n->get_security_info = get_security_info;
 
     return;
 }
@@ -475,6 +482,7 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
     mbedtls_ctr_drbg_context *ctr_drbg;
     char port_str[16] = {0};
     const char *pers = "myhint";
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == addr)
     {
@@ -540,9 +548,11 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 
     mbedtls_ssl_conf_read_timeout( conf, 1 );
 
-    if( ( ret = mbedtls_ssl_conf_psk( conf, (const unsigned char *)(n->psk.psk), n->psk.psk_len,
-                                      (const unsigned char *)(n->psk.psk_id),
-                                      n->psk.psk_id_len ) ) != 0 )
+    info = n->get_security_info();
+
+    if( ( ret = mbedtls_ssl_conf_psk( conf, (const unsigned char *)(info->u.psk.psk), info->u.psk.psk_len,
+                                      (const unsigned char *)(info->u.psk.psk_id),
+                                      info->u.psk.psk_id_len ) ) != 0 )
     {
         ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_conf_psk returned %d", ret );
         goto exit;
@@ -608,6 +618,7 @@ exit:
 int NetworkConnect(Network *n, char *addr, int port)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == addr)
     {
@@ -615,16 +626,17 @@ int NetworkConnect(Network *n, char *addr, int port)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_connect(n, addr, port);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
         ret = los_mqtt_tls_connect(n, addr, port);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
     }
 
@@ -645,22 +657,24 @@ static void los_mqtt_disconnect(void *ctx)
 
 void NetworkDisconnect(Network *n)
 {
+    mqtt_security_info_s *info;
     if(NULL == n)
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         los_mqtt_disconnect(n->ctx);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
         dtls_ssl_destroy(n->ctx);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
     }
 
