@@ -51,7 +51,7 @@ BIN       = $(OBJCOPY) -O binary -S
 PROJECTBASE = $(PWD)
 override PROJECTBASE    := $(abspath $(PROJECTBASE))
 TOP_DIR = $(PROJECTBASE)/../../../..
-
+TARGET_DIR = $(PROJECTBASE)/..
 
 #######################################
 # paths
@@ -181,8 +181,8 @@ endif
 
 
 USER_SRC =  \
-        $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Src/main.c \
-		$(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Src/__hal_simulate.c  
+        $(TARGET_DIR)/Src/main.c \
+		$(TARGET_DIR)/Src/__hal_simulate.c  
    
         C_SOURCES += $(USER_SRC)
 
@@ -275,13 +275,17 @@ AS_INCLUDES =
 # C includes
 KERNEL_INC = \
         -I $(TOP_DIR)/kernel/include \
-	-I $(TOP_DIR)/kernel/base/include \
-	-I $(TOP_DIR)/kernel/extended/include
+		-I $(TOP_DIR)/kernel/base/include \
+		-I $(TOP_DIR)/kernel/extended/include
         C_INCLUDES += $(KERNEL_INC)
 
 INCLUDE_INC = \
         -I $(TOP_DIR)/include
         C_INCLUDES += $(INCLUDE_INC)
+
+LWM2M_ATINY_INC = \
+        -I $(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m        
+        C_INCLUDES += $(LWM2M_ATINY_INC)
 
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
@@ -339,8 +343,8 @@ DEMO_INC = \
 
 
 USER_INC = \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/Inc \
-        -I $(TOP_DIR)/targets/Mini_Project/cortex-m0plus_without_driver/OS_CONFIG
+        -I $(TARGET_DIR)/Inc \
+        -I $(TARGET_DIR)/OS_CONFIG
         C_INCLUDES += $(USER_INC)
 
 

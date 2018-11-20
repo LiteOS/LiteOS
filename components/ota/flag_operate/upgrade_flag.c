@@ -100,9 +100,10 @@ void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size,
         *upgrade_state = g_flag.upgrade_state;
 }
 
-int flag_upgrade_set_result(upgrade_state_e state)
+int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size)
 {
     g_flag.upgrade_state = state;
+    g_flag.image_size = image_size;
 
     return save_flag();
 }

@@ -31,44 +31,61 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __ESP8266_H__
-#define __ESP8266_H__
 
-#include "at_frame/at_main.h"
+#ifndef _ATINY_CONTEXT_H
+#define _ATINY_CONTEXT_H
+#include "liblwm2m.h"
+#include "atiny_lwm2m/agenttiny.h"
+#include "object_comm.h"
 
-#define WIFI_SSID      		"APAP1234"
-#define WIFI_PASSWD    		"87654321"
-
-#define AT_MODU_NAME    	"ESP8266"
-#define AT_USART_PORT   	3
-#define AT_BUARDRATE   		115200
-#define AT_CMD_TIMEOUT		10000    //ms
-#define AT_MAX_LINK_NUM     4
-
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
+#define SERVER_URI_MAX_LEN      (64)
+#define MAX_PACKET_SIZE         (1024)
+#define SERVER_ID               (123)
+#define BIND_TIMEOUT            (10)
 
 
-#define MAX_AT_USERDATA_LEN (1024*5)
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 
-#define AT_CMD_RST    		"AT+RST"
-#define AT_CMD_ECHO_OFF 	"ATE0"
-#define AT_CMD_CWMODE  		"AT+CWMODE_CUR"
-#define AT_CMD_JOINAP  		"AT+CWJAP_CUR"
-#define AT_CMD_MUX 			"AT+CIPMUX"
-#define AT_CMD_CONN			"AT+CIPSTART"
-#define AT_CMD_SEND			"AT+CIPSEND"
-#define AT_CMD_CLOSE		"AT+CIPCLOSE"
-#define AT_CMD_CHECK_IP		"AT+CIPSTA_CUR?"
-#define AT_CMD_CHECK_MAC	"AT+CIPSTAMAC_CUR?"
-#define AT_CMD_SHOW_DINFO   "AT+CIPDINFO"
+/**
 
-#define AT_DATAF_PREFIX      "\r\n+IPD"
+ *@ingroup handle_data_t
 
-typedef enum {
-	STA = 1,
-	AP, 
-	ATA_AP,
-}enum_net_mode;
-#endif
+ *Structure of agentiny hanle.
+
+ */
+ 
+ enum
+{
+    OBJ_SECURITY_INDEX = 0,
+    OBJ_SERVER_INDEX,
+    OBJ_ACCESS_CONTROL_INDEX,
+    OBJ_DEVICE_INDEX,
+    OBJ_CONNECT_INDEX,
+    OBJ_FIRMWARE_INDEX,
+    OBJ_LOCATION_INDEX,
+    OBJ_APP_INDEX,
+    OBJ_MAX_NUM,
+};
+ 
+typedef struct
+{
+    lwm2m_context_t  *lwm2m_context;
+    atiny_param_t     atiny_params;
+    client_data_t     client_data;
+    lwm2m_object_t   *obj_array[OBJ_MAX_NUM];
+    int atiny_quit;
+    int reconnect_flag;
+    void *quit_sem;
+    int reboot_flag;
+    uint8_t *recv_buffer;
+} handle_data_t;
+
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ATINY_INNER_H */
