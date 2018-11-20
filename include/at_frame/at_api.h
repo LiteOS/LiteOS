@@ -64,7 +64,5 @@ int32_t at_api_sendto(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int 
 int32_t at_api_recv(int32_t id, unsigned char* buf, size_t len);
 int32_t at_api_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout);
 int32_t at_api_close(int32_t fd);
-//declear in device drivers
-extern at_adaptor_api at_interface;
 
 #endif

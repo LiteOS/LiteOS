@@ -78,8 +78,9 @@ typedef struct
 
 void *atiny_net_bind(const char *host, const char *port, int proto)
 {
-    atiny_net_context *ctx = NULL;
 #if defined (WITH_LWIP) || defined (WITH_LINUX)
+    atiny_net_context *ctx = NULL;
+    (void)ctx;
     (void)host;
     (void)port;
     (void)proto;
@@ -146,6 +147,7 @@ exit_failed:
 
 
 #elif defined(WITH_AT_FRAMEWORK)
+    atiny_net_context *ctx;
     ctx = atiny_malloc(sizeof(atiny_net_context));
     if (NULL == ctx)
     {

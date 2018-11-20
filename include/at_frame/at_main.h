@@ -193,6 +193,10 @@ typedef struct at_task{
     int32_t (*cmd_multi_suffix)(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info);
 } at_task;
 
+void at_set_config(at_config *config);
+at_config *at_get_config(void);
+
+
 void* at_malloc(size_t size);
 void at_free(void* ptr);
 int chartoint(const char* port);
