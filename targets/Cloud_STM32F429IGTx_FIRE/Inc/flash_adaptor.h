@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,34 +32,33 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _HMAC_H_
-#define _HMAC_H_
-#include "mbedtls/md.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#ifdef __cplusplus
-#if __cplusplus
+#ifndef FLASH_ADAPTOR_H
+#define FLASH_ADAPTOR_H
+#include <stdbool.h>
+#include <stdint.h>
+
+#define FLASH_BLOCK_SIZE 0x1000
+
+
+#if defined(__cplusplus)
 extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
 
-typedef struct _mbedtls_hmac_t
-{
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
-
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+void flash_adaptor_init(void);
+int flash_adaptor_write(uint32_t offset, const uint8_t *buffer, uint32_t len);
+int flash_adaptor_write_mqtt_info(const void *buffer, uint32_t len);
+int flash_adaptor_read_mqtt_info(void *buffer, uint32_t len);
 
 
-#ifdef __cplusplus
-#if __cplusplus
+
+#if defined(__cplusplus)
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
 
-#endif /* _HMAC_H_ */
+#endif //FLASH_ADAPTOR_H
+
+
