@@ -60,6 +60,13 @@
 #include "hal_spi_flash.h"
 #endif
 
+
+#ifdef WITH_MQTT
+#include "flash_adaptor.h"
+#include "agenttiny_mqtt/agent_tiny_demo.h"
+#endif
+
+
 #define TELECON_IP "180.101.147.115"
 #define OCEAN_IP "139.159.140.34"
 #define SECURITY_PORT "5684"
@@ -191,9 +198,22 @@ void demo_agenttiny_with_nbiot(void)
 #endif
 }
 
+#ifdef WITH_MQTT
+static void init_mqtt(void)
+{
+    #if defined(WITH_LINUX) || defined(WITH_LWIP)
+    hieth_hw_init();
+    net_init();
+    #endif
+    flash_adaptor_init();
+}
+#endif
+
+
 int main(void)
 {
     UINT32 uwRet = LOS_OK;
+
     HardWare_Init();
 
     uwRet = LOS_KernelInit();
@@ -210,6 +230,21 @@ int main(void)
     task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
 #endif
 
+/*
+void test_main(void);
+
+test_main();*/
+#ifdef WITH_MQTT
+
+    {
+
+        demo_param_s demo_param = {.init = init_mqtt,
+                                   .write_flash_info = flash_adaptor_write_mqtt_info,
+                                   .read_flash_info = flash_adaptor_read_mqtt_info};
+        agent_tiny_demo_init(&demo_param);
+
+    }
+#endif
 	extern UINT32 creat_agenttiny_task();
 	uwRet = creat_agenttiny_task();
 	if (uwRet != LOS_OK)

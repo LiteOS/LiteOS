@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,34 +32,23 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _HMAC_H_
-#define _HMAC_H_
-#include "mbedtls/md.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#ifndef COMMON_H
+#define COMMON_H
+#include <stdbool.h>
+#include <stdint.h>
+#include "osdepends/atiny_osdep.h"
 
-typedef struct _mbedtls_hmac_t
-{
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
+#define OK 0
+#define ERR -1
 
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+#define HAL_OTA_LOG(fmt, ...) \
+(void)printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t) atiny_gettime_ms(),  ##__VA_ARGS__)
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif //COMMON_H
 
-#endif /* _HMAC_H_ */
+

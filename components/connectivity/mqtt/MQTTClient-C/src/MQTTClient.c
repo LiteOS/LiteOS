@@ -790,17 +790,34 @@ exit:
 
 int MQTTPublish(MQTTClient *c, const char *topicName, MQTTMessage *message)
 {
-    int rc = FAILURE;
-    Timer timer;
-    MQTTString topic = MQTTString_initializer;
-    topic.cstring = (char *)topicName;
-    int len = 0;
+    int rc;
 
 #if defined(MQTT_TASK)
     MutexLock(&c->mutex);
 #elif defined(__MQTT_LITE_OS__)
     if(c->mutex) atiny_mutex_lock(c->mutex);
 #endif
+
+    rc = MQTTPublishWithoutMutex(c, topicName, message);
+
+#if defined(MQTT_TASK)
+    MutexUnlock(&c->mutex);
+#elif defined(__MQTT_LITE_OS__)
+    if(c->mutex) atiny_mutex_unlock(c->mutex);
+#endif
+    return rc;
+
+}
+
+
+int MQTTPublishWithoutMutex(MQTTClient *c, const char *topicName, MQTTMessage *message)
+{
+    int rc = FAILURE;
+    Timer timer;
+    MQTTString topic = MQTTString_initializer;
+    topic.cstring = (char *)topicName;
+    int len = 0;
+
     if (!c->isconnected)
         goto exit;
 
@@ -848,11 +865,6 @@ int MQTTPublish(MQTTClient *c, const char *topicName, MQTTMessage *message)
 exit:
     if (rc == FAILURE)
         MQTTCloseSession(c);
-#if defined(MQTT_TASK)
-    MutexUnlock(&c->mutex);
-#elif defined(__MQTT_LITE_OS__)
-    if(c->mutex) atiny_mutex_unlock(c->mutex);
-#endif
     return rc;
 }
 
