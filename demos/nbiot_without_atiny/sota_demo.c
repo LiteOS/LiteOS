@@ -32,80 +32,77 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "nb_iot/los_nb_api.h"
-#include "at_frame/at_api.h"
-//#include "atiny_socket.h"
-#include "at_device/bc95.h"
+#ifdef WITH_SOTA
+#include <stdio.h>
+#include "osdepends/atiny_osdep.h"
+#include "sota/sota.h"
+#include "../../components/ota/sota/sota_hal.h"
+#include "ota_port.h"
+#include "board.h"
+#include "hal_spi_flash.h"
+#include "at_frame/at_main.h"
 
-int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
+extern int nb_send_str(const char* buf, int len);
+#define DEVICE_VER "V0.0"
+int read_ver(char* buf, uint32_t len)
+{
+    memcpy(buf,DEVICE_VER,strlen(DEVICE_VER));
+    return 0;
+}
+
+int notify_new_ver(char* buf, uint32_t len)
+{
+    return 0;
+}
+int set_ver(const char* buf, uint32_t len)
+{
+    return 0;
+}
+
+int32_t sota_cmd_match(const char *buf, char* featurestr,int len)
+{
+    
+    if(strstr(buf,featurestr) != NULL)
+        return 0;
+    else
+        return -1;
+}
+
+int32_t sota_callback(void *arg, int8_t* buf, int32_t buflen)
 {
     int ret;
-    int timecnt = 0;
-    //if(port == NULL)
-        //return -1;
-    at.init();
-
-    nb_reboot();
-    LOS_TaskDelay(2000);
-    if(psk != NULL)//encryption v1.9
+    ret = sota_process_main(arg, buf, buflen);
+    if (ret == SOTA_NEEDREBOOT)
     {
-        if(psk->setpsk)
-            nb_send_psk(psk->pskid, psk->psk);
-        else
-            nb_set_no_encrypt();
+        atiny_reboot();
     }
+    return 0;
+}
 
-    while(1)
+void nb_sota_demo(void)
+{
+    sota_opt_t flash_op =
     {
-        ret = nb_hw_detect();
-        printf("call nb_hw_detect,ret is %d\n",ret);
-        if(ret == AT_OK)
-            break;
-        //LOS_TaskDelay(1000);
-    }
-    //nb_get_auto_connect();
-    //nb_connect(NULL, NULL, NULL);
+    .get_ver = read_ver,
+    .set_ver = set_ver,
+    .sota_send = nb_send_str,
+    .sota_malloc = at_malloc,
+    .sota_free = at_free,
+    };
+    hal_get_ota_opt(&flash_op.ota_info);
+    flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    flash_op.ota_info.key.rsa_E = "10001";
+    flash_op.frame_buf_len = 1224;
+    flash_op.run_mode = APP_MODE;
+    hal_init_ota();
 
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		//LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		nb_query_ip();
-	}
-	ret = nb_set_cdpserver((char *)host, (char *)port);
-    return ret;
+    sota_init(&flash_op);
+    (void)at.oob_register("+NNMI:", strlen("+NNMI:"), sota_callback,sota_cmd_match);
 }
 
-int los_nb_report(const char* buf, int len)
-{
-    if(buf == NULL || len <= 0)
-        return -1;
-    return nb_send_payload(buf, len);
-}
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
-{
-    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
-        return -1;
-    return at.oob_register(featurestr,cmdlen, callback,cmd_match);
-}
-
-int los_nb_deinit(void)
-{
-    nb_reboot();
-	at.deinit();
-	return 0;
-}
 
 #endif
+
+ 
+

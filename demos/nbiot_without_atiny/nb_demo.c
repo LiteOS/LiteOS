@@ -31,81 +31,55 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+ 
 
-#if defined(WITH_AT_FRAMEWORK)
+#include <stdio.h>
 #include "nb_iot/los_nb_api.h"
-#include "at_frame/at_api.h"
-//#include "atiny_socket.h"
-#include "at_device/bc95.h"
 
-int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
+#define TELECON_IP "180.101.147.115"
+#define OCEAN_IP "139.159.140.34"
+#define SECURITY_PORT "5684"
+#define NON_SECURITY_PORT "5683"
+#define DEV_PSKID = "868744031131026"
+#define DEV_PSK = "d1e1be0c05ac5b8c78ce196412f0cdb0"
+
+void demo_nbiot_only(void)
 {
-    int ret;
-    int timecnt = 0;
-    //if(port == NULL)
-        //return -1;
-    at.init();
-
-    nb_reboot();
-    LOS_TaskDelay(2000);
-    if(psk != NULL)//encryption v1.9
-    {
-        if(psk->setpsk)
-            nb_send_psk(psk->pskid, psk->psk);
-        else
-            nb_set_no_encrypt();
-    }
-
-    while(1)
-    {
-        ret = nb_hw_detect();
-        printf("call nb_hw_detect,ret is %d\n",ret);
-        if(ret == AT_OK)
-            break;
-        //LOS_TaskDelay(1000);
-    }
-    //nb_get_auto_connect();
-    //nb_connect(NULL, NULL, NULL);
-
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		//LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		nb_query_ip();
-	}
-	ret = nb_set_cdpserver((char *)host, (char *)port);
-    return ret;
-}
-
-int los_nb_report(const char* buf, int len)
-{
-    if(buf == NULL || len <= 0)
-        return -1;
-    return nb_send_payload(buf, len);
-}
-
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
-{
-    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
-        return -1;
-    return at.oob_register(featurestr,cmdlen, callback,cmd_match);
-}
-
-int los_nb_deinit(void)
-{
-    nb_reboot();
-	at.deinit();
-	return 0;
-}
-
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95_NO_ATINY)
+    #define AT_DTLS 0
+    #if AT_DTLS
+    sec_param_s sec;
+    sec.setpsk = 1;
+    sec.pskid = DEV_PSKID;
+    sec.psk = DEV_PSK;
+    #endif
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP1: Init NB Module( NB Init )");
+    printf("\r\n=====================================================\r\n");
+#if AT_DTLS
+    los_nb_init((const int8_t *)TELECON_IP, (const int8_t *)SECURITY_PORT, &sec);
+#else
+    los_nb_init((const int8_t *)TELECON_IP, (const int8_t *)NON_SECURITY_PORT, NULL);
 #endif
+
+#if defined(WITH_SOTA)
+    extern void nb_sota_demo(void);
+    nb_sota_demo();
+#endif
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP2: Register Command( NB Notify )");
+    printf("\r\n=====================================================\r\n");
+
+    printf("\r\n=====================================================");
+    printf("\r\nSTEP3: Report Data to Server( NB Report )");
+    printf("\r\n=====================================================\r\n");
+    los_nb_report("22", 2);
+    los_nb_report("23", 1);
+
+#else
+    printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95_NO_ATINY\n");
+#endif
+
+}
+
+
