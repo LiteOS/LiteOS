@@ -1192,9 +1192,9 @@ int unlink (const char *path)
     return los_unlink (path);
 }
 
-int rename (const char *old, const char *new)
+int rename (const char *oldpath, const char *newpath)
 {
-    return los_rename (old, new);
+    return los_rename (oldpath, newpath);
 }
 
 int ioctl (int fd, unsigned long func, ...)

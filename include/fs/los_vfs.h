@@ -160,7 +160,7 @@ extern ssize_t  write (int fd, const void *buff, size_t bytes);
 extern off_t    lseek (int fd, off_t off, int whence);
 extern int      stat (const char *path, struct stat *stat);
 extern int      unlink (const char *path);
-extern int      rename (const char *old, const char *new);
+extern int      rename (const char *oldpath, const char *newpath);
 extern int      ioctl (int fd, unsigned long func, ...);
 extern int      fsync (int fd);
 extern struct dir *opendir (const char *path);

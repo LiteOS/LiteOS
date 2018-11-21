@@ -11,6 +11,16 @@
 #include <stddef.h>
 #include "fs/los_vfs.h"
 
+
+// Physical offset(in bytes) in spi flash used for spiffs
+// Must be on 64k boundary
+#define SPIFFS_PHYS_ADDR    0
+
+// Physical size(in bytes) of the spi flash used for spiffs
+// Must be on 64k boundary
+#define SPIFFS_PHYS_SIZE    0x100000
+
+
 // compile time switches
 #define SPIFFS_USE_MAGIC            1
 #define SPIFFS_USE_MAGIC_LENGTH     1

@@ -45,7 +45,6 @@
 
 #include <hal_spi_flash.h>
 
-#define SPIFFS_PHYS_SIZE    1024 * 1024
 #define PHYS_ERASE_SIZE     64 * 1024
 #define LOG_BLOCK_SIZE      64 * 1024
 #define LOG_PAGE_SIZE       256
@@ -76,12 +75,12 @@ int stm32f4xx_spiffs_init (int need_erase)
     hal_spi_flash_config();
     if (need_erase)
     {
-        (void)hal_spi_flash_erase(0, SPIFFS_PHYS_SIZE);
+        (void)hal_spi_flash_erase(SPIFFS_PHYS_ADDR, SPIFFS_PHYS_SIZE);
     }
 
     (void)spiffs_init ();
 
-    if (spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
+    if (spiffs_mount ("/spiffs/", SPIFFS_PHYS_ADDR, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
                       LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
                       stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
     {
