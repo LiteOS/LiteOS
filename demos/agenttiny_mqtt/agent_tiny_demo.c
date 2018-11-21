@@ -66,7 +66,6 @@ unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
 
 
 static mqtt_client_s *g_phandle = NULL;
-static UINT32 g_TskHandle;
 static demo_param_s g_demo_param;
 
 
@@ -80,8 +79,15 @@ void app_data_report(void)
 
     while(1)
     {
-       ret = atiny_mqtt_data_send(g_phandle, msg, strlen(msg), MQTT_QOS_ONLY_ONCE);
-        ATINY_LOG(LOG_DEBUG, "report ret:%d", ret);
+        if(g_phandle)
+        {
+            ret = atiny_mqtt_data_send(g_phandle, msg, strlen(msg), MQTT_QOS_ONLY_ONCE);
+            ATINY_LOG(LOG_INFO, "report ret:%d", ret);
+        }
+        else
+        {
+            ATINY_LOG(LOG_ERR, "g_phandle null");
+        }
         (void)LOS_TaskDelay(10 * 1000);
     }
 }
@@ -241,25 +247,6 @@ void agent_tiny_entry(void)
 #endif
     (void)atiny_mqtt_bind(&device_info, g_phandle);
     return ;
-}
-
-
-UINT32 creat_agenttiny_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-	task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)agent_tiny_entry;
-    task_init_param.uwStackSize = 0x2000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
 }
 
 void agent_tiny_demo_init(const demo_param_s *param)
