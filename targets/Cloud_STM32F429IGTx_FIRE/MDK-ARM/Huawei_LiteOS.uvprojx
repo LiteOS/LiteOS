@@ -335,7 +335,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1294,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,USE_NB_NEUL95</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,USE_NB_NEUL95_NO_ATINY,WITH_SOTA</Define>
               <Undefine></Undefine>
               <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google;..\..\..\components/connectivity/agent_tiny/atiny_lwm2m</IncludePath>
             </VariousControls>
@@ -450,6 +450,11 @@
               <FileName>spiffs_hal.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\spiffs_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_adapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\flash_adapter.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1207,11 +1212,6 @@
               <FilePath>..\..\..\components\connectivity\lwm2m\core\uri.c</FilePath>
             </File>
             <File>
-              <FileName>utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\lwm2m\core\utils.c</FilePath>
-            </File>
-            <File>
               <FileName>commandline.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</FilePath>
@@ -1220,6 +1220,11 @@
               <FileName>er-coap-13.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</FilePath>
+            </File>
+            <File>
+              <FileName>lwm2m_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\lwm2m\core\lwm2m_utils.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1335,6 +1340,16 @@
               <FileName>agent_tiny_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\demos\agenttiny_lwm2m\agent_tiny_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>nb_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\nbiot_without_atiny\nb_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>sota_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\nbiot_without_atiny\sota_demo.c</FilePath>
             </File>
           </Files>
         </Group>

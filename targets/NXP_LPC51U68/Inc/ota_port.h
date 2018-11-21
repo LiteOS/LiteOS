@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,80 +32,28 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK)
-#include "nb_iot/los_nb_api.h"
-#include "at_frame/at_api.h"
-//#include "atiny_socket.h"
-#include "at_device/bc95.h"
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
-{
-    int ret;
-    int timecnt = 0;
-    //if(port == NULL)
-        //return -1;
-    at.init();
+#ifndef OTA_PORT_H
+#define OTA_PORT_H
+#include "ota/package.h"
+#include "ota/ota_api.h"
 
-    nb_reboot();
-    LOS_TaskDelay(2000);
-    if(psk != NULL)//encryption v1.9
-    {
-        if(psk->setpsk)
-            nb_send_psk(psk->pskid, psk->psk);
-        else
-            nb_set_no_encrypt();
-    }
 
-    while(1)
-    {
-        ret = nb_hw_detect();
-        printf("call nb_hw_detect,ret is %d\n",ret);
-        if(ret == AT_OK)
-            break;
-        //LOS_TaskDelay(1000);
-    }
-    //nb_get_auto_connect();
-    //nb_connect(NULL, NULL, NULL);
 
-	while(timecnt < 120)
-	{
-		ret = nb_get_netstat();
-		nb_check_csq();
-		if(ret != AT_FAILED)
-		{
-			ret = nb_query_ip();
-			break;
-		}
-		//LOS_TaskDelay(1000);
-		timecnt++;
-	}
-	if(ret != AT_FAILED)
-	{
-		nb_query_ip();
-	}
-	ret = nb_set_cdpserver((char *)host, (char *)port);
-    return ret;
-}
-
-int los_nb_report(const char* buf, int len)
-{
-    if(buf == NULL || len <= 0)
-        return -1;
-    return nb_send_payload(buf, len);
-}
-
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match)
-{
-    if(featurestr == NULL ||cmdlen <= 0 || cmdlen >= OOB_CMD_LEN - 1)
-        return -1;
-    return at.oob_register(featurestr,cmdlen, callback,cmd_match);
-}
-
-int los_nb_deinit(void)
-{
-    nb_reboot();
-	at.deinit();
-	return 0;
-}
-
+#if defined(__cplusplus)
+extern "C" {
 #endif
+
+void hal_init_ota(void);
+void hal_get_ota_opt(ota_opt_s *opt);
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif //OTA_PORT_H
+
+
