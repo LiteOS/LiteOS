@@ -32,34 +32,60 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _HMAC_H_
-#define _HMAC_H_
-#include "mbedtls/md.h"
+#ifndef FLASH_MANAGER_H
+#define FLASH_MANAGER_H
+
+#include "atiny_mqtt/mqtt_client.h"
 
 #ifdef __cplusplus
-#if __cplusplus
 extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
 
-typedef struct _mbedtls_hmac_t
+#define STRING_MAX_LEN 256
+
+
+#ifndef array_size
+#define array_size(a) (sizeof(a)/sizeof(*(a)))
+#endif
+
+#define TRY_FREE_MEM(mem) \
+do\
+{\
+    if(NULL != (mem))\
+    {\
+       atiny_free(mem);\
+       (mem) = NULL;\
+    }\
+}while(0)
+
+
+enum
 {
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
+    PRODUCT_IDX,
+    NODEID_IDX,
+    DEVICEID_IDX,
+    PASSWORD_IDX,
+    MAX_DATA_ITEM
+};
 
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+
+typedef struct
+{
+        char *items[MAX_DATA_ITEM];
+}flash_info_s;
+
+
+/*flash_info info is malloc, should destroy if not used*/
+void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len));
+int flash_manager_read(flash_info_s *flash_info);
+int flash_manager_write(const flash_info_s *flash_info);
+void flash_manager_destroy_flash_info(flash_info_s *flash_info);
 
 
 #ifdef __cplusplus
-#if __cplusplus
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif
 
-#endif /* _HMAC_H_ */
+#endif /* FLASH_MANAGER_H */
+
+

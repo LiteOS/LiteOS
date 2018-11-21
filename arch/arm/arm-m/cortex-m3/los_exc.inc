@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,35 +31,23 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef _LOS_EXC_INC
+#define _LOS_EXC_INC
 
-#ifndef _HMAC_H_
-#define _HMAC_H_
-#include "mbedtls/md.h"
+#include "los_exc.ph"
+#include "los_sys.ph"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
-typedef struct _mbedtls_hmac_t
-{
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
-
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-#endif /* _HMAC_H_ */
+#endif /* _LOS_EXC_INC */

@@ -32,24 +32,11 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "ota/package.h"
-#include "package_head.h"
-#include "package_writer.h"
+#include "ota/package.h" 
+#include "package_device.h"
 #if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
 #include "dtls_interface.h"
 #endif
-
-typedef struct
-{
-    pack_storage_device_api_s interface;
-    pack_hardware_s hardware;
-    ota_opt_s ota_opt;
-    pack_head_s head;
-    pack_writer_s writer;
-    uint32_t total_len;
-    ota_flash_type_e type;
-    int32_t init_flag;
-} pack_storage_device_s;
 
 static inline pack_storage_device_s *pack_storage_get_storage_device(pack_storage_device_api_s *this)
 {

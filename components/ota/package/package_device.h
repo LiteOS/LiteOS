@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,16 +32,38 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __MQTT_CONFIG_H__
-#define __MQTT_CONFIG_H__
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#define ATINY_INTEREST_URI_MAX_NUM (5)
-#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
-#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
-#define MQTT_KEEPALIVE_INTERVAL_S (100)
-#define MQTT_SENDBUF_SIZE (1024)
-#define MQTT_READBUF_SIZE (1024)
-#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
+#ifndef PACKAGE_DEVICE_H
+#define PACKAGE_DEVICE_H
 
-#endif /* __MQTT_CONFIG_H__ */
+#include "ota/package.h"
+#include "package_checksum.h"
+#include "package_head.h"
+#include "package_writer.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+typedef struct
+{
+    pack_storage_device_api_s interface;
+    pack_hardware_s hardware;
+    ota_opt_s ota_opt;
+    pack_head_s head;
+    pack_writer_s writer;
+    uint32_t total_len;
+    ota_flash_type_e type;
+    int32_t init_flag;
+} pack_storage_device_s;
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif //PACKAGE_DEVICE_H
+
 

@@ -237,6 +237,9 @@ static inline DLLExport int MQTTIsConnected(MQTTClient* client)
 DLLExport int MQTTStartTask(MQTTClient* client);
 #endif
 
+int MQTTPublishWithoutMutex(MQTTClient *c, const char *topicName, MQTTMessage *message);
+
+
 #if defined(__cplusplus)
      }
 #endif

@@ -32,34 +32,60 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _HMAC_H_
-#define _HMAC_H_
-#include "mbedtls/md.h"
+#ifndef _ATINY_CONTEXT_H
+#define _ATINY_CONTEXT_H
+#include "liblwm2m.h"
+#include "atiny_lwm2m/agenttiny.h"
+#include "object_comm.h"
+
+#define SERVER_URI_MAX_LEN      (64)
+#define MAX_PACKET_SIZE         (1024)
+#define SERVER_ID               (123)
+#define BIND_TIMEOUT            (10)
+
 
 #ifdef __cplusplus
-#if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-#endif /* __cplusplus */
 
-typedef struct _mbedtls_hmac_t
+
+/**
+
+ *@ingroup handle_data_t
+
+ *Structure of agentiny hanle.
+
+ */
+ 
+ enum
 {
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
-
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+    OBJ_SECURITY_INDEX = 0,
+    OBJ_SERVER_INDEX,
+    OBJ_ACCESS_CONTROL_INDEX,
+    OBJ_DEVICE_INDEX,
+    OBJ_CONNECT_INDEX,
+    OBJ_FIRMWARE_INDEX,
+    OBJ_LOCATION_INDEX,
+    OBJ_APP_INDEX,
+    OBJ_MAX_NUM,
+};
+ 
+typedef struct
+{
+    lwm2m_context_t  *lwm2m_context;
+    atiny_param_t     atiny_params;
+    client_data_t     client_data;
+    lwm2m_object_t   *obj_array[OBJ_MAX_NUM];
+    int atiny_quit;
+    int reconnect_flag;
+    void *quit_sem;
+    int reboot_flag;
+    uint8_t *recv_buffer;
+} handle_data_t;
 
 
 #ifdef __cplusplus
-#if __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* __cplusplus */
 
-#endif /* _HMAC_H_ */
+#endif /* _ATINY_INNER_H */
