@@ -30,11 +30,15 @@ WITH_LWIP  := yes
 
 #######################################
 # use usart AT command
+# (NB_NEUL95_NO_ATINY: nb without agenttiny)
+# (NB_NEUL95: nb with agenttiny)
 #######################################
 WITH_AT_FRAMEWORK := no
 ifeq ($(WITH_AT_FRAMEWORK), yes)
-#ESP8266   # SIM900A  # NB_NEUL95  # ALL
+#ESP8266   # SIM900A  # NB_NEUL95  # NB_NEUL95_NO_ATINY
 	NETWORK_TYPE := NB_NEUL95
+#ONLYONE  #ALL
+	AT_COMPILE_ALL := ALL
 endif
 
 #######################################
