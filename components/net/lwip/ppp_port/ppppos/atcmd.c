@@ -297,7 +297,7 @@ static bool_t checkmm(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-		argc = AtCmd(devname,"AT+CGMM",atrcvbuf,CN_AT_LEN,6,argv);
+        argc = AtCmd(devname,"AT+CGMM",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
