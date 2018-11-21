@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 #include <string.h>
 #include <ctype.h>
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#if defined(WITH_AT_FRAMEWORK)
 #include "at_device/bc95.h"
 #include "at_hal.h"
 #define NB_STAT_LOCALPORT 56
@@ -53,20 +53,10 @@
 
 
 extern at_task at;
-at_adaptor_api at_interface;
+at_adaptor_api bc95_interface;
 extern char rbuf[AT_DATA_LEN];
 extern char wbuf[AT_DATA_LEN];
-at_config at_user_conf = {
-    .name = AT_MODU_NAME,
-    .usart_port = AT_USART_PORT,
-    .buardrate = AT_BUARDRATE,
-    .linkid_num = AT_MAX_LINK_NUM,
-    .user_buf_len = MAX_AT_USERDATA_LEN,
-    .cmd_begin = AT_CMD_BEGIN,
-    .line_end = AT_LINE_END,
-    .mux_mode = 1, //support multi connection mode
-    .timeout = AT_CMD_TIMEOUT,   //  ms
-};
+
 
 typedef struct
 {
@@ -724,6 +714,19 @@ int32_t nb_recv_cb(int32_t id)
 
 static int32_t nb_int(void)
 {
+    at_config at_user_conf = {
+        .name = AT_MODU_NAME,
+        .usart_port = AT_USART_PORT,
+        .buardrate = AT_BUARDRATE,
+        .linkid_num = AT_MAX_LINK_NUM,
+        .user_buf_len = MAX_AT_USERDATA_LEN,
+        .cmd_begin = AT_CMD_BEGIN,
+        .line_end = AT_LINE_END,
+        .mux_mode = 1, //support multi connection mode
+        .timeout = AT_CMD_TIMEOUT,   //  ms
+    };
+    
+    at_set_config(&at_user_conf);
     memset(&sockinfo, 0, sizeof(sockinfo));
     memset(&g_data_ind_info, 0, sizeof(g_data_ind_info));
     at_reg_step_callback(&at, nb_step);
@@ -744,7 +747,7 @@ int32_t nb_deinit(void)
     return nb_reboot();
 }
 
-at_adaptor_api at_interface =
+at_adaptor_api bc95_interface =
 {
     .init = nb_int,
 
