@@ -226,16 +226,16 @@ typedef struct
 } tagImsi;
 
 tagImsi gAtcimi[]={\
-		{"46000","CMNET"},\
-		{"46002","CMNET"},\
-		{"46004","CMNET"},\
-		{"46007","CMNET"},\
-		{"46001","3gnet"},\
-		{"46006","3gnet"},\
-		{"46009","3gnet"},\
-		{"46003","ctnet"},\
-		{"46005","ctnet"},\
-		{"46011","ctlte"},\
+    {"46000","CMNET"},\
+    {"46002","CMNET"},\
+    {"46004","CMNET"},\
+    {"46007","CMNET"},\
+    {"46001","3gnet"},\
+    {"46006","3gnet"},\
+    {"46009","3gnet"},\
+    {"46003","ctnet"},\
+    {"46005","ctnet"},\
+    {"46011","ctlte"},\
 //		{"46020","cmnet"},  //not support the tietong
 };
 #define CN_CIMI_SIZE  (sizeof(gAtcimi)/sizeof(tagImsi))
