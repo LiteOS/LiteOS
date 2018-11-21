@@ -46,6 +46,10 @@
 #include "board.h"
 #include "hal_spi_flash.h"
 #endif
+#ifdef WITH_MQTT
+#include "flash_adaptor.h"
+#include "agenttiny_mqtt/agent_tiny_demo.h"
+#endif
 
 
 static UINT32 g_atiny_tskHandle;
@@ -195,6 +199,18 @@ void demo_agenttiny(void)
     #endif   
 #else
 #endif
+
+#ifdef WITH_MQTT
+    flash_adaptor_init();
+    {
+
+        demo_param_s demo_param = {.init = NULL,
+                                   .write_flash_info = flash_adaptor_write_mqtt_info,
+                                   .read_flash_info = flash_adaptor_read_mqtt_info};
+        agent_tiny_demo_init(&demo_param);
+    }
+#endif
+
 
 #if !defined(USE_NB_NEUL95_NO_ATINY)
 #ifdef CONFIG_FEATURE_FOTA
