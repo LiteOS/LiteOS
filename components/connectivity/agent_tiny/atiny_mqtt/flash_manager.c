@@ -36,7 +36,7 @@
 #include "log/atiny_log.h"
 
 
-#define MAX_FLASH_INFO (2 * 1024)
+#define MAX_FLASH_INFO ((STRING_MAX_LEN + 1) * (MAX_DATA_ITEM))
 #define FLASH_MAGIC_NUM 0x57381232
 
 #define MAGIC_NUM_POS 0
