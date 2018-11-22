@@ -210,7 +210,7 @@ AGENT_DEMO_MQTT_SRC = \
 CJSON_SRC = \
         ${wildcard $(TOP_DIR)/components/lib/cJSON/cJSON.c}
         C_SOURCES += $(CJSON_SRC)
-        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adapter.c
+        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
 endif
 
 ifeq ($(WITH_FILESYSTEM), yes)
@@ -331,7 +331,7 @@ OTA_SRC = \
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adapter.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
 endif
 
 
