@@ -2500,6 +2500,9 @@
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\list.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\lwm2m_utils.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\management.c</name>
         </file>
         <file>
@@ -2522,9 +2525,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\uri.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\components\connectivity\lwm2m\core\utils.c</name>
         </file>
     </group>
     <group>
@@ -2788,6 +2788,9 @@
             <name>$PROJ_DIR$\..\Src\eth.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Src\flash_adapter.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Src\main.c</name>
         </file>
         <file>
@@ -2801,6 +2804,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Src\usart.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Src\user_task.c</name>
         </file>
     </group>
     <group>
