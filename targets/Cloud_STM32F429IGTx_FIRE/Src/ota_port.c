@@ -40,6 +40,8 @@
 #include <stdlib.h>
 #include <board.h>
 #include "flash_adaptor.h"
+#include "hal_spi_flash.h"
+
 
 static const uint32_t g_flash_base_addrs[] = {OTA_IMAGE_DOWNLOAD_ADDR, OTA_IMAGE_DOWNLOAD_ADDR, OTA_FLAG_ADDR1};
 static const uint32_t g_flash_max_size[] = {OTA_IMAGE_DOWNLOAD_SIZE, OTA_IMAGE_DOWNLOAD_SIZE, FLASH_BLOCK_SIZE};
