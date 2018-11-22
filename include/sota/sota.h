@@ -57,7 +57,7 @@ typedef struct
     int (*get_ver)(char* buf, uint32_t len);
     int (*set_ver)(const char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
-    void* (*sota_malloc)(uint32_t size);
+    void* (*sota_malloc)(size_t size);
     void (*sota_free)(void *ptr);
     uint32_t frame_buf_len;
     uint8_t  run_mode;
