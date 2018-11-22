@@ -35,13 +35,18 @@
 #ifndef __AGENT_TINY_DEMO_H_
 #define __AGENT_TINY_DEMO_H_
 
-#include "los_base.h"
-#include "los_task.ph"
-#include "los_typedef.h"
-#include "los_sys.h"
-#include "atiny_mqtt/mqtt_client.h"
-#include "osdepends/atiny_osdep.h"
+#include <stdbool.h>
+#include <stdint.h>
 
+typedef struct
+{
+    void (*init)(void);
+    int (*write_flash_info)(const void *buffer, uint32_t len);
+    int (*read_flash_info)(void *buffer, uint32_t len);
+}demo_param_s;
+
+void agent_tiny_demo_init(const demo_param_s *param);
 void agent_tiny_entry(void);
 
-#endif 
+
+#endif

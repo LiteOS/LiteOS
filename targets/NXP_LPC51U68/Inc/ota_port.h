@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,16 +32,28 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __MQTT_CONFIG_H__
-#define __MQTT_CONFIG_H__
+/**@defgroup atiny_adapter Agenttiny Adapter
+ * @ingroup agent
+ */
 
-#define ATINY_INTEREST_URI_MAX_NUM (5)
-#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
-#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
-#define MQTT_KEEPALIVE_INTERVAL_S (100)
-#define MQTT_SENDBUF_SIZE (1024)
-#define MQTT_READBUF_SIZE (1024)
-#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
+#ifndef OTA_PORT_H
+#define OTA_PORT_H
+#include "ota/package.h"
+#include "ota/ota_api.h"
 
-#endif /* __MQTT_CONFIG_H__ */
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+void hal_init_ota(void);
+void hal_get_ota_opt(ota_opt_s *opt);
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif //OTA_PORT_H
+
 
