@@ -83,7 +83,7 @@ static void *atiny_calloc(size_t n, size_t size)
     return p;
 }
 
-mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type)
+mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 {
     int ret;
     mbedtls_ssl_context *ssl;
@@ -123,10 +123,22 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
 
     MBEDTLS_LOG("setting up the DTLS structure");
 
-    if ((ret = mbedtls_ssl_config_defaults(conf,
-                                           plat_type,
-                                           MBEDTLS_SSL_TRANSPORT_DATAGRAM,
-                                           MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        ret = mbedtls_ssl_config_defaults(conf,
+                                          plat_type,
+                                          MBEDTLS_SSL_TRANSPORT_DATAGRAM,
+                                          MBEDTLS_SSL_PRESET_DEFAULT);
+    }
+    else
+    {
+        ret = mbedtls_ssl_config_defaults(conf,
+                                          plat_type,
+                                          MBEDTLS_SSL_TRANSPORT_STREAM,
+                                          MBEDTLS_SSL_PRESET_DEFAULT);
+    }
+
+    if (ret != 0)
     {
         MBEDTLS_LOG("mbedtls_ssl_config_defaults failed: -0x%x", -ret);
         goto exit_fail;
@@ -135,19 +147,34 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
     mbedtls_ssl_conf_authmode(conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, ctr_drbg);
 
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
+    {
+        mbedtls_ssl_conf_read_timeout(conf, 1);
+    }
+
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 
-    if ((ret = mbedtls_ssl_conf_psk(conf, (const unsigned char *)psk, psk_len,
-                                    (const unsigned char *) psk_identity,
-                                    strlen(psk_identity))) != 0)
+    if (info->psk_or_cert == VERIFY_WITH_PSK)
     {
-        MBEDTLS_LOG("mbedtls_ssl_conf_psk failed: -0x%x", -ret);
-        goto exit_fail;
+        if ((ret = mbedtls_ssl_conf_psk(conf,
+                                        (const unsigned char *)info->v.p.psk,
+                                        info->v.p.psk_len,
+                                        (const unsigned char *)info->v.p.psk_identity,
+                                        strlen(info->v.p.psk_identity))) != 0)
+        {
+            MBEDTLS_LOG("mbedtls_ssl_conf_psk failed: -0x%x", -ret);
+            goto exit_fail;
+        }
     }
 
 #endif
-    mbedtls_ssl_conf_dtls_cookies( conf, NULL, NULL,NULL );
 
+#ifndef WITH_MQTT
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        mbedtls_ssl_conf_dtls_cookies( conf, NULL, NULL,NULL );
+    }
+#endif
     if ((ret = mbedtls_ssl_setup(ssl, conf)) != 0)
     {
         MBEDTLS_LOG("mbedtls_ssl_setup failed: -0x%x", -ret);
@@ -164,10 +191,12 @@ mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *ps
 
 #endif
 
-    mbedtls_ssl_set_timer_cb( ssl, timer, mbedtls_timing_set_delay,
-                                            mbedtls_timing_get_delay );
-
-    MBEDTLS_LOG("set DTLS structure succeed");
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
+                                 mbedtls_timing_get_delay);
+    }
+    MBEDTLS_LOG("set SSL structure succeed");
 
     return ssl;
 
@@ -223,12 +252,12 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
         goto exit_fail;
     }
 
-    MBEDTLS_LOG("connecting to udp");
+    MBEDTLS_LOG("connecting to server");
 
 
     if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server)
     {
-        server_fd = mbedtls_net_connect(info->u.c.host, info->u.c.port, MBEDTLS_NET_PROTO_UDP);
+        server_fd = mbedtls_net_connect(info->u.c.host, info->u.c.port, info->udp_or_tcp);
     }
     else
     {
@@ -237,7 +266,7 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 
     if (server_fd == NULL)
     {
-		MBEDTLS_LOG("connect failed! mode %d", info->client_or_server);
+        MBEDTLS_LOG("connect failed! mode %d", info->client_or_server);
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
         goto exit_fail;
     }
@@ -245,14 +274,15 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
     mbedtls_ssl_set_bio(ssl, server_fd,
                         mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
-    mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
-                             mbedtls_timing_get_delay);
-
-    MBEDTLS_LOG("Performing the SSL/TLS handshake");
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
+                                 mbedtls_timing_get_delay);
+    }
+    MBEDTLS_LOG("performing the SSL/TLS handshake");
 
     max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server) ?
-                (dtls_gettime() + info->u.s.timeout) : 10);
-
+                (dtls_gettime() + info->u.s.timeout) : 50);
 
     do
     {
@@ -272,10 +302,12 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
         {
             info->step_notify(info->param);
         }
-
     }
     while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-            ret == MBEDTLS_ERR_SSL_WANT_WRITE) && change_value < max_value);
+            ret == MBEDTLS_ERR_SSL_WANT_WRITE ||
+            (ret == MBEDTLS_ERR_SSL_TIMEOUT &&
+            info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)) &&
+            (change_value < max_value));
 
     if (info->finish_notify)
     {
@@ -288,7 +320,8 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
         goto exit_fail;
     }
 
-    MBEDTLS_LOG("Handshake succeed");
+    MBEDTLS_LOG("handshake succeed");
+
     return 0;
 
 exit_fail:

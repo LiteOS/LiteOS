@@ -284,7 +284,6 @@ int mbedtls_net_set_nonblock( mbedtls_net_context *ctx )
     return( fcntl( ctx->fd, F_SETFL, fcntl( ctx->fd, F_GETFL, 0) | O_NONBLOCK ) );
 #endif
 }
-#endif
 
 static void my_debug( void *ctx, int level,
                       const char *file, int line,
@@ -300,148 +299,51 @@ static void my_debug( void *ctx, int level,
     mbedtls_fprintf( (FILE *) ctx, "%s:%04d: |%d| %s", basename, line, level, str );
     fflush(  (FILE *) ctx  );
 }
+#endif
 
+#define PORT_BUF_LEN 16
 static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 {
     int ret;
-    void *ctx = NULL;
     mbedtls_ssl_context *ssl;
-    mbedtls_ssl_config *conf;
-    mbedtls_entropy_context *entropy;
-    mbedtls_ctr_drbg_context *ctr_drbg;
-    char port_str[16] = {0};
-    const char *pers = "myhint";
-    mqtt_security_info_s *info;
+    dtls_shakehand_info_s shakehand_info;
+    dtls_establish_info_s establish_info;
+    mqtt_security_info_s *security_info;
+    char port_buf[PORT_BUF_LEN];
 
-    if(NULL == n || NULL == addr)
+    security_info = n->get_security_info();
+
+    establish_info.psk_or_cert = VERIFY_WITH_PSK;
+    establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
+    establish_info.v.p.psk = (char *)security_info->u.psk.psk;
+    establish_info.v.p.psk_len = security_info->u.psk.psk_len;
+    establish_info.v.p.psk_identity = (char *)security_info->u.psk.psk_id;
+
+    ssl = (void *)dtls_ssl_new(&establish_info, MBEDTLS_SSL_IS_CLIENT);
+    if (NULL == ssl)
     {
-        ATINY_LOG(LOG_FATAL, "invalid params.");
-        return -1;
-    }
-
-    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
-    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
-    (void)mbedtls_platform_set_printf(atiny_printf);
-
-    ssl       = mbedtls_calloc(1, sizeof(mbedtls_ssl_context));
-    conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
-    entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
-    ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
-
-    if (NULL == ssl || NULL == conf || entropy == NULL ||
-            NULL == ctr_drbg)
-    {
+        ATINY_LOG(LOG_ERR, "create ssl context failed");
         goto exit;
     }
 
-    mbedtls_ssl_init(ssl);
-    mbedtls_ssl_config_init(conf);
-    mbedtls_ctr_drbg_init(ctr_drbg);
-    mbedtls_entropy_init(entropy);
+    memset(&shakehand_info, 0, sizeof(dtls_shakehand_info_s));
+    shakehand_info.client_or_server = MBEDTLS_SSL_IS_CLIENT;
+    shakehand_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
+    shakehand_info.u.c.host = addr;
+    atiny_snprintf(port_buf, PORT_BUF_LEN, "%d", port);
+    shakehand_info.u.c.port = port_buf;
 
-    if( ( ret = mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func, entropy,
-                                      (const unsigned char *) pers,
-                                      strlen( pers ) ) ) != 0 )
+    ret = dtls_shakehand(ssl, &shakehand_info);
+    if (ret != 0)
     {
+        ATINY_LOG(LOG_ERR, "ssl shake hand failed");
         goto exit;
     }
 
-    (void)atiny_snprintf(port_str, sizeof(port_str) - 1, "%d", port);
-    ctx = atiny_net_connect(addr, port_str, ATINY_PROTO_TCP);
-    if( ctx == NULL )
-    {
-        ATINY_LOG(LOG_ERR, "atiny_net_connect failed.");
-        goto exit;
-    }
-    ATINY_LOG(LOG_DEBUG, "atiny_net_connect success");
-    n->ctx = (void *)ssl;
-
-    //TODO: use select to timeout to send, the same in atiny_socket
-/*
-    ret = mbedtls_net_set_block( ctx );
-    if( ret != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! net_set_(non)block() returned -0x%x", -ret );
-        goto exit;
-    }*/
-    if( ( ret = mbedtls_ssl_config_defaults(conf,
-                                            MBEDTLS_SSL_IS_CLIENT,
-                                            MBEDTLS_SSL_TRANSPORT_STREAM,
-                                            MBEDTLS_SSL_PRESET_DEFAULT ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_config_defaults returned -0x%x", -ret );
-        goto exit;
-    }
-
-    mbedtls_ssl_conf_rng( conf, mbedtls_ctr_drbg_random, ctr_drbg );
-    mbedtls_ssl_conf_dbg( conf, my_debug, stdout );
-
-    mbedtls_ssl_conf_read_timeout( conf, 1 );
-
-    info = n->get_security_info();
-
-    if( ( ret = mbedtls_ssl_conf_psk( conf, (const unsigned char *)(info->u.psk.psk), info->u.psk.psk_len,
-                                      (const unsigned char *)(info->u.psk.psk_id),
-                                      info->u.psk.psk_id_len ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_conf_psk returned %d", ret );
-        goto exit;
-    }
-
-    if( ( ret = mbedtls_ssl_setup( ssl, conf ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_setup returned -0x%x", -ret );
-        goto exit;
-    }
-
-    mbedtls_ssl_set_bio( ssl, ctx, mbedtls_net_send, mbedtls_net_recv,
-                         mbedtls_net_recv_timeout);
-
-    while( ( ret = mbedtls_ssl_handshake( ssl ) ) != 0 )
-    {
-        if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE
-                && ret != MBEDTLS_ERR_SSL_TIMEOUT)
-        {
-            ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_handshake returned -0x%x", -ret );
-            goto exit;
-        }
-    }
-
-    if( ( ret = mbedtls_ssl_get_record_expansion( ssl ) ) >= 0 )
-        ATINY_LOG(LOG_DEBUG, "    [ Record expansion is %d ]", ret );
-    else
-        ATINY_LOG(LOG_DEBUG, "    [ Record expansion is unknown (compression) ]" );
-    ATINY_LOG(LOG_DEBUG, "success");
+    n->ctx = ssl;
     return 0;
 exit:
-    if (conf)
-    {
-        mbedtls_ssl_config_free(conf);
-        mbedtls_free(conf);
-    }
-
-    if (ctr_drbg)
-    {
-        mbedtls_ctr_drbg_free(ctr_drbg);
-        mbedtls_free(ctr_drbg);
-    }
-
-    if (entropy)
-    {
-        mbedtls_entropy_free(entropy);
-        mbedtls_free(entropy);
-    }
-
-    if (ssl)
-    {
-        mbedtls_ssl_free(ssl);
-        mbedtls_free(ssl);
-    }
-    if(ctx)
-    {
-        atiny_net_close(ctx);
-    }
-    n->ctx = (void *)NULL;
+    dtls_ssl_destroy(ssl);
     return -1;
 }
 
