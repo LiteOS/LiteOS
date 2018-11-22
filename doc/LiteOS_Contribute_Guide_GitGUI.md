@@ -79,7 +79,7 @@
 ![](./meta/guides/github_fork7.png)
 
 ![](./meta/guides/github_fork8.png)
-在上图中 1 标识的位置选择 develop ， 2 标识的位置选择smartcart
+在上图中 1 标识的位置选择 develop ， 2 标识的位置选择smartcar
 
 如果没有冲突则会显示 3所示内容，否则需要先解决冲突然后重新创建pull request。
 
