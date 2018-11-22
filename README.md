@@ -62,4 +62,4 @@ Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经
 ## 加入我们
 * 欢迎提交issue对关心的问题发起讨论，欢迎提交PR参与特性建设
 * 如您有合作意向，希望加入Huawei LiteOS生态合作伙伴，请发邮件至liteos@huawei.com，或访问[LiteOS官网](http://www.huawei.com/liteos)，进一步了解详细信息
-
+*版权所有，归属于华为欧拉实验室。
