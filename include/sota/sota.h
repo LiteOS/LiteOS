@@ -35,6 +35,7 @@
 #define __SOTA_H__
 
 #include<stdint.h>
+#include "los_memory.h"
 #include"ota/ota_api.h"
 
 typedef enum
