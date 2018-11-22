@@ -571,7 +571,8 @@ FS_SPIFFS_INC = \
         -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
 
 FS_FATFS_INC = \
-        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source \
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source/default
 
 FS_JFFS2_INC = \
         -I $(TOP_DIR)/components/fs/jffs2 \
