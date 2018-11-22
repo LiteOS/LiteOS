@@ -31,13 +31,18 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
 #include "agent_tiny_demo.h"
+#include "los_base.h"
+#include "los_task.ph"
+#include "los_typedef.h"
+#include "los_sys.h"
+#include "atiny_mqtt/mqtt_client.h"
+#include "osdepends/atiny_osdep.h"
 #include "log/atiny_log.h"
 
-void message_cb(cloud_msg_t *msg);
+//#define MQTT_DEMO_CONNECT_DYNAMIC
 
-#define DEFAULT_SERVER_IPV4 "192.168.1.100"
+#define DEFAULT_SERVER_IPV4 "192.168.204.45"
 #ifdef WITH_DTLS
 #define DEFAULT_SERVER_PORT "8883"
 #define AGENT_TINY_DEMO_PSK_ID "testID"
@@ -47,52 +52,43 @@ unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
 #define DEFAULT_SERVER_PORT "1883"
 #endif /* WITH_DTLS */
 
-#define AGENT_TINY_DEMO_CLIENT_ID "liteos_test"
-#define AGENT_TINY_DEMO_USERNAME NULL
-#define AGENT_TINY_DEMO_PASSWORD NULL
 
-#define AGENT_TINY_DEMO_PUB_TOPIC "/pub_test"
-#define AGENT_TINY_DEMO_SUB_TOPIC "/helloworld"
+#ifndef MQTT_DEMO_CONNECT_DYNAMIC
+#define AGENT_TINY_DEMO_PASSWORD "123"
+#else
+#define AGENT_TINY_DEMO_PASSWORD "1234"
+#endif
 
-static void *g_phandle = NULL;
-static atiny_device_info_t g_device_info;
-static atiny_param_t g_atiny_params;
-static UINT32 g_TskHandle;
+#define AGENT_TINY_DEMO_DEVICEID "11223344"
+#define AGENT_TINY_DEMO_PRODUCTID "112233"
+#define AGENT_TINY_DEMO_NODEID "1122"
 
-atiny_interest_uri_t g_interest_uris[ATINY_INTEREST_URI_MAX_NUM] =
-{
-    {
-        .uri = AGENT_TINY_DEMO_SUB_TOPIC,
-        .qos = CLOUD_QOS_MOST_ONCE,
-        .cb = message_cb
-    },
-};
 
-void message_cb(cloud_msg_t *msg)
-{
-    ATINY_LOG(LOG_DEBUG, "%.*s : %.*s", msg->uri_len, msg->uri, msg->payload_len,  (char *)msg->payload);
-}
+
+static mqtt_client_s *g_phandle = NULL;
+static demo_param_s g_demo_param;
+
+
+
+
 /*lint -e550*/
 void app_data_report(void)
 {
-    cloud_msg_t report_data;
-    int ret;
-    int cnt = 0;
-    char payload[30] = {0};
+    int ret = 0;
+    const char *msg = "hello";
 
-    report_data.uri = AGENT_TINY_DEMO_PUB_TOPIC;
-    report_data.qos = CLOUD_QOS_MOST_ONCE;
-    report_data.method = CLOUD_METHOD_POST;
-    report_data.payload = payload;
     while(1)
     {
-        sprintf(payload, "publish message number %d", cnt);
-        report_data.payload_len = strlen(payload);
-        payload[report_data.payload_len] = '\0';
-        cnt++;
-        ret = atiny_data_send(g_phandle, &report_data, NULL);
-        ATINY_LOG(LOG_DEBUG, "report ret:%d", ret);
-        (void)LOS_TaskDelay(250 * 2);
+        if(g_phandle)
+        {
+            ret = atiny_mqtt_data_send(g_phandle, msg, strlen(msg), MQTT_QOS_ONLY_ONCE);
+            ATINY_LOG(LOG_INFO, "report ret:%d", ret);
+        }
+        else
+        {
+            ATINY_LOG(LOG_ERR, "g_phandle null");
+        }
+        (void)LOS_TaskDelay(10 * 1000);
     }
 }
 /*lint +e550*/
@@ -116,33 +112,119 @@ UINT32 creat_report_task()
     return uwRet;
 }
 
+static int demo_get_time(char *time, int32_t len)
+{
+    const int32_t min_time_len = 11;
+    if ((time == NULL) || (len < min_time_len))
+    {
+        ATINY_LOG(LOG_ERR,"invalid param len %d", len);
+        return ATINY_ERR;
+    }
+    (void)strncpy(time, "2018111517", len);
+    return ATINY_OK;
+}
+
+static int demo_rcv_msg(const uint8_t *msg, int32_t len)
+{
+    char* print_msg;
+    if ((msg == NULL) && len > 0)
+    {
+        ATINY_LOG(LOG_ERR, "invalid param len %ld", len);
+        return ATINY_ERR;
+    }
+    if (msg == NULL)
+    {
+        msg = (const uint8_t *)"";
+    }
+
+    print_msg = atiny_malloc(len + 1);
+    if (print_msg == NULL)
+    {
+        ATINY_LOG(LOG_ERR, "atiny_malloc null %ld", len);
+        return ATINY_ERR;
+    }
+    if (len > 0)
+    {
+        memcpy(print_msg, msg, len);
+    }
+    print_msg[len] = '\0';
+    ATINY_LOG(LOG_INFO, "rcv msg: len = %ld, msg:%s", len, (char *)msg);
+    atiny_free(print_msg);
+    return ATINY_OK;
+}
+
+
+
+
+static int demo_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
+{
+    int result = ATINY_ERR;
+
+//TODO:
+    switch(cmd)
+        {
+        case MQTT_GET_TIME:
+            result = demo_get_time(arg, len);
+            break;
+        case MQTT_RCV_MSG:
+            result = demo_rcv_msg(arg, len);
+            break;
+        case MQTT_WRITE_FLASH_INFO:
+            if (g_demo_param.write_flash_info == NULL)
+            {
+
+                result = ATINY_ERR;
+                ATINY_LOG(LOG_ERR, "write_flash_info null");
+            }
+            else
+            {
+                result = g_demo_param.write_flash_info(arg, len);
+            }
+            break;
+        case MQTT_READ_FLASH_INFO:
+            if (g_demo_param.read_flash_info == NULL)
+            {
+
+                result = ATINY_ERR;
+                ATINY_LOG(LOG_ERR, "read_flash_info null");
+            }
+            else
+            {
+                result = g_demo_param.read_flash_info(arg, len);
+            }
+            break;
+
+        default:
+            break;
+        }
+    return result;
+}
+
 void agent_tiny_entry(void)
 {
     UINT32 uwRet = LOS_OK;
-    atiny_param_t *atiny_params;
-    atiny_device_info_t *device_info = &g_device_info;
+    mqtt_param_s atiny_params;
+    mqtt_device_info_s device_info;
 
-    device_info->client_id = AGENT_TINY_DEMO_CLIENT_ID;
-    device_info->user_name = AGENT_TINY_DEMO_USERNAME;
-    device_info->password = AGENT_TINY_DEMO_PASSWORD;
-    device_info->will_flag = MQTT_WILL_FLAG_FALSE;
-    device_info->will_options = NULL;
-    memcpy(device_info->interest_uris, g_interest_uris, sizeof(g_interest_uris));
+    if (g_demo_param.init)
+    {
+        g_demo_param.init();
+    }
 
-    atiny_params = &g_atiny_params;
-    atiny_params->server_ip = DEFAULT_SERVER_IPV4;
-    atiny_params->server_port = DEFAULT_SERVER_PORT;
+    atiny_params.server_ip = DEFAULT_SERVER_IPV4;
+    atiny_params.server_port = DEFAULT_SERVER_PORT;
 #ifdef WITH_DTLS
-    atiny_params->security_type = CLOUD_SECURITY_TYPE_PSK;
-    atiny_params->u.psk.psk_id = (unsigned char *)AGENT_TINY_DEMO_PSK_ID;
-    atiny_params->u.psk.psk_id_len = strlen(AGENT_TINY_DEMO_PSK_ID);
-    atiny_params->u.psk.psk = g_demo_psk;
-    atiny_params->u.psk.psk_len = AGENT_TINY_DEMO_PSK_LEN;
+    atiny_params.info.security_type = MQTT_SECURITY_TYPE_PSK;
+    atiny_params.info.u.psk.psk_id = (unsigned char *)AGENT_TINY_DEMO_PSK_ID;
+    atiny_params.info.u.psk.psk_id_len = strlen(AGENT_TINY_DEMO_PSK_ID);
+    atiny_params.info.u.psk.psk = g_demo_psk;
+    atiny_params.info.u.psk.psk_len = AGENT_TINY_DEMO_PSK_LEN;
 #else
-    atiny_params->security_type = CLOUD_SECURITY_TYPE_NONE;
+    atiny_params.info.security_type = MQTT_SECURITY_TYPE_NONE;
 #endif /* WITH_DTLS */
+    atiny_params.cmd_ioctl = demo_cmd_ioctl;
 
-    if(ATINY_OK != atiny_init(atiny_params, &g_phandle))
+    if(ATINY_OK != atiny_mqtt_init(&atiny_params, &g_phandle))
     {
         return;
     }
@@ -153,25 +235,23 @@ void agent_tiny_entry(void)
         return;
     }
 
-    (void)atiny_bind(device_info, g_phandle);
+    device_info.codec_mode = MQTT_CODEC_MODE_BINARY;
+    device_info.sign_type = MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME;
+    device_info.password = AGENT_TINY_DEMO_PASSWORD;
+#ifndef MQTT_DEMO_CONNECT_DYNAMIC
+    device_info.connection_type = MQTT_STATIC_CONNECT;
+    device_info.u.s_info.deviceid  = AGENT_TINY_DEMO_DEVICEID;
+#else
+    device_info.connection_type = MQTT_DYNAMIC_CONNECT;
+    device_info.u.d_info.productid = AGENT_TINY_DEMO_PRODUCTID;
+    device_info.u.d_info.nodeid = AGENT_TINY_DEMO_NODEID;
+#endif
+    (void)atiny_mqtt_bind(&device_info, g_phandle);
     return ;
 }
 
-
-UINT32 creat_agenttiny_task()
+void agent_tiny_demo_init(const demo_param_s *param)
 {
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-	task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)agent_tiny_entry;
-    task_init_param.uwStackSize = 0x2000;
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
+    g_demo_param = *param;
 }
+

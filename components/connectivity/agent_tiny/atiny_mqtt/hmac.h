@@ -34,6 +34,7 @@
 
 #ifndef _HMAC_H_
 #define _HMAC_H_
+#include "mbedtls/md.h"
 
 #ifdef __cplusplus
 #if __cplusplus

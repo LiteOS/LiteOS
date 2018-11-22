@@ -33,8 +33,10 @@ WITH_LWIP  := no
 #######################################
 WITH_AT_FRAMEWORK := yes
 ifeq ($(WITH_AT_FRAMEWORK), yes)
-#ESP8266   # SIM900A  # NB_NEUL95  # ALL
-	NETWORK_TYPE := NB_NEUL95
+#ESP8266   # SIM900A  # NB_NEUL95  # NB_NEUL95_NO_ATINY
+	NETWORK_TYPE := NB_NEUL95_NO_ATINY
+#ONLYONE  #ALL
+	AT_COMPILE_ALL := ALL
 endif
 
 #######################################

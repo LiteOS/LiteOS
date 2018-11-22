@@ -323,12 +323,12 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
         {
             SOTA_LOG("download wrong,we need %X, but is %X:",(int)g_at_update_record.block_num, (int)block_seq);
             g_at_update_record.state = IDLE;
-            tmpbuf[1] = SOTA_FAILED;
+            tmpbuf[1] = (char)SOTA_FAILED;
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)sota_at_send(MSG_GET_BLOCK, sbuf, 2 * 2);
             return SOTA_FAILED;
         }
-        SOTA_LOG("off:%X size:%X",g_at_update_record.block_offset,g_at_update_record.block_size);
+        SOTA_LOG("off:%lx size:%x",g_at_update_record.block_offset,g_at_update_record.block_size);
         ret = g_storage_device->write_software(g_storage_device, g_at_update_record.block_offset,(const uint8_t *)(pbuf + BLOCK_HEAD), g_at_update_record.block_size);
         if(ret != SOTA_OK)
         {
