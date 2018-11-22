@@ -274,12 +274,7 @@ void make_dir(const char *name)
             {
                 tmp_dir[i] = 0;
 
-                int ret = los_mkdir(tmp_dir, 0);
-                if (ret < 0)
-                {
-                    FS_LOG_ERR("los_mkdir %s failed: %d", tmp_dir, ret);
-                    return;
-                }
+                (void)los_mkdir(tmp_dir, 0);
 
                 tmp_dir[i] = '/';
             }

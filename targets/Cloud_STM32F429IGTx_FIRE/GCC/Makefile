@@ -210,7 +210,7 @@ AGENT_DEMO_MQTT_SRC = \
 CJSON_SRC = \
         ${wildcard $(TOP_DIR)/components/lib/cJSON/cJSON.c}
         C_SOURCES += $(CJSON_SRC)
-        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adapter.c
 endif
 
 ifeq ($(WITH_FILESYSTEM), yes)
@@ -571,7 +571,8 @@ FS_SPIFFS_INC = \
         -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
 
 FS_FATFS_INC = \
-        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source \
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source/default
 
 FS_JFFS2_INC = \
         -I $(TOP_DIR)/components/fs/jffs2 \
