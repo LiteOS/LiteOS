@@ -67,7 +67,7 @@ int main(void)
         return LOS_NOK;
     }
 
-#if defined(FS_SPIFFS) || defined(FS_SPIFFS) || defined(FS_SPIFFS)
+#if defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2)
     extern UINT32 creat_fs_task();
     uwRet = creat_fs_task();
     if (uwRet != LOS_OK)
