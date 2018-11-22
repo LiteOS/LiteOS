@@ -47,7 +47,7 @@
 
 static UINT32 g_atiny_tskHandle;
 static UINT32 g_fs_tskHandle;
-static UINT32 g_dtls_server_tskHandle;
+
 
 
 
@@ -157,6 +157,7 @@ UINT32 creat_fs_task(void)
 
 
 #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
+static UINT32 g_dtls_server_tskHandle;
 uint32_t create_dtls_server_task()
 {
     uint32_t uwRet = LOS_OK;
