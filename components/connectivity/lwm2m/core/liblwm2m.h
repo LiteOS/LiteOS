@@ -90,7 +90,7 @@
 #define _LWM2M_CLIENT_H_
 
 #include "liblwm2m_api.h"
-#include "connection.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -158,22 +158,29 @@ int lwm2m_rand(void *output, size_t len);
 // Returns a session handle that MUST uniquely identify a peer.
 // secObjInstID: ID of the Securty Object instance to open a connection to
 // userData: parameter to lwm2m_init()
-//void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap_flag);
+// bootstrap_flag: If BootstrapServer
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer);
+
 // Close a session created by lwm2m_connect_server()
 // sessionH: session handle identifying the peer (opaque to the core)
 // userData: parameter to lwm2m_init()
-//void lwm2m_close_connection(void* sessionH, void* userData);
+void lwm2m_close_connection(void* sessionH, void* userData);
+
 #endif
 // Send data to a peer
 // Returns COAP_NO_ERROR or a COAP_NNN error code
 // sessionH: session handle identifying the peer (opaque to the core)
 // buffer, length: data to send
 // userData: parameter to lwm2m_init()
-//uint8_t lwm2m_buffer_send(void* sessionH, uint8_t* buffer, size_t length, void* userData);
+uint8_t lwm2m_buffer_send(void* sessionH,
+                          uint8_t* buffer,
+                          size_t length,
+                          void* userdata);
+
 // Compare two session handles
 // Returns true if the two sessions identify the same peer. false otherwise.
 // userData: parameter to lwm2m_init()
-//bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
+bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
 
 /*
  * Error code

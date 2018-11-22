@@ -33,10 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "agent_tiny_demo.h"
-#include "sys_init.h"
-#ifdef CONFIG_FEATURE_FOTA
-#include "ota_port.h"
-#endif
+
 #if defined WITH_AT_FRAMEWORK
 #include "at_frame/at_api.h"
 #endif
@@ -60,7 +57,7 @@ unsigned char g_psk_bs_value[] = {0x58,0xea,0xfd,0xab,0x2f,0x38,0x4d,0x39,0x80,0
 static void *g_phandle = NULL;
 static atiny_device_info_t g_device_info;
 static atiny_param_t g_atiny_params;
-static UINT32 g_TskHandle;
+
 
 void ack_callback(atiny_report_type_e type, int cookie, data_send_status_e status)
 {
@@ -122,9 +119,6 @@ void agent_tiny_entry(void)
 
     atiny_device_info_t *device_info = &g_device_info;
 
-#ifdef CONFIG_FEATURE_FOTA
-    hal_init_ota();
-#endif
 
 #ifdef WITH_DTLS
     device_info->endpoint_name = g_endpoint_name_s;
@@ -192,70 +186,6 @@ void agent_tiny_entry(void)
     (void)atiny_bind(device_info, g_phandle);
 }
 
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_SIM900A))
-void demo_agenttiny_with_gprs(void)
-{
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-}
-#endif
-
-#if defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266))
-void demo_agenttiny_with_wifi(void)
-{
-    extern void agent_tiny_entry();
-    extern at_adaptor_api at_interface;
-    printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
-    at_api_register(&at_interface);
-    agent_tiny_entry();
-}
-#endif
-
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-void demo_agenttiny_with_eth(void)
-{
-    #if defined(WITH_LINUX) || defined(WITH_LWIP)
-    extern void agent_tiny_entry();
-    hieth_hw_init();
-    net_init();
-    agent_tiny_entry();
-    #endif
-}
-#endif
-extern void demo_agenttiny_with_nbiot(void);
-UINT32 creat_agenttiny_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "agenttiny_task";
-    #if defined(WITH_AT_FRAMEWORK) && defined (USE_SIM900A)
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_gprs;
-	#elif defined(WITH_AT_FRAMEWORK) && defined (USE_ESP8266)
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_wifi;
-    #elif defined(WITH_LINUX) || defined (WITH_LWIP)
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_eth;
-    #elif defined(WITH_AT_FRAMEWORK) && (defined(USE_NB_NEUL95))
-	task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)demo_agenttiny_with_nbiot;	
-    #endif
-
-#ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
-#else
-    task_init_param.uwStackSize = 0x1000;
-#endif
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
 
 
 

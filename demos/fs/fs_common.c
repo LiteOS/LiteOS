@@ -38,7 +38,7 @@
 
 static char s_ucaWriteBuffer[] = "hello world";
 static char s_ucaReadBuffer[100];
-static UINT32 g_TskHandle;
+
 
 void fs_demo(void)
 {
@@ -59,34 +59,6 @@ void fs_demo(void)
     jffs2_demo();
 #endif
 
-}
-
-VOID fs_task(VOID)
-{
-	fs_demo();
-}
-
-UINT32 creat_fs_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_task;
-
-#ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
-#else
-    task_init_param.uwStackSize = 0x1000;
-#endif
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
 }
 
 
@@ -302,12 +274,7 @@ void make_dir(const char *name)
             {
                 tmp_dir[i] = 0;
 
-                int ret = los_mkdir(tmp_dir, 0);
-                if (ret < 0)
-                {
-                    FS_LOG_ERR("los_mkdir %s failed: %d", tmp_dir, ret);
-                    return;
-                }
+                (void)los_mkdir(tmp_dir, 0);
 
                 tmp_dir[i] = '/';
             }

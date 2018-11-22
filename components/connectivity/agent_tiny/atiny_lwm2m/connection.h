@@ -56,7 +56,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "util_timer.h"
-
+#include "liblwm2m.h"
 
 
 // after 40sec of inactivity we rehandshake
@@ -64,9 +64,6 @@
 
 #define LWM2M_IS_CLIENT                   0
 #define LWM2M_IS_SERVER                   1
-
-typedef struct _lwm2m_context_t lwm2m_context_t;
-typedef struct _lwm2m_object_t lwm2m_object_t;
 
 typedef enum
 {
@@ -93,19 +90,9 @@ typedef struct _connection_t
 typedef void (*lwm2m_connection_err_notify_t)(lwm2m_context_t* context, connection_err_e err_type, bool boostrap_flag);
 
 
-//int connection_send(connection_t *connP, uint8_t * buffer, size_t length);
-
-bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
-
-uint8_t lwm2m_buffer_send(void* sessionH,
-                          uint8_t* buffer,
-                          size_t length,
-                          void* userdata);
 int lwm2m_buffer_recv(void* sessionH, uint8_t* buffer, size_t length, uint32_t timeout);
-
-void lwm2m_close_connection(void* sessionH, void* userData);
 void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy);
-void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer);
+
 
 #ifdef LWM2M_BOOTSTRAP
 void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH);

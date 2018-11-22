@@ -123,7 +123,7 @@ int AtCmd(const char *devname, char *cmd, char *buf, int buflen, int argc, char 
     iodev_flush(dev);
     //initialize the buf with the specified at command
     memset(cmdbuf, 0, CN_AT_LEN);
-    snprintf(cmdbuf, CN_AT_LEN, "%s\r", cmd);
+    snprintf(cmdbuf, CN_AT_LEN, "%s\r\n", cmd);//AT+CGMI
     //write the command to the device
     len = strlen(cmdbuf);
     result = iodev_write(dev, (unsigned char *)cmdbuf, len, CN_IODEV_WTIMEOUT);
@@ -225,18 +225,18 @@ typedef struct
     const char *apndefault;
 } tagImsi;
 
-tagImsi gAtcimi[] = {\
-    {"46000", "cmnet"}, \
-    {"46002", "cmnet"}, \
-    {"46004", "cmnet"}, \
-    {"46007", "cmnet"}, \
-    {"46001", "3gnet"}, \
-    {"46006", "3gnet"}, \
-    {"46009", "3gnet"}, \
-    {"46003", "ctnet"}, \
-    {"46005", "ctnet"}, \
-    {"46011", "ctlte"}, \
-    //		{"46020","cmnet"},  //not support the tietong
+tagImsi gAtcimi[]={\
+    {"46000","CMNET"},\
+    {"46002","CMNET"},\
+    {"46004","CMNET"},\
+    {"46007","CMNET"},\
+    {"46001","3gnet"},\
+    {"46006","3gnet"},\
+    {"46009","3gnet"},\
+    {"46003","ctnet"},\
+    {"46005","ctnet"},\
+    {"46011","ctlte"},\
+//		{"46020","cmnet"},  //not support the tietong
 };
 #define CN_CIMI_SIZE  (sizeof(gAtcimi)/sizeof(tagImsi))
 
@@ -258,7 +258,7 @@ static bool_t checkmi(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cgmi", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CGMI" , atrcvbuf, CN_AT_LEN, 6, argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
@@ -297,7 +297,7 @@ static bool_t checkmm(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cgmm", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CGMM",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
@@ -335,7 +335,7 @@ static bool_t checksn(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cgsn", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CGSN",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
@@ -374,7 +374,7 @@ static bool_t checkmr(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cgmr", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CGMR",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
@@ -414,7 +414,7 @@ static tagImsi *checkcimi(char *devname, int times, char *simapn)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cimi", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CIMI",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             position = strinargs(argc, argv, "OK");
@@ -466,7 +466,7 @@ static bool_t checkcpin(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cpin?", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CPIN?",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             if(-1 != strinargs(argc, argv, "READY"))
@@ -503,7 +503,7 @@ static bool_t  checkcgreg(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "at+cgreg?", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"AT+CGREG?",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             if((-1 != strinargs(argc, argv, ",1")) || (-1 != strinargs(argc, argv, ",5")))
@@ -539,7 +539,7 @@ static bool_t  setnetapn(char *devname, char *apn, int times)
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
         char cgdcont[64];
         memset(cgdcont, 0, 64);
-        snprintf(cgdcont, 63, "%s%s%s%s", "at+cgdcont=1,\"ip\",", "\"", apn, "\"");
+        snprintf(cgdcont,63,"%s%s%s%s","AT+CGDCONT=1,\"IP\",","\"",apn,"\"");
         argc = AtCmd(devname, cgdcont, atrcvbuf, CN_AT_LEN, 6, argv);
         if(argc > 0)
         {
@@ -576,7 +576,7 @@ static bool_t  atdcall(char *devname, int times)
         printf("%d->", i);
         memset(argv, 0, sizeof(argv));
         memset(atrcvbuf, 0, sizeof(atrcvbuf));
-        argc = AtCmd(devname, "atd*99***1#", atrcvbuf, CN_AT_LEN, 6, argv);
+        argc = AtCmd(devname,"ATD*99***1#",atrcvbuf,CN_AT_LEN,6,argv);
         if(argc > 0)
         {
             if((-1 != strinargs(argc, argv, "CONNECT")) || (-1 != strinargs(argc, argv, "connect")))
@@ -608,7 +608,7 @@ static bool_t atgetsignal(char *devname, int *signal)
     int   result = -1;
     memset(argv, 0, sizeof(argv));
     memset(atrcvbuf, 0, sizeof(atrcvbuf));
-    argc = AtCmd(devname, "at+csq", atrcvbuf, CN_AT_LEN, 6, argv);
+    argc = AtCmd(devname,"AT+CSQ",atrcvbuf,CN_AT_LEN,6,argv);
     if(argc > 0)
     {
         position = strinargs(argc, argv, "OK");

@@ -14,7 +14,7 @@
 #define LOG(fmt, arg...)
 #endif
 
-UINT32 g_dtls_server_TskHandle;
+
 
 void dtls_server_task(void)
 {
@@ -63,23 +63,5 @@ void dtls_server_task(void)
 
 }
 
-uint32_t create_dtls_server_task()
-{
-    uint32_t uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 3;
-    task_init_param.pcName = "dtls_server_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)dtls_server_task;
-
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_dtls_server_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
 
 #endif
