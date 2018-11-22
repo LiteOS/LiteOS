@@ -772,6 +772,12 @@ int32_t at_struct_deinit(at_task *at)
         at->userdata = NULL;
     }
 
+    if (NULL != at->saveddata)
+    {
+        at_free(at->saveddata);
+        at->saveddata = NULL;
+    }
+
     if (NULL != at->linkid)
     {
         at_free(at->linkid);

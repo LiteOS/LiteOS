@@ -149,6 +149,7 @@ static int demo_rcv_msg(const uint8_t *msg, int32_t len)
     }
     print_msg[len] = '\0';
     ATINY_LOG(LOG_INFO, "rcv msg: len = %ld, msg:%s", len, (char *)msg);
+    atiny_free(print_msg);
     return ATINY_OK;
 }
 

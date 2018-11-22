@@ -48,7 +48,6 @@
 /* Defines ------------------------------------------------------------------*/
 #define SPI_FLASH_ID            0xEF4018
 
-#define SPI_FLASH_TOTAL_SIZE    (1024 * 1024)
 #define SPI_FLASH_SECTOR_SIZE   (4 * 1024)
 #define SPI_FLASH_PAGE_SIZE     256
 /* Typedefs -----------------------------------------------------------------*/
@@ -82,7 +81,8 @@ static DSTATUS stm32f4xx_fatfs_initialize(BYTE lun)
 static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
     int ret;
-    ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE,
+            FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
     if(ret != 0)
         return RES_ERROR;
     return RES_OK;
@@ -91,7 +91,8 @@ static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT cou
 static DRESULT stm32f4xx_fatfs_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
     int ret;
-    ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE, sector * SPI_FLASH_SECTOR_SIZE);
+    ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE,
+            FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
     if(ret != 0)
         return RES_ERROR;
     return RES_OK;
@@ -104,7 +105,7 @@ static DRESULT stm32f4xx_fatfs_ioctl(BYTE lun, BYTE cmd, void *buff)
     switch (cmd)
     {
     case GET_SECTOR_COUNT:
-        *(DWORD *)buff = SPI_FLASH_TOTAL_SIZE / SPI_FLASH_SECTOR_SIZE;
+        *(DWORD *)buff = FF_PHYS_SIZE / SPI_FLASH_SECTOR_SIZE;
         break;
     case GET_SECTOR_SIZE:
         *(WORD *)buff = SPI_FLASH_SECTOR_SIZE;
@@ -133,7 +134,7 @@ int stm32f4xx_fatfs_init(int need_erase)
     if (need_erase)
     {
         (void)hal_spi_flash_config();
-        (void)hal_spi_flash_erase(0, SPI_FLASH_TOTAL_SIZE);
+        (void)hal_spi_flash_erase(FF_PHYS_ADDR, FF_PHYS_SIZE);
     }
 
     (void)fatfs_init();
