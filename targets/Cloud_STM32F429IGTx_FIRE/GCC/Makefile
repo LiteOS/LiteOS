@@ -391,7 +391,11 @@ ifeq ($(WITH_LWM2M), yes)
 			-D LWM2M_CLIENT_MODE
 endif
 ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
+	ifeq ($(WITH_MQTT), yes)
+		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_cert.h\"
+	else
 		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+	endif
 	ifeq ($(USE_MBEDTLS_DEBUG_C), yes)
 		C_DEFS += -DMBEDTLS_DEBUG_C
 	endif

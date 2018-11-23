@@ -156,6 +156,7 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
         ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
         break;
     case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
         break;
     default :
@@ -203,6 +204,7 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
         ret = atiny_net_send_timeout(n->ctx, buffer, len, timeout_ms);
         break;
     case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = dtls_write(n->ctx, buffer, len);
         break;
     default :
@@ -313,11 +315,20 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 
     security_info = n->get_security_info();
 
-    establish_info.psk_or_cert = VERIFY_WITH_PSK;
+    if (security_info->security_type == MQTT_SECURITY_TYPE_PSK)
+    {
+        establish_info.psk_or_cert = VERIFY_WITH_PSK;
+        establish_info.v.p.psk = (char *)security_info->u.psk.psk;
+        establish_info.v.p.psk_len = security_info->u.psk.psk_len;
+        establish_info.v.p.psk_identity = (char *)security_info->u.psk.psk_id;
+    }
+    else
+    {
+        establish_info.psk_or_cert = VERIFY_WITH_CERT;
+        establish_info.v.c.ca_cert = security_info->u.ca.ca_crt;
+        establish_info.v.c.cert_len = security_info->u.ca.ca_len;
+    }
     establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
-    establish_info.v.p.psk = (char *)security_info->u.psk.psk;
-    establish_info.v.p.psk_len = security_info->u.psk.psk_len;
-    establish_info.v.p.psk_identity = (char *)security_info->u.psk.psk_id;
 
     ssl = (void *)dtls_ssl_new(&establish_info, MBEDTLS_SSL_IS_CLIENT);
     if (NULL == ssl)
@@ -327,6 +338,15 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
     }
 
     memset(&shakehand_info, 0, sizeof(dtls_shakehand_info_s));
+
+    if (security_info->security_type == MQTT_SECURITY_TYPE_PSK)
+    {
+        shakehand_info.psk_or_cert = VERIFY_WITH_PSK;
+    }
+    else
+    {
+        shakehand_info.psk_or_cert = VERIFY_WITH_CERT;
+    }
     shakehand_info.client_or_server = MBEDTLS_SSL_IS_CLIENT;
     shakehand_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
     shakehand_info.u.c.host = addr;
@@ -365,6 +385,7 @@ int NetworkConnect(Network *n, char *addr, int port)
         ret = los_mqtt_connect(n, addr, port);
         break;
     case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_connect(n, addr, port);
         break;
     default :

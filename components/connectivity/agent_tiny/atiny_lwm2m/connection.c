@@ -183,6 +183,7 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     info.finish_notify = NULL;
     info.step_notify   = NULL;
     info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
+    info.psk_or_cert = VERIFY_WITH_PSK;
 #ifdef LWM2M_BOOTSTRAP
     info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
     info.param = (void(*)(void *))connP;

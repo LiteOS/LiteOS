@@ -73,6 +73,12 @@
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
 
+typedef enum
+{
+    VERIFY_WITH_PSK = 0,
+    VERIFY_WITH_CERT,
+}verify_type_e;
+
 typedef struct
 {
     union
@@ -90,16 +96,11 @@ typedef struct
     }u;
     int client_or_server;
     int udp_or_tcp;
+    verify_type_e psk_or_cert;
     void (*step_notify)(void *param);
     void (*finish_notify)(void *param);
     void *param;
 }dtls_shakehand_info_s;
-
-typedef enum
-{
-    VERIFY_WITH_PSK = 0,
-    VERIFY_WITH_CERT,
-}verify_type_e;
 
 typedef struct
 {
@@ -113,7 +114,7 @@ typedef struct
         }p;
         struct
         {
-            char *server_cert;
+            char *ca_cert;
             unsigned cert_len;
         }c;
     }v;
