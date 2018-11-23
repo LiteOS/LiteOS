@@ -203,7 +203,7 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
             goto mqtt_param_dup_failed;
         }
         memcpy(dest->info.u.psk.psk_id, src->info.u.psk.psk_id, src->info.u.psk.psk_id_len);
-
+        dest->info.u.psk.psk_id_len = src->info.u.psk.psk_id_len;
 
         dest->info.u.psk.psk = (unsigned char *)atiny_malloc(src->info.u.psk.psk_len);
         if(NULL == dest->info.u.psk.psk)
@@ -212,6 +212,7 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
             goto mqtt_param_dup_failed;
         }
         memcpy(dest->info.u.psk.psk, src->info.u.psk.psk, src->info.u.psk.psk_len);
+        dest->info.u.psk.psk_len = src->info.u.psk.psk_len;
         break;
 
     case MQTT_SECURITY_TYPE_CA:

@@ -89,14 +89,41 @@ typedef struct
         }s;
     }u;
     int client_or_server;
+    int udp_or_tcp;
     void (*step_notify)(void *param);
     void (*finish_notify)(void *param);
     void *param;
 }dtls_shakehand_info_s;
 
+typedef enum
+{
+    VERIFY_WITH_PSK = 0,
+    VERIFY_WITH_CERT,
+}verify_type_e;
+
+typedef struct
+{
+    union
+    {
+        struct
+        {
+            char *psk;
+            unsigned psk_len;
+            char *psk_identity;
+        }p;
+        struct
+        {
+            char *server_cert;
+            unsigned cert_len;
+        }c;
+    }v;
+    verify_type_e psk_or_cert;
+    int udp_or_tcp;
+}dtls_establish_info_s;
+
 void dtls_int(void);
 
-mbedtls_ssl_context *dtls_ssl_new_with_psk(char *psk, unsigned psk_len, char *psk_identity, char plat_type);
+mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type);
 
 int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info);
 
