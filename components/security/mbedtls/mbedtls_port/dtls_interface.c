@@ -103,20 +103,29 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
     entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
     ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
-    timer     = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     cacert    = mbedtls_calloc(1, sizeof(mbedtls_x509_crt));
 #endif
 
     if (NULL == info || NULL == ssl
         || NULL == conf || NULL == entropy
-        || NULL == ctr_drbg || NULL == timer
+        || NULL == ctr_drbg
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
         || NULL == cacert
 #endif
         )
     {
         goto exit_fail;
+    }
+
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
+        if (NULL == timer) goto exit_fail;
+    }
+    else
+    {
+        timer = NULL;
     }
 
     mbedtls_ssl_init(ssl);
