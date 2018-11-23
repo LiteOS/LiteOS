@@ -90,6 +90,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     mbedtls_ssl_config *conf;
     mbedtls_entropy_context *entropy;
     mbedtls_ctr_drbg_context *ctr_drbg;
+    mbedtls_timing_delay_context *timer;
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt *cacert;
 #endif
@@ -102,13 +103,14 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
     entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
     ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
+    timer     = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     cacert    = mbedtls_calloc(1, sizeof(mbedtls_x509_crt));
 #endif
 
     if (NULL == info || NULL == ssl
         || NULL == conf || NULL == entropy
-        || NULL == ctr_drbg
+        || NULL == ctr_drbg || NULL == timer
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
         || NULL == cacert
 #endif
@@ -210,6 +212,12 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
         goto exit_fail;
     }
 
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
+    {
+        mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
+                                 mbedtls_timing_get_delay);
+    }
+
     MBEDTLS_LOG("set SSL structure succeed");
 
     return ssl;
@@ -232,6 +240,11 @@ exit_fail:
     {
         mbedtls_entropy_free(entropy);
         mbedtls_free(entropy);
+    }
+
+    if (timer)
+    {
+        mbedtls_free(timer);
     }
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -261,16 +274,7 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
     unsigned int flags;
     uint32_t change_value = 0;
     mbedtls_net_context *server_fd = NULL;
-    mbedtls_timing_delay_context *timer = NULL;
     uint32_t max_value;
-
-    timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
-
-    if (NULL == timer)
-    {
-        ret = MBEDTLS_ERR_SSL_ALLOC_FAILED;
-        goto exit_fail;
-    }
 
     MBEDTLS_LOG("connecting to server");
 
@@ -293,11 +297,6 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
     mbedtls_ssl_set_bio(ssl, server_fd,
                         mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
-    {
-        mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
-                                 mbedtls_timing_get_delay);
-    }
     MBEDTLS_LOG("performing the SSL/TLS handshake");
 
     max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server) ?
@@ -364,12 +363,6 @@ exit_fail:
     {
         mbedtls_net_free(server_fd);
         ssl->p_bio = NULL;
-    }
-
-    if (timer)
-    {
-        mbedtls_free(timer);
-        ssl->p_timer = NULL;
     }
 
     return ret;
