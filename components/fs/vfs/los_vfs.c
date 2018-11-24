@@ -496,9 +496,9 @@ off_t los_lseek (int fd, off_t off, int whence)
 
 int los_stat (const char *path, struct stat *stat)
 {
-    struct file *file;
-    int           ret = -1;
-    int           fd = -1;
+    struct mount_point *mp = NULL;
+    const char *path_in_mp = NULL;
+    int ret = -1;
 
     if (path == NULL || stat == NULL)
     {
@@ -506,30 +506,22 @@ int los_stat (const char *path, struct stat *stat)
         return ret;
     }
 
-    fd = los_open (path, 0);
-    if(fd < 0)
+    mp = los_mp_find (path, &path_in_mp);
+
+    if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0'))
     {
+        VFS_ERRNO_SET (ENOENT);
         return ret;
     }
 
-    file = los_attach_file (fd);
-    if (file == NULL)   /* means closed by others :-(, not likely true */
+    if (mp->m_fs->fs_fops->stat != NULL)
     {
-        return ret;
-    }
-
-    if (file->f_fops->stat != NULL)
-    {
-        ret = file->f_fops->stat (file, stat);
+        ret = mp->m_fs->fs_fops->stat (mp, path_in_mp, stat);
     }
     else
     {
         VFS_ERRNO_SET (ENOTSUP);
     }
-
-    los_detach_file (file);
-
-    los_close (fd);
 
     return ret;
 }
