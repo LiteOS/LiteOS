@@ -318,9 +318,9 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
     if (security_info->security_type == MQTT_SECURITY_TYPE_PSK)
     {
         establish_info.psk_or_cert = VERIFY_WITH_PSK;
-        establish_info.v.p.psk = (char *)security_info->u.psk.psk;
+        establish_info.v.p.psk = (unsigned char *)security_info->u.psk.psk;
         establish_info.v.p.psk_len = security_info->u.psk.psk_len;
-        establish_info.v.p.psk_identity = (char *)security_info->u.psk.psk_id;
+        establish_info.v.p.psk_identity = (unsigned char *)security_info->u.psk.psk_id;
     }
     else
     {

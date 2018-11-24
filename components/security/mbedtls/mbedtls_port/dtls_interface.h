@@ -108,14 +108,14 @@ typedef struct
     {
         struct
         {
-            char *psk;
-            unsigned psk_len;
-            char *psk_identity;
+            const unsigned char *psk;
+            uint32_t psk_len;
+            const unsigned char *psk_identity;
         }p;
         struct
         {
-            char *ca_cert;
-            unsigned cert_len;
+            const unsigned char *ca_cert;
+            uint32_t cert_len;
         }c;
     }v;
     verify_type_e psk_or_cert;

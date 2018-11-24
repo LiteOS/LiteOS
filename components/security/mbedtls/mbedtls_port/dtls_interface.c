@@ -86,11 +86,11 @@ static void *atiny_calloc(size_t n, size_t size)
 mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 {
     int ret;
-    mbedtls_ssl_context *ssl;
-    mbedtls_ssl_config *conf;
-    mbedtls_entropy_context *entropy;
-    mbedtls_ctr_drbg_context *ctr_drbg;
-    mbedtls_timing_delay_context *timer;
+    mbedtls_ssl_context *ssl = NULL;
+    mbedtls_ssl_config *conf = NULL;
+    mbedtls_entropy_context *entropy = NULL;
+    mbedtls_ctr_drbg_context *ctr_drbg = NULL;
+    mbedtls_timing_delay_context *timer = NULL;
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt *cacert;
 #endif
@@ -122,10 +122,6 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     {
         timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
         if (NULL == timer) goto exit_fail;
-    }
-    else
-    {
-        timer = NULL;
     }
 
     mbedtls_ssl_init(ssl);
@@ -186,7 +182,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
                                         info->v.p.psk,
                                         info->v.p.psk_len,
                                         info->v.p.psk_identity,
-                                        strlen(info->v.p.psk_identity))) != 0)
+                                        strlen((const char *)info->v.p.psk_identity))) != 0)
         {
             MBEDTLS_LOG("mbedtls_ssl_conf_psk failed: -0x%x", -ret);
             goto exit_fail;
