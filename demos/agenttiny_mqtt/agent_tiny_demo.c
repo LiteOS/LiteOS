@@ -41,16 +41,49 @@
 #include "log/atiny_log.h"
 
 //#define MQTT_DEMO_CONNECT_DYNAMIC
+#define MQTT_DEMO_USE_PSK 0
+#define MQTT_DEMO_USE_CERT 0
 
 #define DEFAULT_SERVER_IPV4 "192.168.204.45"
 #ifdef WITH_DTLS
+#if (MQTT_DEMO_USE_PSK == 1)
 #define DEFAULT_SERVER_PORT "8883"
 #define AGENT_TINY_DEMO_PSK_ID "testID"
 #define AGENT_TINY_DEMO_PSK_LEN (3)
 unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
-#else
-#define DEFAULT_SERVER_PORT "1883"
+#elif (MQTT_DEMO_USE_CERT == 1)
+#define DEFAULT_SERVER_PORT "8883"
+
+static const char g_mqtt_ca_crt[] =
+"-----BEGIN CERTIFICATE-----\r\n"
+"MIIDvDCCAqSgAwIBAgIJAKKrpVrl4ZbvMA0GCSqGSIb3DQEBCwUAMHMxCzAJBgNV\r\n"
+"BAYTAkJKMQswCQYDVQQIDAJIRDELMAkGA1UEBwwCQlkxDDAKBgNVBAoMA0pTSjEL\r\n"
+"MAkGA1UECwwCWk4xDDAKBgNVBAMMA2N5aDEhMB8GCSqGSIb3DQEJARYSeWhjaGVu\r\n"
+"MjAxM0AxNjMuY29tMB4XDTE4MTEyMTAzMTIwMVoXDTE5MTEyMTAzMTIwMVowczEL\r\n"
+"MAkGA1UEBhMCQkoxCzAJBgNVBAgMAkhEMQswCQYDVQQHDAJCWTEMMAoGA1UECgwD\r\n"
+"SlNKMQswCQYDVQQLDAJaTjEMMAoGA1UEAwwDY3loMSEwHwYJKoZIhvcNAQkBFhJ5\r\n"
+"aGNoZW4yMDEzQDE2My5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\r\n"
+"AQC6wYBvntX14x0mNu2d+12k7hnWshf1wMUvFnUQmODaBEniw4Zwk4hyq9roabh1\r\n"
+"QQpwDbzb0mGB3zuXVvuBTzZ8FkO7xKCYWRkJzbzZlbVz50asgJ+uts85gj6f2KYZ\r\n"
+"ODJOY0+x3E4jrORuBtNydWrHrdptsPcoW4grnoYZGkGiiVWFI7pKbPFrMtaIHiRk\r\n"
+"ZcjcomQe95mLjTW6lkuYO4yRhUZBWmSbkOlAYqPb6ZJwByIsjCFkJO2ge3eWe38P\r\n"
+"QVcVmxqWJxA+JkXCg2j6G11SuL86oCOO+s9lP2WKtORRfpvveNU42iE8tVKzG2QG\r\n"
+"BG0d9GTAU2j0nHd5Wac/bs1RAgMBAAGjUzBRMB0GA1UdDgQWBBQWgXMorSONa3TT\r\n"
+"/hOrfmNcHhZSNjAfBgNVHSMEGDAWgBQWgXMorSONa3TT/hOrfmNcHhZSNjAPBgNV\r\n"
+"HRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAdZHYmKwwsqK8hIQjofHQP\r\n"
+"MOt03y6pAKl/vFpbuvRGYaUnCkoNQ68TDS473vKo+Vzs/Q1Vls1UIfjBo8JBSK7Z\r\n"
+"BZyfO8k+zdJn9cRuA+XYo9pccfJecFKI7ETQPU4m8poNvOXDKKu/EK7FqZQteZlj\r\n"
+"hOOj9xTdTgbqnm3IOHQk70X5xEprOX0TN5B16EFkAjszW8YNE+55nuRY7fEa4nVn\r\n"
+"6NsmwCbPGGmH4S4UveML8hlLlSKLb4tNcnLHtlutxZQjlgfb2wdr/lMAReaPsr7f\r\n"
+"VizwWV5kmqIfA/Kd7X6vaI51JFuDCNhA8gslJbU9MopdX/FwAhuXLRsFpMWuCLWz\r\n"
+"-----END CERTIFICATE-----\r\n";
+
+#endif /* MQTT_DEMO_USE_PSK */
 #endif /* WITH_DTLS */
+
+#ifndef DEFAULT_SERVER_PORT
+#define DEFAULT_SERVER_PORT "1883"
+#endif
 
 
 #ifndef MQTT_DEMO_CONNECT_DYNAMIC
@@ -214,14 +247,23 @@ void agent_tiny_entry(void)
     atiny_params.server_ip = DEFAULT_SERVER_IPV4;
     atiny_params.server_port = DEFAULT_SERVER_PORT;
 #ifdef WITH_DTLS
+#if (MQTT_DEMO_USE_PSK == 1)
     atiny_params.info.security_type = MQTT_SECURITY_TYPE_PSK;
     atiny_params.info.u.psk.psk_id = (unsigned char *)AGENT_TINY_DEMO_PSK_ID;
     atiny_params.info.u.psk.psk_id_len = strlen(AGENT_TINY_DEMO_PSK_ID);
     atiny_params.info.u.psk.psk = g_demo_psk;
     atiny_params.info.u.psk.psk_len = AGENT_TINY_DEMO_PSK_LEN;
+#elif (MQTT_DEMO_USE_CERT == 1)
+    atiny_params.info.security_type = MQTT_SECURITY_TYPE_CA;
+    atiny_params.info.u.ca.ca_crt = g_mqtt_ca_crt;
+    atiny_params.info.u.ca.ca_len = sizeof(g_mqtt_ca_crt);
+#else
+    atiny_params.info.security_type = MQTT_SECURITY_TYPE_NONE;
+#endif /* MQTT_DEMO_USE_PSK */
 #else
     atiny_params.info.security_type = MQTT_SECURITY_TYPE_NONE;
 #endif /* WITH_DTLS */
+
     atiny_params.cmd_ioctl = demo_cmd_ioctl;
 
     if(ATINY_OK != atiny_mqtt_init(&atiny_params, &g_phandle))

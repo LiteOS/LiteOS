@@ -95,8 +95,7 @@ typedef struct
 typedef struct
 {
     char *ca_crt;
-    char *server_crt;
-    char *server_key;
+    uint32_t ca_len;
 }mqtt_security_ca_s;
 
 typedef struct
