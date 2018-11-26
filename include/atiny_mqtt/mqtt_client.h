@@ -67,9 +67,59 @@ extern "C" {
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
 #endif
 
+/* deviceReq data msg jason format example
+{
+        "msgType":      "deviceReq",
+        "hasMore":      0,
+        "data": [{
+                        "serviceId":    "123456",
+                        "data": {
+                                "define_data0": "define_value0",
+                                "define_data1": 3
+                        },
+                        "eventTime":    "20161219T114920Z"
+                }]
+}
+*/
 
+/* msg type, json name, its value is string*/
 #define MQTT_MSG_TYPE "msgType"
+/* msg type report data, json value */
 #define MQTT_DEVICE_REQ "deviceReq"
+
+#define MQTT_CLOUD_REQ "cloudReq"
+
+#define MQTT_DEVICE_RSP "deviceRsp"
+
+/* more data, json name, its value is int, 0 for no more data, 1 for more data */
+#define MQTT_HAS_MORE "hasMore"
+#define MQTT_NO_MORE_DATA 0
+#define MQTT_MORE_DATA 1
+
+
+/* ServiceData array, json name, its value is ServiceData array */
+#define MQTT_DATA "data"
+
+/* ServiceData */
+/* service id, json name, its value is string */
+#define MQTT_SERVICEID "serviceId"
+
+/* service data, json name, its value is an object defined in profile for the device */
+#define MQTT_SERVICE_DATA "serviceData"
+
+/* service data, json name, its value is string, format yyyyMMddTHHmmssZ such as 20161219T114920Z */
+#define MQTT_EVENT_TIME "eventTime"
+
+#define MQTT_CMD "cmd"
+#define MQTT_PARAS "paras"
+#define MQTT_MID "mid"
+
+#define MQTT_ERR_CODE "errcode"
+#define MQTT_ERR_CODE_OK 0
+#define MQTT_ERR_CODE_ERR 1
+
+#define MQTT_BODY "body"
+
 
 
 typedef struct mqtt_client_tag_s mqtt_client_s;

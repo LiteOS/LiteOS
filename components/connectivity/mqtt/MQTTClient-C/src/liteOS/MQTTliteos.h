@@ -32,8 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if !defined(__MQTT_LITE_OS__)
-#define __MQTT_LITE_OS__
+#if !defined(MQTT_LITE_OS_H)
+#define MQTT_LITE_OS_H
 
 
 #include <stdio.h>

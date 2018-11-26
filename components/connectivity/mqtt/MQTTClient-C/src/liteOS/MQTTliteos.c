@@ -424,6 +424,7 @@ void NetworkDisconnect(Network *n)
         los_mqtt_disconnect(n->ctx);
         break;
     case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         dtls_ssl_destroy(n->ctx);
         break;
     default :
