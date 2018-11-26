@@ -126,8 +126,6 @@ static void mqtt_free_params(mqtt_param_s *param)
         break;
     case MQTT_SECURITY_TYPE_CA:
         TRY_FREE_MEM(param->info.u.ca.ca_crt);
-        TRY_FREE_MEM(param->info.u.ca.server_crt);
-        TRY_FREE_MEM(param->info.u.ca.server_key);
         break;
     default:
         break;
@@ -159,9 +157,7 @@ static int mqtt_check_param(const mqtt_param_s *param)
 
     if (param->info.security_type == MQTT_SECURITY_TYPE_CA)
     {
-        if ((param->info.u.ca.ca_crt == NULL)
-        || (param->info.u.ca.server_crt == NULL)
-        || (param->info.u.ca.server_key == NULL))
+        if (param->info.u.ca.ca_crt == NULL)
         {
             ATINY_LOG(LOG_FATAL, "invalid ca");
             return ATINY_ARG_INVALID;
@@ -203,7 +199,7 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
             goto mqtt_param_dup_failed;
         }
         memcpy(dest->info.u.psk.psk_id, src->info.u.psk.psk_id, src->info.u.psk.psk_id_len);
-
+        dest->info.u.psk.psk_id_len = src->info.u.psk.psk_id_len;
 
         dest->info.u.psk.psk = (unsigned char *)atiny_malloc(src->info.u.psk.psk_len);
         if(NULL == dest->info.u.psk.psk)
@@ -212,27 +208,18 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
             goto mqtt_param_dup_failed;
         }
         memcpy(dest->info.u.psk.psk, src->info.u.psk.psk, src->info.u.psk.psk_len);
+        dest->info.u.psk.psk_len = src->info.u.psk.psk_len;
         break;
 
     case MQTT_SECURITY_TYPE_CA:
-        dest->info.u.ca.ca_crt = atiny_strdup((const char *)(src->info.u.ca.ca_crt));
+        dest->info.u.ca.ca_crt = (char *)atiny_malloc(src->info.u.ca.ca_len);
         if(NULL == dest->info.u.ca.ca_crt)
         {
             ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
             goto mqtt_param_dup_failed;
         }
-        dest->info.u.ca.server_crt = atiny_strdup((const char *)(src->info.u.ca.server_crt));
-        if(NULL == dest->info.u.ca.server_crt)
-        {
-            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
-            goto mqtt_param_dup_failed;
-        }
-        dest->info.u.ca.server_key = atiny_strdup((const char *)(src->info.u.ca.server_key));
-        if(NULL == dest->info.u.ca.server_key)
-        {
-            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
-            goto mqtt_param_dup_failed;
-        }
+        memcpy(dest->info.u.ca.ca_crt, src->info.u.ca.ca_crt, src->info.u.ca.ca_len);
+        dest->info.u.ca.ca_len = src->info.u.ca.ca_len;
         break;
     default:
         break;
@@ -808,7 +795,7 @@ static void mqtt_read_flash_info(mqtt_client_s* handle)
 }
 
 
-int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
+int atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     if (NULL == params || NULL == phandle)
     {

@@ -162,8 +162,15 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
 {
     int ret;
     dtls_shakehand_info_s info;
+    dtls_establish_info_s establish_info;
 
-    connP->net_context = (void *)dtls_ssl_new_with_psk(targetP->secretKey, targetP->secretKeyLen, targetP->publicIdentity, client_or_server);
+    establish_info.psk_or_cert = VERIFY_WITH_PSK;
+    establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
+    establish_info.v.p.psk = targetP->secretKey;
+    establish_info.v.p.psk_len = targetP->secretKeyLen;
+    establish_info.v.p.psk_identity = targetP->publicIdentity;
+
+    connP->net_context = (void *)dtls_ssl_new(&establish_info, client_or_server);
     if (NULL == connP->net_context)
     {
         ATINY_LOG(LOG_INFO, "connP->ssl is NULL in connection_create");
@@ -174,7 +181,9 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     memset(&info, 0, sizeof(info));
     info.client_or_server = client_or_server;
     info.finish_notify = NULL;
-    info.step_notify   = NULL; 
+    info.step_notify   = NULL;
+    info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
+    info.psk_or_cert = VERIFY_WITH_PSK;
 #ifdef LWM2M_BOOTSTRAP
     info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
     info.param = (void(*)(void *))connP;
@@ -187,7 +196,7 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     }
     else
     {
-#ifdef LWM2M_BOOTSTRAP    
+#ifdef LWM2M_BOOTSTRAP
         info.u.s.timeout = targetP->clientHoldOffTime;
         info.u.s.local_port = port;
         timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
@@ -195,7 +204,7 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
 #endif
     }
     ret = dtls_shakehand(connP->net_context, &info);
-#ifdef LWM2M_BOOTSTRAP  
+#ifdef LWM2M_BOOTSTRAP
     timer_stop(&connP->server_triger_timer);
 #endif
     if (ret != 0)

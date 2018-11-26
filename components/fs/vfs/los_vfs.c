@@ -1157,44 +1157,54 @@ int los_vfs_init (void)
 }
 
 
+#define MAP_TO_POSIX_RET(ret)   ( (ret) < 0 ? -1 : (ret) )
+
 int open (const char *path, int flags)
 {
-    return los_open (path, flags);
+    int ret = los_open (path, flags);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int close (int fd)
 {
-    return los_close (fd);
+    int ret = los_close (fd);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 ssize_t read (int fd, void *buff, size_t bytes)
 {
-    return los_read (fd, buff, bytes);
+    ssize_t ret = los_read (fd, buff, bytes);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 ssize_t write (int fd, const void *buff, size_t bytes)
 {
-    return los_write (fd, buff, bytes);
+    ssize_t ret = los_write (fd, buff, bytes);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 off_t lseek (int fd, off_t off, int whence)
 {
-    return los_lseek (fd, off, whence);
+    off_t ret = los_lseek (fd, off, whence);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int stat (const char *path, struct stat *stat)
 {
-    return los_stat (path, stat);
+    int ret = los_stat (path, stat);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int unlink (const char *path)
 {
-    return los_unlink (path);
+    int ret = los_unlink (path);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int rename (const char *oldpath, const char *newpath)
 {
-    return los_rename (oldpath, newpath);
+    int ret = los_rename (oldpath, newpath);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int ioctl (int fd, unsigned long func, ...)
@@ -1206,12 +1216,14 @@ int ioctl (int fd, unsigned long func, ...)
     arg = va_arg (ap, unsigned long);
     va_end (ap);
 
-    return los_ioctl (fd, func, arg);
+    int ret = los_ioctl (fd, func, arg);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int fsync (int fd)
 {
-    return los_sync (fd);
+    int ret = los_sync (fd);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 struct dir *opendir (const char *path)
@@ -1226,12 +1238,14 @@ struct dirent *readdir (struct dir *dir)
 
 int closedir (struct dir *dir)
 {
-    return los_closedir (dir);
+    int ret = los_closedir (dir);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 int mkdir (const char *path, int mode)
 {
-    return los_mkdir (path, mode);
+    int ret = los_mkdir (path, mode);
+    return MAP_TO_POSIX_RET(ret);
 }
 
 #endif
