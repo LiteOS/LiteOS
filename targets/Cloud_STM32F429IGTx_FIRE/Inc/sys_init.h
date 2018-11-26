@@ -72,8 +72,11 @@
 #include "lwip/timeouts.h"
 #include "ethernetif.h"
 
+#ifdef WITH_DTLS
 #include "mbedtls/net.h"
 #include "mbedtls/ssl.h"
+#endif
+
 #include "eth.h"
 #endif
 #ifdef __cplusplus

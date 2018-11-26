@@ -64,12 +64,12 @@ void atiny_task_entry(void)
     extern at_adaptor_api esp8266_interface;
     printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
     at_api_register(&esp8266_interface);
-    
+
     #elif defined(USE_SIM900A)
     extern at_adaptor_api sim900a_interface;
     printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");
     at_api_register(&sim900a_interface);
-    
+
     #elif defined(USE_NB_NEUL95)
     extern at_adaptor_api bc95_interface;
     printf("\r\n=============agent_tiny_entry  USE_NB_NEUL95============================\n");
@@ -80,8 +80,8 @@ void atiny_task_entry(void)
     #elif defined(USE_NB_NEUL95_NO_ATINY)
     demo_nbiot_only();
     #else
-    
-    #endif   
+
+    #endif
 #else
 #endif
 
@@ -114,8 +114,8 @@ UINT32 creat_agenttiny_task(VOID)
     task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "agenttiny_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)atiny_task_entry;
-	
-#ifdef CONFIG_FEATURE_FOTA
+
+#if defined(CONFIG_FEATURE_FOTA) || defined(WITH_MQTT)
     task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
 #else
     task_init_param.uwStackSize = 0x1000;
