@@ -506,11 +506,18 @@ int los_stat (const char *path, struct stat *stat)
         return ret;
     }
 
+    if (LOS_OK != LOS_MuxPend (fs_mutex, LOS_WAIT_FOREVER))
+    {
+        VFS_ERRNO_SET (EAGAIN);
+        return ret;
+    }
+
     mp = los_mp_find (path, &path_in_mp);
 
     if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0'))
     {
         VFS_ERRNO_SET (ENOENT);
+        LOS_MuxPost (fs_mutex);
         return ret;
     }
 
@@ -522,6 +529,8 @@ int los_stat (const char *path, struct stat *stat)
     {
         VFS_ERRNO_SET (ENOTSUP);
     }
+
+    LOS_MuxPost (fs_mutex);
 
     return ret;
 }
