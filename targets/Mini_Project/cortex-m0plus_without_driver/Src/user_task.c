@@ -46,11 +46,8 @@
 #endif
 
 
-
 static UINT32 g_atiny_tskHandle;
 static UINT32 g_fs_tskHandle;
-
-
 
 
 
