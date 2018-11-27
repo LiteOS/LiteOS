@@ -68,7 +68,7 @@ struct file_ops
     ssize_t (*read)     (struct file *, char *, size_t);
     ssize_t (*write)    (struct file *, const char *, size_t);
     off_t   (*lseek)    (struct file *, off_t, int);
-    int     (*stat)     (struct file *, struct stat *);
+    int     (*stat)     (struct mount_point *, const char *, struct stat *);
     int     (*unlink)   (struct mount_point *, const char *);
     int     (*rename)   (struct mount_point *, const char *, const char *);
     int     (*ioctl)    (struct file *, int, unsigned long);
