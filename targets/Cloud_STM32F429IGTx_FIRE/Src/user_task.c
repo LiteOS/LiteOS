@@ -113,7 +113,7 @@ UINT32 creat_agenttiny_task(VOID)
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
+    task_init_param.usTaskPrio = 2;
     task_init_param.pcName = "agenttiny_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)atiny_task_entry;
 
@@ -137,7 +137,7 @@ UINT32 creat_fs_task(void)
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
+    task_init_param.usTaskPrio = 2;
     task_init_param.pcName = "main_task";
     extern void fs_demo(void);
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_demo;
@@ -202,7 +202,7 @@ UINT32 create_work_tasks(VOID)
     extern void uart_init(void);  //this uart used for the pppos interface
     uart_init();
     extern VOID *main_ppp(UINT32  args);
-    task_create("main_ppp", main_ppp, 0x1500, NULL, NULL, 0);
+    task_create("main_ppp", main_ppp, 0x1500, NULL, NULL, 2);
 #endif
 
 
