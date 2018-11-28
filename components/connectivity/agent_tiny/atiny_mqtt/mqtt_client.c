@@ -174,14 +174,14 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
     dest->info.security_type = src->info.security_type;
     dest->cmd_ioctl = src->cmd_ioctl;
 
-    dest->server_ip = atiny_strdup((const char *)(src->server_ip));
+    dest->server_ip = atiny_strdup(src->server_ip);
     if(NULL == dest->server_ip)
     {
         ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
         return ATINY_MALLOC_FAILED;
     }
 
-    dest->server_port = atiny_strdup((const char *)(src->server_port));
+    dest->server_port = atiny_strdup(src->server_port);
     if(NULL == dest->server_port)
     {
         ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
@@ -855,8 +855,6 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 
     flash_manager_init(mqtt_cmd_ioctl);
 
-    g_mqtt_client.atiny_quit = 0;
-    g_mqtt_client.bind_quit = 0;
     *phandle = &g_mqtt_client;
 
     return ATINY_OK;
@@ -920,7 +918,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, g_mqtt_sendbuf, MQTT_SENDBUF_SIZE, g_mqtt_readbuf, MQTT_READBUF_SIZE);
 
     data.willFlag = 0;
-    data.MQTTVersion = MQTT_VERSION_3_1;
+    data.MQTTVersion = MQTT_VERSION_3_1_1;
     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;
     data.cleansession = true;
 
@@ -942,6 +940,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
 
         if(mqtt_get_connection_info(handle, &data) != ATINY_OK)
         {
+            mqtt_destroy_data_connection_info(&data);
             mqtt_proc_connect_err(client, &n, &conn_failed_cnt);
             continue;
         }
@@ -982,11 +981,8 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
             if (handle->dynamic_info.connection_update_flag)
             {
                 ATINY_LOG(LOG_INFO, "recv secret info");
-                if (handle->dynamic_info.save_info.deviceid && handle->dynamic_info.got_passward)
-                {
-                    ATINY_LOG(LOG_DEBUG, "secret info deviceid %s, %s", handle->dynamic_info.save_info.deviceid,
+                ATINY_LOG(LOG_DEBUG, "secret info deviceid %s, %s", handle->dynamic_info.save_info.deviceid,
                         handle->dynamic_info.got_passward);
-                }
                 handle->dynamic_info.connection_update_flag = false;
                 handle->dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;
                 break;

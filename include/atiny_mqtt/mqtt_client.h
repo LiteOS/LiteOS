@@ -233,7 +233,6 @@ typedef struct
 
 
 
-#define MQTT_ERR_NO(number) (((0x8000) << 16) | (number))
 typedef enum
 {
     ATINY_OK = 0,
