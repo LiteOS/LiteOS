@@ -247,62 +247,6 @@ static int los_mqtt_connect(Network *n, char *addr, int port)
     return ATINY_OK;
 }
 
-static void *atiny_calloc(size_t n, size_t size)
-{
-    void *p = atiny_malloc(n * size);
-    if(p)
-    {
-        memset(p, 0, n * size);
-    }
-
-    return p;
-}
-
-#if defined(_MSC_VER)
-#define MSVC_INT_CAST   (int)
-#else
-#define MSVC_INT_CAST
-#endif
-#if 0
-
-int mbedtls_net_set_block( mbedtls_net_context *ctx )
-{
-#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
-    !defined(EFI32)
-    u_long n = 0;
-    return( ioctlsocket( ctx->fd, FIONBIO, &n ) );
-#else
-    return( fcntl( ctx->fd, F_SETFL, fcntl( ctx->fd, F_GETFL, 0) & ~O_NONBLOCK ) );
-#endif
-}
-
-int mbedtls_net_set_nonblock( mbedtls_net_context *ctx )
-{
-#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
-    !defined(EFI32)
-    u_long n = 1;
-    return( ioctlsocket( ctx->fd, FIONBIO, &n ) );
-#else
-    return( fcntl( ctx->fd, F_SETFL, fcntl( ctx->fd, F_GETFL, 0) | O_NONBLOCK ) );
-#endif
-}
-
-static void my_debug( void *ctx, int level,
-                      const char *file, int line,
-                      const char *str )
-{
-    const char *p, *basename;
-
-    /* Extract basename from file */
-    for( p = basename = file; *p != '\0'; p++ )
-        if( *p == '/' || *p == '\\' )
-            basename = p + 1;
-
-    mbedtls_fprintf( (FILE *) ctx, "%s:%04d: |%d| %s", basename, line, level, str );
-    fflush(  (FILE *) ctx  );
-}
-#endif
-
 #define PORT_BUF_LEN 16
 static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 {
@@ -325,7 +269,7 @@ static int los_mqtt_tls_connect(Network *n, char *addr, int port)
     else
     {
         establish_info.psk_or_cert = VERIFY_WITH_CERT;
-        establish_info.v.c.ca_cert = security_info->u.ca.ca_crt;
+        establish_info.v.c.ca_cert = (const unsigned char *)security_info->u.ca.ca_crt;
         establish_info.v.c.cert_len = security_info->u.ca.ca_len;
     }
     establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
