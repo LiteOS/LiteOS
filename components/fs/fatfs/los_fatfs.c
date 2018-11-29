@@ -356,7 +356,13 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
 
     FRESULT res = f_lseek(fp, off);
     if (res == FR_OK)
-        return off;
+    {
+    	if(off < 0)
+    	{
+    		ret_to_errno(FR_INVALID_PARAMETER);
+    	}
+    	return off;
+    }
     else
         return ret_to_errno(res);
 }
