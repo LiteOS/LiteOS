@@ -267,7 +267,7 @@ bool prv_server_check_binding_valid(const char *binding, size_t size)
             || strncmp(binding, "S", size) == 0
             || strncmp(binding, "SQ", size) == 0
             || strncmp(binding, "US", size) == 0
-            || strncmp(binding, "UQS", size) == 0))
+            || strncmp(binding, "UQS", size) == 0) && binding != NULL)
     {
         return true;
     }
