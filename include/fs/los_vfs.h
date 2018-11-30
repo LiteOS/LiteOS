@@ -40,7 +40,8 @@
 #include <los_typedef.h>
 #include "fs/sys/stat.h"
 
-#define LOS_MAX_FILE_NAME_LEN               255
+#define LOS_MAX_DIR_NAME_LEN                 255
+#define LOS_MAX_FILE_NAME_LEN               16
 #define LOS_FS_MAX_NAME_LEN                 LOS_MAX_FILE_NAME_LEN
 #define LOS_MAX_FILES                       8
 
@@ -119,7 +120,7 @@ struct file
 
 struct dirent
 {
-    char                 name [LOS_MAX_FILE_NAME_LEN];
+    char                 name [LOS_MAX_DIR_NAME_LEN];
     UINT32               type;
     UINT32               size;
 };

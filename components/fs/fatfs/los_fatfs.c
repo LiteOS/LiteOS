@@ -456,7 +456,7 @@ static int fatfs_op_readdir (struct dir *dir, struct dirent *dent)
         return ret_to_errno(res);
     }
 
-    len = MIN(sizeof(e.fname), LOS_MAX_FILE_NAME_LEN) - 1;
+    len = MIN(sizeof(e.fname), LOS_MAX_DIR_NAME_LEN) - 1;
     strncpy ((char *)dent->name, (const char *) e.fname, len);
     dent->name [len] = '\0';
     dent->size = e.fsize;
