@@ -1,0 +1,17 @@
+# Revision  information
+# |----------------------------------------------------------------------------|
+# | Ver |   Date   |  Releaser  | Comments                                     |
+# |----------------------------------------------------------------------------|
+# | 0.1 | 20170904 | Nick.Hu | Initial version                                 |
+# |----------------------------------------------------------------------------|
+# |----------------------------------------------
+# |Bootloader.mtb		        10000000	0.5
+# |CH2201    		            10000800
+# |----------------------------------------------
+
+set $psr=0xc0000000
+##Load mtb
+download ihex verify=yes $(ProjectPath)/generated/hexs/mtb.hex
+
+##Load hobbot1_2
+#download ihex verify=yes $(ProjectPath)/generated/hexs/boot.hex
