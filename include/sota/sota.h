@@ -35,8 +35,8 @@
 #define __SOTA_H__
 
 #include<stdint.h>
-#include"ota/ota_api.h"
 #include "los_memory.h"
+#include"ota/ota_api.h"
 
 typedef enum
 {
@@ -90,7 +90,7 @@ SOTA_DOWNLOADING = 1,
 SOTA_NEEDREBOOT = 2,
 SOTA_BOOTLOADER_DOWNLOADING = 3,
 SOTA_MEM_FAILED = 4,
-SOTA_FAILED = -1,
-SOTA_TIMEOUT = -2,
-}sota_ret;
+SOTA_FAILED = 101,
+SOTA_TIMEOUT = 102,
+}SOTA_RET;
 #endif

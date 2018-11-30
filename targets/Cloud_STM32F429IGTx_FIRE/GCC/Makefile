@@ -331,7 +331,7 @@ OTA_SRC = \
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adapter.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
 endif
 
 
@@ -391,7 +391,11 @@ ifeq ($(WITH_LWM2M), yes)
 			-D LWM2M_CLIENT_MODE
 endif
 ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
+	ifeq ($(WITH_MQTT), yes)
+		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_cert.h\"
+	else
 		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+	endif
 	ifeq ($(USE_MBEDTLS_DEBUG_C), yes)
 		C_DEFS += -DMBEDTLS_DEBUG_C
 	endif
@@ -411,6 +415,8 @@ ifeq ($(WITH_LWIP), yes)
 
 	ifeq ($(USE_LWIP_TCP), yes)
 		C_DEFS += -DLWIP_TCP=1
+	else
+		C_DEFS += -DLWIP_TCP=0
 	endif
 endif
 
