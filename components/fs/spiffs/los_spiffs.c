@@ -245,18 +245,23 @@ static off_t spiffs_op_lseek (struct file *file, off_t off, int whence)
     return res < 0 ? ret_to_errno(res) : res;
 }
 
-int spiffs_op_stat (struct file *file, struct stat *stat)
+int spiffs_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *stat)
 {
-    spiffs_file s_file = spifd_from_file(file);
-    spiffs * fs = (spiffs *)file->f_mp->m_data;
-    spiffs_stat s;
+    spiffs_stat s = {0};
 
-    memset(&s, 0, sizeof(s));
     memset(stat, 0, sizeof(*stat));
-    s32_t res = SPIFFS_fstat(fs, s_file, &s);
+    s32_t res = SPIFFS_stat((spiffs *)mp->m_data, path_in_mp, &s);
     if (res == SPIFFS_OK)
     {
         stat->st_size = s.size;
+        if (s.type == SPIFFS_TYPE_DIR)
+        {
+            stat->st_mode = S_IFDIR;
+        }
+        else
+        {
+            stat->st_mode = S_IFREG;
+        }
     }
 
     return ret_to_errno(res);

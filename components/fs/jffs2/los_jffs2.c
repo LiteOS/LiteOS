@@ -242,16 +242,26 @@ static off_t jffs2_op_lseek (struct file *file, off_t off, int whence)
     return off;
 }
 
-int jffs2_op_stat (struct file *file, struct stat *stat)
+int jffs2_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *stat)
 {
-    cyg_stat s;
+    struct super_block *sb = (struct super_block *)mp->m_data;
+    cyg_stat s = {0};
     int ret = 0;
 
-    ret = jffs2_file_fstat((cyg_file *)file->f_data, &s);
+    POINTER_ASSERT(sb);
+
+    if (path_in_mp[0] == '/')
+        path_in_mp++;
+
+    ret  = jffs2_ops_stat(sb, sb->s_root, path_in_mp, &s);
+    if (ret)
+    {
+        return jffs2_result_to_los(ret);
+    }
 
     stat->st_dev = s.st_dev;
     stat->st_ino = s.st_ino;
-    stat->st_mode = s.st_mode;
+    stat->st_mode = 0;
     stat->st_nlink = s.st_nlink;
     stat->st_uid = s.st_uid;
     stat->st_gid = s.st_gid;
@@ -263,7 +273,19 @@ int jffs2_op_stat (struct file *file, struct stat *stat)
     stat->st_blksize = 0;
     stat->st_blocks = 0;
 
-    return ret;
+    switch(s.st_mode & JFFS2_S_IFMT)
+    {
+    case JFFS2_S_IFREG:
+        stat->st_mode = S_IFREG;
+        break;
+    case JFFS2_S_IFDIR:
+        stat->st_mode = S_IFDIR;
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 static int jffs2_op_unlink (struct mount_point *mp, const char *path_in_mp)

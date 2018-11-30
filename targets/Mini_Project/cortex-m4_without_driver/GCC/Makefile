@@ -163,7 +163,8 @@ ATINY_LOG = \
 
 USER_SRC =  \
         $(TARGET_DIR)/Src/main.c \
-		$(TARGET_DIR)/Src/__hal_simulate.c
+        $(TARGET_DIR)/Src/user_task.c \
+        $(TARGET_DIR)/Src/__hal_simulate.c
         C_SOURCES += $(USER_SRC)
 
 
@@ -235,6 +236,8 @@ ifeq ($(WITH_LWIP), yes)
 
 	ifeq ($(USE_LWIP_TCP), yes)
 		C_DEFS += -DLWIP_TCP=1
+	else
+		C_DEFS += -DLWIP_TCP=0
 	endif
 endif
 
