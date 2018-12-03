@@ -361,15 +361,27 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
         return ret_to_errno(res);
 }
 
-int fatfs_op_stat (struct file *file, struct stat *stat)
+int fatfs_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *stat)
 {
-    FIL *fp = (FIL *)file->f_data;
-    POINTER_ASSERT(fp);
+    FRESULT res;
+    FILINFO info = {0};
 
     memset(stat, 0, sizeof(*stat));
-    stat->st_size = f_size(fp);
+    res = f_stat(path_in_mp, &info);
+    if (res == FR_OK)
+    {
+        stat->st_size = info.fsize;
+        if (info.fattrib & AM_DIR)
+        {
+            stat->st_mode = S_IFDIR;
+        }
+        else
+        {
+            stat->st_mode = S_IFREG;
+        }
+    }
 
-    return 0;
+    return ret_to_errno(res);
 }
 
 static int fatfs_op_unlink (struct mount_point *mp, const char *path_in_mp)

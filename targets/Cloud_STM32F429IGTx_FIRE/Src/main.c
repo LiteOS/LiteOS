@@ -60,29 +60,12 @@ int main(void)
         return LOS_NOK;
     }
 
-    extern UINT32 creat_agenttiny_task();
-    uwRet = creat_agenttiny_task();
+    extern UINT32 create_work_tasks(VOID);
+    uwRet = create_work_tasks();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
-
-#if defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2)
-    extern UINT32 creat_fs_task();
-    uwRet = creat_fs_task();
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
-    }
-#endif
-
-#if defined(USE_PPPOS)
-    #include "osport.h"
-    extern void uart_init(void);  //this uart used for the pppos interface
-    uart_init();
-    extern VOID *main_ppp(UINT32  args);
-    task_create("main_ppp", main_ppp, 0x800, NULL, NULL, 0);
-#endif
 
 
     (void)LOS_Start();
