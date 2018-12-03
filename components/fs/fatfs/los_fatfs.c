@@ -359,7 +359,7 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     {
     	if(off < 0)
     	{
-    		ret_to_errno(FR_INVALID_PARAMETER);
+    	    ret_to_errno(FR_INVALID_PARAMETER);
     	}
     	return off;
     }
