@@ -729,7 +729,7 @@ static int mqtt_subscribe_topic(mqtt_client_s* handle)
     rc = MQTTSubscribe(&handle->client, topic, QOS1, topi_callback);
     if (rc != MQTT_SUCCESS)
     {
-         ATINY_LOG(LOG_FATAL, "MQTTSubscribe fail, topic=%s,rc=%d", rc, topic);
+         ATINY_LOG(LOG_FATAL, "MQTTSubscribe fail,rc=%d, topic=%s", rc, topic);
          atiny_free(topic);
     }
     else
