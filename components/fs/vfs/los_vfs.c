@@ -1160,7 +1160,7 @@ int los_vfs_init (void)
 
 #define MAP_TO_POSIX_RET(ret)   ( (ret) < 0 ? -1 : (ret) )
 
-int open (const char *path, int flags)
+int open (const char *path, int flags,...)
 {
     int ret = los_open (path, flags);
     return MAP_TO_POSIX_RET(ret);
@@ -1205,19 +1205,6 @@ int unlink (const char *path)
 int rename (const char *oldpath, const char *newpath)
 {
     int ret = los_rename (oldpath, newpath);
-    return MAP_TO_POSIX_RET(ret);
-}
-
-int ioctl (int fd, unsigned long func, ...)
-{
-    va_list       ap;
-    unsigned long arg;
-
-    va_start (ap, func);
-    arg = va_arg (ap, unsigned long);
-    va_end (ap);
-
-    int ret = los_ioctl (fd, func, arg);
     return MAP_TO_POSIX_RET(ret);
 }
 
