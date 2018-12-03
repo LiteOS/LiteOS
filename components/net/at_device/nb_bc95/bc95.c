@@ -36,16 +36,6 @@
 #if defined(WITH_AT_FRAMEWORK)
 #include "at_device/bc95.h"
 #include "at_hal.h"
-#define NB_STAT_LOCALPORT 56
-#define AT_LINE_END 		"\r\n"
-#define AT_CMD_BEGIN		"\r\n"
-#define AT_DATAF_PREFIX      "+NSONMI:"
-#define MAX_SOCK_NUM 5
-#define UDP_PROTO   17
-
-#define CGATT  "AT+CGATT?\r"
-#define CGATT_ATTACH "AT+CGATT=1\r"
-#define CGATT_DEATTACH  "AT+CGATT=0\r"
 
 //#include "bc95_test.h"
 
