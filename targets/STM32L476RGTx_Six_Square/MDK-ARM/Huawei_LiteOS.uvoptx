@@ -135,9 +135,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>Lw|勠
-|勠
-趏耈</Name>
+          <Name>Lw擡?擡?趏檁</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -963,7 +961,7 @@
       <GroupNumber>8</GroupNumber>
       <FileNumber>59</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Src\at_hal.c</PathWithFileName>

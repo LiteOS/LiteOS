@@ -41,8 +41,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c1;
-extern I2C_HandleTypeDef hi2c2;
 extern I2C_HandleTypeDef hi2c3;
+extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart3;
 
 /******************************************************************************/
@@ -224,34 +224,6 @@ void I2C1_ER_IRQHandler(void)
 }
 
 /**
-* @brief This function handles I2C2 event interrupt.
-*/
-void I2C2_EV_IRQHandler(void)
-{
-  /* USER CODE BEGIN I2C2_EV_IRQn 0 */
-
-  /* USER CODE END I2C2_EV_IRQn 0 */
-  HAL_I2C_EV_IRQHandler(&hi2c2);
-  /* USER CODE BEGIN I2C2_EV_IRQn 1 */
-
-  /* USER CODE END I2C2_EV_IRQn 1 */
-}
-
-/**
-* @brief This function handles I2C2 error interrupt.
-*/
-void I2C2_ER_IRQHandler(void)
-{
-  /* USER CODE BEGIN I2C2_ER_IRQn 0 */
-
-  /* USER CODE END I2C2_ER_IRQn 0 */
-  HAL_I2C_ER_IRQHandler(&hi2c2);
-  /* USER CODE BEGIN I2C2_ER_IRQn 1 */
-
-  /* USER CODE END I2C2_ER_IRQn 1 */
-}
-
-/**
 * @brief This function handles USART3 global interrupt.
 */
 void USART3_IRQHandler(void)
@@ -263,6 +235,28 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+* @brief This function handles LPUART1 global interrupt.
+*/
+void LPUART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN LPUART1_IRQn 0 */
+  if (__HAL_UART_GET_FLAG(&hlpuart1, UART_FLAG_IDLE) != RESET)
+  {
+      __HAL_UART_CLEAR_IDLEFLAG(&hlpuart1);
+      extern void at_frame_notify_task(void);
+      at_frame_notify_task();
+  }
+  else
+  {
+  /* USER CODE END LPUART1_IRQn 0 */
+  HAL_UART_IRQHandler(&hlpuart1);
+  /* USER CODE BEGIN LPUART1_IRQn 1 */
+  }
+  
+  /* USER CODE END LPUART1_IRQn 1 */
 }
 
 /**
