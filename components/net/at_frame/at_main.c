@@ -811,7 +811,7 @@ void at_init(at_config *config)
     
     AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
-    LOS_TaskDelay(200);
+    //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
     {
         AT_LOG("prepare AT struct failed!");
