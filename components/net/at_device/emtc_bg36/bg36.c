@@ -166,26 +166,6 @@ static void bg36_close_sock(int sock)
     bg36_cmd_with_2_suffix((int8_t*)buf, cmd_len, "OK", "ERROR", NULL,NULL);
 }
 
-void HexStrToStr(const unsigned char *source, unsigned char *dest, int sourceLen)
-{
-    short i;
-    unsigned char highByte, lowByte;
-    for (i = 0; i < sourceLen; i += 2)
-    {
-        highByte = toupper(source[i]);
-        lowByte  = toupper(source[i + 1]);
-        if (highByte > 0x39)
-            highByte -= 0x37;
-        else
-            highByte -= 0x30;
-        if (lowByte > 0x39)
-            lowByte -= 0x37;
-        else
-            lowByte -= 0x30;
-        dest[i / 2] = (highByte << 4) | lowByte;
-    }
-    return ;
-}
 //Direct Push Mode
 int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
 {
