@@ -187,7 +187,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of semaphores
  */
-#define LOSCFG_BASE_IPC_SEM_LIMIT                           20              // the max sem-numb
+#define LOSCFG_BASE_IPC_SEM_LIMIT                           30              // the max sem-numb
 
 
 /*=============================================================================
@@ -204,7 +204,7 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of mutexes
  */
-#define LOSCFG_BASE_IPC_MUX_LIMIT                           15              // the max mutex-num
+#define LOSCFG_BASE_IPC_MUX_LIMIT                           25              // the max mutex-num
 
 
 /*=============================================================================

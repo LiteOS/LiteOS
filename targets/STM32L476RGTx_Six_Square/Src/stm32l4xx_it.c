@@ -252,8 +252,10 @@ void LPUART1_IRQHandler(void)
   else
   {
   /* USER CODE END LPUART1_IRQn 0 */
-  HAL_UART_IRQHandler(&hlpuart1);
+  //HAL_UART_IRQHandler(&hlpuart1);
   /* USER CODE BEGIN LPUART1_IRQn 1 */
+  extern void at_receive_one_byte(UART_HandleTypeDef *huart);
+  at_receive_one_byte(&hlpuart1);
   }
   
   /* USER CODE END LPUART1_IRQn 1 */

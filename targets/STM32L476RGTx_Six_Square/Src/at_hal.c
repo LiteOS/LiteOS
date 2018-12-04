@@ -39,8 +39,6 @@
 
 extern at_task at;
 
-
-UART_HandleTypeDef *at_usart;
 at_config          *at_hal_conf;
 
 
@@ -54,12 +52,6 @@ uint32_t ri = 0;
 
 static void at_usart_adapter(uint32_t port)
 {
-    switch ( port )
-    {
-    default:
-        at_usart = &hlpuart1;
-        break;
-    }
 }
 
 void at_frame_notify_task(void)
@@ -76,18 +68,30 @@ void at_frame_notify_task(void)
     }
 }
 
+void at_receive_one_byte(UART_HandleTypeDef *huart)
+{
+    uint16_t uhdata = (uint16_t) READ_REG(huart->Instance->RDR);
+    
+    at.recv_buf[wi] = (uint8_t)(uhdata & (uint8_t)0x00FFU);
+    wi++; 
+    if(wi == ri)buff_full = 1;
+    if (wi >= at_hal_conf->user_buf_len)wi = 0;
+}
+#if 0
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
         
     if(LPUART1 == huart->Instance)
     {
+       printf("%c\n",at.recv_buf[wi]);
        wi++; 
        if(wi == ri)buff_full = 1;
        if (wi >= at_hal_conf->user_buf_len)wi = 0;
-       HAL_UART_Receive_IT(at_usart,&at.recv_buf[wi],1);
+       
+       HAL_UART_Receive_IT(&hlpuart1,&at.recv_buf[wi],1);
     }
 }
-
+#endif
 
 int32_t at_usart_init(void)
 {
@@ -95,9 +99,12 @@ int32_t at_usart_init(void)
     at_hal_conf = at_get_config();
 
     at_usart_adapter(at_hal_conf->usart_port);
-    __HAL_UART_CLEAR_FLAG(at_usart, UART_FLAG_TC);
-    __HAL_UART_ENABLE_IT(at_usart, UART_IT_IDLE);
-    HAL_UART_Receive_IT(at_usart,&at.recv_buf[wi],1);
+    __HAL_UART_CLEAR_FLAG(&hlpuart1, UART_FLAG_TC);
+
+    __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_RXNE);
+    __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_IDLE);
+    HAL_UART_Receive_IT(&hlpuart1,&at.recv_buf[wi],1);
+    printf("after call at_usart_init \n");
     return AT_OK;
 }
 
@@ -109,11 +116,16 @@ void at_usart_deinit(void)
 
 void at_transmit(uint8_t *cmd, int32_t len, int flag)
 {
+    HAL_StatusTypeDef ret;
+    
     char *line_end = at_hal_conf->line_end;
-    (void)HAL_UART_Transmit(at_usart, (uint8_t *)cmd, len, 0xffff);
+    ret = HAL_UART_Transmit(&hlpuart1, (uint8_t *)cmd, len, 0xffff);
+    printf("cmd is %s, ret is %d\n",cmd,ret);
     if(flag == 1)
     {
-        (void)HAL_UART_Transmit(at_usart, (uint8_t *)line_end, strlen(at_hal_conf->line_end), 0xffff);
+        ret = HAL_UART_Transmit(&hlpuart1, (uint8_t *)line_end, strlen(at_hal_conf->line_end), 0xffff);
+        printf("line_end is %s, ret is %d\n",line_end,ret);
+        
     }
 }
 
@@ -139,6 +151,7 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
     if (recv_buf->end == recv_buf->ori)
     {
         len = 0;
+        printf("receive null char for idle int\n");
         return len;
     }
 
