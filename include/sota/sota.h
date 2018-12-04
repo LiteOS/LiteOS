@@ -35,8 +35,8 @@
 #define __SOTA_H__
 
 #include<stdint.h>
-#include "los_memory.h"
 #include"ota/ota_api.h"
+#include<stddef.h>
 
 typedef enum
 {
@@ -59,6 +59,7 @@ typedef struct
     int (*set_ver)(const char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
     void* (*sota_malloc)(size_t size);
+    int (*sota_printf)(const char *fmt, ...);
     void (*sota_free)(void *ptr);
     uint32_t frame_buf_len;
     uint8_t  run_mode;
@@ -74,8 +75,8 @@ typedef struct
 
 int sota_init(sota_opt_t* flash_op);
 int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
-void sota_tmr(void);
-
+void sota_timeout_handler(void);
+#define DOWNLOADTIME_LIMIT 10*1000
 #define SOTA_DEBUG
 #ifdef SOTA_DEBUG
 #define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
