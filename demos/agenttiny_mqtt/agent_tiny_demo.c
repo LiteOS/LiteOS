@@ -526,7 +526,6 @@ static int handle_rcv_msg(cJSON *msg)
 static int demo_rcv_msg(const uint8_t *msg, int32_t len)
 {
     cJSON *parse_msg = NULL;
-    char *buf = NULL;
     int ret = ATINY_ERR;
     if ((msg == NULL) || len <= 0)
     {
@@ -534,19 +533,8 @@ static int demo_rcv_msg(const uint8_t *msg, int32_t len)
         return ATINY_ERR;
     }
 
-    buf = atiny_malloc(len + 1);
-    if (buf == NULL)
-    {
-        ATINY_LOG(LOG_ERR, "atiny_malloc null, len %ld", len);
-        return ATINY_ERR;
-    }
-
-    memcpy(buf, msg, len);
-    buf[len] = '\0';
-
-    ATINY_LOG(LOG_INFO, "recv msg %s", buf);
-    parse_msg = cJSON_Parse(buf);
-    atiny_free(buf);
+    ATINY_LOG(LOG_INFO, "recv msg %s", msg);
+    parse_msg = cJSON_Parse(msg);
     if (parse_msg != NULL)
     {
         ret = handle_rcv_msg(parse_msg);
