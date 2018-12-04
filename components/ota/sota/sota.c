@@ -382,7 +382,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
         if(ret != SOTA_OK)
         {
             SOTA_LOG("active_software ret:%d! return", ret);
-            tmpbuf[1] = (char)SOTA_FAILED;
+            tmpbuf[0] = (char)SOTA_FAILED;
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)sota_at_send(MSG_EXC_UPDATE, sbuf, 2 * 2);
             return SOTA_FAILED;
