@@ -97,6 +97,8 @@
 #include <stdbool.h>
 
 #include "er-coap-13/er-coap-13.h"
+#include "connection.h"
+
 
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>

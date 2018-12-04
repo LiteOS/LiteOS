@@ -10,7 +10,7 @@
 	   <!-- tlv name="user defined name" attribute="greater or equal than 100,should be a different id">
 		<value name="user defined name" type="string/integer"  value_len="less or equal than 8, only used for integer type">value</value>
 	   </tlv-->
-	   <tlv name="software_info"  attribute="100">		
+	   <!-- tlv name="software_info"  attribute="100">		
 		<value name="software_version" type="string">LiteOSV1R2C510SPC00</value>
 		<value name="software_type" type="integer"  value_len="2">0xffee</value>
 	   </tlv>
@@ -18,5 +18,5 @@
 		<value name="test_vaule" type="integer" attribute="102" value_len="1">100</value>
 		<value name="test_vaule" type="integer" attribute="103" value_len="1">156</value>
 		<value name="test_vaule" type="integer" attribute="104" value_len="4">0x12345678</value>  
-	   </tlv>	      
+	   </tlv-->	      
 </config>
