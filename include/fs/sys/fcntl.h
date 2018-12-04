@@ -49,7 +49,7 @@
 #define O_ACCMODE               (O_RDONLY | O_WRONLY | O_RDWR)
 
 //extern int open (const char *, int, ...);
-extern int open (const char * path, int flags);
+extern int open (const char * path, int flags,...);
 
 #endif
 

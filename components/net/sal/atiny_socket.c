@@ -547,6 +547,6 @@ int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
         fd = ((atiny_net_context *)ctx)->fd;
         return at_api_send(fd , buf, (uint32_t)len);
 #endif
-    return ATINY_NET_ERR;
+
 }
 
