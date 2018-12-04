@@ -356,7 +356,13 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
 
     FRESULT res = f_lseek(fp, off);
     if (res == FR_OK)
-        return off;
+    {
+    	if(off < 0)
+    	{
+    	    ret_to_errno(FR_INVALID_PARAMETER);
+    	}
+    	return off;
+    }
     else
         return ret_to_errno(res);
 }
@@ -450,7 +456,7 @@ static int fatfs_op_readdir (struct dir *dir, struct dirent *dent)
         return ret_to_errno(res);
     }
 
-    len = MIN(sizeof(e.fname), LOS_MAX_FILE_NAME_LEN) - 1;
+    len = MIN(sizeof(e.fname), LOS_MAX_DIR_NAME_LEN+1) - 1;
     strncpy ((char *)dent->name, (const char *) e.fname, len);
     dent->name [len] = '\0';
     dent->size = e.fsize;

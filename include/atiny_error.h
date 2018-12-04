@@ -32,102 +32,31 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup Agenttiny
+/**@defgroup agent AgentTiny
+ * @defgroup agenttiny Agenttiny Definition
  * @ingroup agent
  */
-
-#ifndef PACKAGE_H
-#define PACKAGE_H
-
-//#ifdef WITH_SOTA
-#include "ota_api.h"
-//#endif
-
-/* use sha256 rsa2048 for checksum */
-#define PACK_SHA256_RSA2048 0
-/* use sha256 for checksum */
-#define PACK_SHA256 1
-/* no checksum info */
-#define PACK_NO_CHECKSUM 2
-
-#define PACK_NO 0
-#define PACK_YES 1
-
-/* should define checksum first */
-#ifndef PACK_CHECKSUM
-#define PACK_CHECKSUM PACK_SHA256_RSA2048
-#endif
-
-/* PACK_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
-flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
-write entire block size and need no buffer. but it is not suitable to write to fs system */
-#ifndef PACK_COMBINE_TO_WRITE_LAST_BLOCK
-#define PACK_COMBINE_TO_WRITE_LAST_BLOCK PACK_NO
-#endif
-
-
-/* package head len should not bigger than this */
-#ifndef PACK_MAX_HEAD_LEN
-#define PACK_MAX_HEAD_LEN (4 * 1024)
-#endif
-
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-typedef struct pack_storage_device_api_tag_s pack_storage_device_api_s;
+#ifndef ATINY_ERROR_H
+#define ATINY_ERROR_H
 
 typedef enum
 {
-    PACK_DOWNLOAD_OK,
-    PACK_DOWNLOAD_FAIL
-}pack_download_result_e;
-struct pack_storage_device_api_tag_s
-{
-    int (*write_software)(pack_storage_device_api_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
-    int (*write_software_end)(pack_storage_device_api_s *thi, pack_download_result_e result, uint32_t total_len);
-    int (*active_software)(pack_storage_device_api_s *thi);
-};
+    ATINY_OK                   = 0,
+    ATINY_ARG_INVALID          = -1,
+    ATINY_BUF_OVERFLOW         = -2,
+    ATINY_MSG_CONGEST          = -3,
+    ATINY_MALLOC_FAILED        = -4,
+    ATINY_RESOURCE_NOT_FOUND   = -5,
+    ATINY_RESOURCE_NOT_ENOUGH  = -6,
+    ATINY_CLIENT_UNREGISTERED  = -7,
+    ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_ERR                  = -9
+} atiny_error_e;
 
-
-/**
- *@ingroup agenttiny
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #pack_storage_device_api_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-pack_storage_device_api_s *pack_get_device(void);
-
-/**
- *@ingroup agenttiny
- *@brief initiate storage device.
- *
- *@par Description:
- *This API is used to initiate storage device.
- *@attention none.
- *
- *@param ato_opt        [IN] Ota option.
- *
- *@retval #int          0 if succeed, or error.
- *@par Dependency: none.
- *@see none
- */
-int pack_init_device(const ota_opt_s *ota_opt);
-
-
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
 #endif
 
-#endif //PACKAGE_H
+#endif
 
 

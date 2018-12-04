@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,102 +32,54 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup Agenttiny
- * @ingroup agent
- */
+#ifndef __EMTC_BG36_H__
+#define __EMTC_BG36_H__
 
-#ifndef PACKAGE_H
-#define PACKAGE_H
+#include "at_frame/at_main.h"
+#define IP_LEN 16
+#define AT_MODU_NAME        "BG36"
+#define AT_USART_PORT       3
+#define AT_BUARDRATE        115200
+#define BG36_TIMEOUT      10000    //ms
+#define AT_MAX_LINK_NUM     4
+#define MAX_AT_USERDATA_LEN (1024*4)
 
-//#ifdef WITH_SOTA
-#include "ota_api.h"
-//#endif
+#define AT_LINE_END 		"\r"
+#define AT_CMD_BEGIN		"\r\n"
 
-/* use sha256 rsa2048 for checksum */
-#define PACK_SHA256_RSA2048 0
-/* use sha256 for checksum */
-#define PACK_SHA256 1
-/* no checksum info */
-#define PACK_NO_CHECKSUM 2
-
-#define PACK_NO 0
-#define PACK_YES 1
-
-/* should define checksum first */
-#ifndef PACK_CHECKSUM
-#define PACK_CHECKSUM PACK_SHA256_RSA2048
-#endif
-
-/* PACK_COMBINE_TO_WRITE_LAST_BLOCK is set, the last writing software will read the not writing data from
-flash to combine a entire block, it can save one block to buffer, cause the port write callback will only
-write entire block size and need no buffer. but it is not suitable to write to fs system */
-#ifndef PACK_COMBINE_TO_WRITE_LAST_BLOCK
-#define PACK_COMBINE_TO_WRITE_LAST_BLOCK PACK_NO
-#endif
-
-
-/* package head len should not bigger than this */
-#ifndef PACK_MAX_HEAD_LEN
-#define PACK_MAX_HEAD_LEN (4 * 1024)
-#endif
-
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-typedef struct pack_storage_device_api_tag_s pack_storage_device_api_s;
-
-typedef enum
+typedef struct emtc_socket_info_t
 {
-    PACK_DOWNLOAD_OK,
-    PACK_DOWNLOAD_FAIL
-}pack_download_result_e;
-struct pack_storage_device_api_tag_s
-{
-    int (*write_software)(pack_storage_device_api_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len);
-    int (*write_software_end)(pack_storage_device_api_s *thi, pack_download_result_e result, uint32_t total_len);
-    int (*active_software)(pack_storage_device_api_s *thi);
-};
+    int socket;
+    int len;
+    //short localport;
+    //char localip[IP_LEN];
+    //short remoteport;
+    //char remoteip[IP_LEN];
+
+    int offset;
+    bool used_flag;
+    char *buf;
+
+}emtc_socket_info;//struct to save socket info
 
 
-/**
- *@ingroup agenttiny
- *@brief get storage device.
- *
- *@par Description:
- *This API is used to get storage device.
- *@attention none.
- *
- *@param none.
- *
- *@retval #pack_storage_device_api_s *     storage device.
- *@par Dependency: none.
- *@see none
- */
-pack_storage_device_api_s *pack_get_device(void);
+#define ATI "ATI\r"
+#define ATE0 "ATE0\r"
+#define CMEE "AT+CMEE=2\r"
+#define QCFG "AT+QCFG=\"nwscanseq\",03\r"
 
-/**
- *@ingroup agenttiny
- *@brief initiate storage device.
- *
- *@par Description:
- *This API is used to initiate storage device.
- *@attention none.
- *
- *@param ato_opt        [IN] Ota option.
- *
- *@retval #int          0 if succeed, or error.
- *@par Dependency: none.
- *@see none
- */
-int pack_init_device(const ota_opt_s *ota_opt);
+#define CPIN "AT+CPIN?\r"
+#define CREG "AT+CREG?\r"
+#define GETQICSGP "AT+QICSGP=1\r"
+#define SETCELL "AT+CGREG=2\r"
+#define QUERYCELL "AT+CGREG?\r"
 
-
-#if defined(__cplusplus)
-}
+#define QICSGP "AT+QICSGP=1,1,\"HUAWEI.COM\",\"\",\"\",1\r"
+#define QIACT "AT+QIACT=1\r"
+#define QIACTQUERY "AT+QIACT?\r"
+#define CSQ "AT+CSQ\r"
+#define QIOPEN_SOCKET "AT+QIOPEN=1"
+#define QUERYCFATT "AT+CGATT?\r"
+#define AT_DATAF_PREFIX "+QIURC:"
+#define QPING "AT+QPING=1,\"202.105.205.54\"\r"//"AT+QPING=1,\"10.10.14.3\"\r"
 #endif
-
-#endif //PACKAGE_H
-
-
