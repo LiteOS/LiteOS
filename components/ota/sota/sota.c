@@ -468,12 +468,18 @@ int sota_init(sota_opt_t* flash_opt)
 {
     int  ret;
     flag_op_s flag_op;
+    pack_params_s pack_param;
 
     if(flash_opt == NULL)
     {
         return SOTA_FAILED;
     }
 
+    memcpy(&pack_param.ota_opt, &flash_opt->ota_info, sizeof(pack_param.ota_opt));
+    pack_param.malloc = flash_opt->sota_malloc;
+    pack_param.free = flash_opt->sota_free;
+    pack_param.printf = flash_opt->sota_printf;
+    ret = pack_init_device(&pack_param);
     ret = pack_init_device(&flash_opt->ota_info);
     if (ret != SOTA_OK)
     {

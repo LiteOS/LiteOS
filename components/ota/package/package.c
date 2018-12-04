@@ -199,9 +199,9 @@ static int pack_read_software(struct pack_hardware_tag_s *thi, uint32_t offset, 
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
 
     (void)thi;
-    if (device->ota_opt.read_flash)
+    if (device->params.ota_opt.read_flash)
     {
-        return device->ota_opt.read_flash(device->type, buffer, len, offset);
+        return device->params.ota_opt.read_flash(device->type, buffer, len, offset);
     }
     PACK_LOG("read_flash null");
 
@@ -213,9 +213,9 @@ static int pack_write_software(struct pack_hardware_tag_s *thi, uint32_t offset,
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
 
     (void)thi;
-    if (device->ota_opt.write_flash)
+    if (device->params.ota_opt.write_flash)
     {
-        return device->ota_opt.write_flash(device->type, buffer, len, offset);
+        return device->params.ota_opt.write_flash(device->type, buffer, len, offset);
     }
     PACK_LOG("write_flash null");
 
@@ -233,21 +233,22 @@ static void pack_set_flash_type(struct pack_hardware_tag_s *thi, ota_flash_type_
 static uint32_t pack_get_block_size(struct pack_hardware_tag_s *thi)
 {
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
-    return device->ota_opt.flash_block_size;
+    return device->params.ota_opt.flash_block_size;
 }
 
-int pack_init_device(const ota_opt_s *ota_opt)
+int pack_init_device(const pack_params_s *params)
 {
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
     pack_device_info_s device_info;
 
-    if (ota_opt == NULL)
+    if ((params == NULL) || (params->malloc == NULL)
+        || (params->free == NULL))
     {
-        PACK_LOG("ota_opt null");
+        PACK_LOG("params null");
         return PACK_ERR;
     }
 
-    memcpy(&device->ota_opt, ota_opt, sizeof(device->ota_opt));
+    memcpy(&device->params, params, sizeof(device->params));
 #if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
     dtls_int();
 #endif
@@ -257,7 +258,7 @@ int pack_init_device(const ota_opt_s *ota_opt)
     device->hardware.get_block_size = pack_get_block_size;
 
     device_info.hardware = &device->hardware;
-    memcpy(&device_info.key, &device->ota_opt.key, sizeof(device_info.key));
+    memcpy(&device_info.key, &device->params.ota_opt.key, sizeof(device_info.key));
 
     if(pack_head_set_head_info(&device->head,  &device_info) != PACK_OK)
     {
@@ -268,5 +269,28 @@ int pack_init_device(const ota_opt_s *ota_opt)
 
     return PACK_OK;
 }
+
+pack_params_s * pack_get_params(void)
+{
+    pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
+    return &device->params;
+}
+
+void * pack_malloc(size_t size)
+{
+    pack_params_s *params = pack_get_params();
+
+    return (params->malloc == NULL) ? NULL : params->malloc(size);
+}
+
+void pack_free(void *ptr)
+{
+    pack_params_s *params = pack_get_params();
+    if(params->free != NULL)
+    {
+        params->free(ptr);
+    }
+}
+
 
 

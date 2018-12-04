@@ -52,7 +52,7 @@ typedef struct
 {
     pack_storage_device_api_s interface;
     pack_hardware_s hardware;
-    ota_opt_s ota_opt;
+    pack_params_s params;
     pack_head_s head;
     pack_writer_s writer;
     uint32_t total_len;
