@@ -67,6 +67,11 @@ void atiny_task_entry(void)
     printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
     at_api_register(&esp8266_interface);
 
+    #elif defined(USE_EMTC_BG36)
+    extern at_adaptor_api emtc_bg36_interface;
+    printf("\r\n=============agent_tiny_entry  USE_EMTC_BG36============================\n");
+    at_api_register(&emtc_bg36_interface);
+
     #elif defined(USE_SIM900A)
     extern at_adaptor_api sim900a_interface;
     printf("\r\n=============agent_tiny_entry  USE_SIM900A============================\n");

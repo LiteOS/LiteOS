@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,67 +31,32 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
-#include<stddef.h>
-
-typedef enum
-{
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+/**@defgroup agent AgentTiny
+ * @defgroup agenttiny Agenttiny Definition
+ * @ingroup agent
+ */
+#ifndef ATINY_ERROR_H
+#define ATINY_ERROR_H
 
 typedef enum
 {
-    APP_MODE = 0,
-    BOOTLOADER_MODE,
-}run_mode_e;
+    ATINY_OK                   = 0,
+    ATINY_ARG_INVALID          = -1,
+    ATINY_BUF_OVERFLOW         = -2,
+    ATINY_MSG_CONGEST          = -3,
+    ATINY_MALLOC_FAILED        = -4,
+    ATINY_RESOURCE_NOT_FOUND   = -5,
+    ATINY_RESOURCE_NOT_ENOUGH  = -6,
+    ATINY_CLIENT_UNREGISTERED  = -7,
+    ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_ERR                  = -9
+} atiny_error_e;
 
-typedef struct
-{
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    void* (*sota_malloc)(size_t size);
-    int (*sota_printf)(const char *fmt, ...);
-    void (*sota_free)(void *ptr);
-    uint32_t frame_buf_len;
-    uint8_t  run_mode;
-    uint8_t  rsv[3];
-    ota_opt_s ota_info;
-} sota_opt_t;
-
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
-
-int sota_init(sota_opt_t* flash_op);
-int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
-void sota_timeout_handler(void);
-#define DOWNLOADTIME_LIMIT 10*1000
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
+#ifdef __cplusplus
+}
 #endif
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = 101,
-SOTA_TIMEOUT = 102,
-}SOTA_RET;
 #endif
+
+

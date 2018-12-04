@@ -111,12 +111,14 @@ typedef struct sota_update_info
     uint32_t ver_chk_code;
     char ver[VER_LEN];
     uint8_t state;
+    uint8_t download_tmr;
 } sota_update_info_t;
 
 static sota_opt_t                  g_flash_op;
 static sota_update_info_t          g_at_update_record;
 static pack_storage_device_api_s * g_storage_device;
 static unsigned char* rabuf = NULL;
+static uint8_t tmr_ticks = 0;
 
 #define LITTLE_DNEIAN
 #ifdef LITTLE_DNEIAN
@@ -149,14 +151,14 @@ static int packet_parse(const char *rcvbuf, int32_t len)
 
     if(rcvbuf == NULL || len < sizeof(ota_pcp_head_s) || rabuf == NULL)
     {
-        SOTA_LOG("buf null:%p len:%d",rcvbuf,(int)len);
+        g_flash_op.sota_printf("buf null:%p len:%d",rcvbuf,(int)len);
         goto END;
     }
 
     rlen = strstr(rcvbuf,":");/*lint !e158*/
     if(rlen == NULL)/*lint !e158*/
     {
-        SOTA_LOG("buflen invalid");
+        g_flash_op.sota_printf("buflen invalid");
         goto END;
     }
     buflen = chartoint(rlen+1);
@@ -164,7 +166,7 @@ static int packet_parse(const char *rcvbuf, int32_t len)
     databuf = strstr(rlen,",");
     if(databuf == NULL)
     {
-        SOTA_LOG("buf invalid");
+        g_flash_op.sota_printf("buf invalid");
         goto END;
     }
     buf = databuf + 1;
@@ -182,7 +184,7 @@ static int packet_parse(const char *rcvbuf, int32_t len)
     if(phead->ori_id != PCP_HEAD || (ret != cmd_crc_num) || \
             (phead->msg_code < MSG_GET_VER || phead->msg_code > MSG_NOTIFY_STATE))
     {
-        SOTA_LOG("head wrong! msg_code:%X ver_num:%X ret:%X crc:%X",phead->ori_id,phead->msg_code,ret, cmd_crc_num);
+        g_flash_op.sota_printf("head wrong! msg_code:%X ver_num:%X ret:%X crc:%X",phead->ori_id,phead->msg_code,ret, cmd_crc_num);
         goto END;
     }
 
@@ -215,7 +217,7 @@ static int sota_at_send(msg_code_e msg_code, char *buf, int len)
     unsigned char hbuf[64] = {0};
     if(len >= SEND_BUF_LEN)
     {
-        SOTA_LOG("payload too long");
+        g_flash_op.sota_printf("payload too long");
         return -1;
     }
     pcp_head.ori_id = htons_ota(PCP_HEAD);
@@ -257,7 +259,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
 
     if(packet_parse((const char *)buf, buflen) != 0)
     {
-        SOTA_LOG("valid_check wrong");
+        g_flash_op.sota_printf("valid_check wrong");
         return SOTA_FAILED;
     }
 
@@ -294,6 +296,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
                 g_at_update_record.block_totalnum = htons_ota(notify->block_totalnum);
                 g_at_update_record.block_num = 0;
                 g_at_update_record.ver_chk_code = htons_ota(notify->ver_chk_code);
+                g_at_update_record.download_tmr = tmr_ticks;
             }
             g_at_update_record.state = DOWNLOADING;
             memcpy(g_at_update_record.ver, notify->ver, VER_LEN);
@@ -321,25 +324,26 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
         if((*pbuf != SOTA_OK) || (msg_code != MSG_GET_BLOCK)
             || (g_at_update_record.block_num != block_seq))
         {
-            SOTA_LOG("download wrong,we need %X, but is %X:",(int)g_at_update_record.block_num, (int)block_seq);
+            g_flash_op.sota_printf("download wrong,we need %X, but is %X:",(int)g_at_update_record.block_num, (int)block_seq);
             g_at_update_record.state = IDLE;
             tmpbuf[1] = (char)SOTA_FAILED;
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)sota_at_send(MSG_GET_BLOCK, sbuf, 2 * 2);
             return SOTA_FAILED;
         }
-        SOTA_LOG("off:%lx size:%x",g_at_update_record.block_offset,g_at_update_record.block_size);
+        g_flash_op.sota_printf("off:%lx size:%x",g_at_update_record.block_offset,g_at_update_record.block_size);
         ret = g_storage_device->write_software(g_storage_device, g_at_update_record.block_offset,(const uint8_t *)(pbuf + BLOCK_HEAD), g_at_update_record.block_size);
         if(ret != SOTA_OK)
         {
             tmpbuf[1] = (char)SOTA_FAILED;
-            SOTA_LOG("write_software ret:%d! return", ret);
+            g_flash_op.sota_printf("write_software ret:%d! return", ret);
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)sota_at_send(MSG_GET_BLOCK, sbuf, 2 * 2);
             return SOTA_FAILED;
         }
         g_at_update_record.block_offset += g_at_update_record.block_size;
         g_at_update_record.block_tolen += phead->data_len;
+        g_at_update_record.download_tmr = tmr_ticks;
         if((++g_at_update_record.block_num) < g_at_update_record.block_totalnum)
         {
             memcpy(tmpbuf, g_at_update_record.ver, VER_LEN);
@@ -352,12 +356,12 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
         else//if((g_at_update_record.block_num) >= g_at_update_record.block_totalnum)
         {
             g_at_update_record.state = DOWNLOADED;
-            SOTA_LOG("DOWNLOADED");
+            g_flash_op.sota_printf("DOWNLOADED");
             ret = g_storage_device->write_software_end(g_storage_device, (pack_download_result_e)ret,g_at_update_record.block_tolen);
             if(ret != SOTA_OK)
             {
                 tmpbuf[1] = (char)SOTA_FAILED;
-                SOTA_LOG("write_software_end ret:%d! return", ret);
+                g_flash_op.sota_printf("write_software_end ret:%d! return", ret);
                 (void)ver_to_hex(tmpbuf, 2, sbuf);
                 (void)sota_at_send(MSG_GET_BLOCK, sbuf, 2 * 2);
                 return SOTA_FAILED;
@@ -372,7 +376,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
     if(msg_code == MSG_EXC_UPDATE)
     {
         char tmpbuf[1] = {0};
-        SOTA_LOG("begin update and send");
+        g_flash_op.sota_printf("begin update and send");
         g_at_update_record.state = UPDATING;
         tmpbuf[0] = SOTA_OK;
         (void)ver_to_hex(tmpbuf, 1, sbuf);
@@ -381,8 +385,8 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
         ret = g_storage_device->active_software(g_storage_device);
         if(ret != SOTA_OK)
         {
-            SOTA_LOG("active_software ret:%d! return", ret);
-            tmpbuf[1] = (char)SOTA_FAILED;
+            g_flash_op.sota_printf("active_software ret:%d! return", ret);
+            tmpbuf[0] = (char)SOTA_FAILED;
             (void)ver_to_hex(tmpbuf, 2, sbuf);
             (void)sota_at_send(MSG_EXC_UPDATE, sbuf, 2 * 2);
             return SOTA_FAILED;
@@ -398,7 +402,7 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
     break;
     default:
     {
-        SOTA_LOG("cmd invalid");
+        g_flash_op.sota_printf("cmd invalid");
         break;
     }
     }
@@ -407,8 +411,11 @@ int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen)
 
 void sota_timeout_handler(void)
 {
-    SOTA_LOG("sota over time");
-    g_at_update_record.state = IDLE;
+    if(g_at_update_record.state == DOWNLOADING && ++tmr_ticks - g_at_update_record.download_tmr > DOWNLOADTIME_LIMIT)
+    {
+        g_flash_op.sota_printf("sota download over time");
+        g_at_update_record.state = IDLE;
+    }
     return;
 }
 
@@ -421,10 +428,10 @@ static int sota_status_check(void)
     memset(&g_at_update_record, 0, sizeof(sota_update_info_t));
     if(flag_read(FLAG_APP, (char*)&g_at_update_record, sizeof(sota_update_info_t)))
     {
-        SOTA_LOG("flag read err");
+        g_flash_op.sota_printf("flag read err");
         return SOTA_FAILED;
     }
-    SOTA_LOG("state:%d flash ver:%s",g_at_update_record.state,g_at_update_record.ver);
+    g_flash_op.sota_printf("state:%d flash ver:%s",g_at_update_record.state,g_at_update_record.ver);
 
     if(g_at_update_record.state == DOWNLOADING && g_flash_op.run_mode == BOOTLOADER_MODE)
     {
@@ -436,7 +443,7 @@ static int sota_status_check(void)
     if(state == OTA_SUCCEED)
     {
         (void)g_flash_op.set_ver(g_at_update_record.ver, VER_LEN);
-        SOTA_LOG("we send the ver:%s",g_at_update_record.ver);
+        g_flash_op.sota_printf("we send the ver:%s",g_at_update_record.ver);
         memcpy(tmpbuf + 1, g_at_update_record.ver, VER_LEN);
         (void)ver_to_hex(tmpbuf, VER_LEN+1, sbuf);
         (void)sota_at_send(MSG_NOTIFY_STATE, sbuf, (VER_LEN+1) * 2);
@@ -481,11 +488,12 @@ int sota_init(sota_opt_t* flash_opt)
     flag_op.func_flag_write = func_flag_write;
     (void)flag_init(&flag_op);
     (void)flag_upgrade_init();
+    memset(&g_at_update_record, 0, sizeof(sota_update_info_t));
 
     rabuf = flash_opt->sota_malloc(flash_opt->frame_buf_len);
     if(rabuf == NULL)
     {
-        SOTA_LOG("malloc rabuf failed");
+        g_flash_op.sota_printf("malloc rabuf failed");
         return SOTA_FAILED;
     }
     return sota_status_check();

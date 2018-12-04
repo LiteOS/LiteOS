@@ -542,7 +542,11 @@ int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
 {
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     return atiny_net_write_sock(ctx, buf, len, timeout);
+#elif defined(WITH_AT_FRAMEWORK)
+        int fd;
+        fd = ((atiny_net_context *)ctx)->fd;
+        return at_api_send(fd , buf, (uint32_t)len);
 #endif
-    return ATINY_NET_ERR;
+
 }
 

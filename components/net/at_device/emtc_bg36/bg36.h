@@ -31,67 +31,55 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
 
-#include<stdint.h>
-#include"ota/ota_api.h"
-#include<stddef.h>
+#ifndef __EMTC_BG36_H__
+#define __EMTC_BG36_H__
 
-typedef enum
+#include "at_frame/at_main.h"
+#define IP_LEN 16
+#define AT_MODU_NAME        "BG36"
+#define AT_USART_PORT       3
+#define AT_BUARDRATE        115200
+#define BG36_TIMEOUT      10000    //ms
+#define AT_MAX_LINK_NUM     4
+#define MAX_AT_USERDATA_LEN (1024*4)
+
+#define AT_LINE_END 		"\r"
+#define AT_CMD_BEGIN		"\r\n"
+
+typedef struct emtc_socket_info_t
 {
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+    int socket;
+    int len;
+    //short localport;
+    //char localip[IP_LEN];
+    //short remoteport;
+    //char remoteip[IP_LEN];
 
-typedef enum
-{
-    APP_MODE = 0,
-    BOOTLOADER_MODE,
-}run_mode_e;
+    int offset;
+    bool used_flag;
+    char *buf;
 
-typedef struct
-{
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    void* (*sota_malloc)(size_t size);
-    int (*sota_printf)(const char *fmt, ...);
-    void (*sota_free)(void *ptr);
-    uint32_t frame_buf_len;
-    uint8_t  run_mode;
-    uint8_t  rsv[3];
-    ota_opt_s ota_info;
-} sota_opt_t;
+}emtc_socket_info;//struct to save socket info
 
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
 
-int sota_init(sota_opt_t* flash_op);
-int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
-void sota_timeout_handler(void);
-#define DOWNLOADTIME_LIMIT 10*1000
-#define SOTA_DEBUG
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
-#else
-#define SOTA_LOG(fmt, arg...)
-#endif
+#define ATI "ATI\r"
+#define ATE0 "ATE0\r"
+#define CMEE "AT+CMEE=2\r"
+#define QCFG "AT+QCFG=\"nwscanseq\",03\r"
 
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = 101,
-SOTA_TIMEOUT = 102,
-}SOTA_RET;
+#define CPIN "AT+CPIN?\r"
+#define CREG "AT+CREG?\r"
+#define GETQICSGP "AT+QICSGP=1\r"
+#define SETCELL "AT+CGREG=2\r"
+#define QUERYCELL "AT+CGREG?\r"
+
+#define QICSGP "AT+QICSGP=1,1,\"HUAWEI.COM\",\"\",\"\",1\r"
+#define QIACT "AT+QIACT=1\r"
+#define QIACTQUERY "AT+QIACT?\r"
+#define CSQ "AT+CSQ\r"
+#define QIOPEN_SOCKET "AT+QIOPEN=1"
+#define QUERYCFATT "AT+CGATT?\r"
+#define AT_DATAF_PREFIX "+QIURC:"
+#define QPING "AT+QPING=1,\"202.105.205.54\"\r"//"AT+QPING=1,\"10.10.14.3\"\r"
 #endif

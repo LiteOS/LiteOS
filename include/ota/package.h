@@ -39,9 +39,6 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-#include "ota/package.h"
-
-
 //#ifdef WITH_SOTA
 #include "ota_api.h"
 //#endif

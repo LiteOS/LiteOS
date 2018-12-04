@@ -366,6 +366,7 @@ static int demo_get_time(char *time, int32_t len)
 
 static int proc_rcv_msg(const char*serviceid, const char *cmd, cJSON *paras, int has_more, int mid)
 {
+    ATINY_LOG(LOG_INFO, "proc_rcv_msg call");
     return ATINY_OK;
 }
 
@@ -431,6 +432,8 @@ static int send_msg_resp(int mid, int errcode, int has_more, cJSON *body)
         ATINY_LOG(LOG_ERR, "atiny_mqtt_data_send fail ret %d",  ret);
     }
 
+    ATINY_LOG(LOG_INFO, "send rsp ret %d, rsp: %s", ret, str_msg);
+
 EXIT:
     cJSON_Delete(msg);
     if (body)
@@ -446,7 +449,30 @@ EXIT:
 
 static cJSON *get_resp_body(void)
 {
-    return cJSON_CreateNull();
+    cJSON *body = NULL;
+    cJSON *tmp;
+    const char *body_para = "body_para";
+
+    body = cJSON_CreateObject();
+    if (body == NULL)
+    {
+        ATINY_LOG(LOG_ERR, "cJSON_CreateObject");
+        return NULL;
+    }
+
+    tmp = cJSON_CreateString(body_para);
+    if (tmp == NULL)
+    {
+        ATINY_LOG(LOG_ERR, "cJSON_CreateString null");
+        goto EXIT;
+    }
+    cJSON_AddItemToObject(body, body_para, tmp);
+
+    return body;
+
+EXIT:
+    cJSON_Delete(body);
+    return NULL;
 }
 
 enum
@@ -500,7 +526,6 @@ static int handle_rcv_msg(cJSON *msg)
 static int demo_rcv_msg(const uint8_t *msg, int32_t len)
 {
     cJSON *parse_msg = NULL;
-    char *buf = NULL;
     int ret = ATINY_ERR;
     if ((msg == NULL) || len <= 0)
     {
@@ -508,18 +533,8 @@ static int demo_rcv_msg(const uint8_t *msg, int32_t len)
         return ATINY_ERR;
     }
 
-    buf = atiny_malloc(len + 1);
-    if (buf == NULL)
-    {
-        ATINY_LOG(LOG_ERR, "atiny_malloc null, len %ld", len);
-        return ATINY_ERR;
-    }
-
-    memcpy(buf, msg, len);
-    buf[len] = '\0';
-
-    parse_msg = cJSON_Parse(buf);
-    atiny_free(buf);
+    ATINY_LOG(LOG_INFO, "recv msg %s", msg);
+    parse_msg = cJSON_Parse(msg);
     if (parse_msg != NULL)
     {
         ret = handle_rcv_msg(parse_msg);
