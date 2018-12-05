@@ -328,7 +328,8 @@ endif
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
-        ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
+        ${wildcard $(TOP_DIR)/components/ota/sota/*.c} \
+        ${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/*.c}
         C_SOURCES += $(SOTA_SRC)
 
 endif

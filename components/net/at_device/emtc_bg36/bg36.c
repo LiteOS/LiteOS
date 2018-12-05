@@ -43,7 +43,7 @@ at_adaptor_api at_interface;
 #define MAX_BG36_SOCK_NUM 5
 #define UDP_PROTO   17
 #define MAX_SOCK_NUM 5
-
+#define MAX_SOCKID 11
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
     .usart_port = AT_USART_PORT,
@@ -253,7 +253,7 @@ int send_sock_cmd(const int8_t * host, int port_i, char* service_type)
     char* sockptr;
     while((err > 0) && (++cnt < 50))
     {
-        snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, sockid%11, service_type, host, port_i);
+        snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, sockid % MAX_SOCKID, service_type, host, port_i);
         bg36_cmd(cmd, strlen(cmd), "+QIOPEN:", inbuf,&rbuflen);
         AT_LOG("inbuf:%s",inbuf);
         sockptr = strstr(inbuf,"+QIOPEN:");
@@ -263,7 +263,7 @@ int send_sock_cmd(const int8_t * host, int port_i, char* service_type)
         if(err)
             sockid++;
     }
-        return (cnt <= 50) ? conid : AT_FAILED;
+        return (cnt < 50) ? conid : AT_FAILED;
 
 }
 int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t proto, char* service_type, int with_force)
@@ -294,7 +294,7 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
         return AT_FAILED;
     }
 
-    snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, (sockid++)%11, service_type, host, port_i);
+    snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, (sockid++) % MAX_SOCKID, service_type, host, port_i);
     bg36_cmd(cmd, strlen(cmd), "+QIOPEN", inbuf,&rbuflen);
     str = strstr(inbuf, "+QIOPEN");
     if (str == NULL)
@@ -346,11 +346,11 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
 
     sockinfo[ret].socket = conid;
     sockinfo[ret].used_flag = true;
-    AT_LOG("create socket success!!!!!!!!!\nsockid:%d ret:%d",conid,ret);
+    AT_LOG("create socket success!\nsockid:%d ret:%d",conid,ret);
     return ret;
 
 CLOSE_SOCk:
-    AT_LOG("create socket failed----!!!!!\nsockid:%d ret:%d",conid,ret);
+    AT_LOG("create socket failed!\nsockid:%d ret:%d",conid,ret);
     bg36_close_sock(conid);
     return AT_FAILED;
 
@@ -358,7 +358,7 @@ CLOSE_SOCk:
 
 int32_t bg36_bind(const int8_t * host, const int8_t *port, int32_t proto)
 {
-    AT_LOG("DIDNT go bind!!!!!!!!!\n!!!!!!!!!!!!");
+    AT_LOG("DIDNT go bind!");
     return bg36_create_socket(host, port, proto, "TCP", 1);
 }
 
@@ -368,6 +368,10 @@ int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
     char cmd[64] = {0};
     int ret;
     ret = bg36_create_socket(host, port, proto, "TCP", 1);
+    if(ret < 0 || ret > 11)
+    {
+        return AT_FAILED;
+    }
     snprintf(cmd, 64, "%s%d\r", cmd2,sockinfo[ret].socket);
     bg36_cmd(cmd, strlen(cmd), "+QISTATE:", NULL, NULL);
     return ret;
@@ -495,14 +499,12 @@ static int32_t bg36_init(void)
     memset(&data_ind_info, 0, sizeof(emtc_data_ind_info_s));
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), bg36_data_handler, bg36_cmd_match);
     ret = bg36_cmd(ATI, strlen(ATI), "OK", NULL, NULL);
-    //ret = bg36_cmd(CMEE, strlen(CMEE), "OK", NULL, NULL);
-    //ret = bg36_cmd(QCFG, strlen(QCFG), "OK", NULL, NULL);
     ret = bg36_cmd(ATE0, strlen(ATE0), "OK", NULL, NULL);
     ret = bg36_cmd(CPIN, strlen(CPIN), "+CPIN: READY", NULL, NULL);
     while(1)
     {
         ret = bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
-        bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
+        //bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
         if(strlen(inbuf)!=0)
             sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
         AT_LOG("creg:%d", creg);

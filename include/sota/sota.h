@@ -77,11 +77,21 @@ int sota_init(sota_opt_t* flash_op);
 int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
 void sota_timeout_handler(void);
 #define DOWNLOADTIME_LIMIT 10*1000
-#define SOTA_DEBUG
+
+extern sota_opt_t g_flash_op;
+#define SOTA_DEBUG 1
 #ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, arg...)  printf("[%s:%d][I]"fmt"\n", __func__, __LINE__, ##arg)
+#define SOTA_LOG(fmt, ...) \
+    do \
+    { \
+        if (NULL != g_flash_op.sota_printf) \
+        { \
+            (void)g_flash_op.sota_printf("[%s:%d][I]"fmt"\n", \
+                                  __func__, __LINE__, ##__VA_ARGS__); \
+        } \
+    } while (0)
 #else
-#define SOTA_LOG(fmt, arg...)
+#define SOTA_LOG(fmt, ...) ((void)0)
 #endif
 
 typedef enum
