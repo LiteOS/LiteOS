@@ -303,7 +303,7 @@ else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
 else ifeq ($(NETWORK_TYPE), EMTC_BG36)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
-else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE), NB_NEUL95 NB_NEUL95_ONYL),)
+else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE), NB_NEUL95 NB_NEUL95_NO_ATINY),)
     USER_DRIVERS_SRC = \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
@@ -320,9 +320,8 @@ endif
 
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
-ifeq ($(NETWORK_TYPE), NB_NEUL95_ONYL)
-	NB_NEUL95_ONYL_DEMO = ${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/nb_demo.c \
-						${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/sota_demo.c
+ifeq ($(NETWORK_TYPE), NB_NEUL95_NO_ATINY)
+	NB_NEUL95_ONYL_DEMO = ${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/*.c}
 	C_SOURCES += $(NB_NEUL95_ONYL_DEMO)
 endif
 
