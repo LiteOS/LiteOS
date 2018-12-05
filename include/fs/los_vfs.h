@@ -120,7 +120,7 @@ struct file
 
 struct dirent
 {
-    char                 name [LOS_MAX_DIR_NAME_LEN];
+    char                 name [LOS_MAX_DIR_NAME_LEN+1];
     UINT32               type;
     UINT32               size;
 };

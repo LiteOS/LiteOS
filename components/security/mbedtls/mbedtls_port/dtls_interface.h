@@ -122,7 +122,7 @@ typedef struct
     int udp_or_tcp;
 }dtls_establish_info_s;
 
-void dtls_int(void);
+void dtls_init(void);
 
 mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type);
 

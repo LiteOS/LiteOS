@@ -35,13 +35,14 @@
 #include "flash_manager.h"
 #include "log/atiny_log.h"
 
-
-#define MAX_FLASH_INFO ((STRING_MAX_LEN + 1) * (MAX_DATA_ITEM))
 #define FLASH_MAGIC_NUM 0x57381232
 
 #define MAGIC_NUM_POS 0
 #define TOTAL_LEN_POS 4
 #define DATA_POS 8
+
+#define MAX_FLASH_INFO ((STRING_MAX_LEN + 1) * (MAX_DATA_ITEM) + DATA_POS)
+
 
 static int (*g_cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len);
 
@@ -95,7 +96,7 @@ static int flash_manager_get_need_len(const flash_info_s *flash_info, uint32_t *
    {
        uint32_t tmp_len = strnlen(flash_info->items[i], MAX_FLASH_INFO);
        *len += (tmp_len + 1);
-       if (*len >= MAX_FLASH_INFO)
+       if (*len > MAX_FLASH_INFO)
        {
            ATINY_LOG(LOG_ERR, "write info exceed max");
            return ATINY_ERR;
@@ -135,46 +136,38 @@ void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len)
 int flash_manager_read(flash_info_s *flash_info)
 {
     int ret;
-    uint8_t len_buf[DATA_POS];
     uint32_t len;
     uint32_t magic_num;
     uint8_t *buf;
 
     memset(flash_info, 0, sizeof(*flash_info));
-    ret = g_cmd_ioctl(MQTT_READ_FLASH_INFO, len_buf, sizeof(len_buf));
-    if (ret != ATINY_OK)
-    {
-        ATINY_LOG(LOG_FATAL, "g_cmd_ioctl MQTT_READ_FLASH_INFO fail ret %ld", ret);
-        return ATINY_ERR;
-    }
-    magic_num = *((uint32_t*)len_buf);
-    if (magic_num != FLASH_MAGIC_NUM)
-    {
-        ATINY_LOG(LOG_INFO, "mqtt flash info not valid");
-        return ATINY_ERR;
-    }
-
-
-    len = *((uint32_t*)&len_buf[TOTAL_LEN_POS]);
-    if ((len > MAX_FLASH_INFO) || (len <= DATA_POS))
-    {
-        ATINY_LOG(LOG_ERR, "mqtt flash info len %d invalid", len);
-        return ATINY_ERR;
-    }
-
-    buf = atiny_malloc(len);
+    buf = atiny_malloc(MAX_FLASH_INFO);
     if (buf == NULL)
     {
-        ATINY_LOG(LOG_ERR, "atiny_malloc fail len %d", len);
+        ATINY_LOG(LOG_ERR, "atiny_malloc fail len %d", MAX_FLASH_INFO);
         return ATINY_MALLOC_FAILED;
     }
 
-    ret = g_cmd_ioctl(MQTT_READ_FLASH_INFO, buf, len);
+    ret = g_cmd_ioctl(MQTT_READ_SECRET_INFO, buf, MAX_FLASH_INFO);
     if (ret != ATINY_OK)
     {
-        ATINY_LOG(LOG_FATAL, "g_cmd_ioctl MQTT_READ_FLASH_INFO fail ret %d, len %ld", ret, len);
+        ATINY_LOG(LOG_FATAL, "g_cmd_ioctl MQTT_READ_SECRET_INFO fail ret %ld", ret);
+         goto EXIT;
+    }
 
-        goto EXIT;
+    magic_num = *((uint32_t*)buf);
+    if (magic_num != FLASH_MAGIC_NUM)
+    {
+        ATINY_LOG(LOG_INFO, "mqtt flash info not valid");
+         goto EXIT;
+    }
+
+
+    len = *((uint32_t*)&buf[TOTAL_LEN_POS]);
+    if ((len > MAX_FLASH_INFO) || (len <= DATA_POS))
+    {
+        ATINY_LOG(LOG_ERR, "mqtt flash info len %d invalid", len);
+         goto EXIT;
     }
 
     ret = flash_manager_parse((char *)(buf + DATA_POS), len - DATA_POS, flash_info);
@@ -196,7 +189,7 @@ int flash_manager_write(const flash_info_s *flash_info)
         return ret;
     }
 
-    buf = atiny_malloc(len);
+    buf = atiny_malloc(MAX_FLASH_INFO);
     if (buf == NULL)
     {
         ATINY_LOG(LOG_ERR, "atiny_malloc fail len %d", len);
@@ -204,11 +197,11 @@ int flash_manager_write(const flash_info_s *flash_info)
     }
 
     flash_manager_write_buffer(flash_info, (char *)buf, len);
-    ret = g_cmd_ioctl(MQTT_WRITE_FLASH_INFO, buf, len);
+    ret = g_cmd_ioctl(MQTT_SAVE_SECRET_INFO, buf, MAX_FLASH_INFO);
     atiny_free(buf);
     if (ret != ATINY_OK)
     {
-        ATINY_LOG(LOG_FATAL, "g_cmd_ioctl MQTT_WRITE_FLASH_INFO fail ret %d, len ld", ret, len);
+        ATINY_LOG(LOG_FATAL, "g_cmd_ioctl MQTT_SAVE_SECRET_INFO fail ret %d, len ld", ret, len);
 
     }
     return ret;

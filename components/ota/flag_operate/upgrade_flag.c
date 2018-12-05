@@ -69,6 +69,7 @@ int flag_upgrade_init(void)
     if (crc != g_flag.crc_flag)
     {
         g_flag.upgrade_state = OTA_IDLE;
+        g_flag.upgrade_type = UPGRADE_NONE;
         g_flag.recover_verify = 0;
         g_flag.image_size = 0;
         g_flag.old_image_size = 0;
@@ -115,6 +116,7 @@ int flag_upgrade_get_result(upgrade_state_e *state)
     if (g_flag.upgrade_state == OTA_SUCCEED)
         g_flag.old_image_size = g_flag.image_size;
     g_flag.upgrade_state = OTA_IDLE;
+    g_flag.upgrade_type = UPGRADE_NONE;
 
     return save_flag();
 }

@@ -71,7 +71,7 @@ enum
 
 typedef struct
 {
-        char *items[MAX_DATA_ITEM];
+    char *items[MAX_DATA_ITEM];
 }flash_info_s;
 
 
