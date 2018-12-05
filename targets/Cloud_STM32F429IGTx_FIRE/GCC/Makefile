@@ -341,6 +341,10 @@ OTA_SRC = \
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
+#MQTT has add flash_adaptor.c 
+ifneq ($(WITH_MQTT), yes)
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+endif
 endif
 
 
