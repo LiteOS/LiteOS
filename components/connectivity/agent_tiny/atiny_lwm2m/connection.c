@@ -166,9 +166,9 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
 
     establish_info.psk_or_cert = VERIFY_WITH_PSK;
     establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
-    establish_info.v.p.psk = targetP->secretKey;
+    establish_info.v.p.psk = (const unsigned char *)targetP->secretKey;
     establish_info.v.p.psk_len = targetP->secretKeyLen;
-    establish_info.v.p.psk_identity = targetP->publicIdentity;
+    establish_info.v.p.psk_identity = (const unsigned char *)targetP->publicIdentity;
 
     connP->net_context = (void *)dtls_ssl_new(&establish_info, client_or_server);
     if (NULL == connP->net_context)

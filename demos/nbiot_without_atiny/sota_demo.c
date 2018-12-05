@@ -78,6 +78,23 @@ int32_t sota_callback(void *arg, int8_t* buf, int32_t buflen)
     }
     return 0;
 }
+#define LOG_BUF_SIZE (256)
+int sota_log(const char *fmt, ...)
+{
+    int ret;
+    char str_buf[LOG_BUF_SIZE] = {0};
+    va_list list;
+
+    memset(str_buf, 0, LOG_BUF_SIZE);
+    va_start(list, fmt);
+    ret = vsnprintf(str_buf, LOG_BUF_SIZE, fmt, list);
+    va_end(list);
+
+    printf("%s", str_buf);
+
+    return ret;
+}
+
 
 void nb_sota_demo(void)
 {
@@ -87,6 +104,7 @@ void nb_sota_demo(void)
     .set_ver = set_ver,
     .sota_send = nb_send_str,
     .sota_malloc = at_malloc,
+    .sota_printf = sota_log,
     .sota_free = at_free,
     };
     hal_get_ota_opt(&flash_op.ota_info);
@@ -100,7 +118,37 @@ void nb_sota_demo(void)
     (void)at.oob_register("+NNMI:", strlen("+NNMI:"), sota_callback,sota_cmd_match);
 }
 
+UINT32 creat_report_task()
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+    UINT32 TskHandle;
 
+    task_init_param.usTaskPrio = 1;
+    task_init_param.pcName = "nb_sota_demo";
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)nb_sota_demo;
+    task_init_param.uwStackSize = 0x1000;
+
+    uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+
+}
+
+void agent_tiny_entry(void)
+{
+    UINT32 uwRet = LOS_OK;
+
+    uwRet = creat_report_task();
+    if(LOS_OK != uwRet)
+    {
+        return;
+    }
+
+}
 
 #endif
 
