@@ -257,6 +257,7 @@ static int fatfs_op_open (struct file *file, const char *path_in_mp, int flags)
 {
     FRESULT res;
     FIL     *fp;
+    FILINFO info = {0};
 
     fp = (FIL *) malloc (sizeof(FIL));
     if (fp == NULL)
@@ -264,6 +265,16 @@ static int fatfs_op_open (struct file *file, const char *path_in_mp, int flags)
         PRINT_ERR ("fail to malloc memory in FATFS, <malloc.c> is needed,"
                    "make sure it is added\n");
         return -EINVAL;
+    }
+
+    if (!(flags & O_CREAT) && (flags & O_TRUNC))
+    {
+        res = f_stat(path_in_mp, &info);
+        if(res != FR_OK)
+        {
+            free(fp);
+            return res;
+        }
     }
 
     res = f_open (fp, path_in_mp, fatfs_flags_get (flags));
