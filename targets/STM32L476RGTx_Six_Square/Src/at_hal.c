@@ -87,7 +87,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
        wi++; 
        if(wi == ri)buff_full = 1;
        if (wi >= at_hal_conf->user_buf_len)wi = 0;
-       
        HAL_UART_Receive_IT(&hlpuart1,&at.recv_buf[wi],1);
     }
 }
@@ -103,7 +102,6 @@ int32_t at_usart_init(void)
 
     __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&hlpuart1, UART_IT_IDLE);
-    HAL_UART_Receive_IT(&hlpuart1,&at.recv_buf[wi],1);
     printf("after call at_usart_init \n");
     return AT_OK;
 }
