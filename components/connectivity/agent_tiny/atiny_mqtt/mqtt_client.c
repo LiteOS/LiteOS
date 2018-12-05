@@ -641,10 +641,11 @@ static void mqtt_send_secret_ack(mqtt_client_s* handle)
     }
 }
 
+/*lint -e529*/
 static int mqtt_modify_payload(MessageData *md)
 {
     char *end = ((char *)md->message->payload) + md->message->payloadlen;
-    static uint32_t callback_err; /*lint !e529*/
+    static uint32_t callback_err;
 
     /* add for jason parse,then not need to copy in callback */
     if ((end >= (char *)g_mqtt_readbuf) && (end < (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))
@@ -659,6 +660,7 @@ static int mqtt_modify_payload(MessageData *md)
 
     return ATINY_ERR;
 }
+/*lint +e529*/
 
 
 static void mqtt_recv_secret_topic(MessageData *md)
