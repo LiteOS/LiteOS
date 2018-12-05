@@ -49,6 +49,9 @@ extern "C"{
 #include "jffs2_compiler.h"
 #include "jffs2_errno.h"
 
+#ifdef WITH_LINUX
+#include <stdlib.h>
+#else
 typedef unsigned short  nlink_t;
 typedef long            off_t;
 typedef unsigned short  gid_t;
@@ -62,6 +65,7 @@ typedef unsigned char   u_char;
 typedef unsigned int    ino_t;
 typedef unsigned int    dev_t;
 typedef int             time_t;
+#endif
 #endif
 
 #define loff_t          off_t

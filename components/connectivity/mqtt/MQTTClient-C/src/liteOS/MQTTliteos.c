@@ -50,7 +50,7 @@
 #include <netdb.h>
 #include <errno.h>
 #elif defined(WITH_LWIP)
-#include "lwip/sockets.h"
+//#include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
 #endif
@@ -90,56 +90,13 @@ int TimerLeftMS(Timer *timer)
 
 static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_ms)
 {
-    fd_set read_fds;
-    int fd, ret, rc;
-    int bytes;
-    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};;
-
-    if(NULL == ctx || NULL == buffer)
+    int ret = atiny_net_recv_timeout(ctx, buffer, len, timeout_ms);
+    /* 0 is timeout for mqtt for normal select */
+    if (ret == ATINY_NET_TIMEOUT)
     {
-        ATINY_LOG(LOG_FATAL, "invalid params.");
-        return -1;
+        ret = 0;
     }
-    fd = ((mqtt_context_t *)ctx)->fd;
-    if (interval.tv_sec < 0 || (interval.tv_sec == 0 && interval.tv_usec <= 0))
-    {
-        interval.tv_sec = 0;
-        interval.tv_usec = 100;
-    }
-
-    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&interval, sizeof(struct timeval));
-
-    FD_ZERO(&read_fds);
-    FD_SET(fd, &read_fds);
-
-    ret = select(fd + 1, &read_fds, NULL, NULL, &interval);
-
-    if(ret > 0 && FD_ISSET(fd, &read_fds))
-    {
-        bytes = 0;
-        while (bytes < len)
-        {
-            rc = recv(fd, &buffer[bytes], (size_t)(len - bytes), 0);
-            if (rc == -1)
-            {
-                if (errno != EAGAIN && errno != EWOULDBLOCK)
-                    bytes = -1;
-                break;
-            }
-            else if (rc == 0)
-            {
-                bytes = 0;
-                break;
-            }
-            else
-                bytes += rc;
-        }
-        return bytes;
-    }
-    else
-    {
-        return ret;
-    }
+    return ret;
 }
 
 static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, int len, int timeout_ms)
@@ -183,6 +140,7 @@ static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, in
 static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == buffer)
     {
@@ -190,44 +148,25 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
     }
 
     return ret;
 }
 
-static int los_mqtt_write(void *ctx, unsigned char *buffer, int len, int timeout_ms)
-{
-    int fd, rc;
-    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};;
-
-    if(NULL == ctx || NULL == buffer)
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params.");
-        return -1;
-    }
-    fd = ((mqtt_context_t *)ctx)->fd;
-
-    if (interval.tv_sec < 0 || (interval.tv_sec == 0 && interval.tv_usec <= 0))
-    {
-        interval.tv_sec = 0;
-        interval.tv_usec = 100;
-    }
-
-    setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&interval, sizeof(struct timeval));
-    rc = write(fd, buffer, len);
-    return rc;
-}
 
 /*****************************************************************************
  º¯ Êý Ãû  : los_write
@@ -249,6 +188,7 @@ static int los_mqtt_write(void *ctx, unsigned char *buffer, int len, int timeout
 static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == buffer)
     {
@@ -256,358 +196,125 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
-        ret = los_mqtt_write(n->ctx, buffer, len, timeout_ms);
+    case MQTT_SECURITY_TYPE_NONE :
+        ret = atiny_net_send_timeout(n->ctx, buffer, len, timeout_ms);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = dtls_write(n->ctx, buffer, len);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
     }
 
     return ret;
 }
 
-void NetworkInit(Network *n)
+void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void))
 {
-    if(NULL == n)
+    if((NULL == n) ||
+       (NULL == get_security_info))
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return;
     }
     memset(n, 0x0, sizeof(Network));
-    n->proto = MQTT_PROTO_MAX;
     n->mqttread = los_read;
     n->mqttwrite = los_write;
+    n->get_security_info = get_security_info;
 
     return;
 }
 
 static int los_mqtt_connect(Network *n, char *addr, int port)
 {
-    int type = SOCK_STREAM;
-    struct sockaddr_in address;
-    int rc = -1;
-    sa_family_t family = AF_INET;
-    struct addrinfo *result = NULL;
-    struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
-    mqtt_context_t *ctx = NULL;
-    struct addrinfo *res;
+    char port_str[16];
 
-    if(NULL == n || NULL == addr)
+    (void)snprintf(port_str, sizeof(port_str), "%u", port);
+    port_str[sizeof(port_str) - 1] = '\0';
+    n->ctx = atiny_net_connect(addr, port_str, ATINY_PROTO_TCP);
+    if (n->ctx == NULL)
     {
-        ATINY_LOG(LOG_FATAL, "invalid params.");
-        return -1;
+        ATINY_LOG(LOG_FATAL, "atiny_net_connect fail");
+        return ATINY_NET_ERR;
     }
 
-    if ((rc = getaddrinfo(addr, NULL, &hints, &result)) == 0)
-    {
-        res = result;
-
-        /* prefer ip4 addresses */
-        while (res)
-        {
-            if (res->ai_family == AF_INET)
-            {
-                result = res;
-                break;
-            }
-            res = res->ai_next;
-        }
-
-        if (result->ai_family == AF_INET)
-        {
-            address.sin_port = htons(port);
-            address.sin_family = family = AF_INET;
-            address.sin_addr = ((struct sockaddr_in *)(result->ai_addr))->sin_addr;
-        }
-        else
-            rc = -1;
-
-        freeaddrinfo(result);
-    }
-
-    if (rc == 0)
-    {
-        ctx = (mqtt_context_t *)atiny_malloc(sizeof(mqtt_context_t));
-        if (NULL == ctx)
-        {
-            rc = -1;
-        }
-        else
-        {
-            memset(ctx, 0x0, sizeof(mqtt_context_t));
-            ctx->fd = socket(family, type, 0);
-            if (ctx->fd != -1)
-            {
-                rc = connect(ctx->fd, (struct sockaddr *)&address, sizeof(address));
-                if(0 != rc)
-                {
-                    close(ctx->fd);
-                    ctx->fd = -1;
-                    atiny_free(ctx);
-                    ctx = NULL;
-                }
-                else
-                {
-                    ATINY_LOG(LOG_DEBUG, "connect success.");
-                    n->ctx = (void *)ctx;
-                }
-            }
-            else
-            {
-                rc = -1;
-                atiny_free(ctx);
-                ctx = NULL;
-            }
-        }
-    }
-    return rc;
+    return ATINY_OK;
 }
 
-static void *atiny_calloc(size_t n, size_t size)
-{
-    void *p = atiny_malloc(n * size);
-    if(p)
-    {
-        memset(p, 0, n * size);
-    }
-
-    return p;
-}
-
-#if defined(_MSC_VER)
-#define MSVC_INT_CAST   (int)
-#else
-#define MSVC_INT_CAST
-#endif
-
-int mbedtls_mqtt_connect( mbedtls_net_context *ctx, const char *host,
-                          const char *port, int proto )
-{
-    int ret;
-    struct addrinfo hints, *addr_list, *cur;
-
-    /* Do name resolution with both IPv6 and IPv4 */
-    memset( &hints, 0, sizeof( hints ) );
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
-    hints.ai_protocol = proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
-
-    if( getaddrinfo( host, port, &hints, &addr_list ) != 0 )
-        return( MBEDTLS_ERR_NET_UNKNOWN_HOST );
-
-    /* Try the sockaddrs until a connection succeeds */
-    ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
-    for( cur = addr_list; cur != NULL; cur = cur->ai_next )
-    {
-        ctx->fd = (int) socket( cur->ai_family, cur->ai_socktype,
-                                cur->ai_protocol );
-        if( ctx->fd < 0 )
-        {
-            ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
-            continue;
-        }
-
-        if( connect( ctx->fd, cur->ai_addr, MSVC_INT_CAST cur->ai_addrlen ) == 0 )
-        {
-            ret = 0;
-            break;
-        }
-
-        close( ctx->fd );
-        ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
-    }
-
-    freeaddrinfo( addr_list );
-
-    return( ret );
-}
-
-int mbedtls_net_set_block( mbedtls_net_context *ctx )
-{
-#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
-    !defined(EFI32)
-    u_long n = 0;
-    return( ioctlsocket( ctx->fd, FIONBIO, &n ) );
-#else
-    return( fcntl( ctx->fd, F_SETFL, fcntl( ctx->fd, F_GETFL, 0) & ~O_NONBLOCK ) );
-#endif
-}
-
-int mbedtls_net_set_nonblock( mbedtls_net_context *ctx )
-{
-#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
-    !defined(EFI32)
-    u_long n = 1;
-    return( ioctlsocket( ctx->fd, FIONBIO, &n ) );
-#else
-    return( fcntl( ctx->fd, F_SETFL, fcntl( ctx->fd, F_GETFL, 0) | O_NONBLOCK ) );
-#endif
-}
-
-static void my_debug( void *ctx, int level,
-                      const char *file, int line,
-                      const char *str )
-{
-    const char *p, *basename;
-
-    /* Extract basename from file */
-    for( p = basename = file; *p != '\0'; p++ )
-        if( *p == '/' || *p == '\\' )
-            basename = p + 1;
-
-    mbedtls_fprintf( (FILE *) ctx, "%s:%04d: |%d| %s", basename, line, level, str );
-    fflush(  (FILE *) ctx  );
-}
-
+#define PORT_BUF_LEN 16
 static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 {
     int ret;
-    mbedtls_net_context *server_fd;
     mbedtls_ssl_context *ssl;
-    mbedtls_ssl_config *conf;
-    mbedtls_entropy_context *entropy;
-    mbedtls_ctr_drbg_context *ctr_drbg;
-    char port_str[16] = {0};
-    const char *pers = "myhint";
+    dtls_shakehand_info_s shakehand_info;
+    dtls_establish_info_s establish_info;
+    mqtt_security_info_s *security_info;
+    char port_buf[PORT_BUF_LEN];
 
-    if(NULL == n || NULL == addr)
+    security_info = n->get_security_info();
+
+    if (security_info->security_type == MQTT_SECURITY_TYPE_PSK)
     {
-        ATINY_LOG(LOG_FATAL, "invalid params.");
-        return -1;
+        establish_info.psk_or_cert = VERIFY_WITH_PSK;
+        establish_info.v.p.psk = (unsigned char *)security_info->u.psk.psk;
+        establish_info.v.p.psk_len = security_info->u.psk.psk_len;
+        establish_info.v.p.psk_identity = (unsigned char *)security_info->u.psk.psk_id;
     }
-
-    (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
-    (void)mbedtls_platform_set_snprintf(atiny_snprintf);
-    (void)mbedtls_platform_set_printf(atiny_printf);
-
-    ssl       = mbedtls_calloc(1, sizeof(mbedtls_ssl_context));
-    conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
-    entropy   = mbedtls_calloc(1, sizeof(mbedtls_entropy_context));
-    ctr_drbg  = mbedtls_calloc(1, sizeof(mbedtls_ctr_drbg_context));
-    server_fd = mbedtls_calloc(1, sizeof(mbedtls_net_context));
-
-    if (NULL == ssl || NULL == conf || entropy == NULL ||
-            NULL == ctr_drbg || NULL == server_fd)
-    {
-        goto exit;
-    }
-
-    mbedtls_ssl_init(ssl);
-    mbedtls_ssl_config_init(conf);
-    mbedtls_ctr_drbg_init(ctr_drbg);
-    mbedtls_entropy_init(entropy);
-    server_fd->fd = -1;
-
-    if( ( ret = mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func, entropy,
-                                      (const unsigned char *) pers,
-                                      strlen( pers ) ) ) != 0 )
-    {
-        goto exit;
-    }
-
-    (void)atiny_snprintf(port_str, sizeof(port_str) - 1, "%d", port);
-    if( ( ret = mbedtls_mqtt_connect(server_fd, addr, port_str, MBEDTLS_NET_PROTO_TCP) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, "mbedtls_net_connect failed.");
-        goto exit;
-    }
-    ATINY_LOG(LOG_DEBUG, "mbedtls_net_connect success");
-    n->ctx = (void *)ssl;
-
-    ret = mbedtls_net_set_block( server_fd );
-    if( ret != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! net_set_(non)block() returned -0x%x", -ret );
-        goto exit;
-    }
-    if( ( ret = mbedtls_ssl_config_defaults(conf,
-                                            MBEDTLS_SSL_IS_CLIENT,
-                                            MBEDTLS_SSL_TRANSPORT_STREAM,
-                                            MBEDTLS_SSL_PRESET_DEFAULT ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_config_defaults returned -0x%x", -ret );
-        goto exit;
-    }
-
-    mbedtls_ssl_conf_rng( conf, mbedtls_ctr_drbg_random, ctr_drbg );
-    mbedtls_ssl_conf_dbg( conf, my_debug, stdout );
-
-    mbedtls_ssl_conf_read_timeout( conf, 1 );
-
-    if( ( ret = mbedtls_ssl_conf_psk( conf, (const unsigned char *)(n->psk.psk), n->psk.psk_len,
-                                      (const unsigned char *)(n->psk.psk_id),
-                                      n->psk.psk_id_len ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_conf_psk returned %d", ret );
-        goto exit;
-    }
-
-    if( ( ret = mbedtls_ssl_setup( ssl, conf ) ) != 0 )
-    {
-        ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_setup returned -0x%x", -ret );
-        goto exit;
-    }
-
-    mbedtls_ssl_set_bio( ssl, server_fd, mbedtls_net_send, mbedtls_net_recv,
-                         mbedtls_net_recv_timeout);
-
-    while( ( ret = mbedtls_ssl_handshake( ssl ) ) != 0 )
-    {
-        if( ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE
-                && ret != MBEDTLS_ERR_SSL_TIMEOUT)
-        {
-            ATINY_LOG(LOG_ERR, " failed\n  ! mbedtls_ssl_handshake returned -0x%x", -ret );
-            goto exit;
-        }
-    }
-
-    if( ( ret = mbedtls_ssl_get_record_expansion( ssl ) ) >= 0 )
-        ATINY_LOG(LOG_DEBUG, "    [ Record expansion is %d ]", ret );
     else
-        ATINY_LOG(LOG_DEBUG, "    [ Record expansion is unknown (compression) ]" );
-    ATINY_LOG(LOG_DEBUG, "success");
+    {
+        establish_info.psk_or_cert = VERIFY_WITH_CERT;
+        establish_info.v.c.ca_cert = (const unsigned char *)security_info->u.ca.ca_crt;
+        establish_info.v.c.cert_len = security_info->u.ca.ca_len;
+    }
+    establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
+
+    ssl = (void *)dtls_ssl_new(&establish_info, MBEDTLS_SSL_IS_CLIENT);
+    if (NULL == ssl)
+    {
+        ATINY_LOG(LOG_ERR, "create ssl context failed");
+        goto exit;
+    }
+
+    memset(&shakehand_info, 0, sizeof(dtls_shakehand_info_s));
+
+    if (security_info->security_type == MQTT_SECURITY_TYPE_PSK)
+    {
+        shakehand_info.psk_or_cert = VERIFY_WITH_PSK;
+    }
+    else
+    {
+        shakehand_info.psk_or_cert = VERIFY_WITH_CERT;
+    }
+    shakehand_info.client_or_server = MBEDTLS_SSL_IS_CLIENT;
+    shakehand_info.udp_or_tcp = MBEDTLS_NET_PROTO_TCP;
+    shakehand_info.u.c.host = addr;
+    atiny_snprintf(port_buf, PORT_BUF_LEN, "%d", port);
+    shakehand_info.u.c.port = port_buf;
+
+    ret = dtls_shakehand(ssl, &shakehand_info);
+    if (ret != 0)
+    {
+        ATINY_LOG(LOG_ERR, "ssl shake hand failed");
+        goto exit;
+    }
+
+    n->ctx = ssl;
     return 0;
 exit:
-    if (conf)
-    {
-        mbedtls_ssl_config_free(conf);
-        mbedtls_free(conf);
-    }
-
-    if (ctr_drbg)
-    {
-        mbedtls_ctr_drbg_free(ctr_drbg);
-        mbedtls_free(ctr_drbg);
-    }
-
-    if (entropy)
-    {
-        mbedtls_entropy_free(entropy);
-        mbedtls_free(entropy);
-    }
-
-    if (ssl)
-    {
-        mbedtls_ssl_free(ssl);
-        mbedtls_free(ssl);
-    }
-    if(server_fd)
-    {
-        mbedtls_free(server_fd);
-    }
-    n->ctx = (void *)NULL;
+    dtls_ssl_destroy(ssl);
     return -1;
 }
 
 int NetworkConnect(Network *n, char *addr, int port)
 {
     int ret = -1;
+    mqtt_security_info_s *info;
 
     if(NULL == n || NULL == addr)
     {
@@ -615,16 +322,18 @@ int NetworkConnect(Network *n, char *addr, int port)
         return -1;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_connect(n, addr, port);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_connect(n, addr, port);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
     }
 
@@ -645,22 +354,25 @@ static void los_mqtt_disconnect(void *ctx)
 
 void NetworkDisconnect(Network *n)
 {
+    mqtt_security_info_s *info;
     if(NULL == n)
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return;
     }
 
-    switch(n->proto)
+    info = n->get_security_info();
+    switch(info->security_type)
     {
-    case MQTT_PROTO_NONE :
+    case MQTT_SECURITY_TYPE_NONE :
         los_mqtt_disconnect(n->ctx);
         break;
-    case MQTT_PROTO_TLS_PSK:
+    case MQTT_SECURITY_TYPE_PSK:
+    case MQTT_SECURITY_TYPE_CA:
         dtls_ssl_destroy(n->ctx);
         break;
     default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", n->proto);
+        ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
     }
 

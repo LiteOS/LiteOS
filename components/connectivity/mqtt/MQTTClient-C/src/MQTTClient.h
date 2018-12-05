@@ -36,8 +36,13 @@
 
 #include "MQTTPacket.h"
 #include "stdio.h"
+#define __MQTT_LITE_OS__
+#ifdef __MQTT_LITE_OS__
 #include "MQTTliteos.h"
-	
+#include "osdepends/atiny_osdep.h"
+#endif
+
+
 #if defined(MQTTCLIENT_PLATFORM_HEADER)
 /* The following sequence of macros converts the MQTTCLIENT_PLATFORM_HEADER value
  * into a string constant suitable for use with include.
@@ -133,7 +138,7 @@ typedef struct MQTTClient
     Thread thread;
 #endif
 #ifdef __MQTT_LITE_OS__
-    void *mutex;
+    atiny_task_mutex_s mutex;
 #endif
 } MQTTClient;
 

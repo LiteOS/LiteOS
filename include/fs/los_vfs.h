@@ -40,6 +40,7 @@
 #include <los_typedef.h>
 #include "fs/sys/stat.h"
 
+#define LOS_MAX_DIR_NAME_LEN                 255
 #define LOS_MAX_FILE_NAME_LEN               16
 #define LOS_FS_MAX_NAME_LEN                 LOS_MAX_FILE_NAME_LEN
 #define LOS_MAX_FILES                       8
@@ -55,7 +56,7 @@ typedef long                                off_t;
 //#endif
 
 #if defined (__GNUC__) || defined (__CC_ARM)
-#define VFS_ERRNO_SET(err)                  (errno = (-err))
+#define VFS_ERRNO_SET(err)                  (errno = (err))
 #else
 #define VFS_ERRNO_SET(err)
 #endif
@@ -68,7 +69,7 @@ struct file_ops
     ssize_t (*read)     (struct file *, char *, size_t);
     ssize_t (*write)    (struct file *, const char *, size_t);
     off_t   (*lseek)    (struct file *, off_t, int);
-    int     (*stat)     (struct file *, struct stat *);
+    int     (*stat)     (struct mount_point *, const char *, struct stat *);
     int     (*unlink)   (struct mount_point *, const char *);
     int     (*rename)   (struct mount_point *, const char *, const char *);
     int     (*ioctl)    (struct file *, int, unsigned long);
@@ -119,7 +120,7 @@ struct file
 
 struct dirent
 {
-    char                 name [LOS_MAX_FILE_NAME_LEN];
+    char                 name [LOS_MAX_DIR_NAME_LEN];
     UINT32               type;
     UINT32               size;
 };
@@ -153,15 +154,14 @@ extern int      los_fs_mount (const char *, const char *, void *);
 extern int      los_fs_unmount (const char *);
 extern int      los_vfs_init (void);
 
-extern int      open (const char *path, int flags);
+extern int      open (const char *path, int flags,...);
 extern int      close (int fd);
 extern ssize_t  read (int fd, void *buff, size_t bytes);
 extern ssize_t  write (int fd, const void *buff, size_t bytes);
 extern off_t    lseek (int fd, off_t off, int whence);
 extern int      stat (const char *path, struct stat *stat);
 extern int      unlink (const char *path);
-extern int      rename (const char *old, const char *new);
-extern int      ioctl (int fd, unsigned long func, ...);
+extern int      rename (const char *oldpath, const char *newpath);
 extern int      fsync (int fd);
 extern struct dir *opendir (const char *path);
 extern struct dirent *readdir (struct dir *dir);

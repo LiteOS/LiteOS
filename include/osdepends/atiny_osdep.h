@@ -46,6 +46,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <los_config.h>
+
 /**
  *@ingroup atiny_adapter
  *@brief get time since the system was boot.
@@ -265,6 +267,18 @@ void atiny_mutex_unlock(void* mutex);
  */
 void atiny_reboot(void);
 
+#if (LOSCFG_BASE_IPC_MUX == YES)
+typedef struct
+{
+    UINT32 mutex;
+    UINT32 valid;
+}atiny_task_mutex_s;
+
+int atiny_task_mutex_create(atiny_task_mutex_s *mutex);
+int atiny_task_mutex_delete(atiny_task_mutex_s *mutex);
+int atiny_task_mutex_lock(atiny_task_mutex_s *mutex);
+int atiny_task_mutex_unlock(atiny_task_mutex_s *mutex);
+#endif
 
 #if defined(__cplusplus)
 }

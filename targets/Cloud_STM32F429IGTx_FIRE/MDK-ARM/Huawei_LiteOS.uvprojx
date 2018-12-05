@@ -335,9 +335,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=1,47,177,186,223,1294,1295</MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,USE_NB_NEUL95,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA</Define>
+              <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,USE_NB_NEUL95_NO_ATINY,WITH_SOTA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google;..\..\..\components/connectivity/agent_tiny/atiny_lwm2m</IncludePath>
+              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google;..\..\..\components/connectivity/agent_tiny/atiny_lwm2m</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -412,21 +412,6 @@
               <FilePath>..\Src\at_hal.c</FilePath>
             </File>
             <File>
-              <FileName>spiffs_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\spiffs_stm32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>fatfs_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\fatfs_stm32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\jffs2_stm32f4xx.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\main.c</FilePath>
@@ -446,6 +431,31 @@
               <FileType>1</FileType>
               <FilePath>..\Src\ota_port.c</FilePath>
             </File>
+            <File>
+              <FileName>user_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\user_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>fatfs_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\fatfs_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>jffs2_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\jffs2_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\spiffs_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_adaptor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\flash_adaptor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -455,6 +465,16 @@
               <FileName>bc95.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\net\at_device\nb_bc95\bc95.c</FilePath>
+            </File>
+            <File>
+              <FileName>sim900a.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\at_device\gprs_sim900a\sim900a.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\net\at_device\wifi_esp8266\esp8266.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1192,11 +1212,6 @@
               <FilePath>..\..\..\components\connectivity\lwm2m\core\uri.c</FilePath>
             </File>
             <File>
-              <FileName>utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\connectivity\lwm2m\core\utils.c</FilePath>
-            </File>
-            <File>
               <FileName>commandline.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\examples\shared\commandline.c</FilePath>
@@ -1205,6 +1220,11 @@
               <FileName>er-coap-13.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\connectivity\lwm2m\core\er-coap-13\er-coap-13.c</FilePath>
+            </File>
+            <File>
+              <FileName>lwm2m_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\connectivity\lwm2m\core\lwm2m_utils.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1320,6 +1340,16 @@
               <FileName>agent_tiny_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\demos\agenttiny_lwm2m\agent_tiny_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>nb_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\nbiot_without_atiny\nb_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>sota_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\nbiot_without_atiny\sota_demo.c</FilePath>
             </File>
           </Files>
         </Group>

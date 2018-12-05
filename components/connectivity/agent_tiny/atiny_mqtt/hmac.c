@@ -31,15 +31,16 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#include "hmac.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
-#include "mbedtls/md.h"
+
 #include "mbedtls/md_internal.h"
 #include "osdepends/atiny_osdep.h"
 #include "dtls_interface.h"
-#include "hmac.h"
+
 
 
 int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)

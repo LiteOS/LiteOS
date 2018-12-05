@@ -210,6 +210,7 @@ AGENT_DEMO_MQTT_SRC = \
 CJSON_SRC = \
         ${wildcard $(TOP_DIR)/components/lib/cJSON/cJSON.c}
         C_SOURCES += $(CJSON_SRC)
+        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
 endif
 
 ifeq ($(WITH_FILESYSTEM), yes)
@@ -222,17 +223,17 @@ FS_DEMO_COMMON_SRC = \
         C_SOURCES += $(FS_DEMO_COMMON_SRC)
 
 FS_SPIFFS_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/spiffs_hal.c \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/*.c}
 
 FS_FATFS_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/fatfs_hal.c \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
 
 FS_JFFS2_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_stm32f4xx.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_hal.c \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/src/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
@@ -283,7 +284,8 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/usart.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/dwt.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/eth.c \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c \
+        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/user_task.c
         C_SOURCES += $(USER_SRC)
 
 
@@ -299,17 +301,22 @@ ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
-else ifeq ($(NETWORK_TYPE), NB_NEUL95)
+else ifeq ($(NETWORK_TYPE), EMTC_BG36)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
+else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE)$(AT_COMPILE_ALL), NB_NEUL95 NB_NEUL95_ONYL),)
     USER_DRIVERS_SRC = \
-	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
-	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
-else ifeq ($(NETWORK_TYPE), ALL)
-    USER_DRIVERS_SRC = \
-	${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c} \
-	${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c} \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
+ifeq ($(AT_COMPILE_ALL), ALL)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
+	USER_DRIVERS_SRC += ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
+	USER_DRIVERS_SRC += ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
+	USER_DRIVERS_SRC += \
+	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
+	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
+endif
+
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
 
@@ -327,6 +334,7 @@ OTA_SRC = \
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
 endif
 
 
@@ -386,7 +394,11 @@ ifeq ($(WITH_LWM2M), yes)
 			-D LWM2M_CLIENT_MODE
 endif
 ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
+	ifeq ($(WITH_MQTT), yes)
+		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_cert.h\"
+	else
 		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+	endif
 	ifeq ($(USE_MBEDTLS_DEBUG_C), yes)
 		C_DEFS += -DMBEDTLS_DEBUG_C
 	endif
@@ -406,17 +418,16 @@ ifeq ($(WITH_LWIP), yes)
 
 	ifeq ($(USE_LWIP_TCP), yes)
 		C_DEFS += -DLWIP_TCP=1
+	else
+		C_DEFS += -DLWIP_TCP=0
 	endif
 endif
 
 ifeq ($(WITH_AT_FRAMEWORK), yes)
-		C_DEFS += -DWITH_AT_FRAMEWORK
-		ifneq ($(NETWORK_TYPE), ALL)
-		C_DEFS += -DUSE_$(NETWORK_TYPE)
-		else
-		C_DEFS += -DUSE_ESP8266 -DSIM900A -DNB_NEUL95
-		endif
+	C_DEFS += -DWITH_AT_FRAMEWORK
+	C_DEFS += -DUSE_$(NETWORK_TYPE)
 endif
+
 
 ifeq ($(OTA_PACK_CHECKSUM), NO_CHECKSUM)
 		C_DEFS += -DPACK_CHECKSUM=2
@@ -458,6 +469,9 @@ ifeq ($(WITH_FILESYSTEM), yes)
 endif
 
 
+ifeq ($(WITH_MQTT), yes)
+C_DEFS += -DWITH_MQTT
+endif
 
 
 # AS includes
@@ -566,7 +580,8 @@ FS_SPIFFS_INC = \
         -I $(TOP_DIR)/components/fs/spiffs/spiffs_git/src/default
 
 FS_FATFS_INC = \
-        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source \
+        -I $(TOP_DIR)/components/fs/fatfs/ff13b/source/default
 
 FS_JFFS2_INC = \
         -I $(TOP_DIR)/components/fs/jffs2 \

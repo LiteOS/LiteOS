@@ -56,9 +56,9 @@ extern "C" {
 // SPI flash address
 #define OTA_FLAG_ADDR1                0x00000000
 #define OTA_FLAG_ADDR2                0x00004000
-#define UPDATE_INFO_ADDR              0x00008000
-#define UPDATE_INFO_SIZE              0x00008000
-#define OTA_IMAGE_DOWNLOAD_ADDR       (UPDATE_INFO_ADDR + UPDATE_INFO_SIZE)
+#define MQTT_INFO_ADDR              0x00008000
+#define MQTT_INFO_SIZE              0x00008000
+#define OTA_IMAGE_DOWNLOAD_ADDR       (MQTT_INFO_ADDR + MQTT_INFO_SIZE)
 #define OTA_IMAGE_DOWNLOAD_SIZE       0x00040000
 #define OTA_IMAGE_BCK_ADDR            (OTA_IMAGE_DOWNLOAD_ADDR + OTA_IMAGE_DOWNLOAD_SIZE)
 #define OTA_IMAGE_BCK_SIZE            0x00040000

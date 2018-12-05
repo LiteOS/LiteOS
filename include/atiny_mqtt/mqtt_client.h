@@ -34,120 +34,227 @@
 
 #ifndef __MQTT_CLIENT_H__
 #define __MQTT_CLIENT_H__
+#include "atiny_error.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-#include "mqtt_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MQTT_WILL_FLAG_TRUE (1)
-#define MQTT_WILL_FLAG_FALSE (0)
-#define MQTT_RETAIN_FLAG_TRUE (1)
-#define MQTT_RETAIN_FLAG_FALSE (0)
+#ifndef MQTT_COMMAND_TIMEOUT_MS
+#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
+#endif
+
+#ifndef MQTT_EVENTS_HANDLE_PERIOD_MS
+#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
+#endif
+
+#ifndef MQTT_KEEPALIVE_INTERVAL_S
+#define MQTT_KEEPALIVE_INTERVAL_S (100)
+#endif
+
+#ifndef MQTT_SENDBUF_SIZE
+#define MQTT_SENDBUF_SIZE (1024 * 2)
+#endif
+
+#ifndef MQTT_READBUF_SIZE
+#define MQTT_READBUF_SIZE (1024 * 2)
+#endif
+
+#ifndef MQTT_WRITE_FOR_SECRET_TIMEOUT
+#define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
+#endif
+
+/* deviceReq data msg jason format example to server
+{
+        "msgType":      "deviceReq",
+        "hasMore":      0,
+        "data": [{
+                        "serviceId":    "serviceIdValue",
+                        "data": {
+                                "defineData": "defineValue"
+                        },
+                        "eventTime":    "20161219T114920Z"
+                }]
+}
+
+cloudReq data msg jason format example from server
+{
+	"msgType":"cloudReq",
+	"serviceId":"serviceIdValue",
+	"paras":{
+		"paraName":"paraValue"
+    },
+	"cmd":"cmdValue",
+	"hasMore":0,
+	"mid":0
+}
+
+deviceRsp data msg jason format example to server
+{
+	"msgType":	"deviceRsp",
+	"mid":	0,
+	"errcode":	0,
+	"hasMore":	0,
+	"body":	{
+		"bodyParaName":	"bodyParaValue"
+	}
+}
+
+
+*/
+
+/* msg type, json name, its value is string*/
+#define MQTT_MSG_TYPE "msgType"
+/* msg type report data, json value */
+#define MQTT_DEVICE_REQ "deviceReq"
+
+#define MQTT_CLOUD_REQ "cloudReq"
+
+#define MQTT_DEVICE_RSP "deviceRsp"
+
+/* more data, json name, its value is int, 0 for no more data, 1 for more data */
+#define MQTT_HAS_MORE "hasMore"
+#define MQTT_NO_MORE_DATA 0
+#define MQTT_MORE_DATA 1
+
+
+/* ServiceData array, json name, its value is ServiceData array */
+#define MQTT_DATA "data"
+
+/* ServiceData */
+/* service id, json name, its value is string */
+#define MQTT_SERVICEID "serviceId"
+
+/* service data, json name, its value is an object defined in profile for the device */
+#define MQTT_SERVICE_DATA "serviceData"
+
+/* service data, json name, its value is string, format yyyyMMddTHHmmssZ such as 20161219T114920Z */
+#define MQTT_EVENT_TIME "eventTime"
+
+#define MQTT_CMD "cmd"
+#define MQTT_PARAS "paras"
+#define MQTT_MID "mid"
+
+#define MQTT_ERR_CODE "errcode"
+#define MQTT_ERR_CODE_OK 0
+#define MQTT_ERR_CODE_ERR 1
+
+#define MQTT_BODY "body"
+
+
+
+typedef struct mqtt_client_tag_s mqtt_client_s;
 
 typedef enum
 {
-    ATINY_OK                   = 0,
-    ATINY_ARG_INVALID          = -1,
-    ATINY_BUF_OVERFLOW         = -2,
-    ATINY_MSG_CONGEST          = -3,
-    ATINY_MALLOC_FAILED        = -4,
-    ATINY_RESOURCE_NOT_FOUND   = -5,
-    ATINY_RESOURCE_NOT_ENOUGH  = -6,
-    ATINY_CLIENT_UNREGISTERED  = -7,
-    ATINY_SOCKET_CREATE_FAILED = -8,
-    ATINY_SOCKET_ERROR = -9,
-    ATINY_ERR                  =-10,
-} atiny_error_e;
+    MQTT_SECURITY_TYPE_NONE,
+    MQTT_SECURITY_TYPE_PSK,
+    MQTT_SECURITY_TYPE_CA,
+    MQTT_SECURITY_TYPE_MAX
+}mqtt_security_type_e;
 
-typedef enum cloud_security_type
+
+typedef struct
 {
-    CLOUD_SECURITY_TYPE_NONE,
-    CLOUD_SECURITY_TYPE_PSK,
-    CLOUD_SECURITY_TYPE_CA,
-    CLOUD_SECURITY_TYPE_MAX
-}cloud_security_type_e;
+    uint8_t *psk_id;
+    uint32_t psk_id_len;
+    uint8_t *psk;
+    uint32_t psk_len;
+}mqtt_security_psk_s;
 
-typedef enum cloud_qos_level
-{
-    CLOUD_QOS_MOST_ONCE,    // LWM2M: NON
-    CLOUD_QOS_LEAST_ONCE,   // LWM2M: CON
-    CLOUD_QOS_ONLY_ONCE,
-    CLOUD_QOS_LEVEL_MAX
-}cloud_qos_level_e;
 
-typedef enum cloud_method
-{
-    CLOUD_METHOD_GET,    // MQTT: subscribe
-    CLOUD_METHOD_POST,  // MQTT: publish
-    CLOUD_METHOD_DEL,    // MQTT: unsubscribe
-    CLOUD_METHOD_MAX
-}cloud_method_e;
-
-typedef struct cloud_will_options
-{
-    char *topic_name;
-    char *topic_msg;
-    char retained;
-    cloud_qos_level_e qos;
-}cloud_will_options_t;
-
-typedef struct cloud_msg
-{
-    char *uri;
-    int uri_len;
-    cloud_qos_level_e qos;
-    cloud_method_e method;
-    unsigned int payload_len;
-    void *payload;
-}cloud_msg_t;
-
-typedef void (*atiny_rsp_cb)(cloud_msg_t *msg);
-
-typedef struct atiny_interest_uri
-{
-    char *uri;
-    cloud_qos_level_e qos;
-    atiny_rsp_cb cb;
-}atiny_interest_uri_t;
-
-typedef struct atiny_device_info
-{
-    char *client_id;
-    char *user_name;
-    char *password;
-    char will_flag;
-    cloud_will_options_t *will_options;
-    atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM];
-}atiny_device_info_t;
-
-typedef struct cloud_security_psk
-{
-    unsigned char *psk_id;
-    int psk_id_len;
-    unsigned char *psk;
-    int psk_len;
-}cloud_security_psk_t;
-
-typedef struct cloud_security_ca
+typedef struct
 {
     char *ca_crt;
-    char *server_crt;
-    char *server_key;
-}cloud_security_ca_t;
+    uint32_t ca_len;
+}mqtt_security_ca_s;
 
-typedef struct atiny_param
+typedef struct
+{
+    mqtt_security_type_e security_type;
+    union
+    {
+        mqtt_security_psk_s psk;
+        mqtt_security_ca_s ca;
+    }u;
+}mqtt_security_info_s;
+
+typedef enum
+{
+    MQTT_GET_TIME, // get the system time, the format is YYYYMMDDHH
+    MQTT_RCV_MSG, // notify user a message received.
+    MQTT_WRITE_FLASH_INFO, // write the connection info for dynamic connection.
+    MQTT_READ_FLASH_INFO, // read the connection info for dynamic connection.
+}mqtt_cmd_e;
+
+
+typedef struct
 {
     char *server_ip;
     char *server_port;
-    cloud_security_type_e security_type;
+    mqtt_security_info_s info;
+    int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len); //command io control
+}mqtt_param_s;
+
+typedef enum
+{
+    MQTT_STATIC_CONNECT, //static connection, one device one password mode
+    MQTT_DYNAMIC_CONNECT,//dynamic connection, one product type one password mode
+    MQTT_MAX_CONNECTION_TYPE
+}mqtt_connection_type_e;
+
+
+typedef struct
+{
+    char *deviceid;
+}mqtt_static_connection_info_s;
+
+typedef struct
+{
+    char *productid;
+    char *nodeid;
+}mqtt_dynamic_connection_info_s;
+
+
+typedef enum
+{
+    MQTT_QOS_MOST_ONCE,  //MQTT QOS 0
+    MQTT_QOS_LEAST_ONCE, //MQTT QOS 1
+    MQTT_QOS_ONLY_ONCE,  //MQTT QOS 2
+    MQTT_QOS_MAX
+}mqtt_qos_e;
+
+typedef enum
+{
+    MQTT_CODEC_MODE_BINARY,
+    MQTT_CODEC_MODE_JASON,
+    MQTT_MAX_CODEC_MODE
+}mqtt_codec_mode_e;
+
+typedef enum
+{
+    MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME, //use HMACSHA256 to encode password but no check current time
+    MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME, //use HMACSHA256 to encode password and check current time
+    MQTT_MAX_SIGN_TYPE
+}mqtt_password_sign_type_e;
+
+
+typedef struct
+{
+    mqtt_connection_type_e connection_type;
+    mqtt_codec_mode_e codec_mode;
+    mqtt_password_sign_type_e sign_type;
+    char *password;
     union
     {
-        cloud_security_psk_t psk;
-        cloud_security_ca_t ca;
+        mqtt_static_connection_info_s s_info;
+        mqtt_dynamic_connection_info_s d_info;
     }u;
-}atiny_param_t;
+}mqtt_device_info_s;
+
 
 /**
  *@ingroup agenttiny
@@ -157,14 +264,14 @@ typedef struct atiny_param
  *This API is used to initialize the MQTT protocal.
  *@attention none.
  *
- *@param atiny_params   [IN]  Configure parameters of MQTT.
+ *@param mqtt_param_s   [IN]  Configure parameters of MQTT.
  *@param phandle        [OUT] The handle of the agent_tiny.
  *
- *@retval #int          0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@retval #int          0 if succeed, or the error number @ref mqtt_error_e if failed.
  *@par Dependency: none.
  *@see atiny_bind | atiny_deinit.
  */
-int  atiny_init(atiny_param_t* atiny_params, void** phandle);
+int  atiny_mqtt_init(const mqtt_param_s* atiny_params, mqtt_client_s** phandle);
 
 /**
  *@ingroup agenttiny
@@ -180,23 +287,7 @@ int  atiny_init(atiny_param_t* atiny_params, void** phandle);
  *@par Dependency: none.
  *@see atiny_init | atiny_bind.
  */
-void atiny_deinit(void* phandle);
-
-/**
- *@ingroup agenttiny
- *@brief to judge if the MQTT client has connected to broker.
- *
- *@par Description:
- *This API is used to judge if the MQTT client has connected to broker.
- *@attention none.
- *
- *@param phandle        [OUT] The handle of the agent_tiny.
- *
- *@retval #int          1 if connected, 0 if not connected, or the error number @ref atiny_error_e if failed.
- *@par Dependency: none.
- *@see atiny_bind | atiny_deinit.
- */
-int atiny_isconnected(void* phandle);
+void atiny_mqtt_deinit(mqtt_client_s* phandle);
 
 /**
  *@ingroup agenttiny
@@ -209,11 +300,11 @@ int atiny_isconnected(void* phandle);
  *@param device_info    [IN] The information of devices to be bound.
  *@param phandle        [IN] The handle of the agent_tiny.
  *
- *@retval #int          0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@retval #int          0 if succeed, or the error number @ref mqtt_error_e if failed.
  *@par Dependency: none.
  *@see atiny_init | atiny_deinit.
  */
-int atiny_bind(atiny_device_info_t* device_info, void* phandle);
+int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* phandle);
 
 /**
  *@ingroup agenttiny
@@ -224,14 +315,32 @@ int atiny_bind(atiny_device_info_t* device_info, void* phandle);
  *@attention none.
  *
  *@param phandle        [IN] The handle of the agent_tiny.
- *@param send_data    [IN] Data to be sended.
-  *@param cb              [IN] callback funtion if method of send_data is CLOUD_METHOD_GET, otherwise is NULL.
+ *@param msg    [IN] Message to be sended.
+ *@param msg_len              [IN] Message length.
+ *@param qos              [IN] quality of service used in MQTT protocol.
  *
- *@retval #int           0 if succeed, or the error number @ref atiny_error_e if failed.
+ *@retval #int           0 if succeed, or the error number @ref mqtt_error_e if failed.
  *@par Dependency: none.
  *@see none.
  */
-int atiny_data_send(void* phandle, cloud_msg_t* send_data, atiny_rsp_cb cb);
+int atiny_mqtt_data_send(mqtt_client_s* phandle, const char *msg,  uint32_t msg_len, mqtt_qos_e qos);
+
+/**
+ *@ingroup agenttiny
+ *@brief to judge if the MQTT client has connected to broker.
+ *
+ *@par Description:
+ *This API is used to judge if the MQTT client has connected to broker.
+ *@attention none.
+ *
+ *@param phandle        [OUT] The handle of the agent_tiny.
+ *
+ *@retval #int          1 if connected, 0 if not connected, or the error number @ref mqtt_error_e if failed.
+ *@par Dependency: none.
+ *@see atiny_bind | atiny_deinit.
+ */
+int atiny_mqtt_isconnected(mqtt_client_s* phandle);
+
 
 #ifdef __cplusplus
 }

@@ -32,19 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if !defined(__MQTT_LITE_OS__)
-#define __MQTT_LITE_OS__
-
-#if defined(WIN32_DLL) || defined(WIN64_DLL)
-  #define DLLImport __declspec(dllimport)
-  #define DLLExport __declspec(dllexport)
-#elif defined(LINUX_SO)
-  #define DLLImport extern
-  #define DLLExport  __attribute__ ((visibility ("default")))
-#else
-  #define DLLImport
-  #define DLLExport
-#endif
+#if !defined(MQTT_LITE_OS_H)
+#define MQTT_LITE_OS_H
 
 
 #include <stdio.h>
@@ -55,6 +44,8 @@
 #include <los_sys.h>
 #include "sal/atiny_socket.h"
 #include "log/atiny_log.h"
+#include "atiny_mqtt/mqtt_client.h"
+
 
 typedef struct Timer
 {
@@ -67,28 +58,6 @@ void TimerCountdownMS(Timer*, unsigned int);
 void TimerCountdown(Timer*, unsigned int);
 int TimerLeftMS(Timer*);
 
-typedef enum mqtt_proto
-{
-    MQTT_PROTO_NONE = 0,
-    MQTT_PROTO_TLS_PSK,
-    MQTT_PROTO_TLS_CA,
-    MQTT_PROTO_MAX
-}mqtt_proto_e;
-
-typedef struct mqtt_security_psk
-{
-    unsigned char *psk_id;
-    int psk_id_len;
-    unsigned char *psk;
-    int psk_len;
-}mqtt_security_psk_t;
-
-typedef struct mqtt_security_ca
-{
-    char *ca_crt;
-    char *server_crt;
-    char *server_key;
-}mqtt_security_ca_t;
 
 typedef struct mqtt_context
 {
@@ -97,19 +66,15 @@ typedef struct mqtt_context
 
 typedef struct Network
 {
-    mqtt_proto_e proto;
     void *ctx;
     int (*mqttread) (struct Network*, unsigned char*, int, int);
     int (*mqttwrite) (struct Network*, unsigned char*, int, int);
-    union
-    {
-        mqtt_security_psk_t psk;
-        mqtt_security_ca_t ca;
-    };
+
+    mqtt_security_info_s *(*get_security_info)(void);
 } Network;
 
-DLLExport void NetworkInit(Network*);
-DLLExport int NetworkConnect(Network*, char*, int);
-DLLExport void NetworkDisconnect(Network*);
+void NetworkInit(Network* n, mqtt_security_info_s *(*get_security_info)(void));
+int NetworkConnect(Network*, char*, int);
+void NetworkDisconnect(Network*);
 
 #endif

@@ -32,185 +32,855 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
+#include "atiny_mqtt/mqtt_client.h"
 #include "los_base.h"
 #include "los_task.ph"
 #include "los_typedef.h"
 #include "los_sys.h"
-#include "atiny_mqtt/mqtt_client.h"
 #include "log/atiny_log.h"
 #include "MQTTClient.h"
+#include "flash_manager.h"
+#include "dtls_interface.h"
+#include "cJSON.h"
+#include "hmac.h"
 
 #define MQTT_CONN_FAILED_MAX_TIMES (6)
 #define MQTT_CONN_FAILED_BASE_DELAY (1000)
 
 #define MQTT_VERSION_3_1 (3)
 #define MQTT_VERSION_3_1_1 (4)
-#define MQTT_CLEAN_SESSION_TRUE (1)
-#define MQTT_CLEAN_SESSION_FALSE (0)
-#define MQTT_TOPIC_SUBSCRIBED_TRUE (1)
-#define MQTT_TOPIC_SUBSCRIBED_FALSE (0)
 
-void mqtt_message_arrived(MessageData *md);
-void device_info_member_free(atiny_device_info_t *info);
+#define VARIABLE_SIZE (4 + 1)
+#define CMD_TOPIC_FMT "/huawei/v1/devices/%s/command/%s"
+#define DATA_TOPIC_FMT "/huawei/v1/devices/%s/data/%s"
+#define SECRET_NOTIFY_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretNotify"
+#define SECRET_ACK_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretACK"
 
-unsigned char mqtt_sendbuf[MQTT_SENDBUF_SIZE];
-unsigned char mqtt_readbuf[MQTT_READBUF_SIZE];
+
+
+
+#define MQTT_TIME_BUF_LEN 11
+
+#define IS_VALID_NAME_LEN(name) (strnlen((name), STRING_MAX_LEN + 1) <= STRING_MAX_LEN)
+
+
+
+typedef enum
+{
+    MQTT_CONNECT_WITH_PRODUCT_ID,
+    MQTT_CONNECT_WITH_DEVICE_ID
+}MQTT_DYNAMIC_CONNECT_STATE;
 
 typedef struct
 {
-    atiny_device_info_t device_info;
-    MQTTClient client;
-    atiny_param_t atiny_params;
-    char atiny_quit;
-    char bind_quit;
-} handle_data_t;
+    mqtt_static_connection_info_s save_info;
+    char *  got_passward;
+    MQTT_DYNAMIC_CONNECT_STATE state;
+    uint8_t connection_update_flag;
+    uint8_t has_device_id; //
+    uint8_t reserve[2];
+}mqtt_dynamic_info_s;
 
-static handle_data_t g_atiny_handle;
-
-void atiny_param_member_free(atiny_param_t *param)
+struct mqtt_client_tag_s
 {
-    if(NULL == param)
+    mqtt_device_info_s device_info;
+    MQTTClient client;
+    mqtt_param_s params;
+    mqtt_dynamic_info_s dynamic_info;
+    char *sub_topic;
+    uint8_t atiny_quit;
+    uint8_t bind_quit;
+    uint8_t reserve[2];
+};
+
+
+static uint8_t g_mqtt_sendbuf[MQTT_SENDBUF_SIZE];
+
+/* reserve 1 byte for string end 0 for jason */
+static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE + 1];
+
+
+static mqtt_client_s g_mqtt_client;
+
+static int mqtt_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
+{
+    mqtt_client_s* handle = &g_mqtt_client;
+
+    if (handle->params.cmd_ioctl != NULL)
+    {
+        return handle->params.cmd_ioctl(cmd, arg, len);
+    }
+    ATINY_LOG(LOG_FATAL, "cmd_ioctl null");
+    return ATINY_ERR;
+}
+
+
+static void mqtt_free_params(mqtt_param_s *param)
+{
+
+    TRY_FREE_MEM(param->server_ip);
+    TRY_FREE_MEM(param->server_port);
+    switch(param->info.security_type)
+    {
+    case MQTT_SECURITY_TYPE_PSK:
+        TRY_FREE_MEM(param->info.u.psk.psk_id);
+        TRY_FREE_MEM(param->info.u.psk.psk);
+        break;
+    case MQTT_SECURITY_TYPE_CA:
+        TRY_FREE_MEM(param->info.u.ca.ca_crt);
+        break;
+    default:
+        break;
+    }
+}
+
+
+static int mqtt_check_param(const mqtt_param_s *param)
+{
+    if ((param->server_ip == NULL)
+        || (param->server_port == NULL)
+        || (param->info.security_type >= MQTT_SECURITY_TYPE_MAX)
+        || (param->cmd_ioctl == NULL))
+    {
+        ATINY_LOG(LOG_FATAL, "invalid param, sec type %d", param->info.security_type);
+        return ATINY_ARG_INVALID;
+    }
+    if (param->info.security_type == MQTT_SECURITY_TYPE_PSK)
+    {
+        if ((param->info.u.psk.psk == NULL)
+        || (param->info.u.psk.psk_len <= 0)
+        || (param->info.u.psk.psk_id == NULL)
+        || (param->info.u.psk.psk_id_len <= 0))
+        {
+            ATINY_LOG(LOG_FATAL, "invalid psk");
+            return ATINY_ARG_INVALID;
+        }
+    }
+
+    if (param->info.security_type == MQTT_SECURITY_TYPE_CA)
+    {
+        if (param->info.u.ca.ca_crt == NULL)
+        {
+            ATINY_LOG(LOG_FATAL, "invalid ca");
+            return ATINY_ARG_INVALID;
+        }
+    }
+
+    return ATINY_OK;
+}
+
+static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
+{
+    memset(dest, 0, sizeof(*dest));
+
+    dest->info.security_type = src->info.security_type;
+    dest->cmd_ioctl = src->cmd_ioctl;
+
+    dest->server_ip = atiny_strdup(src->server_ip);
+    if(NULL == dest->server_ip)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+        return ATINY_MALLOC_FAILED;
+    }
+
+    dest->server_port = atiny_strdup(src->server_port);
+    if(NULL == dest->server_port)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+        goto mqtt_param_dup_failed;
+    }
+
+
+    switch(src->info.security_type)
+    {
+    case MQTT_SECURITY_TYPE_PSK:
+        dest->info.u.psk.psk_id = (uint8_t *)atiny_malloc(src->info.u.psk.psk_id_len);
+        if(NULL == dest->info.u.psk.psk_id)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+            goto mqtt_param_dup_failed;
+        }
+        memcpy(dest->info.u.psk.psk_id, src->info.u.psk.psk_id, src->info.u.psk.psk_id_len);
+        dest->info.u.psk.psk_id_len = src->info.u.psk.psk_id_len;
+
+        dest->info.u.psk.psk = (unsigned char *)atiny_malloc(src->info.u.psk.psk_len);
+        if(NULL == dest->info.u.psk.psk)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+            goto mqtt_param_dup_failed;
+        }
+        memcpy(dest->info.u.psk.psk, src->info.u.psk.psk, src->info.u.psk.psk_len);
+        dest->info.u.psk.psk_len = src->info.u.psk.psk_len;
+        break;
+
+    case MQTT_SECURITY_TYPE_CA:
+        dest->info.u.ca.ca_crt = (char *)atiny_malloc(src->info.u.ca.ca_len);
+        if(NULL == dest->info.u.ca.ca_crt)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+            goto mqtt_param_dup_failed;
+        }
+        memcpy(dest->info.u.ca.ca_crt, src->info.u.ca.ca_crt, src->info.u.ca.ca_len);
+        dest->info.u.ca.ca_len = src->info.u.ca.ca_len;
+        break;
+    default:
+        break;
+    }
+
+
+    return ATINY_OK;
+
+mqtt_param_dup_failed:
+    mqtt_free_params(dest);
+    return ATINY_MALLOC_FAILED;
+}
+
+
+static void mqtt_free_device_info(mqtt_device_info_s *info)
+{
+
+    TRY_FREE_MEM(info->password);
+    if(MQTT_STATIC_CONNECT == info->connection_type)
+    {
+        TRY_FREE_MEM(info->u.s_info.deviceid);
+    }
+    else
+    {
+        TRY_FREE_MEM(info->u.d_info.productid);
+        TRY_FREE_MEM(info->u.d_info.nodeid);
+    }
+}
+
+static void mqtt_free_dynamic_info(mqtt_client_s* handle)
+{
+    if (handle->sub_topic)
+    {
+        (void)MQTTSetMessageHandler(&handle->client, handle->sub_topic, NULL);
+        atiny_free(handle->sub_topic);
+        handle->sub_topic = NULL;
+    }
+    TRY_FREE_MEM(handle->dynamic_info.save_info.deviceid);
+    TRY_FREE_MEM(handle->dynamic_info.got_passward);
+}
+
+
+static int mqtt_check_device_info(const mqtt_device_info_s *info)
+{
+    if((info->connection_type >= MQTT_MAX_CONNECTION_TYPE)
+        || (info->codec_mode >= MQTT_MAX_CODEC_MODE)
+        || (info->sign_type >= MQTT_MAX_SIGN_TYPE)
+        || (NULL == info->password))
+    {
+        ATINY_LOG(LOG_FATAL, "invalid device info con_type %d codec_mode %d signe type %d",
+            info->connection_type, info->codec_mode, info->sign_type);
+        return ATINY_ARG_INVALID;
+    }
+
+    if ((info->connection_type == MQTT_STATIC_CONNECT)
+        && ((NULL == info->u.s_info.deviceid)
+        || (!IS_VALID_NAME_LEN(info->u.s_info.deviceid))))
+    {
+        ATINY_LOG(LOG_FATAL, "invalid static device info con_type %d codec_mode %d signe type %d",
+            info->connection_type, info->codec_mode, info->sign_type);
+        return ATINY_ARG_INVALID;
+    }
+
+    if ((info->connection_type == MQTT_DYNAMIC_CONNECT)
+        &&((NULL == info->u.d_info.productid)
+        || (!IS_VALID_NAME_LEN(info->u.d_info.productid))
+        || (NULL == info->u.d_info.nodeid)
+        || !(IS_VALID_NAME_LEN(info->u.d_info.nodeid))))
+    {
+        ATINY_LOG(LOG_FATAL, "invalid dynamic device info con_type %d codec_mode %d signe type %d",
+            info->connection_type, info->codec_mode, info->sign_type);
+        return ATINY_ARG_INVALID;
+    }
+
+    return ATINY_OK;
+
+}
+
+static int mqtt_dup_device_info(mqtt_device_info_s *dest, const mqtt_device_info_s *src)
+{
+    memset(dest, 0, sizeof(*dest));
+    dest->connection_type = src->connection_type;
+    dest->sign_type = src->sign_type;
+    dest->codec_mode = src->codec_mode;
+    dest->password = atiny_strdup(src->password);
+    if (NULL == dest->password)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_strdup fail");
+        return ATINY_MALLOC_FAILED;
+    }
+
+    if(MQTT_STATIC_CONNECT == src->connection_type)
+    {
+        dest->u.s_info.deviceid = atiny_strdup(src->u.s_info.deviceid);
+        if (NULL == dest->u.s_info.deviceid)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup fail");
+            goto MALLOC_FAIL;
+        }
+    }
+    else
+    {
+
+        dest->u.d_info.productid = atiny_strdup(src->u.d_info.productid);
+        if (NULL == dest->u.d_info.productid)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup fail");
+            goto MALLOC_FAIL;
+        }
+        dest->u.d_info.nodeid = atiny_strdup(src->u.d_info.nodeid);
+        if (NULL == dest->u.d_info.nodeid)
+        {
+            ATINY_LOG(LOG_FATAL, "atiny_strdup fail");
+            goto MALLOC_FAIL;
+        }
+    }
+
+    return ATINY_OK;
+
+MALLOC_FAIL:
+    mqtt_free_device_info(dest);
+    return ATINY_MALLOC_FAILED;
+}
+
+
+static bool mqtt_is_connectting_with_deviceid(const mqtt_client_s* handle)
+{
+    return (MQTT_STATIC_CONNECT == handle->device_info.connection_type)
+           || (handle->dynamic_info.state == MQTT_CONNECT_WITH_DEVICE_ID);
+}
+
+static char *mqtt_add_strings(const char* strs[], uint32_t tmp_len[], uint32_t str_num)
+{
+    uint32_t i;
+    const char hyphen = '_';
+    uint32_t len = 0;
+    char *result;
+    char *cur;
+
+    for (i = 0; i < str_num; i++)
+    {
+        tmp_len[i] = strnlen(strs[i], STRING_MAX_LEN);
+        len += (tmp_len[i] + 1);
+    }
+
+    result = atiny_malloc(len);
+    if (result == NULL)
+    {
+        ATINY_LOG(LOG_FATAL, "mqtt_cmd_ioctl fail");
+        return NULL;
+    }
+
+    cur = result;
+    for (i = 0; i < str_num; i++)
+    {
+        memcpy(cur, strs[i], tmp_len[i]);
+        cur += tmp_len[i];
+        if (i != str_num - 1)
+        {
+            *cur = hyphen;
+            cur++;
+        }
+    }
+    *cur = '\0';
+
+    return result;
+}
+
+static const char *mqtt_connection_type_to_str(mqtt_connection_type_e type)
+{
+    return MQTT_STATIC_CONNECT == type ? "0" : "1";
+}
+
+static const char *mqtt_sign_type_to_str(mqtt_password_sign_type_e type)
+{
+    return MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME == type ? "0" : "1";
+}
+
+static void mqtt_bin_to_str(const uint8_t *bin_buf, char *str_buf, uint32_t bin_len)
+{
+    uint32_t i;
+
+    for(i = 0; i < bin_len; i++)
+    {
+        (void)snprintf(str_buf + i * 2, 3, "%02x", bin_buf[i]);
+    }
+}
+static char *mqtt_get_send_password(char *password, char *time)
+{
+#if 1
+    uint8_t hmac[32];
+    const uint32_t len = sizeof(hmac) * 2 + 1;
+    char *result;
+    int ret;
+
+    mbedtls_hmac_t hmac_info;
+
+    hmac_info.secret = (uint8_t *)time;
+    hmac_info.secret_len = strnlen(time, MQTT_TIME_BUF_LEN);
+    hmac_info.input = (uint8_t *)password;
+    hmac_info.input_len = strnlen(password, STRING_MAX_LEN);
+    hmac_info.digest = hmac;
+    hmac_info.digest_len = sizeof(hmac);
+    hmac_info.hmac_type = MBEDTLS_MD_SHA256;
+    ret = mbedtls_hmac_calc(&hmac_info);
+    if (ret != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "mbedtls_hmac_calc fail,ret %d", ret);
+        return NULL;
+    }
+
+    result = atiny_malloc(len);
+    if (result == NULL)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_malloc fail");
+        return NULL;
+    }
+
+    mqtt_bin_to_str(hmac, result, sizeof(hmac));
+    return result;
+#else
+    return atiny_strdup(password);
+#endif
+
+}
+
+static void mqtt_destroy_data_connection_info(MQTTPacket_connectData *data)
+{
+    TRY_FREE_MEM(data->clientID.cstring);
+    TRY_FREE_MEM(data->password.cstring);
+}
+
+static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectData *data)
+{
+    char *strs[5];
+    uint32_t tmp[array_size(strs)];
+    uint32_t str_num = 0;
+    char time[MQTT_TIME_BUF_LEN];
+    char *password;
+
+    if (mqtt_is_connectting_with_deviceid(handle))
+    {
+        if (handle->device_info.connection_type == MQTT_STATIC_CONNECT)
+        {
+            strs[0] = handle->device_info.u.s_info.deviceid;
+            password = handle->device_info.password;
+        }
+        else
+        {
+            strs[0] = handle->dynamic_info.save_info.deviceid;
+            password = handle->dynamic_info.got_passward;
+        }
+        str_num = 1;
+        ATINY_LOG(LOG_INFO, "try static connect");
+    }
+    else
+    {
+        strs[0] = handle->device_info.u.d_info.productid;
+        strs[1] = handle->device_info.u.d_info.nodeid;
+        str_num = 2;
+        password = handle->device_info.password;
+        ATINY_LOG(LOG_INFO, "try dynamic connect");
+    }
+
+    strs[str_num++] = (char *)mqtt_connection_type_to_str(
+            mqtt_is_connectting_with_deviceid(handle) ? MQTT_STATIC_CONNECT : MQTT_DYNAMIC_CONNECT);
+    strs[str_num++] = (char *)mqtt_sign_type_to_str(handle->device_info.sign_type);
+    if (mqtt_cmd_ioctl(MQTT_GET_TIME, time, sizeof(time)) != ATINY_OK)
+    {
+        ATINY_LOG(LOG_FATAL, "mqtt_cmd_ioctl fail");
+        return ATINY_ERR;
+    }
+    strs[str_num++] = time;
+
+    data->clientID.cstring = mqtt_add_strings((const char **)strs, tmp, str_num);
+    if (data->clientID.cstring == NULL)
+    {
+        return ATINY_MALLOC_FAILED;
+    }
+
+    data->username.cstring = strs[0]; //deviceid or pruoductid
+    data->password.cstring = mqtt_get_send_password(password, time);
+
+    if (data->password.cstring == NULL)
+    {
+        return ATINY_ERR;
+    }
+
+    ATINY_LOG(LOG_DEBUG, "send user %s client %s pwd %s", data->username.cstring,
+                data->clientID.cstring, data->password.cstring);
+
+    return ATINY_OK;
+}
+
+static char *mqtt_get_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size,
+            const char *deviceid_or_productid, const char *sn_or_codec_mode)
+{
+    uint32_t len;
+    char *topic;
+
+    len = fixed_size + strnlen(deviceid_or_productid, STRING_MAX_LEN) + strnlen(sn_or_codec_mode, STRING_MAX_LEN) + 1;
+    topic = atiny_malloc(len);
+    if (topic == NULL)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_malloc fail, len %d", len);
+        return NULL;
+    }
+
+    snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);
+
+    return topic;
+}
+
+
+static char *mqtt_get_device_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size)
+{
+    char *deviceid;
+    const char *codec_mode[MQTT_MAX_CODEC_MODE] = {"binary", "json"};
+
+    deviceid = ((handle->device_info.connection_type == MQTT_STATIC_CONNECT) ?
+                handle->device_info.u.s_info.deviceid : handle->dynamic_info.save_info.deviceid);
+
+    return mqtt_get_topic(handle, fmt, fixed_size, deviceid, codec_mode[handle->device_info.codec_mode]);
+
+}
+
+static char *mqtt_get_secret_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size)
+{
+    return mqtt_get_topic(handle, fmt, fixed_size,
+            handle->device_info.u.d_info.productid, handle->device_info.u.d_info.nodeid);
+}
+
+
+
+static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, uint32_t len)
+{
+
+    //TODO:parse json, log
+    cJSON *msg_type;
+    cJSON *deviceid;
+    cJSON *secret;
+    cJSON * root = NULL;
+    int ret = ATINY_ERR;
+
+
+    root = cJSON_Parse(payload);
+    if (root == NULL)
+    {
+        ATINY_LOG(LOG_ERR, "err secret notify, len %d, msg %s", len, payload);
+         goto EXIT;
+    }
+
+    msg_type = cJSON_GetObjectItem(root, MQTT_MSG_TYPE);
+    if ((msg_type == NULL) || (msg_type->valuestring == NULL)
+        || (strncmp(msg_type->valuestring, "cloudSendSecret", STRING_MAX_LEN + 1) != 0))
+    {
+        ATINY_LOG(LOG_ERR, "msg_type not right");
+        goto EXIT;
+    }
+
+
+    deviceid = cJSON_GetObjectItem(root, "deviceid");
+    if ((deviceid == NULL) || (deviceid->valuestring == NULL)
+        || (!IS_VALID_NAME_LEN(deviceid->valuestring)))
+    {
+        ATINY_LOG(LOG_ERR, "deviceid not right");
+        goto EXIT;
+    }
+
+
+    secret = cJSON_GetObjectItem(root, "secret");
+    if ((secret == NULL) || (secret->valuestring == NULL)
+        || (!IS_VALID_NAME_LEN(secret->valuestring)))
+    {
+        ATINY_LOG(LOG_ERR, "secret not right");
+        goto EXIT;
+    }
+
+
+    handle->dynamic_info.has_device_id = false;
+    TRY_FREE_MEM(handle->dynamic_info.save_info.deviceid);
+    handle->dynamic_info.save_info.deviceid = atiny_strdup(deviceid->valuestring);
+    if (handle->dynamic_info.save_info.deviceid == NULL)
+    {
+        ATINY_LOG(LOG_INFO, "atiny_strdup null");
+        goto EXIT;
+    }
+    TRY_FREE_MEM(handle->dynamic_info.got_passward);
+    handle->dynamic_info.got_passward = atiny_strdup(secret->valuestring);
+    if (handle->dynamic_info.got_passward == NULL)
+    {
+        ATINY_LOG(LOG_INFO, "atiny_strdup null");
+        goto EXIT;
+    }
+    handle->dynamic_info.has_device_id = true;
+    handle->dynamic_info.connection_update_flag = true;
+    ret = ATINY_OK;
+    ATINY_LOG(LOG_INFO, "get secret info right");
+EXIT:
+    if (root)
+    {
+        cJSON_Delete(root);
+    }
+    return ret;
+}
+
+static void mqtt_send_secret_ack(mqtt_client_s* handle)
+{
+    MQTTMessage message;
+    int rc;
+
+    char* topic = mqtt_get_secret_topic(handle, SECRET_ACK_TOPIC_FMT, sizeof(SECRET_ACK_TOPIC_FMT) - VARIABLE_SIZE);
+    if (topic == NULL)
+    {
+        return;
+    }
+    memset(&message, 0, sizeof(message));
+    message.qos = QOS1;
+    rc = MQTTPublish(&handle->client, topic, &message);
+    atiny_free(topic);
+    if (rc != MQTT_SUCCESS)
+    {
+        ATINY_LOG(LOG_FATAL, "MQTTPublish fail,rc %d", rc);
+    }
+}
+
+static int mqtt_modify_payload(MessageData *md)
+{
+    char *end = ((char *)md->message->payload) + md->message->payloadlen;
+    static uint32_t callback_err;
+
+    /* add for jason parse,then not need to copy in callback */
+    if ((end >= (char *)g_mqtt_readbuf) && (end < (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))
+    {
+         *end = '\0';
+         // ATINY_LOG(LOG_DEBUG, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, callback_err);
+         return ATINY_OK;
+    }
+
+    /*  should not happen */
+    ATINY_LOG(LOG_ERR, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, ++callback_err);
+
+    return ATINY_ERR;
+}
+
+
+static void mqtt_recv_secret_topic(MessageData *md)
+{
+    mqtt_client_s* handle = &g_mqtt_client;
+
+    if ((md == NULL) || (md->message == NULL)
+        || (md->message->payload == NULL)
+        || (md->message->payloadlen == 0)
+        || (mqtt_modify_payload(md) != ATINY_OK))
+    {
+        ATINY_LOG(LOG_FATAL, "null point or msg err, len %ld", md->message->payloadlen);
+        return;
+    }
+
+    if (mqtt_parse_secret_topic(handle, md->message->payload, md->message->payloadlen) == ATINY_OK)
+    {
+        flash_info_s flash_info;
+        flash_info.items[PRODUCT_IDX] = handle->device_info.u.d_info.productid;
+        flash_info.items[NODEID_IDX] = handle->device_info.u.d_info.nodeid;
+        flash_info.items[DEVICEID_IDX] = handle->dynamic_info.save_info.deviceid;
+        flash_info.items[PASSWORD_IDX] = handle->dynamic_info.got_passward;
+        if (flash_manager_write(&flash_info) != ATINY_OK)
+        {
+            return;
+        }
+        mqtt_send_secret_ack(handle);
+    }
+}
+
+static void mqtt_recv_cmd_topic(MessageData *md)
+{
+    if ((md == NULL) || (md->message == NULL)
+        || (mqtt_modify_payload(md) != ATINY_OK))
+    {
+        ATINY_LOG(LOG_FATAL, "null point");
+        return;
+    }
+    mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
+}
+
+
+static int mqtt_subscribe_topic(mqtt_client_s* handle)
+{
+    char *topic;
+    void (*topi_callback)(MessageData *md);
+    int rc;
+
+    if (handle->sub_topic)
+    {
+        (void)MQTTSetMessageHandler(&handle->client, handle->sub_topic, NULL);
+        atiny_free(handle->sub_topic);
+        handle->sub_topic = NULL;
+    }
+
+    if (mqtt_is_connectting_with_deviceid(handle))
+    {
+        topic = mqtt_get_device_topic(handle, CMD_TOPIC_FMT, sizeof(CMD_TOPIC_FMT) - VARIABLE_SIZE);
+        topi_callback = mqtt_recv_cmd_topic;
+        ATINY_LOG(LOG_INFO, "try subcribe static topic");
+    }
+    else
+    {
+        topic = mqtt_get_secret_topic(handle, SECRET_NOTIFY_TOPIC_FMT, sizeof(SECRET_NOTIFY_TOPIC_FMT) - VARIABLE_SIZE);;
+        topi_callback = mqtt_recv_secret_topic;
+         ATINY_LOG(LOG_INFO, "try subcribe dynamic topic");
+    }
+
+    if (topic == NULL)
+    {
+        return ATINY_ERR;
+    }
+
+
+    rc = MQTTSubscribe(&handle->client, topic, QOS1, topi_callback);
+    if (rc != MQTT_SUCCESS)
+    {
+         ATINY_LOG(LOG_FATAL, "MQTTSubscribe fail,rc=%d, topic=%s", rc, topic);
+         atiny_free(topic);
+    }
+    else
+    {
+        handle->sub_topic = topic;
+    }
+
+    return rc;
+}
+
+static void mqtt_disconnect( MQTTClient *client, Network *n)
+{
+    if (MQTTIsConnected(client))
+    {
+        (void)MQTTDisconnect(client);
+    }
+    NetworkDisconnect(n);
+
+    ATINY_LOG(LOG_ERR, "mqtt_disconnect");
+}
+
+static inline void mqtt_inc_fail_cnt(int32_t *conn_failed_cnt)
+{
+    if(*conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES)
+    {
+        (*conn_failed_cnt)++;
+    }
+}
+
+static void mqtt_proc_connect_err( MQTTClient *client, Network *n, int32_t *conn_failed_cnt)
+{
+    mqtt_inc_fail_cnt(conn_failed_cnt);
+    mqtt_disconnect(client, n);
+}
+
+static void mqtt_proc_connect_nack(mqtt_client_s* handle)
+{
+    if (handle->device_info.connection_type == MQTT_DYNAMIC_CONNECT)
+    {
+        if (handle->dynamic_info.state == MQTT_CONNECT_WITH_DEVICE_ID)
+        {
+            handle->dynamic_info.state = MQTT_CONNECT_WITH_PRODUCT_ID;
+        }
+        else
+        {
+            if (handle->dynamic_info.has_device_id)
+            {
+                handle->dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;
+            }
+        }
+    }
+}
+
+static mqtt_security_info_s *mqtt_get_security_info(void)
+{
+    mqtt_client_s* handle = &g_mqtt_client;
+    return &handle->params.info;
+}
+
+static void mqtt_read_flash_info(mqtt_client_s* handle)
+{
+    flash_info_s flash_info;
+
+    if (handle->device_info.connection_type == MQTT_STATIC_CONNECT)
     {
         return;
     }
 
-    if(NULL != param->server_ip)
+    memset(&handle->dynamic_info, 0, sizeof(handle->dynamic_info));
+    memset(&flash_info, 0, sizeof(flash_info));
+    if (flash_manager_read(&flash_info) != ATINY_OK)
     {
-        atiny_free(param->server_ip);
-        param->server_ip = NULL;
+        return;
     }
 
-    if(NULL != param->server_port)
+    if ((strcmp(flash_info.items[PRODUCT_IDX], handle->device_info.u.d_info.productid) != 0)
+        || (strcmp(flash_info.items[NODEID_IDX], handle->device_info.u.d_info.nodeid) != 0))
     {
-        atiny_free(param->server_port);
-        param->server_port = NULL;
+        ATINY_LOG(LOG_INFO, "flash info for the nodeid and not use");
+        flash_manager_destroy_flash_info(&flash_info);
+        return;
     }
 
-    switch(param->security_type)
-    {
-    case CLOUD_SECURITY_TYPE_PSK:
-        if(NULL != param->u.psk.psk_id)
-        {
-            atiny_free(param->u.psk.psk_id);
-            param->u.psk.psk_id = NULL;
-        }
-        if(NULL != param->u.psk.psk)
-        {
-            atiny_free(param->u.psk.psk);
-            param->u.psk.psk = NULL;
-        }
-        break;
-    case CLOUD_SECURITY_TYPE_CA:
-        if(NULL != param->u.ca.ca_crt)
-        {
-            atiny_free(param->u.ca.ca_crt);
-            param->u.ca.ca_crt = NULL;
-        }
-        if(NULL != param->u.ca.server_crt)
-        {
-            atiny_free(param->u.ca.server_crt);
-            param->u.ca.server_crt = NULL;
-        }
-        if(NULL != param->u.ca.server_key)
-        {
-            atiny_free(param->u.ca.server_key);
-            param->u.ca.server_key = NULL;
-        }
-        break;
-    default:
-        break;
-    }
+    ATINY_LOG(LOG_DEBUG, "mqtt read info deviceid %s,pwd %s,procid %s,nodid %s",
+            flash_info.items[DEVICEID_IDX], flash_info.items[PASSWORD_IDX],
+            flash_info.items[PRODUCT_IDX], flash_info.items[NODEID_IDX]);
 
-    return;
+    handle->dynamic_info.save_info.deviceid = flash_info.items[DEVICEID_IDX];
+    flash_info.items[DEVICEID_IDX] = NULL;
+    handle->dynamic_info.got_passward =  flash_info.items[PASSWORD_IDX];
+    flash_info.items[PASSWORD_IDX] = NULL;
+    handle->dynamic_info.has_device_id = true;
+    handle->dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;
+    flash_manager_destroy_flash_info(&flash_info);
 }
 
-int atiny_param_dup(atiny_param_t *dest, atiny_param_t *src)
+
+int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
-    if(NULL == dest || NULL == src)
-    {
-        ATINY_LOG(LOG_FATAL, "Invalid args");
-        return -1;
-    }
-    dest->security_type = src->security_type;
-    dest->server_ip = atiny_strdup((const char *)(src->server_ip));
-    if(NULL == dest->server_ip)
-        goto atiny_param_dup_failed;
-
-    dest->server_port = atiny_strdup((const char *)(src->server_port));
-    if(NULL == dest->server_port)
-        goto atiny_param_dup_failed;
-
-    switch(src->security_type)
-    {
-    case CLOUD_SECURITY_TYPE_PSK:
-        dest->u.psk.psk_id = (unsigned char *)atiny_strdup((const char *)(src->u.psk.psk_id));
-        if(NULL == dest->u.psk.psk_id)
-            goto atiny_param_dup_failed;
-        dest->u.psk.psk_id_len = strlen((const char *)(src->u.psk.psk_id));
-        if(NULL == src->u.psk.psk || src->u.psk.psk_len < 0 || src->u.psk.psk_len > MQTT_PSK_MAX_LEN)
-            goto atiny_param_dup_failed;
-        dest->u.psk.psk = (unsigned char *)atiny_malloc(src->u.psk.psk_len);
-        if(NULL == dest->u.psk.psk)
-            goto atiny_param_dup_failed;
-        memcpy(dest->u.psk.psk, src->u.psk.psk, src->u.psk.psk_len);
-        dest->u.psk.psk_len = src->u.psk.psk_len;
-        break;
-    case CLOUD_SECURITY_TYPE_CA:
-        dest->u.ca.ca_crt = atiny_strdup((const char *)(src->u.ca.ca_crt));
-        if(NULL == dest->u.ca.ca_crt)
-            goto atiny_param_dup_failed;
-        dest->u.ca.server_crt = atiny_strdup((const char *)(src->u.ca.server_crt));
-        if(NULL == dest->u.ca.server_crt)
-            goto atiny_param_dup_failed;
-        dest->u.ca.server_key = atiny_strdup((const char *)(src->u.ca.server_key));
-        if(NULL == dest->u.ca.server_key)
-            goto atiny_param_dup_failed;
-        break;
-    default:
-        break;
-    }
-
-    return 0;
-atiny_param_dup_failed:
-    atiny_param_member_free(dest);
-    return -1;
-}
-
-int  atiny_init(atiny_param_t *atiny_params, void **phandle)
-{
-    if (NULL == atiny_params || NULL == phandle)
+    cJSON_InitHooks(NULL);
+    if (NULL == params || NULL == phandle)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ARG_INVALID;
     }
 
-    while(1 == g_atiny_handle.bind_quit)
+    while(g_mqtt_client.bind_quit)
     {
         (void)LOS_TaskDelay(10);
     }
 
-    memset((void *)&g_atiny_handle, 0, sizeof(handle_data_t));
+    memset(&g_mqtt_client, 0, sizeof(g_mqtt_client));
 
-    if(0 != atiny_param_dup(&(g_atiny_handle.atiny_params), atiny_params))
+    if (mqtt_check_param(params) != ATINY_OK)
+    {
+        return ATINY_ARG_INVALID;
+    }
+
+    if(ATINY_OK != mqtt_dup_param(&(g_mqtt_client.params), params))
+    {
         return ATINY_MALLOC_FAILED;
+    }
 
-    g_atiny_handle.atiny_quit = 0;
-    g_atiny_handle.bind_quit = 0;
-    *phandle = &g_atiny_handle;
+    flash_manager_init(mqtt_cmd_ioctl);
+
+    *phandle = &g_mqtt_client;
 
     return ATINY_OK;
 }
 
-void atiny_deinit(void *phandle)
+void atiny_mqtt_deinit(mqtt_client_s *handle)
 {
-    handle_data_t *handle;
-
-    if(NULL == phandle)
+    if(NULL == handle)
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
         return;
     }
-    handle = (handle_data_t *)phandle;
     if(0 == handle->atiny_quit)
     {
         handle->atiny_quit = 1;
@@ -220,530 +890,51 @@ void atiny_deinit(void *phandle)
         }
         handle->bind_quit = 0;
     }
-
-    return;
 }
 
-int mqtt_add_interest_topic(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb, char **topic_dup)
-{
-    int i, rc = -1;
-    atiny_interest_uri_t *interest_uris = g_atiny_handle.device_info.interest_uris;
-
-    if(!topic || !cb || !topic_dup || !(qos >= CLOUD_QOS_MOST_ONCE && qos < CLOUD_QOS_LEVEL_MAX))
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
-        {
-            interest_uris[i].qos = qos;
-            interest_uris[i].cb = cb;
-            *topic_dup = interest_uris[i].uri;
-            return 0;
-        }
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(interest_uris[i].uri == NULL)
-        {
-            interest_uris[i].uri = atiny_strdup((const char *)(topic));
-            if(NULL ==  interest_uris[i].uri)
-            {
-                rc = ATINY_MALLOC_FAILED;
-                break;
-            }
-            interest_uris[i].qos = qos;
-            interest_uris[i].cb = cb;
-            *topic_dup = interest_uris[i].uri;
-            rc = 0;
-            break;
-        }
-    }
-
-    if(i == ATINY_INTEREST_URI_MAX_NUM)
-        ATINY_LOG(LOG_WARNING, "num of interest uris is up to %d", ATINY_INTEREST_URI_MAX_NUM);
-
-    return rc;
-}
-
-int mqtt_is_topic_subscribed(const char *topic)
-{
-    int i, rc = MQTT_TOPIC_SUBSCRIBED_FALSE;
-    atiny_interest_uri_t *interest_uris = g_atiny_handle.device_info.interest_uris;
-
-    if(!topic)
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
-        {
-            rc = MQTT_TOPIC_SUBSCRIBED_TRUE;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-int mqtt_del_interest_topic(const char *topic)
-{
-    int i, rc = -1;
-    atiny_interest_uri_t *interest_uris = g_atiny_handle.device_info.interest_uris;
-
-    if(!topic)
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic))
-        {
-            atiny_free(interest_uris[i].uri);
-            interest_uris[i].uri = NULL;
-            memset(&(interest_uris[i]), 0x0, sizeof(interest_uris[i]));
-            rc = 0;
-        }
-    }
-
-    return rc;
-}
-
-int mqtt_is_topic_subscribed_same(char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
-{
-    int rc = MQTT_TOPIC_SUBSCRIBED_FALSE, i;
-    atiny_interest_uri_t *interest_uris = g_atiny_handle.device_info.interest_uris;
-
-    if(!topic || !cb || !(qos >= CLOUD_QOS_MOST_ONCE && qos < CLOUD_QOS_LEVEL_MAX))
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != interest_uris[i].uri && 0 == strcmp(interest_uris[i].uri, topic)
-                && interest_uris[i].qos == qos && interest_uris[i].cb == cb)
-        {
-            rc = MQTT_TOPIC_SUBSCRIBED_TRUE;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-int mqtt_topic_subscribe(MQTTClient *client, char *topic, cloud_qos_level_e qos, atiny_rsp_cb cb)
-{
-    int rc = -1;
-    char *topic_dup = NULL;
-
-    if(!client || !topic || !cb || !(qos >= CLOUD_QOS_MOST_ONCE && qos < CLOUD_QOS_LEVEL_MAX))
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    if(client->mutex) atiny_mutex_lock(client->mutex);
-    if(MQTT_TOPIC_SUBSCRIBED_TRUE == mqtt_is_topic_subscribed_same(topic, qos, cb))
-    {
-        if(client->mutex) atiny_mutex_unlock(client->mutex);
-        return 0;
-    }
-
-    if(0 != mqtt_add_interest_topic(topic, qos, cb, &topic_dup))
-    {
-        if(client->mutex) atiny_mutex_unlock(client->mutex);
-        return -1;
-    }
-    if(client->mutex) atiny_mutex_unlock(client->mutex);
-
-    rc = MQTTSubscribe(client, topic_dup, (enum QoS)qos, mqtt_message_arrived);
-    if(0 != rc)
-    {
-        (void)mqtt_del_interest_topic(topic);/*del topic when fail*/
-        ATINY_LOG(LOG_ERR, "MQTTSubscribe %s[%d]", topic, rc);
-    }
-
-    return rc;
-}
-
-int mqtt_topic_unsubscribe(MQTTClient *client, const char *topic)
-{
-    int rc = -1;
-
-    if(!client || !topic)
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    if(client->mutex) atiny_mutex_lock(client->mutex);
-    rc = mqtt_is_topic_subscribed(topic);
-    if(client->mutex) atiny_mutex_unlock(client->mutex);
-
-    if(MQTT_TOPIC_SUBSCRIBED_TRUE == rc)
-    {
-        rc = MQTTUnsubscribe(client, topic);
-        if(0 != rc)
-            ATINY_LOG(LOG_ERR, "MQTTUnsubscribe %s[%d]", topic, rc);
-        else
-        {
-            if(client->mutex) atiny_mutex_lock(client->mutex);
-            (void)mqtt_del_interest_topic(topic);
-            if(client->mutex) atiny_mutex_unlock(client->mutex);
-        }
-    }
-
-    return rc;
-}
-
-int mqtt_message_publish(MQTTClient *client, cloud_msg_t *send_data)
-{
-    int rc = -1;
-    MQTTMessage message;
-
-    if(!client || !send_data)
-    {
-        ATINY_LOG(LOG_FATAL, "invalid params");
-        return -1;
-    }
-
-    memset(&message, 0x0, sizeof(message));
-    message.qos = (enum QoS)send_data->qos;
-    message.retained = 0;
-    message.payload = send_data->payload;
-    message.payloadlen = send_data->payload_len;
-    if((rc = MQTTPublish(client, send_data->uri, &message)) != 0)
-        ATINY_LOG(LOG_ERR, "Return code from MQTT publish is %d", rc);
-
-    return rc;
-}
-
-void mqtt_message_arrived(MessageData *md)
-{
-    MQTTMessage *message;
-    MQTTString *topic;
-    atiny_interest_uri_t *interest_uris = g_atiny_handle.device_info.interest_uris;
-    cloud_msg_t msg;
-    int i;
-
-    if(NULL == md)
-    {
-        ATINY_LOG(LOG_FATAL, "NULL == md");
-        return;
-    }
-
-    if(NULL == md->topic_sub)
-    {
-        ATINY_LOG(LOG_FATAL, "NULL == md->topic_sub");
-        return;
-    }
-
-    message = md->message;
-    topic = md->topicName;
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != interest_uris[i].uri && NULL != interest_uris[i].cb)
-        {
-            if(0 == strcmp(md->topic_sub, interest_uris[i].uri))
-            {
-                memset(&msg, 0x0, sizeof(msg));
-                if(topic->cstring)
-                {
-                    msg.uri = topic->cstring;
-                    msg.uri_len = strlen(topic->cstring);
-                }
-                else
-                {
-                    msg.uri = topic->lenstring.data;
-                    msg.uri_len = topic->lenstring.len;
-                }
-                msg.method = CLOUD_METHOD_POST;
-                msg.qos = (cloud_qos_level_e)message->qos;
-                msg.payload_len = message->payloadlen;
-                msg.payload = message->payload;
-                interest_uris[i].cb(&msg);
-            }
-        }
-    }
-
-    return;
-}
-
-int mqtt_subscribe_interest_topics(MQTTClient *client, atiny_interest_uri_t interest_uris[ATINY_INTEREST_URI_MAX_NUM])
-{
-    int i, rc = ATINY_ARG_INVALID;
-
-    if(NULL == client || NULL == interest_uris)
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        return ATINY_ARG_INVALID;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(client->mutex) atiny_mutex_lock(client->mutex);
-        if(NULL == interest_uris[i].uri || '\0' == interest_uris[i].uri[0] || NULL == interest_uris[i].cb
-                || !(interest_uris[i].qos >= CLOUD_QOS_MOST_ONCE && interest_uris[i].qos < CLOUD_QOS_LEVEL_MAX))
-        {
-            if(client->mutex) atiny_mutex_unlock(client->mutex);
-            continue;
-        }
-        if(client->mutex) atiny_mutex_unlock(client->mutex);
-        rc = MQTTSubscribe(client, interest_uris[i].uri, (enum QoS)interest_uris[i].qos, mqtt_message_arrived);
-        if(rc != 0)
-        {
-            rc = ATINY_SOCKET_ERROR;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-void will_options_member_free(cloud_will_options_t *will_options)
-{
-    if(NULL == will_options)
-    {
-        ATINY_LOG(LOG_FATAL, "Invalid args");
-        return;
-    }
-
-    if(NULL != will_options->topic_name)
-    {
-        atiny_free(will_options->topic_name);
-        will_options->topic_name = NULL;
-    }
-    if(NULL != will_options->topic_msg)
-    {
-        atiny_free(will_options->topic_msg);
-        will_options->topic_msg = NULL;
-    }
-
-    return;
-}
-
-void device_info_member_free(atiny_device_info_t *info)
-{
-    int i;
-
-    if(NULL == info)
-    {
-        ATINY_LOG(LOG_FATAL, "Invalid args");
-        return;
-    }
-
-    if(NULL != info->client_id)
-    {
-        atiny_free(info->client_id);
-        info->client_id = NULL;
-    }
-    if(NULL != info->user_name)
-    {
-        atiny_free(info->user_name);
-        info->user_name = NULL;
-    }
-    if(NULL != info->password)
-    {
-        atiny_free(info->password);
-        info->password = NULL;
-    }
-
-    if(MQTT_WILL_FLAG_TRUE == info->will_flag)
-    {
-        if(NULL != info->will_options)
-        {
-            will_options_member_free(info->will_options);
-            atiny_free(info->will_options);
-            info->will_options = NULL;
-        }
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL != info->interest_uris[i].uri)
-        {
-            atiny_free(info->interest_uris[i].uri);
-            info->interest_uris[i].uri = NULL;
-        }
-    }
-
-    return;
-}
-
-int device_info_dup(atiny_device_info_t *dest, atiny_device_info_t *src)
-{
-    int i;
-
-    if(NULL == dest || NULL == src)
-    {
-        ATINY_LOG(LOG_FATAL, "Invalid args");
-        return -1;
-    }
-
-    device_info_member_free(dest);
-
-    dest->client_id = atiny_strdup((const char *)(src->client_id));
-    if(NULL == dest->client_id)
-        goto device_info_dup_failed;
-
-    if(NULL != src->user_name)
-    {
-        dest->user_name = atiny_strdup((const char *)(src->user_name));
-        if(NULL == dest->user_name)
-            goto device_info_dup_failed;
-    }
-    if(NULL != src->password)
-    {
-        dest->password = atiny_strdup((const char *)(src->password));
-        if(NULL == dest->password)
-            goto device_info_dup_failed;
-    }
-
-    dest->will_flag = src->will_flag;
-
-    if(MQTT_WILL_FLAG_TRUE == dest->will_flag && NULL != src->will_options)
-    {
-        dest->will_options = (cloud_will_options_t *)atiny_malloc(sizeof(cloud_will_options_t));
-        if(NULL == dest->will_options)
-            goto device_info_dup_failed;
-
-        memset(dest->will_options, 0x0, sizeof(cloud_will_options_t));
-
-        dest->will_options->topic_name = atiny_strdup((const char *)(src->will_options->topic_name));
-        if(NULL == dest->will_options->topic_name)
-            goto device_info_dup_failed;
-        dest->will_options->topic_msg = atiny_strdup((const char *)(src->will_options->topic_msg));
-        if(NULL == dest->will_options->topic_msg)
-            goto device_info_dup_failed;
-
-        dest->will_options->retained = src->will_options->retained;
-        dest->will_options->qos = src->will_options->qos;
-    }
-
-    for(i = 0; i < ATINY_INTEREST_URI_MAX_NUM; i++)
-    {
-        if(NULL == src->interest_uris[i].uri || '\0' == src->interest_uris[i].uri[0] || NULL == src->interest_uris[i].cb
-                || !(src->interest_uris[i].qos >= CLOUD_QOS_MOST_ONCE && src->interest_uris[i].qos < CLOUD_QOS_LEVEL_MAX))
-            continue;
-        dest->interest_uris[i].uri = atiny_strdup(src->interest_uris[i].uri);
-        if(NULL == dest->interest_uris[i].uri)
-            goto device_info_dup_failed;
-        dest->interest_uris[i].qos = src->interest_uris[i].qos;
-        dest->interest_uris[i].cb = src->interest_uris[i].cb;
-    }
-
-    return 0;
-device_info_dup_failed:
-    device_info_member_free(dest);
-    return -1;
-}
-
-int atiny_isconnected(void *phandle)
-{
-    handle_data_t *handle;
-    MQTTClient *client;
-
-    if (NULL == phandle)
-    {
-        ATINY_LOG(LOG_ERR, "invalid args");
-        return ATINY_ARG_INVALID;
-    }
-
-    handle = (handle_data_t *)phandle;
-    client = &(handle->client);
-
-    return MQTTIsConnected(client);
-}
-
-int atiny_bind(atiny_device_info_t *device_info, void *phandle)
+int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle)
 {
     Network n;
-    handle_data_t *handle = NULL;
     MQTTClient *client = NULL;
-    atiny_param_t *atiny_params;
-    atiny_device_info_t *device_info_t;
-    int rc = -1, conn_failed_cnt = 0;
+    mqtt_param_s *params;
+    int rc = -1;
+    int32_t conn_failed_cnt = 0;
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
+    Timer timer;
 
-    if(NULL == phandle)
+    if((NULL == handle) || (device_info == NULL))
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
         return ATINY_ARG_INVALID;
     }
 
-    handle = (handle_data_t *)phandle;
+    if (mqtt_check_device_info(device_info) != ATINY_OK)
+    {
+        return ATINY_ARG_INVALID;
+    }
+
+    dtls_int();
+
     client = &(handle->client);
-    atiny_params = &(handle->atiny_params);
+    params = &(handle->params);
 
-    if ((NULL == device_info) || (NULL == device_info->client_id))
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        goto  atiny_bind_quit;
-    }
-
-    if(device_info->will_flag == MQTT_WILL_FLAG_TRUE && NULL == device_info->will_options)
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        goto  atiny_bind_quit;
-    }
-
-    if(0 != device_info_dup(&(handle->device_info), device_info))
+    rc = mqtt_dup_device_info(&(handle->device_info), device_info);
+    if(rc != ATINY_OK)
     {
         goto  atiny_bind_quit;
     }
-    device_info_t = &(handle->device_info);
 
-    NetworkInit(&n);
+    mqtt_read_flash_info(handle);
 
-    switch(atiny_params->security_type)
-    {
-    case CLOUD_SECURITY_TYPE_NONE:
-        n.proto = MQTT_PROTO_NONE;
-        break;
-    case CLOUD_SECURITY_TYPE_PSK:
-        n.proto = MQTT_PROTO_TLS_PSK;
-        n.psk.psk_id = atiny_params->u.psk.psk_id;
-        n.psk.psk_id_len = atiny_params->u.psk.psk_id_len;
-        n.psk.psk = atiny_params->u.psk.psk;
-        n.psk.psk_len = atiny_params->u.psk.psk_len;
-        break;
-    case CLOUD_SECURITY_TYPE_CA:
-        ATINY_LOG(LOG_INFO, "CLOUD_SECURITY_TYPE_CA unsupported now" );
-        goto  atiny_bind_quit;
-    default:
-        ATINY_LOG(LOG_WARNING, "invalid security_typ : %d", atiny_params->security_type);
-        break;
-    }
+    NetworkInit(&n, mqtt_get_security_info);
 
     memset(client, 0x0, sizeof(MQTTClient));
-    MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, mqtt_sendbuf, MQTT_SENDBUF_SIZE, mqtt_readbuf, MQTT_READBUF_SIZE);
+    MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, g_mqtt_sendbuf, MQTT_SENDBUF_SIZE, g_mqtt_readbuf, MQTT_READBUF_SIZE);
 
-    data.willFlag = device_info_t->will_flag;
-    data.MQTTVersion = MQTT_VERSION_3_1;
-    data.clientID.cstring = device_info_t->client_id;
-    data.username.cstring = device_info_t->user_name;
-    data.password.cstring = device_info_t->password;
-    if(device_info_t->will_flag == MQTT_WILL_FLAG_TRUE)
-    {
-        data.will.topicName.cstring = device_info_t->will_options->topic_name;
-        data.will.message.cstring = device_info_t->will_options->topic_msg;
-        data.will.qos = device_info_t->will_options->qos;
-        data.will.retained = device_info_t->will_options->retained;
-    }
+    data.willFlag = 0;
+    data.MQTTVersion = MQTT_VERSION_3_1_1;
     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;
-    data.cleansession = MQTT_CLEAN_SESSION_TRUE;
+    data.cleansession = true;
 
     while(handle->atiny_quit == 0)
     {
@@ -752,123 +943,136 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
             ATINY_LOG(LOG_INFO, "reconnect delay : %d", conn_failed_cnt);
             (void)LOS_TaskDelay(MQTT_CONN_FAILED_BASE_DELAY << conn_failed_cnt);
         }
-        rc = NetworkConnect(&n, atiny_params->server_ip, atoi(atiny_params->server_port));
-        ATINY_LOG(LOG_DEBUG, "NetworkConnect : %d", rc);
+
+        rc = NetworkConnect(&n, params->server_ip, atoi(params->server_port));
         if(rc != 0)
         {
-            if(conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES)
-                conn_failed_cnt++;
+            ATINY_LOG(LOG_ERR, "NetworkConnect fail: %d", rc);
+            mqtt_inc_fail_cnt(&conn_failed_cnt);
             continue;
         }
 
-        ATINY_LOG(LOG_DEBUG, "Send mqtt CONNECT to broker");
+        if(mqtt_get_connection_info(handle, &data) != ATINY_OK)
+        {
+            mqtt_destroy_data_connection_info(&data);
+            mqtt_proc_connect_err(client, &n, &conn_failed_cnt);
+            continue;
+        }
+
         rc = MQTTConnect(client, &data);
+        mqtt_destroy_data_connection_info(&data);
         ATINY_LOG(LOG_DEBUG, "CONNACK : %d", rc);
         if(0 != rc)
         {
-            ATINY_LOG(LOG_ERR, "MQTTConnect failed");
-            if(conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES)
-                conn_failed_cnt++;
-            goto connect_again;
+            // receive connection nack value
+            if (rc != MQTT_SUCCESS)
+            {
+                mqtt_proc_connect_nack(handle);
+            }
+            ATINY_LOG(LOG_ERR, "MQTTConnect failed %d", rc);
+            mqtt_proc_connect_err(client, &n, &conn_failed_cnt);
+            continue;
         }
 
-        if(ATINY_SOCKET_ERROR == mqtt_subscribe_interest_topics(client, device_info_t->interest_uris))
+        if(ATINY_OK != mqtt_subscribe_topic(handle))
         {
-            ATINY_LOG(LOG_ERR, "mqtt_subscribe_interest_topics failed");
-            if(conn_failed_cnt < MQTT_CONN_FAILED_MAX_TIMES)
-                conn_failed_cnt++;
-            goto connect_again;
+            ATINY_LOG(LOG_ERR, "mqtt_subscribe_topic failed");
+            mqtt_proc_connect_err(client, &n, &conn_failed_cnt);
+            continue;
         }
 
         conn_failed_cnt = 0;
-        while (rc >= 0 && MQTTIsConnected(client) && handle->atiny_quit == 0)
+        if (!mqtt_is_connectting_with_deviceid(handle))
+        {
+            TimerInit(&timer);
+            TimerCountdownMS(&timer, MQTT_WRITE_FOR_SECRET_TIMEOUT);
+        }
+        while ((rc >= 0 && MQTTIsConnected(client) && (handle->atiny_quit == 0)))
         {
             rc = MQTTYield(client, MQTT_EVENTS_HANDLE_PERIOD_MS);
+
+            // receive secret info
+            if (handle->dynamic_info.connection_update_flag)
+            {
+                ATINY_LOG(LOG_INFO, "recv secret info");
+                ATINY_LOG(LOG_DEBUG, "secret info deviceid %s, %s", handle->dynamic_info.save_info.deviceid,
+                        handle->dynamic_info.got_passward);
+                handle->dynamic_info.connection_update_flag = false;
+                handle->dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;
+                break;
+            }
+
+            // wait secret info timeout.
+            if (!mqtt_is_connectting_with_deviceid(handle) && (TimerIsExpired(&timer)))
+            {
+                if (handle->dynamic_info.has_device_id)
+                {
+                    handle->dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;
+                }
+                break;
+            }
         }
-connect_again:
-        (void)MQTTDisconnect(client);
-        NetworkDisconnect(&n);
-        data.cleansession = MQTT_CLEAN_SESSION_FALSE;
-        ATINY_LOG(LOG_ERR, "connect_again");
+
+        mqtt_disconnect(client, &n);
     }
+
+    //mqtt_disconnect(client, &n);
 atiny_bind_quit:
-    atiny_param_member_free(&(handle->atiny_params));
-    if(client->mutex) atiny_mutex_lock(client->mutex);
-    device_info_member_free(&(handle->device_info));
-    if(client->mutex) atiny_mutex_unlock(client->mutex);
+    mqtt_free_dynamic_info(handle);
+    mqtt_free_params(&(handle->params));
+    (void)atiny_task_mutex_lock(&client->mutex);
+    mqtt_free_device_info(&(handle->device_info));
+    (void)atiny_task_mutex_unlock(&client->mutex);
     MQTTClientDeInit(client);
     handle->bind_quit = 1;
     return ATINY_OK;
 }
 
-static int mqtt_send_packet_len(cloud_msg_t *send_data)
+int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_len, mqtt_qos_e qos)
 {
-    int rem_len = 0;
+    MQTTMessage message;
+    int rc;
 
-    if (NULL == send_data || NULL == send_data->uri
-            || !(send_data->qos >= CLOUD_QOS_MOST_ONCE && send_data->qos < CLOUD_QOS_LEVEL_MAX)
-            || !(send_data->method >= CLOUD_METHOD_GET && send_data->method < CLOUD_METHOD_MAX))
+    if ((phandle == NULL) || ((msg == NULL) && (msg_len == 0)))
     {
-        return -1;
-    }
-
-    rem_len += 2 + strlen(send_data->uri) + send_data->payload_len;
-    if (send_data->qos > 0)
-        rem_len += 2; /* packetid */
-
-    rem_len += 1; /* header byte */
-
-    /* now remaining_length field */
-    if (rem_len < 128)
-        rem_len += 1;
-    else if (rem_len < 16384)
-        rem_len += 2;
-    else if (rem_len < 2097151)
-        rem_len += 3;
-    else
-        rem_len += 4;
-    return rem_len;
-}
-
-int atiny_data_send(void *phandle, cloud_msg_t *send_data, atiny_rsp_cb cb)
-{
-    handle_data_t *handle;
-    MQTTClient *client;
-    int rc = -1;
-
-    if (NULL == phandle || NULL == send_data || NULL == send_data->uri
-            || !(send_data->qos >= CLOUD_QOS_MOST_ONCE && send_data->qos < CLOUD_QOS_LEVEL_MAX)
-            || !(send_data->method >= CLOUD_METHOD_GET && send_data->method < CLOUD_METHOD_MAX))
-    {
-        ATINY_LOG(LOG_ERR, "invalid args");
+        ATINY_LOG(LOG_FATAL, "Parameter null");
         return ATINY_ARG_INVALID;
     }
 
-    handle = (handle_data_t *)phandle;
-    client = &(handle->client);
-
-    if(MQTTIsConnected(client) != 1)
-        return ATINY_ERR;
-
-    switch(send_data->method)
+    if (!atiny_mqtt_isconnected(phandle))
     {
-    case CLOUD_METHOD_GET:
-        if(NULL == cb)
-            return ATINY_ARG_INVALID;
-        rc = mqtt_topic_subscribe(client, send_data->uri, send_data->qos, cb);
-        break;
-    case CLOUD_METHOD_POST:
-        if(send_data->payload_len <= 0 || NULL == send_data->payload || mqtt_send_packet_len(send_data) > MQTT_SENDBUF_SIZE)
-            return ATINY_ARG_INVALID;
-        rc = mqtt_message_publish(client, send_data);
-        break;
-    case CLOUD_METHOD_DEL:
-        rc = mqtt_topic_unsubscribe(client, send_data->uri);
-        break;
-    default:
-        ATINY_LOG(LOG_WARNING, "unsupported method : %d", send_data->method);
+        ATINY_LOG(LOG_FATAL, "not connected");
+        return ATINY_ERR;
     }
 
-    return rc;
+    char* topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);
+    if (topic == NULL)
+    {
+        return ATINY_MALLOC_FAILED;
+    }
+    memset(&message, 0, sizeof(message));
+    message.qos = (enum QoS)qos;
+    message.payload = (void *)msg;
+    message.payloadlen = msg_len;
+    rc = MQTTPublish(&phandle->client, topic, &message);
+    atiny_free(topic);
+    if (rc != MQTT_SUCCESS)
+    {
+        ATINY_LOG(LOG_FATAL, "MQTTPublishWithoutMutex fail,rc %d", rc);
+        return ATINY_ERR;
+    }
+    return ATINY_OK;
 }
+
+int atiny_mqtt_isconnected(mqtt_client_s* phandle)
+{
+    if (NULL == phandle)
+    {
+        ATINY_LOG(LOG_ERR, "invalid args");
+        return false;
+    }
+    return mqtt_is_connectting_with_deviceid(phandle) && MQTTIsConnected(&(phandle->client));
+}
+
+
 

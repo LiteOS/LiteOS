@@ -78,7 +78,6 @@ typedef struct
 
 void *atiny_net_bind(const char *host, const char *port, int proto)
 {
-    atiny_net_context *ctx = NULL;
 #if defined (WITH_LWIP) || defined (WITH_LINUX)
     (void)host;
     (void)port;
@@ -146,6 +145,7 @@ exit_failed:
 
 
 #elif defined(WITH_AT_FRAMEWORK)
+    atiny_net_context *ctx;
     ctx = atiny_malloc(sizeof(atiny_net_context));
     if (NULL == ctx)
     {
@@ -301,13 +301,16 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
             continue;
         }
 
-        flags = fcntl(ctx->fd, F_GETFL, 0);
-
-        if (flags < 0 || fcntl(ctx->fd, F_SETFL, flags | O_NONBLOCK) < 0)
+        if (proto == ATINY_PROTO_UDP)
         {
-            close(ctx->fd);
-            ctx->fd = -1;
-            continue;
+            flags = fcntl(ctx->fd, F_GETFL, 0);
+
+            if (flags < 0 || fcntl(ctx->fd, F_SETFL, flags | O_NONBLOCK) < 0)
+            {
+                close(ctx->fd);
+                ctx->fd = -1;
+                continue;
+            }
         }
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0)
@@ -424,7 +427,7 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     if (fd < 0)
     {
         SOCKET_LOG("ilegal socket(%d)", fd);
-        return -1;
+        return ATINY_NET_ERR;
     }
 
     FD_ZERO(&read_fds);
@@ -437,14 +440,14 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
 
     if (ret == 0)
     {
-        SOCKET_LOG("recv timeout");
-        return -2;
+       // SOCKET_LOG("recv timeout");
+        return ATINY_NET_TIMEOUT;
     }
 
     if(ret < 0)
     {
         SOCKET_LOG("select error ret=%d,err 0x%x", ret, errno);
-        return -1;
+        return ATINY_NET_ERR;
     }
 
     ret = atiny_net_recv(ctx, buf, len);
@@ -514,5 +517,36 @@ void atiny_net_close(void *ctx)
     }
 
     atiny_free(ctx);
+}
+
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+static int atiny_net_write_sock(void *ctx, const unsigned char *buffer, int len, uint32_t timeout_ms)
+{
+    int fd;
+    struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
+
+    fd = ((atiny_net_context *)ctx)->fd;
+    if (interval.tv_sec < 0 || (interval.tv_sec == 0 && interval.tv_usec <= 0))
+    {
+        interval.tv_sec = 0;
+        interval.tv_usec = 100;
+    }
+
+    setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&interval, sizeof(struct timeval));
+    return write(fd, buffer, len);
+}
+#endif
+
+int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
+                          uint32_t timeout)
+{
+#if defined(WITH_LINUX) || defined(WITH_LWIP)
+    return atiny_net_write_sock(ctx, buf, len, timeout);
+#elif defined(WITH_AT_FRAMEWORK)
+        int fd;
+        fd = ((atiny_net_context *)ctx)->fd;
+        return at_api_send(fd , buf, (uint32_t)len);
+#endif
+
 }
 

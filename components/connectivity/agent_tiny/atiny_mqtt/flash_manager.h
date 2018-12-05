@@ -32,16 +32,60 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __MQTT_CONFIG_H__
-#define __MQTT_CONFIG_H__
+#ifndef FLASH_MANAGER_H
+#define FLASH_MANAGER_H
 
-#define ATINY_INTEREST_URI_MAX_NUM (5)
-#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
-#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
-#define MQTT_KEEPALIVE_INTERVAL_S (100)
-#define MQTT_SENDBUF_SIZE (1024)
-#define MQTT_READBUF_SIZE (1024)
-#define MQTT_PSK_MAX_LEN    16 /* 128-bits keys are generally enough */
+#include "atiny_mqtt/mqtt_client.h"
 
-#endif /* __MQTT_CONFIG_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define STRING_MAX_LEN 256
+
+
+#ifndef array_size
+#define array_size(a) (sizeof(a)/sizeof(*(a)))
+#endif
+
+#define TRY_FREE_MEM(mem) \
+do\
+{\
+    if(NULL != (mem))\
+    {\
+       atiny_free(mem);\
+       (mem) = NULL;\
+    }\
+}while(0)
+
+
+enum
+{
+    PRODUCT_IDX,
+    NODEID_IDX,
+    DEVICEID_IDX,
+    PASSWORD_IDX,
+    MAX_DATA_ITEM
+};
+
+
+typedef struct
+{
+        char *items[MAX_DATA_ITEM];
+}flash_info_s;
+
+
+/*flash_info info is malloc, should destroy if not used*/
+void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len));
+int flash_manager_read(flash_info_s *flash_info);
+int flash_manager_write(const flash_info_s *flash_info);
+void flash_manager_destroy_flash_info(flash_info_s *flash_info);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* FLASH_MANAGER_H */
+
 

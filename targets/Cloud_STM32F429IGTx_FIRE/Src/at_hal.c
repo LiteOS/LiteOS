@@ -38,7 +38,6 @@
 #include "stm32f4xx_hal.h"
 
 extern at_task at;
-extern at_config at_user_conf;
 
 UART_HandleTypeDef at_usart;
 
@@ -80,12 +79,13 @@ static void at_usart_adapter(uint32_t port)
 void at_irq_handler(void)
 {
     recv_buff recv_buf;
+    at_config *at_user_conf = at_get_config();
 
     if(__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_RXNE) != RESET)
     {
         at.recv_buf[wi++] = (uint8_t)(at_usart.Instance->DR & 0x00FF);
         if(wi == ri)buff_full = 1;
-        if (wi >= at_user_conf.user_buf_len)wi = 0;
+        if (wi >= at_user_conf->user_buf_len)wi = 0;
     }
     else if (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_IDLE) != RESET)
     {
@@ -109,11 +109,12 @@ void at_irq_handler(void)
 int32_t at_usart_init(void)
 {
     UART_HandleTypeDef *usart = &at_usart;
+    at_config *at_user_conf = at_get_config();
 
-    at_usart_adapter(at_user_conf.usart_port);
+    at_usart_adapter(at_user_conf->usart_port);
 
     usart->Instance = s_pUSART;
-    usart->Init.BaudRate = at_user_conf.buardrate;
+    usart->Init.BaudRate = at_user_conf->buardrate;
 
     usart->Init.WordLength = UART_WORDLENGTH_8B;
     usart->Init.StopBits = UART_STOPBITS_1;
@@ -143,11 +144,13 @@ void at_usart_deinit(void)
 
 void at_transmit(uint8_t *cmd, int32_t len, int flag)
 {
-    char *line_end = at_user_conf.line_end;
+    at_config *at_user_conf = at_get_config();
+    
+    char *line_end = at_user_conf->line_end;
     (void)HAL_UART_Transmit(&at_usart, (uint8_t *)cmd, len, 0xffff);
     if(flag == 1)
     {
-        (void)HAL_UART_Transmit(&at_usart, (uint8_t *)line_end, strlen(at_user_conf.line_end), 0xffff);
+        (void)HAL_UART_Transmit(&at_usart, (uint8_t *)line_end, strlen(at_user_conf->line_end), 0xffff);
     }
 }
 
@@ -156,6 +159,8 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
     uint32_t len = 0;
 
     uint32_t tmp_len = 0;
+
+    at_config *at_user_conf = at_get_config();
 
     if (NULL == buf)
     {
@@ -181,7 +186,7 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
     }
     else
     {
-        tmp_len = at_user_conf.user_buf_len - recv_buf->ori;
+        tmp_len = at_user_conf->user_buf_len - recv_buf->ori;
         memcpy(buf, &at.recv_buf[recv_buf->ori], tmp_len);
         memcpy(buf + tmp_len, at.recv_buf, recv_buf->end);
         len = recv_buf->end + tmp_len;

@@ -43,8 +43,13 @@
 #include "los_sys.ph"
 #include "los_tick.ph"
 
+static at_config at_user_conf;
+
 /* FUNCTION */
-void at_init(void);
+void at_set_config(at_config *config);
+at_config *at_get_config(void);
+
+void at_init(at_config *config);
 //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
 int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
 int32_t at_get_unuse_linkid(void);
@@ -767,6 +772,12 @@ int32_t at_struct_deinit(at_task *at)
         at->userdata = NULL;
     }
 
+    if (NULL != at->saveddata)
+    {
+        at_free(at->saveddata);
+        at->saveddata = NULL;
+    }
+
     if (NULL != at->linkid)
     {
         at_free(at->linkid);
@@ -781,11 +792,33 @@ int32_t at_struct_deinit(at_task *at)
     return ret;
 }
 
-void at_init(void)
+void at_set_config(at_config *config)
 {
+    if(NULL != config){
+        memcpy(&at_user_conf,config,sizeof(at_config));
+    }
+}
+
+at_config *at_get_config(void)
+{
+    return &at_user_conf;
+}
+
+
+void at_init(at_config *config)
+{
+
+    if(NULL == config)
+    {
+        AT_LOG("Config is NULL, failed!!\n");
+        return;
+    }
+    
+    memcpy(&at_user_conf,config,sizeof(at_config));
+    
     AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
-    LOS_TaskDelay(200);
+    //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
     {
         AT_LOG("prepare AT struct failed!");

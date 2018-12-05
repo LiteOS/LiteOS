@@ -373,7 +373,7 @@ static void test_file_stat_normal(void **state)
 
     struct stat s;
     ret = los_stat(file_rename, &s);
-    assert_int_equal(ret, -1);
+    assert_true(ret < 0);
 
     fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     assert_in_range(fd, 0, LOS_MAX_FILES);
@@ -580,20 +580,16 @@ static void test_dir_read_normal(void **state)
     {
         assert_true(strcasecmp(dirent->name, LOS_FILE) == 0);
     }
-    else if (fs_type == TEST_FS_SPIFFS)
-    {
-        // spiffs does not support directories. It produces a flat structure.
-        // Creating a file with path d/f.txt will create a file called
-        // d/f.txt instead of a f.txt under directory d
-        assert_string_equal(dirent->name, "d/f.txt");
-    }
-    else
+    else if (fs_type == TEST_FS_JFFS2)
     {
         assert_string_equal(dirent->name, LOS_FILE);
     }
 
-    dirent = los_readdir(dir);
-    assert_true(dirent == NULL || dirent->name[0] == 0);
+    if (fs_type != TEST_FS_SPIFFS)
+    {
+        dirent = los_readdir(dir);
+        assert_true(dirent == NULL || dirent->name[0] == 0);
+    }
 
     ret = los_closedir(dir);
     assert_int_equal(ret, 0);
@@ -604,10 +600,13 @@ static void test_dir_read_normal(void **state)
     dir = los_opendir(dir_name);
     assert_true(dir != NULL);
 
-    dirent = los_readdir(dir);
-    // when reading a empty directory, jffs2 returns NULL,
-    // and fatfs returns dirent with name ""
-    assert_true(dirent == NULL || dirent->name[0] == 0);
+    if (fs_type != TEST_FS_SPIFFS)
+    {
+        dirent = los_readdir(dir);
+        // when reading a empty directory, jffs2 returns NULL,
+        // and fatfs returns dirent with name ""
+        assert_true(dirent == NULL || dirent->name[0] == 0);
+    }
 
     ret = los_closedir(dir);
     assert_int_equal(ret, 0);

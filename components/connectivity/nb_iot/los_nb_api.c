@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#if defined(WITH_AT_FRAMEWORK)
 #include "nb_iot/los_nb_api.h"
 #include "at_frame/at_api.h"
 //#include "atiny_socket.h"
@@ -44,7 +44,21 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     int timecnt = 0;
     //if(port == NULL)
         //return -1;
-    at.init();
+    /*when used nb with agenttiny*/
+    /*the following para is replaced by call nb_int()*/
+    at_config at_user_conf = {
+        .name = AT_MODU_NAME,
+        .usart_port = AT_USART_PORT,
+        .buardrate = AT_BUARDRATE,
+        .linkid_num = AT_MAX_LINK_NUM,
+        .user_buf_len = MAX_AT_USERDATA_LEN,
+        .cmd_begin = AT_CMD_BEGIN,
+        .line_end = AT_LINE_END,
+        .mux_mode = 1, //support multi connection mode
+        .timeout = AT_CMD_TIMEOUT,   //  ms
+    };
+    
+    at.init(&at_user_conf);
 
     nb_reboot();
     LOS_TaskDelay(2000);
