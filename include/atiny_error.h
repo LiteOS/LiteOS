@@ -32,38 +32,31 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
+/**@defgroup agent AgentTiny
+ * @defgroup agenttiny Agenttiny Definition
  * @ingroup agent
  */
+#ifndef ATINY_ERROR_H
+#define ATINY_ERROR_H
 
-#ifndef PACKAGE_DEVICE_H
-#define PACKAGE_DEVICE_H
-
-#include "ota/package.h"
-#include "package_checksum.h"
-#include "package_head.h"
-#include "package_writer.h"
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-typedef struct
+typedef enum
 {
-    pack_storage_device_api_s interface;
-    pack_hardware_s hardware;
-    pack_params_s params;
-    pack_head_s head;
-    pack_writer_s writer;
-    uint32_t total_len;
-    ota_flash_type_e type;
-    int32_t init_flag;
-} pack_storage_device_s;
+    ATINY_OK                   = 0,
+    ATINY_ARG_INVALID          = -1,
+    ATINY_BUF_OVERFLOW         = -2,
+    ATINY_MSG_CONGEST          = -3,
+    ATINY_MALLOC_FAILED        = -4,
+    ATINY_RESOURCE_NOT_FOUND   = -5,
+    ATINY_RESOURCE_NOT_ENOUGH  = -6,
+    ATINY_CLIENT_UNREGISTERED  = -7,
+    ATINY_SOCKET_CREATE_FAILED = -8,
+    ATINY_ERR                  = -9
+} atiny_error_e;
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
 #endif
 
-#endif //PACKAGE_DEVICE_H
+#endif
 
 
