@@ -42,7 +42,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "osdepends/atiny_osdep.h"
 #include "package_checksum.h"
 #include "upgrade_flag.h"
 

@@ -534,7 +534,7 @@ static int demo_rcv_msg(const uint8_t *msg, int32_t len)
     }
 
     ATINY_LOG(LOG_INFO, "recv msg %s", msg);
-    parse_msg = cJSON_Parse(msg);
+    parse_msg = cJSON_Parse((const char *)msg);
     if (parse_msg != NULL)
     {
         ret = handle_rcv_msg(parse_msg);
@@ -565,7 +565,7 @@ static int demo_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
         case MQTT_RCV_MSG:
             result = demo_rcv_msg(arg, len);
             break;
-        case MQTT_WRITE_FLASH_INFO:
+        case MQTT_SAVE_SECRET_INFO:
             if (g_demo_param.write_flash_info == NULL)
             {
 
@@ -577,7 +577,7 @@ static int demo_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
                 result = g_demo_param.write_flash_info(arg, len);
             }
             break;
-        case MQTT_READ_FLASH_INFO:
+        case MQTT_READ_SECRET_INFO:
             if (g_demo_param.read_flash_info == NULL)
             {
 

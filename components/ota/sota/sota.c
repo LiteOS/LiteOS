@@ -480,7 +480,6 @@ int sota_init(sota_opt_t* flash_opt)
     pack_param.free = flash_opt->sota_free;
     pack_param.printf = flash_opt->sota_printf;
     ret = pack_init_device(&pack_param);
-    ret = pack_init_device(&flash_opt->ota_info);
     if (ret != SOTA_OK)
     {
         return SOTA_FAILED;

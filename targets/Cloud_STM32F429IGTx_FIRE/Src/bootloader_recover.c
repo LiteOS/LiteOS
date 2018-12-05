@@ -41,7 +41,6 @@
 #include "hal_spi_flash.h"
 #include "usart.h"
 #include "board.h"
-#include "upgrade_flag.h"
 #include "ota/recover_image.h"
 
 void SysTick_Handler(void)
