@@ -276,10 +276,12 @@ static inline uint32_t dtls_gettime()
 int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 {
     int ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
-    unsigned int flags;
     uint32_t change_value = 0;
     mbedtls_net_context *server_fd = NULL;
     uint32_t max_value;
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    unsigned int flags;
+#endif
 
     MBEDTLS_LOG("connecting to server");
 
