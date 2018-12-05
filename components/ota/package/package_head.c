@@ -75,13 +75,13 @@ void pack_head_destroy(pack_head_s *head)
 {
     if(head->buff)
     {
-        atiny_free(head->buff);
+        PACK_FREE(head->buff);
         head->buff = NULL;
     }
 
     if(head->checksum_pos)
     {
-        atiny_free(head->checksum_pos);
+        PACK_FREE(head->checksum_pos);
         head->checksum_pos = NULL;
     }
 
@@ -112,10 +112,10 @@ int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *
 
         if(NULL == head->buff)
         {
-            head->buff = atiny_malloc(PACK_HEADER_MIN_LEN);
+            head->buff = PACK_MALLOC(PACK_HEADER_MIN_LEN);
             if(NULL == head->buff)
             {
-                PACK_LOG("atiny_malloc fail");
+                PACK_LOG("PACK_MALLOC fail");
                 return PACK_ERR;
             }
             head->head_len = PACK_HEADER_MIN_LEN;
@@ -149,14 +149,14 @@ int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *
 
         if(head_len > head->head_len)
         {
-            uint8_t *new_buff = atiny_malloc(head_len);
+            uint8_t *new_buff = PACK_MALLOC(head_len);
             if(NULL == new_buff)
             {
-                PACK_LOG("atiny_malloc fail");
+                PACK_LOG("PACK_MALLOC fail");
                 return PACK_ERR;
             }
             memcpy(new_buff, head->buff, head->stored_len);
-            atiny_free(head->buff);
+            PACK_FREE(head->buff);
             head->buff = new_buff;
             head->head_len = head_len;
         }
@@ -181,7 +181,7 @@ static int pack_head_handle_checksum_tlv(pack_head_s *head, uint8_t *value, uint
 {
     if(head->checksum_pos)
     {
-        atiny_free(head->checksum_pos);
+        PACK_FREE(head->checksum_pos);
         head->checksum_pos = NULL;
         head->checksum_len = 0;
     }
@@ -189,10 +189,10 @@ static int pack_head_handle_checksum_tlv(pack_head_s *head, uint8_t *value, uint
     if(len > 0)
     {
 
-        head->checksum_pos = atiny_malloc(len);
+        head->checksum_pos = PACK_MALLOC(len);
         if(NULL == head->checksum_pos)
         {
-            PACK_LOG("atiny_malloc %d fail", len);
+            PACK_LOG("PACK_MALLOC %d fail", len);
             return PACK_ERR;
         }
         memcpy(head->checksum_pos, value, len);
