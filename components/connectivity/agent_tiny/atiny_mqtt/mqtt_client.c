@@ -834,7 +834,7 @@ static void mqtt_read_flash_info(mqtt_client_s* handle)
 }
 
 
-int atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
+int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     cJSON_InitHooks(NULL);
     if (NULL == params || NULL == phandle)
