@@ -97,7 +97,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 
     const char *pers = "ssl_client";
 
-    dtls_int();
+    dtls_init();
 
     ssl       = mbedtls_calloc(1, sizeof(mbedtls_ssl_context));
     conf      = mbedtls_calloc(1, sizeof(mbedtls_ssl_config));
@@ -487,7 +487,7 @@ int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t
     return ret;
 }
 
-void dtls_int(void)
+void dtls_init(void)
 {
     (void)mbedtls_platform_set_calloc_free(atiny_calloc, atiny_free);
     (void)mbedtls_platform_set_snprintf(atiny_snprintf);
