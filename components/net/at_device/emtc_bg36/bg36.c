@@ -499,14 +499,12 @@ static int32_t bg36_init(void)
     memset(&data_ind_info, 0, sizeof(emtc_data_ind_info_s));
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), bg36_data_handler, bg36_cmd_match);
     ret = bg36_cmd(ATI, strlen(ATI), "OK", NULL, NULL);
-    //ret = bg36_cmd(CMEE, strlen(CMEE), "OK", NULL, NULL);
-    //ret = bg36_cmd(QCFG, strlen(QCFG), "OK", NULL, NULL);
     ret = bg36_cmd(ATE0, strlen(ATE0), "OK", NULL, NULL);
     ret = bg36_cmd(CPIN, strlen(CPIN), "+CPIN: READY", NULL, NULL);
     while(1)
     {
         ret = bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
-        bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
+        //bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
         if(strlen(inbuf)!=0)
             sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
         AT_LOG("creg:%d", creg);

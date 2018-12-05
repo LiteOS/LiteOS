@@ -118,38 +118,6 @@ void nb_sota_demo(void)
     (void)at.oob_register("+NNMI:", strlen("+NNMI:"), sota_callback,sota_cmd_match);
 }
 
-UINT32 creat_report_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-    UINT32 TskHandle;
-
-    task_init_param.usTaskPrio = 1;
-    task_init_param.pcName = "nb_sota_demo";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)nb_sota_demo;
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-
-}
-
-void agent_tiny_entry(void)
-{
-    UINT32 uwRet = LOS_OK;
-
-    uwRet = creat_report_task();
-    if(LOS_OK != uwRet)
-    {
-        return;
-    }
-
-}
-
 #endif
 
  
