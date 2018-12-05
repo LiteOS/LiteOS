@@ -35,8 +35,8 @@ WITH_LWIP  := no
 #######################################
 WITH_AT_FRAMEWORK := yes
 ifeq ($(WITH_AT_FRAMEWORK), yes)
-#ESP8266   # SIM900A  # NB_NEUL95  # NB_NEUL95_NO_ATINY
-	NETWORK_TYPE := NB_NEUL95_NO_ATINY
+#ESP8266   # SIM900A  # NB_NEUL95  # EMTC_BG36 # NB_NEUL95_NO_ATINY
+	NETWORK_TYPE := NB_NEUL95
 #ONLYONE  #ALL
 	AT_COMPILE_ALL := ALL
 endif
@@ -50,7 +50,7 @@ WITH_DTLS := no
 # whether OTA Pack use checksum
 #######################################
 #SHA256_RSA2048   #SHA256  #NO_CHECKSUM
-OTA_PACK_CHECKSUM := SHA256_RSA2048
+OTA_PACK_CHECKSUM := NO_CHECKSUM
 
 #######################################
 # Firmware Over-The-Air
@@ -63,12 +63,12 @@ USE_FOTA := no
 USE_SOTA := yes
 
 #######################################
-# Lwm2m bootstrap program 
+# Lwm2m bootstrap program
 #######################################
 LWM2M_BOOTSTRAP := no
 
 #######################################
-# Lwm2m bootstrap used 
+# Lwm2m bootstrap used
 #######################################
 SUPPORT_DTLS_SRV := no
 
