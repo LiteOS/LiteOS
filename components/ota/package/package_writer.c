@@ -45,7 +45,7 @@ void pack_wr_free_save_buffer(pack_writer_s *writer)
 {
     if(writer->buffer)
     {
-        atiny_free(writer->buffer);
+        PACK_FREE(writer->buffer);
         writer->buffer = NULL;
     }
     writer->buffer_stored_len = 0;
@@ -135,7 +135,7 @@ static int pack_wr_begin_not_aligned(pack_writer_s *writer, uint32_t block_begin
         {
             if (writer->buffer == NULL)
             {
-                writer->buffer = atiny_malloc(block_size);
+                writer->buffer = PACK_MALLOC(block_size);
                 if (writer->buffer == NULL)
                 {
                     PACK_LOG("malloc null %d", block_size);
@@ -204,7 +204,7 @@ static int pack_wr_end_not_aligned_block(pack_writer_s *writer, uint32_t block_b
 {
     if (writer->buffer == NULL)
     {
-        writer->buffer = atiny_malloc(block_size);
+        writer->buffer = PACK_MALLOC(block_size);
         if (writer->buffer == NULL)
         {
             PACK_LOG("malloc null %d", block_size);

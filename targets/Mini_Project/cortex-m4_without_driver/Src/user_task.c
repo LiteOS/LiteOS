@@ -46,11 +46,8 @@
 #endif
 
 
-
 static UINT32 g_atiny_tskHandle;
 static UINT32 g_fs_tskHandle;
-
-
 
 
 
@@ -66,11 +63,6 @@ void atiny_task_entry(void)
     extern at_adaptor_api esp8266_interface;
     printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
     at_api_register(&esp8266_interface);
-
-    #elif defined(USE_EMTC_BG36)
-    extern at_adaptor_api emtc_bg36_interface;
-    printf("\r\n=============agent_tiny_entry  USE_EMTC_BG36============================\n");
-    at_api_register(&emtc_bg36_interface);
 
     #elif defined(USE_SIM900A)
     extern at_adaptor_api sim900a_interface;
@@ -118,7 +110,7 @@ UINT32 creat_agenttiny_task(VOID)
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 2;
+    task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "agenttiny_task";
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)atiny_task_entry;
 
@@ -142,7 +134,7 @@ UINT32 creat_fs_task(void)
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 2;
+    task_init_param.usTaskPrio = 0;
     task_init_param.pcName = "main_task";
     extern void fs_demo(void);
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_demo;
@@ -207,7 +199,7 @@ UINT32 create_work_tasks(VOID)
     extern void uart_init(void);  //this uart used for the pppos interface
     uart_init();
     extern VOID *main_ppp(UINT32  args);
-    task_create("main_ppp", main_ppp, 0x1500, NULL, NULL, 2);
+    task_create("main_ppp", main_ppp, 0x1500, NULL, NULL, 0);
 #endif
 
 

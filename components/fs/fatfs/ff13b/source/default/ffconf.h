@@ -1,6 +1,7 @@
 /*---------------------------------------------------------------------------/
 /  FatFs - Configuration file
 /---------------------------------------------------------------------------*/
+#include "fs/los_vfs.h"
 
 #define FFCONF_DEF 63463	/* Revision ID */
 
@@ -68,7 +69,7 @@
 / Locale and Namespace Configurations
 /---------------------------------------------------------------------------*/
 
-#define FF_CODE_PAGE	932
+#define FF_CODE_PAGE	936
 /* This option specifies the OEM code page to be used on the target system.
 /  Incorrect code page setting can cause a file open failure.
 /
@@ -97,8 +98,8 @@
 */
 
 
-#define FF_USE_LFN		0
-#define FF_MAX_LFN		255
+#define FF_USE_LFN		2
+#define FF_MAX_LFN		LOS_MAX_DIR_NAME_LEN
 /* The FF_USE_LFN switches the support for LFN (long file name).
 /
 /   0: Disable LFN. FF_MAX_LFN has no effect.
@@ -250,7 +251,7 @@
 /  These options have no effect at read-only configuration (FF_FS_READONLY = 1). */
 
 
-#define FF_FS_LOCK		8
+#define FF_FS_LOCK	 LOS_MAX_FILES
 /* The option FF_FS_LOCK switches file lock function to control duplicated file open
 /  and illegal operation to open objects. This option must be 0 when FF_FS_READONLY
 /  is 1.
@@ -259,7 +260,8 @@
 /      should avoid illegal open, remove and rename to the open objects.
 /  >0: Enable file lock function. The value defines how many files/sub-directories
 /      can be opened simultaneously under file lock control. Note that the file
-/      lock control is independent of re-entrancy. */
+/      lock control is independent of re-entrancy.
+/      This value should be no more than LOS_MAX_FILES in los_vfs.h */
 
 
 #define FF_FS_REENTRANT	0

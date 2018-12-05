@@ -13,24 +13,29 @@
 #include <cmockery.h>
 //#include "regresstest.h"
 #include "atiny_lwm2m/agenttiny.h"
-#include "agent_tiny_demo.h"
 #include "liblwm2m.h"
-#include "atiny_lwm2m/object_comm.h"
+#include "object_comm.h"
 
 #define TEST_LOG    printf("Atiny_Test_Log : %s : %d \n",__FUNCTION__, __LINE__)
 
-#define TEST_LWM2M_SERVER_IP					"192.168.1.102"     //leshan server
-#define TEST_LWM2M_SERVER_DTLS_IP               "192.168.1.102"     //leshan server
+//#define TEST_LWM2M_SERVER_IP					"192.168.1.102"     //leshan server
+//#define TEST_LWM2M_SERVER_DTLS_IP               "192.168.1.102"
+#define TEST_LWM2M_SERVER_IP					"180.101.147.115"	// dianxin
+#define TEST_LWM2M_SERVER_DTLS_IP				"180.101.147.115"
 #define TEST_LWM2M_SERVER_IP_INVALID			"not server ip"
 
 #define TEST_LWM2M_SERVER_PORT                  "5683"
 #define TEST_LWM2M_SERVER_DTLS_PORT				"5684"
 #define TEST_LWM2M_SERVER_DTLS_PORT_INVALID 	"not a port"
 
-#define TEST_LWM2M_SERVER_PSK_ID				"99990009"
+#define TEST_LWM2M_SERVER_PSK_ID				"6666dtls"
 #define TEST_LWM2M_SERVER_PSK_ID_INVALID		"not a psk id"
 
 #define TEST_LWM2M_SERVER_PSK_INVALID			"not a psk"
+#define DEFAULT_EP_NAME							"6666wifi"
+#define DEFAULT_EP_NAME_S						"6666dtls"
+#define DEFAULT_MFT								"lwm2mFota"
+#define DEFAULT_DEV_TYPE						"lwm2mFota"
 
 extern void *test_phandle;
 extern char TEST_LWM2M_SERVER_PSK[16];

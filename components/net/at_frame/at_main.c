@@ -772,6 +772,12 @@ int32_t at_struct_deinit(at_task *at)
         at->userdata = NULL;
     }
 
+    if (NULL != at->saveddata)
+    {
+        at_free(at->saveddata);
+        at->saveddata = NULL;
+    }
+
     if (NULL != at->linkid)
     {
         at_free(at->linkid);
@@ -801,11 +807,18 @@ at_config *at_get_config(void)
 
 void at_init(at_config *config)
 {
+
+    if(NULL == config)
+    {
+        AT_LOG("Config is NULL, failed!!\n");
+        return;
+    }
+    
     memcpy(&at_user_conf,config,sizeof(at_config));
     
     AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
-    LOS_TaskDelay(200);
+    //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
     {
         AT_LOG("prepare AT struct failed!");

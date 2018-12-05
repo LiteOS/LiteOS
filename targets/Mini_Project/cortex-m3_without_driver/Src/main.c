@@ -127,35 +127,6 @@ void net_init(void)
 
 
 
-VOID main_task(VOID)
-{
-	extern void demo_agenttiny_with_eth(void);
-    demo_agenttiny_with_eth();
-}
-
-UINT32 creat_main_task()
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 2;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
-
-#ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
-#else
-    task_init_param.uwStackSize = 0x2000;
-#endif
-
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
 int main(void)
 {
     UINT32 uwRet = LOS_OK;
@@ -167,7 +138,10 @@ int main(void)
     {
         return LOS_NOK;
     }
-    uwRet = creat_main_task();
+
+    extern UINT32 create_work_tasks(VOID);
+    uwRet =create_work_tasks();
+	
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;

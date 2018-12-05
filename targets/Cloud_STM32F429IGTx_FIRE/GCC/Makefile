@@ -301,6 +301,8 @@ ifeq ($(NETWORK_TYPE), ESP8266)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
 else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
+else ifeq ($(NETWORK_TYPE), EMTC_BG36)
+    USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
 else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE)$(AT_COMPILE_ALL), NB_NEUL95 NB_NEUL95_ONYL),)
     USER_DRIVERS_SRC = \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
@@ -309,6 +311,7 @@ endif
 ifeq ($(AT_COMPILE_ALL), ALL)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
 	USER_DRIVERS_SRC += ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
+	USER_DRIVERS_SRC += ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
 	USER_DRIVERS_SRC += \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
@@ -391,7 +394,11 @@ ifeq ($(WITH_LWM2M), yes)
 			-D LWM2M_CLIENT_MODE
 endif
 ifneq ($(OTA_IS_NEED_DTLS)_$(WITH_DTLS), no_no)
+	ifeq ($(WITH_MQTT), yes)
+		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config_cert.h\"
+	else
 		C_DEFS += -D MBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
+	endif
 	ifeq ($(USE_MBEDTLS_DEBUG_C), yes)
 		C_DEFS += -DMBEDTLS_DEBUG_C
 	endif
@@ -411,6 +418,8 @@ ifeq ($(WITH_LWIP), yes)
 
 	ifeq ($(USE_LWIP_TCP), yes)
 		C_DEFS += -DLWIP_TCP=1
+	else
+		C_DEFS += -DLWIP_TCP=0
 	endif
 endif
 
