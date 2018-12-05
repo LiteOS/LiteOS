@@ -182,7 +182,7 @@ typedef struct at_task{
 
 	void (*step_callback)();
 
-	void    (*init)();
+	void    (*init)(at_config *config);
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * resp_buf, int* resp_len);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* get unused linkid, use in multi connection mode*/

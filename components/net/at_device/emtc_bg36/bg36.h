@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,38 +32,54 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/**@defgroup atiny_adapter Agenttiny Adapter
- * @ingroup agent
- */
+#ifndef __EMTC_BG36_H__
+#define __EMTC_BG36_H__
 
-#ifndef PACKAGE_DEVICE_H
-#define PACKAGE_DEVICE_H
+#include "at_frame/at_main.h"
+#define IP_LEN 16
+#define AT_MODU_NAME        "BG36"
+#define AT_USART_PORT       3
+#define AT_BUARDRATE        115200
+#define BG36_TIMEOUT      10000    //ms
+#define AT_MAX_LINK_NUM     4
+#define MAX_AT_USERDATA_LEN (1024*4)
 
-#include "ota/package.h"
-#include "package_checksum.h"
-#include "package_head.h"
-#include "package_writer.h"
+#define AT_LINE_END 		"\r"
+#define AT_CMD_BEGIN		"\r\n"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-typedef struct
+typedef struct emtc_socket_info_t
 {
-    pack_storage_device_api_s interface;
-    pack_hardware_s hardware;
-    pack_params_s params;
-    pack_head_s head;
-    pack_writer_s writer;
-    uint32_t total_len;
-    ota_flash_type_e type;
-    int32_t init_flag;
-} pack_storage_device_s;
+    int socket;
+    int len;
+    //short localport;
+    //char localip[IP_LEN];
+    //short remoteport;
+    //char remoteip[IP_LEN];
 
-#if defined(__cplusplus)
-}
+    int offset;
+    bool used_flag;
+    char *buf;
+
+}emtc_socket_info;//struct to save socket info
+
+
+#define ATI "ATI\r"
+#define ATE0 "ATE0\r"
+#define CMEE "AT+CMEE=2\r"
+#define QCFG "AT+QCFG=\"nwscanseq\",03\r"
+
+#define CPIN "AT+CPIN?\r"
+#define CREG "AT+CREG?\r"
+#define GETQICSGP "AT+QICSGP=1\r"
+#define SETCELL "AT+CGREG=2\r"
+#define QUERYCELL "AT+CGREG?\r"
+
+#define QICSGP "AT+QICSGP=1,1,\"HUAWEI.COM\",\"\",\"\",1\r"
+#define QIACT "AT+QIACT=1\r"
+#define QIACTQUERY "AT+QIACT?\r"
+#define CSQ "AT+CSQ\r"
+#define QIOPEN_SOCKET "AT+QIOPEN=1"
+#define QUERYCFATT "AT+CGATT?\r"
+#define AT_DATAF_PREFIX "+QIURC:"
+#define QPING "AT+QPING=1,\"202.105.205.54\"\r"//"AT+QPING=1,\"10.10.14.3\"\r"
 #endif
-
-#endif //PACKAGE_DEVICE_H
-
-

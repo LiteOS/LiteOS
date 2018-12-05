@@ -34,7 +34,7 @@
 
 #ifndef __MQTT_CLIENT_H__
 #define __MQTT_CLIENT_H__
-
+#include "atiny_error.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -67,9 +67,83 @@ extern "C" {
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
 #endif
 
+/* deviceReq data msg jason format example to server
+{
+        "msgType":      "deviceReq",
+        "hasMore":      0,
+        "data": [{
+                        "serviceId":    "serviceIdValue",
+                        "data": {
+                                "defineData": "defineValue"
+                        },
+                        "eventTime":    "20161219T114920Z"
+                }]
+}
 
+cloudReq data msg jason format example from server
+{
+	"msgType":"cloudReq",
+	"serviceId":"serviceIdValue",
+	"paras":{
+		"paraName":"paraValue"
+    },
+	"cmd":"cmdValue",
+	"hasMore":0,
+	"mid":0
+}
+
+deviceRsp data msg jason format example to server
+{
+	"msgType":	"deviceRsp",
+	"mid":	0,
+	"errcode":	0,
+	"hasMore":	0,
+	"body":	{
+		"bodyParaName":	"bodyParaValue"
+	}
+}
+
+
+*/
+
+/* msg type, json name, its value is string*/
 #define MQTT_MSG_TYPE "msgType"
+/* msg type report data, json value */
 #define MQTT_DEVICE_REQ "deviceReq"
+
+#define MQTT_CLOUD_REQ "cloudReq"
+
+#define MQTT_DEVICE_RSP "deviceRsp"
+
+/* more data, json name, its value is int, 0 for no more data, 1 for more data */
+#define MQTT_HAS_MORE "hasMore"
+#define MQTT_NO_MORE_DATA 0
+#define MQTT_MORE_DATA 1
+
+
+/* ServiceData array, json name, its value is ServiceData array */
+#define MQTT_DATA "data"
+
+/* ServiceData */
+/* service id, json name, its value is string */
+#define MQTT_SERVICEID "serviceId"
+
+/* service data, json name, its value is an object defined in profile for the device */
+#define MQTT_SERVICE_DATA "serviceData"
+
+/* service data, json name, its value is string, format yyyyMMddTHHmmssZ such as 20161219T114920Z */
+#define MQTT_EVENT_TIME "eventTime"
+
+#define MQTT_CMD "cmd"
+#define MQTT_PARAS "paras"
+#define MQTT_MID "mid"
+
+#define MQTT_ERR_CODE "errcode"
+#define MQTT_ERR_CODE_OK 0
+#define MQTT_ERR_CODE_ERR 1
+
+#define MQTT_BODY "body"
+
 
 
 typedef struct mqtt_client_tag_s mqtt_client_s;
@@ -147,9 +221,9 @@ typedef struct
 
 typedef enum
 {
-    MQTT_QOS_MOST_ONCE,    // LWM2M: NON
-    MQTT_QOS_LEAST_ONCE,   // LWM2M: CON
-    MQTT_QOS_ONLY_ONCE,
+    MQTT_QOS_MOST_ONCE,  //MQTT QOS 0
+    MQTT_QOS_LEAST_ONCE, //MQTT QOS 1
+    MQTT_QOS_ONLY_ONCE,  //MQTT QOS 2
     MQTT_QOS_MAX
 }mqtt_qos_e;
 
@@ -180,19 +254,6 @@ typedef struct
         mqtt_dynamic_connection_info_s d_info;
     }u;
 }mqtt_device_info_s;
-
-
-
-#define MQTT_ERR_NO(number) (((0x8000) << 16) | (number))
-typedef enum
-{
-    ATINY_OK = 0,
-    ATINY_ARG_INVALID,
-    ATINY_BUF_OVERFLOW,
-    ATINY_MALLOC_FAILED,
-    ATINY_SOCKET_ERROR,
-    ATINY_ERR,
-} atiny_error_e;
 
 
 /**
@@ -256,6 +317,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* phandl
  *@param phandle        [IN] The handle of the agent_tiny.
  *@param msg    [IN] Message to be sended.
  *@param msg_len              [IN] Message length.
+ *@param qos              [IN] quality of service used in MQTT protocol.
  *
  *@retval #int           0 if succeed, or the error number @ref mqtt_error_e if failed.
  *@par Dependency: none.

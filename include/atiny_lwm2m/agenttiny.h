@@ -38,7 +38,7 @@
  */
 #ifndef AGENT_TINY_H
 #define AGENT_TINY_H
-
+#include "atiny_error.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include "log/atiny_log.h"
@@ -340,19 +340,6 @@ int atiny_data_change(void* phandle, const char* data_type);
  */
 int atiny_reconnect(void* phandle);
 
-typedef enum
-{
-    ATINY_OK                   = 0,
-    ATINY_ARG_INVALID          = -1,
-    ATINY_BUF_OVERFLOW         = -2,
-    ATINY_MSG_CONGEST          = -3,
-    ATINY_MALLOC_FAILED        = -4,
-    ATINY_RESOURCE_NOT_FOUND   = -5,
-    ATINY_RESOURCE_NOT_ENOUGH  = -6,
-    ATINY_CLIENT_UNREGISTERED  = -7,
-    ATINY_SOCKET_CREATE_FAILED = -8,
-    ATINY_ERR                  = -9
-} atiny_error_e;
 
 
 #ifdef __cplusplus

@@ -72,9 +72,9 @@ int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
         goto exit;
     }
 
-    mbedtls_md_hmac_starts(&mbedtls_md_ctx, hmac_info->secret, hmac_info->secret_len);
-    mbedtls_md_hmac_update(&mbedtls_md_ctx, hmac_info->input, hmac_info->input_len);
-    mbedtls_md_hmac_finish(&mbedtls_md_ctx, hmac_info->digest);
+    (void)mbedtls_md_hmac_starts(&mbedtls_md_ctx, hmac_info->secret, hmac_info->secret_len);
+    (void)mbedtls_md_hmac_update(&mbedtls_md_ctx, hmac_info->input, hmac_info->input_len);
+    (void)mbedtls_md_hmac_finish(&mbedtls_md_ctx, hmac_info->digest);
 
     exit:
     mbedtls_md_free(&mbedtls_md_ctx);

@@ -92,7 +92,7 @@ void pack_checksum_delete(pack_checksum_s *thi)
         return;
     }
     pack_checksum_get_alg(thi)->destroy(pack_checksum_get_alg(thi));
-    atiny_free(thi);
+    PACK_FREE(thi);
 }
 
 static int pack_checksum_init_head_data(pack_checksum_s *thi)
@@ -118,10 +118,10 @@ static int pack_checksum_init_head_data(pack_checksum_s *thi)
 }
 pack_checksum_s *pack_checksum_create(pack_head_s *head)
 {
-    pack_checksum_s *thi = atiny_malloc(sizeof(pack_checksum_s));
+    pack_checksum_s *thi = PACK_MALLOC(sizeof(pack_checksum_s));
     if(NULL == thi)
     {
-        PACK_LOG("atiny_malloc fail");
+        PACK_LOG("PACK_MALLOC fail");
         return NULL;
     }
     pack_checksum_init(thi, head);
@@ -138,7 +138,7 @@ static int pack_checksum_restore_checksum(pack_checksum_s *thi, uint32_t offset,
     uint32_t read_size;
     int ret = PACK_ERR;
 
-    buff = atiny_malloc(max_size);
+    buff = PACK_MALLOC(max_size);
     if(NULL == buff)
     {
         PACK_LOG("malloc null");
@@ -166,7 +166,7 @@ static int pack_checksum_restore_checksum(pack_checksum_s *thi, uint32_t offset,
 
     if(buff)
     {
-        atiny_free(buff);
+        PACK_FREE(buff);
     }
 
     return ret;

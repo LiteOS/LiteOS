@@ -496,9 +496,9 @@ off_t los_lseek (int fd, off_t off, int whence)
 
 int los_stat (const char *path, struct stat *stat)
 {
-    struct file *file;
-    int           ret = -1;
-    int           fd = -1;
+    struct mount_point *mp = NULL;
+    const char *path_in_mp = NULL;
+    int ret = -1;
 
     if (path == NULL || stat == NULL)
     {
@@ -506,30 +506,31 @@ int los_stat (const char *path, struct stat *stat)
         return ret;
     }
 
-    fd = los_open (path, 0);
-    if(fd < 0)
+    if (LOS_OK != LOS_MuxPend (fs_mutex, LOS_WAIT_FOREVER))
     {
+        VFS_ERRNO_SET (EAGAIN);
         return ret;
     }
 
-    file = los_attach_file (fd);
-    if (file == NULL)   /* means closed by others :-(, not likely true */
+    mp = los_mp_find (path, &path_in_mp);
+
+    if ((mp == NULL) || (path_in_mp == NULL) || (*path_in_mp == '\0'))
     {
+        VFS_ERRNO_SET (ENOENT);
+        LOS_MuxPost (fs_mutex);
         return ret;
     }
 
-    if (file->f_fops->stat != NULL)
+    if (mp->m_fs->fs_fops->stat != NULL)
     {
-        ret = file->f_fops->stat (file, stat);
+        ret = mp->m_fs->fs_fops->stat (mp, path_in_mp, stat);
     }
     else
     {
         VFS_ERRNO_SET (ENOTSUP);
     }
 
-    los_detach_file (file);
-
-    los_close (fd);
+    LOS_MuxPost (fs_mutex);
 
     return ret;
 }
@@ -1159,7 +1160,7 @@ int los_vfs_init (void)
 
 #define MAP_TO_POSIX_RET(ret)   ( (ret) < 0 ? -1 : (ret) )
 
-int open (const char *path, int flags)
+int open (const char *path, int flags,...)
 {
     int ret = los_open (path, flags);
     return MAP_TO_POSIX_RET(ret);
@@ -1204,19 +1205,6 @@ int unlink (const char *path)
 int rename (const char *oldpath, const char *newpath)
 {
     int ret = los_rename (oldpath, newpath);
-    return MAP_TO_POSIX_RET(ret);
-}
-
-int ioctl (int fd, unsigned long func, ...)
-{
-    va_list       ap;
-    unsigned long arg;
-
-    va_start (ap, func);
-    arg = va_arg (ap, unsigned long);
-    va_end (ap);
-
-    int ret = los_ioctl (fd, func, arg);
     return MAP_TO_POSIX_RET(ret);
 }
 
