@@ -95,7 +95,9 @@ struct mqtt_client_tag_s
 
 
 static uint8_t g_mqtt_sendbuf[MQTT_SENDBUF_SIZE];
-static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE];
+
+/* reserve 1 byte for string end 0 for jason */
+static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE + 1];
 
 
 static mqtt_client_s g_mqtt_client;
@@ -561,22 +563,11 @@ static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, u
     cJSON *msg_type;
     cJSON *deviceid;
     cJSON *secret;
-    char *buf = NULL;
     cJSON * root = NULL;
     int ret = ATINY_ERR;
 
-    buf = atiny_malloc(len + 1);
-    if (buf == NULL)
-    {
-        ATINY_LOG(LOG_ERR, "atiny_malloc null, len %d", len);
-        return ATINY_ERR;
-    }
 
-    memcpy(buf, payload, len);
-    buf[len] = '\0';
-
-    root = cJSON_Parse(buf);
-    TRY_FREE_MEM(buf);
+    root = cJSON_Parse(payload);
     if (root == NULL)
     {
         ATINY_LOG(LOG_ERR, "err secret notify, len %d, msg %s", len, payload);
@@ -656,15 +647,37 @@ static void mqtt_send_secret_ack(mqtt_client_s* handle)
         ATINY_LOG(LOG_FATAL, "MQTTPublish fail,rc %d", rc);
     }
 }
+
+static int mqtt_modify_payload(MessageData *md)
+{
+    char *end = ((char *)md->message->payload) + md->message->payloadlen;
+    static uint32_t callback_err;
+
+    /* add for jason parse,then not need to copy in callback */
+    if ((end >= (char *)g_mqtt_readbuf) && (end < (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))
+    {
+         *end = '\0';
+         // ATINY_LOG(LOG_DEBUG, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, callback_err);
+         return ATINY_OK;
+    }
+
+    /*  should not happen */
+    ATINY_LOG(LOG_ERR, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, ++callback_err);
+
+    return ATINY_ERR;
+}
+
+
 static void mqtt_recv_secret_topic(MessageData *md)
 {
     mqtt_client_s* handle = &g_mqtt_client;
 
     if ((md == NULL) || (md->message == NULL)
         || (md->message->payload == NULL)
-        || (md->message->payloadlen == 0))
+        || (md->message->payloadlen == 0)
+        || (mqtt_modify_payload(md) != ATINY_OK))
     {
-        ATINY_LOG(LOG_FATAL, "null point or len zero len");
+        ATINY_LOG(LOG_FATAL, "null point or msg err, len %ld", md->message->payloadlen);
         return;
     }
 
@@ -685,7 +698,8 @@ static void mqtt_recv_secret_topic(MessageData *md)
 
 static void mqtt_recv_cmd_topic(MessageData *md)
 {
-    if ((md == NULL) || (md->message == NULL))
+    if ((md == NULL) || (md->message == NULL)
+        || (mqtt_modify_payload(md) != ATINY_OK))
     {
         ATINY_LOG(LOG_FATAL, "null point");
         return;

@@ -63,10 +63,10 @@ static int pack_sha256_rsa2048_check(pack_checksum_alg_s *thi, const uint8_t  *c
         return PACK_ERR;
     }
 
-    dtls_rsa = (mbedtls_rsa_context *)atiny_malloc(sizeof(*dtls_rsa));
+    dtls_rsa = (mbedtls_rsa_context *)PACK_MALLOC(sizeof(*dtls_rsa));
     if(NULL == dtls_rsa)
     {
-        PACK_LOG("atiny_malloc null");
+        PACK_LOG("PACK_MALLOC null");
         return PACK_ERR;
     }
 
@@ -103,7 +103,7 @@ static int pack_sha256_rsa2048_check(pack_checksum_alg_s *thi, const uint8_t  *c
 EXIT:
 
     mbedtls_rsa_free(dtls_rsa);
-    atiny_free(dtls_rsa);
+    PACK_FREE(dtls_rsa);
     return ret;
 
 }
