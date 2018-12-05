@@ -303,11 +303,12 @@ else ifeq ($(NETWORK_TYPE), SIM900A)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
 else ifeq ($(NETWORK_TYPE), EMTC_BG36)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/emtc_bg36/*.c}
-else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE)$(AT_COMPILE_ALL), NB_NEUL95 NB_NEUL95_ONYL),)
+else ifneq ($(findstring $(NETWORK_TYPE)$(NETWORK_TYPE), NB_NEUL95 NB_NEUL95_ONYL),)
     USER_DRIVERS_SRC = \
 	${wildcard $(TOP_DIR)/components/net/at_device/nb_bc95/*.c} \
 	${wildcard $(TOP_DIR)/components/connectivity/nb_iot/*.c}
 endif
+#As default,below compile all device file for AT_FRAMEWORK
 ifeq ($(AT_COMPILE_ALL), ALL)
     USER_DRIVERS_SRC = ${wildcard $(TOP_DIR)/components/net/at_device/wifi_esp8266/*.c}
 	USER_DRIVERS_SRC += ${wildcard $(TOP_DIR)/components/net/at_device/gprs_sim900a/*.c}
@@ -319,11 +320,17 @@ endif
 
     C_SOURCES += $(USER_DRIVERS_SRC)
 endif
+ifeq ($(NETWORK_TYPE), NB_NEUL95_ONYL)
+	NB_NEUL95_ONYL_DEMO = ${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/nb_demo.c \
+						${wildcard $(TOP_DIR)/demos/nbiot_without_atiny/sota_demo.c
+	C_SOURCES += $(NB_NEUL95_ONYL_DEMO)
+endif
 
 ifeq ($(USE_SOTA), yes)
 SOTA_SRC = \
         ${wildcard $(TOP_DIR)/components/ota/sota/*.c}
         C_SOURCES += $(SOTA_SRC)
+
 endif
 
 ifeq ($(USE_OTA), yes)
@@ -334,7 +341,10 @@ OTA_SRC = \
     C_SOURCES += $(OTA_SRC)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/board.c
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c
+#MQTT has add flash_adaptor.c 
+ifneq ($(WITH_MQTT), yes)
 C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+endif
 endif
 
 
