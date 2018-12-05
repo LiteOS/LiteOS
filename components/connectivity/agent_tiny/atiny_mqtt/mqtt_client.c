@@ -526,7 +526,7 @@ static char *mqtt_get_topic(const mqtt_client_s* handle, const char *fmt, uint32
         return NULL;
     }
 
-    snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);
+    (void)snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);
 
     return topic;
 }
@@ -644,7 +644,7 @@ static void mqtt_send_secret_ack(mqtt_client_s* handle)
 static int mqtt_modify_payload(MessageData *md)
 {
     char *end = ((char *)md->message->payload) + md->message->payloadlen;
-    static uint32_t callback_err;
+    static uint32_t callback_err; /*lint !e529*/
 
     /* add for jason parse,then not need to copy in callback */
     if ((end >= (char *)g_mqtt_readbuf) && (end < (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))
@@ -697,7 +697,7 @@ static void mqtt_recv_cmd_topic(MessageData *md)
         ATINY_LOG(LOG_FATAL, "null point");
         return;
     }
-    mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
+    (void)mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
 }
 
 
@@ -1032,6 +1032,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
 {
     MQTTMessage message;
     int rc;
+    char* topic;
 
     if ((phandle == NULL) || ((msg == NULL) && (msg_len == 0)))
     {
@@ -1045,7 +1046,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
         return ATINY_ERR;
     }
 
-    char* topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);
+    topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);
     if (topic == NULL)
     {
         return ATINY_MALLOC_FAILED;
