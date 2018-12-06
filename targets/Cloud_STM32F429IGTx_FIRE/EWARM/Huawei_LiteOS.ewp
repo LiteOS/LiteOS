@@ -2100,6 +2100,12 @@
         <file>
             <name>$PROJ_DIR$\..\..\..\demos\agenttiny_lwm2m\agent_tiny_demo.c</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\xuliqun25\LiteOS\demos\nbiot_without_atiny\nb_demo.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\..\xuliqun25\LiteOS\demos\nbiot_without_atiny\sota_demo.c</name>
+        </file>
     </group>
     <group>
         <name>at_framework</name>
