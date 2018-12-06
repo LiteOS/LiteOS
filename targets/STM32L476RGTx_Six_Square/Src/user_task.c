@@ -38,14 +38,61 @@
 #endif
 #include "at_frame/at_api.h"
 #include "at_device/bc95.h"
+#include "usart.h"
 
 static UINT32 g_atiny_tskHandle;
 
+
+uint8_t aTxStartMessages[] = "\r\n******UART commucition using IT******\r\nPlease enter characters:\r\n";
+uint8_t aRxBuffer[512];
+uint16_t wBuffer_Index = 0;
+extern UART_HandleTypeDef huart1;
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	//UNUSED(huart);
+	if(USART1 == huart->Instance)
+    {   
+	    uint16_t wp;
+        wBuffer_Index++;
+        if(wBuffer_Index >= 512)
+            wBuffer_Index = 0;
+        HAL_UART_Receive_IT(&huart1,(uint8_t*)&aRxBuffer[wBuffer_Index],1);
+        #if 0
+        if(wBuffer_Index %8 == 0)
+        {
+            if(wBuffer_Index >= 8)
+            {
+                wp = wBuffer_Index - 8;
+
+            }
+            else
+            {
+                wp = 512 - 8;
+                
+            }
+            HAL_UART_Transmit(&huart1,(uint8_t*)&aRxBuffer[wp],8,0xFFFF);
+            
+        }
+        #endif
+    }
+    
+}
+
+void atiny_usart1_rx_entry(void)
+{
+    HAL_UART_Transmit_IT(&huart1 ,(uint8_t*)aTxStartMessages,sizeof(aTxStartMessages)); 
+	HAL_UART_Receive_IT(&huart1,(uint8_t*)&aRxBuffer[wBuffer_Index],1);
+}
+
 void atiny_task_entry(void)
 {
+    atiny_usart1_rx_entry();
 	extern void demo_nbiot_only();
-    demo_nbiot_only();
+    //demo_nbiot_only();
 }
+
+
 
 
 UINT32 creat_main_task(VOID)

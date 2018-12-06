@@ -43,6 +43,7 @@
 extern I2C_HandleTypeDef hi2c1;
 extern I2C_HandleTypeDef hi2c3;
 extern UART_HandleTypeDef hlpuart1;
+extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 
 /******************************************************************************/
@@ -221,6 +222,30 @@ void I2C1_ER_IRQHandler(void)
   /* USER CODE BEGIN I2C1_ER_IRQn 1 */
 
   /* USER CODE END I2C1_ER_IRQn 1 */
+}
+
+
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN LPUART1_IRQn 0 */
+  #if 0
+  if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET)
+  {
+      
+  }
+  else if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
+  {
+  /* USER CODE END LPUART1_IRQn 0 */
+  //HAL_UART_IRQHandler(&hlpuart1);
+  /* USER CODE BEGIN LPUART1_IRQn 1 */
+	
+    uint16_t uhdata = (uint16_t) READ_REG(huart1.Instance->RDR);
+    uint8_t data = (uint8_t)(uhdata & (uint8_t)0x00FFU);
+    printf("data is %d\n",data);
+  }
+  #endif
+  HAL_UART_IRQHandler(&huart1);
+  /* USER CODE END LPUART1_IRQn 1 */
 }
 
 /**

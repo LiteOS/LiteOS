@@ -164,7 +164,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN USART1_MspInit 1 */
-
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
+    //__HAL_UART_CLEAR_FLAG(&huart1, UART_FLAG_TC);
+    //__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+    //__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
   /* USER CODE END USART1_MspInit 1 */
   }
   else if(uartHandle->Instance==USART3)
@@ -266,6 +270,10 @@ int fputc(int ch, FILE *f)
     return ch;
 }
 #endif
+
+
+
+
 /* USER CODE END 1 */
 
 /**
