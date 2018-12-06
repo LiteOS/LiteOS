@@ -42,7 +42,7 @@ extern at_task at;
 at_adaptor_api at_interface;
 #define MAX_BG36_SOCK_NUM 5
 #define UDP_PROTO   17
-#define MAX_SOCK_NUM 5
+#define MAX_SOCK_NUM 11
 #define MAX_SOCKID 11
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
@@ -246,12 +246,12 @@ int send_sock_cmd(const int8_t * host, int port_i, char* service_type)
     int rbuflen = 64;
     int cnt = 0;
     char inbuf[64] = {0};
-    int err = 0;
+    int err = -1;
     char cmd[64] = {0};
     char tmpbuf[32] = {0};
     int conid;
     char* sockptr;
-    while((err > 0) && (++cnt < 50))
+    while((err != 0) && (++cnt < 50))
     {
         snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, sockid % MAX_SOCKID, service_type, host, port_i);
         bg36_cmd(cmd, strlen(cmd), "+QIOPEN:", inbuf,&rbuflen);
@@ -263,7 +263,8 @@ int send_sock_cmd(const int8_t * host, int port_i, char* service_type)
         if(err)
             sockid++;
     }
-        return (cnt < 50) ? conid : AT_FAILED;
+
+    return (err == 0) ? conid : AT_FAILED;
 
 }
 int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t proto, char* service_type, int with_force)
@@ -338,12 +339,6 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
         goto CLOSE_SOCk;
     }
 
-    if (LOS_QueueCreate("dataQueue", 16, &at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
-    {
-        AT_LOG("init dataQueue failed, ret is %d!",ret);
-        goto CLOSE_SOCk;
-    }
-
     sockinfo[ret].socket = conid;
     sockinfo[ret].used_flag = true;
     AT_LOG("create socket success!\nsockid:%d ret:%d",conid,ret);
@@ -368,7 +363,7 @@ int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
     char cmd[64] = {0};
     int ret;
     ret = bg36_create_socket(host, port, proto, "TCP", 1);
-    if(ret < 0 || ret > 11)
+    if(ret < 0 || ret >= 11)
     {
         return AT_FAILED;
     }
