@@ -363,7 +363,7 @@ int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
     char cmd[64] = {0};
     int ret;
     ret = bg36_create_socket(host, port, proto, "TCP", 1);
-    if(ret < 0 || ret > 11)
+    if(ret < 0 || ret >= 11)
     {
         return AT_FAILED;
     }
