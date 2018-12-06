@@ -268,7 +268,7 @@ void atiny_mutex_unlock(void* mutex);
 void atiny_reboot(void);
 
 #if (LOSCFG_BASE_IPC_MUX == YES)
-typedef struct
+typedef struct atiny_task_mutex_tag_s
 {
     UINT32 mutex;
     UINT32 valid;

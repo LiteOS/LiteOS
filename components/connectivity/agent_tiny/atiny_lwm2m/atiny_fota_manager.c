@@ -267,6 +267,7 @@ int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi)
 {
     int ret;
     flag_op_s flag_op;
+    pack_params_s pack_param;
 
     ASSERT_THIS(return ATINY_ARG_INVALID);
 
@@ -287,7 +288,11 @@ int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi)
         return ret;
     }
 
-    ret = pack_init_device(&thi->ota_opt);
+    memcpy(&pack_param.ota_opt, &thi->ota_opt, sizeof(pack_param.ota_opt));
+    pack_param.malloc = atiny_malloc;
+    pack_param.free = atiny_free;
+    pack_param.printf = atiny_printf;
+    ret = pack_init_device(&pack_param);
     if (ret != ATINY_OK)
     {
         ATINY_LOG(LOG_FATAL, "pack_init_device fail");
