@@ -56,11 +56,12 @@ static UINT32 g_fs_tskHandle;
 
 void atiny_task_entry(void)
 {
+    extern void agent_tiny_entry();
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK)
-    extern void agent_tiny_entry();
+    
 
     #if defined(USE_ESP8266)
     extern at_adaptor_api esp8266_interface;
