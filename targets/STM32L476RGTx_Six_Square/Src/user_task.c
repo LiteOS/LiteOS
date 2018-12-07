@@ -89,7 +89,9 @@ void atiny_task_entry(void)
 {
     atiny_usart1_rx_entry();
 	extern void demo_nbiot_only();
+	extern void demo_sht21_iic(void);
     //demo_nbiot_only();
+	demo_sht21_iic();
 }
 
 

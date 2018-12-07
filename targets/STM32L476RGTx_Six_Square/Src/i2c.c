@@ -1,242 +1,544 @@
-/**
-  ******************************************************************************
-  * File Name          : I2C.c
-  * Description        : This file provides code for the configuration
-  *                      of the I2C instances.
-  ******************************************************************************
-  ** This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * COPYRIGHT(c) 2018 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
 #include "i2c.h"
 
-#include "gpio.h"
 
-/* USER CODE BEGIN 0 */
 
-/* USER CODE END 0 */
+I2C_HandleTypeDef s_i2c1;
+I2C_HandleTypeDef s_i2c2;
+I2C_HandleTypeDef s_i2c3;
+I2C_HandleTypeDef i2cx;
 
-I2C_HandleTypeDef hi2c1;
-I2C_HandleTypeDef hi2c3;
 
-/* I2C1 init function */
-void MX_I2C1_Init(void)
+#ifndef OTHERS
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
 
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00000E14;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Analogue filter 
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Digital filter 
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-/* I2C3 init function */
-void MX_I2C3_Init(void)
-{
-
-  hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x00000E14;
-  hi2c3.Init.OwnAddress1 = 0;
-  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c3.Init.OwnAddress2 = 0;
-  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Analogue filter 
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Digital filter 
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(i2cHandle->Instance==I2C1)
-  {
-  /* USER CODE BEGIN I2C1_MspInit 0 */
-
-  /* USER CODE END I2C1_MspInit 0 */
-  
-    /**I2C1 GPIO Configuration    
-    PB6     ------> I2C1_SCL
-    PB7     ------> I2C1_SDA
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+	GPIO_InitTypeDef GPIO_InitStruct;
+	if(i2cx.Instance == I2C1)
+	{
+	
+	  
+		__HAL_RCC_I2C1_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		
+		
+		
+	  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* I2C1 clock enable */
-    __HAL_RCC_I2C1_CLK_ENABLE();
+	}
+	else if(i2cx.Instance == I2C2)
+	{
+		
+	
+		__HAL_RCC_I2C2_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		
+		GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+		GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* I2C1 interrupt Init */
-    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
-  /* USER CODE BEGIN I2C1_MspInit 1 */
+		
+		
 
-  /* USER CODE END I2C1_MspInit 1 */
-  }
-  else if(i2cHandle->Instance==I2C3)
-  {
-  /* USER CODE BEGIN I2C3_MspInit 0 */
+		
+	}
+	else if(i2cx.Instance == I2C3)
+	{
+		
+		__HAL_RCC_I2C3_CLK_ENABLE();
+		__HAL_RCC_GPIOC_CLK_ENABLE();
+		
+		GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+		GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+		GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
+		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /* USER CODE END I2C3_MspInit 0 */
-  
-    /**I2C3 GPIO Configuration    
-    PC0     ------> I2C3_SCL
-    PC1     ------> I2C3_SDA 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		
 
-    /* I2C3 clock enable */
-    __HAL_RCC_I2C3_CLK_ENABLE();
+		
+	}
+}
+#endif
 
-    /* I2C3 interrupt Init */
-    HAL_NVIC_SetPriority(I2C3_EV_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
-    HAL_NVIC_SetPriority(I2C3_ER_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
-  /* USER CODE BEGIN I2C3_MspInit 1 */
+/**
+* @brief  Initializes the i2c device,include clock/function/gpio/mode/frequency.
+* @param  i2c_init_t *i2c_init : parameter list
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_init(i2c_init_t *i2c_init)
+{
+	volatile uint8_t ret;
+	switch (i2c_init->i2c_idx)
+		{
+				case DAL_I2C_ID1:
+						i2cx.Instance = I2C1;
+				    
+						break;
+				case DAL_I2C_ID2:
+						i2cx.Instance = I2C2;
+						
+						break;
+				case DAL_I2C_ID3:
+						i2cx.Instance = I2C3;
+						
+						break;
+				default:
+						break;
+							
+		}	
+		switch (i2c_init->freq_khz)
+		{
+				case DAL_FRE_10KHZ:
+						i2cx.Init.Timing = 0x00008BFF;
+						break;
+				case DAL_FRE_100KHZ:
+						i2cx.Init.Timing = 0x00000E14;
+						break;
+				case DAL_FRE_400KHZ:
+						i2cx.Init.Timing = 0x00000004;
+						break;
+				case DAL_FRE_1000KHZ:
+						i2cx.Init.Timing = 0x00000000;
+						break;
+				default:
+						i2cx.Init.Timing = 0x00000E14;
+				    break;
+		}
+	
+ 
+		
+		i2cx.Init.OwnAddress1     = i2c_init->slave_add;
+		if(i2c_init->s_add_size)
+			i2cx.Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
+		else
+			i2cx.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+		i2cx.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+		i2cx.Init.OwnAddress2     = 0;
+		i2cx.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+		i2cx.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+		i2cx.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+		
+		ret = HAL_I2C_Init(&i2cx);
+		
+		if (HAL_I2CEx_ConfigAnalogFilter(&i2cx, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
 
-  /* USER CODE END I2C3_MspInit 1 */
-  }
+			/**Configure Digital filter 
+			*/
+		if (HAL_I2CEx_ConfigDigitalFilter(&i2cx, 0) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
+	
+		switch (i2c_init->i2c_idx)
+		{
+				case 1:						
+				    s_i2c1 = i2cx;
+						break;
+				case 2:						
+						s_i2c2 = i2cx;
+						break;
+				case 3:						
+						s_i2c3 = i2cx;
+						break;
+				default:
+						return 0;
+							
+		}	
+		
+
+		if(ret == HAL_OK)
+			return 1;
+		else 
+			return 0;
+		
+
+     
 }
 
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
+
+/**
+* @brief  deInitialize the i2c device.
+* @param  
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_deInit(i2c_init_t *i2c_init)
 {
+  switch (i2c_init->i2c_idx)
+		{
+				case DAL_I2C_ID1:
+					if(HAL_I2C_DeInit(&s_i2c1) == HAL_OK)
+						return 1;
+					else
+						return 0;
+					break;
+						
+				case DAL_I2C_ID2:
+					if(HAL_I2C_DeInit(&s_i2c2) == HAL_OK)
+						return 1;
+					else
+						return 0;
+					break;
+	
+				case DAL_I2C_ID3:
+					if(HAL_I2C_DeInit(&s_i2c3) == HAL_OK)
+						return 1;
+					else
+						return 0;
+					break;	
+				default:
+						break;
+							
+		}	
+     
+	
+}
 
-  if(i2cHandle->Instance==I2C1)
-  {
-  /* USER CODE BEGIN I2C1_MspDeInit 0 */
 
-  /* USER CODE END I2C1_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_I2C1_CLK_DISABLE();
-  
-    /**I2C1 GPIO Configuration    
-    PB6     ------> I2C1_SCL
-    PB7     ------> I2C1_SDA
-    */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_7);
 
-    /* I2C1 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(I2C1_EV_IRQn);
-    HAL_NVIC_DisableIRQ(I2C1_ER_IRQn);
-  /* USER CODE BEGIN I2C1_MspDeInit 1 */
-
-  /* USER CODE END I2C1_MspDeInit 1 */
-  }
-  else if(i2cHandle->Instance==I2C3)
-  {
-  /* USER CODE BEGIN I2C3_MspDeInit 0 */
-
-  /* USER CODE END I2C3_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_I2C3_CLK_DISABLE();
-  
-    /**I2C3 GPIO Configuration    
-    PC0     ------> I2C3_SCL
-    PC1     ------> I2C3_SDA 
-    */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_0|GPIO_PIN_1);
-
-    /* I2C3 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(I2C3_EV_IRQn);
-    HAL_NVIC_DisableIRQ(I2C3_ER_IRQn);
-  /* USER CODE BEGIN I2C3_MspDeInit 1 */
-
-  /* USER CODE END I2C3_MspDeInit 1 */
-  }
-} 
-
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
 
 /**
-  * @}
-  */
+* @brief  set slave address.
+* @param  uint16_t slave_add
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_set_slaveAdd(i2c_init_t *i2c_init,uint16_t slave_add)
+{
+	  
+	uint8_t ret;
+    i2cx.Init.OwnAddress1     = slave_add;
+	
+	
+	 ret = HAL_I2C_Init(&i2cx);
+		
+		if (HAL_I2CEx_ConfigAnalogFilter(&i2cx, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
+
+			/**Configure Digital filter 
+			*/
+		if (HAL_I2CEx_ConfigDigitalFilter(&i2cx, 0) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
+	
+		switch (i2c_init->i2c_idx)
+		{
+				case 1:						
+				    s_i2c1 = i2cx;
+						break;
+				case 2:						
+						s_i2c2 = i2cx;
+						break;
+				case 3:						
+						s_i2c3 = i2cx;
+						break;
+				default:
+						return 0;
+							
+		}	
+		
+
+		if(ret == HAL_OK)
+			return 1;
+		else 
+			return 0;
+}
+
 
 /**
-  * @}
-  */
+* @brief  set frequency.
+* @param  Fre_kHz freq_khz
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_set_frequency(i2c_init_t *i2c_init,dal_frequence freq_khz)
+{
+	 uint8_t ret;
+	
+   switch (freq_khz)
+		{
+				case 0:
+						i2cx.Init.Timing = 0xF010F3FE;
+						break;
+				case 1:
+						i2cx.Init.Timing = 0x10909CEC;
+						break;
+				case 2:
+						i2cx.Init.Timing = 0x00702991;
+						break;
+				case 3:
+						i2cx.Init.Timing = 0x00300f33;
+						break;
+				default:
+						i2cx.Init.Timing = 0x10909CEC;
+		}
+		
+		
+		ret = HAL_I2C_Init(&i2cx);
+		
+		if (HAL_I2CEx_ConfigAnalogFilter(&i2cx, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+			/**Configure Digital filter 
+			*/
+		if (HAL_I2CEx_ConfigDigitalFilter(&i2cx, 0) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
+	
+		switch (i2c_init->i2c_idx)
+		{
+				case 1:						
+				    s_i2c1 = i2cx;
+						break;
+				case 2:						
+						s_i2c2 = i2cx;
+						break;
+				case 3:						
+						s_i2c3 = i2cx;
+						break;
+				default:
+						return 0;
+							
+		}	
+		
+
+		if(ret == HAL_OK)
+			return 1;
+		else 
+			return 0;
+  
+}
+
+/**
+* @brief  master device read an amount of data from slave device in polling mode.
+* @param  uint16_t slave_add :slave address.
+				  uint8_t *data :pointer to data buffer
+					uint16_t length :amount of data to be sent
+          uint32_t timeout :timeout duration, eg:1000 = 1s 
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_master_read(i2c_init_t *i2c_init,uint16_t slave_add, uint8_t *data, uint16_t length, uint32_t timeout)
+{
+    switch (i2c_init->i2c_idx )
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Master_Receive(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Master_Receive(&s_i2c2, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Master_Receive(&s_i2c3, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+    
+	
+}
+
+
+/**
+* @brief  master device write an amount of data to slave device in polling mode.
+* @param  uint16_t slave_add :slave address.
+				  uint8_t *data :pointer to data buffer
+					uint16_t length :amount of data to be sent
+          uint32_t timeout :timeout duration, eg:1000 = 1s 
+* @retval 1:success
+          0:fail
+*/
+
+uint8_t dal_i2c_master_write(i2c_init_t *i2c_init,uint16_t slave_add, uint8_t *data, uint16_t length,uint32_t timeout)
+{
+	switch (i2c_init->i2c_idx )
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Master_Transmit(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Master_Transmit(&s_i2c2, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Master_Transmit(&s_i2c3, slave_add, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+	
+   
+}
+
+
+/**
+* @brief  slave device read an amount of data from master device in polling mode.
+* @param  uint8_t *data :pointer to data buffer
+					uint16_t length :amount of data to be sent
+          uint32_t timeout :timeout duration, eg:1000 = 1s 
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_slave_read(i2c_init_t *i2c_init,uint8_t *data, uint16_t length, uint32_t timeout)
+{
+	
+   switch (i2c_init->i2c_idx )
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Slave_Receive(&s_i2c1, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Slave_Receive(&s_i2c2, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Slave_Receive(&s_i2c3, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+}
+
+
+/**
+* @brief  slave device write an amount of data to master device in polling mode.
+* @param  uint8_t *data :pointer to data buffer
+					uint16_t length :amount of data to be sent
+          uint32_t timeout :timeout duration, eg:1000 = 1s 
+* @retval 1:success
+          0:fail
+*/
+uint8_t dal_i2c_slave_write(i2c_init_t *i2c_init,uint8_t *data, uint16_t length, uint32_t timeout)
+{
+	
+  switch (i2c_init->i2c_idx )
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Slave_Transmit(&s_i2c1, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Slave_Transmit(&s_i2c2, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Slave_Transmit(&s_i2c3, data, length, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+}
+
+
+
+/**
+* @brief  master read an amount of data from memery slave device in polling mode.
+* @param  i2c_m_t *i2c_m: parameter list
+* @retval 1:success
+          0:fail
+*/
+
+uint8_t dal_i2c_master_mem_read(i2c_init_t *i2c_init,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout)
+{
+	switch (i2c_init->i2c_idx )
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Mem_Read(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Mem_Read(&s_i2c2, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Mem_Read(&s_i2c3, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+	
+}
+
+
+/**
+* @brief  master write an amount of data to memery slave device in polling mode.
+* @param  i2c_m_t *i2c_m: parameter list
+* @retval 1:success
+          0:fail
+*/
+
+uint8_t dal_i2c_master_mem_write(i2c_init_t *i2c_init,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout)
+{
+  switch (i2c_init->i2c_idx)
+		{
+			case DAL_I2C_ID1:
+				if(HAL_I2C_Mem_Write(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		  case DAL_I2C_ID2:
+				if(HAL_I2C_Mem_Write(&s_i2c2, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+			case DAL_I2C_ID3:
+				if(HAL_I2C_Mem_Write(&s_i2c3, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
+					return 1;
+		    else
+					return 0;
+		}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
