@@ -250,7 +250,7 @@ int pack_init_device(const pack_params_s *params)
 
     memcpy(&device->params, params, sizeof(device->params));
 #if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
-    dtls_int();
+    dtls_init();
 #endif
     device->hardware.read_software = pack_read_software;
     device->hardware.write_software = pack_write_software;

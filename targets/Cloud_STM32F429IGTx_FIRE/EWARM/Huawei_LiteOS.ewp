@@ -228,8 +228,7 @@
                     <state>NDEBUG</state>
                     <state>WITH_DTLS</state>
                     <state>_DLIB_FILE_DESCRIPTOR</state>
-                    <state>WITH_AT_FRAMEWORK</state>
-                    <state>USE_ESP8266</state>
+                    <state>WITH_LWIP</state>
                     <state>CONFIG_FEATURE_FOTA</state>
                     <state>LWM2M_WITH_LOGS</state>
                     <state>ATINY_DEBUG</state>
@@ -2099,6 +2098,12 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\demos\agenttiny_lwm2m\agent_tiny_demo.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\demos\nbiot_without_atiny\nb_demo.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\demos\nbiot_without_atiny\sota_demo.c</name>
         </file>
     </group>
     <group>

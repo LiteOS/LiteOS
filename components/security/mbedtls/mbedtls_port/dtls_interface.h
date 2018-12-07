@@ -73,6 +73,10 @@
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
 
+#ifndef TLS_SHAKEHAND_TIMEOUT
+#define TLS_SHAKEHAND_TIMEOUT 1000
+#endif
+
 typedef enum
 {
     VERIFY_WITH_PSK = 0,
@@ -122,7 +126,7 @@ typedef struct
     int udp_or_tcp;
 }dtls_establish_info_s;
 
-void dtls_int(void);
+void dtls_init(void);
 
 mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type);
 

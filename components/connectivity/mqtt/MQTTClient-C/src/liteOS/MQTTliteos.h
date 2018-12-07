@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#if !defined(MQTT_LITE_OS_H)
+#ifndef MQTT_LITE_OS_H
 #define MQTT_LITE_OS_H
 
 
@@ -46,6 +46,7 @@
 #include "log/atiny_log.h"
 #include "atiny_mqtt/mqtt_client.h"
 
+#define MQTT_TASK 1
 
 typedef struct Timer
 {
@@ -58,6 +59,17 @@ void TimerCountdownMS(Timer*, unsigned int);
 void TimerCountdown(Timer*, unsigned int);
 int TimerLeftMS(Timer*);
 
+typedef struct atiny_task_mutex_tag_s Mutex;
+int MutexInit(Mutex* mutex);
+int MutexLock(Mutex* mutex);
+int MutexUnlock(Mutex* mutex);
+void MutexDestory(Mutex* mutex);
+
+typedef struct
+{
+	void * no_used;
+} Thread;
+int ThreadStart(Thread *thread, void (*fn)(void *), void *arg);
 
 typedef struct mqtt_context
 {
