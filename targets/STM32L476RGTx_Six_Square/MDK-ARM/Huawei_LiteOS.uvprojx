@@ -701,6 +701,36 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\osdepends\liteos\cmsis\cmsis_liteos.c</FilePath>
             </File>
+            <File>
+              <FileName>iodev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\iodev.c</FilePath>
+            </File>
+            <File>
+              <FileName>mutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\mutex.c</FilePath>
+            </File>
+            <File>
+              <FileName>ring.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\ring.c</FilePath>
+            </File>
+            <File>
+              <FileName>sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\sem.c</FilePath>
+            </File>
+            <File>
+              <FileName>string.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\string.c</FilePath>
+            </File>
+            <File>
+              <FileName>task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\osdepends\liteos\task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -765,6 +795,16 @@
               <FileName>errno.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\lib\libc\errno.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Driver_Frame</GroupName>
+          <Files>
+            <File>
+              <FileName>los_dev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\driver\los_dev.c</FilePath>
             </File>
           </Files>
         </Group>
