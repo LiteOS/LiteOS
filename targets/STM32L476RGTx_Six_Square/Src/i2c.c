@@ -114,7 +114,25 @@ uint8_t dal_i2c_init(i2c_init_t *i2c_init)
 						i2cx.Init.Timing = 0x00000E14;
 				    break;
 		}
-	
+		/*//系统时钟为80mhz的参数设置
+		 switch (freq_khz)
+			{
+					case 0:
+							i2cx.Init.Timing = 0xF010F3FE;
+							break;
+					case 1:
+							i2cx.Init.Timing = 0x10909CEC;
+							break;
+					case 2:
+							i2cx.Init.Timing = 0x00702991;
+							break;
+					case 3:
+							i2cx.Init.Timing = 0x00300f33;
+							break;
+					default:
+							i2cx.Init.Timing = 0x10909CEC;
+			}
+			*/
  
 		
 		i2cx.Init.OwnAddress1     = i2c_init->slave_add;
@@ -269,8 +287,26 @@ uint8_t dal_i2c_set_slaveAdd(i2c_init_t *i2c_init,uint16_t slave_add)
 */
 uint8_t dal_i2c_set_frequency(i2c_init_t *i2c_init,dal_frequence freq_khz)
 {
-	 uint8_t ret;
-	
+	uint8_t ret;
+	switch (i2c_init->freq_khz)
+		{
+				case DAL_FRE_10KHZ:
+						i2cx.Init.Timing = 0x00008BFF;
+						break;
+				case DAL_FRE_100KHZ:
+						i2cx.Init.Timing = 0x00000E14;
+						break;
+				case DAL_FRE_400KHZ:
+						i2cx.Init.Timing = 0x00000004;
+						break;
+				case DAL_FRE_1000KHZ:
+						i2cx.Init.Timing = 0x00000000;
+						break;
+				default:
+						i2cx.Init.Timing = 0x00000E14;
+						break;
+		}
+		/*//系统时钟为80mhz的参数设置
    switch (freq_khz)
 		{
 				case 0:
@@ -288,7 +324,7 @@ uint8_t dal_i2c_set_frequency(i2c_init_t *i2c_init,dal_frequence freq_khz)
 				default:
 						i2cx.Init.Timing = 0x10909CEC;
 		}
-		
+		*/
 		
 		ret = HAL_I2C_Init(&i2cx);
 		

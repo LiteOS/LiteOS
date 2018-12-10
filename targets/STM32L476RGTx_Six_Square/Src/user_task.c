@@ -116,7 +116,7 @@ static void dal_usart_test(void)
     //printf("ret=%d, buf=%s\n", ret, buf);
     ret = dal_set_usart_recv_callback(1, usart_recv_callback, 1, 5);
 
-    while (1);
+    //while (1);
 }
 
 void atiny_task_entry(void)
@@ -124,9 +124,13 @@ void atiny_task_entry(void)
     //atiny_usart1_rx_entry();
 	extern void demo_nbiot_only();
 	extern void demo_sht21_iic(void);
+	extern void demo_gpio (void);
     //demo_nbiot_only();
-	//demo_sht21_iic();
+	
 	dal_usart_test();
+	//need to initializes UART1 for printf function.
+	//demo_gpio();
+	//demo_sht21_iic();
 }
 
 
