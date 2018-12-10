@@ -53,7 +53,7 @@ typedef enum
 
 /* parameter list when master device exchanges data with memory slave device*/
 
-
+/*
 struct i2c_mem_s
 {
 	uint16_t slave_add; //slave address
@@ -63,7 +63,7 @@ struct i2c_mem_s
 	uint16_t size;
 	uint32_t timeout;
 };typedef struct i2c_mem_s i2c_m_t;
-
+*/
 struct i2c_init_s
 {
 	
