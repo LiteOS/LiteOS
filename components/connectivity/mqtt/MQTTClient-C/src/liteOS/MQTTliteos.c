@@ -91,19 +91,40 @@ int TimerLeftMS(Timer *timer)
 
 int MutexInit(Mutex* mutex)
 {
-    return atiny_task_mutex_create(mutex);
+    int ret = atiny_task_mutex_create(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "create mutex fail, ret %d.", ret);
+    }
+    return ret;
 }
 int MutexLock(Mutex* mutex)
 {
-    return atiny_task_mutex_lock(mutex);
+    int ret = atiny_task_mutex_lock(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "lock mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
+    return ret;
 }
+
 int MutexUnlock(Mutex* mutex)
 {
-    return atiny_task_mutex_unlock(mutex);
+    int ret = atiny_task_mutex_unlock(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "unlock mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
+    return ret;
 }
+
 void MutexDestory(Mutex* mutex)
 {
-    (void)atiny_task_mutex_delete(mutex);
+    int ret = atiny_task_mutex_delete(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "delete mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
 }
 
 int ThreadStart(Thread *thread, void (*fn)(void *), void *arg)
