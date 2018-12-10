@@ -39,10 +39,11 @@
 #include "at_frame/at_api.h"
 #include "at_device/bc95.h"
 #include "usart.h"
+#include "dal_usart.h"
 
 static UINT32 g_atiny_tskHandle;
 
-
+#if 0
 uint8_t aTxStartMessages[] = "\r\n******UART commucition using IT******\r\nPlease enter characters:\r\n";
 uint8_t aRxBuffer[512];
 uint16_t wBuffer_Index = 0;
@@ -52,7 +53,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	//UNUSED(huart);
 	if(USART1 == huart->Instance)
-    {   
+    {
 	    uint16_t wp;
         wBuffer_Index++;
         if(wBuffer_Index >= 512)
@@ -69,29 +70,63 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             else
             {
                 wp = 512 - 8;
-                
+
             }
             HAL_UART_Transmit(&huart1,(uint8_t*)&aRxBuffer[wp],8,0xFFFF);
-            
+
         }
         #endif
     }
-    
+
 }
 
 void atiny_usart1_rx_entry(void)
 {
-    HAL_UART_Transmit_IT(&huart1 ,(uint8_t*)aTxStartMessages,sizeof(aTxStartMessages)); 
+    HAL_UART_Transmit_IT(&huart1 ,(uint8_t*)aTxStartMessages,sizeof(aTxStartMessages));
 	HAL_UART_Receive_IT(&huart1,(uint8_t*)&aRxBuffer[wBuffer_Index],1);
+}
+#endif
+
+static void usart_recv_callback(uint32_t port, uint8_t *buf, uint32_t len)
+{
+    dal_usart_send(port, buf, len);
+}
+
+static void dal_usart_test(void)
+{
+    int ret = 0;
+    dal_usart_config cfg =
+    {
+        .port = 1,
+        .baudrate = 115200,
+        .word_length = UART_WORDLENGTH_8B,
+        .stop_bits = UART_STOPBITS_1,
+        .parity = UART_PARITY_NONE,
+        .mode = UART_MODE_TX_RX,
+        .flow_ctrl = UART_HWCONTROL_NONE,
+        .over_sampling = UART_OVERSAMPLING_16,
+    };
+
+    ret = dal_usart_init(&cfg);
+
+    unsigned char buf[] = "hello world";
+    ret = dal_usart_send(1, buf, sizeof(buf)-1);
+    printf("\nwait for input\n");
+    //ret = dal_usart_recv(1, buf, 5, 5000);
+    //printf("ret=%d, buf=%s\n", ret, buf);
+    ret = dal_set_usart_recv_callback(1, usart_recv_callback, 1, 5);
+
+    while (1);
 }
 
 void atiny_task_entry(void)
 {
-    atiny_usart1_rx_entry();
+    //atiny_usart1_rx_entry();
 	extern void demo_nbiot_only();
 	extern void demo_sht21_iic(void);
     //demo_nbiot_only();
-	demo_sht21_iic();
+	//demo_sht21_iic();
+	dal_usart_test();
 }
 
 
@@ -109,7 +144,7 @@ UINT32 creat_main_task(VOID)
 #if defined(CONFIG_FEATURE_FOTA) || defined(WITH_MQTT)
     task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
 #else
-    task_init_param.uwStackSize = 0x1000;
+    task_init_param.uwStackSize = 0x2000;
 #endif
 
     uwRet = LOS_TaskCreate(&g_atiny_tskHandle, &task_init_param);

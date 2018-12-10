@@ -6,7 +6,7 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
@@ -52,8 +52,8 @@
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef hlpuart1;
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart3;
+//extern UART_HandleTypeDef huart1;
+//extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
 

@@ -43,11 +43,11 @@
 //extern I2C_HandleTypeDef hi2c1;
 //extern I2C_HandleTypeDef hi2c3;
 extern UART_HandleTypeDef hlpuart1;
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart3;
+//extern UART_HandleTypeDef huart1;
+//extern UART_HandleTypeDef huart3;
 
 /******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M4 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /**
@@ -202,9 +202,9 @@ void DebugMon_Handler(void)
 /*
 void I2C1_EV_IRQHandler(void)
 {
-  
+
   HAL_I2C_EV_IRQHandler(&hi2c1);
-  
+
 }
 */
 /**
@@ -213,26 +213,27 @@ void I2C1_EV_IRQHandler(void)
 /*
 void I2C1_ER_IRQHandler(void)
 {
-  
+
   HAL_I2C_ER_IRQHandler(&hi2c1);
- 
+
 }
 */
 
+#if 0
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN LPUART1_IRQn 0 */
   #if 0
   if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET)
   {
-      
+
   }
   else if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)
   {
   /* USER CODE END LPUART1_IRQn 0 */
   //HAL_UART_IRQHandler(&hlpuart1);
   /* USER CODE BEGIN LPUART1_IRQn 1 */
-	
+
     uint16_t uhdata = (uint16_t) READ_REG(huart1.Instance->RDR);
     uint8_t data = (uint8_t)(uhdata & (uint8_t)0x00FFU);
     printf("data is %d\n",data);
@@ -255,6 +256,7 @@ void USART3_IRQHandler(void)
 
   /* USER CODE END USART3_IRQn 1 */
 }
+#endif
 
 /**
 * @brief This function handles LPUART1 global interrupt.
@@ -273,7 +275,7 @@ void LPUART1_IRQHandler(void)
   /* USER CODE END LPUART1_IRQn 0 */
   //HAL_UART_IRQHandler(&hlpuart1);
   /* USER CODE BEGIN LPUART1_IRQn 1 */
-	
+
   extern void at_receive_one_byte(UART_HandleTypeDef *huart);
   at_receive_one_byte(&hlpuart1);
   }
@@ -287,9 +289,9 @@ void LPUART1_IRQHandler(void)
 /*
 void I2C3_EV_IRQHandler(void)
 {
-  
+
   HAL_I2C_EV_IRQHandler(&hi2c3);
-  
+
 }
 */
 /**
@@ -298,9 +300,9 @@ void I2C3_EV_IRQHandler(void)
 /*
 void I2C3_ER_IRQHandler(void)
 {
-  
+
   HAL_I2C_ER_IRQHandler(&hi2c3);
-  
+
 }
 */
 /* USER CODE BEGIN 1 */
