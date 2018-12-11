@@ -32,10 +32,10 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "ota/package.h" 
+#include "ota/package.h"
 #include "package_device.h"
 #if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
-#include "dtls_interface.h"
+#include "mbedtls/platform.h"
 #endif
 
 static inline pack_storage_device_s *pack_storage_get_storage_device(pack_storage_device_api_s *this)
@@ -236,6 +236,16 @@ static uint32_t pack_get_block_size(struct pack_hardware_tag_s *thi)
     return device->params.ota_opt.flash_block_size;
 }
 
+static void* local_calloc(size_t n, size_t size)
+{
+    void *p = pack_malloc(n * size);
+    if (NULL != p)
+    {
+        memset(p, 0, n * size);
+    }
+    return p;
+}
+
 int pack_init_device(const pack_params_s *params)
 {
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
@@ -249,9 +259,7 @@ int pack_init_device(const pack_params_s *params)
     }
 
     memcpy(&device->params, params, sizeof(device->params));
-#if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
-    dtls_init();
-#endif
+
     device->hardware.read_software = pack_read_software;
     device->hardware.write_software = pack_write_software;
     device->hardware.set_flash_type = pack_set_flash_type;
@@ -266,6 +274,10 @@ int pack_init_device(const pack_params_s *params)
     }
 
     pack_wr_set_device(&device->writer, device_info.hardware);
+
+#if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
+    (void)mbedtls_platform_set_calloc_free(local_calloc, params->free);
+#endif
 
     return PACK_OK;
 }
