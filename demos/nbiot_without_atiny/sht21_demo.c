@@ -50,7 +50,7 @@ void demo_sht21_iic(void)
     i2c1.iotype = I2C_IO_MASTER_ORIGIN;
     
     los_dev_t device = (los_dev_t)&i2c1;
-    
+    los_driv_init();
     uds_i2c_dev_setup("I2C1", (void *)device);
     
     if(!los_dev_open("I2C1",0))
