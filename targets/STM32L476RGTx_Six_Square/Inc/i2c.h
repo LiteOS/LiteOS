@@ -5,9 +5,8 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l4xx_hal.h"
-#include "stm32l4xx_hal_i2c.h"
 
+#include "driver/los_dev.h"
 
 
 typedef enum
@@ -51,6 +50,15 @@ typedef enum
 }dal_frequence;
 
 
+typedef enum
+{
+    I2C_IO_MASTER_ORIGIN,
+    I2C_IO_SLAVE_ORIGIN,
+    I2C_IO_MASTER_MEM,
+    I2C_IO_ORIGIN_MAX,
+}dal_i2c_iotype;
+
+
 /* parameter list when master device exchanges data with memory slave device*/
 
 /*
@@ -64,29 +72,43 @@ struct i2c_mem_s
 	uint32_t timeout;
 };typedef struct i2c_mem_s i2c_m_t;
 */
-struct i2c_init_s
+struct i2c_device_s
 {
-	
-    dal_i2c_idx  i2c_idx; 
-	  dal_frequence freq_khz;//speed ,eg: 10(khz),100(khz),400(khz),1000(khz)
-	  dal_i2c_modetype  mode;//master mode or slave mode
-	  uint16_t slave_add;//address when initializes as a slave device
-	  dal_i2c_slave_add_size s_add_size;//the size of slave address, you can choose 7bits or 10bits.
-	
+    dal_i2c_idx              i2c_idx; 
+    dal_frequence            freq_khz;//speed ,eg: 10(khz),100(khz),400(khz),1000(khz)
+    dal_i2c_modetype         mode;//master mode or slave mode or memory mode.
+    uint16_t                 slave_add;//address when initializes as a slave device
+    dal_i2c_slave_add_size   s_add_size;//the size of slave address, you can choose 7bits or 10bits.
+    dal_i2c_iotype           iotype;
+    uint16_t                 mem_add;
+    dal_i2c_memadd_size      mem_size;
+};
+typedef struct i2c_device_s i2c_device_t;
 
-};typedef struct i2c_init_s i2c_init_t;
 
 
-extern uint8_t dal_i2c_init(i2c_init_t *i2c_init);
-extern uint8_t dal_i2c_deInit(i2c_init_t *i2c_init);
-extern uint8_t dal_i2c_set_slaveAdd(i2c_init_t *i2c_init,uint16_t slave_add);
-extern uint8_t dal_i2c_set_frequency(i2c_init_t *i2c_init,dal_frequence freq_khz);
-extern uint8_t dal_i2c_master_read(i2c_init_t *i2c_init,uint16_t slave_add, uint8_t *data, uint16_t length, uint32_t timeout);
-extern uint8_t dal_i2c_master_write(i2c_init_t *i2c_init,uint16_t slave_add, uint8_t *data, uint16_t length,uint32_t timeout);
-extern uint8_t dal_i2c_slave_read(i2c_init_t *i2c_init,uint8_t *data, uint16_t length, uint32_t timeout);
-extern uint8_t dal_i2c_slave_write(i2c_init_t *i2c_init,uint8_t *data, uint16_t length, uint32_t timeout);
-extern uint8_t dal_i2c_master_mem_read(i2c_init_t *i2c_init,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout);
-extern uint8_t dal_i2c_master_mem_write(i2c_init_t *i2c_init,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout);
+typedef enum
+{
+    I2C_SET_SLAVE_ADDRESS,
+    I2C_SET_FREQUENCY,
+    I2C_MAX_CMD,
+}dal_i2c_cmd;
+
+extern bool_t dal_i2c_open(void *device, s32_t flag);
+extern void dal_i2c_close(void *i2c_init);
+extern bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len);
+extern void dal_i2c_close(void *i2c_init);
+extern s32_t  dal_i2c_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+extern s32_t dal_i2c_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+
+extern uint8_t dal_i2c_set_slaveAdd(i2c_device_t *device,uint16_t slave_add);
+extern uint8_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz);
+extern uint8_t dal_i2c_master_read(i2c_device_t *device,uint16_t slave_add, uint8_t *data, uint16_t length, uint32_t timeout);
+extern uint8_t dal_i2c_master_write(i2c_device_t *device,uint16_t slave_add, uint8_t *data, uint16_t length,uint32_t timeout);
+extern uint8_t dal_i2c_slave_read(i2c_device_t *device,uint8_t *data, uint16_t length, uint32_t timeout);
+extern uint8_t dal_i2c_slave_write(i2c_device_t *device,uint8_t *data, uint16_t length, uint32_t timeout);
+extern uint8_t dal_i2c_master_mem_read(i2c_device_t *device,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout);
+extern uint8_t dal_i2c_master_mem_write(i2c_device_t *device,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout);
 
 #ifdef __cplusplus
 }
