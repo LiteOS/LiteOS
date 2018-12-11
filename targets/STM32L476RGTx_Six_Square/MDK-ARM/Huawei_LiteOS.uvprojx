@@ -772,14 +772,14 @@
               <FilePath>..\..\..\demos\nbiot_without_atiny\sota_demo.c</FilePath>
             </File>
             <File>
-              <FileName>sht21_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\demos\nbiot_without_atiny\sht21_demo.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio_demo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\demos\nbiot_without_atiny\gpio_demo.c</FilePath>
+              <FilePath>..\..\..\demos\sensor\gpio_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>sht21_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\sensor\sht21_demo.c</FilePath>
             </File>
           </Files>
         </Group>

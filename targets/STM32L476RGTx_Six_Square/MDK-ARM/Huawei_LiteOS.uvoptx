@@ -1144,7 +1144,7 @@
 
   <Group>
     <GroupName>demos</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1176,11 +1176,11 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>71</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\demos\nbiot_without_atiny\sht21_demo.c</PathWithFileName>
-      <FilenameWithoutPath>sht21_demo.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\demos\sensor\gpio_demo.c</PathWithFileName>
+      <FilenameWithoutPath>gpio_demo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1191,8 +1191,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\demos\nbiot_without_atiny\gpio_demo.c</PathWithFileName>
-      <FilenameWithoutPath>gpio_demo.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\demos\sensor\sht21_demo.c</PathWithFileName>
+      <FilenameWithoutPath>sht21_demo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
