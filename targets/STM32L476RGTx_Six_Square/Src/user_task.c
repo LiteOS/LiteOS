@@ -115,7 +115,7 @@ static void dal_usart_test(void)
     //ret = dal_usart_recv(1, buf, 5, 5000);
     //printf("ret=%d, buf=%s\n", ret, buf);
     ret = dal_set_usart_recv_callback(1, usart_recv_callback, 1, 5);
-
+    printf("ret is %d\n",ret);
     //while (1);
 }
 

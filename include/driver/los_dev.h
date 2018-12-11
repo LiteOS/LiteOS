@@ -38,7 +38,10 @@
 #include <los_config.h>
 
 #include <osdepends/osport.h>
-//#include <sys/fcntl.h>
+#include <fs/sys/fcntl.h>
+
+#define  LOSCFG_ENABLE_DRIVER 1
+
 
 typedef void* los_driv_t ;//returned by the driver register
 typedef bool_t (*fn_open)  (void *pri,s32_t flag);                                              
@@ -78,7 +81,7 @@ bool_t     los_driv_event(los_driv_t driv,u32_t event,void *para);
 
 //these interface by the application
 los_dev_t  los_dev_open  (const char *name,u32_t flag);
-s32_t      los_dev_read  (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+s32_t      los_dev_read (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
 s32_t      los_dev_write (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
 bool_t     los_dev_close (los_dev_t dev);
 bool_t     los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen);

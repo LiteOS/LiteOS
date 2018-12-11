@@ -39,7 +39,7 @@
 
 #if LOSCFG_ENABLE_DRIVER
 
-#include <sys/fcntl.h>
+//#include <sys/fcntl.h>
 
 #define cn_driv_status_initialized     (1<<0)
 #define cn_driv_status_opend           (1<<1)
@@ -455,7 +455,7 @@ parameters   :dev,returned by the los_dev_open function
               timeout:the waittime if no data current
 instruction  :how many data has been read to the buf
 *******************************************************************************/
-s32_t   los_dev_read  (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
+s32_t   los_dev_read(los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
 {
     s32_t ret = 0;
     struct dev_cb  *devcb;
@@ -546,7 +546,7 @@ bool_t     los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen)
 //this is very important for the multi io operation, like the select epoll and so on
 bool_t     los_dev_upara_set (los_dev_t dev,void *para);
 void*      los_dev_upara_get (los_dev_t dev);
-
+#if 0
 //export some shell for the driver debug
 #include <shell.h>
 //use this function to show all the driver infomation
@@ -554,8 +554,8 @@ static s32_t  __driv_show_shell(s32_t argc,const char *argv[])
 {
     struct driv_cb  *driv;
      
-	if(mutex_lock(s_los_driv_module.lock))
-	{ 
+    if(mutex_lock(s_los_driv_module.lock))
+    { 
         printf("%s:total %d drivers\n\r",__FUNCTION__,s_los_driv_module.drivnum);
         if(s_los_driv_module.drivnum != 0) //print all the driver
         {
@@ -573,12 +573,13 @@ static s32_t  __driv_show_shell(s32_t argc,const char *argv[])
         }
         
         mutex_unlock(s_los_driv_module.lock);
-	}
+    }
     
-	return 0;
+    return 0;
 }	
 
 OSSHELL_EXPORT_CMD(__driv_show_shell,"devlst","devlst");
+#endif
 
 #endif
 
