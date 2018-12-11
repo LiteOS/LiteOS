@@ -49,11 +49,12 @@ void demo_sht21_iic(void)
     i2c1.s_add_size = DAL_I2C_7BIT_ADD;
     i2c1.iotype = I2C_IO_MASTER_ORIGIN;
     
-    los_dev_t device = (los_dev_t)&i2c1;
+    los_dev_t device;
     los_driv_init();
-    uds_i2c_dev_setup("I2C1", (void *)device);
+    uds_i2c_dev_setup("I2C1", (void *)&i2c1);
     
-    if(!los_dev_open("I2C1",0))
+    device = los_dev_open("I2C1",0);
+    if(!device)
         while(1); 
     
     slave_add = SHT20_WRITE_ADDR;
