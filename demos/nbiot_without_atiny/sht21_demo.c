@@ -61,7 +61,7 @@ void demo_sht21_iic(void)
     los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));
 
     slave_add = SHT20_READ_ADDR;
-    los_dev_ioctl(&i2c1,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
         
     while (1)
     {
