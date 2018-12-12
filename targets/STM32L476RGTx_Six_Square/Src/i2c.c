@@ -451,7 +451,7 @@ static bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
     i2c_device_t *device = (i2c_device_t *)pri; 
     switch(cmd)
     {
-    case I2C_SET_SLAVE_ADDRESS:
+     case I2C_SET_SLAVE_ADDRESS:
         result = dal_i2c_set_slaveAdd(device, *(uint16_t *)para);
         break;
      case I2C_SET_FREQUENCY:
