@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project Name="Huawei-LiteOS" Version="1" Language="C">
+  <Description/>
+  <Dependencies Name="Debug"/>
+  <MonitorProgress>
+    <DebugLaunch>141</DebugLaunch>
+    <FlashOperate>142</FlashOperate>
+  </MonitorProgress>
+  <VirtualDirectory Name="arch">
+    <VirtualDirectory Name="csky">
+      <VirtualDirectory Name="ck802t">
+        <VirtualDirectory Name="include">
+          <File Name="../../../arch/csky/cskyv2-l/include/los_hw.h">
+            <FileOption/>
+          </File>
+          <File Name="../../../arch/csky/cskyv2-l/include/los_hwi.h">
+            <FileOption/>
+          </File>
+        </VirtualDirectory>
+        <VirtualDirectory Name="src">
+          <File Name="../../../arch/csky/cskyv2-l/src/coretim.c">
+            <FileOption/>
+          </File>
+          <File Name="../../../arch/csky/cskyv2-l/src/los_hw.c">
+            <FileOption/>
+          </File>
+          <File Name="../../../arch/csky/cskyv2-l/src/los_hwi.c">
+            <FileOption/>
+          </File>
+        </VirtualDirectory>
+        <File Name="../../../arch/csky/cskyv2-l/los_dispatch.S">
+          <FileOption/>
+        </File>
+      </VirtualDirectory>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="kernel">
+    <File Name="../../../kernel/los_init.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_priqueue.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_swtmr.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_sys.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_task.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_tick.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/core/los_timeslice.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/ipc/los_event.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/ipc/los_mux.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/ipc/los_queue.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/ipc/los_sem.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/bestfit_little/los_heap.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/bestfit_little/los_memory.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/common/los_memcheck.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/common/los_memstat.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/common/los_slab.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/common/los_slabmem.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/mem/membox/los_membox.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/misc/los_misc.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/base/om/los_err.c">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <VirtualDirectory Name="board">
+    <File Name="../src/liteos_usart.c" ExcludeProjConfig="">
+      <FileOption/>
+    </File>
+    <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/soc.h">
+      <FileOption/>
+    </File>
+    <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/pinmux.c">
+      <FileOption/>
+    </File>
+    <File Name="../src/csky_usart.c">
+      <FileOption/>
+    </File>
+    <File Name="../src/startup.S">
+      <FileOption/>
+    </File>
+    <File Name="../src/minilibc_port.c">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <VirtualDirectory Name="malloc">
+    <File Name="../../../components/lib/libc/malloc.c">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <VirtualDirectory Name="config">
+    <File Name="../OS_CONFIG/coap_config.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/dtls_interface.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/los_builddef.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/los_mbedtls_config.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/los_mbedtls_config_psk.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/los_printf.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/lwipopts.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/target_config.h">
+      <FileOption/>
+    </File>
+    <File Name="../OS_CONFIG/timing_alt.h">
+      <FileOption/>
+    </File>
+    <File Name="../../../kernel/include/los_config.h">
+      <FileOption/>
+    </File>
+    <File Name="../configs/csi_config.h">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <VirtualDirectory Name="usr">
+    <File Name="../src/main.c">
+      <FileOption/>
+    </File>
+    <File Name="../src/string.c">
+      <FileOption/>
+    </File>
+    <File Name="../src/kernel.c">
+      <FileOption/>
+    </File>
+    <File Name="../src/ring.c">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <VirtualDirectory Name="demos">
+    <VirtualDirectory Name="csky_demo">
+      <File Name="../../../demos/cskyDemo/csky_All_Demo.h">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_aes.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_dma.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_rtc.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_spi_eeprom.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_timer.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_watchdog.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_eflash.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_usart.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_pwm.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_rsa.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_sha.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_crc.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_trng.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_gpio.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_iic.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_iiS.c">
+        <FileOption/>
+      </File>
+      <File Name="../../../demos/cskyDemo/csky_Demo_adc.c">
+        <FileOption/>
+      </File>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="Drivers">
+    <VirtualDirectory Name="src">
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/at25f512a.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_aes.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_rtc.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/devices.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_dmac.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_gpio.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_spi.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_timer.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_wdt.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/isr.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/lib.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_usart.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_eflash.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/novic_irq_tbl.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/system.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_adc.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_crc_v1.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_i2s.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_pwm.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_rsa.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_sha_v1.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_sys_freq.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/ck_trng.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/dw_iic.c">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Src/trap_c.c">
+        <FileOption/>
+      </File>
+    </VirtualDirectory>
+    <VirtualDirectory Name="inc">
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/at25f512a.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/ck_rtc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck610.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck801.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck802.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck803.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck807.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/core_ck810.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/csi_core.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/csi_gcc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_adc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_aes.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_common.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_crc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_dmac.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_eflash.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_errno.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_gpio.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_intc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_rsa.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_rtc.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_spi.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_timer.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_trng.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_usart.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_wdt.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/dw_dmac.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/dw_timer.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/dw_usart.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/dw_wdt.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/errno.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/pin.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/pin_name.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/pinmux.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_sha.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/ck_i2s.h">
+        <FileOption/>
+      </File>
+      <File Name="../Drivers/CSKY_CK802T_CSI_Driver/Inc/drv_i2s.h">
+        <FileOption/>
+      </File>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="shell">
+    <File Name="../../../components/shell/include/shell.h">
+      <FileOption/>
+    </File>
+    <File Name="../../../components/shell/src/shell_cmd.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../components/shell/src/shell_main.c">
+      <FileOption/>
+    </File>
+    <File Name="../../../components/shell/src/shell_test.c">
+      <FileOption/>
+    </File>
+  </VirtualDirectory>
+  <Dependencies Name="BuildSet"/>
+  <BuildConfigs>
+    <BuildConfig Name="BuildSet">
+      <Target>
+        <ROMBank Selected="1">
+          <ROM1>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+          </ROM1>
+          <ROM2>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+          </ROM2>
+          <ROM3>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+          </ROM3>
+          <ROM4>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+          </ROM4>
+          <ROM5>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+          </ROM5>
+        </ROMBank>
+        <RAMBank>
+          <RAM1>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+            <Init>yes</Init>
+          </RAM1>
+          <RAM2>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+            <Init>yes</Init>
+          </RAM2>
+          <RAM3>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+            <Init>yes</Init>
+          </RAM3>
+          <RAM4>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+            <Init>yes</Init>
+          </RAM4>
+          <RAM5>
+            <InUse>no</InUse>
+            <Start/>
+            <Size/>
+            <Init>yes</Init>
+          </RAM5>
+        </RAMBank>
+        <CPU>ck802</CPU>
+        <UseMiniLib>yes</UseMiniLib>
+        <Endian>little</Endian>
+        <UseHardFloat>no</UseHardFloat>
+        <UseEnhancedLRW>no</UseEnhancedLRW>
+        <UseContinueBuild>no</UseContinueBuild>
+      </Target>
+      <Output>
+        <OutputName>$(ProjectName)</OutputName>
+        <Type>Executable</Type>
+        <CreateHexFile>no</CreateHexFile>
+        <CreateBinFile>no</CreateBinFile>
+        <Preprocessor>no</Preprocessor>
+        <Disasm>no</Disasm>
+        <CallGraph>no</CallGraph>
+        <Map>yes</Map>
+      </Output>
+      <User>
+        <BeforeCompile>
+          <RunUserProg>no</RunUserProg>
+          <UserProgName/>
+        </BeforeCompile>
+        <BeforeMake>
+          <RunUserProg>no</RunUserProg>
+          <UserProgName/>
+        </BeforeMake>
+        <AfterMake>
+          <RunUserProg>yes</RunUserProg>
+          <UserProgName>$(ProjectPath)..\BuildDebugDownload\aft_build.sh</UserProgName>
+        </AfterMake>
+      </User>
+      <Compiler>
+        <Define>LWM2M_LITTLE_ENDIAN LWM2M_CLIENT_MODE NDEBUG WITH_LWIP  USE_PPPOS WITH_DTLS __GNUC_LIKE</Define>
+        <Undefine/>
+        <Optim>Optimize (-O1)</Optim>
+        <DebugLevel>Maximum (-g3)</DebugLevel>
+        <IncludePath>$(ProjectPath);$(ProjectPath)/../OS_CONFIG;$(ProjectPath)/../configs;$(ProjectPath)/../../../arch/csky/cskyv2-l/include;$(ProjectPath)/../../../kernel/base/core;$(ProjectPath)/../../../kernel/base/include;$(ProjectPath)/../../../kernel/extended/include;$(ProjectPath)/../../../kernel/include;$(ProjectPath)/../Drivers/CSKY_CK802T_CSI_Driver/Inc;$(ProjectPath)/../../../demos/cskyDemo;$(ProjectPath)../../../components/shell/include/;$(ProjectPath)/../../../components/security/mbedtls/mbedtls-2.6.0/include;$(ProjectPath)/../../../components/security/mbedtls/mbedtls-2.6.0/include/mbedtls;$(ProjectPath)/../../../components/security/mbedtls/mbedtls_port;$(ProjectPath)../../../components/connectivity/lwm2m/core;$(ProjectPath)../../../components/connectivity/lwm2m/examples/shared;$(ProjectPath)/../../../components/net/lwip/ppp_port/osport/;$(ProjectPath)../../../components/net/lwip/lwip-2.0.3/src/include;$(ProjectPath)../../../components/net/lwip/lwip_port;$(ProjectPath)../../../include/</IncludePath>
+        <OtherFlags>-ffunction-sections -fdata-sections</OtherFlags>
+        <Verbose>no</Verbose>
+        <Ansi>no</Ansi>
+        <Syntax>no</Syntax>
+        <Pedantic>no</Pedantic>
+        <PedanticErr>no</PedanticErr>
+        <InhibitWarn>no</InhibitWarn>
+        <AllWarn>yes</AllWarn>
+        <WarnErr>no</WarnErr>
+        <OneElfS>yes</OneElfS>
+        <Fstrict>no</Fstrict>
+      </Compiler>
+      <Asm>
+        <Define/>
+        <Undefine/>
+        <IncludePath>$(ProjectPath);$(ProjectPath)/../configs;$(ProjectPath)/../OS_CONFIG;$(ProjectPath)/../../../kernel/include</IncludePath>
+        <OtherFlags/>
+        <DebugLevel>gdwarf2</DebugLevel>
+      </Asm>
+      <Linker>
+        <Garbage>yes</Garbage>
+        <LDFile>$(ProjectPath)..\BuildDebugDownload\gcc_csky.ld</LDFile>
+        <LibName>m</LibName>
+        <LibPath/>
+        <OtherFlags>-Wl,-zmax-page-size=1024</OtherFlags>
+        <AutoLDFile>no</AutoLDFile>
+      </Linker>
+      <Debug>
+        <LoadApplicationAtStartup>yes</LoadApplicationAtStartup>
+        <Connector>ICE</Connector>
+        <StopAt>yes</StopAt>
+        <StopAtText>main</StopAtText>
+        <InitFile>$(ProjectPath)../BuildDebugDownload/gdb.init</InitFile>
+        <AutoRun>yes</AutoRun>
+        <ResetType>Hard Reset</ResetType>
+        <SoftResetVal>0</SoftResetVal>
+        <ResetAfterLoad>no</ResetAfterLoad>
+        <ConfigICE>
+          <IP>localhost</IP>
+          <PORT>1025</PORT>
+          <Clock>12000</Clock>
+          <Delay>10</Delay>
+          <DDC>yes</DDC>
+          <TRST>no</TRST>
+          <Connect>Normal</Connect>
+          <ResetType>soft</ResetType>
+          <SoftResetVal>0</SoftResetVal>
+          <RTOSType>None</RTOSType>
+          <DownloadToFlash>yes</DownloadToFlash>
+          <ResetAfterConnect>yes</ResetAfterConnect>
+        </ConfigICE>
+        <ConfigSIM>
+          <SIMTarget/>
+          <OtherFlags/>
+          <NoGraphic>yes</NoGraphic>
+          <Log>no</Log>
+        </ConfigSIM>
+      </Debug>
+      <Flash>
+        <InitFile>$(ProjectPath)../BuildDebugDownload/flashinit</InitFile>
+        <Erase>Erase Sectors</Erase>
+        <Algorithms Path="$(CDKPath)/CSKY/Flash/">CH2201_eFlash_CDK.elf</Algorithms>
+        <Program>yes</Program>
+        <Verify>no</Verify>
+        <ResetAndRun>no</ResetAndRun>
+      </Flash>
+    </BuildConfig>
+  </BuildConfigs>
+  <DebugSessions>
+    <watchExpressions>(struct LOS_HEAP_MANAGER *)0x600006a0;g_ullTickCount;g_stTaskTimeSlice;AES_IRQn;__Vectors</watchExpressions>
+    <memoryExpressions>0x50004000;;;</memoryExpressions>
+    <statistics>;;MHZ</statistics>
+    <peripheralTabs/>
+    <WatchDisplayFormat>0</WatchDisplayFormat>
+    <LocalDisplayFormat>0</LocalDisplayFormat>
+    <peripheralsDisFormat>Hex</peripheralsDisFormat>
+    <debugLayout>layout2|name=Project View;caption=Project View;state=31459324;dir=4;layer=1;row=0;pos=0;prop=116883;bestw=456;besth=277;minw=10;minh=5;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Debugger;caption=Debugger;state=14682108;dir=3;layer=1;row=0;pos=0;prop=52400;bestw=341;besth=315;minw=10;minh=5;maxw=-1;maxh=-1;floatx=60;floaty=707;floatw=418;floath=340|name=Frame Info;caption=Frame Info;state=14698492;dir=3;layer=1;row=0;pos=1;prop=155365;bestw=400;besth=300;minw=10;minh=5;maxw=-1;maxh=-1;floatx=639;floaty=404;floatw=400;floath=250|name=Peripherals;caption=Peripherals;state=31459326;dir=3;layer=1;row=0;pos=3;prop=100000;bestw=409;besth=315;minw=10;minh=5;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Serial Pane;caption=Serial Pane;state=14682110;dir=3;layer=1;row=0;pos=3;prop=100000;bestw=400;besth=300;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Editor;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=20;besth=20;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Output View;caption=Output View;state=31459324;dir=3;layer=1;row=0;pos=2;prop=85109;bestw=958;besth=244;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Disassemble;caption=Disassemble;state=2099198;dir=3;layer=1;row=0;pos=2;prop=158373;bestw=200;besth=200;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1746;floaty=812;floatw=216;floath=236|name=Register;caption=Register;state=2099196;dir=2;layer=2;row=0;pos=0;prop=83117;bestw=200;besth=200;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1458;floaty=319;floatw=218;floath=240|name=Outline;caption=Outline;state=2099198;dir=2;layer=0;row=2;pos=0;prop=100000;bestw=200;besth=200;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1823;floaty=285;floatw=216;floath=236|dock_size(4,1,0)=273|dock_size(5,0,0)=20|dock_size(3,1,0)=279|dock_size(2,2,0)=493|</debugLayout>
+  </DebugSessions>
+</Project>
