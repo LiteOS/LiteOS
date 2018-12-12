@@ -42,12 +42,27 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "osdepends/atiny_osdep.h"
 #include "package_checksum.h"
 #include "upgrade_flag.h"
 
+
+#define PACK_MALLOC(size) pack_malloc(size)
+#define PACK_FREE(ptr) pack_free(ptr)
+
+#define PACK_LOG_ENABLE
+#ifdef PACK_LOG_ENABLE
 #define PACK_LOG(fmt, ...) \
-(void)atiny_printf("[%s:%d][%lu]" fmt "\r\n",  __FUNCTION__, __LINE__, (uint32_t)atiny_gettime_ms(),  ##__VA_ARGS__)
+do\
+{\
+    pack_params_s *__pack_params__ = pack_get_params();\
+    if (__pack_params__->printf != NULL)\
+    {\
+        (void)__pack_params__->printf("[%s:%d]" fmt "\r\n",  __FUNCTION__, __LINE__,  ##__VA_ARGS__);\
+    }\
+}while(0)
+#else
+#define PACK_LOG(fmt, ...) ((void)0)
+#endif
 
 
 #define ASSERT_THIS(do_something) \
@@ -115,6 +130,9 @@ pack_checksum_s *pack_head_get_checksum(pack_head_s *head);
 ota_key_s  *pack_head_get_key(pack_head_s *head);
 
 
+pack_params_s * pack_get_params(void);
+void * pack_malloc(size_t size);
+void pack_free(void *ptr);
 
 #if defined(__cplusplus)
 }

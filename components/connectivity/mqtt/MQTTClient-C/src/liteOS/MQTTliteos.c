@@ -31,6 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#include "MQTTliteos.h"
 
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
@@ -54,8 +55,8 @@
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
 #endif
+#include "osdepends/atiny_osdep.h"
 
-#include "MQTTliteos.h"
 
 #define get_time_ms atiny_gettime_ms
 
@@ -86,6 +87,52 @@ int TimerLeftMS(Timer *timer)
 {
     UINT64 now = get_time_ms();
     return timer->end_time <= now ? 0 : timer->end_time - now;
+}
+
+int MutexInit(Mutex* mutex)
+{
+    int ret = atiny_task_mutex_create(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "create mutex fail, ret %d.", ret);
+    }
+    return ret;
+}
+int MutexLock(Mutex* mutex)
+{
+    int ret = atiny_task_mutex_lock(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "lock mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
+    return ret;
+}
+
+int MutexUnlock(Mutex* mutex)
+{
+    int ret = atiny_task_mutex_unlock(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "unlock mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
+    return ret;
+}
+
+void MutexDestory(Mutex* mutex)
+{
+    int ret = atiny_task_mutex_delete(mutex);
+    if (ret != LOS_OK)
+    {
+        ATINY_LOG(LOG_ERR, "delete mutex fail,mutex %d,ret %d.", mutex->mutex, ret);
+    }
+}
+
+int ThreadStart(Thread *thread, void (*fn)(void *), void *arg)
+{
+    (void)thread;
+    (void)fn;
+    (void)arg;
+    return -1;
 }
 
 static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_ms)
@@ -120,23 +167,7 @@ static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, in
     return ret;
 }
 
-/*****************************************************************************
- 函 数 名  : los_read
- 功能描述  : 注册在mqttread的回调函数，依据是否基于TLS调用各自的read函数进行
-             处理
- 输入参数  : Network* n
-             unsigned char* buffer
-             int len
-             int timeout_ms
- 输出参数  : 无
- 返 回 值  : static
 
- 修改历史      :
-  1.日    期   : 2018年4月20日
-    作    者   : l00438842
-    修改内容   : 新生成函数
-
-*****************************************************************************/
 static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
@@ -152,39 +183,22 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 
     switch(info->security_type)
     {
-    case MQTT_SECURITY_TYPE_NONE :
-        ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
-        break;
-    case MQTT_SECURITY_TYPE_PSK:
-    case MQTT_SECURITY_TYPE_CA:
-        ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
-        break;
-    default :
-        ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
-        break;
+        case MQTT_SECURITY_TYPE_NONE :
+            ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
+            break;
+        case MQTT_SECURITY_TYPE_PSK:
+        case MQTT_SECURITY_TYPE_CA:
+            ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
+            break;
+        default :
+            ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
+            break;
     }
 
     return ret;
 }
 
 
-/*****************************************************************************
- 函 数 名  : los_write
- 功能描述  : 注册在mqttwrite的回调函数，依据是否基于SSL/TLS调用各自的write函
-             数进行处理
- 输入参数  : Network* n
-             unsigned char* buffer
-             int len
-             int timeout_ms
- 输出参数  : 无
- 返 回 值  :
-
- 修改历史      :
-  1.日    期   : 2018年4月20日
-    作    者   : l00438842
-    修改内容   : 新生成函数
-
-*****************************************************************************/
 static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;

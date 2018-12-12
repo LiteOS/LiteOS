@@ -32,10 +32,10 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "ota/package.h" 
+#include "ota/package.h"
 #include "package_device.h"
 #if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
-#include "dtls_interface.h"
+#include "mbedtls/platform.h"
 #endif
 
 static inline pack_storage_device_s *pack_storage_get_storage_device(pack_storage_device_api_s *this)
@@ -199,9 +199,9 @@ static int pack_read_software(struct pack_hardware_tag_s *thi, uint32_t offset, 
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
 
     (void)thi;
-    if (device->ota_opt.read_flash)
+    if (device->params.ota_opt.read_flash)
     {
-        return device->ota_opt.read_flash(device->type, buffer, len, offset);
+        return device->params.ota_opt.read_flash(device->type, buffer, len, offset);
     }
     PACK_LOG("read_flash null");
 
@@ -213,9 +213,9 @@ static int pack_write_software(struct pack_hardware_tag_s *thi, uint32_t offset,
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
 
     (void)thi;
-    if (device->ota_opt.write_flash)
+    if (device->params.ota_opt.write_flash)
     {
-        return device->ota_opt.write_flash(device->type, buffer, len, offset);
+        return device->params.ota_opt.write_flash(device->type, buffer, len, offset);
     }
     PACK_LOG("write_flash null");
 
@@ -233,31 +233,40 @@ static void pack_set_flash_type(struct pack_hardware_tag_s *thi, ota_flash_type_
 static uint32_t pack_get_block_size(struct pack_hardware_tag_s *thi)
 {
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
-    return device->ota_opt.flash_block_size;
+    return device->params.ota_opt.flash_block_size;
 }
 
-int pack_init_device(const ota_opt_s *ota_opt)
+static void* local_calloc(size_t n, size_t size)
+{
+    void *p = pack_malloc(n * size);
+    if (NULL != p)
+    {
+        memset(p, 0, n * size);
+    }
+    return p;
+}
+
+int pack_init_device(const pack_params_s *params)
 {
     pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
     pack_device_info_s device_info;
 
-    if (ota_opt == NULL)
+    if ((params == NULL) || (params->malloc == NULL)
+        || (params->free == NULL))
     {
-        PACK_LOG("ota_opt null");
+        PACK_LOG("params null");
         return PACK_ERR;
     }
 
-    memcpy(&device->ota_opt, ota_opt, sizeof(device->ota_opt));
-#if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
-    dtls_int();
-#endif
+    memcpy(&device->params, params, sizeof(device->params));
+
     device->hardware.read_software = pack_read_software;
     device->hardware.write_software = pack_write_software;
     device->hardware.set_flash_type = pack_set_flash_type;
     device->hardware.get_block_size = pack_get_block_size;
 
     device_info.hardware = &device->hardware;
-    memcpy(&device_info.key, &device->ota_opt.key, sizeof(device_info.key));
+    memcpy(&device_info.key, &device->params.ota_opt.key, sizeof(device_info.key));
 
     if(pack_head_set_head_info(&device->head,  &device_info) != PACK_OK)
     {
@@ -266,7 +275,34 @@ int pack_init_device(const ota_opt_s *ota_opt)
 
     pack_wr_set_device(&device->writer, device_info.hardware);
 
+#if (PACK_CHECKSUM != PACK_NO_CHECKSUM)
+    (void)mbedtls_platform_set_calloc_free(local_calloc, params->free);
+#endif
+
     return PACK_OK;
 }
+
+pack_params_s * pack_get_params(void)
+{
+    pack_storage_device_s *device = (pack_storage_device_s *)pack_get_device();
+    return &device->params;
+}
+
+void * pack_malloc(size_t size)
+{
+    pack_params_s *params = pack_get_params();
+
+    return (params->malloc == NULL) ? NULL : params->malloc(size);
+}
+
+void pack_free(void *ptr)
+{
+    pack_params_s *params = pack_get_params();
+    if(params->free != NULL)
+    {
+        params->free(ptr);
+    }
+}
+
 
 

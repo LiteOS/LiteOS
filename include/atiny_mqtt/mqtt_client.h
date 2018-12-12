@@ -34,7 +34,7 @@
 
 #ifndef __MQTT_CLIENT_H__
 #define __MQTT_CLIENT_H__
-
+#include "atiny_error.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -67,19 +67,43 @@ extern "C" {
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
 #endif
 
-/* deviceReq data msg jason format example
+/* deviceReq data msg jason format example to server
 {
         "msgType":      "deviceReq",
         "hasMore":      0,
         "data": [{
-                        "serviceId":    "123456",
+                        "serviceId":    "serviceIdValue",
                         "data": {
-                                "define_data0": "define_value0",
-                                "define_data1": 3
+                                "defineData": "defineValue"
                         },
                         "eventTime":    "20161219T114920Z"
                 }]
 }
+
+cloudReq data msg jason format example from server
+{
+	"msgType":"cloudReq",
+	"serviceId":"serviceIdValue",
+	"paras":{
+		"paraName":"paraValue"
+    },
+	"cmd":"cmdValue",
+	"hasMore":0,
+	"mid":0
+}
+
+deviceRsp data msg jason format example to server
+{
+	"msgType":	"deviceRsp",
+	"mid":	0,
+	"errcode":	0,
+	"hasMore":	0,
+	"body":	{
+		"bodyParaName":	"bodyParaValue"
+	}
+}
+
+
 */
 
 /* msg type, json name, its value is string*/
@@ -162,8 +186,8 @@ typedef enum
 {
     MQTT_GET_TIME, // get the system time, the format is YYYYMMDDHH
     MQTT_RCV_MSG, // notify user a message received.
-    MQTT_WRITE_FLASH_INFO, // write the connection info for dynamic connection.
-    MQTT_READ_FLASH_INFO, // read the connection info for dynamic connection.
+    MQTT_SAVE_SECRET_INFO, // write the connection secret info for dynamic connection, the info length is fixed, may be encrypted.
+    MQTT_READ_SECRET_INFO, // read the connection secret info for dynamic connection, the info length is fixed.
 }mqtt_cmd_e;
 
 
@@ -197,9 +221,9 @@ typedef struct
 
 typedef enum
 {
-    MQTT_QOS_MOST_ONCE,    // LWM2M: NON
-    MQTT_QOS_LEAST_ONCE,   // LWM2M: CON
-    MQTT_QOS_ONLY_ONCE,
+    MQTT_QOS_MOST_ONCE,  //MQTT QOS 0
+    MQTT_QOS_LEAST_ONCE, //MQTT QOS 1
+    MQTT_QOS_ONLY_ONCE,  //MQTT QOS 2
     MQTT_QOS_MAX
 }mqtt_qos_e;
 
@@ -230,18 +254,6 @@ typedef struct
         mqtt_dynamic_connection_info_s d_info;
     }u;
 }mqtt_device_info_s;
-
-
-
-typedef enum
-{
-    ATINY_OK = 0,
-    ATINY_ARG_INVALID,
-    ATINY_BUF_OVERFLOW,
-    ATINY_MALLOC_FAILED,
-    ATINY_SOCKET_ERROR,
-    ATINY_ERR,
-} atiny_error_e;
 
 
 /**
@@ -305,6 +317,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* phandl
  *@param phandle        [IN] The handle of the agent_tiny.
  *@param msg    [IN] Message to be sended.
  *@param msg_len              [IN] Message length.
+ *@param qos              [IN] quality of service used in MQTT protocol.
  *
  *@retval #int           0 if succeed, or the error number @ref mqtt_error_e if failed.
  *@par Dependency: none.

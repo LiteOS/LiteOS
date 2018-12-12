@@ -42,7 +42,7 @@
 #include "flash_adaptor.h"
 #include "agenttiny_mqtt/agent_tiny_demo.h"
 #else
-#include "agenttiny_lwm2m/agent_tiny_demo.h"
+//#include "agenttiny_lwm2m/agent_tiny_demo.h"
 #endif
 
 
@@ -56,16 +56,22 @@ static UINT32 g_fs_tskHandle;
 
 void atiny_task_entry(void)
 {
+    extern void agent_tiny_entry();
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK)
-    extern void agent_tiny_entry();
+    
 
     #if defined(USE_ESP8266)
     extern at_adaptor_api esp8266_interface;
     printf("\r\n=============agent_tiny_entry  USE_ESP8266============================\n");
     at_api_register(&esp8266_interface);
+
+    #elif defined(USE_EMTC_BG36)
+    extern at_adaptor_api emtc_bg36_interface;
+    printf("\r\n=============agent_tiny_entry  USE_EMTC_BG36============================\n");
+    at_api_register(&emtc_bg36_interface);
 
     #elif defined(USE_SIM900A)
     extern at_adaptor_api sim900a_interface;

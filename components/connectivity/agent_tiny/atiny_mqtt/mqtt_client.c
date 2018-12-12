@@ -95,7 +95,9 @@ struct mqtt_client_tag_s
 
 
 static uint8_t g_mqtt_sendbuf[MQTT_SENDBUF_SIZE];
-static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE];
+
+/* reserve 1 byte for string end 0 for jason */
+static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE + 1];
 
 
 static mqtt_client_s g_mqtt_client;
@@ -146,9 +148,9 @@ static int mqtt_check_param(const mqtt_param_s *param)
     if (param->info.security_type == MQTT_SECURITY_TYPE_PSK)
     {
         if ((param->info.u.psk.psk == NULL)
-        || (param->info.u.psk.psk_len <= 0)
-        || (param->info.u.psk.psk_id == NULL)
-        || (param->info.u.psk.psk_id_len <= 0))
+            || (param->info.u.psk.psk_len <= 0)
+            || (param->info.u.psk.psk_id == NULL)
+            || (param->info.u.psk.psk_id_len <= 0))
         {
             ATINY_LOG(LOG_FATAL, "invalid psk");
             return ATINY_ARG_INVALID;
@@ -191,38 +193,38 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
 
     switch(src->info.security_type)
     {
-    case MQTT_SECURITY_TYPE_PSK:
-        dest->info.u.psk.psk_id = (uint8_t *)atiny_malloc(src->info.u.psk.psk_id_len);
-        if(NULL == dest->info.u.psk.psk_id)
-        {
-            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
-            goto mqtt_param_dup_failed;
-        }
-        memcpy(dest->info.u.psk.psk_id, src->info.u.psk.psk_id, src->info.u.psk.psk_id_len);
-        dest->info.u.psk.psk_id_len = src->info.u.psk.psk_id_len;
+        case MQTT_SECURITY_TYPE_PSK:
+            dest->info.u.psk.psk_id = (uint8_t *)atiny_malloc(src->info.u.psk.psk_id_len);
+            if(NULL == dest->info.u.psk.psk_id)
+            {
+                ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+                goto mqtt_param_dup_failed;
+            }
+            memcpy(dest->info.u.psk.psk_id, src->info.u.psk.psk_id, src->info.u.psk.psk_id_len);
+            dest->info.u.psk.psk_id_len = src->info.u.psk.psk_id_len;
 
-        dest->info.u.psk.psk = (unsigned char *)atiny_malloc(src->info.u.psk.psk_len);
-        if(NULL == dest->info.u.psk.psk)
-        {
-            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
-            goto mqtt_param_dup_failed;
-        }
-        memcpy(dest->info.u.psk.psk, src->info.u.psk.psk, src->info.u.psk.psk_len);
-        dest->info.u.psk.psk_len = src->info.u.psk.psk_len;
-        break;
+            dest->info.u.psk.psk = (unsigned char *)atiny_malloc(src->info.u.psk.psk_len);
+            if(NULL == dest->info.u.psk.psk)
+            {
+                ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+                goto mqtt_param_dup_failed;
+            }
+            memcpy(dest->info.u.psk.psk, src->info.u.psk.psk, src->info.u.psk.psk_len);
+            dest->info.u.psk.psk_len = src->info.u.psk.psk_len;
+            break;
 
-    case MQTT_SECURITY_TYPE_CA:
-        dest->info.u.ca.ca_crt = (char *)atiny_malloc(src->info.u.ca.ca_len);
-        if(NULL == dest->info.u.ca.ca_crt)
-        {
-            ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
-            goto mqtt_param_dup_failed;
-        }
-        memcpy(dest->info.u.ca.ca_crt, src->info.u.ca.ca_crt, src->info.u.ca.ca_len);
-        dest->info.u.ca.ca_len = src->info.u.ca.ca_len;
-        break;
-    default:
-        break;
+        case MQTT_SECURITY_TYPE_CA:
+            dest->info.u.ca.ca_crt = (char *)atiny_malloc(src->info.u.ca.ca_len);
+            if(NULL == dest->info.u.ca.ca_crt)
+            {
+                ATINY_LOG(LOG_FATAL, "atiny_strdup NULL");
+                goto mqtt_param_dup_failed;
+            }
+            memcpy(dest->info.u.ca.ca_crt, src->info.u.ca.ca_crt, src->info.u.ca.ca_len);
+            dest->info.u.ca.ca_len = src->info.u.ca.ca_len;
+            break;
+        default:
+            break;
     }
 
 
@@ -409,7 +411,6 @@ static void mqtt_bin_to_str(const uint8_t *bin_buf, char *str_buf, uint32_t bin_
 }
 static char *mqtt_get_send_password(char *password, char *time)
 {
-#if 1
     uint8_t hmac[32];
     const uint32_t len = sizeof(hmac) * 2 + 1;
     char *result;
@@ -440,10 +441,6 @@ static char *mqtt_get_send_password(char *password, char *time)
 
     mqtt_bin_to_str(hmac, result, sizeof(hmac));
     return result;
-#else
-    return atiny_strdup(password);
-#endif
-
 }
 
 static void mqtt_destroy_data_connection_info(MQTTPacket_connectData *data)
@@ -492,6 +489,7 @@ static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectDat
         ATINY_LOG(LOG_FATAL, "mqtt_cmd_ioctl fail");
         return ATINY_ERR;
     }
+    time[sizeof(time) - 1] = '\0';
     strs[str_num++] = time;
 
     data->clientID.cstring = mqtt_add_strings((const char **)strs, tmp, str_num);
@@ -528,7 +526,7 @@ static char *mqtt_get_topic(const mqtt_client_s* handle, const char *fmt, uint32
         return NULL;
     }
 
-    snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);
+    (void)snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);
 
     return topic;
 }
@@ -561,22 +559,11 @@ static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, u
     cJSON *msg_type;
     cJSON *deviceid;
     cJSON *secret;
-    char *buf = NULL;
     cJSON * root = NULL;
     int ret = ATINY_ERR;
 
-    buf = atiny_malloc(len + 1);
-    if (buf == NULL)
-    {
-        ATINY_LOG(LOG_ERR, "atiny_malloc null, len %d", len);
-        return ATINY_ERR;
-    }
 
-    memcpy(buf, payload, len);
-    buf[len] = '\0';
-
-    root = cJSON_Parse(buf);
-    TRY_FREE_MEM(buf);
+    root = cJSON_Parse(payload);
     if (root == NULL)
     {
         ATINY_LOG(LOG_ERR, "err secret notify, len %d, msg %s", len, payload);
@@ -591,7 +578,6 @@ static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, u
         goto EXIT;
     }
 
-
     deviceid = cJSON_GetObjectItem(root, "deviceid");
     if ((deviceid == NULL) || (deviceid->valuestring == NULL)
         || (!IS_VALID_NAME_LEN(deviceid->valuestring)))
@@ -600,7 +586,6 @@ static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, u
         goto EXIT;
     }
 
-
     secret = cJSON_GetObjectItem(root, "secret");
     if ((secret == NULL) || (secret->valuestring == NULL)
         || (!IS_VALID_NAME_LEN(secret->valuestring)))
@@ -608,7 +593,6 @@ static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, u
         ATINY_LOG(LOG_ERR, "secret not right");
         goto EXIT;
     }
-
 
     handle->dynamic_info.has_device_id = false;
     TRY_FREE_MEM(handle->dynamic_info.save_info.deviceid);
@@ -656,15 +640,39 @@ static void mqtt_send_secret_ack(mqtt_client_s* handle)
         ATINY_LOG(LOG_FATAL, "MQTTPublish fail,rc %d", rc);
     }
 }
+
+/*lint -e529*/
+static int mqtt_modify_payload(MessageData *md)
+{
+    char *end = ((char *)md->message->payload) + md->message->payloadlen;
+    static uint32_t callback_err;
+
+    /* add for jason parse,then not need to copy in callback */
+    if ((end >= (char *)g_mqtt_readbuf) && (end < (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))
+    {
+         *end = '\0';
+         // ATINY_LOG(LOG_DEBUG, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, callback_err);
+         return ATINY_OK;
+    }
+
+    /*  should not happen */
+    ATINY_LOG(LOG_ERR, "not expect msg callback err, pl %p, len %ld, err num %ld", md->message->payload, md->message->payloadlen, ++callback_err);
+
+    return ATINY_ERR;
+}
+/*lint +e529*/
+
+
 static void mqtt_recv_secret_topic(MessageData *md)
 {
     mqtt_client_s* handle = &g_mqtt_client;
 
     if ((md == NULL) || (md->message == NULL)
         || (md->message->payload == NULL)
-        || (md->message->payloadlen == 0))
+        || (md->message->payloadlen == 0)
+        || (mqtt_modify_payload(md) != ATINY_OK))
     {
-        ATINY_LOG(LOG_FATAL, "null point or len zero len");
+        ATINY_LOG(LOG_FATAL, "null point or msg err, len %ld", md->message->payloadlen);
         return;
     }
 
@@ -685,12 +693,13 @@ static void mqtt_recv_secret_topic(MessageData *md)
 
 static void mqtt_recv_cmd_topic(MessageData *md)
 {
-    if ((md == NULL) || (md->message == NULL))
+    if ((md == NULL) || (md->message == NULL)
+        || (mqtt_modify_payload(md) != ATINY_OK))
     {
         ATINY_LOG(LOG_FATAL, "null point");
         return;
     }
-    mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
+    (void)mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
 }
 
 
@@ -848,7 +857,7 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
         return ATINY_ARG_INVALID;
     }
 
-    if(ATINY_OK != mqtt_dup_param(&(g_mqtt_client.params), params))
+    if (ATINY_OK != mqtt_dup_param(&(g_mqtt_client.params), params))
     {
         return ATINY_MALLOC_FAILED;
     }
@@ -883,10 +892,12 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     Network n;
     MQTTClient *client = NULL;
     mqtt_param_s *params;
-    int rc = -1;
+    int rc;
     int32_t conn_failed_cnt = 0;
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
     Timer timer;
+    int result = ATINY_ERR;
+
 
     if((NULL == handle) || (device_info == NULL))
     {
@@ -899,13 +910,13 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
         return ATINY_ARG_INVALID;
     }
 
-    dtls_int();
+    dtls_init();
 
     client = &(handle->client);
     params = &(handle->params);
 
     rc = mqtt_dup_device_info(&(handle->device_info), device_info);
-    if(rc != ATINY_OK)
+    if (rc != ATINY_OK)
     {
         goto  atiny_bind_quit;
     }
@@ -915,7 +926,12 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     NetworkInit(&n, mqtt_get_security_info);
 
     memset(client, 0x0, sizeof(MQTTClient));
-    MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, g_mqtt_sendbuf, MQTT_SENDBUF_SIZE, g_mqtt_readbuf, MQTT_READBUF_SIZE);
+    rc = MQTTClientInit(client, &n, MQTT_COMMAND_TIMEOUT_MS, g_mqtt_sendbuf, MQTT_SENDBUF_SIZE, g_mqtt_readbuf, MQTT_READBUF_SIZE);
+    if (rc != MQTT_SUCCESS)
+    {
+        ATINY_LOG(LOG_FATAL, "MQTTClientInit fail,rc %d", rc);
+        goto  atiny_bind_quit;
+    }
 
     data.willFlag = 0;
     data.MQTTVersion = MQTT_VERSION_3_1_1;
@@ -948,7 +964,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
         rc = MQTTConnect(client, &data);
         mqtt_destroy_data_connection_info(&data);
         ATINY_LOG(LOG_DEBUG, "CONNACK : %d", rc);
-        if(0 != rc)
+        if(MQTT_SUCCESS != rc)
         {
             // receive connection nack value
             if (rc != MQTT_SUCCESS)
@@ -1002,7 +1018,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
         mqtt_disconnect(client, &n);
     }
 
-    //mqtt_disconnect(client, &n);
+    result = ATINY_OK;
 atiny_bind_quit:
     mqtt_free_dynamic_info(handle);
     mqtt_free_params(&(handle->params));
@@ -1011,13 +1027,14 @@ atiny_bind_quit:
     (void)atiny_task_mutex_unlock(&client->mutex);
     MQTTClientDeInit(client);
     handle->bind_quit = 1;
-    return ATINY_OK;
+    return result;
 }
 
 int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_len, mqtt_qos_e qos)
 {
     MQTTMessage message;
     int rc;
+    char* topic;
 
     if ((phandle == NULL) || ((msg == NULL) && (msg_len == 0)))
     {
@@ -1031,7 +1048,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
         return ATINY_ERR;
     }
 
-    char* topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);
+    topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);
     if (topic == NULL)
     {
         return ATINY_MALLOC_FAILED;
