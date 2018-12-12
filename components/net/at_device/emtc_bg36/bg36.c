@@ -33,22 +33,16 @@
  *---------------------------------------------------------------------------*/
 #include <string.h>
 #include <ctype.h>
-#if defined(WITH_AT_FRAMEWORK)
 #include "bg36.h"
 
-extern char rbuf[AT_DATA_LEN];
-extern char wbuf[AT_DATA_LEN];
 extern at_task at;
-at_adaptor_api at_interface;
-#define MAX_BG36_SOCK_NUM 5
-#define UDP_PROTO   17
-#define MAX_SOCK_NUM 11
-#define MAX_SOCKID 11
+#define MAX_BG36_SOCK_NUM 11
+
 at_config at_user_conf = {
     .name = AT_MODU_NAME,
     .usart_port = AT_USART_PORT,
     .buardrate = AT_BUARDRATE,
-    .linkid_num = AT_MAX_LINK_NUM,
+    .linkid_num = MAX_BG36_SOCK_NUM,
     .user_buf_len = MAX_AT_USERDATA_LEN,
     .cmd_begin = AT_CMD_BEGIN,
     .line_end = AT_LINE_END,
@@ -56,147 +50,51 @@ at_config at_user_conf = {
     .timeout = BG36_TIMEOUT,   //  ms
 };
 
-typedef struct
-{
-    uint32_t data_len;
-    int link_idx;
-    bool valid_flag;
-}emtc_data_ind_info_s;
-
-emtc_socket_info sockinfo[MAX_SOCK_NUM];
-static emtc_data_ind_info_s data_ind_info;
-static int sockid = 0;
+emtc_socket_info sockinfo[MAX_BG36_SOCK_NUM];
 
 int bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
 {
 	return at.cmd((int8_t *)cmd, len, suffix, resp_buf, resp_len);
 }
 
-static int bg36_alloc_sock(int socket)
+static int bg36_close_sock(int sockid)
 {
-    int idx;
-    uint32_t i;
-
-    for (i = 0; i < MAX_BG36_SOCK_NUM; ++i)
-    {
-        if (sockinfo[i].used_flag  && (sockinfo[i].socket == socket))
-        {
-            return i;
-        }
-    }
-
-    idx  = (socket % MAX_BG36_SOCK_NUM);
-    if (!sockinfo[idx].used_flag)
-    {
-        sockinfo[idx].used_flag = 1;
-        return idx;
-    }
-
-    for (i = 0; i < MAX_BG36_SOCK_NUM; ++i)
-    {
-        if (!sockinfo[i].used_flag)
-        {
-            sockinfo[i].used_flag = 1;
-            return i;
-        }
-    }
-    AT_LOG("save socket fail %d", socket);
-    return MAX_BG36_SOCK_NUM;
-}
-
-static int bg36_sock_to_idx(int socket)
-{
-    int idx;
-
-    idx  = (socket % MAX_SOCK_NUM);
-
-    if (sockinfo[idx].used_flag && (socket == sockinfo[idx].socket))
-    {
-        return idx;
-    }
-
-    for (uint32_t i = 0; i < MAX_SOCK_NUM; ++i)
-    {
-        if (sockinfo[i].used_flag && (socket == sockinfo[i].socket))
-        {
-            return i;
-        }
-    }
-
-    return MAX_SOCK_NUM;
-}
-
-static int32_t bg36_cmd_with_2_suffix(const int8_t *cmd, int  len,
-                        const char* suffix_ok, const char* suffix_err,  char *resp_buf, uint32_t* resp_len)
-{
-
-    const char *suffix[2] = {0};
-    at_cmd_info_s cmd_info = {0};
-
-    suffix[0] = suffix_ok;
-    suffix[1] = suffix_err;
-
-    cmd_info.suffix = suffix;
-    cmd_info.suffix_num = array_size(suffix);
-
-    cmd_info.resp_buf = resp_buf;
-    cmd_info.resp_len = resp_len;
-
-	if (at.cmd_multi_suffix(cmd, len, &cmd_info) != AT_OK)
-    {
-        return AT_FAILED;
-    }
-
-    if (cmd_info.match_idx != 0)
-    {
-        AT_LOG("cmd_info.match_idx %d", cmd_info.match_idx);
-        return AT_FAILED;
-    }
-
-    return AT_OK;
-}
-
-static void bg36_close_sock(int sock)
-{
-    const char *cmd = "AT+QICLOSE=";
+    char *cmd = "AT+QICLOSE=";
     char buf[64];
     int cmd_len;
 
-    cmd_len = snprintf(buf, sizeof(buf), "%s%d\r", cmd, sock);
-    bg36_cmd_with_2_suffix((int8_t*)buf, cmd_len, "OK", "ERROR", NULL,NULL);
+    cmd_len = snprintf(buf, sizeof(buf), "%s%d\r", cmd, sockid);
+    return bg36_cmd((int8_t*)buf, cmd_len, "OK", NULL,NULL);
 }
 
 //Direct Push Mode
 int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
 {
-    int32_t sockid=0;
-    int32_t data_len=0;
-    const char *p1 = NULL, *p2 = NULL;
-    int link_idx=0;
+    int32_t sockid = 0;
+    int32_t data_len = 0;
+    const char *p1 = NULL;
+    const char *p2 = NULL;
     QUEUE_BUFF qbuf;
-    int ret=0;
-    //int i=0;
-    int offset = 0;
-    //+QIURC: "recv",0,6
-    //aaaaaa
+    int32_t ret = 0;
+    int32_t offset = 0;
 
-    //p2+=strlen(AT_DATAF_PREFIX);
     while(offset < len)
     {
-        p1 = strstr((char *)(buf+offset), "recv");
+        p1 = strnstr((char *)(buf+offset), "recv",strlen("recv"));
         if (p1 == NULL)
         {
-            AT_LOG("not recv, offset:%d len:%d",offset, (int)len);
+            AT_LOG("no buf or buf has been handle, offset:%ld len:%ld",offset, len);
             return AT_OK;
         }
         p1 += strlen("\"recv\"");
         sockid = chartoint(p1+1);
-        link_idx = bg36_sock_to_idx(sockid);
-        if (link_idx >= MAX_SOCK_NUM)
+
+        if (sockid >= MAX_BG36_SOCK_NUM || sockinfo[sockid].used_flag == false)
         {
             AT_LOG("invalid sock id %ld", sockid);
-            return AT_OK;
+            return AT_FAILED;
         }
+
         p2 = strstr((char *)(p1+1), ",");
         if (p2 == NULL)
         {
@@ -204,6 +102,12 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
             return AT_FAILED;
         }
         data_len = chartoint(p2+1);
+        if(data_len > AT_DATA_LEN || data_len <= 0)
+        {
+            AT_LOG("datalen invalid %ld", data_len);
+            return AT_FAILED;
+        }
+
         qbuf.addr = at_malloc(data_len);
         if (qbuf.addr == NULL)
         {
@@ -212,24 +116,22 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
         }
 
         p1 = strstr(p2, "\r\n");
-
         if (p1 != NULL)
         {
             memcpy(qbuf.addr, p1+2, data_len);
             qbuf.len = data_len;
-            ret = LOS_QueueWriteCopy(at.linkid[link_idx].qid, &qbuf, sizeof(qbuf), 0);
+            ret = LOS_QueueWriteCopy(at.linkid[sockid].qid, &qbuf, sizeof(qbuf), 0);
             if (LOS_OK != ret)
             {
-                AT_LOG("LOS_QueueWriteCopy failed! ret %d", ret);
+                AT_LOG("LOS_QueueWriteCopy failed! ret %ld", ret);
                 at_free(qbuf.addr);
             }
             offset+=data_len+strlen("+QIURC: \"recv\",");
-
         }
         else
         {
             AT_LOG("recv data null!");
-            return AT_OK;
+            return AT_FAILED;
         }
     }
 
@@ -241,153 +143,100 @@ int32_t bg36_cmd_match(const char *buf, char* featurestr,int len)
     return (strstr((char *)buf, featurestr) != NULL) ? 0: -1;
 }
 
-int send_sock_cmd(const int8_t * host, int port_i, char* service_type)
+int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t proto, char* service_type)
 {
-    int rbuflen = 64;
-    int cnt = 0;
-    char inbuf[64] = {0};
-    int err = -1;
-    char cmd[64] = {0};
-    char tmpbuf[32] = {0};
-    int conid;
-    char* sockptr;
-    while((err != 0) && (++cnt < 50))
-    {
-        snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, sockid % MAX_SOCKID, service_type, host, port_i);
-        bg36_cmd(cmd, strlen(cmd), "+QIOPEN:", inbuf,&rbuflen);
-        AT_LOG("inbuf:%s",inbuf);
-        sockptr = strstr(inbuf,"+QIOPEN:");
-        if(sockptr != NULL)
-            sscanf(sockptr,"+QIOPEN: %d,%d%s",&conid,&err, tmpbuf);
-        AT_LOG("conid:%d err:%d",conid,err);
-        if(err)
-            sockid++;
-    }
-
-    return (err == 0) ? conid : AT_FAILED;
-
-}
-int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t proto, char* service_type, int with_force)
-{
-    int ret = AT_FAILED;
-    int port_i = 0;
     int rbuflen = 64;
     char inbuf[64] = {0};
     char tmpbuf[32] = {0};
     int conid, err;
-    char* str;
-    char cmd[64] = {0};//AT+QIOPEN=1,0,"TCP","220.180.239.212",8009,0,1
-    sscanf((char*)port, "%d", &port_i);
-    AT_LOG("get port = %d\r\n", port_i);
+    char* str = NULL;
+    int id;
+    char cmd[64] = {0};
+
+    AT_LOG("port:%s\r\n", port);
 
     if (at.mux_mode != AT_MUXMODE_MULTI)
     {
         AT_LOG("Only support in multi mode!\r\n");
-        return -1;
+        return AT_FAILED;
     }
 
-    int id = at.get_id();
-    ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
-    if (ret != LOS_OK)
+    id = at.get_id();
+    if (id >= MAX_BG36_SOCK_NUM || sockinfo[id].used_flag == true)
     {
-        AT_LOG("init dataQueue failed!");
+        AT_LOG("sock num exceeded,socket is %d", id);
+        return AT_FAILED;
+    }
+
+    snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%s,0,1\r", QIOPEN_SOCKET, id, service_type, host, port);
+    bg36_cmd(cmd, strlen(cmd), "+QIOPEN", inbuf, &rbuflen);
+    str = strstr(inbuf, "+QIOPEN");
+    if (str == NULL)
+    {
+        AT_LOG("sock num exceeded,socket is %d", id);
         at.linkid[id].usable = AT_LINK_UNUSE;
         return AT_FAILED;
     }
 
-    snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%d,0,1\r", QIOPEN_SOCKET, (sockid++) % MAX_SOCKID, service_type, host, port_i);
-    bg36_cmd(cmd, strlen(cmd), "+QIOPEN", inbuf,&rbuflen);
-    str = strstr(inbuf, "+QIOPEN");
-    if (str == NULL)
+    sscanf(str,"+QIOPEN: %d,%d%s", &conid, &err, tmpbuf);
+    if(err != 0 || conid != id)
     {
-        if(with_force)
-        {
-            send_sock_cmd(host, port_i, service_type);
-        }
-        else
-        {
-            AT_LOG("open socket failed");
-            return AT_FAILED;
-        }
-    }
-    sscanf(str,"+QIOPEN: %d,%d%s",&conid,&err,tmpbuf);//¡°+QIOPEN: <connectID>,<err>
-    //AT_LOG("conid:%d err:%d",conid,err);
-    if(err != 0)
-    {
-        if(with_force)
-        {
-            conid = send_sock_cmd(host, port_i, service_type);
-        }
-        else
-        {
-            AT_LOG("open socket err:%d",err);
-            return AT_FAILED;
-        }
-
-    }
-    if (conid < 0)
-    {
-        AT_LOG("create socket failed");
+        AT_LOG("Create socket %d failed. ret %d, err:%d", id, conid, err);
+        (void)bg36_close_sock(conid);
+        at.linkid[id].usable = AT_LINK_UNUSE;
         return AT_FAILED;
     }
 
-    ret = bg36_alloc_sock(conid);
-    if (ret >= MAX_SOCK_NUM)
+    if (LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)
     {
-
-        AT_LOG("sock num exceeded,socket is %d", conid);
-        goto CLOSE_SOCk;
+        AT_LOG("init dataQueue failed!");
+        (void)bg36_close_sock(conid);
+        at.linkid[id].usable = AT_LINK_UNUSE;
+        return AT_FAILED;
     }
 
-    sockinfo[ret].socket = conid;
-    sockinfo[ret].used_flag = true;
-    AT_LOG("create socket success!\nsockid:%d ret:%d",conid,ret);
-    return ret;
+    sockinfo[id].used_flag = true;
+    AT_LOG("create socket %d success!",id);
 
-CLOSE_SOCk:
-    AT_LOG("create socket failed!\nsockid:%d ret:%d",conid,ret);
-    bg36_close_sock(conid);
-    return AT_FAILED;
-
+    return id;
 }
 
 int32_t bg36_bind(const int8_t * host, const int8_t *port, int32_t proto)
 {
-    AT_LOG("DIDNT go bind!");
-    return bg36_create_socket(host, port, proto, "TCP", 1);
+    return bg36_create_socket(host, port, proto, "TCP");
 }
 
 int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
 {
     char *cmd2 = "AT+QISTATE=1,";
     char cmd[64] = {0};
-    int ret;
-    ret = bg36_create_socket(host, port, proto, "TCP", 1);
-    if(ret < 0 || ret >= 11)
+    int sockid;
+    sockid = bg36_create_socket(host, port, proto, "TCP");
+    if(sockid < 0 || sockid >= MAX_BG36_SOCK_NUM)
     {
         return AT_FAILED;
     }
-    snprintf(cmd, 64, "%s%d\r", cmd2,sockinfo[ret].socket);
+    snprintf(cmd, 64, "%s%d\r", cmd2, sockid);
     bg36_cmd(cmd, strlen(cmd), "+QISTATE:", NULL, NULL);
-    return ret;
+    return sockid;
 }
 
 int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
 {
     char *cmd1 = "AT+QISEND=0,";
     char cmd[64] = {0};
-	if (id >= MAX_SOCK_NUM)
+	if (id < 0 || id >= MAX_BG36_SOCK_NUM)
     {
         AT_LOG("invalid args");
         return AT_FAILED;
     }
-    snprintf(cmd, 64,"%s%d%c",cmd1,(int)len,'\r');
+    snprintf(cmd, sizeof(cmd),"%s%d%c",cmd1,(int)len,'\r');
     (void)bg36_cmd(cmd, strlen(cmd), ">", NULL, NULL);
     bg36_cmd((char *)buf, len, "OK", NULL, NULL);
     return len;
 }
 
-int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout)
+static int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout)
 {
     int rlen =0;
     int copylen =0;
@@ -395,12 +244,12 @@ int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,
     QUEUE_BUFF  qbuf;
     UINT32 qlen = sizeof(QUEUE_BUFF);
 
-    if (id  >= MAX_SOCK_NUM)
+    if (id  >= MAX_BG36_SOCK_NUM)
     {
         AT_LOG("link id %d invalid", (int)id);
         return AT_FAILED;
     }
-    //AT_LOG("\n\ntimeout:%d\n\n",timeout);
+
     if (sockinfo[id].buf == NULL)
     {
         ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, timeout);
@@ -463,68 +312,61 @@ int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,
     }
 }
 
-int32_t bg36_recv(int32_t id , uint8_t  *buf, uint32_t len)
+static int32_t bg36_recv(int32_t id , uint8_t  *buf, uint32_t len)
 {
     return bg36_recv_timeout(id, buf, len, NULL, NULL, LOS_WAIT_FOREVER);
 }
 
-int32_t bg36_close(int32_t id)
+static int32_t bg36_close(int32_t id)
 {
-    char *cmd = "AT+QICLOSE=";
-    char cmd1[64] = {0};
     int ret;
-    snprintf(cmd1, 64,"%s%d\r",cmd,(int)id);
-    ret = bg36_cmd(cmd1, strlen(cmd1), "OK", NULL, NULL);
+
+    ret = bg36_close_sock((int)id);
     if(!ret)
     {
-        sockinfo[(id % MAX_BG36_SOCK_NUM)].used_flag = 0;
+        sockinfo[id].used_flag = false;
+        at.linkid[id].usable = false;
     }
     return ret;
 }
+
 static int32_t bg36_init(void)
 {
-    int ret = AT_OK;
     int rbuflen = 64;
     char inbuf[64] = {0};
     char tmpbuf[64] = {0};
     int creg = 0;
+    int i = 0;
 
     at.init(&at_user_conf);
     memset(&sockinfo, 0, sizeof(sockinfo));
-    memset(&data_ind_info, 0, sizeof(emtc_data_ind_info_s));
+
     at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), bg36_data_handler, bg36_cmd_match);
-    ret = bg36_cmd(ATI, strlen(ATI), "OK", NULL, NULL);
-    ret = bg36_cmd(ATE0, strlen(ATE0), "OK", NULL, NULL);
-    ret = bg36_cmd(CPIN, strlen(CPIN), "+CPIN: READY", NULL, NULL);
+    (void)bg36_cmd(ATI, strlen(ATI), "OK", NULL, NULL);
+    (void)bg36_cmd(ATE0, strlen(ATE0), "OK", NULL, NULL);
+    (void)bg36_cmd(CPIN, strlen(CPIN), "+CPIN: READY", NULL, NULL);
     while(1)
     {
-        ret = bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
-        //bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
-        if(strlen(inbuf)!=0)
+        (void)bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
+        if (strlen(inbuf)!=0)
+        {
             sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
-        AT_LOG("creg:%d", creg);
-        if(creg == 1)
-            break;
-        memset(inbuf, 0, 64);
+            AT_LOG("creg:%d", creg);
+            if (creg == 1)
+            {
+                break;
+            }
+        }
+        LOS_TaskDelay(100);
+        memset(inbuf, 0, sizeof(inbuf));
     }
 
-    bg36_close(0);
-    bg36_close(1);
-    bg36_close(2);
-    bg36_close(3);
-    bg36_close(4);
-    bg36_close(5);
-    bg36_close(6);
-    bg36_close(7);
-    bg36_close(8);
-    bg36_close(9);
-    bg36_close(10);
-    bg36_close(11);
-    ret = bg36_cmd(QIACTQUERY, strlen(QIACTQUERY), "OK", NULL, NULL);
+    for( i = 0; i < MAX_BG36_SOCK_NUM; i++)
+    {
+        bg36_close(i);
+    }
 
-    memset(inbuf, 0, 64);
-
-    return ret;
+    return bg36_cmd(QIACTQUERY, strlen(QIACTQUERY), "OK", NULL, NULL);
 }
 
 at_adaptor_api emtc_bg36_interface =
@@ -541,5 +383,3 @@ at_adaptor_api emtc_bg36_interface =
     .recv_cb = NULL,
     .deinit = NULL,
 };
-
-#endif
