@@ -802,9 +802,9 @@
           <GroupName>Driver_Frame</GroupName>
           <Files>
             <File>
-              <FileName>los_dev.c</FileName>
+              <FileName>uds_dev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\driver\los_dev.c</FilePath>
+              <FilePath>..\..\..\components\uds\uds_dev.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,6 +1,6 @@
-#include "i2c.h"
-#include "stdio.h"
-#include "driver/los_dev.h"
+
+#include "uds/uds_i2c.h"
+#include "uds/uds.h"
 #define SHT20_READ_ADDR   0X81
 #define SHT20_WRITE_ADDR  0x80
 #define SHT20_MEASURE_TEMP_CMD      0xE3
@@ -42,16 +42,15 @@ void demo_sht21_iic(void)
     uint16_t slave_add;
     
     
-    i2c_device_t i2c1;
+    i2c_init_t i2c1;
     i2c1.i2c_idx = DAL_I2C_ID1;
     i2c1.mode = DAL_I2C_MODE_MASTER;
     i2c1.freq_khz = DAL_FRE_100KHZ;//10khz		
     i2c1.s_add_size = DAL_I2C_7BIT_ADD;
-    i2c1.iotype = I2C_IO_MASTER_ORIGIN;
     
     los_dev_t device;
     los_driv_init();
-    uds_i2c_dev_setup("I2C1", (void *)&i2c1);
+    uds_i2c_dev_install("I2C1", (void *)&i2c1);
     
     device = los_dev_open("I2C1",0);
     if(!device)

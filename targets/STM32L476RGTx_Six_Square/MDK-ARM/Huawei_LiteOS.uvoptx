@@ -984,7 +984,7 @@
 
   <Group>
     <GroupName>OS_Depends</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1243,8 +1243,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\driver\los_dev.c</PathWithFileName>
-      <FilenameWithoutPath>los_dev.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\components\uds\uds_dev.c</PathWithFileName>
+      <FilenameWithoutPath>uds_dev.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -32,8 +32,8 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __DEVICE_H
-#define __DEVICE_H
+#ifndef __UDS_DEV_H
+#define __UDS_DEV_H
 
 #include <los_config.h>
 

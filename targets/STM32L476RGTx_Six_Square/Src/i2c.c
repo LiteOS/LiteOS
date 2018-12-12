@@ -1,8 +1,20 @@
 
-#include "i2c.h"
+#include "uds/uds_i2c.h"
+#include "uds/uds.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_i2c.h"
+#include "string.h"
 
+struct i2c_device_s
+{
+    i2c_init_t               i2c_init;
+    dal_i2c_iotype           iotype;
+    u16_t                    slave_read_add;
+    u16_t                    slave_write_add;
+    u16_t                    mem_add;
+    dal_i2c_memadd_size      mem_size;
+};
+typedef struct i2c_device_s i2c_device_t;
 
 
 I2C_HandleTypeDef s_i2c1;
@@ -10,7 +22,8 @@ I2C_HandleTypeDef s_i2c2;
 I2C_HandleTypeDef s_i2c3;
 I2C_HandleTypeDef *i2cx;
 
-
+extern void free(void *ptr);
+extern void *malloc(size_t size);
 void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -66,7 +79,7 @@ static s32_t dal_i2c_set_slaveAdd(i2c_device_t *device,uint16_t slave_add)
  
     uint8_t ret;
     
-    switch (device->i2c_idx)
+    switch (device->i2c_init.i2c_idx)
     {
     case 1:
         i2cx = &s_i2c1;
@@ -114,7 +127,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
 {
     int8_t ret;
 
-    switch (device->i2c_idx)
+    switch (device->i2c_init.i2c_idx)
     {
     case 1:
         i2cx = &s_i2c1;
@@ -130,7 +143,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
 
     }
     
-    switch (device->freq_khz)
+    switch (device->i2c_init.freq_khz)
     {
     case DAL_FRE_10KHZ:
         i2cx->Init.Timing = 0x00008BFF;
@@ -183,7 +196,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
 */
 static s32_t dal_i2c_master_read(i2c_device_t *device,uint16_t slave_add, uint8_t *data, uint16_t length, uint32_t timeout)
 {
-    switch (device->i2c_idx )
+    switch (device->i2c_init.i2c_idx )
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Master_Receive(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
@@ -220,7 +233,7 @@ static s32_t dal_i2c_master_read(i2c_device_t *device,uint16_t slave_add, uint8_
 
 static s32_t dal_i2c_master_write(i2c_device_t *device,uint16_t slave_add, uint8_t *data, uint16_t length,uint32_t timeout)
 {
-    switch (device->i2c_idx )
+    switch (device->i2c_init.i2c_idx )
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Master_Transmit(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
@@ -255,7 +268,7 @@ static s32_t dal_i2c_master_write(i2c_device_t *device,uint16_t slave_add, uint8
 */
 static s32_t dal_i2c_slave_read(i2c_device_t *device,uint8_t *data, uint16_t length, uint32_t timeout)
 {
-    switch (device->i2c_idx )
+    switch (device->i2c_init.i2c_idx )
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Slave_Receive(&s_i2c1, data, length, timeout) == HAL_OK)
@@ -289,7 +302,7 @@ static s32_t dal_i2c_slave_read(i2c_device_t *device,uint8_t *data, uint16_t len
 */
 static s32_t dal_i2c_slave_write(i2c_device_t *device,uint8_t *data, uint16_t length, uint32_t timeout)
 {
-    switch (device->i2c_idx )
+    switch (device->i2c_init.i2c_idx )
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Slave_Transmit(&s_i2c1, data, length, timeout) == HAL_OK)
@@ -324,7 +337,7 @@ static s32_t dal_i2c_slave_write(i2c_device_t *device,uint8_t *data, uint16_t le
 
 static s32_t dal_i2c_master_mem_read(i2c_device_t *device,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout)
 {
-    switch (device->i2c_idx )
+    switch (device->i2c_init.i2c_idx )
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Mem_Read(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
@@ -357,7 +370,7 @@ static s32_t dal_i2c_master_mem_read(i2c_device_t *device,uint16_t slave_add,uin
 
 static s32_t dal_i2c_master_mem_write(i2c_device_t *device,uint16_t slave_add,uint16_t mem_add,dal_i2c_memadd_size mem_add_size,uint8_t *data,uint16_t size,uint32_t timeout)
 {
-    switch (device->i2c_idx)
+    switch (device->i2c_init.i2c_idx)
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Mem_Write(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
@@ -494,7 +507,7 @@ static bool_t dal_init(void *pri)
     HAL_StatusTypeDef ret;
     i2c_device_t *device = (i2c_device_t *)pri;
     
-    switch (device->i2c_idx)
+    switch (device->i2c_init.i2c_idx)
     {
     case DAL_I2C_ID1:
         i2cx = &s_i2c1;
@@ -512,7 +525,7 @@ static bool_t dal_init(void *pri)
         return -1;
     }
     
-    switch (device->freq_khz)
+    switch (device->i2c_init.freq_khz)
     {
     case DAL_FRE_10KHZ:
         i2cx->Init.Timing = 0x00008BFF;
@@ -531,8 +544,8 @@ static bool_t dal_init(void *pri)
         break;
     }
 
-    i2cx->Init.OwnAddress1     = device->slave_add;
-    if(device->s_add_size)
+    i2cx->Init.OwnAddress1     = device->i2c_init.slave_add;
+    if(device->i2c_init.s_add_size)
         i2cx->Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
     else
         i2cx->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -567,7 +580,7 @@ static void dal_deinit(void *pri)
 {
     i2c_device_t *device = (i2c_device_t *)pri;
 
-    switch (device->i2c_idx)
+    switch (device->i2c_init.i2c_idx)
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_DeInit(&s_i2c1) != HAL_OK)
@@ -586,12 +599,14 @@ static void dal_deinit(void *pri)
         break;
     default:
         break;
-    } 
+    }
+
+    free(device);
 }
 
 
 
-static los_driv_op_t uds_opt = {
+static uds_driv_op_t uds_opt = {
     .open     = dal_i2c_open,
     .read     = dal_i2c_read,
     .write    = dal_i2c_write,
@@ -601,9 +616,13 @@ static los_driv_op_t uds_opt = {
     .deinit   = dal_deinit,
 };
 
-bool_t uds_i2c_dev_setup(const char *name, void *pri)
+bool_t uds_i2c_dev_install(const char *name, void *pri)
 {
-    if(!los_driv_register(name,&uds_opt,pri,0))
+    i2c_device_t *device = (i2c_device_t *)malloc(sizeof(i2c_device_t));
+    memset(device, 0, sizeof(i2c_device_t));
+
+    memcpy(&device->i2c_init,pri,sizeof(i2c_init_t));
+    if(!uds_driv_register(name,&uds_opt,pri,0))
     {
         return -1;
     }

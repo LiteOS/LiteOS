@@ -35,7 +35,7 @@
 //this file implement the device driver 
 #include <stdio.h>
 #include <stdlib.h>
-#include <driver/los_dev.h>
+#include "uds/uds_dev.h"
 
 #if LOSCFG_ENABLE_DRIVER
 
