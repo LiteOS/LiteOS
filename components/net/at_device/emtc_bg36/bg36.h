@@ -36,7 +36,6 @@
 #define __EMTC_BG36_H__
 
 #include "at_frame/at_main.h"
-#define IP_LEN              16
 #define AT_MODU_NAME        "BG36"
 #define AT_USART_PORT       3
 #define AT_BUARDRATE        115200

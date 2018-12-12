@@ -673,6 +673,7 @@ int32_t at_struct_init(at_task *at)
         AT_LOG("malloc for at linkid array failed!");
         goto malloc_linkid_failed;
     }
+    memset(at->linkid, 0, at_user_conf.linkid_num * sizeof(at_link));
 
     at->head = NULL;
     at->mux_mode = at_user_conf.mux_mode;
