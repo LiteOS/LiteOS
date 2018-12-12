@@ -40,6 +40,7 @@
 #include "at_device/bc95.h"
 #include "usart.h"
 #include "dal_usart.h"
+#include "hal_flash.h"
 
 static UINT32 g_atiny_tskHandle;
 
@@ -90,6 +91,7 @@ void atiny_usart1_rx_entry(void)
 static void usart_recv_callback(uint32_t port, uint8_t *buf, uint32_t len)
 {
     dal_usart_send(port, buf, len);
+    printf("\n");
 }
 
 static void dal_usart_test(void)
@@ -125,9 +127,11 @@ void atiny_task_entry(void)
 	extern void demo_nbiot_only();
 	extern void demo_sht21_iic(void);
 	extern void demo_gpio (void);
+	extern int fs_test_main(void);
     //demo_nbiot_only();
 	
 	dal_usart_test();
+    //fs_test_main();
 	//need to initializes UART1 for printf function.
 	//demo_gpio();
 	//demo_sht21_iic();
