@@ -36,11 +36,12 @@ float SHT20_Convert(uint16_t value,uint8_t isTemp)
 void demo_sht21_iic(void)
 {
     uint8_t cmd;
-    s32_t ret;	 
+    s32_t ret;
     uint16_t data_raw_temp,data_raw_rh;
     volatile float temp =0 ;
     uint8_t pDATA[3] = {0,0,0};
     uint16_t slave_add;
+    dal_i2c_iotype io_type;
     
     
     i2c_init_t i2c1;
@@ -56,6 +57,9 @@ void demo_sht21_iic(void)
     device = uds_dev_open("I2C1",0);
     if(!device)
         while(1); 
+        
+    io_type   = I2C_IO_MASTER_ORIGIN;
+    uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&slave_add,sizeof(uint16_t));
     
     slave_add = SHT20_WRITE_ADDR;
     uds_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));
