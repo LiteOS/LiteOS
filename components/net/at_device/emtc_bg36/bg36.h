@@ -36,12 +36,11 @@
 #define __EMTC_BG36_H__
 
 #include "at_frame/at_main.h"
-#define IP_LEN 16
+#define IP_LEN              16
 #define AT_MODU_NAME        "BG36"
 #define AT_USART_PORT       3
 #define AT_BUARDRATE        115200
-#define BG36_TIMEOUT      10000    //ms
-#define AT_MAX_LINK_NUM     4
+#define BG36_TIMEOUT        10000    //ms
 #define MAX_AT_USERDATA_LEN (1024*4)
 
 #define AT_LINE_END 		"\r"
@@ -49,18 +48,11 @@
 
 typedef struct emtc_socket_info_t
 {
-    int socket;
     int len;
-    //short localport;
-    //char localip[IP_LEN];
-    //short remoteport;
-    //char remoteip[IP_LEN];
-
     int offset;
-    bool used_flag;
     char *buf;
-
-}emtc_socket_info;//struct to save socket info
+    bool used_flag;
+}emtc_socket_info;
 
 
 #define ATI "ATI\r"
@@ -81,5 +73,6 @@ typedef struct emtc_socket_info_t
 #define QIOPEN_SOCKET "AT+QIOPEN=1"
 #define QUERYCFATT "AT+CGATT?\r"
 #define AT_DATAF_PREFIX "+QIURC:"
-#define QPING "AT+QPING=1,\"202.105.205.54\"\r"//"AT+QPING=1,\"10.10.14.3\"\r"
+//#define QPING "AT+QPING=1,\"10.10.14.3\"\r"
+
 #endif
