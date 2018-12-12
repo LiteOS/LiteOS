@@ -73,6 +73,5 @@ typedef struct emtc_socket_info_t
 #define QIOPEN_SOCKET "AT+QIOPEN=1"
 #define QUERYCFATT "AT+CGATT?\r"
 #define AT_DATAF_PREFIX "+QIURC:"
-//#define QPING "AT+QPING=1,\"10.10.14.3\"\r"
 
 #endif

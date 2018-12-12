@@ -80,14 +80,13 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
 
     while(offset < len)
     {
-        p1 = strstr((char *)(buf+offset), "recv");
+        p1 = strnstr((char *)(buf+offset), "recv",strlen("recv"));
         if (p1 == NULL)
         {
             AT_LOG("no buf or buf has been handle, offset:%ld len:%ld",offset, len);
             return AT_OK;
         }
         p1 += strlen("\"recv\"");
-        AT_LOG("p1:%s",p1);
         sockid = chartoint(p1+1);
 
         if (sockid >= MAX_BG36_SOCK_NUM || sockinfo[sockid].used_flag == false)
@@ -349,8 +348,6 @@ static int32_t bg36_init(void)
     while(1)
     {
         (void)bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
-        //bg36_cmd(CSQ, strlen(CSQ), "OK", NULL, NULL);
-        //bg36_cmd(QPING, strlen(QPING), "OK", NULL, NULL);
         if (strlen(inbuf)!=0)
         {
             sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
