@@ -35,7 +35,8 @@ float SHT20_Convert(uint16_t value,uint8_t isTemp)
 
 void demo_sht21_iic(void)
 {
-    uint8_t ret,cmd;
+    uint8_t cmd;
+    s32_t ret;	 
     uint16_t data_raw_temp,data_raw_rh;
     volatile float temp =0 ;
     uint8_t pDATA[3] = {0,0,0};
@@ -48,29 +49,29 @@ void demo_sht21_iic(void)
     i2c1.freq_khz = DAL_FRE_100KHZ;//10khz		
     i2c1.s_add_size = DAL_I2C_7BIT_ADD;
     
-    los_dev_t device;
-    los_driv_init();
+    uds_driv_t device;
+    uds_driv_init();
     uds_i2c_dev_install("I2C1", (void *)&i2c1);
     
-    device = los_dev_open("I2C1",0);
+    device = uds_dev_open("I2C1",0);
     if(!device)
         while(1); 
     
     slave_add = SHT20_WRITE_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));
+    uds_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));
 
     slave_add = SHT20_READ_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+    uds_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
         
     while (1)
     {
         cmd = SHT20_MEASURE_TEMP_CMD;
-        ret = los_dev_write(device,0,&cmd,1,10000);
-        if(ret == 0)
+        ret = uds_dev_write(device,0,&cmd,1,10000);
+        if(ret == -1)
             while(1);
-        ret = los_dev_read(device,0,&cmd,1,10000);
-        ret = los_dev_read(device,0,pDATA,3,10000);
-        if(ret == 0)
+        ret = uds_dev_read(device,0,&cmd,1,10000);
+        ret = uds_dev_read(device,0,pDATA,3,10000);
+        if(ret == -1)
             while(1);
         data_raw_temp = pDATA[0];
         data_raw_temp <<= 8;
@@ -79,11 +80,11 @@ void demo_sht21_iic(void)
         printf("temp = %.1f \r\n",temp);
         temp = 0;
         cmd = SHT20_MEASURE_RH_CMD;
-        ret = los_dev_write(device,0,&cmd,1,10000);
-        if(ret == 0)
+        ret = uds_dev_write(device,0,&cmd,1,10000);
+        if(ret == -1)
             while(1);
-        //ret = los_dev_read(device,0,pDATA,3,10000);
-        if(ret == 0)
+        ret = uds_dev_read(device,0,pDATA,3,10000);
+        if(ret == -1)
             while(1);
         data_raw_rh = pDATA[0];
         data_raw_rh <<= 8;
