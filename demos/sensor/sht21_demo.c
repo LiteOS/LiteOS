@@ -13,12 +13,12 @@
 //******************************************************************************
 // fn : SHT20_Convert
 //
-// brief : ½«Ô­Ê¼µÄADÖµ×ª³ÉÏàÓ¦µÄÎÂ¶ÈÖµÓëÊª¶ÈÖµ
+// brief : å°†åŽŸå§‹çš„ADå€¼è½¬æˆç›¸åº”çš„æ¸©åº¦å€¼ä¸Žæ¹¿åº¦å€¼
 //
-// param : value-> adÖµ
-//         isTemp-> >0 ÎÂ¶ÈÖµ£¬=0 Êª¶ÈÖµ
+// param : value-> adå€¼
+//         isTemp-> >0 æ¸©åº¦å€¼ï¼Œ=0 æ¹¿åº¦å€¼
 //
-// return : Ö±¹ÛµÄÎÂ¶ÈÖµ
+// return : ç›´è§‚çš„æ¸©åº¦å€¼
 float SHT20_Convert(uint16_t value,uint8_t isTemp)
 {
   float tmp = 0.0;
@@ -36,11 +36,12 @@ float SHT20_Convert(uint16_t value,uint8_t isTemp)
 void demo_sht21_iic(void)
 {
     uint8_t cmd;
-    s32_t ret;	 
+    s32_t ret;
     uint16_t data_raw_temp,data_raw_rh;
     volatile float temp =0 ;
     uint8_t pDATA[3] = {0,0,0};
     uint16_t slave_add;
+
     dal_i2c_iotype iotype;
     dal_frequence fre;
     
@@ -57,6 +58,9 @@ void demo_sht21_iic(void)
     device = uds_dev_open("I2C1",2);
     if(!device)
         while(1); 
+        
+    io_type   = I2C_IO_MASTER_ORIGIN;
+    uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&slave_add,sizeof(uint16_t));
     
 	
 
