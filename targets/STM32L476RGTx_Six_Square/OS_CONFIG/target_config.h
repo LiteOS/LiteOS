@@ -479,6 +479,19 @@ extern "C" {
 #define LOSCFG_BASE_MISC_TRACK_MAX_COUNT                    1024
 
 
+/*=============================================================================
+                                       VFS module configuration
+=============================================================================*/
+
+/**
+ * @ingroup los_config
+ * Configuration item for enabling LiteOS VFS
+ */
+#ifndef LOSCFG_ENABLE_VFS
+#define LOSCFG_ENABLE_VFS                                   YES
+#endif
+
+
 #ifdef __cplusplus
 #if __cplusplus
 }

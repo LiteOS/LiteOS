@@ -91,7 +91,7 @@ static s32_t dal_i2c_set_slaveAdd(i2c_device_t *device,uint16_t slave_add)
         i2cx = &s_i2c3;
         break;
     default:
-        return -1;
+        return -UDS_ERROR;
 
     }
     i2cx->Init.OwnAddress1     = slave_add;
@@ -111,9 +111,9 @@ static s32_t dal_i2c_set_slaveAdd(i2c_device_t *device,uint16_t slave_add)
 
 
     if(ret == HAL_OK)
-        return 0;
+        return UDS_OK;
     else 
-        return -1;
+        return UDS_ERROR;
 }
 
 
@@ -125,7 +125,7 @@ static s32_t dal_i2c_set_slaveAdd(i2c_device_t *device,uint16_t slave_add)
 */
 static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
 {
-    int8_t ret;
+    HAL_StatusTypeDef ret;
 
     switch (device->i2c_init.i2c_idx)
     {
@@ -139,7 +139,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
         i2cx = &s_i2c3;
         break;
     default:
-        return -1;
+        return -UDS_ERROR;
 
     }
     
@@ -158,7 +158,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
         i2cx->Init.Timing = 0x00000000;
         break;
     default:
-        return -1;
+        return -UDS_ERROR;
     }
 
     ret = HAL_I2C_Init(i2cx);
@@ -178,9 +178,9 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
     
 
     if(ret == HAL_OK)
-        return 0;
+        return UDS_OK;
     else 
-        return -1;
+        return -UDS_ERROR;
   
 }
 
@@ -199,23 +199,23 @@ static s32_t dal_i2c_master_read(i2c_device_t *device,uint16_t slave_add, uint8_
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Master_Receive(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Master_Receive(&s_i2c2, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Master_Receive(&s_i2c3, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
-    return -1;
+    return -UDS_ERROR;
 
 }
 
@@ -236,24 +236,24 @@ static s32_t dal_i2c_master_write(i2c_device_t *device,uint16_t slave_add, uint8
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Master_Transmit(&s_i2c1, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Master_Transmit(&s_i2c2, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Master_Transmit(&s_i2c3, slave_add, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
 
-    return -1;
+    return -UDS_ERROR;
 }
 
 
@@ -271,23 +271,23 @@ static s32_t dal_i2c_slave_read(i2c_device_t *device,uint8_t *data, uint16_t len
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Slave_Receive(&s_i2c1, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Slave_Receive(&s_i2c2, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Slave_Receive(&s_i2c3, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
-    return -1;
+    return -UDS_ERROR;
 }
 
 
@@ -305,19 +305,19 @@ static s32_t dal_i2c_slave_write(i2c_device_t *device,uint8_t *data, uint16_t le
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Slave_Transmit(&s_i2c1, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Slave_Transmit(&s_i2c2, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Slave_Transmit(&s_i2c3, data, length, timeout) == HAL_OK)
-            return 0;
+            return length;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
@@ -340,23 +340,23 @@ static s32_t dal_i2c_master_mem_read(i2c_device_t *device,uint16_t slave_add,uin
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Mem_Read(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Mem_Read(&s_i2c2, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Mem_Read(&s_i2c3, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
-    return -1;
+    return -UDS_ERROR;
 }
 
 
@@ -373,24 +373,24 @@ static s32_t dal_i2c_master_mem_write(i2c_device_t *device,uint16_t slave_add,ui
     {
     case DAL_I2C_ID1:
         if(HAL_I2C_Mem_Write(&s_i2c1, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID2:
         if(HAL_I2C_Mem_Write(&s_i2c2, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     case DAL_I2C_ID3:
         if(HAL_I2C_Mem_Write(&s_i2c3, slave_add, mem_add, mem_add_size, data, size, timeout) == HAL_OK)
-            return 0;
+            return size;
         else
-            return -1;
+            return -UDS_ERROR;
     default:
         break;
     }
 
-    return -1;
+    return -UDS_ERROR;
 }
 
 static s32_t dal_i2c_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
@@ -412,6 +412,7 @@ static s32_t dal_i2c_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeo
             device->mem_add,device->mem_size, buf,len, timeout);
         break;
     default:
+        result = -UDS_ERROR;
         break;    
     }
 
@@ -437,6 +438,7 @@ static s32_t  dal_i2c_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t tim
             device->mem_add,device->mem_size, buf,len, timeout);
         break;
     default:
+        result = -UDS_ERROR;
         break;    
     }
 
@@ -444,9 +446,9 @@ static s32_t  dal_i2c_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t tim
 }
 
 
-static bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
+static s32_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
 {
-    bool_t result = true;
+    s32_t result = UDS_OK;
     i2c_device_t *device = (i2c_device_t *)pri; 
     switch(cmd)
     {
@@ -472,6 +474,7 @@ static bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
         device->mem_size = *(dal_i2c_memadd_size *)para;
         break;
      default:
+        result = -UDS_ERROR;
         break;
     }
 
@@ -484,9 +487,9 @@ static bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
 * @retval 1:success
           0:fail
 */
-static bool_t dal_i2c_open(void *pri, s32_t flag)
+static s32_t dal_i2c_open(void *pri, s32_t flag)
 {
-    return true;
+    return UDS_OK;
 }
 
 
@@ -501,7 +504,7 @@ static void dal_i2c_close(void *pri)
     
 }
 
-static bool_t dal_init(void *pri)
+static s32_t dal_init(void *pri)
 {
     HAL_StatusTypeDef ret;
     i2c_device_t *device = (i2c_device_t *)pri;
@@ -521,7 +524,7 @@ static bool_t dal_init(void *pri)
         i2cx->Instance = I2C3;
         break;
     default:
-        return -1;
+        return -UDS_ERROR;
     }
     
     switch (device->i2c_init.freq_khz)
@@ -568,9 +571,9 @@ static bool_t dal_init(void *pri)
     
 
     if(ret == HAL_OK)
-        return true;
+        return UDS_OK;
     else 
-        return false;
+        return -UDS_ERROR;
 
      
 }
@@ -615,7 +618,7 @@ static uds_driv_op_t uds_opt = {
     .deinit   = dal_deinit,
 };
 
-bool_t uds_i2c_dev_install(const char *name, void *pri)
+s32_t uds_i2c_dev_install(const char *name, void *pri)
 {
     i2c_device_t *device = (i2c_device_t *)malloc(sizeof(i2c_device_t));
     memset(device, 0, sizeof(i2c_device_t));
@@ -623,9 +626,9 @@ bool_t uds_i2c_dev_install(const char *name, void *pri)
     memcpy(&device->i2c_init,pri,sizeof(i2c_init_t));
     if(!uds_driv_register(name,&uds_opt,pri,0))
     {
-        return -1;
+        return -UDS_ERROR;
     }
-    return 0;
+    return UDS_OK;
 }
 
 
