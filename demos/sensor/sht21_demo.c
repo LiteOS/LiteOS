@@ -42,6 +42,7 @@ void demo_sht21_iic(void)
     uint8_t pDATA[3] = {0,0,0};
     uint16_t slave_add;
     dal_i2c_iotype iotype;
+	dal_frequence fre;
     
     i2c_init_t i2c1;
     i2c1.i2c_idx = DAL_I2C_ID1;
@@ -57,14 +58,31 @@ void demo_sht21_iic(void)
     if(!device)
         while(1); 
     
+	
+	
     iotype = I2C_IO_MASTER_ORIGIN;
     los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
 	
+		
 	slave_add = SHT20_WRITE_ADDR;
     los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
 	
 	slave_add = SHT20_READ_ADDR;
     los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+	
+	fre = DAL_FRE_400KHZ;//
+    los_dev_ioctl(device,I2C_SET_FREQUENCY,(void *)&fre,sizeof(uint16_t)); //set master read/write mode.
+	
+	iotype = I2C_IO_MASTER_ORIGIN;
+    los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
+	
+		
+	slave_add = SHT20_WRITE_ADDR;
+    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
+	
+	slave_add = SHT20_READ_ADDR;
+    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+	
     while (1)
     {
         
