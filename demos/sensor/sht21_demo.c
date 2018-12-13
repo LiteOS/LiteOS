@@ -59,8 +59,8 @@ void demo_sht21_iic(void)
     if(!device)
         while(1); 
         
-    iotype   = I2C_IO_MASTER_ORIGIN;
-    uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&slave_add,sizeof(uint16_t));
+    //iotype   = I2C_IO_MASTER_ORIGIN;
+    //uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&slave_add,sizeof(uint16_t));
     
 
 
