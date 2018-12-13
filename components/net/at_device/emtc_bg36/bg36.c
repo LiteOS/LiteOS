@@ -67,22 +67,6 @@ static int bg36_close_sock(int sockid)
     return bg36_cmd(buf, cmd_len, "OK", NULL,NULL);
 }
 
-static char *strnstr(const char *s1, const char *s2, size_t len)
-{
-    size_t l2;
-
-    l2 = strlen(s2);
-    if (!l2)
-        return (char *)s1;
-    while (len >= l2) {
-        len--;
-        if (!memcmp(s1, s2, l2))
-            return (char *)s1;
-        s1++;
-    }
-    return NULL;
-}
-
 //Direct Push Mode
 int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
 {
@@ -96,7 +80,7 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
 
     while(offset < len)
     {
-        p1 = strnstr((char *)(buf+offset), "recv",strlen("recv"));
+        p1 = strstr((char *)(buf+offset), "recv");
         if (p1 == NULL)
         {
             AT_LOG("no buf or buf has been handle, offset:%ld len:%ld",offset, len);
