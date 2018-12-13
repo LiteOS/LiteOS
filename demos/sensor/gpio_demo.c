@@ -1,58 +1,88 @@
-#include "dal_gpio.h"
+#include "uds_gpio.h"
+#include "uds/uds.h"
 #include "stdio.h"
 
-dal_gpio_init_t wakeup;
-dal_gpio_init_t led;
+
+
+
+uds_gpio_init_t wakeup;
+uds_gpio_init_t led;
+
 
 /*
-void dal_exti0_callback(void)
-{
+void uds_exti0_callback(void)
+{ 
 	uint8_t ret = 1;
-	ret = dal_gpio_read_input_pin(&wakeup);
-  printf("wakeup level is %d \r\n",ret);
-  printf("hello world.\r\n");
+	u8_t data;
+	printf("enter EXTI 0.\r\n");
+    
+    ret = los_dev_read(&wakeup,0,&data,0,0);
+    printf("wakeup level is %d \r\n",ret);
+   
  
 }
 */
 
 
+
 void demo_gpio (void)
 {
-	volatile uint8_t ret;
- 
-	wakeup.gpio_port_num = DAL_GPIO_A;
-	wakeup.gpio_pin_num = DAL_PIN_0;
-	wakeup.gpio_mode = DAL_GPIO_IT_RISING_FALLING;
-	wakeup.dal_PreemptionPriority = 0;
-	wakeup.dal_SubPriority = 0;
-	
-	
-	led.gpio_port_num = DAL_GPIO_C;
-	led.gpio_pin_num = DAL_PIN_11;
-	led.gpio_mode = DAL_GPIO_OUTPUT_OD;
-	led.gpio_pull = DAL_GPIO_NOPULL;
+    s32_t ret;
+	u8_t data;
+    u32_t cmd;
 
-  dal_gpio_init(&wakeup);
-	dal_gpio_init(&led);
-	
-	dal_gpio_clear_output_pin(&led);
-	ret = dal_gpio_read_output_pin(&led);
-	printf("led level is %d \r\n",ret);
-	
-	osDelay(1000);
-	
-	dal_gpio_set_output_pin(&led);
-	ret = dal_gpio_read_output_pin(&led);
-	printf("led level is %d \r\n",ret);
-	
-	while (1)
-  {
-			dal_gpio_toggle_output_pin(&led);
-		  osDelay(1000);
-		  ret = dal_gpio_read_input_pin(&wakeup);
-	    printf("wakeup level is %d \r\n",ret);
-			ret = dal_gpio_read_output_pin(&led);
-	    printf("led level is %d \r\n",ret);
-  }
+    wakeup.gpio_port_num = UDS_GPIO_A;
+    wakeup.gpio_pin_num = UDS_PIN_0;
+    wakeup.gpio_mode = UDS_GPIO_IT_RISING_FALLING;
+    wakeup.uds_PreemptionPriority = 0;
+    wakeup.uds_SubPriority = 0;
+
+
+    led.gpio_port_num = UDS_GPIO_C;
+    led.gpio_pin_num = UDS_PIN_11;
+    led.gpio_mode = UDS_GPIO_OUTPUT_OD;
+    led.gpio_pull = UDS_GPIO_NOPULL;
+
+    uds_driv_t device_wakeup;
+    uds_driv_t device_led;
+    uds_driv_init();
+    uds_gpio_dev_install("gpio_wakeup", (void *)&wakeup);
+    uds_gpio_dev_install("gpio_led", (void *)&led);
+
+    device_wakeup = uds_dev_open("gpio_wakeup",2);
+    if(!device_wakeup)
+        while(1); 
+    device_led = uds_dev_open("gpio_led",2);
+    if(!device_led)
+        while(1); 
+
+
+    cmd = GPIO_CLEAR_PIN;
+    los_dev_ioctl(device_led,cmd,NULL,0);
+    ret = los_dev_read(device_led,0,&data,1,0);
+    if(!ret)
+        printf("led level is %d \r\n",data);
+
+    osDelay(1000);
+
+    cmd = GPIO_SET_PIN;
+    los_dev_ioctl(device_led,cmd,NULL,0);
+    ret = los_dev_read(device_led,0,&data,1,0);
+    if(!ret)
+        printf("led level is %d \r\n",data);
+
+
+    while (1)
+    {
+		cmd = GPIO_TOGGLE_PIN;
+        los_dev_ioctl(device_led,cmd,NULL,0);
+        osDelay(1000);
+        ret = los_dev_read(device_wakeup,0,&data,1,0);
+        if(!ret)
+            printf("wakeup level is %d \r\n",data);
+        ret = los_dev_read(device_led,0,&data,1,0);
+        if(!ret)
+            printf("led level is %d \r\n",data);
+     }
 
 }
