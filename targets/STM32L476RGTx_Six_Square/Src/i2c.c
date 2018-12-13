@@ -143,7 +143,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
 
     }
     
-    switch (device->i2c_init.freq_khz)
+    switch (freq_khz)
     {
     case DAL_FRE_10KHZ:
         i2cx->Init.Timing = 0x00008BFF;
@@ -158,8 +158,7 @@ static s32_t dal_i2c_set_frequency(i2c_device_t *device,dal_frequence freq_khz)
         i2cx->Init.Timing = 0x00000000;
         break;
     default:
-        i2cx->Init.Timing = 0x00000E14;
-        break;
+        return -1;
     }
 
     ret = HAL_I2C_Init(i2cx);
@@ -451,7 +450,7 @@ static bool_t dal_i2c_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
     i2c_device_t *device = (i2c_device_t *)pri; 
     switch(cmd)
     {
-    case I2C_SET_SLAVE_ADDRESS:
+     case I2C_SET_SLAVE_ADDRESS:
         result = dal_i2c_set_slaveAdd(device, *(uint16_t *)para);
         break;
      case I2C_SET_FREQUENCY:

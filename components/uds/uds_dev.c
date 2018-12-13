@@ -31,7 +31,6 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
 //this file implement the device driver 
 #include <stdio.h>
 #include <stdlib.h>
@@ -582,8 +581,3 @@ OSSHELL_EXPORT_CMD(__driv_show_shell,"devlst","devlst");
 #endif
 
 #endif
-
-
-
-
-
