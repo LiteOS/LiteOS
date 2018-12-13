@@ -64,7 +64,23 @@ static int bg36_close_sock(int sockid)
     int cmd_len;
 
     cmd_len = snprintf(buf, sizeof(buf), "%s%d\r", cmd, sockid);
-    return bg36_cmd((int8_t*)buf, cmd_len, "OK", NULL,NULL);
+    return bg36_cmd(buf, cmd_len, "OK", NULL,NULL);
+}
+
+char *strnstr(const char *s1, const char *s2, size_t len)
+{
+    size_t l2;
+
+    l2 = strlen(s2);
+    if (!l2)
+        return (char *)s1;
+    while (len >= l2) {
+        len--;
+        if (!memcmp(s1, s2, l2))
+            return (char *)s1;
+        s1++;
+    }
+    return NULL;
 }
 
 //Direct Push Mode
@@ -151,6 +167,7 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     int conid, err;
     char* str = NULL;
     int id;
+    int ret;
     char cmd[64] = {0};
 
     AT_LOG("port:%s\r\n", port);
@@ -178,8 +195,8 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
         return AT_FAILED;
     }
 
-    sscanf(str,"+QIOPEN: %d,%d%s", &conid, &err, tmpbuf);
-    if(err != 0 || conid != id)
+    ret = sscanf(str,"+QIOPEN: %d,%d%s", &conid, &err, tmpbuf);
+    if(ret != 3 || err != 0 || conid != id)
     {
         AT_LOG("Create socket %d failed. ret %d, err:%d", id, conid, err);
         (void)bg36_close_sock(conid);
@@ -216,8 +233,8 @@ int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
     {
         return AT_FAILED;
     }
-    snprintf(cmd, 64, "%s%d\r", cmd2, sockid);
-    bg36_cmd(cmd, strlen(cmd), "+QISTATE:", NULL, NULL);
+    (void)snprintf(cmd, 64, "%s%d\r", cmd2, sockid);
+    (void)bg36_cmd(cmd, strlen(cmd), "+QISTATE:", NULL, NULL);
     return sockid;
 }
 
@@ -225,14 +242,25 @@ int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
 {
     char *cmd1 = "AT+QISEND=0,";
     char cmd[64] = {0};
+    int ret;
 	if (id < 0 || id >= MAX_BG36_SOCK_NUM)
     {
         AT_LOG("invalid args");
         return AT_FAILED;
     }
-    snprintf(cmd, sizeof(cmd),"%s%d%c",cmd1,(int)len,'\r');
-    (void)bg36_cmd(cmd, strlen(cmd), ">", NULL, NULL);
+    (void)snprintf(cmd, sizeof(cmd),"%s%d%c",cmd1,(int)len,'\r');
+    ret = bg36_cmd(cmd, strlen(cmd), ">", NULL, NULL);
+    if(ret)
+    {
+        AT_LOG("socket invalid");
+        return AT_FAILED;
+    }
     bg36_cmd((char *)buf, len, "OK", NULL, NULL);
+    if(ret)
+    {
+        AT_LOG("data send failed");
+        return AT_FAILED;
+    }
     return len;
 }
 
@@ -337,6 +365,7 @@ static int32_t bg36_init(void)
     char tmpbuf[64] = {0};
     int creg = 0;
     int i = 0;
+    int ret;
 
     at.init(&at_user_conf);
     memset(&sockinfo, 0, sizeof(sockinfo));
@@ -350,8 +379,11 @@ static int32_t bg36_init(void)
         (void)bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
         if (strlen(inbuf)!=0)
         {
-            sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
-            AT_LOG("creg:%d", creg);
+            ret = sscanf(inbuf,"\r\n+CGATT: %d\r\n%s",&creg,tmpbuf);
+            if(ret == -1)
+            {
+                continue;
+            }
             if (creg == 1)
             {
                 break;
