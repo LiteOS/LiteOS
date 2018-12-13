@@ -1,4 +1,4 @@
-#include "uds_gpio.h"
+#include "uds/uds_gpio.h"
 #include "uds/uds.h"
 #include "stdio.h"
 
@@ -9,19 +9,6 @@ uds_gpio_init_t wakeup;
 uds_gpio_init_t led;
 
 
-/*
-void uds_exti0_callback(void)
-{ 
-	uint8_t ret = 1;
-	u8_t data;
-	printf("enter EXTI 0.\r\n");
-    
-    ret = los_dev_read(&wakeup,0,&data,0,0);
-    printf("wakeup level is %d \r\n",ret);
-   
- 
-}
-*/
 
 
 
@@ -60,7 +47,7 @@ void demo_gpio (void)
     cmd = GPIO_CLEAR_PIN;
     los_dev_ioctl(device_led,cmd,NULL,0);
     ret = los_dev_read(device_led,0,&data,1,0);
-    if(!ret)
+    if(ret)
         printf("led level is %d \r\n",data);
 
     osDelay(1000);
@@ -68,7 +55,7 @@ void demo_gpio (void)
     cmd = GPIO_SET_PIN;
     los_dev_ioctl(device_led,cmd,NULL,0);
     ret = los_dev_read(device_led,0,&data,1,0);
-    if(!ret)
+    if(ret)
         printf("led level is %d \r\n",data);
 
 
@@ -78,10 +65,10 @@ void demo_gpio (void)
         los_dev_ioctl(device_led,cmd,NULL,0);
         osDelay(1000);
         ret = los_dev_read(device_wakeup,0,&data,1,0);
-        if(!ret)
+        if(ret)
             printf("wakeup level is %d \r\n",data);
         ret = los_dev_read(device_led,0,&data,1,0);
-        if(!ret)
+        if(ret)
             printf("led level is %d \r\n",data);
      }
 

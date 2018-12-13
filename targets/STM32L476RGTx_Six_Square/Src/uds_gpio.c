@@ -1,5 +1,6 @@
+#include "stm32l4xx_hal.h"
 #include "uds/uds.h"
-#include "uds_gpio.h"
+#include "uds/uds_gpio.h"
 #include "stdio.h"
 
 extern void free(void *ptr);
@@ -57,9 +58,9 @@ s32_t uds_gpio_set_output_pin(gpio_device_t *device)
             HAL_GPIO_WritePin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)), GPIO_PIN_SET);
             break;
         default:
-            return -1;
+            return -UDS_ERROR;
      }
-    return 0;
+    return UDS_OK;
  
 }
 
@@ -101,9 +102,9 @@ s32_t uds_gpio_clear_output_pin(gpio_device_t *device)
             HAL_GPIO_WritePin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)), GPIO_PIN_RESET);
             break;
         default:
-            return -1;
+            return -UDS_ERROR;
     }  
-    return 0;
+    return UDS_OK;
 }
 
 /**
@@ -141,9 +142,9 @@ s32_t uds_gpio_toggle_output_pin(gpio_device_t *device)
             HAL_GPIO_TogglePin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)));
             break;
         default:
-            return -1;
+            return -UDS_ERROR;
     }  
-    return 0;
+    return UDS_OK;
 }
 
 /**
@@ -160,30 +161,30 @@ s32_t uds_gpio_read_input_pin(gpio_device_t *device, u8_t *data)
     {
         case 0:
            *data = HAL_GPIO_ReadPin(GPIOA, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 1:
            *data = HAL_GPIO_ReadPin(GPIOB, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 2:
            *data = HAL_GPIO_ReadPin(GPIOC, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 3:
            *data = HAL_GPIO_ReadPin(GPIOD, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 4:
            *data = HAL_GPIO_ReadPin(GPIOE, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 5:
            *data = HAL_GPIO_ReadPin(GPIOF, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 6:
            *data = HAL_GPIO_ReadPin(GPIOG, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 7:
            *data = HAL_GPIO_ReadPin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         default:
-           return -1;
+           return -UDS_ERROR;
     }
 	
 }
@@ -226,30 +227,30 @@ s32_t uds_gpio_read_output_pin(gpio_device_t *device,u8_t *data)
     {
         case 0:
            *data = HAL_GPIO_ReadOutputPin(GPIOA, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 1:
            *data = HAL_GPIO_ReadOutputPin(GPIOB, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 2:
            *data = HAL_GPIO_ReadOutputPin(GPIOC, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 3:
            *data = HAL_GPIO_ReadOutputPin(GPIOD, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 4:
            *data = HAL_GPIO_ReadOutputPin(GPIOE, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 5:
            *data = HAL_GPIO_ReadOutputPin(GPIOF, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 6:
            *data = HAL_GPIO_ReadOutputPin(GPIOG, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         case 7:
            *data = HAL_GPIO_ReadOutputPin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)));
-           return 0;
+           return UDS_OK;
         default:
-           return -1;
+           return -UDS_ERROR;
     }
 	
 }
@@ -258,7 +259,7 @@ s32_t uds_gpio_read_output_pin(gpio_device_t *device,u8_t *data)
 
 static bool_t uds_gpio_open(void *pri, s32_t flag)
 {
-    return true;
+    return UDS_OK;
 }
 
 
@@ -312,7 +313,7 @@ static bool_t uds_gpio_init(void *pri)
             mode = GPIO_MODE_IT_RISING_FALLING;
             break;
         default:
-            return -1;
+            return -UDS_ERROR;
     
     }
     switch (device_init->gpio_init.gpio_port_num)
@@ -399,7 +400,7 @@ static bool_t uds_gpio_init(void *pri)
             HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
             break;
         default:
-            return -1;
+            return -UDS_ERROR;
               
     }
     if(device_init->gpio_init.gpio_mode >= 3)
@@ -444,10 +445,10 @@ static bool_t uds_gpio_init(void *pri)
                     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
                     break;
                 default:
-                    return -1;
+                    return -UDS_ERROR;
             }
         }
-        return 1;
+        return UDS_OK;
 }
 
 
@@ -506,9 +507,9 @@ static s32_t uds_gpio_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t time
             result = uds_gpio_read_output_pin(device,buf);
             break;
         default:
-            break;
+            return -UDS_ERROR;
     }
-    return result;
+    return 1;
 }
 
 static s32_t  uds_gpio_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
@@ -549,8 +550,9 @@ static bool_t uds_gpio_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
         case GPIO_CLEAR_PIN:
             result = uds_gpio_clear_output_pin((gpio_device_t *)pri);
             break;
-        default:
-            break;
+		default:
+            result = -UDS_ERROR;
+        break;
     }
     return result;
 }
@@ -574,9 +576,9 @@ bool_t uds_gpio_dev_install(const char *name, void *pri)
     memcpy(&device->gpio_init,pri,sizeof(uds_gpio_init_t));
     if(!uds_driv_register(name,&uds_opt,pri,0))
     {
-        return -1;
+        return -UDS_ERROR;
     }
-    return 0;
+    return UDS_OK;
 }
 
 
@@ -592,7 +594,7 @@ void uds_exti0_callback(void)
     printf("enter PIN0 IT.\r\n");
     
     ret = uds_gpio_read(&wakeup,0,&data,0,0);
-    if(!ret)
+    if(ret)
         printf("wakeup level is %d \r\n",data);
     
  
