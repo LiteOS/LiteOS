@@ -36,30 +36,19 @@
 #define _DAL_USART_H
 
 #include <stdint.h>
+#include "uds/uds_usart.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-typedef struct
-{
-    uint32_t port;          // the USART port
-    uint32_t baudrate;      // the USART communication baud rate
-    uint32_t word_length;   // the number of data bits transmitted or received in a frame
-    uint32_t stop_bits;     // the number of stop bits transmitted
-    uint32_t parity;        // the parity mode
-    uint32_t mode;          // whether the Receive or Transmit mode is enabled or disabled
-    uint32_t flow_ctrl;     // whether the hardware flow control mode is enabled or disabled
-    uint32_t over_sampling; // whether the Over sampling 8 is enabled or disabled
-} dal_usart_config;
-
 /**
   * @brief  Initializes the USART mode according to the specified parameters
   * @param  cfg: the USART port configuration
   * @retval 0 on success, or -1 on error
   */
-int32_t dal_usart_init(dal_usart_config *cfg);
+int32_t dal_usart_init(uds_usart_cfg *cfg);
 
 /**
   * @brief  DeInitializes the USART peripheral.
@@ -73,9 +62,10 @@ int32_t dal_usart_deinit(uint32_t port);
   * @param  port: the USART port
   * @param  buf: Pointer to data buffer
   * @param  len: Amount of data to be sent
+  * @param  timeout: Timeout duration, (uint32_t)-1 for WAIT FOREVER
   * @retval 0 on success, or -1 on error
   */
-int32_t dal_usart_send(uint32_t port, uint8_t *buf, uint32_t len);
+int32_t dal_usart_send(uint32_t port, uint8_t *buf, uint32_t len, uint32_t timeout);
 
 /**
   * @brief  Receives an amount of data in blocking mode.
@@ -88,26 +78,17 @@ int32_t dal_usart_send(uint32_t port, uint8_t *buf, uint32_t len);
 int32_t dal_usart_recv(uint32_t port, uint8_t *buf, uint32_t len, uint32_t timeout);
 
 /**
-  * @brief  Receives an amount of data in blocking mode.
-  * @param  port: the USART port
-  * @param  buf: Pointer to data buffer
-  * @param  len: Amount of data to be received
-  * @retval none
-  */
-typedef void (*dal_usart_recv_callback)(uint32_t port, uint8_t *buf, uint32_t len);
-
-/**
   * @brief  Set recv callback.
   * @param  port: the USART port
   * @param  cb: Callback for receiving data, NULL to disable it
   * @param  break_type: Break type
-  * @param  break_condition:
+  * @param  break_cond:
   *             specify the number of bytes to report when break_type is 1
   *             specify the terminator char when break_type is 2
   * @retval 0 on success, or -1 on error
   */
-int32_t dal_set_usart_recv_callback(uint32_t port, dal_usart_recv_callback cb,
-                                                int32_t break_type, int32_t break_condition);
+int32_t dal_set_usart_recv_callback(uint32_t port, uds_usart_recv_callback cb,
+                                                int32_t break_type, int32_t break_cond);
 
 
 #ifdef __cplusplus
