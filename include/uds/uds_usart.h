@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,27 +32,56 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __UDS_H
-#define __UDS_H
+#ifndef _UDS_USART_H
+#define _UDS_USART_H
 
-#include "uds_dev.h"
+#include <stdint.h>
+#include "osdepends/osport.h"
 
-#define uds_driv_t           los_driv_t
-#define uds_driv_op_t        los_driv_op_t
-
-#define uds_driv_init        los_driv_init
-#define uds_driv_register    los_driv_register
-#define uds_driv_event       los_driv_event
-
-#define uds_dev_open         los_dev_open
-#define uds_dev_read         los_dev_read
-#define uds_dev_write        los_dev_write
-#define uds_dev_close        los_dev_close
-#define uds_dev_ioctl        los_dev_ioctl
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-#endif  //end for the file
+typedef struct
+{
+    uint32_t port;          // the USART port
+    uint32_t baudrate;      // the USART communication baud rate
+    uint32_t word_length;   // the number of data bits transmitted or received in a frame
+    uint32_t stop_bits;     // the number of stop bits transmitted
+    uint32_t parity;        // the parity mode
+    uint32_t mode;          // whether the Receive or Transmit mode is enabled or disabled
+    uint32_t flow_ctrl;     // whether the hardware flow control mode is enabled or disabled
+    uint32_t over_sampling; // whether the Over sampling 8 is enabled or disabled
+} uds_usart_cfg;
+
+/**
+  * @brief  the recv callback for interrupt mode
+  * @param  port: the USART port
+  * @param  buf: Pointer to data buffer
+  * @param  len: Amount of data to be received
+  * @retval none
+  */
+typedef void (*uds_usart_recv_callback)(uint32_t port, uint8_t *buf, uint32_t len);
+
+typedef struct
+{
+    uds_usart_recv_callback cb;
+    int32_t break_type;
+    int32_t break_cond;
+} uds_usart_cb_cfg;
+
+typedef enum
+{
+    USART_SET_RECV_CALLBACK,    // Set the recv callback for interrupt mode
+    USART_CLR_RECV_CALLBACK     // Clear the recv callback
+} uds_usart_cmd;
+
+s32_t uds_usart_dev_install(const char *name, void *para);
 
 
-
+#ifdef __cplusplus
+}
+#endif
+#endif /* _UDS_USART_H */
 
