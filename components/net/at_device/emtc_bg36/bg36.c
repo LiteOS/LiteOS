@@ -180,9 +180,9 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     }
 
     ret = sscanf(str,"+QIOPEN: %d,%d%s", &conid, &err, tmpbuf);
-    if(ret != 3 || err != 0 || conid != id)
+    if(ret == -1 || err != 0 || conid != id)
     {
-        AT_LOG("Create socket %d failed. ret %d, err:%d", id, conid, err);
+        AT_LOG("Create socket %d failed. conid:%d, ret %d, err:%d", id, conid, ret, err);
         (void)bg36_close_sock(conid);
         at.linkid[id].usable = AT_LINK_UNUSE;
         return AT_FAILED;
@@ -239,7 +239,7 @@ int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
         AT_LOG("socket invalid");
         return AT_FAILED;
     }
-    bg36_cmd((char *)buf, len, "OK", NULL, NULL);
+    ret = bg36_cmd((char *)buf, len, "OK", NULL, NULL);
     if(ret)
     {
         AT_LOG("data send failed");
