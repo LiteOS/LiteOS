@@ -1028,9 +1028,10 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     int rc;
     char* topic;
 
-    if ((phandle == NULL) || ((msg == NULL) && (msg_len == 0)))
+    if ((phandle == NULL) || ((msg == NULL) && (msg_len > 0))
+        || (qos >= MQTT_QOS_MAX))
     {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
+        ATINY_LOG(LOG_FATAL, "Parameter invalid");
         return ATINY_ARG_INVALID;
     }
 
@@ -1048,7 +1049,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     memset(&message, 0, sizeof(message));
     message.qos = (enum QoS)qos;
     message.payload = (void *)msg;
-    message.payloadlen = msg_len;
+    message.payloadlen = strnlen(msg, msg_len);
     rc = MQTTPublish(&phandle->client, topic, &message);
     atiny_free(topic);
     if (rc != MQTT_SUCCESS)
