@@ -67,6 +67,17 @@ extern "C" {
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
 #endif
 
+/* MQTT retry connection delay interval. The delay inteval is
+(MQTT_CONN_FAILED_BASE_DELAY << MIN(coutinious_fail_count, MQTT_CONN_FAILED_MAX_TIMES)) */
+#ifndef MQTT_CONN_FAILED_MAX_TIMES
+#define MQTT_CONN_FAILED_MAX_TIMES  6
+#endif
+
+/*The unit is millisecond*/
+#ifndef MQTT_CONN_FAILED_BASE_DELAY
+#define MQTT_CONN_FAILED_BASE_DELAY 1000
+#endif
+
 /* deviceReq data msg jason format example to server
 {
         "msgType":      "deviceReq",
