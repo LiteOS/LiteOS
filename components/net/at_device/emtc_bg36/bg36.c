@@ -224,15 +224,15 @@ int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
 
 int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
 {
-    char *cmd1 = "AT+QISEND=0,";
+    char *cmd1 = "AT+QISEND=";
     char cmd[64] = {0};
     int ret;
 	if (id < 0 || id >= MAX_BG36_SOCK_NUM)
     {
-        AT_LOG("invalid args");
+        AT_LOG("invalid sockid");
         return AT_FAILED;
     }
-    (void)snprintf(cmd, sizeof(cmd),"%s%d%c",cmd1,(int)len,'\r');
+    (void)snprintf(cmd, sizeof(cmd),"%s%d,%d%c",cmd1, (int)id, (int)len,'\r');
     ret = bg36_cmd(cmd, strlen(cmd), ">", NULL, NULL);
     if(ret)
     {
@@ -339,6 +339,22 @@ static int32_t bg36_close(int32_t id)
         sockinfo[id].used_flag = false;
         at.linkid[id].usable = false;
     }
+    do
+    {
+        QUEUE_BUFF	qbuf = {0};
+        UINT32 qlen = sizeof(QUEUE_BUFF);
+        ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, 0);
+        if (ret == LOS_OK && qbuf.addr != NULL)
+        {
+            at_free(qbuf.addr);
+        }
+    }while(ret == LOS_OK);
+    ret = LOS_QueueDelete(at.linkid[id].qid);
+    if (ret != LOS_OK)
+    {
+        AT_LOG("LOS_QueueDelete failed, ret is %d!,qid %d", ret, at.linkid[id].qid);
+    }
+
     return ret;
 }
 
