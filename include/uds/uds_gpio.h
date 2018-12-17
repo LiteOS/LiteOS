@@ -105,7 +105,7 @@ typedef struct gpio_device_s gpio_device_t;
 //extern s32_t uds_gpio_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
 //extern s32_t  uds_gpio_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
 
-bool_t uds_i2c_dev_install(const char *name, void *pri);
+bool_t uds_gpio_dev_install(const char *name, void *pri);
 
 
 

@@ -446,6 +446,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\uds_gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>uds_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\uds_timer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -780,6 +785,11 @@
               <FileName>sht21_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\demos\sensor\sht21_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\sensor\timer_demo.c</FilePath>
             </File>
           </Files>
         </Group>
