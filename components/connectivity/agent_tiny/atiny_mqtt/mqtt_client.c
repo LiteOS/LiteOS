@@ -44,9 +44,6 @@
 #include "cJSON.h"
 #include "hmac.h"
 
-#define MQTT_CONN_FAILED_MAX_TIMES (6)
-#define MQTT_CONN_FAILED_BASE_DELAY (1000)
-
 #define MQTT_VERSION_3_1 (3)
 #define MQTT_VERSION_3_1_1 (4)
 
@@ -56,14 +53,9 @@
 #define SECRET_NOTIFY_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretNotify"
 #define SECRET_ACK_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretACK"
 
-
-
-
 #define MQTT_TIME_BUF_LEN 11
 
 #define IS_VALID_NAME_LEN(name) (strnlen((name), STRING_MAX_LEN + 1) <= STRING_MAX_LEN)
-
-
 
 typedef enum
 {
