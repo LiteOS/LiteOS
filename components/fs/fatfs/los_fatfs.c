@@ -77,8 +77,11 @@ static int ret_to_errno(FRESULT result)
     case FR_OK:
         return 0;
 
-    case FR_NO_FILE:
     case FR_NO_PATH:
+        err = ENOTDIR;
+        break;
+
+    case FR_NO_FILE:
         err = ENOENT;
         break;
 
@@ -118,9 +121,12 @@ static int ret_to_errno(FRESULT result)
         err = EROFS;
         break;
 
-    case FR_DENIED:
     case FR_LOCKED:
-        err = EACCES;
+    	err = EBUSY;
+    	break;
+
+    case FR_DENIED:
+        err = EISDIR;
         break;
 
     case FR_MKFS_ABORTED:
@@ -362,6 +368,7 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
         off += f_size(fp);
         break;
     default:
+    	ret_to_errno(FR_INVALID_PARAMETER);
         return -1;
     }
 

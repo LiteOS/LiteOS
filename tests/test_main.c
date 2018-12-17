@@ -31,61 +31,29 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "main.h"
 #include "sys_init.h"
-#include "agent_tiny_demo.h"
-#if defined WITH_AT_FRAMEWORK
-#include "at_api_interface.h"
-#if defined USE_NB_NEUL95
-#include "los_nb_api.h"
-#endif
-#endif
-UINT32 g_TskHandle;
-
-void USART3_UART_Init(void);
-VOID HardWare_Init(VOID)
-{
-    SystemClock_Config();
-    Debug_USART1_UART_Init();
-    hal_rng_config();
-    dwt_delay_init(SystemCoreClock);
-}
-
-extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
-
-VOID main_task(VOID)
-{
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
-    hieth_hw_init();
-    //net_init();
-#elif defined(WITH_AT_FRAMEWORK) && (defined(USE_ESP8266) || defined(USE_SIM900A))
-    extern at_adaptor_api at_interface;
-    at_api_register(&at_interface);
+#if defined(WITH_LWIP)
+#include "../../../test_agenttiny/test_agenttiny.h"
 #endif
 
-    extern int agenttiny_test_main(void);
-    extern int fs_test_main(void);
-    //agenttiny_test_main();
-    fs_test_main();
-}
+static UINT32 g_atiny_tskHandle;
+static UINT32 g_fs_tskHandle;
+static UINT32 g_sota_tskHandle;
 
-
-UINT32 creat_main_task()
+UINT32 creat_fs_test_task(void)
 {
     UINT32 uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
-    task_init_param.usTaskPrio = 0;
-    task_init_param.pcName = "main_task";
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)main_task;
+    task_init_param.usTaskPrio = 2;
+    task_init_param.pcName = "fs_test_main";
+    extern int fs_test_main(void);
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_test_main;
 
-#ifdef CONFIG_FEATURE_FOTA
-    task_init_param.uwStackSize = 0x2000; /* fota use mbedtls bignum to verify signature  consuming more stack  */
-#else
+
     task_init_param.uwStackSize = 0x1000;
-#endif
 
-    uwRet = LOS_TaskCreate(&g_TskHandle, &task_init_param);
+    uwRet = LOS_TaskCreate(&g_fs_tskHandle, &task_init_param);
     if(LOS_OK != uwRet)
     {
         return uwRet;
@@ -93,30 +61,76 @@ UINT32 creat_main_task()
     return uwRet;
 }
 
-int main(void)
+UINT32 creat_sota_test_task(void)
 {
     UINT32 uwRet = LOS_OK;
-    HardWare_Init();
+    TSK_INIT_PARAM_S task_init_param;
 
-    uwRet = LOS_KernelInit();
-    if (uwRet != LOS_OK)
+    task_init_param.usTaskPrio = 2;
+    task_init_param.pcName = "sota_test_main";
+    extern int sota_test_main(void);
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)sota_test_main;
+
+
+    task_init_param.uwStackSize = 0x3000;
+
+    uwRet = LOS_TaskCreate(&g_sota_tskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
     {
-        return LOS_NOK;
+        return uwRet;
     }
+    return uwRet;
+}
 
-#if defined(USE_PPPOS)
-    #include "osport.h"
-    extern void uart_init(void);  //this uart used for the pppos interface
-    uart_init();
-    extern VOID *main_ppp(UINT32  args);
-    task_create("main_ppp",main_ppp,0x800,NULL,NULL,0);
-#else
-    uwRet = creat_main_task();
+UINT32 creat_agenttiny_test_task(void)
+{
+    UINT32 uwRet = LOS_OK;
+    TSK_INIT_PARAM_S task_init_param;
+
+    task_init_param.usTaskPrio = 2;
+    task_init_param.pcName = "agenttiny_test_main";
+    extern void test_agenttiny(void);
+    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)test_agenttiny;
+
+    task_init_param.uwStackSize = 0x3000;
+
+    uwRet = LOS_TaskCreate(&g_atiny_tskHandle, &task_init_param);
+    if(LOS_OK != uwRet)
+    {
+        return uwRet;
+    }
+    return uwRet;
+}
+
+int demo_cmockery_test(void)
+{
+    UINT32 uwRet = LOS_OK;
+#if (defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2))
+
+    uwRet = creat_fs_test_task();
     if (uwRet != LOS_OK)
     {
-        return LOS_NOK;
+    	return LOS_NOK;
     }
 #endif
-    (void)LOS_Start();
-    return 0;
+
+#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95_NO_ATINY) && defined(WITH_SOTA)
+
+    uwRet = creat_sota_test_task();
+    if (uwRet != LOS_OK)
+    {
+    	return LOS_NOK;
+    }
+#endif
+
+#if defined(WITH_LWIP) && (!defined(USE_NB_NEUL95_NO_ATINY))
+
+    uwRet = creat_agenttiny_test_task();
+    if (uwRet != LOS_OK)
+    {
+    	return LOS_NOK;
+    }
+#endif
+
+    return uwRet;
 }
