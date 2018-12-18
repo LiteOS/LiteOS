@@ -54,6 +54,7 @@ emtc_socket_info sockinfo[MAX_BG36_SOCK_NUM];
 
 int bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
 {
+    AT_LOG("bg36 cmd:%s len:%d",cmd, (int)len);
 	return at.cmd((int8_t *)cmd, len, suffix, resp_buf, resp_len);
 }
 
@@ -148,10 +149,11 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     int rbuflen = 64;
     char inbuf[64] = {0};
     char tmpbuf[32] = {0};
-    int conid, err;
+    int conid = 0;
+    int err = 0;
     char* str = NULL;
-    int id;
-    int ret;
+    int id = 0;
+    int ret = 0;
     char cmd[64] = {0};
 
     AT_LOG("port:%s\r\n", port);
@@ -163,7 +165,7 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     }
 
     id = at.get_id();
-    if (id >= MAX_BG36_SOCK_NUM || sockinfo[id].used_flag == true)
+    if (id >= MAX_BG36_SOCK_NUM)
     {
         AT_LOG("sock num exceeded,socket is %d", id);
         return AT_FAILED;
@@ -174,7 +176,7 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     str = strstr(inbuf, "+QIOPEN");
     if (str == NULL)
     {
-        AT_LOG("sock num exceeded,socket is %d", id);
+        AT_LOG("QIOPEN no reply, sockid:%d", id);
         at.linkid[id].usable = AT_LINK_UNUSE;
         return AT_FAILED;
     }
@@ -320,7 +322,7 @@ static int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* 
             }
         }
 
-        return copylen;
+        return rlen;
     }
 }
 
@@ -332,6 +334,8 @@ static int32_t bg36_recv(int32_t id , uint8_t  *buf, uint32_t len)
 static int32_t bg36_close(int32_t id)
 {
     int ret;
+    QUEUE_BUFF  qbuf = {0};
+    UINT32 qlen = sizeof(QUEUE_BUFF);
 
     ret = bg36_close_sock((int)id);
     if(!ret)
@@ -339,16 +343,21 @@ static int32_t bg36_close(int32_t id)
         sockinfo[id].used_flag = false;
         at.linkid[id].usable = false;
     }
+    if(sockinfo[id].buf != NULL)
+    {
+        at_free(sockinfo[id].buf);
+    }
+
     do
     {
-        QUEUE_BUFF	qbuf = {0};
-        UINT32 qlen = sizeof(QUEUE_BUFF);
+        qbuf.addr = NULL;
         ret = LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, 0);
         if (ret == LOS_OK && qbuf.addr != NULL)
         {
             at_free(qbuf.addr);
         }
     }while(ret == LOS_OK);
+
     ret = LOS_QueueDelete(at.linkid[id].qid);
     if (ret != LOS_OK)
     {
