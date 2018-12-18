@@ -44,9 +44,6 @@
 #include "cJSON.h"
 #include "hmac.h"
 
-#define MQTT_CONN_FAILED_MAX_TIMES (6)
-#define MQTT_CONN_FAILED_BASE_DELAY (1000)
-
 #define MQTT_VERSION_3_1 (3)
 #define MQTT_VERSION_3_1_1 (4)
 
@@ -56,14 +53,9 @@
 #define SECRET_NOTIFY_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretNotify"
 #define SECRET_ACK_TOPIC_FMT "/huawei/v1/products/%s/sn/%s/secretACK"
 
-
-
-
 #define MQTT_TIME_BUF_LEN 11
 
 #define IS_VALID_NAME_LEN(name) (strnlen((name), STRING_MAX_LEN + 1) <= STRING_MAX_LEN)
-
-
 
 typedef enum
 {
@@ -1036,9 +1028,10 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     int rc;
     char* topic;
 
-    if ((phandle == NULL) || ((msg == NULL) && (msg_len == 0)))
+    if ((phandle == NULL) || (msg == NULL) || (msg_len <= 0)
+        || (qos >= MQTT_QOS_MAX))
     {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
+        ATINY_LOG(LOG_FATAL, "Parameter invalid");
         return ATINY_ARG_INVALID;
     }
 
@@ -1056,7 +1049,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     memset(&message, 0, sizeof(message));
     message.qos = (enum QoS)qos;
     message.payload = (void *)msg;
-    message.payloadlen = msg_len;
+    message.payloadlen = strnlen(msg, msg_len);
     rc = MQTTPublish(&phandle->client, topic, &message);
     atiny_free(topic);
     if (rc != MQTT_SUCCESS)
