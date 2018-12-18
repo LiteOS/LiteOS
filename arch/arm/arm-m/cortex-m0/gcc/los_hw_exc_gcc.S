@@ -59,9 +59,9 @@
     .extern osExcHandleEntry
     .extern g_uwExcTbl
     .extern g_bTaskScheduled
-	.extern it_is_memManangeFault
-	.extern it_is_busFault
-	.extern it_is_usageFault
+    .extern it_is_memManangeFault
+    .extern it_is_busFault
+    .extern it_is_usageFault
 
 /****************************************************************************************
                                   EQU
@@ -89,8 +89,8 @@
 .equ OS_NVIC_SHCSRS,                 0xE000ED24
 .equ OS_NVIC_SHCSR_MASK,             0xC00          /*SYSTICKACT and PENDSVACT*/
 
-.equ ADDR_SETPEND,				    0XE000E200		/*the addr of setpend register*/
-.equ ADDR_CLRPEND,				    0XE000E280		/*the addr of clrpend register*/
+.equ ADDR_SETPEND,                    0XE000E200        /*the addr of setpend register*/
+.equ ADDR_CLRPEND,                    0XE000E280        /*the addr of clrpend register*/
 .equ ADDR_SETENA,                   0XE000E100
 .equ EXC_RETURN_NEST,                0XFFFFFFF1      /*return to some irq_handler*/
 /****************************************************************************************
@@ -127,7 +127,7 @@ HardFault_Handler:
      * save fault type to R0
      */
     MOVS  R0, #OS_EXC_CAUSE_HARDFAULT
-	B  osExcDispatch
+    B  osExcDispatch
 
 
     /**
@@ -136,11 +136,11 @@ HardFault_Handler:
 osExcDispatch:
 
     LDR  R2, =ADDR_SETPEND
-	LDR  R2, [R2]
-	LDR  R3,=0X40
-	LSLS R3,R3,#0X18
-	SUBS R3,R3,#1  /*R3 =0011 1111 1111 1111 1111 1111 1111 1111 filter the highest active 2 bits error*/
-	ANDS  R2,R2,R3
+    LDR  R2, [R2]
+    LDR  R3,=0X40
+    LSLS R3,R3,#0X18
+    SUBS R3,R3,#1  /*R3 =0011 1111 1111 1111 1111 1111 1111 1111 filter the highest active 2 bits error*/
+    ANDS  R2,R2,R3
     LDR  R3,=ADDR_SETENA
     LDR  R3,[R3]
     ANDS R2,R2,R3  /*if an interrupt is enabled and active ,it is a nomal exception ,otherwise,it should be ignored*/
@@ -160,8 +160,8 @@ __set_R2_33:
     B _NoFloatInMsp
 
 __second_judge:
-	CMP R2,#0
-	BEQ _whether_in_initialization				/*jump when no external interrupt occurred*/
+    CMP R2,#0
+    BEQ _whether_in_initialization                /*jump when no external interrupt occurred*/
 
     /**
      * Interrupts and initialization phase always use MSP.
@@ -179,33 +179,33 @@ _ExcInMSP:
      *
      */
 _NoFloatInMsp:
-	CMP R2,#0		/*check r2 ,find the phase interrupts occurred*/
-	BEQ __11
-	MOVS R1,#0x2f	/*in interrupt phase ,r1=47*/
-	LSLS R0,R0,#8
-	ORRS R0,R0,R1	/*make r1 available*/
-	B __12
+    CMP R2,#0        /*check r2 ,find the phase interrupts occurred*/
+    BEQ __11
+    MOVS R1,#0x2f    /*in interrupt phase ,r1=47*/
+    LSLS R0,R0,#8
+    ORRS R0,R0,R1    /*make r1 available*/
+    B __12
 __11:
-	MOVS R1,#0		/*in initialization phase r1=0*/
-	LSLS R0,R0,#8
-	ORRS R0,R0,R1	/* make r1 available */
+    MOVS R1,#0        /*in initialization phase r1=0*/
+    LSLS R0,R0,#8
+    ORRS R0,R0,R1    /* make r1 available */
 __12:
     ADD   R3, R13, #32                  /*#32: skip [R0-R3,R12,LR,PC,xPSR]*/
     PUSH  {R3}                          /*push [SAVED_SP]: MSP+32 = Stack pointer in MSP before entering the exception*/
     MRS   R12, PRIMASK
-	MOV R3,R12
-	PUSH {R3}
-	MOV R3,R11
-	PUSH {R3}
-	MOV R3,R10
-	PUSH {R3}
-	MOV R3,R9
-	PUSH {R3}
-	MOV R3,R8
-	PUSH {R3}
-	PUSH {R7}
-	PUSH {R6}
-	PUSH {R5}
+    MOV R3,R12
+    PUSH {R3}
+    MOV R3,R11
+    PUSH {R3}
+    MOV R3,R10
+    PUSH {R3}
+    MOV R3,R9
+    PUSH {R3}
+    MOV R3,R8
+    PUSH {R3}
+    PUSH {R7}
+    PUSH {R6}
+    PUSH {R5}
     PUSH {R4}                      /*push R4-R11,PRIMASK to MSP in certain order*/
 
     B     _handleEntry
@@ -217,7 +217,7 @@ __12:
 _whether_in_initialization:
     LDR  R1, =g_bTaskScheduled
     LDR  R1, [R1]
-	MOVS R3,#1
+    MOVS R3,#1
     TST  R1,R3
     BEQ  _ExcInMSP                      /*initialization phase use MSP*/
 
@@ -235,40 +235,40 @@ _whether_in_initialization:
      * NOTE: stack frame: R0-R3,R12,LR,PC,xPSR.
      */
 _NoFloatInPsp:
-	MOVS R1,#1         /*in task ,r1 = 1 */
-	LSLS R0,R0,#8
-	ORRS R0,R0,R1	   /*make r1 available*/
+    MOVS R1,#1         /*in task ,r1 = 1 */
+    LSLS R0,R0,#8
+    ORRS R0,R0,R1       /*make r1 available*/
 
     MOV   R1, R13
     SUB   R13, #32                      /*#32: MSP reserved, used to store stack frame in PSP*/
 
     MRS   R3, PSP
 
-	ADDS   R3, R3, #32                  /*PSP+32 = Stack pointer of the task before entering the exception*/
+    ADDS   R3, R3, #32                  /*PSP+32 = Stack pointer of the task before entering the exception*/
 
-	PUSH  {R3}                          /*push task SP to MSP*/
-	MRS R3,PRIMASK
-	PUSH {R3}
-	MOV R3,R11
-	PUSH {R3}
-	MOV R3,R10
-	PUSH {R3}
-	MOV R3,R9
-	PUSH {R3}
-	MOV R3,R8
-	PUSH {R3}
-	PUSH {R7}
-	PUSH {R6}
-	PUSH {R5}
-	PUSH {R4}
+    PUSH  {R3}                          /*push task SP to MSP*/
+    MRS R3,PRIMASK
+    PUSH {R3}
+    MOV R3,R11
+    PUSH {R3}
+    MOV R3,R10
+    PUSH {R3}
+    MOV R3,R9
+    PUSH {R3}
+    MOV R3,R8
+    PUSH {R3}
+    PUSH {R7}
+    PUSH {R6}
+    PUSH {R5}
+    PUSH {R4}
 
-	MRS R3,PSP
+    MRS R3,PSP
     /* Copy stack frame from the stack of the current running task to MSP */
-	LDMIA R3!, {R4-R7}
-	SUBS R1,#0X20
-	STMIA R1!, {R4-R7}
-	LDMIA R3!, {R4-R7}
-	STMIA R1!, {R4-R7}
+    LDMIA R3!, {R4-R7}
+    SUBS R1,#0X20
+    STMIA R1!, {R4-R7}
+    LDMIA R3!, {R4-R7}
+    STMIA R1!, {R4-R7}
 
     /**
      * _handleEntry: Call osExcHandleEntry
@@ -279,8 +279,8 @@ _NoFloatInPsp:
      */
 _handleEntry:
     MOV R3, R13
-	MOV R1,R13
+    MOV R1,R13
     CPSID I
-	LDR R4,=osExcHandleEntry
-	MOV PC,R4
+    LDR R4,=osExcHandleEntry
+    MOV PC,R4
     NOP

@@ -127,7 +127,7 @@ LITE_OS_SEC_TEXT VOID osExcInfoDisplay(EXC_INFO_S *pstExc)
     {
         printf("%8x", pstExc->uwCallStack[i]);
     }
-	printf("\n");
+    printf("\n");
     return;
 }
 
@@ -206,7 +206,7 @@ LITE_OS_SEC_TEXT VOID osExcCallStackAnalysis(EXC_INFO_S *pstExc)
      */
      for (; uwSP < uwStackStartAddr + uwStackSize; uwSP += sizeof(UINT32*))
     {
-    	 uwLR = *(UINT32 *)uwSP;
+         uwLR = *(UINT32 *)uwSP;
 
         if (uwLR % 2 == 0)  /* Thumb instruction, LR bit0 == 1 */
         {
@@ -251,8 +251,8 @@ LITE_OS_SEC_TEXT VOID osExcHandleEntry(UINT32 uwExcType, UINT32 uwUsingSp, UINT3
     extern UINT32 g_vuwIntCount;
     g_vuwIntCount++;
 #endif
-	int tmp_type = uwExcType & 0x0000ff00;
-	tmp_type = tmp_type >> 8;
+    int tmp_type = uwExcType & 0x0000ff00;
+    tmp_type = tmp_type >> 8;
     /* Save interrupt nesting times */
     m_stExcInfo.usNestCnt = (UINT16)g_uwCurNestCount;
     /* uwExcType 8-15 bits: exc type */
