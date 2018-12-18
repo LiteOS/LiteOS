@@ -1028,7 +1028,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     int rc;
     char* topic;
 
-    if ((phandle == NULL) || ((msg == NULL) && (msg_len > 0))
+    if ((phandle == NULL) || (msg == NULL) || (msg_len <= 0)
         || (qos >= MQTT_QOS_MAX))
     {
         ATINY_LOG(LOG_FATAL, "Parameter invalid");
