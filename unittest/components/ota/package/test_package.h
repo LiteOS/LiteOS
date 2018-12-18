@@ -31,30 +31,34 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef TEST_FOTA_PACKAGE_CHECKSUM_H_
-#define TEST_FOTA_PACKAGE_CHECKSUM_H_
 
+#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
 #include <cpptest.h>
 #include "stub.h"
 
-class TestFotaPackageCheckSum:public Test::Suite{
+class TestPackage:public Test::Suite {
 public:
-    void test_fota_pack_checksum_create();
-    void test_fota_pack_checksum_delete();
-    void test_fota_pack_checksum_update_head();
-    void test_fota_pack_checksum_update_data();
-    void test_fota_pack_checksum_check();
-
-    TestFotaPackageCheckSum();
-    ~TestFotaPackageCheckSum();
-
+	
+	void test_pack_storage_write_software_end();
+	void test_pack_storage_write_software();
+	void test_pack_storage_active_software();
+	
+	void test_pack_get_device();
+	void test_pack_read_software();
+	void test_pack_init_device();
+	void test_pack_malloc();
+	
+    
+    TestPackage();
+    ~TestPackage();
+    
 protected:
     void tear_down();
     void setup();
-};
-
-
+	};
 #endif
-
-
-

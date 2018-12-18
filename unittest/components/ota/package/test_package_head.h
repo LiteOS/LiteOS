@@ -32,26 +32,37 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
-#define TEST_FOTA_PACKAGE_STORAGE_DEVICE_H_
+#ifndef TEST_FOTA_PACKAGE_HEAD_H_
+#define TEST_FOTA_PACKAGE_HEAD_H_
 
 #include <cpptest.h>
 #include "stub.h"
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <osdepends/atiny_osdep.h>
+#include "package_checksum.h"
 
-class TestFotaPackageStorageDivice:public Test::Suite {
+
+class TestPackageHead:public Test::Suite{
 public:
-    void test_fota_set_pack_device();
-    void test_fota_pack_storage_write_software_end();
-    void test_fota_pack_storage_write_software();
-    void test_fota_pack_storage_active_software();
-    void test_fota_pack_storage_get_software_result();
-    void test_fota_pack_storage_write_update_info();
-    void test_fota_pack_storage_read_update_info();
-    
-    
-    TestFotaPackageStorageDivice();
-    ~TestFotaPackageStorageDivice();
-    
+	void test_pack_head_init();
+	void test_pack_head_destroy();
+	void test_pack_head_parse_head_len();
+
+	void test_pack_head_parse();
+
+	void test_pack_head_check();
+	void test_pack_head_get_head_len();
+	void test_pack_head_get_head_info();
+	void test_pack_head_set_head_info();
+	void test_pack_head_get_checksum();
+	void test_pack_head_get_key();
+	
+    TestPackageHead();
+
+    ~TestPackageHead();
+
 protected:
     void tear_down();
     void setup();

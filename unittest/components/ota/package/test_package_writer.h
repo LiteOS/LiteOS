@@ -31,52 +31,30 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
-#ifndef TEST_OTA_DEFAULT_H_
-#define TEST_OTA_DEFAULT_H_
+#ifndef TEST_PACKAGE_WRITE_H_
+#define TEST_PACKAGE_WRITE_H_
 
 #include <cpptest.h>
 #include "stub.h"
-#include <stdint.h>
 
-extern int test_hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
-extern int test_hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
-
-class TestOtaDefault:public Test::Suite {
+class TestPackageWrite:public Test::Suite{
 public:
-    void test_ota_default_init();
-    void test_ota_default_set_reboot();
-    void test_ota_default_check_update_state();
-    
-//  USE_BOOTLOADER
-    void test_ota_default_update_process();
-    void test_ota_default_jump_to_application();
-    void test_ota_default_roll_back_image();
-    void test_prv_get_update_record();
+	void test_pack_wr_init();
+	void test_pack_wr_free_save_buffer();
+	void test_pack_wr_destroy();
+	void test_pack_wr_set_device();
+	void test_pack_wr_check();
+	void test_pack_wr_write_stored_data();
+	
+	void test_pack_wr_write();
+	void test_pack_wr_write_end();
 
-//  test ota.c
-    void test_ota_register_module();
-    void test_ota_register_assist();
-    //void test_ota_init();
-    void test_ota_update_process();
-    void test_ota_jump_to_application();
-    void test_ota_roll_back_image();
-//  USE_BOOTLOADER NO!
-//    void test_ota_set_reboot();
-//    void test_ota_check_update_state()
+    TestPackageWrite();
+    ~TestPackageWrite();
 
-    // test ota_crc.c
-//    void test_calc_crc32();
-
-
-    TestOtaDefault();
-    ~TestOtaDefault();
-    
 protected:
     void tear_down();
     void setup();
 };
 
-
 #endif
-

@@ -6,7 +6,7 @@ AR=ar
 
 BUILD_DIR=build
 
-FILE_PATTERN = "*fota_package_storage_device*.c"
+FILE_PATTERN = "*package*.c"
 
 FOR32 := true
 BIN:= bin
@@ -24,27 +24,25 @@ CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE
 CFLAGS += -DCONFIG_FEATURE_FOTA -DATINY_DEBUG -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA
 CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
-CFLAGS += -fprofile-arcs -ftest-coverage 
+CFLAGS += -fprofile-arcs -ftest-coverage -fpermissive 
 
 #CFLAGS += -DUSE_BOOTLOADER
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
-SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/ota/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/fota/utility/*.c) 
+#SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/atiny_lwm2m/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/osdepends/liteos/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/opt/*.c) 
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/utility/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
-
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/net/sal/atiny_socket.c)
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
 	
@@ -52,25 +50,21 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/arch/arm/common/cmsis \
 	-I$(HW_LITEOSDIR)/arch/arm/arm-m/include \
 	-I$(HW_LITEOSDIR)/arch/arm/arm-m/cortex-m4 \
-	-I$(HW_LITEOSDIR)/components/cmsis/ \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/comm/include \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/examples \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/firmware_update \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/lwm2m_client/fota \
-    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/mqtt_client \
-	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter \
-    -I$(HW_LITEOSDIR)/components/connectivity/at_frame \
+	-I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/atiny_lwm2m \
+	-I$(HW_LITEOSDIR)/osdepends/liteos \
+    -I$(HW_LITEOSDIR)/include/at_frame \
+	-I$(HW_LITEOSDIR)/include/ \
+	-I$(HW_LITEOSDIR)/include/ota/ \
 	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
     -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
-    -I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device \
-	-I$(HW_LITEOSDIR)/components/fota/fota_package_storage_device/option \
-    -I$(HW_LITEOSDIR)/components/fota/ota \
-    -I$(HW_LITEOSDIR)/components/fota/utility \
-	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include \
-	-I$(HW_LITEOSDIR)/components/net/lwip_port \
-	-I$(HW_LITEOSDIR)/components/net/lwip_port/OS \
+    -I$(HW_LITEOSDIR)/components/ota/package \
+	-I$(HW_LITEOSDIR)/components/ota/flag_operate \
+	-I$(HW_LITEOSDIR)/components/ota/package/opt \
+    -I$(HW_LITEOSDIR)/components/ota/utility \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip-2.0.3/src/include \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip_port \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip_port/OS \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls \
 	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port \
@@ -82,12 +76,12 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
-	-I$(HW_LITEOSDIR)/unittest/stub \
+	-I$(HW_LITEOSDIR)/unittest/stub 
 #	-I$(HW_LITEOSDIR)/components/net/lwip-2.0.3/src/include/lwip/ 
 	
-
+#CPP_SRC := $(wildcard main.cpp)
 CPP_SRC := $(wildcard *.cpp)
-CPP_SRC += $(wildcard option/*.cpp)
+CPP_SRC += $(wildcard opt/*.cpp)
 vpath %.cpp $(sort $(dir $(CPP_SRC)))
 CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
 
@@ -133,9 +127,9 @@ run:
 cov:
 	mkdir -p gcov
 	./$(BIN)
-	lcov -c -o gcov/gcov.info -d . -b . --rc lcov_branch_coverage=1
-	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info --rc lcov_branch_coverage=1
-	genhtml -o gcov/html gcov/gcov.info --rc genhtml_branch_coverage=1
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log
