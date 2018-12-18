@@ -677,7 +677,7 @@ int fs_test_main(void)
     };
 
     printf("Huawei LiteOS File System Test\n");
-
+#if 0
     // jffs2
     int ret = stm32f4xx_jffs2_init(1);
     if(ret < 0)
@@ -713,9 +713,9 @@ int fs_test_main(void)
     fs_type = TEST_FS_SPIFFS;
     run_tests(tests);
     spiffs_unmount("/spiffs/");
-
+#endif
     // fatfs
-    int drive = stm32f4xx_fatfs_init(0);
+    int drive = stm32f4xx_fatfs_init(1);
     if(drive < 0)
     {
         FS_PRINTF("stm32f4xx_fatfs_init failed, drive: %d", drive);

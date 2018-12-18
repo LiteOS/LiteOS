@@ -1,6 +1,6 @@
-#include "i2c.h"
-#include "stdio.h"
-#include "driver/los_dev.h"
+
+#include "uds/uds_i2c.h"
+#include "uds/uds.h"
 #define SHT20_READ_ADDR   0X81
 #define SHT20_WRITE_ADDR  0x80
 #define SHT20_MEASURE_TEMP_CMD      0xE3
@@ -13,12 +13,12 @@
 //******************************************************************************
 // fn : SHT20_Convert
 //
-// brief : ½«Ô­Ê¼µÄADÖµ×ª³ÉÏàÓ¦µÄÎÂ¶ÈÖµÓëÊª¶ÈÖµ
+// brief : å°†åŽŸå§‹çš„ADå€¼è½¬æˆç›¸åº”çš„æ¸©åº¦å€¼ä¸Žæ¹¿åº¦å€¼
 //
-// param : value-> adÖµ
-//         isTemp-> >0 ÎÂ¶ÈÖµ£¬=0 Êª¶ÈÖµ
+// param : value-> adå€¼
+//         isTemp-> >0 æ¸©åº¦å€¼ï¼Œ=0 æ¹¿åº¦å€¼
 //
-// return : Ö±¹ÛµÄÎÂ¶ÈÖµ
+// return : ç›´è§‚çš„æ¸©åº¦å€¼
 float SHT20_Convert(uint16_t value,uint8_t isTemp)
 {
   float tmp = 0.0;
@@ -35,56 +35,80 @@ float SHT20_Convert(uint16_t value,uint8_t isTemp)
 
 void demo_sht21_iic(void)
 {
-    uint8_t ret,cmd;
+    uint8_t cmd;
+    s32_t ret;
     uint16_t data_raw_temp,data_raw_rh;
     volatile float temp =0 ;
     uint8_t pDATA[3] = {0,0,0};
     uint16_t slave_add;
+
+    dal_i2c_iotype iotype;
+    dal_frequence fre;
     
-    
-    i2c_device_t i2c1;
+    i2c_init_t i2c1;
     i2c1.i2c_idx = DAL_I2C_ID1;
     i2c1.mode = DAL_I2C_MODE_MASTER;
     i2c1.freq_khz = DAL_FRE_100KHZ;//10khz		
     i2c1.s_add_size = DAL_I2C_7BIT_ADD;
-    i2c1.iotype = I2C_IO_MASTER_ORIGIN;
     
-    los_dev_t device;
-    los_driv_init();
-    uds_i2c_dev_setup("I2C1", (void *)&i2c1);
+    uds_driv_t device;
+    uds_driv_init();
+    uds_i2c_dev_install("I2C1", (void *)&i2c1);
     
-    device = los_dev_open("I2C1",0);
+    device = uds_dev_open("I2C1",2);
     if(!device)
         while(1); 
+        
+    //iotype   = I2C_IO_MASTER_ORIGIN;
+    //uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&slave_add,sizeof(uint16_t));
     
+
+
+    iotype = I2C_IO_MASTER_ORIGIN;
+    los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
+
+
     slave_add = SHT20_WRITE_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));
+    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
 
     slave_add = SHT20_READ_ADDR;
     los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
-        
+
+    fre = DAL_FRE_400KHZ;//
+    los_dev_ioctl(device,I2C_SET_FREQUENCY,(void *)&fre,sizeof(uint16_t)); //set master read/write mode.
+
+    iotype = I2C_IO_MASTER_ORIGIN;
+    los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
+
+
+    slave_add = SHT20_WRITE_ADDR;
+    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
+
+    slave_add = SHT20_READ_ADDR;
+    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+
     while (1)
     {
+        
         cmd = SHT20_MEASURE_TEMP_CMD;
-        ret = los_dev_write(device,0,&cmd,1,10000);
-        if(ret == 0)
-            while(1);
-        ret = los_dev_read(device,0,&cmd,1,10000);
+        ret = los_dev_write(device,0,&cmd,1,10000);//write cmd to register.
+        if(ret == -1)
+            while(1);       
         ret = los_dev_read(device,0,pDATA,3,10000);
-        if(ret == 0)
-            while(1);
         data_raw_temp = pDATA[0];
         data_raw_temp <<= 8;
         data_raw_temp += (pDATA[1] & 0xfc);
         temp = SHT20_Convert(data_raw_temp,1);
         printf("temp = %.1f \r\n",temp);
+
         temp = 0;
+
         cmd = SHT20_MEASURE_RH_CMD;
-        ret = los_dev_write(device,0,&cmd,1,10000);
-        if(ret == 0)
+        ret = uds_dev_write(device,0,&cmd,1,10000);
+        if(ret == -1)
             while(1);
-        //ret = los_dev_read(device,0,pDATA,3,10000);
-        if(ret == 0)
+        ret = uds_dev_read(device,0,pDATA,3,10000);
+        if(ret == -1)
             while(1);
         data_raw_rh = pDATA[0];
         data_raw_rh <<= 8;

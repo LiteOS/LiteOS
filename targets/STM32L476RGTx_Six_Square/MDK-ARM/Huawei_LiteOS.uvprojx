@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L476xx,WITH_AT_FRAMEWORK,USE_NB_NEUL95_NO_ATINY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\kernel\include;..\OS_CONFIG;..\..\..\include;..\..\..\demos</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\kernel\include;..\OS_CONFIG;..\..\..\include;..\..\..\demos;..\Hardware\Inc;..\..\..\components\fs\include;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\tests\cmockery\src\google</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -437,14 +437,14 @@
               <FilePath>..\Src\dal_usart.c</FilePath>
             </File>
             <File>
-              <FileName>dal_gpio.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\dal_gpio.h</FilePath>
+              <FileName>fatfs_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\fatfs_hal.c</FilePath>
             </File>
             <File>
-              <FileName>dal_gpio.c</FileName>
+              <FileName>uds_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\dal_gpio.c</FilePath>
+              <FilePath>..\Src\uds_gpio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -802,9 +802,69 @@
           <GroupName>Driver_Frame</GroupName>
           <Files>
             <File>
-              <FileName>los_dev.c</FileName>
+              <FileName>uds_dev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\driver\los_dev.c</FilePath>
+              <FilePath>..\..\..\components\uds\uds_dev.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Hardware</GroupName>
+          <Files>
+            <File>
+              <FileName>hal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Src\hal_flash.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>fs</GroupName>
+          <Files>
+            <File>
+              <FileName>los_vfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\vfs\los_vfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_fatfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\fatfs\los_fatfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\fatfs\ff13b\source\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\fatfs\ff13b\source\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>ffsystem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\fatfs\ff13b\source\ffsystem.c</FilePath>
+            </File>
+            <File>
+              <FileName>ffunicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\fs\fatfs\ff13b\source\ffunicode.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>test</GroupName>
+          <Files>
+            <File>
+              <FileName>cmockery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\tests\cmockery\src\cmockery.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\tests\test_suit\fs_test.c</FilePath>
             </File>
           </Files>
         </Group>

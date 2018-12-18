@@ -5,8 +5,8 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "osdepends/osport.h"
 
-#include "driver/los_dev.h"
 
 
 typedef enum
@@ -37,7 +37,6 @@ typedef enum
   DAL_I2C_ID1             = 1,   /*!< I2C1       */
   DAL_I2C_ID2             = 2,   /*!< I2C2        */
   DAL_I2C_ID3             = 3,   /*!< I2C3        */
-	
 }dal_i2c_idx;
 
 /*当前参数仅适用于系统时钟为4MHz的场合，其他时钟频率请参照cubemx根据系统时钟频率中生成的数值配置iic初始化的timeing系数*/
@@ -60,20 +59,15 @@ typedef enum
 
 
 
-struct i2c_device_s
+struct i2c_init_s
 {
     dal_i2c_idx              i2c_idx; 
     dal_frequence            freq_khz;//speed ,eg: 10(khz),100(khz),400(khz),1000(khz)
     dal_i2c_modetype         mode;//master mode or slave mode
-    uint16_t                 slave_add;//address when initializes as a slave device
+    u16_t                    slave_add;//address when initializes as a slave device
     dal_i2c_slave_add_size   s_add_size;//the size of slave address, you can choose 7bits or 10bits.
-    dal_i2c_iotype           iotype;
-    uint16_t                 slave_read_add;
-    uint16_t                 slave_write_add;
-    uint16_t                 mem_add;
-    dal_i2c_memadd_size      mem_size;
 };
-typedef struct i2c_device_s i2c_device_t;
+typedef struct i2c_init_s i2c_init_t;
 
 
 
@@ -89,7 +83,7 @@ typedef enum
     I2C_MAX_CMD,
 }dal_i2c_cmd;
 
-bool_t uds_i2c_dev_setup(const char *name, void *pri);
+bool_t uds_i2c_dev_install(const char *name, void *pri);
 
 #ifdef __cplusplus
 }

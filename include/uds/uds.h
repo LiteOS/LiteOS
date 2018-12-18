@@ -32,45 +32,27 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __EMTC_BG36_H__
-#define __EMTC_BG36_H__
+#ifndef __UDS_H
+#define __UDS_H
 
-#include "at_frame/at_main.h"
-#define AT_MODU_NAME        "BG36"
-#define AT_USART_PORT       3
-#define AT_BUARDRATE        115200
-#define BG36_TIMEOUT        10000    //ms
-#define MAX_AT_USERDATA_LEN (1024*4)
+#include "uds_dev.h"
 
-#define AT_LINE_END 		"\r"
-#define AT_CMD_BEGIN		"\r\n"
+#define uds_driv_t           los_driv_t
+#define uds_driv_op_t        los_driv_op_t
 
-typedef struct emtc_socket_info_t
-{
-    int len;
-    int offset;
-    char *buf;
-    bool used_flag;
-}emtc_socket_info;
+#define uds_driv_init        los_driv_init
+#define uds_driv_register    los_driv_register
+#define uds_driv_event       los_driv_event
+
+#define uds_dev_open         los_dev_open
+#define uds_dev_read         los_dev_read
+#define uds_dev_write        los_dev_write
+#define uds_dev_close        los_dev_close
+#define uds_dev_ioctl        los_dev_ioctl
 
 
-#define ATI "ATI\r"
-#define ATE0 "ATE0\r"
-#define CMEE "AT+CMEE=2\r"
-#define QCFG "AT+QCFG=\"nwscanseq\",03\r"
+#endif  //end for the file
 
-#define CPIN "AT+CPIN?\r"
-#define CREG "AT+CREG?\r"
-#define GETQICSGP "AT+QICSGP=1\r"
-#define SETCELL "AT+CGREG=2\r"
-#define QUERYCELL "AT+CGREG?\r"
 
-#define QICSGP "AT+QICSGP=1,1,\"HUAWEI.COM\",\"\",\"\",1\r"
-#define QIACT "AT+QIACT=1\r"
-#define QIACTQUERY "AT+QIACT?\r"
-#define CSQ "AT+CSQ\r"
-#define QIOPEN_SOCKET "AT+QIOPEN=1"
-#define QUERYCFATT "AT+CGATT?\r"
-#define AT_DATAF_PREFIX "+QIURC:"
 
-#endif
+

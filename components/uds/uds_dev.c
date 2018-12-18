@@ -31,11 +31,10 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
 //this file implement the device driver 
 #include <stdio.h>
 #include <stdlib.h>
-#include <driver/los_dev.h>
+#include "uds/uds_dev.h"
 
 #if LOSCFG_ENABLE_DRIVER
 
@@ -159,14 +158,15 @@ function     :bsp developer use this function to remove a device from the system
 parameters   :
 instruction  :if the device has been refered,then will fail here
 *******************************************************************************/
-bool_t los_driv_unregister(const char *name) 
+s32_t los_driv_unregister(const char *name) 
 {
     struct driv_cb *tmp = NULL;
     struct driv_cb *pre = NULL;
-    bool_t         ret = false;
+    s32_t           ret = -UDS_NOT_FOUND;
+    
     if(NULL == name)
     {
-        return ret;
+        return -UDS_NAME_INVALID;
     }
 
     if(mutex_lock(s_los_driv_module.lock))
@@ -194,7 +194,7 @@ bool_t los_driv_unregister(const char *name)
             }
 
             free(tmp);
-            ret = true;
+            ret = UDS_OK;
             
             s_los_driv_module.drivnum--;
         }
@@ -210,9 +210,9 @@ function     :bsp developer use this function to notify the application any even
 parameters   :
 instruction  :not implement yet,we will do it as the asynchronize call
 *******************************************************************************/
-bool_t los_driv_event(los_driv_t driv,u32_t event,void *para)
+s32_t los_driv_event(los_driv_t driv,u32_t event,void *para)
 {
-    return false;
+    return -UDS_ERROR;
 }
 
 
@@ -226,18 +226,18 @@ extern u32_t osdriv$$Limit;
 static void osdriv_load_static(void){
     
     os_driv_para_t *para;
-	u32_t num = 0;
+    u32_t num = 0;
     s32_t i = 0;
 #if defined (__CC_ARM)    //you could add other compiler like this
-	num = ((u32_t)&osdriv$$Limit-(u32_t)&osdriv$$Base)/sizeof(os_driv_para_t);
+    num = ((u32_t)&osdriv$$Limit-(u32_t)&osdriv$$Base)/sizeof(os_driv_para_t);
     para = (os_driv_para_t *) &osdriv$$Base;
 #elif defined(__GNUC_LIKE)
-	extern unsigned int __osdriv_start;
-	extern unsigned int __osdriv_end;
-	para = (os_driv_para_t *)&__osdriv_start;
-	i = ((unsigned int )&__osdriv_end - (unsigned int)&__osdriv_start)/sizeof(os_driv_para_t);
+    extern unsigned int __osdriv_start;
+    extern unsigned int __osdriv_end;
+    para = (os_driv_para_t *)&__osdriv_start;
+    i = ((unsigned int )&__osdriv_end - (unsigned int)&__osdriv_start)/sizeof(os_driv_para_t);
 #else 
-	#error("unknown compiler here");
+    error("unknown compiler here");
 #endif    
     for(i =0;i<num;i++)
     {
@@ -245,7 +245,7 @@ static void osdriv_load_static(void){
         para++;
     }
 
-	return;
+    return;
 }
 
 /*******************************************************************************
@@ -254,21 +254,19 @@ parameters   :
 instruction  :call this function to initialize the device module here
               load the static init from section os_device
 *******************************************************************************/
-bool_t  los_driv_init(void)
+s32_t  los_driv_init(void)
 {
     bool_t ret = false;
 
     ret = mutex_create(&s_los_driv_module.lock);
     if(false == ret)
     {
-        goto EXIT_MUTEX;
+        return -UDS_ERROR;
     }
 
     //load all the static device init
     osdriv_load_static();
-
-EXIT_MUTEX:
-    return ret;
+    return UDS_OK;
 }
 
 //here we define the data structure which used by the driv application apis
@@ -325,8 +323,8 @@ los_dev_t  los_dev_open  (const char *name,u32_t flag)
     if((0 == (driv->drivstatus & cn_driv_status_initialized)) && \
         (NULL != driv->op->init))
     {
-        opret = driv->op->init(driv->pri);
-        if(false == opret)
+        ;
+        if(UDS_OK != driv->op->init(driv->pri))
         {
             driv->errno = en_dev_err_init;
             goto EXIT_INITERR;
@@ -336,8 +334,7 @@ los_dev_t  los_dev_open  (const char *name,u32_t flag)
 
     if(NULL != driv->op->open)
     {
-        opret = driv->op->open(driv->pri,flag);
-        if(false == opret)
+        if(UDS_OK != driv->op->open(driv->pri,flag))
         {
             driv->errno = en_dev_err_open;
             goto EXIT_OPENERR;
@@ -374,9 +371,9 @@ function     :close the device of opened
 parameters   :handle returned by open
 instruction  :
 *******************************************************************************/
-bool_t  los_dev_close  (los_dev_t dev)
+s32_t  los_dev_close  (los_dev_t dev)
 {
-    bool_t ret = false;
+    s32_t ret = -UDS_ERROR;
     struct dev_cb *devcb = NULL;
     struct dev_cb *tmp = NULL;
     struct driv_cb *driv = NULL;
@@ -436,7 +433,7 @@ bool_t  los_dev_close  (los_dev_t dev)
 
     mutex_unlock(s_los_driv_module.lock);
 
-    ret = true;
+    ret = UDS_OK;
 
 EXIT_DETACHERR:
 EXIT_DRIVERR:
@@ -523,9 +520,10 @@ parameters   :dev,returned by the los_dev_open function
               para,used with cmd, its length and format depend on the bsp develop
 instruction  :ctrol true or false
 *******************************************************************************/
-bool_t     los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen)
+s32_t los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen)
 {
-    bool_t ret = false;
+    s32_t ret = -UDS_ERROR;
+    
     struct dev_cb  *devcb;
     struct driv_cb *drivcb;
 
@@ -542,48 +540,6 @@ bool_t     los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen)
     return ret;
 }
 
-//the following function should be implement by the vfs,
-//this is very important for the multi io operation, like the select epoll and so on
-bool_t     los_dev_upara_set (los_dev_t dev,void *para);
-void*      los_dev_upara_get (los_dev_t dev);
-#if 0
-//export some shell for the driver debug
-#include <shell.h>
-//use this function to show all the driver infomation
-static s32_t  __driv_show_shell(s32_t argc,const char *argv[])
-{
-    struct driv_cb  *driv;
-     
-    if(mutex_lock(s_los_driv_module.lock))
-    { 
-        printf("%s:total %d drivers\n\r",__FUNCTION__,s_los_driv_module.drivnum);
-        if(s_los_driv_module.drivnum != 0) //print all the driver
-        {
-        
-            printf("%-16s %-8s %-8s %-8s %-8s %-8s %-8s\r\n",\
-                "drivername","flagmask","status","writbyte","readbyte","open","errno");
-            
-            driv = s_los_driv_module.drivlst;
-            while(NULL != driv)
-            {
-                printf("%-16s %08x %08x %08x %08x %08x %08x\r\n",driv->name,driv->flagmask,\
-                driv->drivstatus,driv->total_write,driv->total_read,driv->opencounter,driv->errno);
-                driv=driv->nxt;
-            }
-        }
-        
-        mutex_unlock(s_los_driv_module.lock);
-    }
-    
-    return 0;
-}	
 
-OSSHELL_EXPORT_CMD(__driv_show_shell,"devlst","devlst");
-#endif
 
 #endif
-
-
-
-
-

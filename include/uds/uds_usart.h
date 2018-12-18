@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,122 +31,57 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-//here we will implement a dev fs to make all the device could use 
-//open/read/write/close/ioctl and so on
 
-#include <los_dev.h>
-#include <fs/los_vfs.h>
+#ifndef _UDS_USART_H
+#define _UDS_USART_H
 
-#if LOSCFG_ENABLE_DEVFS
+#include <stdint.h>
+#include "osdepends/osport.h"
 
-#define cn_devfs_timeout 0xffffffff
-#define cn_devfs_name    "devfs"
-#define cn_devfs_path    "/dev/"
-
-//make the corresponding interface for the file system
-static s32_t devfs_open (struct file *file, const char *devname,s32_t flag)
-{
-    s32_t ret = -1;
-    los_dev_t dev;
-
-    dev = los_dev_open(devname,(u32_t)flag);
-    if(NULL != dev)
-    {
-        file->f_data = dev;
-        ret = 0;
-    }
-    return ret;
-}
-
-static s32_t devfs_close (struct file *file)
-{
-    s32_t ret = -1;
-    los_dev_t dev;
-
-    dev = file->f_data;
-    if(los_dev_close(dev))
-    {
-        ret = 0;
-    }
-    return ret;
-}
-
-static ssize_t devfs_read (struct file *file, char *buf, size_t len)
-{
-    ssize_t ret = 0;
-    los_dev_t dev;
-
-    dev = file->f_data;
-    ret = los_dev_read (dev,file->f_offset,(u8_t *)buf,len,cn_devfs_timeout);
-    if(ret > 0)
-    {
-        file->f_offset += ret;
-    }
-
-    return ret;
-
-}
-
-
-static ssize_t devfs_write (struct file *file, const char *buf, size_t len)
-{
-    ssize_t ret = 0;
-    los_dev_t dev;
-
-    dev = file->f_data;
-    ret = los_dev_write (dev,file->f_offset,(u8_t *)buf,len,cn_devfs_timeout);
-    if(ret > 0)
-    {
-        file->f_offset += ret;
-    }
-    return ret;
-}
-
-static s32_t devfs_ioctl (struct file *file, int cmd, unsigned long para)
-{
-
-    s32_t ret = -1;
-    los_dev_t dev;
-
-    dev = file->f_data;
-
-    if(los_dev_ioctl(dev,cmd,(void *)para,0))
-    {
-        ret = 0;
-    }
-
-    return ret;
-}
-
-static const struct file_ops  s_devfs_ops ={
-    .open = devfs_open,
-    .close = devfs_close,
-    .read = devfs_read,
-    .write = devfs_write,
-    .ioctl = devfs_ioctl,
-};
-
-static struct file_system s_devfs =
-{
-    cn_devfs_name,
-    (struct file_ops *)&s_devfs_ops,
-    NULL,
-    0
-};
-bool_t devfs_install(void)
-{
-    los_fs_register(&s_devfs);
-    los_fs_mount(cn_devfs_name,cn_devfs_path,NULL);
-
-    return  true;  //make nothing check, should we do it?
-}
-
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
+typedef struct
+{
+    uint32_t port;          // the USART port
+    uint32_t baudrate;      // the USART communication baud rate
+    uint32_t word_length;   // the number of data bits transmitted or received in a frame
+    uint32_t stop_bits;     // the number of stop bits transmitted
+    uint32_t parity;        // the parity mode
+    uint32_t mode;          // whether the Receive or Transmit mode is enabled or disabled
+    uint32_t flow_ctrl;     // whether the hardware flow control mode is enabled or disabled
+    uint32_t over_sampling; // whether the Over sampling 8 is enabled or disabled
+} uds_usart_cfg;
+
+/**
+  * @brief  the recv callback for interrupt mode
+  * @param  port: the USART port
+  * @param  buf: Pointer to data buffer
+  * @param  len: Amount of data to be received
+  * @retval none
+  */
+typedef void (*uds_usart_recv_callback)(uint32_t port, uint8_t *buf, uint32_t len);
+
+typedef struct
+{
+    uds_usart_recv_callback cb;
+    int32_t break_type;
+    int32_t break_cond;
+} uds_usart_cb_cfg;
+
+typedef enum
+{
+    USART_SET_RECV_CALLBACK,    // Set the recv callback for interrupt mode
+    USART_CLR_RECV_CALLBACK     // Clear the recv callback
+} uds_usart_cmd;
+
+s32_t uds_usart_dev_install(const char *name, void *para);
 
 
-
-
-
+#ifdef __cplusplus
+}
+#endif
+#endif /* _UDS_USART_H */
 
