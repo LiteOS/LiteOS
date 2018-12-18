@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,46 +31,23 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef _LOS_EXC_INC
+#define _LOS_EXC_INC
 
-#ifndef __EMTC_BG36_H__
-#define __EMTC_BG36_H__
+#include "los_exc.ph"
+#include "los_sys.ph"
 
-#include "at_frame/at_main.h"
-#define AT_MODU_NAME        "BG36"
-#define AT_USART_PORT       3
-#define AT_BUARDRATE        115200
-#define BG36_TIMEOUT        10000    //ms
-#define MAX_AT_USERDATA_LEN (1024*4)
-
-#define AT_LINE_END 		"\r"
-#define AT_CMD_BEGIN		"\r\n"
-
-typedef struct emtc_socket_info_t
-{
-    int len;
-    int offset;
-    char *buf;
-    bool used_flag;
-}emtc_socket_info;
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
 
-#define ATI "ATI\r"
-#define ATE0 "ATE0\r"
-#define CMEE "AT+CMEE=2\r"
-#define QCFG "AT+QCFG=\"nwscanseq\",03\r"
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-#define CPIN "AT+CPIN?\r"
-#define CREG "AT+CREG?\r"
-#define GETQICSGP "AT+QICSGP=1\r"
-#define SETCELL "AT+CGREG=2\r"
-#define QUERYCELL "AT+CGREG?\r"
-
-#define QICSGP "AT+QICSGP=1,1,\"HUAWEI.COM\",\"\",\"\",1\r"
-#define QIACT "AT+QIACT=1\r"
-#define QIACTQUERY "AT+QIACT?\r"
-#define CSQ "AT+CSQ\r"
-#define QIOPEN_SOCKET "AT+QIOPEN=1"
-#define QUERYCFATT "AT+CGATT?\r"
-#define AT_DATAF_PREFIX "+QIURC:"
-
-#endif
+#endif /* _LOS_EXC_INC */

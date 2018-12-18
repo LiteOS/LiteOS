@@ -39,6 +39,10 @@
 #ifndef ATINY_ERROR_H
 #define ATINY_ERROR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum
 {
     ATINY_OK                   = 0,

@@ -172,7 +172,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 
     if (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
     {
-        mbedtls_ssl_conf_read_timeout(conf, 1);
+        mbedtls_ssl_conf_read_timeout(conf, TLS_SHAKEHAND_TIMEOUT);
     }
 
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)

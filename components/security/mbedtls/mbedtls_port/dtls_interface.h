@@ -73,6 +73,10 @@
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
 
+#ifndef TLS_SHAKEHAND_TIMEOUT
+#define TLS_SHAKEHAND_TIMEOUT 1000
+#endif
+
 typedef enum
 {
     VERIFY_WITH_PSK = 0,

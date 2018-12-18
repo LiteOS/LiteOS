@@ -262,7 +262,7 @@ static uint8_t prv_set_int_value(lwm2m_data_t *dataArray, uint32_t *data)
 
 bool prv_server_check_binding_valid(const char *binding, size_t size)
 {
-    if ((strncmp(binding, "U", size) == 0
+    if (binding != NULL && (strncmp(binding, "U", size) == 0
             || strncmp(binding, "UQ", size) == 0
             || strncmp(binding, "S", size) == 0
             || strncmp(binding, "SQ", size) == 0

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,106 +31,82 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "sys_init.h"
-#if defined(WITH_LWIP)
-#include "../../../test_agenttiny/test_agenttiny.h"
+
+#ifndef _LOS_EXC_PH
+#define _LOS_EXC_PH
+
+#include "los_exc.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+typedef enum
+{
+    OS_EXC_TYPE_CONTEXT     = 0,
+    OS_EXC_TYPE_TSK         = 1,
+    OS_EXC_TYPE_QUE         = 2,
+    OS_EXC_TYPE_NVIC        = 3,
+    OS_EXC_TYPE_TSK_SWITCH  = 4,
+    OS_EXC_TYPE_MEM         = 5,
+    OS_EXC_TYPE_MAX         = 6
+} EXC_INFO_TYPE;
+
+typedef struct tagExcInfoCallBackArray
+{
+    EXC_INFO_TYPE           uwType;
+    UINT32                  uwValid;
+    EXC_INFO_SAVE_CALLBACK  pFnExcInfoCb;
+    VOID*                   pArg;
+}EXC_INFO_ARRAY_S;
+
+
+#define OS_NVIC_SHCSR                       0xE000ED24
+#define OS_NVIC_CCR                         0xE000ED14
+
+#define OS_NVIC_INT_ENABLE_SIZE             0x20
+#define OS_NVIC_INT_PRI_SIZE                0xF0
+
+#define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
+#define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
+
+
+#define MAX_SCENE_INFO_SIZE     (8 + sizeof(EXC_INFO_S) - 4 + sizeof(EXC_CONTEXT_S))
+#define MAX_TSK_INFO_SIZE       (8 + sizeof(TSK_INFO_S) * (LOSCFG_BASE_CORE_TSK_LIMIT + 1))
+#define MAX_INT_INFO_SIZE       (8 + 0x164)
+
+#if (LOSCFG_BASE_IPC_QUEUE == YES)
+#define MAX_QUEUE_INFO_SIZE     (8 + sizeof(QUEUE_INFO_S) * LOSCFG_BASE_IPC_QUEUE_LIMIT)
+#else
+#define MAX_QUEUE_INFO_SIZE     (0)
 #endif
 
-static UINT32 g_atiny_tskHandle;
-static UINT32 g_fs_tskHandle;
-static UINT32 g_sota_tskHandle;
-
-UINT32 creat_fs_test_task(void)
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 2;
-    task_init_param.pcName = "fs_test_main";
-    extern int fs_test_main(void);
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_test_main;
-
-
-    task_init_param.uwStackSize = 0x1000;
-
-    uwRet = LOS_TaskCreate(&g_fs_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-UINT32 creat_sota_test_task(void)
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 2;
-    task_init_param.pcName = "sota_test_main";
-    extern int sota_test_main(void);
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)sota_test_main;
-
-
-    task_init_param.uwStackSize = 0x3000;
-
-    uwRet = LOS_TaskCreate(&g_sota_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-UINT32 creat_agenttiny_test_task(void)
-{
-    UINT32 uwRet = LOS_OK;
-    TSK_INIT_PARAM_S task_init_param;
-
-    task_init_param.usTaskPrio = 2;
-    task_init_param.pcName = "agenttiny_test_main";
-    extern void test_agenttiny(void);
-    task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)test_agenttiny;
-
-    task_init_param.uwStackSize = 0x3000;
-
-    uwRet = LOS_TaskCreate(&g_atiny_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
-    }
-    return uwRet;
-}
-
-int demo_cmockery_test(void)
-{
-    UINT32 uwRet = LOS_OK;
-#if (defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2))
-
-    uwRet = creat_fs_test_task();
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
-    }
+#if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == YES)
+#define MAX_SWITCH_INFO_SIZE    (8 + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN) * OS_TASK_SWITCH_INFO_COUNT)
+#else
+#define MAX_SWITCH_INFO_SIZE    (0)
 #endif
 
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95_NO_ATINY) && defined(WITH_SOTA)
-
-    uwRet = creat_sota_test_task();
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
-    }
+#if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
+#define MAX_MEM_INFO_SIZE       (8 + sizeof(MEM_INFO_S) * OS_SYS_MEM_NUM)
+#else
+#define MAX_MEM_INFO_SIZE       (0)
 #endif
 
-#if defined(WITH_LWIP) && (!defined(USE_NB_NEUL95_NO_ATINY))
-
-    uwRet = creat_agenttiny_test_task();
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
-    }
+#if (LOSCFG_SAVE_EXC_INFO == YES)
+#define MAX_EXC_MEM_SIZE ( 4 + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE + 4)
+#else
+#define MAX_EXC_MEM_SIZE ( 0 )
 #endif
 
-    return uwRet;
+extern VOID osExcRegister(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID *pArg);
+
+#ifdef __cplusplus
+#if __cplusplus
 }
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif

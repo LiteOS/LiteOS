@@ -518,18 +518,21 @@ int atiny_bind(atiny_device_info_t *device_info, void *phandle)
     if ((NULL == device_info) || (NULL == phandle))
     {
         ATINY_LOG(LOG_FATAL, "Parameter null");
+        atiny_deinit(phandle);
         return ATINY_ARG_INVALID;
     }
 
     if (NULL == device_info->endpoint_name)
     {
         ATINY_LOG(LOG_FATAL, "Endpoint name null");
+        atiny_deinit(phandle);
         return ATINY_ARG_INVALID;
     }
 
     if (NULL == device_info->manufacturer)
     {
         ATINY_LOG(LOG_FATAL, "Manufacturer name null");
+        atiny_deinit(phandle);
         return ATINY_ARG_INVALID;
     }
 
