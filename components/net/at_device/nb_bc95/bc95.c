@@ -60,9 +60,8 @@ char tmpbuf[AT_DATA_LEN]={0}; //transform to hex
 socket_info sockinfo[MAX_SOCK_NUM];
 static nb_data_ind_info_s g_data_ind_info;
 
-
-#if defined ( __CC_ARM ) || defined ( __ICCARM__ )  /* KEIL and IAR: printf will call fputc to print */
-char *strnstr(const char *s1, const char *s2, size_t len)
+#if defined ( __CC_ARM ) || defined ( __ICCARM__ )
+static char *strnstr(const char *s1, const char *s2, size_t len)
 {
     size_t l2;
 

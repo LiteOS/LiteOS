@@ -172,7 +172,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 
     if (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
     {
-        mbedtls_ssl_conf_read_timeout(conf, 1);
+        mbedtls_ssl_conf_read_timeout(conf, TLS_SHAKEHAND_TIMEOUT);
     }
 
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
@@ -276,10 +276,12 @@ static inline uint32_t dtls_gettime()
 int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 {
     int ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
-    unsigned int flags;
     uint32_t change_value = 0;
     mbedtls_net_context *server_fd = NULL;
     uint32_t max_value;
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    unsigned int flags;
+#endif
 
     MBEDTLS_LOG("connecting to server");
 

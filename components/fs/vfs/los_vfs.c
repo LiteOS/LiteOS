@@ -584,10 +584,16 @@ int los_rename (const char *old, const char *new)
 
     mp_old = los_mp_find (old, &path_in_mp_old);
 
-    if ((mp_old == NULL) || (path_in_mp_old == NULL) || (*path_in_mp_old == '\0') ||
+    if(path_in_mp_old == NULL)
+    {
+        VFS_ERRNO_SET (EINVAL);
+        goto out;
+    }
+
+    if ((mp_old == NULL) || (*path_in_mp_old == '\0') ||
             (mp_old->m_fs->fs_fops->unlink == NULL))
     {
-        VFS_ERRNO_SET (ENOENT);
+        VFS_ERRNO_SET (EINVAL);
         goto out;
     }
 
@@ -596,7 +602,7 @@ int los_rename (const char *old, const char *new)
     if ((mp_new == NULL) || (path_in_mp_new == NULL) || (*path_in_mp_new == '\0') ||
             (mp_new->m_fs->fs_fops->unlink == NULL))
     {
-        VFS_ERRNO_SET (ENOENT);
+        VFS_ERRNO_SET (EINVAL);
         goto out;
     }
 
@@ -784,6 +790,10 @@ struct dirent *los_readdir (struct dir *dir)
         {
             ret = &dir->d_dent;
         }
+        else
+        {
+            VFS_ERRNO_SET (EBADF);
+        }
     }
     else
     {
@@ -802,7 +812,7 @@ int los_closedir (struct dir *dir)
 
     if (dir == NULL)
     {
-        VFS_ERRNO_SET (EINVAL);
+        VFS_ERRNO_SET (EBADF);
         return -1;
     }
 
@@ -827,6 +837,10 @@ int los_closedir (struct dir *dir)
     {
         free (dir);
         mp->m_refs--;
+    }
+    else
+    {    
+        VFS_ERRNO_SET (EBADF);
     }
 
     LOS_MuxPost (mp->m_mutex);

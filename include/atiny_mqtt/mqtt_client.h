@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 #ifndef MQTT_COMMAND_TIMEOUT_MS
-#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
+#define MQTT_COMMAND_TIMEOUT_MS (10 * 1000)
 #endif
 
 #ifndef MQTT_EVENTS_HANDLE_PERIOD_MS
@@ -63,8 +63,20 @@ extern "C" {
 #define MQTT_READBUF_SIZE (1024 * 2)
 #endif
 
+/* the unit is milisecond */
 #ifndef MQTT_WRITE_FOR_SECRET_TIMEOUT
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
+#endif
+
+/* MQTT retry connection delay interval. The delay inteval is
+(MQTT_CONN_FAILED_BASE_DELAY << MIN(coutinious_fail_count, MQTT_CONN_FAILED_MAX_TIMES)) */
+#ifndef MQTT_CONN_FAILED_MAX_TIMES
+#define MQTT_CONN_FAILED_MAX_TIMES  6
+#endif
+
+/*The unit is millisecond*/
+#ifndef MQTT_CONN_FAILED_BASE_DELAY
+#define MQTT_CONN_FAILED_BASE_DELAY 1000
 #endif
 
 /* deviceReq data msg jason format example to server
@@ -275,26 +287,11 @@ int  atiny_mqtt_init(const mqtt_param_s* atiny_params, mqtt_client_s** phandle);
 
 /**
  *@ingroup agenttiny
- *@brief stop the device and release resources.
- *
- *@par Description:
- *This API is used to stop the device and release resources.
- *@attention none.
- *
- *@param phandle        [IN] The handle of the agent_tiny.
- *
- *@retval none.
- *@par Dependency: none.
- *@see atiny_init | atiny_bind.
- */
-void atiny_mqtt_deinit(mqtt_client_s* phandle);
-
-/**
- *@ingroup agenttiny
  *@brief main task of the MQTT protocal.
  *
  *@par Description:
  *This API is used to implement the MQTT protocal, and interactive with MQTT broker.
+ *atiny_mqtt_init and atiny_mqtt_bind must be called in one task or thread.
  *@attention none.
  *
  *@param device_info    [IN] The information of devices to be bound.
@@ -312,6 +309,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* phandl
  *
  *@par Description:
  *This API is used to send the data to the broker.
+ *atiny_mqtt_init and atiny_mqtt_bind must be called in one task or thread.
  *@attention none.
  *
  *@param phandle        [IN] The handle of the agent_tiny.

@@ -40,8 +40,8 @@
 #define OCEAN_IP "139.159.140.34"
 #define SECURITY_PORT "5684"
 #define NON_SECURITY_PORT "5683"
-#define DEV_PSKID = "868744031131026"
-#define DEV_PSK = "d1e1be0c05ac5b8c78ce196412f0cdb0"
+#define DEV_PSKID  "868744031131026"
+#define DEV_PSK  "d1e1be0c05ac5b8c78ce196412f0cdb0"
 
 void demo_nbiot_only(void)
 {
@@ -73,7 +73,11 @@ void demo_nbiot_only(void)
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
-    los_nb_report("22", 2);
+    while(1)
+    {
+        los_nb_report("22", 2);
+        LOS_TaskDelay(60000);
+    }
     los_nb_report("23", 1);
 
 #else

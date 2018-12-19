@@ -49,6 +49,8 @@
 #define PACK_MALLOC(size) pack_malloc(size)
 #define PACK_FREE(ptr) pack_free(ptr)
 
+#define PACK_LOG_ENABLE
+#ifdef PACK_LOG_ENABLE
 #define PACK_LOG(fmt, ...) \
 do\
 {\
@@ -58,6 +60,9 @@ do\
         (void)__pack_params__->printf("[%s:%d]" fmt "\r\n",  __FUNCTION__, __LINE__,  ##__VA_ARGS__);\
     }\
 }while(0)
+#else
+#define PACK_LOG(fmt, ...) ((void)0)
+#endif
 
 
 #define ASSERT_THIS(do_something) \

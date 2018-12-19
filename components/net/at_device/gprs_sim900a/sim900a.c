@@ -203,7 +203,7 @@ int32_t sim900a_close(int32_t id)
                 memset(&qbuf, 0, sizeof(QUEUE_BUFF)); // don't use qlen
             }
         }
-        LOS_QueueDelete(at.linkid[id].qid);
+        (void)LOS_QueueDelete(at.linkid[id].qid);
         at.linkid[id].usable = 0;
         snprintf(cmd, 64, "%s=%ld", AT_CMD_CLOSE, id);
     }
