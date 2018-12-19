@@ -80,17 +80,14 @@ struct mqtt_client_tag_s
     mqtt_param_s params;
     mqtt_dynamic_info_s dynamic_info;
     char *sub_topic;
-    uint8_t atiny_quit;
-    uint8_t bind_quit;
-    uint8_t reserve[2];
+    uint8_t init_flag;
+    uint8_t reserve[3];
 };
-
 
 static uint8_t g_mqtt_sendbuf[MQTT_SENDBUF_SIZE];
 
 /* reserve 1 byte for string end 0 for jason */
 static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE + 1];
-
 
 static mqtt_client_s g_mqtt_client;
 
@@ -105,7 +102,6 @@ static int mqtt_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
     ATINY_LOG(LOG_FATAL, "cmd_ioctl null");
     return ATINY_ERR;
 }
-
 
 static void mqtt_free_params(mqtt_param_s *param)
 {
@@ -125,7 +121,6 @@ static void mqtt_free_params(mqtt_param_s *param)
         break;
     }
 }
-
 
 static int mqtt_check_param(const mqtt_param_s *param)
 {
@@ -182,7 +177,6 @@ static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)
         goto mqtt_param_dup_failed;
     }
 
-
     switch(src->info.security_type)
     {
         case MQTT_SECURITY_TYPE_PSK:
@@ -227,7 +221,6 @@ mqtt_param_dup_failed:
     return ATINY_MALLOC_FAILED;
 }
 
-
 static void mqtt_free_device_info(mqtt_device_info_s *info)
 {
 
@@ -255,13 +248,13 @@ static void mqtt_free_dynamic_info(mqtt_client_s* handle)
     TRY_FREE_MEM(handle->dynamic_info.got_passward);
 }
 
-
 static int mqtt_check_device_info(const mqtt_device_info_s *info)
 {
     if((info->connection_type >= MQTT_MAX_CONNECTION_TYPE)
         || (info->codec_mode >= MQTT_MAX_CODEC_MODE)
         || (info->sign_type >= MQTT_MAX_SIGN_TYPE)
-        || (NULL == info->password))
+        || (NULL == info->password)
+        || (!IS_VALID_NAME_LEN(info->password)))
     {
         ATINY_LOG(LOG_FATAL, "invalid device info con_type %d codec_mode %d signe type %d",
             info->connection_type, info->codec_mode, info->sign_type);
@@ -337,7 +330,6 @@ MALLOC_FAIL:
     mqtt_free_device_info(dest);
     return ATINY_MALLOC_FAILED;
 }
-
 
 static bool mqtt_is_connectting_with_deviceid(const mqtt_client_s* handle)
 {
@@ -542,8 +534,6 @@ static char *mqtt_get_secret_topic(const mqtt_client_s* handle, const char *fmt,
             handle->device_info.u.d_info.productid, handle->device_info.u.d_info.nodeid);
 }
 
-
-
 static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, uint32_t len)
 {
 
@@ -654,7 +644,6 @@ static int mqtt_modify_payload(MessageData *md)
 }
 /*lint +e529*/
 
-
 static void mqtt_recv_secret_topic(MessageData *md)
 {
     mqtt_client_s* handle = &g_mqtt_client;
@@ -693,7 +682,6 @@ static void mqtt_recv_cmd_topic(MessageData *md)
     }
     (void)mqtt_cmd_ioctl(MQTT_RCV_MSG, md->message->payload, md->message->payloadlen);
 }
-
 
 static int mqtt_subscribe_topic(mqtt_client_s* handle)
 {
@@ -827,27 +815,23 @@ static void mqtt_read_flash_info(mqtt_client_s* handle)
     flash_manager_destroy_flash_info(&flash_info);
 }
 
-
 int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     cJSON_InitHooks(NULL);
-    if (NULL == params || NULL == phandle)
+    if (params == NULL || phandle == NULL
+        || mqtt_check_param(params) != ATINY_OK)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
         return ATINY_ARG_INVALID;
     }
 
-    while(g_mqtt_client.bind_quit)
+    if (g_mqtt_client.init_flag)
     {
-        (void)LOS_TaskDelay(10);
+        ATINY_LOG(LOG_FATAL, "mqtt reinit");
+        return ATINY_ERR;
     }
 
     memset(&g_mqtt_client, 0, sizeof(g_mqtt_client));
-
-    if (mqtt_check_param(params) != ATINY_OK)
-    {
-        return ATINY_ARG_INVALID;
-    }
 
     if (ATINY_OK != mqtt_dup_param(&(g_mqtt_client.params), params))
     {
@@ -858,25 +842,9 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 
     *phandle = &g_mqtt_client;
 
-    return ATINY_OK;
-}
+    g_mqtt_client.init_flag = true;
 
-void atiny_mqtt_deinit(mqtt_client_s *handle)
-{
-    if(NULL == handle)
-    {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        return;
-    }
-    if(0 == handle->atiny_quit)
-    {
-        handle->atiny_quit = 1;
-        while(0 == handle->bind_quit)
-        {
-            (void)LOS_TaskDelay(10);
-        }
-        handle->bind_quit = 0;
-    }
+    return ATINY_OK;
 }
 
 int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle)
@@ -890,16 +858,12 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     Timer timer;
     int result = ATINY_ERR;
 
-
-    if((NULL == handle) || (device_info == NULL))
+    if((NULL == handle) || (device_info == NULL)
+        || (mqtt_check_device_info(device_info) != ATINY_OK))
     {
-        ATINY_LOG(LOG_FATAL, "Parameter null");
-        return ATINY_ARG_INVALID;
-    }
-
-    if (mqtt_check_device_info(device_info) != ATINY_OK)
-    {
-        return ATINY_ARG_INVALID;
+        ATINY_LOG(LOG_FATAL, "parameter invalid");
+        result = ATINY_ARG_INVALID;
+        goto  atiny_bind_quit;
     }
 
     dtls_init();
@@ -930,7 +894,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;
     data.cleansession = true;
 
-    while(handle->atiny_quit == 0)
+    while(true)
     {
         if(conn_failed_cnt > 0)
         {
@@ -981,7 +945,7 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
             TimerInit(&timer);
             TimerCountdownMS(&timer, MQTT_WRITE_FOR_SECRET_TIMEOUT);
         }
-        while ((rc >= 0 && MQTTIsConnected(client) && (handle->atiny_quit == 0)))
+        while (rc >= 0 && MQTTIsConnected(client))
         {
             rc = MQTTYield(client, MQTT_EVENTS_HANDLE_PERIOD_MS);
 
@@ -1018,7 +982,7 @@ atiny_bind_quit:
     mqtt_free_device_info(&(handle->device_info));
     (void)atiny_task_mutex_unlock(&client->mutex);
     MQTTClientDeInit(client);
-    handle->bind_quit = 1;
+    handle->init_flag = false;
     return result;
 }
 
@@ -1069,6 +1033,4 @@ int atiny_mqtt_isconnected(mqtt_client_s* phandle)
     }
     return mqtt_is_connectting_with_deviceid(phandle) && MQTTIsConnected(&(phandle->client));
 }
-
-
 
