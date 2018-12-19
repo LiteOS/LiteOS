@@ -65,6 +65,7 @@ static int ret_to_errno(int ret)
     case SPIFFS_ERR_INDEX_LU:
     case SPIFFS_ERR_INDEX_INVALID:
     case SPIFFS_ERR_CONFLICTING_NAME:
+    case SPIFFS_ERR_INVALID_PARA:
         err = EINVAL;
         break;
 
@@ -118,7 +119,7 @@ static int ret_to_errno(int ret)
         break;
 
     case SPIFFS_ERR_SEEK_BOUNDS:
-        err = ESPIPE;
+        err = EOVERFLOW;
         break;
 
     case SPIFFS_ERR_END_OF_OBJECT:
