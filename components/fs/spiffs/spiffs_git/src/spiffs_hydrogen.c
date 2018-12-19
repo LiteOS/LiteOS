@@ -703,21 +703,26 @@ s32_t SPIFFS_lseek(spiffs *fs, spiffs_file fh, s32_t offs, int whence)
 
     switch (whence)
     {
+    case SPIFFS_SEEK_SET:
+        break;
     case SPIFFS_SEEK_CUR:
         offs = fd->fdoffset + offs;
         break;
     case SPIFFS_SEEK_END:
         offs = file_size + offs;
         break;
+    default:
+        res = SPIFFS_ERR_INVALID_PARA;
+        break;
     }
     if (offs < 0)
     {
-        SPIFFS_API_CHECK_RES_UNLOCK(fs, SPIFFS_ERR_SEEK_BOUNDS);
+        SPIFFS_API_CHECK_RES_UNLOCK(fs, SPIFFS_ERR_INVALID_PARA);
     }
     if (offs > file_size)
     {
         fd->fdoffset = file_size;
-        res = SPIFFS_ERR_END_OF_OBJECT;
+        res = SPIFFS_ERR_SEEK_BOUNDS;
     }
     SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
 
