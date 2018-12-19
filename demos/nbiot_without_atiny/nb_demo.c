@@ -73,7 +73,11 @@ void demo_nbiot_only(void)
     printf("\r\n=====================================================");
     printf("\r\nSTEP3: Report Data to Server( NB Report )");
     printf("\r\n=====================================================\r\n");
-    los_nb_report("22", 2);
+    while(1)
+    {
+        los_nb_report("22", 2);
+        LOS_TaskDelay(60000);
+    }
     los_nb_report("23", 1);
 
 #else
