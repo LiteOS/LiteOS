@@ -236,7 +236,7 @@ int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
     char *cmd1 = "AT+QISEND=";
     char cmd[64] = {0};
     int ret;
-	if (id < 0 || id >= MAX_BG36_SOCK_NUM || len >=1400)
+	if (id < 0 || id >= MAX_BG36_SOCK_NUM || len >= MAX_SEND_DATA_LEN)
     {
         AT_LOG("invalid args sockid:%d len:%d",(int)id, (int)len);
         return AT_FAILED;
