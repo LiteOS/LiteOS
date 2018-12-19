@@ -103,7 +103,7 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
             return AT_FAILED;
         }
         data_len = chartoint(p2+1);
-        if(data_len > 1024*2 || data_len <= 0)
+        if (data_len > AT_DATA_LEN*2 || data_len <= 0)
         {
             AT_LOG("datalen too long:%ld", data_len);
             return AT_FAILED;
