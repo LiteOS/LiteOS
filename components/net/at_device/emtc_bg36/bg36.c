@@ -103,9 +103,9 @@ int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
             return AT_FAILED;
         }
         data_len = chartoint(p2+1);
-        if(data_len > AT_DATA_LEN || data_len <= 0)
+        if(data_len > 1024*2 || data_len <= 0)
         {
-            AT_LOG("datalen invalid %ld", data_len);
+            AT_LOG("datalen too long:%ld", data_len);
             return AT_FAILED;
         }
 
@@ -236,9 +236,9 @@ int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
     char *cmd1 = "AT+QISEND=";
     char cmd[64] = {0};
     int ret;
-	if (id < 0 || id >= MAX_BG36_SOCK_NUM)
+	if (id < 0 || id >= MAX_BG36_SOCK_NUM || len >=1400)
     {
-        AT_LOG("invalid sockid:%d",(int)id);
+        AT_LOG("invalid args sockid:%d len:%d",(int)id, (int)len);
         return AT_FAILED;
     }
     (void)snprintf(cmd, sizeof(cmd),"%s%d,%d%c",cmd1, (int)id, (int)len,'\r');
