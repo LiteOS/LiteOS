@@ -38,32 +38,36 @@
 #include"ota/ota_api.h"
 #include<stddef.h>
 
-typedef enum
-{
-    IDLE = 0,
-    DOWNLOADING,
-    DOWNLOADED,
-    UPDATING,
-    UPDATED,
-}at_fota_state;
+#define SOTA_DEBUG 1
 
 typedef enum
 {
-    APP_MODE = 0,
-    BOOTLOADER_MODE,
-}run_mode_e;
+    APPICATION = 0,
+    BOOTLOADER = 1,
+} sota_run_mode_e;
+
+typedef enum
+{
+    SOTA_OK = 0,
+    SOTA_DOWNLOADING = 1,
+    SOTA_UPDATING    = 2,
+    SOTA_UPDATED     = 3,
+    SOTA_FAILED             = 101,
+    SOTA_EXIT               = 102,
+    SOTA_INVALID_PACKET     = 103,
+    SOTA_UNEXPECT_PACKET    = 104,
+    SOTA_WRITE_FLASH_FAILED = 105
+} sota_ret_e;
 
 typedef struct
 {
     int (*get_ver)(char* buf, uint32_t len);
-    int (*set_ver)(const char* buf, uint32_t len);
     int (*sota_send)(const char* buf, int len);
     void* (*sota_malloc)(size_t size);
-    int (*sota_printf)(const char *fmt, ...);
     void (*sota_free)(void *ptr);
-    uint32_t frame_buf_len;
-    uint8_t  run_mode;
-    uint8_t  rsv[3];
+    int  (*sota_printf)(const char *fmt, ...);
+    sota_run_mode_e  firmware_download_stage;
+    sota_run_mode_e  current_run_stage;
     ota_opt_s ota_info;
 } sota_opt_t;
 
@@ -73,35 +77,8 @@ typedef struct
     int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
 }sota_flag_opt_s;
 
-int sota_init(sota_opt_t* flash_op);
-int32_t sota_process_main(void *arg, const int8_t *buf, int32_t buflen);
-void sota_timeout_handler(void);
-#define DOWNLOADTIME_LIMIT 10*1000
-
-extern sota_opt_t g_flash_op;
-#define SOTA_DEBUG 1
-#ifdef SOTA_DEBUG
-#define SOTA_LOG(fmt, ...) \
-    do \
-    { \
-        if (NULL != g_flash_op.sota_printf) \
-        { \
-            (void)g_flash_op.sota_printf("[%s:%d][I]"fmt"\n", \
-                                  __func__, __LINE__, ##__VA_ARGS__); \
-        } \
-    } while (0)
-#else
-#define SOTA_LOG(fmt, ...) ((void)0)
-#endif
-
-typedef enum
-{
-SOTA_OK = 0,
-SOTA_DOWNLOADING = 1,
-SOTA_NEEDREBOOT = 2,
-SOTA_BOOTLOADER_DOWNLOADING = 3,
-SOTA_MEM_FAILED = 4,
-SOTA_FAILED = 101,
-SOTA_TIMEOUT = 102,
-}SOTA_RET;
+int32_t sota_init(const sota_opt_t* flash_op);
+int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int32_t out_len);
+int32_t sota_process(void *arg, const int8_t *buf, int32_t buf_len);
+void    sota_timeout_handler(void);
 #endif
