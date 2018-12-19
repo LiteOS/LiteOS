@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 #ifndef MQTT_COMMAND_TIMEOUT_MS
-#define MQTT_COMMAND_TIMEOUT_MS (1*1000)
+#define MQTT_COMMAND_TIMEOUT_MS (10 * 1000)
 #endif
 
 #ifndef MQTT_EVENTS_HANDLE_PERIOD_MS
@@ -63,6 +63,7 @@ extern "C" {
 #define MQTT_READBUF_SIZE (1024 * 2)
 #endif
 
+/* the unit is milisecond */
 #ifndef MQTT_WRITE_FOR_SECRET_TIMEOUT
 #define MQTT_WRITE_FOR_SECRET_TIMEOUT (30 * 1000)
 #endif
