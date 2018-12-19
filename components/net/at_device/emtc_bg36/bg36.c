@@ -335,7 +335,7 @@ static int32_t bg36_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* 
 
 static int32_t bg36_recv(int32_t id , uint8_t  *buf, uint32_t len)
 {
-    return bg36_recv_timeout(id, buf, len, NULL, NULL, LOS_WAIT_FOREVER);
+    return bg36_recv_timeout(id, buf, len, NULL, NULL, LOS_WAIT_FOREVER);/*lint !e569*/
 }
 
 static int32_t bg36_close(int32_t id)
@@ -396,7 +396,7 @@ static int32_t bg36_init(void)
     int ret;
 
     at.init(&at_user_conf);
-    memset(sockinfo, 0, sizeof(emtc_socket_info) * MAX_BG36_SOCK_NUM);
+    memset(sockinfo, 0, sizeof(emtc_socket_info) * MAX_BG36_SOCK_NUM);/*lint !e545*/
 
     (void)at.oob_register(AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX), bg36_data_handler, bg36_cmd_match);
     (void)bg36_cmd(ATI, strlen(ATI), "OK", NULL, NULL);
@@ -423,7 +423,7 @@ static int32_t bg36_init(void)
 
     for( i = 0; i < MAX_BG36_SOCK_NUM; i++)
     {
-        (void)bg36_close(i);
+        (void)bg36_close((int32_t)i);/*lint !e534*/
     }
 
     return bg36_cmd(QIACTQUERY, strlen(QIACTQUERY), "OK", NULL, NULL);
