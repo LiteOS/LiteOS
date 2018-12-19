@@ -172,15 +172,15 @@ int32_t bg36_create_socket(const int8_t * host, const int8_t *port, int32_t prot
     }
 
     (void)snprintf(cmd, 64, "%s,%d,\"%s\",\"%s\",%s,0,1\r", QIOPEN_SOCKET, id, service_type, host, port);
-    ret = bg36_cmd(cmd, strlen(cmd), "+QIOPEN", inbuf, &rbuflen);
-    str = strstr(inbuf, "+QIOPEN");
+    ret = bg36_cmd(cmd, strlen(cmd), "+QIOPEN:", inbuf, &rbuflen);
+    str = strstr(inbuf, "+QIOPEN:");
     if (str == NULL || ret != AT_OK)
     {
         AT_LOG("QIOPEN no reply, sockid:%d", id);
         (void)bg36_close_sock((int)id);
         (void)LOS_TaskDelay(10000);
-        ret = bg36_cmd(cmd, strlen(cmd), "+QIOPEN", inbuf, &rbuflen);
-        str = strstr(inbuf, "+QIOPEN");
+        ret = bg36_cmd(cmd, strlen(cmd), "+QIOPEN:", inbuf, &rbuflen);
+        str = strstr(inbuf, "+QIOPEN:");
         if (str == NULL || ret != AT_OK)
         {
             at.linkid[id].usable = AT_LINK_UNUSE;
