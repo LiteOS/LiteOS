@@ -385,7 +385,7 @@ static int32_t sota_data_block_process(const ota_pcp_head_s *head, const uint8_t
     else
     { 
         SOTA_LOG("Rx total %d bytes, UPDATING...\r\n", g_at_update_record.block_tolen);
-        ret = g_storage_device->write_software_end(g_storage_device, (pack_download_result_e)ret, g_at_update_record.block_tolen);
+        ret = g_storage_device->write_software_end(g_storage_device, PACK_DOWNLOAD_OK, g_at_update_record.block_tolen);
         if (ret != SOTA_OK)
         {
             SOTA_LOG("write software end ret:%d", ret);
