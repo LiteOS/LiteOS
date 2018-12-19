@@ -237,7 +237,7 @@ static int sota_at_send(msg_code_e msg_code, char *buf, int len)
     if (len >= SEND_BUF_LEN)
     {
         SOTA_LOG("payload too long");
-        return -1;
+        return SOTA_FAILED;
     }
     pcp_head.ori_id = htons_ota(PCP_HEAD);
     pcp_head.ver_num = 1;
@@ -501,6 +501,12 @@ void sota_timeout_handler(void)
         SOTA_LOG("Download block %d over time", g_at_update_record.block_num);
         sota_send_response_code(MSG_EXC_UPDATE, DOWNLOAD_TIME_OUT);
         sota_send_request_block(g_at_update_record.ver);
+    }
+    else if (g_at_update_record.state == UPDATING)
+    {
+        SOTA_LOG("Download finish. excute over time");
+        sota_send_response_code(MSG_EXC_UPDATE, DOWNLOAD_TIME_OUT);
+        sota_send_response_code(MSG_DOWNLOAD_STATE, DEV_OK);
     }
 }
 
