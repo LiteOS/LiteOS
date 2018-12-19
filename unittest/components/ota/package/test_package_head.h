@@ -31,32 +31,44 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#ifndef TEST_FOTA_FIRMWARE_WRITE_H_
-#define TEST_FOTA_FIRMWARE_WRITE_H_
+
+#ifndef TEST_FOTA_PACKAGE_HEAD_H_
+#define TEST_FOTA_PACKAGE_HEAD_H_
 
 #include <cpptest.h>
 #include "stub.h"
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <osdepends/atiny_osdep.h>
+#include "package_checksum.h"
 
-class TestFotaFirmwareWrite:public Test::Suite{
+
+class TestPackageHead:public Test::Suite{
 public:
-    void test_fota_fmw_wr_init();
-    void test_fota_fmw_wr_free_save_buffer();
-    void test_fota_fmw_wr_destroy();
-    void test_fota_fmw_wr_set_device();
-    void test_fota_fmw_wr_check();
-    void test_fota_fmw_wr_create_buffer();
-    void test_fota_fmw_wr_write_combined_data();
-    void test_fota_fmw_wr_write_buffer_data();
-    void test_fota_fmw_wr_write();
-    void test_fota_fmw_wr_write_stored_data();
-    void test_fota_fmw_wr_write_end();
-    
-    TestFotaFirmwareWrite();
-    ~TestFotaFirmwareWrite();
+	void test_pack_head_init();
+	void test_pack_head_destroy();
+	void test_pack_head_parse_head_len();
+
+	void test_pack_head_parse();
+
+	void test_pack_head_check();
+	void test_pack_head_get_head_len();
+	void test_pack_head_get_head_info();
+	void test_pack_head_set_head_info();
+	void test_pack_head_get_checksum();
+	void test_pack_head_get_key();
+	
+    TestPackageHead();
+
+    ~TestPackageHead();
 
 protected:
     void tear_down();
     void setup();
 };
 
+
+
 #endif
+

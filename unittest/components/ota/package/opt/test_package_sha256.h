@@ -39,14 +39,12 @@
 #include "stub.h"
 
 //class TestFotaPackageSha256:public Test::Suite {
-class TestFotaPackageSha256:public Test::Suite{
+class TestPackageSha256:public Test::Suite{
 public:
-    void test_fota_pack_sha256_init();
-    void test_fota_pack_sha256_update();
-    void test_fota_pack_sha256_check();
-    void test_fota_pack_sha256_destroy();
 
-    TestFotaPackageSha256();
+	void test_pack_sha256_init();
+
+    TestPackageSha256();
 
 protected:
     void tear_down();

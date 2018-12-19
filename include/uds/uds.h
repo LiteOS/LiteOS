@@ -37,10 +37,10 @@
 
 #include "uds_dev.h"
 
-#define uds_driv_t           los_driv_t          
-#define uds_driv_op_t        los_driv_op_t  
+#define uds_driv_t           los_driv_t
+#define uds_driv_op_t        los_driv_op_t
 
-#define uds_driv_init        los_driv_init 
+#define uds_driv_init        los_driv_init
 #define uds_driv_register    los_driv_register
 #define uds_driv_event       los_driv_event
 
@@ -49,7 +49,6 @@
 #define uds_dev_write        los_dev_write
 #define uds_dev_close        los_dev_close
 #define uds_dev_ioctl        los_dev_ioctl
-#define uds_dev_open         los_dev_open
 
 
 #endif  //end for the file

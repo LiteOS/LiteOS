@@ -134,6 +134,11 @@ int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *
         {
             PACK_LOG("invalid version %d", version);
             head->stored_len = 0;
+			if(head->buff!=NULL)
+			{
+				atiny_free(head->buff);
+				head->buff==NULL;
+			}
             return PACK_ERR;
         }
 
@@ -144,6 +149,11 @@ int pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *
         {
             PACK_LOG("invalid head len %d, total len %d", head_len, total_len);
             head->stored_len = 0;
+			if(head->buff!=NULL)
+			{
+				atiny_free(head->buff);
+				head->buff==NULL;
+			}
             return PACK_ERR;
         }
 

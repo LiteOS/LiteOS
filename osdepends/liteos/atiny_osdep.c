@@ -247,13 +247,32 @@ int atiny_task_mutex_create(atiny_task_mutex_s *mutex)
     return LOS_OK;
 }
 
+#define ATINY_DESTROY_MUTEX_WAIT_INTERVAL 100
 int atiny_task_mutex_delete(atiny_task_mutex_s *mutex)
 {
+    int ret;
+
     if (!atiny_task_mutex_is_valid(mutex))
     {
         return ERR;
     }
-    return LOS_MuxDelete(mutex->mutex);
+
+    do
+    {
+        ret = LOS_MuxDelete(mutex->mutex);
+        if (LOS_ERRNO_MUX_PENDED == ret)
+        {
+            LOS_TaskDelay(ATINY_DESTROY_MUTEX_WAIT_INTERVAL);
+        }
+        else
+        {
+            break;
+        }
+    }while (true);
+
+    memset(mutex, 0, sizeof(*mutex));
+
+    return ret;
 }
 int atiny_task_mutex_lock(atiny_task_mutex_s *mutex)
 {

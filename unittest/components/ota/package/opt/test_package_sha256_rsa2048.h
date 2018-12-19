@@ -32,51 +32,30 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_OTA_DEFAULT_H_
-#define TEST_OTA_DEFAULT_H_
+#ifndef TEST_FOTA_PACKAGE_SHA256_RSA2048_H
+#define TEST_FOTA_PACKAGE_SHA256_RSA2048_H
 
 #include <cpptest.h>
 #include "stub.h"
-#include <stdint.h>
+#include "package_checksum.h"
+#include "package_sha256_rsa2048.h"
+#include "package_sha256.h"
+#include "package_head.h"
+#include <string.h>
+#include "rsa.h"
 
-extern int test_hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
-extern int test_hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
-
-class TestOtaDefault:public Test::Suite {
+class TestPackageSha256Rsa2048:public Test::Suite{
 public:
-    void test_ota_default_init();
-    void test_ota_default_set_reboot();
-    void test_ota_default_check_update_state();
-    
-//  USE_BOOTLOADER
-    void test_ota_default_update_process();
-    void test_ota_default_jump_to_application();
-    void test_ota_default_roll_back_image();
-    void test_prv_get_update_record();
+	void test_pack_sha256_rsa2048_check();
+	void test_pack_sha256_rsa2048_init();
+	void test_mbedtls_rsa_check_pubkey();
+	void test_mbedtls_rsa_pkcs1_verify();
 
-//  test ota.c
-    void test_ota_register_module();
-    void test_ota_register_assist();
-    //void test_ota_init();
-    void test_ota_update_process();
-    void test_ota_jump_to_application();
-    void test_ota_roll_back_image();
-//  USE_BOOTLOADER NO!
-//    void test_ota_set_reboot();
-//    void test_ota_check_update_state()
-
-    // test ota_crc.c
-//    void test_calc_crc32();
-
-
-    TestOtaDefault();
-    ~TestOtaDefault();
-    
+    TestPackageSha256Rsa2048();
 protected:
     void tear_down();
     void setup();
 };
-
 
 #endif
 
