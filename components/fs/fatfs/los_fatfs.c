@@ -292,8 +292,17 @@ static int fatfs_op_open (struct file *file, const char *path_in_mp, int flags)
     {
         free(fp);
     }
-
-    return ret_to_errno(res);
+    if (FR_LOCKED == res)
+    {
+        int err = 0;
+        VFS_ERRNO_SET (EACCES);
+        err = EACCES;
+        return -err;
+    }
+    else
+    {
+        return ret_to_errno(res);
+    }
 }
 
 static int fatfs_op_close (struct file *file)
@@ -356,14 +365,16 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     FIL *fp = (FIL *)file->f_data;
 
     POINTER_ASSERT(fp);
-
     switch (whence)
     {
     case 0: // SEEK_SET
         break;
     case 1: // SEEK_CUR
-        off += f_tell(fp);
+    {
+        long num = f_tell(fp);
+        off += num;
         break;
+    }
     case 2: // SEEK_END
         off += f_size(fp);
         break;
@@ -371,7 +382,12 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     	ret_to_errno(FR_INVALID_PARAMETER);
         return -1;
     }
-
+    
+    if (off < 0)
+    {
+        return ret_to_errno(FR_INVALID_PARAMETER);
+    }
+    
     FRESULT res = f_lseek(fp, off);
     if (res == FR_OK)
     {
@@ -411,7 +427,18 @@ int fatfs_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *
 static int fatfs_op_unlink (struct mount_point *mp, const char *path_in_mp)
 {
     FRESULT res = f_unlink(path_in_mp);
-    return ret_to_errno(res);
+    if (FR_NO_PATH == res)
+    {
+        int err = 0;
+        VFS_ERRNO_SET (ENOENT);
+        err = ENOENT;
+        return -err;
+    }
+    else
+    {
+    	return ret_to_errno(res);
+    }
+
 }
 
 static int fatfs_op_rename (struct mount_point *mp, const char *path_in_mp_old,
@@ -511,7 +538,17 @@ static int fatfs_op_closedir (struct dir *dir)
 static int fatfs_op_mkdir(struct mount_point *mp, const char *path)
 {
     FRESULT res = f_mkdir(path);
-    return ret_to_errno(res);
+    if (FR_NO_PATH == res)
+    {
+        int err = 0;
+        VFS_ERRNO_SET (ENOENT);
+        err = ENOENT;
+        return -err;
+    }
+    else
+    {
+    	return ret_to_errno(res);
+    }
 }
 
 static struct file_ops fatfs_ops =
