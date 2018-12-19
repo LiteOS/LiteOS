@@ -370,11 +370,8 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     case 0: // SEEK_SET
         break;
     case 1: // SEEK_CUR
-    {
-        long num = f_tell(fp);
-        off += num;
+        off += f_tell(fp);
         break;
-    }
     case 2: // SEEK_END
         off += f_size(fp);
         break;
