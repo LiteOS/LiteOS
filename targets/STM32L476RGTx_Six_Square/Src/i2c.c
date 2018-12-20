@@ -633,7 +633,7 @@ s32_t uds_i2c_dev_install(const char *name, void *pri)
 
 s32_t uds_i2c_dev_uninstall(const char *name)
 {
-    return los_driv_unregister(name);
+    return uds_driv_unregister(name);
 }
 
 
