@@ -819,6 +819,7 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     cJSON_InitHooks(NULL);
     if (params == NULL || phandle == NULL
+        || params->info.security_type != MQTT_SECURITY_TYPE_CA
         || mqtt_check_param(params) != ATINY_OK)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
