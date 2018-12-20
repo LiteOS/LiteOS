@@ -83,7 +83,9 @@ typedef enum
     I2C_MAX_CMD,
 }dal_i2c_cmd;
 
-bool_t uds_i2c_dev_install(const char *name, void *pri);
+s32_t uds_i2c_dev_install(const char *name, void *pri);
+s32_t uds_i2c_dev_uninstall(const char *name);
+
 
 #ifdef __cplusplus
 }
