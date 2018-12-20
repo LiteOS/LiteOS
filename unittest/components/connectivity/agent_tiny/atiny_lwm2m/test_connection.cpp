@@ -88,7 +88,10 @@ extern 	void connection_striger_server_initiated_bs(connection_t * sessionH);
     {
         return;
     }
-}
+	//static int stub_atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
+    //                       uint32_t timeout){return 0;}
+	
+}//extern "C"
 void TestConnection::test_connection_create()
 {
     connection_t conn;
@@ -263,15 +266,19 @@ void TestConnection::test_lwm2m_close_connection()
 }
 void TestConnection::test_lwm2m_buffer_recv()
 {
+    stubInfo si__1;
+    setStub((void*)atiny_net_recv_timeout,(void*)stub_atiny_net_recv_timeout,&si__1);
     int result = 0;
     connection_t *sessionH = NULL;
-
     sessionH = (connection_t *)malloc(sizeof(connection_t));
     TEST_ASSERT(sessionH != NULL);
     sessionH->net_context = (int *)malloc(sizeof(int));
+	//sessionH->dtls_flag = true;
+	printf("@@@272\n");
 	//lwm2m_register_connection_err_notify(lwm2m_connection_err_notify);
-    result = lwm2m_buffer_recv(sessionH, NULL, 0, 1);
-
+    result = lwm2m_buffer_recv((void*)sessionH, NULL, 0, 1);
+	printf("@@@275\n");
+	cleanStub(&si__1);
 
     stubInfo si;
     printf("in test_lwm2m_buffer_recv 255\n");
@@ -404,9 +411,13 @@ TestConnection::TestConnection()
 	printf("in TestConnection 9end\n");
 	
     TEST_ADD(TestConnection::test_connection_striger_server_initiated_bs);
+	printf("in TestConnection 10\n");
     TEST_ADD(TestConnection::test_lwm2m_step_striger_server_initiated_bs);
+	printf("in TestConnection 11\n");
     TEST_ADD(TestConnection::test_lwm2m_stop_striger_server_initiated_bs);
+	printf("in TestConnection 12\n");
     TEST_ADD(TestConnection::test_lwm2m_is_sec_obj_uri_valid);
+	printf("in TestConnection 13\n");
 	
 }
 
@@ -450,14 +461,16 @@ void TestConnection::setup()
     agent_tiny_fota_init();
     int ret = atiny_init(atiny_params, &handle);
     cleanStub(&si_atiny_mutex_create);
-    printf("[%s:%d] ret:%d\n", __FILE__, __LINE__, ret);
+    //printf("[%s:%d] ret:%d\n", __FILE__, __LINE__, ret);
     TEST_ASSERT(ret != ATINY_OK);
 
 }
 
 void TestConnection::tear_down()
 {
-    std::cout << "deinit for TestConnection\n";
+	static int i = 0;
+
+    std::cout << ++i <<"  deinit for TestConnection\n";
 }
 
 

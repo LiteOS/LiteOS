@@ -82,9 +82,10 @@ extern "C"
 		*valueP = 2;
 		return result;
     }
-
+	static int stub_lwm2m_data_decode_int_1(const lwm2m_data_t *dataP,
+                          int64_t *valueP){return 1;}
 	
-}
+}//extern "C"
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
 /* Public functions ---------------------------------------------------------*/
@@ -471,7 +472,9 @@ void TestObjectSecurity::test_prv_security_write(void)
 	{
 		free(dataArray);
 	}	
-    clean_security_object(pSecurityObject);
+	lwm2m_list_free(pSecurityObject->instanceList);
+	lwm2m_free(pSecurityObject);
+    //clean_security_object(pSecurityObject);//test_clean_security_object
 
 }
 
@@ -496,15 +499,60 @@ void TestObjectSecurity::test_prv_security_create(void)
     dataArray = (lwm2m_data_t *)malloc(sizeof(*dataArray));
     memset(dataArray, 0, sizeof(*dataArray));
     TEST_ASSERT_MSG(dataArray != NULL, "dataArray malloc failed\r\n");
-
 	
     ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
     TEST_ASSERT_MSG((COAP_500_INTERNAL_SERVER_ERROR != ret), "prv_security_create(...) failed in object_security.c");
-    if(dataArray != NULL)
+
+	////
+    dataArray[0].id = LWM2M_SECURITY_BOOTSTRAP_ID;//1
+	ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SECURITY_ID;//2
+	stubInfo si_decodeinit;
+	setStub((void*)lwm2m_data_decode_int,(void*)stub_lwm2m_data_decode_int,&si_decodeinit);
+	ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	cleanStub(&si_decodeinit);
+	
+	dataArray[0].id = LWM2M_SECURITY_PUBLIC_KEY_ID;//3
+	ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SERVER_PUBLIC_KEY_ID;//4
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SECRET_KEY_ID;//5
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SMS_SECURITY_ID;//6
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SMS_KEY_PARAM_ID;//7
+	ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SMS_SECRET_KEY_ID;//8
+	ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	dataArray[0].id = LWM2M_SECURITY_SMS_SERVER_NUMBER_ID;//9
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+
+	dataArray[0].id = LWM2M_SECURITY_SHORT_SERVER_ID;//10
+	setStub((void*)lwm2m_data_decode_int,(void*)stub_lwm2m_data_decode_int,&si_decodeinit);
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	
+	dataArray[0].id = LWM2M_SECURITY_HOLD_OFF_ID;//11
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	
+	dataArray[0].id = LWM2M_SECURITY_BOOTSTRAP_TIMEOUT_ID;//12
+    ret = pSecurityObject->createFunc(0, 0, dataArray, pSecurityObject);
+	cleanStub(&si_decodeinit);
+	if(dataArray != NULL)
     {
         free(dataArray);
     }
+	
+	////
+#if 0	//deal with memcheck
+	
+	if (targetP !=NULL && targetP->uri != NULL) lwm2m_free(targetP->uri);
+#endif	//deal with memcheck end 
+	security_instance_t *targetP;
+	targetP = (security_instance_t *)lwm2m_list_find(pSecurityObject->instanceList, 0);
 
+	lwm2m_free(targetP->publicIdentity);
+	lwm2m_free(targetP->serverPublicKey);
+	lwm2m_free(targetP->secretKey);
     clean_security_object(pSecurityObject);
 }
 

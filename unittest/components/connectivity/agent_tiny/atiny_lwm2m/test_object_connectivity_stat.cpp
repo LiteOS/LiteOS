@@ -37,7 +37,8 @@
 void TestObjectObjectConnectivityStat::test_prv_read()
 {
     int result = 0;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 7, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = {0x07, 7, 0,  0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 7, .instanceId = 0, .resourceId = 0};
     lwm2m_object_t *testObj = NULL;
     int len = 0;
     lwm2m_data_t *dataArray = NULL;
@@ -66,7 +67,8 @@ void TestObjectObjectConnectivityStat::test_prv_exec()
 {
     int result = 0;
     int len = 0;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 7, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = { 0x07, 7, 0, 0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 7, .instanceId = 0, .resourceId = 0};
     lwm2m_object_t *testObj = NULL;
 
 

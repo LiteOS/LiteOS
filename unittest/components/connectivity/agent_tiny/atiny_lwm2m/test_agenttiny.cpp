@@ -207,6 +207,27 @@ extern "C"
 	{
 	    return;
 	}
+	
+	static int stub_atiny_init_objects(atiny_param_t *atiny_params, const atiny_device_info_t *device_info, handle_data_t *handle){
+		return 0;
+	}
+	static int stub_atiny_step_rpt(lwm2m_context_t *context){
+		//handle_data_t * p = (handle_data_t*)context;
+		//p->atiny_quit = 1;
+		return 0;
+	}
+	static int stub_lwm2m_step(lwm2m_context_t *contextP,time_t *timeoutP){
+		s_handle->atiny_quit = 1;
+		return 0;
+	}
+	static void stub_reboot_check(void){}
+	static int stub_lwm2m_buffer_recvFalse(void *sessionH, uint8_t *buffer, size_t length, uint32_t timeout){
+		return 0;
+	}
+	static int stub_lwm2m_buffer_recv(void *sessionH, uint8_t *buffer, size_t length, uint32_t timeout){
+		return 4;
+	}
+	static void stub_atiny_destroy(void *handle){}
 				
 }
 /* Global variables ---------------------------------------------------------*/
@@ -286,6 +307,12 @@ void TestAgenttiny::test_atiny_init(void)
     atiny_params.server_params.bootstrap_mode = BOOTSTRAP_SEQUENCE;
     ret = atiny_init(&atiny_params, &pHandle);
     TEST_ASSERT_MSG((ATINY_ARG_INVALID != ret), "atiny_init(...) failed");
+    //    atiny_security_param_t s_aspt;
+    char v_char1[10];
+	char v_char2[10];
+    atiny_params.security_params[0].psk = v_char1;
+	atiny_params.security_params[0].psk_Id = v_char2;
+	ret = atiny_init(&atiny_params, &pHandle);
 
     atiny_params.server_params.bootstrap_mode = (atiny_bootstrap_type_e)0xff;
     ret = atiny_init(&atiny_params, &pHandle);
@@ -334,7 +361,6 @@ void TestAgenttiny::test_atiny_bind(void)
     ret = atiny_init(&s_atiny_params, &pHandle);
     cleanStub(&si_mutex_create);
     //TEST_ASSERT_MSG((ATINY_OK == ret), "atiny_init(...) failed");
-    /////////////////////
  
     ret = atiny_bind(&device_info, pHandle);
     TEST_ASSERT_MSG((ATINY_ARG_INVALID == ret), "atiny_bind(NULL, NULL) failed");
@@ -367,16 +393,53 @@ void TestAgenttiny::test_atiny_bind(void)
     
     setStub((void *)select, (void *)stub_select, &si_select);	
    
-    
+    printf("@@@===380\n");
     ret = atiny_bind(&device_info, pHandle);
+	TEST_ASSERT_MSG((ATINY_OK == ret), "atiny_bind(NULL, NULL) failed");
+	printf("@@@===382\n");
 	
+	//deal with lwm2m_register_connection_err_notify(atiny_connection_err_notify);
+	//g_connection_err_notify(NULL,0,true);
+	//deal with the dead while-loop
+    stubInfo si_initObj;
+	stubInfo si_step_rpt;
+	stubInfo si_step;
+	stubInfo si_reboot;
+	stubInfo si_buffer_recv;
+	stubInfo si_destroy;
+	setStub((void*)atiny_destroy,(void*)stub_atiny_destroy,&si_destroy);
+	setStub((void*)lwm2m_buffer_recv,(void*)stub_lwm2m_buffer_recvFalse,&si_buffer_recv);
+	setStub((void*)reboot_check,(void*)stub_reboot_check,&si_reboot);
+	setStub((void*)lwm2m_step,(void*)stub_lwm2m_step,&si_step);
+	setStub((void*)atiny_step_rpt,(void*)stub_atiny_step_rpt,&si_step_rpt);
+	setStub((void*)atiny_init_objects,(void*)stub_atiny_init_objects,&si_initObj);
+	client_data_t l_userdata;
+	connection_t l_connList;
+	l_connList.next = NULL;
+	l_userdata.connList = &l_connList;
+	uint8_t l_recvbuffer[10];
+	handle_data_t l_s_handle;
+	lwm2m_context_t l_context;
+	l_context.userData = (void*)(&l_userdata);
+	l_s_handle.atiny_quit = 0;
+	l_s_handle.lwm2m_context = &l_context;
+	l_s_handle.reconnect_flag =false;
+	l_s_handle.recv_buffer = l_recvbuffer;
+	s_handle = &l_s_handle;
+	ret = atiny_bind(&device_info, (void*)(&l_s_handle));
+	cleanStub(&si_initObj);
+	cleanStub(&si_step_rpt);
+	cleanStub(&si_step);
+	cleanStub(&si_reboot);
+	cleanStub(&si_buffer_recv);
+	cleanStub(&si_destroy);
     //cleanStub(&si_err_notify);
- 
-
-    TEST_ASSERT_MSG((ATINY_OK == ret), "atiny_bind(NULL, NULL) failed");
+ 	//g_connection_err_notify
+	
+    
 
     cleanStub(&si_mutex_create);	
-    //cleanStub(&si_cmd_ioctl);
+    cleanStub(&si_cmd_ioctl);
     //cleanStub(&si_select);
 
 
@@ -392,7 +455,7 @@ void TestAgenttiny::test_atiny_bind(void)
 
 	for (int i= 0;i < 12;i++)
 	{
-	  lwm2m_buffer_recv(sessionH, NULL, 0, 1);
+	  //lwm2m_buffer_recv(sessionH, NULL, 0, 1);
 	}	
     cleanStub(&si);
 	
@@ -403,7 +466,7 @@ void TestAgenttiny::test_atiny_bind(void)
     ret = 0;
     atiny_deinit(pHandle);
     TEST_ASSERT_MSG((0 == ret), "atiny_deinit(...) failed");
-	
+	lwm2m_free(l_s_handle.recv_buffer);
 
 
 

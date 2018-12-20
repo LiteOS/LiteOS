@@ -25,7 +25,7 @@
 #if !defined(DLLExport)
   #define DLLExport
 #endif
-
+#include "MQTTPacket.h"
 
 typedef union
 {
