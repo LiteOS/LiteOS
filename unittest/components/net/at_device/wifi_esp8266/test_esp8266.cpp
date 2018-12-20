@@ -74,6 +74,7 @@ extern "C"
     extern int32_t esp8266_recv_cb(int32_t id);
     extern int32_t esp8266_deinit(void);
 	extern int32_t esp8266_show_dinfo(int32_t s);
+	extern int32_t esp8266_cmd_match(const char *buf, char* featurestr,int len);
 
     // in at_main.c
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
@@ -208,7 +209,12 @@ TestEsp8266::TestEsp8266()
     TEST_ADD(TestEsp8266::test_esp8266_get_localmac);
     TEST_ADD(TestEsp8266::test_esp8266_recv_cb);
 	TEST_ADD(TestEsp8266::test_esp8266_bind);
+	TEST_ADD(TestEsp8266::test_esp8266_cmd_match);
     TEST_ADD(TestEsp8266::test_esp8266_deinit);
+	
+
+	
+
 
 	
 }
@@ -635,6 +641,17 @@ void TestEsp8266::test_esp8266_bind(void)
 	cleanStub(&stub_info);
     cleanStub(&stub_info1);
 }
+
+void TestEsp8266::test_esp8266_cmd_match(void)
+{
+	int32_t ret = AT_OK;
+	char testbuf[]="hello112";
+	char testfeaturestr[]="hello211";
+	ret = esp8266_cmd_match( testbuf, testfeaturestr, 5);
+    TEST_ASSERT_MSG((ret == 0), "esp8266_cmd_match(testbuf, testfeaturestr, 5) failed");
+	
+}
+
 /* Private functions --------------------------------------------------------*/
 
 void TestEsp8266::setup()
