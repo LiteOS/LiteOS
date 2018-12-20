@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,36 +31,23 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef _LOS_EXC_INC
+#define _LOS_EXC_INC
 
-/**@defgroup agent AgentTiny
- * @defgroup agenttiny Agenttiny Definition
- * @ingroup agent
- */
-#ifndef ATINY_ERROR_H
-#define ATINY_ERROR_H
+#include "los_exc.ph"
+#include "los_sys.ph"
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-typedef enum
-{
-    ATINY_OK                   = 0,
-    ATINY_ARG_INVALID          = -1,
-    ATINY_BUF_OVERFLOW         = -2,
-    ATINY_MSG_CONGEST          = -3,
-    ATINY_MALLOC_FAILED        = -4,
-    ATINY_RESOURCE_NOT_FOUND   = -5,
-    ATINY_RESOURCE_NOT_ENOUGH  = -6,
-    ATINY_CLIENT_UNREGISTERED  = -7,
-    ATINY_SOCKET_CREATE_FAILED = -8,
-    ATINY_ERR                  = -9
-} atiny_error_e;
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-#endif
-
-
+#endif /* _LOS_EXC_INC */
