@@ -40,7 +40,8 @@
 void TestObjectFirmware::test_prv_firmware_read()
 {
     int result;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = {0x07, 5, 0, 0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
     int len = 0;
     int i = 0;
     lwm2m_data_t *data = NULL;
@@ -83,7 +84,8 @@ void TestObjectFirmware::test_prv_firmware_read()
 void TestObjectFirmware::test_prv_firmware_execute()
 {
     int result;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = {0x07, 5, 0, 0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
     int len = 0;
     uint8_t *buffer = NULL;
     lwm2m_object_t *testObj = NULL;
@@ -110,7 +112,8 @@ void TestObjectFirmware::test_prv_firmware_execute()
 void TestObjectFirmware::test_prv_firmware_write()
 {
     int result;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = {0x07, 5, 0, 0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 5, .instanceId = 0, .resourceId = 0};
     lwm2m_object_t *testObj = NULL;
     atiny_param_t *atiny_pa = NULL;
     lwm2m_data_t* dataArray = NULL;

@@ -32,30 +32,39 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef TEST_FOTA_PACKAGE_SHA256_RSA2048_H
-#define TEST_FOTA_PACKAGE_SHA256_RSA2048_H
-
+#ifndef __AT_ADAPTER_H_
+#define __AT_ADAPTER_H_
 #include <cpptest.h>
+#include "adapter_layer.h"
+//#include "atiny_log.h"
 #include "stub.h"
-#include "package_checksum.h"
-#include "package_sha256_rsa2048.h"
-#include "package_sha256.h"
-#include "package_head.h"
-#include <string.h>
-#include "rsa.h"
 
-class TestPackageSha256Rsa2048:public Test::Suite{
-public:
-	void test_pack_sha256_rsa2048_check();
-	void test_pack_sha256_rsa2048_init();
-	void test_mbedtls_rsa_check_pubkey();
-	void test_mbedtls_rsa_pkcs1_verify();
+class TestAtadapter:public Test::Suite {
+	
+ protected:
+  void tear_down();
+  void setup();
 
-    TestPackageSha256Rsa2048();
-protected:
-    void tear_down();
-    void setup();
+ public:
+  void test_at_listener_list_add();
+  void test_at_listner_list_del();
+  void test_at_get_unuse_linkid();
+  void test_store_resp_buf();
+  void test_at_cmd();
+  void test_at_write();
+  void test_cloud_cmd_matching();
+  void test_at_recv_task();
+  void test_create_at_recv_task();
+  void test_at_init_oob();
+  void test_at_struct_init();
+  void test_chartoint();
+  void test_at_init();
+  void test_at_oob_register();
+  void test_at_deinit();
+  void test_set_get_config();
+  void test_at_cmd_in_callback();
+  
+  
+  TestAtadapter();
 };
-
 #endif
-

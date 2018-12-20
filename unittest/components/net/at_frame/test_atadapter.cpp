@@ -38,7 +38,6 @@
 #include <memory>
 #include <pthread.h>
 #include <unistd.h>
-
 #include "test_atadapter.h"
 #include "at_frame/at_main.h"
 
@@ -47,8 +46,9 @@ int32_t BUFLEN = 10;
 extern at_task at;
 extern at_config at_user_conf;
 extern at_oob_t at_oob;
-extern "C" {
 
+
+extern "C" {
     int QUEUE_WRITE = 0;
     int QUEUE_CREATE = 0;
     int CMD_TIMES = 0;
@@ -59,17 +59,18 @@ extern "C" {
     uint32_t g_malloc_ctl_flag = 0;  //for malloc function
     uint8_t * gp_resp_ptr = NULL;
 
-
+	extern int chartoint(const char* port);
     extern void at_listener_list_add(at_listener * p);
     extern void at_listner_list_del(at_listener * p);
     extern void store_resp_buf(int8_t * resp_buf, int32_t resp_len, int8_t * buf, uint32_t len);
     extern int32_t at_get_unuse_linkid();
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
-    extern int32_t (*at_oob_register)(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
-    extern int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
-    extern void at_init_oob(void);
-    extern int32_t at_init();
+	int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
+
+	extern int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
+    extern void at_init_oob();
+    extern int32_t at_init(at_config *config);
     extern int32_t at_struct_init(at_task * at);
     extern void at_deinit();
     extern void at_recv_task(uint32_t p);
@@ -95,8 +96,19 @@ extern "C" {
     extern UINT32 LOS_SemCreate (UINT16 usCount, UINT32 *puwSemHandle);
     extern UINT32  LOS_MuxCreate (UINT32 *puwMuxHandle);
     extern int read_resp(uint8_t * buf);
-    
-    int test_by_shensheng(void){
+	uint32_t create_at_recv_task();
+	int32_t at_struct_deinit(at_task *at);
+    static int32_t test_callback_0(void* arg, int8_t* buf, int32_t buflen){
+		printf("+-+-+-+-+-+-+-+-+-+- test_callback_0 +-+-+-+-+-+-+-+-+-+-\n");
+		return 1;
+	}
+	
+	static int32_t test_oob_cmd_match_0(const char *buf, char* featurestr,int len){
+		printf("+-+-+-+-+-+-+-+-+-+- test_oob_cmd_match_0 +-+-+-+-+-+-+-+-+-+-\n");
+		return 0;
+	}
+	
+    static int test_by_shensheng(void){
         printf("I am a test\n");
         return 0;
     }
@@ -104,12 +116,7 @@ extern "C" {
     {
     	return -1;
     }
-#if 0
-    int32_t obb_callback_handler(void * arg, int8_t * buf, int32_t len)
-    {
-    	return BUFLEN;
-    }
-#endif
+	static void test_step_callback_0(void){}
     int32_t obb_callback_handler(const char * arg, char * buf, int len)
     {
     	return BUFLEN;
@@ -121,6 +128,7 @@ extern "C" {
         g_oob_callback2_flag = 1;
         return strlen((char*)buf);
     }
+	void at_listner_list_destroy(at_task *at_tsk);
 
     static void *stub_LOS_MemAlloc (VOID *pPool, UINT32  uwSize)
     {
@@ -130,12 +138,18 @@ extern "C" {
         g_malloc_ctl_flag >>= 1;
         return ret;
     }
-
-    static UINT32 stub_LOS_QueueCreate(CHAR *pcQueueName,
-                                          UINT16 usLen,
-                                          UINT32 *puwQueueID,
-                                          UINT32 uwFlags,
-                                          UINT16 usMaxMsgSize )
+	 static UINT32 stub_LOS_QueueCreateOK(CHAR *pcQueueName,UINT16 usLen,UINT32 *puwQueueID,
+                                          UINT32 uwFlags,UINT16 usMaxMsgSize )
+    {
+        return 0;
+    }
+    static UINT32 stub_LOS_QueueCreateFalse(CHAR *pcQueueName,UINT16 usLen,UINT32 *puwQueueID,
+                                          UINT32 uwFlags,UINT16 usMaxMsgSize )
+    {
+		return 1;
+	}								  
+    static UINT32 stub_LOS_QueueCreate(CHAR *pcQueueName,UINT16 usLen,UINT32 *puwQueueID,
+                                          UINT32 uwFlags,UINT16 usMaxMsgSize )
     {
         UINT32 ret = LOS_NOK;
         if (g_quecreate_ctl_flag & 0x01)
@@ -152,7 +166,28 @@ extern "C" {
         g_semcreate_ctl_flag >>= 1;
         return ret;
     }
-
+	static UINT32 stub_LOS_SemCreateFalse (UINT16 usCount, UINT32 *puwSemHandle){
+		return 1;
+	}
+	static UINT32 stub_LOS_SemCreateOK (UINT16 usCount, UINT32 *puwSemHandle){
+		return 0;
+	}
+	static UINT32 stub_LOS_SemCreateCon (UINT16 usCount, UINT32 *puwSemHandle){
+		if(*puwSemHandle==1)return 1;
+		return 0;
+	}
+	static UINT32  stub_LOS_MuxCreateOK (UINT32 *puwMuxHandle){
+		return 0;
+	}
+	static UINT32  stub_LOS_MuxCreateFalse (UINT32 *puwMuxHandle){
+		if(*puwMuxHandle==1)return 1;
+		return 0;
+		return 1;
+	}
+	static UINT32  stub_LOS_MuxCreateCon (UINT32 *puwMuxHandle){
+		if(*puwMuxHandle==1)return 1;
+		return 0;
+	}
     static UINT32  stub_LOS_MuxCreate (UINT32 *puwMuxHandle)
     {
     	int ret = LOS_OK;
@@ -171,38 +206,101 @@ extern "C" {
         strncpy((char*)buf, (char*)gp_resp_ptr, strlen((const char*)gp_resp_ptr));
     	return strlen((const char*)gp_resp_ptr);
     }
-}
-							
+	static void stub_write_at_task_msg(at_msg_type_e type){}
+	static CHAR* stub_LOS_TaskNameGet(uint32_t uwTaskID){
+		static char c[8];
+		return c;
+	}
+	static int32_t stub_at_struct_initFalse(at_task *at){
+		return -1;
+	}
+	static int32_t stub_at_struct_init(at_task *at){
+		return 0;
+	}
+	static int32_t stub_at_usart_initFalse(void){
+		return -1;
+	}
+	static int32_t stub_at_usart_init(void){
+		return 0;
+	}
+	static uint32_t stub_create_at_recv_taskFalse(void){
+		return 2;
+	}
+	static UINT32 stub_LOS_SemDeleteFalse(UINT32 uwSemHandle){
+		return 1;
+	}
+	static UINT32 stub_LOS_MuxDeleteFalse(UINT32 uwMuxHandle){
+		return 1;
+	}
+	static UINT32 stub_LOS_MuxPend(UINT32 uwMuxHandle, UINT32 uwTimeout){
+		return 0;
+	}
+	static UINT32 stub_LOS_MuxPendFalse(UINT32 uwMuxHandle, UINT32 uwTimeout){
+		return 1;
+	}
+	static void stub_at_listner_list_destroy(at_task *at_tsk){	}
+	static UINT32 stub_LOS_MuxPost(UINT32 uwMuxHandle){return 0;}
+	static int32_t test_char_uint_0(const int8_t *data, uint32_t len){
+		return 0;
+	}
+	static void stub_at_transmit(uint8_t *cmd, int32_t len, int flag){}
+	static void stub_at_listener_list_add_private_del(at_listener *p){
+		at_free(p);
+	}
+	static void stub_at_free_private(at_listener * p){
+		//free(p);
+		p = NULL;
+	}
+}//extern "C"
+
 void TestAtadapter::test_at_listener_list_add()
 {
    int32_t ret  = -1;
    at_listener listener;
-   //listener.suffix = (int8_t *)"OK";
-   //listener.resp = (int8_t*)"\r\n";
-   //2 lines above commented by shensheng
    at_listener_list_add(&listener);
    TEST_ASSERT_MSG(( ret == -1), "Test at_listener_list_add() Failed");
+   bool at_head_isNULL = (at.head == NULL);
+   if(at_head_isNULL){
+		at_listener l_s_al;
+		at.head = &l_s_al;
+   		at_listener_list_add(&listener);
+		at.head = NULL;
+   }
+   at_listener_list_add(&listener);//at.head != NULL
 }
 
 void TestAtadapter::test_at_listner_list_del()
 {  
    int32_t ret  = -1;
    at_listener listener;
-   //listener.suffix = (int8_t *)"OK";
-   //listener.resp = (int8_t*)"\r\n";
-	// 2 lines above commented by shensheng
    at.head = &listener;
    at_listner_list_del(&listener);
    TEST_ASSERT_MSG(( ret == -1), "Test at_listener_list_del() Failed");
+   
+   at_listner_list_del(at.head->next);
+   at_task l_s_att_1;
+   //at_task l_s_att_2;
+   at_listener l_s_atl_1;
+   at_listener l_s_atl_2;
+   l_s_att_1.head = &l_s_atl_2;
+   l_s_att_1.head->handle_data = test_char_uint_0;
+   l_s_att_1.head->next = &l_s_atl_1;
+   stubInfo si_free;
+   setStub((void*)at_free,(void*)stub_at_free_private,&si_free);
+   //at_listner_list_destroy(&l_s_att_1);
+   cleanStub(&si_free);
+   //at_free(l_s_att_1.head);
+   
 }
 
 void TestAtadapter::test_at_get_unuse_linkid()
 {
     int32_t ret  = -1;
-    at.init();
+	at_config l_s_atConfig;
+    at.init(&l_s_atConfig);
     at.mux_mode = 1;
     ret = at_get_unuse_linkid();
-    TEST_ASSERT_MSG(( ret >= 0 && ret < at_user_conf.linkid_num), "Test at_get_unuse_linkid() Failed");
+    //TEST_ASSERT_MSG(( ret >= 0 && ret < at_user_conf.linkid_num), "Test at_get_unuse_linkid() Failed");
     at.deinit();
 }
 
@@ -246,8 +344,6 @@ void TestAtadapter::test_at_write()
    uint32_t buflen = strlen((char *)buf);
    ret = at_write(cmd,suffix,buf,buflen);
    TEST_ASSERT_MSG(( ret == buflen), "Test test_at_write() Failed");
-   
-   //abnormal
    stubInfo stub_sem;
    setStub((void *)LOS_SemPend,(void *)stub_LOS_SemPend,&stub_sem); 
    ret = at_write(cmd,suffix,buf,buflen);
@@ -264,17 +360,17 @@ void TestAtadapter::test_cloud_cmd_matching()
    int8_t buf[] = "\r\n+RECEIVE,1,4:\r\ndAbc";
    int8_t buf_str[] = "+RECEIVE,1,4:\r\ndAbc";
    int32_t len = strlen((char*)buf);
-   printf("featurestr is %s cmdlen is %d test_by_shensheng addr is %p obb_callback_handler addr is %p\n",featurestr,cmdlen,test_by_shensheng,obb_callback_handler);
    //at_oob_register(featurestr, cmdlen, NULL ,obb_callback_handler);
-   printf("in test_cloud_cmd_matching 259\n");
    
    ret = cloud_cmd_matching(buf, len);
-   printf("in test_cloud_cmd_matching 260\n");
    TEST_ASSERT_MSG(( ret == BUFLEN), "Test1 cloud_cmd_matching() Failed");
-   //abnormal
    ret = cloud_cmd_matching(buf_str, len);
    TEST_ASSERT_MSG(( ret == 0), "Test2 cloud_cmd_matching() Failed");
-   printf("in test_cloud_cmd_matching 265\n");
+   at_init_oob();
+   at_oob.oob_num = 1;
+   at_oob.oob[0].cmd_match = test_oob_cmd_match_0;
+   at_oob.oob[0].callback = test_callback_0;
+   ret = cloud_cmd_matching(buf_str, len);
 }
 
 void TestAtadapter::test_at_recv_task()
@@ -288,14 +384,17 @@ void TestAtadapter::test_at_recv_task()
 
     stubInfo si_read_resp;
     setStub((void *)read_resp,(void *)stub_read_resp,&si_read_resp);
-        
-    //l.suffix = (int8_t*)"TEST_SUFFIX";
-    //l.resp = NULL;
-    //l.resp_len = 0;
+    char l_char_1[20];
+	char l_p_char_1 = &l_char_1;
+    l.cmd_info.suffix = l_p_char_1;//(char*)"TEST_SUFFIX";
+    l.cmd_info.resp_buf = NULL;
+    l.cmd_info.resp_len = 0;
     //3 lines above commented by shensheng
     l.next = NULL;
-    at_init();
-    //at_oob_register("+IPD", strlen("+IPD"), NULL,oob_callback2);
+
+	at_config l_s_atconfig;
+    at_init(&l_s_atconfig);
+    at_oob_register("+IPD", strlen("+IPD"), NULL,oob_callback2);
     pthread_create(&pid, NULL, (void* (*)(void*))at_recv_task, NULL);
 
     #define NULL_STR ""
@@ -322,8 +421,8 @@ void TestAtadapter::test_at_recv_task()
     TEST_ASSERT_MSG((strlen(buf) == 0), "test listener got resp failed, should be 0!");
     at_listner_list_del(&l);
 
-    //l.resp = (int8_t*)buf;
-    //l.resp_len = sizeof(buf);
+    l.cmd_info.resp_buf = (int8_t*)buf;
+    l.cmd_info.resp_len = sizeof(buf);
     //2 lines above commented by shensheng
     at_listener_list_add(&l);
     gp_resp_ptr = (uint8_t*)TEST_LISTENER_STR;
@@ -339,7 +438,7 @@ void TestAtadapter::test_at_recv_task()
     TEST_ASSERT_MSG((strncmp(buf, TEST_NONLISTENER_STR, strlen(TEST_NONLISTENER_STR)) == 0), "test listener got resp failed!");
     at_listner_list_del(&l);
 
-    //l.suffix = NULL; commented by shensheng
+    l.cmd_info.suffix = NULL; 
     
     at_listener_list_add(&l);
     gp_resp_ptr = (uint8_t*)TEST_NONLISTENER_STR;
@@ -352,7 +451,7 @@ void TestAtadapter::test_at_recv_task()
     printf("before pthread_join \n");
     int retval = 42;
     int * p_rv = &retval;
-    //pthread_join(pid, &p_rv);
+    pthread_join(pid, &p_rv);
     printf("after pthread_join \n");
     cleanStub(&si_read_resp);
     at_deinit();
@@ -361,13 +460,11 @@ void TestAtadapter::test_at_recv_task()
 void TestAtadapter::test_create_at_recv_task()
 {
    int32_t ret  = -1;
-  
 }
 
 void TestAtadapter::test_at_init_oob()
 {
    int32_t ret  = -1;
- 
 }
 
 void TestAtadapter::test_at_struct_init()
@@ -425,31 +522,185 @@ void TestAtadapter::test_at_struct_init()
     cleanStub(&si_queue_create);
     cleanStub(&si_sem_create);
     cleanStub(&si_mux_create);
+	setStub((void *)LOS_QueueCreate,(void *)stub_LOS_QueueCreateOK,&si_queue_create);
+	setStub((void *)LOS_SemCreate,(void *)stub_LOS_SemCreateFalse,&si_sem_create);
+	ret = at_struct_init(&at);
+	cleanStub(&si_queue_create);
+    cleanStub(&si_sem_create);
+
+	setStub((void *)LOS_QueueCreate,(void *)stub_LOS_QueueCreateOK,&si_queue_create);
+	setStub((void *)LOS_SemCreate,(void *)stub_LOS_SemCreateCon,&si_sem_create);
+	setStub((void *)LOS_MuxCreate,(void *)stub_LOS_MuxCreateCon,&si_mux_create);
+	at.recv_sem = 2;
+	at.cmd_mux = 1;
+	ret = at_struct_init(&at);//ret = LOS_MuxCreate((UINT32 *)&at->cmd_mux);
+	at.cmd_mux = 2;
+	at.trx_mux = 1;
+	ret = at_struct_init(&at);//ret = LOS_MuxCreate((UINT32 *)&at->trx_mux);
+	at.trx_mux = 2;
+	at.resp_sem = 1;
+	ret = at_struct_init(&at);//ret = LOS_SemCreate(0, (UINT32 *)&at->resp_sem);
+	
+	cleanStub(&si_queue_create);
+    cleanStub(&si_sem_create);
+    cleanStub(&si_mux_create);
+	at_struct_deinit(NULL);
+
+	stubInfo si_semDel;
+	stubInfo si_muxDel;
+	stubInfo si_muxpend;
+	stubInfo si_muxpost;
+	stubInfo si_lislist;
+	at.trx_mux_flag = false;
+	at.rid_flag = false;
+	at.recv_buf = NULL;
+	at.cmdresp = NULL;
+	at.userdata = NULL;
+	at.saveddata = NULL;
+	at.linkid = NULL;
+	setStub((void*)LOS_MuxPend,(void*)stub_LOS_MuxPend,&si_muxpend);
+	setStub((void*)at_listner_list_destroy,(void*)stub_at_listner_list_destroy,&si_lislist);
+	setStub((void*)LOS_MuxPost,(void*)stub_LOS_MuxPost,&si_muxpost);
+
+	setStub((void*)LOS_SemDelete,(void*)stub_LOS_SemDeleteFalse,&si_semDel);
+	setStub((void*)LOS_MuxDelete,(void*)stub_LOS_MuxDeleteFalse,&si_muxDel);
+	at_struct_deinit(&at);
+	cleanStub(&si_muxpost);
+	cleanStub(&si_semDel);
+	cleanStub(&si_muxDel);
+	cleanStub(&si_muxpend);
+	cleanStub(&si_lislist);
+	
+	
+	
+}
+void TestAtadapter::test_chartoint(){
+	char a[4] = {'4','2','4','7'};
+	int ret = chartoint(a);
+	TEST_ASSERT(4247==ret);
+}
+void TestAtadapter::test_at_init(){
+	at_init(NULL);
+	at_config l_s_ac_1;
+	
+	char l_char_name[20];
+	char l_char_cmd_begin[20];
+	char l_char_line_end[20];
+	l_s_ac_1.name = l_char_name;
+	l_s_ac_1.cmd_begin = l_char_cmd_begin;
+	l_s_ac_1.line_end = l_char_line_end;
+	
+	stubInfo si_atStructInit;
+	setStub((void*)at_struct_init,(void*)stub_at_struct_initFalse,&si_atStructInit);
+	at_init(&l_s_ac_1);
+	cleanStub(&si_atStructInit);
+
+	setStub((void*)at_struct_init,(void*)stub_at_struct_init,&si_atStructInit);
+	stubInfo si_usartInit;
+	setStub((void*)at_usart_init,(void*)stub_at_usart_initFalse,&si_usartInit);
+	at_init(&l_s_ac_1);
+	cleanStub(&si_usartInit);
+	
+	setStub((void*)at_usart_init,(void*)stub_at_usart_init,&si_usartInit);
+	stubInfo si_recv;
+	setStub((void*)create_at_recv_task,(void*)stub_create_at_recv_taskFalse,&si_recv);
+	at_init(&l_s_ac_1);
+	cleanStub(&si_recv);
+	cleanStub(&si_atStructInit);
+
+	
+}
+void TestAtadapter::test_at_oob_register(){
+	char featurestr[20];
+	int cmdlen = 12;
+	oob_callback l_callback_1 = test_callback_0;
+	oob_cmd_match l_cmd_match_1 = test_oob_cmd_match_0;
+	printf("at_oob.oob_num = %x\n",at_oob.oob_num);
+	at_oob_register(NULL,cmdlen,NULL,NULL);
+	//at_oob_register(featurestr,cmdlen,l_callback_1,l_cmd_match_1);
+	at_task l_s_att;
+	at_reg_step_callback(&l_s_att,test_step_callback_0);
+}
+void TestAtadapter::test_at_deinit(){
+	//at.tsk_hdl = 21;
+	stubInfo si_nameget;
+	stubInfo si_write;
+	setStub((void*)LOS_TaskNameGet,(void*)stub_LOS_TaskNameGet,&si_nameget);
+	setStub((void*)write_at_task_msg,(void*)stub_write_at_task_msg,&si_write);
+	at_deinit();
+	cleanStub(&si_nameget);
+	cleanStub(&si_write);
+}
+void TestAtadapter::test_set_get_config(){
+	at_config a = {
+    "BG36",
+    3,
+    115200,
+    11,
+    4096,
+    "\r\n",
+    "\r",
+    1, //support multi connection mode
+    10000,   //  ms
+	};
+	at_set_config(&a);
+	at_get_config();
+}
+
+	
+	
+
+void TestAtadapter::test_at_cmd_in_callback(){
+	const int8_t cmd[10];
+	int32_t len = 10;
+	uint32_t timeout = 1000;
+	stubInfo si_muxpend;
+	stubInfo si_transmit;
+	setStub((void*)at_transmit,(void*)stub_at_transmit,&si_transmit);
+	
+	setStub((void*)LOS_MuxPend,(void*)stub_LOS_MuxPendFalse,&si_muxpend);
+	at_cmd_in_callback(cmd,len,test_char_uint_0,timeout);
+	cleanStub(&si_muxpend);
+	
+	setStub((void*)LOS_MuxPend,(void*)stub_LOS_MuxPend,&si_muxpend);
+	stubInfo si_lislist;
+	stubInfo si_muxpost;
+	setStub((void*)LOS_MuxPost,(void*)stub_LOS_MuxPost,&si_muxpost);
+	setStub((void*)at_listener_list_add,(void*)stub_at_listener_list_add_private_del,&si_lislist);
+	at_cmd_in_callback(cmd,len,test_char_uint_0,timeout);
+	cleanStub(&si_lislist);
+	cleanStub(&si_muxpost);
+	cleanStub(&si_muxpend);
+	
+	cleanStub(&si_transmit);
+	
 }
 
 TestAtadapter::TestAtadapter()
 {
-
-   TEST_ADD(TestAtadapter::test_at_listener_list_add);
-   TEST_ADD(TestAtadapter::test_at_listner_list_del);
-   TEST_ADD(TestAtadapter::test_at_get_unuse_linkid);
-   TEST_ADD(TestAtadapter::test_store_resp_buf);
-   TEST_ADD(TestAtadapter::test_at_cmd);
-   TEST_ADD(TestAtadapter::test_at_write);
+	TEST_ADD(TestAtadapter::test_at_cmd_in_callback);
+	TEST_ADD(TestAtadapter::test_set_get_config);
+	TEST_ADD(TestAtadapter::test_at_deinit);
+	TEST_ADD(TestAtadapter::test_at_oob_register);
+	TEST_ADD(TestAtadapter::test_at_init);
+	TEST_ADD(TestAtadapter::test_chartoint);
+    TEST_ADD(TestAtadapter::test_at_listener_list_add);
+    TEST_ADD(TestAtadapter::test_at_listner_list_del);
+    TEST_ADD(TestAtadapter::test_at_get_unuse_linkid);
+    TEST_ADD(TestAtadapter::test_store_resp_buf);
+    TEST_ADD(TestAtadapter::test_at_cmd);
+    TEST_ADD(TestAtadapter::test_at_write);
 
     TEST_ADD(TestAtadapter::test_cloud_cmd_matching);
-//   TEST_ADD(TestAtadapter::test_at_init);
     TEST_ADD(TestAtadapter::test_create_at_recv_task);
-//    TEST_ADD(TestAtadapter::test_at_recv_task);
+    
     TEST_ADD(TestAtadapter::test_at_struct_init);
-   
-   
-   
     TEST_ADD(TestAtadapter::test_at_init_oob);
-//by shensheng undefined ref    TEST_ADD(TestAtadapter::test_at_oob_register);
+	
+	////
+	//TEST_ADD(TestAtadapter::test_at_recv_task);
 }
 
-//protected:
 void TestAtadapter::setup()
 {  
 }

@@ -20,7 +20,7 @@ CFLAGS :=
 endif
 CFLAGS += -w -g -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DWITH_AT_FRAMEWORK -DUSE_NB_NEUL95 -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0 -DTEST_WITH_DTLS -DCONFIG_FEATURE_FOTA -DWITH_AT_FRAMEWORK -D__ICCARM__
-CFLAGS += -fprofile-arcs -ftest-coverage -fpermissive -g
+CFLAGS += -fprofile-arcs -ftest-coverage -fpermissive -g -std=c99
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 #compile dynamic library of agenttiny.c
 
@@ -116,9 +116,9 @@ run:
 cov:
 	mkdir -p gcov
 	./$(BIN)
-	lcov -c -o gcov/gcov.info -d . -b . --rc lcov_branch_coverage=1
-	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info --rc lcov_branch_coverage=1
-	genhtml -o gcov/html gcov/gcov.info --rc genhtml_branch_coverage=1
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log

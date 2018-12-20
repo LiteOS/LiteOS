@@ -68,6 +68,7 @@ public:
     void test_esp8266_get_localmac(void);
 	void test_esp8266_bind(void);
     void test_esp8266_recv_cb(void);
+	void test_esp8266_cmd_match(void);
 
 protected:
     void setup();

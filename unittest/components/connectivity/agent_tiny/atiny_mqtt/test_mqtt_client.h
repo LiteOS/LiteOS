@@ -52,32 +52,33 @@
 class TestMQTT_Client : public Test::Suite
 {
 public:
-	#if 0
+
     TestMQTT_Client();
     ~TestMQTT_Client();
 
-    void test_atiny_param_member_free(void);
-	void test_atiny_param_dup(void);
-	void test_atiny_init(void);
-	void test_atiny_deinit(void);
-	void test_mqtt_add_interest_topic(void);
-	void test_mqtt_is_topic_subscribed(void);
-	void test_mqtt_del_interest_topic(void);
-	void test_mqtt_is_topic_subscribed_same(void);
-	void test_mqtt_topic_subscribe(void);
-	void test_mqtt_topic_unsubscribe(void);
-	void test_mqtt_message_publish(void);
-	void test_mqtt_message_arrived(void);
-	void test_mqtt_subscribe_interest_topics(void);
-	void test_will_options_member_free(void);
-	void test_device_info_member_free(void);
-	void test_device_info_dup(void);
-	void test_atiny_isconnected(void);
-	void test_atiny_bind(void);
-	void test_atiny_data_send(void);
-	#endif
 
-
+	void test_atiny_mqtt_init(void);
+	void test_atiny_mqtt_deinit(void);
+	void test_atiny_mqtt_isconnected(void);
+	void test_atiny_mqtt_bind(void);
+	void test_atiny_mqtt_data_send(void);
+	void test_atiny_mqtt_dup_dev_info(void);
+	void test_atiny_mqtt_subscribe_topic(void);
+	void test_atiny_mqtt_dup_devi_info(void);
+	void test_atiny_mqtt_get_send_pw(void);
+	void test_atiny_mqttconnect(void);
+	void test_atiny_cjsparse(void);
+	void test_atiny_mqtt_recv_cmd_topic(void);
+	void test_mqtt_proc_connect_nack(void);
+	void test_mqtt_proc_connect_nack1(void);
+	void test_mqtt_clientInit_fail(void);
+	void test_mqtt_networkconnect_fail(void);
+	void test_mqtt_cmd_ioctrlfail(void);
+	void test_mqtt_dup_devinfo_fail(void);
+	void test_mqtt_dup_info_fail(void);
+	void test_mqtt_dup_devin_fail(void);
+	
+	
 protected:
     void setup();
     void tear_down();

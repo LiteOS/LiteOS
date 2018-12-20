@@ -57,7 +57,8 @@ void TestObjectDevice::test_prv_device_read()
 {
     int result;
     int len = 1;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = { 0x07, 3, 0, 0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
     lwm2m_data_t *data = NULL;
     lwm2m_object_t *testObj = NULL;
     atiny_param_t *atiny_pa = NULL;
@@ -227,7 +228,8 @@ void TestObjectDevice::test_prv_device_execute()
     int result;
     int len = 0;
     uint8_t *buffer = NULL;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = { 0x07, 3,  0,  0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
     lwm2m_object_t *testObj = NULL;
     atiny_param_t *atiny_pa = NULL;
     const char *facturer = "uuuuu";
@@ -264,8 +266,10 @@ void TestObjectDevice::test_prv_device_execute()
 void TestObjectDevice::test_prv_device_discover()
 {
     int result;
-    lwm2m_uri_t uri1 = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
-    lwm2m_uri_t uri2 = {.flag = 0x06, .objectId = 3, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri1 = { 0x07,  3,  0,  0};
+    //lwm2m_uri_t uri1 = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri2 = {0x06,  3,  0,  0};
+    //lwm2m_uri_t uri2 = {.flag = 0x06, .objectId = 3, .instanceId = 0, .resourceId = 0};
     lwm2m_context_t *contextP = NULL;
     lwm2m_object_t *testObj = NULL;
     atiny_param_t *atiny_pa = NULL;
@@ -302,7 +306,8 @@ void TestObjectDevice::test_prv_device_discover()
 void TestObjectDevice::test_prv_device_write()
 {
     int result = 0;
-    lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
+    lwm2m_uri_t uri = { 0x07,  3,  0,  0};
+    //lwm2m_uri_t uri = {.flag = 0x07, .objectId = 3, .instanceId = 0, .resourceId = 0};
     lwm2m_object_t *testObj = NULL;
     lwm2m_data_t *dataArray = NULL;
     atiny_param_t *atiny_pa = NULL;

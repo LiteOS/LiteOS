@@ -20,7 +20,7 @@ CFLAGS :=
 endif
 
 
-CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DLWM2M_LITTLE_ENDIAN -DWITH_LWIP -DWITH_LINUX -DLWM2M_CLIENT_MODE -DNDEBUG -DATINY_DEBUG -DMBEDTLS_MD5_C
 CFLAGS += -DCONFIG_FEATURE_FOTA -DTEST_WITH_DTLS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage -g
@@ -28,28 +28,32 @@ GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
 SRC:= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/osadapter/*.c) 
-SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTPacket/src/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/agent_tiny/atiny_log.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/osdepends/liteos/*.c) 
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/lib/cJSON/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c)
-#compile dynamic library of liteos module	
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/log/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/flag_manager.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/upgrade_flag.c)
-#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/package.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/utility/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/osdepends/liteos/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/demos/agenttiny_lwm2m/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/net/sal/*.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/log/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/agent_tiny/agent_tiny/atiny_log.c)
+
+
+#compile dynamic library of liteos module	
+
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/flag_manager.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/upgrade_flag.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/package.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/utility/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/demos/agenttiny_lwm2m/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/core/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared/*.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c)
 #SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c)
 
 
@@ -92,10 +96,11 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
 	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
 	-I$(HW_LITEOSDIR)/unittest/stub/ \
-    -I $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src \
-    -I $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
-    -I $(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTPacket/src \
+    -I$(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src \
+    -I$(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
+    -I$(HW_LITEOSDIR)/components/connectivity/mqtt/MQTTPacket/src \
     -I$(HW_LITEOSDIR)/include/ \
+    -I$(HW_LITEOSDIR)/include/atiny_mqtt/ \
     -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/atiny_lwm2m/ \
 	-I$(HW_LITEOSDIR)/osdepends/liteos/cmsis/ \
     -I$(HW_LITEOSDIR)/components/net/at_frame/ \
@@ -111,9 +116,9 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/kernel/base/include/ \
 	-I$(HW_LITEOSDIR)/kernel/include/ \
 	-I$(HW_LITEOSDIR)/kernel/extended/include/ \
-    -I $(HW_LITEOSDIR)/components/fs/spiffs/spiffs_git/src/ \
-    -I $(HW_LITEOSDIR)/components/fs/spiffs/spiffs_git/src/default/	 \
-    -I $(HW_LITEOSDIR)/components/lib/cJSON/
+    -I$(HW_LITEOSDIR)/components/fs/spiffs/spiffs_git/src/ \
+    -I$(HW_LITEOSDIR)/components/fs/spiffs/spiffs_git/src/default/	 \
+    -I$(HW_LITEOSDIR)/components/lib/cJSON/
 CPP_SRC := $(wildcard *.cpp)
 CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
 
@@ -159,9 +164,9 @@ run:
 cov:
 	mkdir -p gcov
 	./$(BIN)
-	lcov -c -o gcov/gcov.info -d . -b . --rc lcov_branch_coverage=1
-	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info --rc lcov_branch_coverage=1
-	genhtml -o gcov/html gcov/gcov.info --rc genhtml_branch_coverage=1
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log

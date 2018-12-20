@@ -105,7 +105,11 @@ extern "C"
     {
         return 0;
     }
-}
+    static int stub_flag_read(flag_type_e flag_type, void *buf, int32_t len){return 0;}
+	static int stub_flag_readFalse(flag_type_e flag_type, void *buf, int32_t len){return -1;}
+	static int stub_flag_write(flag_type_e flag_type, const void *buf, int32_t len){return 0;}
+	static int stub_flag_writeFalse(flag_type_e flag_type, const void *buf, int32_t len){return -1;}
+}//extern "C"
 
 void TestAtinyFotaState::test_atiny_fota_state_default_handle()
 {
@@ -232,10 +236,10 @@ void TestAtinyFotaState::test_atiny_fota_idle_state_report_result()
     //((atiny_fota_state_s *)thi_pare)->manager->device->write_update_info = write_update_info_test;
     result = thi.interface.repot_result((atiny_fota_state_tag_s*)thi_pare);
     TEST_ASSERT(result == ATINY_OK);
-    cleanStub(&si3);
+    //cleanStub(&si3);
     cleanStub(&si2);
     cleanStub(&si);
-    cleanStub(&si1);
+    //cleanStub(&si1);
 
     free(((atiny_fota_state_s *)thi_pare)->manager->lwm2m_context);
     free(thi_pare);
@@ -367,15 +371,21 @@ void TestAtinyFotaState::test_atiny_fota_idle_state_int_report_result()
     thi.interface.manager = &manager;
     thi.interface.manager->device = &device;
     //thi.interface.manager->device->get_software_result = test_get_software_result;
-    stubInfo si;
-    stubInfo si1;
+    
     //setStub((void*)atiny_update_info_read, (void*)stub_atiny_update_info_read, &si);
     //setStub((void *)atiny_update_info_write, (void *)test_atiny_update_info_write, &si1); 
+    stubInfo si_flag_read;
+	setStub((void*)flag_read,(void*)stub_flag_read,&si_flag_read);
     result = atiny_fota_idle_state_int_report_result(&thi);
     TEST_ASSERT(result != ATINY_OK);
+	setStub((void*)flag_read,(void*)stub_flag_readFalse,&si_flag_read);
+    result = atiny_fota_idle_state_int_report_result(&thi);
+    TEST_ASSERT(result != ATINY_OK);
+
+	
+	cleanStub(&si_flag_read);
     
-    cleanStub(&si1);
-    cleanStub(&si);
+    
     
 }
 void TestAtinyFotaState::atiny_fota_downloading_state_recv_notify_ack()
@@ -426,14 +436,14 @@ void TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack()
 
     
     status = SENT_FAIL;
-    result = thi_para.interface.recv_notify_ack(&thi, status);
+   result = thi_para.interface.recv_notify_ack(&thi, status);
     TEST_ASSERT(result == ATINY_OK);
 
     status = SENT_SUCCESS;
     thi.manager->device = &device;
     thi.manager->lwm2m_context = (lwm2m_context_t *)malloc(sizeof(lwm2m_context_t));
     TEST_ASSERT(thi.manager->lwm2m_context != NULL);
-    
+
     stubInfo si1;
     stubInfo si3;
     setStub((void*)start_firmware_download, (void *)stub_start_firmware_download2, &si3);
@@ -442,14 +452,14 @@ void TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack()
     result = thi_para.interface.recv_notify_ack(&thi, status);
     TEST_ASSERT(result == ATINY_ERR);
     cleanStub(&si3);
-    
+   
     stubInfo si;
     setStub((void*)start_firmware_download, (void *)stub_start_firmware_download, &si);
 //    setStub((void *)lwm2m_resource_value_changed, (void *)stub_lwm2m_resource_value_changed, &si1);
     thi.manager->rpt_state = ATINY_FOTA_DOWNLOADING;
     result = thi_para.interface.recv_notify_ack(&thi, status);
     TEST_ASSERT(result == ATINY_OK);
-
+//
     thi.manager->rpt_state = ATINY_FOTA_IDLE;
     result = thi_para.interface.recv_notify_ack(&thi, status);
     TEST_ASSERT(result == ATINY_OK);
@@ -490,7 +500,7 @@ void TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack()
     cleanStub(&si2);
     cleanStub(&si1);
     cleanStub(&si);
-    
+
     free(thi.manager->lwm2m_context->observedList);
     free(thi.manager->lwm2m_context);
     
@@ -559,41 +569,31 @@ void TestAtinyFotaState::test_atiny_fota_updating_state_init()
 TestAtinyFotaState::TestAtinyFotaState()
 {
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_state_default_handle);
-	printf("in TestAtinyFotaState 579\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_state_init);
-		printf("in TestAtinyFotaState 581\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_init);
-		printf("in TestAtinyFotaState 583\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_start_download);
-		printf("in TestAtinyFotaState 585\n");
-    TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_report_result);
-		printf("in TestAtinyFotaState 587\n");
+    TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_report_result);//
     TEST_ADD(TestAtinyFotaState::pack_storage_device_api_s_update_notify);
-		printf("in TestAtinyFotaState 589\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloading_state_finish_download);
-		printf("in TestAtinyFotaState 591\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloading_state_init);
-		printf("in TestAtinyFotaState 593\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_init);
-		printf("in TestAtinyFotaState 595\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_updating_state_init);
-		printf("in TestAtinyFotaState 597\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_execute_update);
-		printf("in TestAtinyFotaState 599\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_recv_notify_ack);
-		printf("in TestAtinyFotaState 601\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_idle_state_int_report_result);
-		printf("in TestAtinyFotaState 603\n");
     TEST_ADD(TestAtinyFotaState::atiny_fota_downloading_state_recv_notify_ack);
-		printf("in TestAtinyFotaState 605\n");
     TEST_ADD(TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack);
-		printf("in TestAtinyFotaState 607\n");
+	
 }
+//TestAtinyFotaState::~TestAtinyFotaState(){}
+
 
 
 void TestAtinyFotaState::setup()
 {
-    std::cout << "in steup  --- test_atiny_fota_state.cpp\n";
+	static int i = 0;
+	printf("%d    in steup\n",i);
+    //std::cout << ++i << "in steup  --- test_atiny_fota_state.cpp\n";
 }
 
 void TestAtinyFotaState::tear_down()
