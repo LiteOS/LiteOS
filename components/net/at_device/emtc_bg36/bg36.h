@@ -41,6 +41,7 @@
 #define AT_BUARDRATE        115200
 #define BG36_TIMEOUT        10000    //ms
 #define MAX_AT_USERDATA_LEN (1024*4)
+#define MAX_SEND_DATA_LEN   1400
 
 #define AT_LINE_END 		"\r"
 #define AT_CMD_BEGIN		"\r\n"

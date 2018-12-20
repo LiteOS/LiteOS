@@ -132,7 +132,7 @@ pack_checksum_s *pack_checksum_create(pack_head_s *head)
 static int pack_checksum_restore_checksum(pack_checksum_s *thi, uint32_t offset, pack_hardware_s *hardware)
 {
     uint8_t *buff  = NULL;
-    const uint32_t max_size = 4096;
+    const uint32_t max_size = hardware->get_block_size(hardware);
     uint32_t total_size = 0;
     uint32_t left_size;
     uint32_t read_size;

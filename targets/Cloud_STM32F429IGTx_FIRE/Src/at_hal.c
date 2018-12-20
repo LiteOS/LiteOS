@@ -48,9 +48,9 @@ static uint32_t s_uwIRQn = USART2_IRQn;
 uint8_t buff_full = 0;
 static uint32_t g_disscard_cnt = 0;
 
-uint32_t wi = 0;
-uint32_t wi_bak = 0;
-uint32_t ri = 0;
+uint32_t wi       = 0;
+uint32_t pre_ri   = 0;/*only save cur msg start*/
+uint32_t ri       = 0;
 
 
 static void at_usart_adapter(uint32_t port)
@@ -90,13 +90,20 @@ void at_irq_handler(void)
     else if (__HAL_UART_GET_FLAG(&at_usart, UART_FLAG_IDLE) != RESET)
     {
         __HAL_UART_CLEAR_IDLEFLAG(&at_usart);
+        /*
+        Ring Buffer ri------------------------>wi
 
-        wi_bak = wi;
+         __________________________________________________
+         |      msg0           |  msg1        |   msg2    |           
+         ri(pre_ri0)        pre_ri1         pre_ri2     wi(pre_ri3)
+         __________________________________________________ 
 
-        recv_buf.ori = ri;
+         read_resp ---->ri= pre_ri1----------->---------->ri=wi=pre_ri3(end)  
+        */
+        recv_buf.ori = pre_ri;
         recv_buf.end = wi;
-        //recv_buf.addr = at.recv_buf[wi];
-        ri = recv_buf.end;
+
+        pre_ri = recv_buf.end;
         recv_buf.msg_type = AT_USART_RX;
 
         if(LOS_QueueWriteCopy(at.rid, &recv_buf, sizeof(recv_buff), 0) != LOS_OK)
@@ -170,9 +177,9 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
     {
         AT_LOG("buf maybe full,buff_full is %d",buff_full);
     }
-    NVIC_DisableIRQ((IRQn_Type)s_uwIRQn);
-
-    //wi = recv_buf->end;//wi_bak
+    //AT_LOG("wi is %d, ri is %d,pre_ri is %d, end(%d),ori(%d),buff_full is %d",
+    //    wi,ri,pre_ri,recv_buf->end,recv_buf->ori,buff_full);
+    
     if (recv_buf->end == recv_buf->ori)
     {
         len = 0;
@@ -194,7 +201,7 @@ int read_resp(uint8_t *buf, recv_buff* recv_buf)
 
     ri = recv_buf->end;
 END:
-    NVIC_EnableIRQ((IRQn_Type)s_uwIRQn);
+    
     return len;
 }
 

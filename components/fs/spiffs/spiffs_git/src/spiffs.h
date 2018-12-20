@@ -61,7 +61,7 @@ extern "C" {
 #define SPIFFS_ERR_IX_MAP_BAD_RANGE     -10039
 
 #define SPIFFS_ERR_SEEK_BOUNDS          -10040
-
+#define SPIFFS_ERR_INVALID_PARA         -10041
 
 #define SPIFFS_ERR_INTERNAL             -10050
 

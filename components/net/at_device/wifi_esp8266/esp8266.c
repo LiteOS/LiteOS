@@ -98,7 +98,7 @@ int32_t esp8266_connect(const int8_t *host, const int8_t *port, int32_t proto)
 
     //init at_link
     memcpy(at.linkid[id].remote_ip, host, sizeof(at.linkid[id].remote_ip));
-    sscanf((char*)port, "%d", &at.linkid[id].remote_port);
+    (void)sscanf((char*)port, "%d", &at.linkid[id].remote_port);
 
     ret = LOS_QueueCreate("dataQueue", 16, &at.linkid[id].qid, 0, sizeof(QUEUE_BUFF));
     if (ret != LOS_OK)
@@ -111,6 +111,7 @@ int32_t esp8266_connect(const int8_t *host, const int8_t *port, int32_t proto)
     if (AT_FAILED == ret)
     {
         AT_LOG("at.cmd return failed!");
+       (void)LOS_QueueDelete(at.linkid[id].qid);
         at.linkid[id].usable = AT_LINK_UNUSE;
         return AT_FAILED;
     }
@@ -186,7 +187,7 @@ int32_t esp8266_close(int32_t id)
                 memset(&qbuf, 0, sizeof(QUEUE_BUFF)); // don't use qlen
             }
         }
-        LOS_QueueDelete(at.linkid[id].qid);
+        (void)LOS_QueueDelete(at.linkid[id].qid);
         memset(&at.linkid[id], 0, sizeof(at_link));
         snprintf(cmd, 64, "%s=%ld", AT_CMD_CLOSE, id);
     }
@@ -342,7 +343,7 @@ int32_t esp8266_bind(const int8_t *host, const int8_t *port, int32_t proto)
 	int port_i = 0;
 	char cmd[64] = {0};
 
-	sscanf((char *)port, "%d", &port_i);
+	(void)sscanf((char *)port, "%d", &port_i);
 	AT_LOG("get port = %d\r\n", port_i);
 
 	if (at.mux_mode != AT_MUXMODE_MULTI)
