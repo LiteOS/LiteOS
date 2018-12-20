@@ -130,7 +130,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 osSwTmrTaskCreate(VOID)
 
     (VOID)memset(&stSwTmrTask, 0, sizeof(TSK_INIT_PARAM_S));
     stSwTmrTask.pfnTaskEntry    = (TSK_ENTRY_FUNC)osSwTmrTask;
-    stSwTmrTask.uwStackSize     = LOSCFG_BASE_CORE_TSK_SWTMR_STACK_SIZE;
+    stSwTmrTask.uwStackSize     = 0x1000;
     stSwTmrTask.pcName          = "Swt_Task";
     stSwTmrTask.usTaskPrio      = 0;
     uwRet = LOS_TaskCreate(&g_uwSwtmrTaskID, &stSwTmrTask);
