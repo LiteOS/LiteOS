@@ -56,7 +56,7 @@ public:
     TestAtiny_Osdep();
     ~TestAtiny_Osdep();
 
-    void test_osKernelGetTickCount(void);
+    //void test_osKernelGetTickCount(void);
 	void test_atiny_gettime_ms(void);
 	void test_atiny_malloc(void);
 	void test_atiny_free(void);
@@ -67,6 +67,10 @@ public:
 	void test_atiny_mutex_destroy(void);
 	void test_atiny_mutex_lock(void);
 	void test_atiny_mutex_unlock(void);
+	void test_atiny_task_mutex_create(void);
+	void test_atiny_task_mutex_delete(void);
+	void test_atiny_task_mutex_lock(void);
+	void test_atiny_task_mutex_unlock(void);
 
 protected:
     void setup();

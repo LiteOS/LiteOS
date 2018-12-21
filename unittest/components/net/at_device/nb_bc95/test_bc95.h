@@ -79,6 +79,7 @@ public:
     void test_nb_send_str(void);
     void test_nb_data_ioctl(void);
 	void test_nb_cmd_match(void);
+	void test_nb_handle_sock_data(void);
 	void test_nb_int(void);
 	void test_nb_step(void);
 
