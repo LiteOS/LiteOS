@@ -125,6 +125,7 @@ ifeq ($(WITH_LWIP), yes)
 LWIP_SRC =  \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/api/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/ipv4/*.c} \
+        ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/ipv6/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/netif/ethernet.c}
         C_SOURCES += $(LWIP_SRC)
