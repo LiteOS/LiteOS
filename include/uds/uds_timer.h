@@ -32,14 +32,18 @@ typedef enum
     UDS_UP = 1,
     UDS_DOWN,
 
-
 }uds_time_countmode;
 
 typedef enum
 {
     TIMER_IT_START,
     TIMER_IT_STOP,
+    TIMER_SET_UPDATE_CALLBACK,
 }uds_timer_cmd_t;
+
+
+
+
 
 typedef struct time_counter_init_s
 {

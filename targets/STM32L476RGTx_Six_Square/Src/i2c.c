@@ -624,16 +624,11 @@ s32_t uds_i2c_dev_install(const char *name, void *pri)
     memset(device, 0, sizeof(i2c_device_t));
 
     memcpy(&device->i2c_init,pri,sizeof(i2c_init_t));
-    if(!uds_driv_register(name,&uds_opt,(void *)device,0))
+    if(!uds_driv_register(name,&uds_opt,device,0))
     {
         return -UDS_ERROR;
     }
     return UDS_OK;
-}
-
-s32_t uds_i2c_dev_uninstall(const char *name)
-{
-    return uds_driv_unregister(name);
 }
 
 
