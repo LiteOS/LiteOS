@@ -13,6 +13,7 @@ struct timer_device_s
 {
     uds_timer_init_t        uds_timer_init;
     uds_timer_cmd_t         iotype;
+    
 
 
 };
@@ -147,7 +148,7 @@ static void uds_timer_close(void *pri)
 static bool_t uds_timer_baseinit(void *pri)
 {
     volatile s32_t ret;
-    uint32_t mode;
+   
     timer_device_t *device_init = (timer_device_t *)pri;
 
     switch(device_init->uds_timer_init.uds_time_x)
@@ -226,7 +227,7 @@ static bool_t uds_timer_baseinit(void *pri)
         
         Error_Handler();
     }
-	*/
+    */
     return UDS_OK;
 }
 
@@ -276,10 +277,11 @@ static void uds_timer_basedeinit(void *pri)
 
 
 
+
 s32_t uds_start_it(void *pri)
 {
     timer_device_t *device = (timer_device_t *)pri;
-	uint8_t ret;
+    uint8_t ret;
     switch(device->uds_timer_init.uds_time_x)
     {
         case UDS_TIME1:
@@ -319,20 +321,20 @@ s32_t uds_start_it(void *pri)
             return -UDS_ERROR;
     } 
     if(ret == HAL_OK)
-	{
-	    return UDS_OK;
-	}
+    {
+        return UDS_OK;
+    }
     else 
-	{
-	    return -UDS_ERROR;
-	}
+    {
+        return -UDS_ERROR;
+    }
 
 }
 
 s32_t uds_stop_it(void *pri)
 {
     timer_device_t *device = (timer_device_t *)pri;
-	uint8_t ret;
+    uint8_t ret;
     switch(device->uds_timer_init.uds_time_x)
     {
         case UDS_TIME1:
@@ -373,13 +375,13 @@ s32_t uds_stop_it(void *pri)
     } 
 
     if(ret == HAL_OK)
-	{
-	    return UDS_OK;
-	}
+    {
+        return UDS_OK;
+    }
     else 
-	{
-	    return -UDS_ERROR;
-	}
+    {
+        return -UDS_ERROR;
+    }
 
 }
 
@@ -393,18 +395,32 @@ static s32_t  uds_timer_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t t
     return true;
 }
 
+
+ typedef void (*timer_callback_fun)(uds_time_x_type);
+timer_callback_fun timer_user_callback;
+
+s32_t uds_set_update_callback(timer_device_t *device,timer_callback_fun para)
+{
+    timer_user_callback = para;
+    return UDS_OK;
+}
+
 static bool_t uds_timer_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
 {
-	bool_t result = true;
+    bool_t result = true;
+	timer_device_t *device = (timer_device_t *)pri; 
     switch(cmd)
     {
         case TIMER_IT_START:
-            result = uds_start_it((timer_device_t *)pri);
+            result = uds_start_it(device);
             break;
         case TIMER_IT_STOP:
-            result = uds_stop_it((timer_device_t *)pri);
-            break;       
-		default:
+            result = uds_stop_it(device);
+            break;
+        case TIMER_SET_UPDATE_CALLBACK:
+            result = uds_set_update_callback(device,(timer_callback_fun)para);
+            break;
+        default:
             result = -UDS_ERROR;
             break;
     }
@@ -429,7 +445,7 @@ bool_t uds_timer_dev_install(const char *name, void *pri)
     memset(device, 0, sizeof(timer_device_t));
 
     memcpy(&device->uds_timer_init,pri,sizeof(uds_timer_init_t));
-    if(!uds_driv_register(name,&uds_opt,pri,0))
+    if(!uds_driv_register(name,&uds_opt,device,0))
     {
         return -UDS_ERROR;
     }
@@ -440,228 +456,75 @@ bool_t uds_timer_dev_install(const char *name, void *pri)
 
 
 
-uint8_t i;
-u32_t cmd;
-extern uds_driv_t device_timer1;
-void time1_updata_callback(void)
+
+
+
+
+
+
+
+void time_update_callback(TIM_HandleTypeDef timhandle, uds_time_x_type timx)
 {
-    printf(" TIME1 IT,hello world\r\n");
-	i++;
-	printf(" i = %d\r\n",i);
-	if(i == 10)
-	{		
-	  cmd = TIMER_IT_STOP;
-	  los_dev_ioctl(device_timer1,cmd,NULL,0);	
-	  printf("demo_timer stop.");			
+
+	if(__HAL_TIM_GET_FLAG(&timhandle, TIM_FLAG_UPDATE) != RESET)
+	{
+		if(__HAL_TIM_GET_IT_SOURCE(&timhandle, TIM_IT_UPDATE) != RESET)
+		{
+			__HAL_TIM_CLEAR_IT(&timhandle, TIM_IT_UPDATE);
+			timer_user_callback(timx);
+		}
 	}
-}
 
 
-void time2_updata_callback(void)
-{
-    printf(" TIME2 IT,hello world\r\n");
 }
-void time3_updata_callback(void)
-{
-    printf(" TIME3 IT,hello world\r\n");
-}
-void time4_updata_callback(void)
-{
-    printf(" TIME4 IT,hello world\r\n");
-}
-void time5_updata_callback(void)
-{
-    printf(" TIME5 IT,hello world\r\n");
-}
-void time6_updata_callback(void)
-{
-    printf(" TIME6 IT,hello world\r\n");
-}
-void time7_updata_callback(void)
-{
-    printf(" TIME7 IT,hello world\r\n");
-}
-void time8_updata_callback(void)
-{
-    printf(" TIME8 IT,hello world\r\n");
-}
-void time15_updata_callback(void)
-{
-    printf(" TIME15 IT,hello world\r\n");
-}
-void time16_updata_callback(void)
-{
-    printf(" TIME16 IT,hello world\r\n");
-}
-void time17_updata_callback(void)
-{
-    printf(" TIME17 IT,hello world\r\n");
-}
-
-
 
 void TIM1_UP_TIM16_IRQHandler(void)
 {
-    if(time_x->Instance == TIM1)
-    {
-        if (__HAL_TIM_GET_FLAG(&s_time1, TIM_FLAG_UPDATE) != RESET)
-        {
-            if (__HAL_TIM_GET_IT_SOURCE(&s_time1, TIM_IT_UPDATE) != RESET)
-            {
-              __HAL_TIM_CLEAR_IT(&s_time1, TIM_IT_UPDATE);
-              time1_updata_callback();
-            }
-        }
-    }
-    else if(time_x->Instance == TIM16)
-    {
-        if (__HAL_TIM_GET_FLAG(&s_time16, TIM_FLAG_UPDATE) != RESET)
-        {
-            if (__HAL_TIM_GET_IT_SOURCE(&s_time16, TIM_IT_UPDATE) != RESET)
-            {
-              __HAL_TIM_CLEAR_IT(&s_time16, TIM_IT_UPDATE);
-              time16_updata_callback();
-            }
-        }
-    }
+	if( s_time1.Instance!= 0)
+	{
+		time_update_callback(s_time1,UDS_TIME1);
+	}
+	else
+	{
+		time_update_callback(s_time16,UDS_TIME16);
+	}
+    
 }
 void TIM1_BRK_TIM15_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time15, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time15, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time15, TIM_IT_UPDATE);
-            time15_updata_callback();
-        }
-    }
-
+    time_update_callback(s_time15,UDS_TIME15);
 }
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time17, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time17, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time17, TIM_IT_UPDATE);
-            time17_updata_callback();
-        }
-    }
+    time_update_callback(s_time17,UDS_TIME17);
 }
 
 void TIM2_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time2, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time2, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time2, TIM_IT_UPDATE);
-          time2_updata_callback();
-        }
-    }
+    time_update_callback(s_time2,UDS_TIME2);
 }
 void TIM3_IRQHandler(void)
 {
-
-    if (__HAL_TIM_GET_FLAG(&s_time3, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time3, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time3, TIM_IT_UPDATE);
-          time3_updata_callback();
-        }
-    }
-
+    time_update_callback(s_time3,UDS_TIME3);
 }
 void TIM4_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time4, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time4, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time4, TIM_IT_UPDATE);
-            time4_updata_callback();
-        }
-    }
+    time_update_callback(s_time4,UDS_TIME4);
 }
 void TIM5_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time5, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time5, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time5, TIM_IT_UPDATE);
-          time5_updata_callback();
-        }
-    }
+    time_update_callback(s_time5,UDS_TIME5);
 }
 void TIM6_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time6, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time6, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time6, TIM_IT_UPDATE);
-            time6_updata_callback();
-        }
-    }
-  
+    time_update_callback(s_time6,UDS_TIME6);
 }
 void TIM7_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time7, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time7, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time7, TIM_IT_UPDATE);
-          time7_updata_callback();
-        }
-    }
+    time_update_callback(s_time7,UDS_TIME7);
 }
 void TIM8_UP_IRQHandler(void)
 {
-    if (__HAL_TIM_GET_FLAG(&s_time8, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time8, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time8, TIM_IT_UPDATE);
-            time8_updata_callback();
-        }
-    }
-}
-void TIM15_IRQHandler(void)
-{
-    if (__HAL_TIM_GET_FLAG(&s_time15, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time15, TIM_IT_UPDATE) != RESET)
-        {
-            __HAL_TIM_CLEAR_IT(&s_time15, TIM_IT_UPDATE);
-            time15_updata_callback();
-        }
-    }
-}
-void TIM16_IRQHandler(void)
-{
-
-    if (__HAL_TIM_GET_FLAG(&s_time16, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time16, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time16, TIM_IT_UPDATE);
-          time16_updata_callback();
-        }
-    }
-
-}
-void TIM17_IRQHandler(void)
-{
-    if (__HAL_TIM_GET_FLAG(&s_time17, TIM_FLAG_UPDATE) != RESET)
-    {
-        if (__HAL_TIM_GET_IT_SOURCE(&s_time17, TIM_IT_UPDATE) != RESET)
-        {
-          __HAL_TIM_CLEAR_IT(&s_time17, TIM_IT_UPDATE);
-          time17_updata_callback();
-        }
-    }
+    time_update_callback(s_time8,UDS_TIME8);
 }
 

@@ -60,12 +60,17 @@ typedef enum
 }uds_gpio_mode_type;
 
 
+
 typedef enum
 {
     UDS_GPIO_NOPULL = 0,
     UDS_GPIO_PULLUP,
     UDS_GPIO_PULLDOWN,
 }uds_gpio_pull_type;
+
+
+
+
 
 typedef struct gpio_init_s
 {
@@ -84,6 +89,7 @@ typedef enum
     GPIO_TOGGLE_PIN,
     GPIO_SET_PIN,
     GPIO_CLEAR_PIN,
+    GPIO_SET_EXITCALLBACK,
     GPIO_MAX_CMD,
 }uds_gpio_cmd;
 /*

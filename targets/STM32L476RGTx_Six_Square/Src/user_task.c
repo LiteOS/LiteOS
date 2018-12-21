@@ -74,10 +74,10 @@ void atiny_task_entry(void)
     usart1_init(); // initialize UART1 for printf
     //demo_usart();
     //demo_nbiot_only();
-    //demo_sht21_iic();
+    demo_sht21_iic();
     //demo_gpio();
     //fs_test_main();
-	demo_timer();
+	//demo_timer();
 }
 
 UINT32 creat_main_task(VOID)
