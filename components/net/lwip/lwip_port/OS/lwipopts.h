@@ -30,6 +30,12 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+
+//#define LWIP_IPV6                       1
+//#define IPV6_FRAG_COPYHEADER            1
+//#define LWIP_IPV6_DUP_DETECT_ATTEMPTS   0
+
+//#define LWIP_IPV4           0
 #define ETHARP_TRUST_IP_MAC 0
 #define IP_REASSEMBLY  1
 #define IP_FRAG        1
