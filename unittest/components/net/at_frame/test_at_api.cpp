@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#include "test_at_api_interface.h"
+#include "test_at_api.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,7 +49,16 @@ extern "C" {
         return AT_OK;
     }
 
+    int32_t demo_bind(const int8_t * host, const int8_t *port, int32_t proto)
+    {
+        return AT_OK;
+    }
+	
     int32_t demo_send(int32_t id , const uint8_t  *buf, uint32_t len)
+    {
+        return AT_OK;
+    }
+	int32_t demo_sendto(int32_t id , const uint8_t  *buf, uint32_t len,char* ipaddr,int port)
     {
         return AT_OK;
     }
@@ -93,10 +102,7 @@ void TestAtApiInterface::test_at_api_register()
 {
     int ret = 0;
     ret = at_api_register(NULL);
-    TEST_ASSERT_MSG((ret == AT_FAILED), "test at_apt_register for passing NULL failed!");
-
-    ret = at_api_register(&api);
-    TEST_ASSERT_MSG((ret == AT_FAILED), "test at_api_register for init is NULL, failed!");
+    TEST_ASSERT_MSG((ret == AT_OK), "test at_apt_register for passing NULL failed!");
 
     api.init = demo_init;
     ret = at_api_register(&api);
@@ -120,6 +126,18 @@ void TestAtApiInterface::test_at_api_connect()
     return;
 }
 
+void TestAtApiInterface::test_at_api_bind()
+{
+    int ret = 0;
+    int8_t * host = (int8_t*)"localhost";
+    int8_t * port = (int8_t*)"9999";
+    int32_t proto = 0;
+	
+    api.bind = demo_bind;
+	ret = at_api_bind((char*)host, (char*)port, proto);
+}
+
+
 void TestAtApiInterface::test_at_api_send()
 {
     int ret = 0;
@@ -132,6 +150,21 @@ void TestAtApiInterface::test_at_api_send()
     TEST_ASSERT_MSG((ret == AT_OK), "test at_api_send for send_func is normal failed!");
     return;
 }
+
+void TestAtApiInterface::test_at_api_sendto()
+{
+    int ret = 0;
+    
+    ret = at_api_sendto(0, NULL, 0,NULL,0);
+    TEST_ASSERT_MSG((ret == AT_FAILED), "test at_api_send for send_func is NULL failed!");
+    
+    api.sendto = demo_sendto;
+    unsigned char aa[10];
+    ret = at_api_sendto(0, aa, 10, "10.20.24.38", 5683);
+    TEST_ASSERT_MSG((ret != AT_FAILED), "test at_api_send for send_func is normal failed!");
+    return;
+}
+
 void TestAtApiInterface::test_at_api_recv()
 {
     int ret = 0;
@@ -176,7 +209,9 @@ TestAtApiInterface::TestAtApiInterface()
 {
     TEST_ADD(TestAtApiInterface::test_at_api_register);
     TEST_ADD(TestAtApiInterface::test_at_api_connect);
+	TEST_ADD(TestAtApiInterface::test_at_api_bind);
     TEST_ADD(TestAtApiInterface::test_at_api_send);
+	TEST_ADD(TestAtApiInterface::test_at_api_sendto);
     TEST_ADD(TestAtApiInterface::test_at_api_recv);
     TEST_ADD(TestAtApiInterface::test_at_api_recv_timeout);
     TEST_ADD(TestAtApiInterface::test_at_api_close);

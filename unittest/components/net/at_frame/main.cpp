@@ -34,8 +34,8 @@
 #include <cpptest.h>
 #include <iostream>
 #include <fstream>
-#include "test_atadapter.h"
-#include "test_at_api_interface.h"
+#include "test_at_main.h"
+#include "test_at_api.h"
 
 
 int main(){
