@@ -42,6 +42,9 @@
 /* Macros -------------------------------------------------------------------*/
 /* Local variables ----------------------------------------------------------*/
 /* Extern variables ---------------------------------------------------------*/
+
+static char g_state = 0;
+
 extern "C"
 {
 #include "los_base.h"
@@ -73,6 +76,20 @@ void * stub_atiny_malloc_fail(size_t size)
     return NULL;
 }
 
+static UINT32  stub_LOS_MuxCreate (UINT32 *puwMuxHandle)
+{
+    if(g_state != 0)
+	{
+	    return -1;
+	}
+	return 0;
+}
+
+static UINT32 stub_LOS_MuxDelete(UINT32 uwMuxHandle)
+{
+	return 0;
+}
+
 
 extern uint64_t atiny_gettime_ms(void);
 extern void *atiny_malloc(size_t size);
@@ -84,6 +101,10 @@ extern void *atiny_mutex_create(void);
 extern void atiny_mutex_destroy(void *mutex);
 extern void atiny_mutex_lock(void *mutex);
 extern void atiny_mutex_unlock(void *mutex);
+extern int atiny_task_mutex_create(atiny_task_mutex_s *mutex);
+extern int atiny_task_mutex_delete(atiny_task_mutex_s *mutex);
+extern int atiny_task_mutex_lock(atiny_task_mutex_s *mutex);
+extern int atiny_task_mutex_unlock(atiny_task_mutex_s *mutex);
 }
 
 /* Global variables ---------------------------------------------------------*/
@@ -91,7 +112,7 @@ extern void atiny_mutex_unlock(void *mutex);
 /* Public functions ---------------------------------------------------------*/
 TestAtiny_Osdep::TestAtiny_Osdep()
 {
-    TEST_ADD(TestAtiny_Osdep::test_osKernelGetTickCount);
+    //TEST_ADD(TestAtiny_Osdep::test_osKernelGetTickCount);
     TEST_ADD(TestAtiny_Osdep::test_atiny_gettime_ms);
     TEST_ADD(TestAtiny_Osdep::test_atiny_malloc);
     TEST_ADD(TestAtiny_Osdep::test_atiny_free);
@@ -102,6 +123,10 @@ TestAtiny_Osdep::TestAtiny_Osdep()
     TEST_ADD(TestAtiny_Osdep::test_atiny_mutex_destroy);
     TEST_ADD(TestAtiny_Osdep::test_atiny_mutex_lock);
     TEST_ADD(TestAtiny_Osdep::test_atiny_mutex_unlock);	
+	TEST_ADD(TestAtiny_Osdep::test_atiny_task_mutex_create);
+    TEST_ADD(TestAtiny_Osdep::test_atiny_task_mutex_delete);
+    TEST_ADD(TestAtiny_Osdep::test_atiny_task_mutex_lock);
+    TEST_ADD(TestAtiny_Osdep::test_atiny_task_mutex_unlock);	
 }
 
 
@@ -110,10 +135,12 @@ TestAtiny_Osdep::~TestAtiny_Osdep(void)
 
 }
 
+/*
 void TestAtiny_Osdep::test_osKernelGetTickCount(void)
 {
 
 }
+*/
 
 void TestAtiny_Osdep::test_atiny_gettime_ms(void)
 {
@@ -270,6 +297,83 @@ void TestAtiny_Osdep::test_atiny_mutex_unlock(void)
 	atiny_mutex_unlock(test_mutex);
 	TEST_ASSERT_MSG((result == 0), "atiny_mutex_unlock(...) failed");
 }	
+
+
+void TestAtiny_Osdep::test_atiny_task_mutex_create(void)
+{
+
+	int result = 0;
+	atiny_task_mutex_create(NULL);
+	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_create(...) failed");
+
+	g_state = 1;
+	atiny_task_mutex_s test_mutex;
+	test_mutex.mutex = 0;
+	test_mutex.valid = 0;
+	stubInfo stub_info;
+	
+	setStub((void *)LOS_MuxCreate,(void *)stub_LOS_MuxCreate,&stub_info);
+    result = atiny_task_mutex_create(&test_mutex);
+    TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_create() failed");
+    cleanStub(&stub_info);
+
+	g_state = 0;
+	setStub((void *)LOS_MuxCreate,(void *)stub_LOS_MuxCreate,&stub_info);
+	result = atiny_task_mutex_create(&test_mutex);
+    TEST_ASSERT_MSG((result == LOS_OK), "atiny_task_mutex_create() failed");
+    cleanStub(&stub_info);
+
+
+	
+		
+
+	
+	
+}
+void TestAtiny_Osdep::test_atiny_task_mutex_delete(void)
+{
+	int result = 0;
+	atiny_task_mutex_delete(NULL);
+	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_delete(...) failed");
+
+	atiny_task_mutex_s test_mutex;
+	test_mutex.mutex = 1;
+	test_mutex.valid = 1;
+    stubInfo stub_info;
+	setStub((void *)LOS_MuxDelete,(void *)stub_LOS_MuxDelete,&stub_info);
+	result = atiny_task_mutex_delete(&test_mutex);
+    TEST_ASSERT_MSG((result == 0), "atiny_task_mutex_delete() failed");
+    cleanStub(&stub_info);
+
+	
+
+}
+void TestAtiny_Osdep::test_atiny_task_mutex_lock(void)
+{
+	int result = 0;
+	atiny_task_mutex_lock(NULL);
+	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_lock(...) failed");
+
+	atiny_task_mutex_s test_mutex;
+	test_mutex.mutex = 1;
+	test_mutex.valid = 1;
+	result = atiny_task_mutex_lock(&test_mutex);
+    TEST_ASSERT_MSG((result == 0), "atiny_task_mutex_lock() failed");
+	
+}
+void TestAtiny_Osdep::test_atiny_task_mutex_unlock(void)
+{
+	int result = 0;
+	atiny_task_mutex_unlock(NULL);
+	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_unlock(...) failed");
+
+	atiny_task_mutex_s test_mutex;
+	test_mutex.mutex = 1;
+	test_mutex.valid = 1;
+	result = atiny_task_mutex_unlock(&test_mutex);
+    TEST_ASSERT_MSG((result == 0), "atiny_task_mutex_unlock() failed");
+}
+
 
 void TestAtiny_Osdep::setup()
 {

@@ -58,6 +58,7 @@ extern "C"
 
     extern at_task at;
 	extern socket_info sockinfo[MAX_SOCK_NUM];
+	extern at_adaptor_api bc95_interface;
     // in atadapter.c
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
@@ -237,6 +238,41 @@ extern "C"
         return AT_OK;
 	}
 
+	int stub_nb_decompose_str(const char* str, int *readleft, int *out_sockid)
+	{
+	    return 1;
+	}
+
+	int stub_nb_decompose_strok(const char* str, int *readleft, int *out_sockid)
+	{
+		return 0;
+	}
+
+	static int32_t stub_at_cmd_in_callback(const int8_t *cmd, int32_t len,
+                    int32_t (*handle_data)(const int8_t *data, uint32_t len),  uint32_t timeout)
+	{
+		int8_t datatest[20]="ERROR";
+		int8_t datatest2[20]="\r\n123";
+		uint32_t length=3;
+		
+		stubInfo stub_decom;
+		stubInfo stub_decomok;
+
+		handle_data(datatest,length);
+
+		setStub((void *)nb_decompose_str,(void *)stub_nb_decompose_str,&stub_decom);
+		handle_data(datatest2,length);
+
+		cleanStub(&stub_decom);
+		
+		setStub((void *)nb_decompose_str,(void *)stub_nb_decompose_strok,&stub_decomok);
+		handle_data(datatest2,length);
+
+		cleanStub(&stub_decomok);
+
+		return 0;
+	}
+
     static UINT32 stub_LOS_QueueCreate(CHAR *pcQueueName, UINT16 usLen, UINT32 *puwQueueID,
             UINT32 uwFlags,UINT16 usMaxMsgSize )
     {
@@ -304,7 +340,7 @@ TestBC95::TestBC95()
 {
     at_init();
     TEST_ADD(TestBC95::test_str_to_hex);
-	TEST_ADD(TestBC95::test_strnstr);
+	//TEST_ADD(TestBC95::test_strnstr);
 	TEST_ADD(TestBC95::test_HexStrToStr);
 	TEST_ADD(TestBC95::test_nb_check_csq);
 	
@@ -333,6 +369,7 @@ TestBC95::TestBC95()
     TEST_ADD(TestBC95::test_nb_send_str);
     TEST_ADD(TestBC95::test_nb_data_ioctl);
 	TEST_ADD(TestBC95::test_nb_cmd_match);
+	TEST_ADD(TestBC95::test_nb_handle_sock_data);
 	TEST_ADD(TestBC95::test_nb_int);
 	//TEST_ADD(TestBC95::test_nb_step);
 	
@@ -357,6 +394,7 @@ void TestBC95::test_str_to_hex(void)
     TEST_ASSERT_MSG((ret == AT_OK), "test_str_to_hex normal failed");
     
 }
+#if 0
 void TestBC95::test_strnstr(void)
 {
     char *ret;
@@ -373,6 +411,7 @@ void TestBC95::test_strnstr(void)
 	ret = strnstr(s1,s2,len);
 	TEST_ASSERT_MSG((ret == NULL), "test_strstr normal failed");
 }
+#endif
 
 void TestBC95::test_HexStrToStr(void)
 {   
@@ -571,7 +610,7 @@ void TestBC95::test_nb_decompose_str(void)
 	sockinfo[4].used_flag=0;
 	sockinfo[4].socket=0;
 	
-    //cleanStub(&stub_info1);	
+    cleanStub(&stub_info1);	
 	cleanStub(&stub_info);	
     TEST_ASSERT_MSG((ret =AT_FAILED), "test_nb_decompose_str normal failed");
     
@@ -581,7 +620,7 @@ void TestBC95::test_nb_decompose_str(void)
 	ret = nb_decompose_str(str4, &readleft, &out_sockid);
 	sockinfo[4].used_flag=0;
 	sockinfo[4].socket=0;
-	cleanStub(&stub_info1);
+	//cleanStub(&stub_info1);
 	cleanStub(&stub_info2);
 	TEST_ASSERT_MSG((ret =AT_FAILED), "test_nb_decompose_str normal failed");
 }
@@ -888,12 +927,32 @@ void TestBC95::test_nb_cmd_match(void)
 	sockinfo[4].used_flag=0;
 	sockinfo[4].socket=0;
 */
-	
+
 
 }
+
+void TestBC95::test_nb_handle_sock_data(void)
+{
+    char buffer[50]="+NSONMI:1,3,";
+	
+	char* featurestr="abc";
+	int len =3;
+	sockinfo[1].used_flag=1;
+	sockinfo[1].socket=1;
+
+	stubInfo stub_cmd;
+	setStub((void *)at_cmd_in_callback,(void *)stub_at_cmd_in_callback,&stub_cmd);
+	nb_cmd_match(buffer,featurestr,len);
+		
+	cleanStub(&stub_cmd);
+
+	sockinfo[1].used_flag=0;
+	sockinfo[1].socket=0;	
+}
+
 void TestBC95::test_nb_int(void)
 {
-	at_interface.init();
+	bc95_interface.init();
 	at.step_callback();
 }
 
