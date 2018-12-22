@@ -43,6 +43,11 @@
 #include "sal/atiny_socket.h"
 #include "at_frame/at_api.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /* MACRO DEFINE */
 #define AT_INTO
 #ifdef AT_INTO
@@ -209,4 +214,9 @@ void at_reg_step_callback(at_task *at_tsk, void (*step_callback)(void));
 extern at_task at;
 
 extern uint16_t at_fota_timer;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
