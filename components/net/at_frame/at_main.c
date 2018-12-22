@@ -533,8 +533,7 @@ void at_recv_task()
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp, &recv_buf);
 
-        if (recv_len <= 0)
-            continue;
+        
 
         //int32_t data_len = 0;
         AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
