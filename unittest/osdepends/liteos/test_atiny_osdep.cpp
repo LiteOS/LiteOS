@@ -54,6 +54,9 @@ extern "C"
 #include "osdepends/atiny_osdep.h"
 #include "los_hwi.h"
 
+
+
+
 extern unsigned int  g_vuwIntCount;
 extern unsigned int  g_semCrt;
 
@@ -303,7 +306,8 @@ void TestAtiny_Osdep::test_atiny_task_mutex_create(void)
 {
 
 	int result = 0;
-	atiny_task_mutex_create(NULL);
+	result = atiny_task_mutex_create(NULL);
+
 	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_create(...) failed");
 
 	g_state = 1;
@@ -333,7 +337,7 @@ void TestAtiny_Osdep::test_atiny_task_mutex_create(void)
 void TestAtiny_Osdep::test_atiny_task_mutex_delete(void)
 {
 	int result = 0;
-	atiny_task_mutex_delete(NULL);
+	result = atiny_task_mutex_delete(NULL);
 	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_delete(...) failed");
 
 	atiny_task_mutex_s test_mutex;
@@ -351,7 +355,7 @@ void TestAtiny_Osdep::test_atiny_task_mutex_delete(void)
 void TestAtiny_Osdep::test_atiny_task_mutex_lock(void)
 {
 	int result = 0;
-	atiny_task_mutex_lock(NULL);
+	result = atiny_task_mutex_lock(NULL);
 	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_lock(...) failed");
 
 	atiny_task_mutex_s test_mutex;
@@ -364,7 +368,7 @@ void TestAtiny_Osdep::test_atiny_task_mutex_lock(void)
 void TestAtiny_Osdep::test_atiny_task_mutex_unlock(void)
 {
 	int result = 0;
-	atiny_task_mutex_unlock(NULL);
+	result = atiny_task_mutex_unlock(NULL);
 	TEST_ASSERT_MSG((result == -1), "atiny_task_mutex_unlock(...) failed");
 
 	atiny_task_mutex_s test_mutex;
