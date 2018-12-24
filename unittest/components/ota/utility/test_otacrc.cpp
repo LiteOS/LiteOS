@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include "stdio.h"
 #include "test_otacrc.h"
 #include "ota_crc.h"
 #include "string.h"

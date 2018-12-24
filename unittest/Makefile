@@ -4,7 +4,6 @@ TOP_DIR := .
 SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/agent_tiny/atiny_lwm2m \
     $(TOP_DIR)/components/connectivity/nb_iot \
-    $(TOP_DIR)/components/ota/package \
     $(TOP_DIR)/components/ota/sota \
     $(TOP_DIR)/components/ota/utility \
     $(TOP_DIR)/osdepends/liteos \
@@ -37,7 +36,7 @@ run:
 cov:
 	$(foreach N,$(SUB_DIR),make -C $(N) cov;)
 	mkdir -p build/result
-	genhtml -o build/html $(GCOV_INFOS) --rc genhtml_branch_coverage=1
+	genhtml -o build/html $(GCOV_INFOS) #--rc genhtml_branch_coverage=1
 	$(foreach N,$(SUB_DIR), cp $(N)/Result.htm build/result/Result_$(notdir $(N)).htm;)
 	
 memcheck:

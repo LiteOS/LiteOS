@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include "stdio.h"
 #include "test_upgrade_flag.h"
 #include "upgrade_flag.h"
 #include "string.h"
