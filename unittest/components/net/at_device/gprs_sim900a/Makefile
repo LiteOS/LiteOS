@@ -127,3 +127,4 @@ cov:
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log
+
