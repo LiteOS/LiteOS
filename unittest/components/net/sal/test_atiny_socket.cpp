@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -530,4 +531,5 @@ void TestAtiny_Socket::tear_down()
 {
 
 }
+
 

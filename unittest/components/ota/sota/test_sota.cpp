@@ -270,6 +270,7 @@ static int stub_pack_head_check(const pack_head_s *head, uint32_t len)
 	return 0;
 }
 
+
 static int stub_pack_wr_write_end(pack_writer_s *writer)
 {
 	return 0;
@@ -285,10 +286,12 @@ static int stub_pack_init_device1(const pack_params_s *params)
 	return -1;
 }
 
+
 void temp_free(void *ptr)
 {
 	free(ptr);
 }
+
 
 static int stub_pack_storage_active_software(pack_storage_device_api_s *thi)
 {
@@ -349,8 +352,10 @@ void TestSota::test_sota_init()
 	flash_op.firmware_download_stage = BOOTLOADER;
 	flash_op.current_run_stage = BOOTLOADER;
 
+
 	ret = sota_init(&flash_op);
 	TEST_ASSERT_MSG((SOTA_OK == ret), "sota_init(...) success");
+
   
     stubInfo si_flag_upgrade_get_result;
 	setStub((void *)flag_upgrade_get_result, (void *)stub_flag_upgrade_get_result, &si_flag_upgrade_get_result);
@@ -358,6 +363,7 @@ void TestSota::test_sota_init()
 	flash_op.current_run_stage = APPICATION;
 	ret = sota_init(&flash_op);
 	cleanStub(&si_flag_upgrade_get_result);
+
 	TEST_ASSERT_MSG((SOTA_OK == ret), "sota_init(...) success");
 	
 	sota_init(&flash_op);
@@ -367,6 +373,7 @@ void TestSota::test_sota_init()
 	cleanStub(&si_pack_init_device);
 /* 	cleanStub(&si_at_malloc1); */
 	TEST_ASSERT_MSG((SOTA_OK == ret), "sota_init(...) success");
+
 
 }
 
@@ -382,6 +389,7 @@ void TestSota::test_sota_parse()
 	int32_t in_len2 = strlen((const char *)in_buf2);
 	int32_t in_len3 = strlen((const char *)in_buf3);
 	int32_t in_len4 = strlen((const char *)in_buf4);
+
 	
 	int32_t out_len = SOTA_BUF_LEN;
 	int32_t out_len1 = -1;
@@ -416,6 +424,7 @@ void TestSota::test_sota_process()
 	int8_t in_buf9[] = "+NNMI:30,FFFE0114EBBC001656312E3000000000000000000000000001F400053133";
 	int8_t in_buf10[] = "+NNMI:9,FFFE0116850E000100";
 	int8_t in_buf11[] = "+NNMI:8,FFFE01151c840000";
+
 	int32_t in_len0 = strlen((const char *)in_buf0);
 	int32_t in_len1 = strlen((const char *)in_buf1);
 	int32_t in_len2 = strlen((const char *)in_buf2);
@@ -463,14 +472,17 @@ void TestSota::test_sota_process()
 	stubInfo si_pack_wr_write;
 	setStub((void *)pack_wr_write, (void *)stub_pack_wr_write, &si_pack_wr_write);
 
+
 	sota_parse((const int8_t*)in_buf2,in_len2,out_buf,out_len);
 	sota_process(arg,out_buf,out_len);
 	sota_parse((const int8_t*)in_buf3,in_len3,out_buf,out_len);
 	sota_process(arg,out_buf,out_len);
+
 	
 	sota_timeout_handler();
 	sota_parse((const int8_t*)in_buf2,in_len2,out_buf,out_len);
 	sota_process(arg,out_buf,out_len);
+
 	sota_parse((const int8_t*)in_buf5,in_len5,out_buf,out_len);
 	sota_process(arg,out_buf,out_len);
 	sota_parse((const int8_t*)in_buf4,in_len4,out_buf,out_len);
@@ -528,6 +540,7 @@ void TestSota::test_sota_process()
 	sota_parse((const int8_t*)in_buf9,in_len9,out_buf,out_len);
 	sota_process(arg,out_buf,out_len);
 	cleanStub(&si_pack_head_check);
+
 	cleanStub(&si_pack_wr_write);
 	cleanStub(&si_pack_head_parse);
 	cleanStub(&si_flag_write);
