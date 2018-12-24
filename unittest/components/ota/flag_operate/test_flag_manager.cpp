@@ -55,17 +55,17 @@ int flag_init(flag_op_s *flag)
 */
 int print1(void *buf, int32_t len)
 {
-	printf("正在调用print1函数 buf:%s len:%d\n",buf,len);
+	printf("call print1 buf:%s len:%d\n",buf,len);
 	return 1;
 }
 int print2(const void *buf, int32_t len)
 {
-	printf("正在调用print2函数 buf:%s len:%d\n",buf,len);
+	printf("call print2 buf:%s len:%d\n",buf,len);
 	return 1;
 }
 int print3(void *buf, int32_t len)
 {
-	printf("正在调用print3函数 buf:%s len:%d\n",buf,len);
+	printf("call print3 buf:%s len:%d\n",buf,len);
 	return 0;
 }
 void TestFlagManager::test_flag_init()
@@ -229,11 +229,11 @@ void TestFlagManager::test_flag_write()
 
 TestFlagManager::TestFlagManager()
 {
-	printf("进入测试类的构造函数\n");
+	
     TEST_ADD(TestFlagManager::test_flag_init);
 	TEST_ADD(TestFlagManager::test_flag_read);
 	TEST_ADD(TestFlagManager::test_flag_write);
-	printf("将测试代码装载进类中\n");
+	
 
 }
 
