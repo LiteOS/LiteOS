@@ -77,7 +77,7 @@ extern int accept(int s, struct sockaddr *addr, socklen_t *addrlen);
 extern int recvfrom(int s, void *mem, size_t len, int flags,struct sockaddr *from, socklen_t *fromlen);
 extern int getsockname(int s, struct sockaddr *name, socklen_t *namelen);
 extern int setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen);
-
+extern int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len, uint32_t timeout);
 
 
 int recv_flag = 0;
@@ -104,6 +104,7 @@ TestAtiny_Socket::TestAtiny_Socket()
     TEST_ADD(TestAtiny_Socket::test_atiny_net_recv_timeout);
     TEST_ADD(TestAtiny_Socket::test_atiny_net_send);
 	TEST_ADD(TestAtiny_Socket::test_atiny_net_accept);
+	TEST_ADD(TestAtiny_Socket::test_atiny_net_send_timeout);
     TEST_ADD(TestAtiny_Socket::test_atiny_net_close);
 
 
@@ -224,15 +225,17 @@ TestAtiny_Socket::~TestAtiny_Socket(void)
 
 void TestAtiny_Socket::test_atiny_net_bind(void)
 {
+	printf("+++++++++++++++++test_atiny_net_bind begin++++++++++++++++++++++++\n");
 	void *param_ctx = NULL;
 	
 	param_ctx = atiny_net_bind(NULL, NULL, 0);
 	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_bind(...) failed");
+	printf("+++++++++++++++++test_atiny_net_bind end++++++++++++++++++++++++\n");
 }
 
 void TestAtiny_Socket::test_atiny_net_accept(void)
 {
-
+	printf("+++++++++++++++++test_atiny_net_accept begin++++++++++++++++++++++++\n");
 
 
     int result = ATINY_NET_ERR;
@@ -338,13 +341,13 @@ void TestAtiny_Socket::test_atiny_net_accept(void)
 
 
 
-
+	printf("+++++++++++++++++test_atiny_net_accept end++++++++++++++++++++++++\n");
 
 }
 
 void TestAtiny_Socket::test_atiny_net_connect(void)
 {	
-	
+	printf("+++++++++++++++++test_atiny_net_connect begin++++++++++++++++++++++++\n");
 	void *param_ctx;
 	param_ctx = atiny_net_connect(NULL, NULL, 2);
 	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
@@ -383,10 +386,12 @@ void TestAtiny_Socket::test_atiny_net_connect(void)
 	param_ctx = atiny_net_connect(test_host, test_port, ATINY_PROTO_UDP);
 	TEST_ASSERT_MSG((param_ctx == NULL), "atiny_net_connect(...) failed");
 	cleanStub(&si_fcntl);
+	printf("+++++++++++++++++test_atiny_net_connect end++++++++++++++++++++++++\n");
 }
  
 void TestAtiny_Socket::test_atiny_net_recv(void)
 {
+	printf("+++++++++++++++++test_atiny_net_recv begin++++++++++++++++++++++++\n");
 	int result;
 	atiny_net_context *para_context, test_context;
 	memset(&test_context, 0, sizeof(atiny_net_context));
@@ -411,10 +416,13 @@ void TestAtiny_Socket::test_atiny_net_recv(void)
 	result = atiny_net_recv(&test_context, test_buf, 100);
 	TEST_ASSERT_MSG((result == RECV_NUM), "atiny_net_recv(...) failed");
 	cleanStub(&si_recv);
+	printf("+++++++++++++++++test_atiny_net_recv end++++++++++++++++++++++++\n");
 }
 
 void TestAtiny_Socket::test_atiny_net_recv_timeout(void)
 {
+	printf("+++++++++++++++++test_atiny_net_recv_timeout begin++++++++++++++++++++++++\n");
+
 	int result;
 	atiny_net_context *para_context, test_context;
 	unsigned char buf[100] = {0};
@@ -449,11 +457,12 @@ void TestAtiny_Socket::test_atiny_net_recv_timeout(void)
 	cleanStub(&si_recv);
 	cleanStub(&si_select);
 
-	
+	printf("+++++++++++++++++test_atiny_net_recv_timeout end++++++++++++++++++++++++\n");
 }
 
 void TestAtiny_Socket::test_atiny_net_send(void)
 {
+	printf("+++++++++++++++++test_atiny_net_send begin++++++++++++++++++++++++\n");
 	int result;
 	atiny_net_context *param_context = NULL, test_context;
 	const unsigned char buf[100] = {0};
@@ -478,12 +487,30 @@ void TestAtiny_Socket::test_atiny_net_send(void)
 	result = atiny_net_send(param_context, buf, 20);  
 	TEST_ASSERT_MSG((result == 20), "atiny_net_recv_timeout(...) failed");
     cleanStub(&si_send);
+	printf("+++++++++++++++++test_atiny_net_send end++++++++++++++++++++++++\n");
+	
+}
+
+
+
+void TestAtiny_Socket::test_atiny_net_send_timeout(void)
+{
+	int result;
+	int test_ctx = 22;
+	int *p_test_ctx = &test_ctx;
+	unsigned char test_buffer[] = "hello112233";
+	int test_len = 12;
+	uint32_t test_timeout_ms = 0;
+	result = atiny_net_send_timeout((void *)p_test_ctx, test_buffer, test_len, test_timeout_ms);
+	printf("result%d",result);
+	TEST_ASSERT_MSG((result == -1), "atiny_net_send_timeout(...) failed");
+
 	
 }
 
 void TestAtiny_Socket::test_atiny_net_close(void)
 {
-
+	printf("+++++++++++++++++test_atiny_net_close begin++++++++++++++++++++++++\n");
 	int result = 0;
 	atiny_net_context *param_context = NULL;
 	param_context = (atiny_net_context *)atiny_malloc(100);
@@ -491,6 +518,7 @@ void TestAtiny_Socket::test_atiny_net_close(void)
 	param_context->fd = 1;
 	atiny_net_close(param_context);
 	TEST_ASSERT_MSG((result == 0), "atiny_net_close(...) failed");
+	printf("+++++++++++++++++test_atiny_net_close end++++++++++++++++++++++++\n");
 }
 
 void TestAtiny_Socket::setup()

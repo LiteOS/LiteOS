@@ -65,6 +65,7 @@ public:
 	void test_atiny_net_send(void);
 	void test_atiny_net_close(void);
     void test_atiny_net_accept(void);
+	void test_atiny_net_send_timeout(void);
 
 protected:
     void setup();

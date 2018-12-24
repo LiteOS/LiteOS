@@ -1,5 +1,5 @@
 	
-CC=gcc
+CC=c99
 CPP=g++
 LD=ld
 AR=ar
@@ -26,7 +26,7 @@ CFLAGS += -DWITH_LOGS
 CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
 CFLAGS += -fprofile-arcs -ftest-coverage
 CFLAGS += -DUSE_BOOTLOADER
-GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
+GCOV_FLAGS := #--rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
 
 #compile dynamic library of liteos module	
 SRC:= $(wildcard $(HW_LITEOSDIR)/components/ota/sota/*.c)
@@ -122,9 +122,9 @@ run:
 cov:
 	mkdir -p gcov
 	./$(BIN)
-	lcov -c -o gcov/gcov.info -d . -b . --rc lcov_branch_coverage=1
-	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info --rc lcov_branch_coverage=1
-	genhtml -o gcov/html gcov/gcov.info --rc genhtml_branch_coverage=1
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log

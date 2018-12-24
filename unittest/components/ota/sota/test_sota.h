@@ -40,7 +40,9 @@
 class TestSota:public Test::Suite{
 public:
     void test_sota_init();
-    void test_sota_process_main();
+	void test_sota_parse();
+    void test_sota_process();
+
     
     TestSota();
     ~TestSota();
