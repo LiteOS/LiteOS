@@ -69,13 +69,13 @@ void TestUpgradeFlag::test_flag_upgrade_init()
 	//无参数
 	
 	//ret = flag_read() 有 0和-1
-	//观察发现 外部无法影响到flad_read()的参数和返回值(分支覆盖率降低，不影响行覆盖率)（需要打桩）
+	
 
 	flag_upgrade_init();
 	
 	//打桩
 	//1
-   stubInfo stub_sem;//在此范围内，flag_read变成了stub_flag_read-------------------
+   stubInfo stub_sem;
    setStub((void *)flag_read,(void *)stub_flag_read,&stub_sem); 
    flag_upgrade_init();
    cleanStub(&stub_sem);//---------------------------------------------------------
@@ -214,7 +214,7 @@ void TestUpgradeFlag::test_flag_get_recover_verify()
 	
 }
 
-//未在源代码中找到该函数的定义
+
 void TestUpgradeFlag::test_flag_enable_hwpatch()
 {
 	
@@ -222,7 +222,7 @@ void TestUpgradeFlag::test_flag_enable_hwpatch()
 
 TestUpgradeFlag::TestUpgradeFlag()
 {
-	printf("进入测试类的构造函数\n");
+	
     TEST_ADD(TestUpgradeFlag::test_flag_upgrade_init);
 	TEST_ADD(TestUpgradeFlag::test_flag_set_info);
 	TEST_ADD(TestUpgradeFlag::test_flag_get_info);
@@ -231,7 +231,7 @@ TestUpgradeFlag::TestUpgradeFlag()
 	TEST_ADD(TestUpgradeFlag::test_flag_set_recover_verify);
 	TEST_ADD(TestUpgradeFlag::test_flag_get_recover_verify);
 	TEST_ADD(TestUpgradeFlag::test_flag_enable_hwpatch);
-	printf("将测试代码装载进类中\n");
+
 
 }
 
