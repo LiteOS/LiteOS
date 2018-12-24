@@ -43,6 +43,11 @@
 #include "sal/atiny_socket.h"
 #include "at_frame/at_api.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /* MACRO DEFINE */
 #define AT_INTO
 #ifdef AT_INTO
@@ -182,7 +187,7 @@ typedef struct at_task{
 
 	void (*step_callback)();
 
-	void    (*init)(at_config *config);
+	int32_t (*init)(at_config *config);
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * resp_buf, int* resp_len);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* get unused linkid, use in multi connection mode*/
@@ -209,4 +214,9 @@ void at_reg_step_callback(at_task *at_tsk, void (*step_callback)(void));
 extern at_task at;
 
 extern uint16_t at_fota_timer;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

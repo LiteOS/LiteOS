@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -65,6 +66,7 @@ public:
 	void test_atiny_net_send(void);
 	void test_atiny_net_close(void);
     void test_atiny_net_accept(void);
+	void test_atiny_net_send_timeout(void);
 
 protected:
     void setup();
@@ -74,3 +76,4 @@ protected:
 
 
 #endif /* __TEST_AGENTTINY_H__ */
+

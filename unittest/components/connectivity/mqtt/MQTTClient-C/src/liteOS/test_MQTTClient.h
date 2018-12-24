@@ -50,6 +50,7 @@ public:
     void test_cycle(void);
     void test_keepalive(void);
 	void test_clean_close_session(void);
+	void test_waitfor();
 
 protected:
     void setup();

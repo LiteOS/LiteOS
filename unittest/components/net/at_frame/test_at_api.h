@@ -31,21 +31,28 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+
+#ifndef __TEST_AT_API_INTERFACE__
+#define __TEST_AT_API_INTERFACE__
 #include <cpptest.h>
-#include <iostream>
-#include <fstream>
-#include "test_sim900a.h"
+#include "stub.h"
 
+class TestAtApiInterface:public Test::Suite {
+    
+  protected:
+    void setup();
+    void tear_down();
 
-int main(){
-  Test::Suite ts;
-  ts.add(std::auto_ptr<Test::Suite>(new TestSim900a));
+  public:
+    void test_at_api_register();
+	void test_at_api_bind();
+    void test_at_api_connect();
+    void test_at_api_send();
+    void test_at_api_sendto();
+    void test_at_api_recv();
+    void test_at_api_recv_timeout();
+    void test_at_api_close();
+    TestAtApiInterface();
+};
 
-  std::ofstream html;
-  html.open("Result.htm");
-  
-  Test::HtmlOutput output;
-  ts.run(output);
-  output.generate(html);
-  html.close();
-}
+#endif

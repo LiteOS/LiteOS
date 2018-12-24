@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -46,7 +47,9 @@ class TestSim900a:public Test::Suite {
 
  public:
   void test_sim900a_echo_off();
-  void test_sim900a_ini();
+  void test_sim900a_echo_on();
+  void test_sim900a_cmd_match();
+ // void test_sim900a_ini();
   void test_sim900a_connect();
   void test_sim900a_recv();
   void test_sim900a_recv_timeout();
@@ -61,3 +64,4 @@ class TestSim900a:public Test::Suite {
   ~TestSim900a();
 };
 #endif
+

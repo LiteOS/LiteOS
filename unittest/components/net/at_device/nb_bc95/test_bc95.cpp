@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -59,11 +60,17 @@ extern "C"
     extern at_task at;
 	extern socket_info sockinfo[MAX_SOCK_NUM];
 	extern at_adaptor_api bc95_interface;
+
+	at_config test_config =
+		{
+			0,0,0,10,
+		};
+			
     // in atadapter.c
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
     extern int32_t at_get_unuse_linkid();
-	extern void at_init();
+	extern void at_init(at_config *config);
 	extern void at_deinit();
 
     extern char *strnstr(const char *s1, const char *s2, size_t len);
@@ -338,7 +345,7 @@ extern "C"
 
 TestBC95::TestBC95()
 {
-    at_init();
+    at_init(&test_config);
     TEST_ADD(TestBC95::test_str_to_hex);
 	//TEST_ADD(TestBC95::test_strnstr);
 	TEST_ADD(TestBC95::test_HexStrToStr);

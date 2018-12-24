@@ -23,7 +23,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
@@ -32,45 +32,42 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/* Define to prevent recursive inclusion ------------------------------------*/
-#ifndef __TEST_BC95_H__
-#define __TEST_BC95_H__
-
-/* Includes -----------------------------------------------------------------*/
+#ifndef __AT_ADAPTER_H_
+#define __AT_ADAPTER_H_
 #include <cpptest.h>
+#include "adapter_layer.h"
+//#include "atiny_log.h"
 #include "stub.h"
 
-/* Defines ------------------------------------------------------------------*/
-/* Macros -------------------------------------------------------------------*/
-/* Typedefs -----------------------------------------------------------------*/
-/* Extern variables ---------------------------------------------------------*/
-/* Functions API ------------------------------------------------------------*/
-class TestBC95 : public Test::Suite
-{
-public:
-    TestBC95();
-    ~TestBC95();
+class TestAtadapter:public Test::Suite {
+	
+ protected:
+  void tear_down();
+  void setup();
 
-    void test_str_to_hex(void);
-    void test_nb_reboot(void);
-    void test_nb_hw_detect(void);
-    void test_nb_set_cdpserver(void);
-    void test_nb_send_psk(void);
-    void test_nb_send_payload(void);
-    void test_nb_query_ip(void);
-    void test_nb_get_netstat(void);
-    void test_nb_create_udpsock(void);
-    void test_nb_connect(void);
-	void test_nb_send(void);
-	void test_nb_recv(void);
-	void test_nb_recv_timeout(void);
-	void test_nb_close(void);
-	void test_nb_recv_cb(void);
-	void test_nb_deinit(void);
-    void test_nb_send_str(void);
-    void test_nb_data_ioctl(void);
+ public:
+  void test_at_get_time();
+  void test_at_listener_list_add();
+  void test_at_listner_list_del();
+  void test_at_listner_list_destroy();
+  void test_at_get_unuse_linkid();
+  void test_store_resp_buf();
+  void test_at_cmd_in_callback();
+  void test_at_cmd_multi_suffix();
+  void test_at_cmd();
+  void test_at_write();
+  void test_cloud_cmd_matching();
+  void test_at_init_oob();
+  void test_at_recv_task();
+  void test_create_at_recv_task();
 
+  void test_at_struct_init();
+  void test_chartoint();
+  void test_at_init();
+  void test_at_oob_register();
+  void test_at_deinit();
+  
+  
+  TestAtadapter();
 };
-
-
-#endif /* __TEST_ESP8266_H__ */
+#endif

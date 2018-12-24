@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
  * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
@@ -44,13 +45,20 @@ extern "C"
     char g_state = TEST_STATE_OK;
     
     extern at_task at;
-    extern at_config at_user_conf;
+    //extern at_config at_user_conf;
 
     int QUEUE_WRITE = 0;
-    
-	extern void at_init();
+
+	at_config test_config =
+		{
+			0,0,0,10,
+		};
+		
+	extern void at_init(at_config *config);
 
     extern int32_t sim900a_echo_off(void);
+	extern int32_t sim900a_echo_on(void);
+	extern int32_t sim900a_cmd_match(const char *buf, char* featurestr,int len);
     extern int32_t sim900a_ini();
     extern int32_t sim900a_connect(const int8_t * host, const int8_t * port, int proto);
     extern int32_t sim900a_recv(int32_t id, int8_t * buf, uint32_t len);
@@ -153,6 +161,13 @@ extern "C"
         return NULL;
     }
 
+	static int32_t stub_sim900a_close(int32_t id)
+    {
+		at.linkid[id].usable = 0;
+
+		return 1;
+	}
+
 }						
 
 void TestSim900a::test_sim900a_echo_off()
@@ -166,6 +181,28 @@ void TestSim900a::test_sim900a_echo_off()
 
 }
 
+void TestSim900a::test_sim900a_echo_on()
+{
+   int32_t ret  = -1;
+   stubInfo stub_cmd;
+   setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd);
+   ret = sim900a_echo_on();
+   cleanStub(&stub_cmd);
+   TEST_ASSERT_MSG(( ret != -1), "Test sim900a_echo_off() Failed");
+}
+
+void TestSim900a::test_sim900a_cmd_match()
+{
+	int32_t ret;
+	char *buffer="abc";
+	char *featurestr="abc";
+	int length=3;
+
+	ret=sim900a_cmd_match(buffer,featurestr,3);
+	TEST_ASSERT_MSG(( ret == 0), "Test sim900a_cmd_match() ok");	
+}
+
+#if 0
 void TestSim900a::test_sim900a_ini()
 {  
    //single connect
@@ -180,12 +217,13 @@ void TestSim900a::test_sim900a_ini()
    cleanStub(&stub_cmd);
 
 }
+#endif
 
 void TestSim900a::test_sim900a_connect()
 {
    int32_t ret  = -1;
-   const int8_t host[20] = "192.168.1.101";
-   const int8_t port[10] = "5683";
+   const int8_t host[50] = "192.168.1.101";
+   const int8_t port[50] = "5683";
    int proto = 0;
    stubInfo stub_cmd22;
    setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_cmd22);
@@ -344,17 +382,27 @@ void TestSim900a::test_sim900a_data_handler()
 void TestSim900a::test_sim900a_deinit()
 {
    int32_t ret  = -1;
+   
+   at.linkid[3].usable=AT_LINK_INUSE;
+   
+   stubInfo stub_close;
+   setStub((void *)sim900a_close,(void *)stub_sim900a_close,&stub_close);
    ret = sim900a_deinit();
-   TEST_ASSERT_MSG(( ret == AT_OK), "Test sim900a_deinit) Failed");
+   cleanStub(&stub_close);
+   
+   TEST_ASSERT_MSG(( ret == AT_OK), "Test sim900a_deinit() Failed");
    
 }
 
 
+
 TestSim900a::TestSim900a()
 {
-   at_init();
+   at_init(&test_config);
    TEST_ADD(TestSim900a::test_sim900a_echo_off);
-   TEST_ADD(TestSim900a::test_sim900a_ini);
+   TEST_ADD(TestSim900a::test_sim900a_echo_on);
+   TEST_ADD(TestSim900a::test_sim900a_cmd_match);
+//   TEST_ADD(TestSim900a::test_sim900a_ini);
    TEST_ADD(TestSim900a::test_sim900a_connect);
    TEST_ADD(TestSim900a::test_sim900a_recv);
    TEST_ADD(TestSim900a::test_sim900a_recv_timeout);
