@@ -123,6 +123,12 @@ UINT32 g_mux_pend_ret = 0;
 
 UINT32 LOS_MuxPend(UINT32 uwMuxHandle, UINT32 uwTimeout)
 {
+    if (g_mux_pend_ret == -1)
+    {
+        g_mux_pend_ret = LOS_NOK;
+        return LOS_OK;
+    }
+
     return g_mux_pend_ret;
 }
 

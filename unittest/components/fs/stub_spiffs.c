@@ -63,6 +63,14 @@ s32_t SPIFFS_lseek(spiffs *fs, spiffs_file fh, s32_t offs, int whence)
     return 0;
 }
 
+char g_spiffs_isdir = 0;
+
+s32_t SPIFFS_stat(spiffs *fs, const char *path, spiffs_stat *s)
+{
+    if (s && g_spiffs_isdir) s->type = SPIFFS_TYPE_DIR;
+    return 0;
+}
+
 int g_spiffs_errno = SPIFFS_OK;
 
 s32_t SPIFFS_remove(spiffs *fs, const char *path)
