@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
+#include "stdio.h"
 #include "test_flag_manager.h"	//本类的头文件
 #include "flag_manager.h"//待测源文件的头文件
 #include "string.h"//标准库
