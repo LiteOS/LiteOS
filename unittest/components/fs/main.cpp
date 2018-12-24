@@ -4,7 +4,6 @@
 
 #include "test_fatfs.h"
 #include "test_spiffs.h"
-#include "test_jffs2.h"
 
 
 int main()
@@ -14,7 +13,6 @@ int main()
         Test::Suite ts;
         ts.add(std::auto_ptr<Test::Suite>(new TestFatfs));
         ts.add(std::auto_ptr<Test::Suite>(new TestSpiffs));
-        ts.add(std::auto_ptr<Test::Suite>(new TestJffs2));
 
         std::ofstream html;
         html.open("Result.htm");

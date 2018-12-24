@@ -34,6 +34,8 @@
 
 /* Includes -----------------------------------------------------------------*/
 #include "test_fatfs.h"
+#include "stub.h"
+
 
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
@@ -86,6 +88,12 @@ static struct diskio_drv spi_drv =
 
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
+static int stub_los_vfs_init(void)
+{
+    return LOS_NOK;
+}
+
+
 /* Public functions ---------------------------------------------------------*/
 TestFatfs::TestFatfs()
 {
@@ -101,19 +109,30 @@ TestFatfs::~TestFatfs()
 void TestFatfs::test_errno(void)
 {
     extern int g_fatfs_errno;
+    extern FRESULT f_stat_ret;
+    int ret;
 
     for (int i = FR_OK; i <= FR_INVALID_PARAMETER + 1; i++)
     {
         g_fatfs_errno = i;
-        unlink("/fatfs/f.txt");
+        los_unlink("/fatfs/f.txt");
     }
-
     g_fatfs_errno = FR_OK;
+
+    f_stat_ret = FR_NO_PATH;
+    struct stat s = {0};
+    ret = los_stat(file_name, &s);
+    TEST_ASSERT(ret < 0);
+    f_stat_ret = FR_OK;
 }
 
 void TestFatfs::test_exception(void)
 {
     extern FRESULT f_read_ret;
+    extern FRESULT f_stat_ret;
+    extern FRESULT f_open_ret;
+    extern FRESULT f_mkdir_ret;
+    extern char f_stat_isdir;
     int fd;
     int ret;
     uint8_t drive = -1;
@@ -122,15 +141,39 @@ void TestFatfs::test_exception(void)
     ret = fatfs_mount("/fatfs/", &spi_drv, (uint8_t *)&drive);
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_RDONLY);
+    f_mkdir_ret = FR_NO_PATH;
+    ret = los_mkdir(dir_name, 0);
+    TEST_ASSERT(ret < 0);
+    f_mkdir_ret = FR_OK;
+
+    f_stat_isdir = 1;
+    struct stat s = {0};
+    ret = los_stat(file_name, &s);
+    TEST_ASSERT(ret == 0);
+    f_stat_isdir = 0;
+
+    f_stat_ret = FR_EXIST;
+    fd = los_open(file_name, O_RDONLY|O_TRUNC);
+    TEST_ASSERT(fd < 0);
+    f_stat_ret = FR_OK;
+
+    f_open_ret = FR_LOCKED;
+    fd = los_open(file_name, O_RDONLY);
+    TEST_ASSERT(fd < 0);
+    f_open_ret = FR_OK;
+
+    fd = los_open(file_name, O_RDONLY);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
+    ret = los_lseek(fd, -1, 0);
+    TEST_ASSERT(ret < 0);
+
     f_read_ret = FR_INVALID_PARAMETER;
-    ret = read(fd, buf, sizeof(buf));
+    ret = los_read(fd, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
     f_read_ret = FR_OK;
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -138,10 +181,11 @@ void TestFatfs::test_exception(void)
 /* Private functions --------------------------------------------------------*/
 void TestFatfs::setup()
 {
+    static int is_first = 1;
+
     int ret;
     uint8_t drive = -1;
 
-    static int is_first = 1;
     if (is_first)
     {
         extern UINT32 g_mux_pend_ret;
@@ -154,6 +198,12 @@ void TestFatfs::setup()
             FS_PRINTF ("fatfs_init success\n");
         }
         g_mux_pend_ret = LOS_OK;
+
+        stubInfo si;
+        setStub((void *)los_vfs_init, (void *)stub_los_vfs_init, &si);
+        ret = fatfs_init();
+        TEST_ASSERT(ret == LOS_NOK);
+        cleanStub(&si);
     }
 
     fatfs_init();

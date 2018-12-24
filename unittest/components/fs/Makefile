@@ -19,11 +19,11 @@ HW_LITEOSDIR:=../../..
 ifeq ($(FOR32), true)
 CFLAGS := -m32  -march=i386 -mtune=i386
 else
-CFLAGS := 
+CFLAGS :=
 endif
 
 
-CFLAGS += -g3 -w -DSTM32F429xx -DUSE_HAL_DRIVER -DWITH_LINUX -DNDEBUG
+CFLAGS += -g -w -DSTM32F429xx -DUSE_HAL_DRIVER -DWITH_LINUX -DNDEBUG
 CFLAGS += -fprofile-arcs -ftest-coverage
 GCOV_FLAGS := --rc lcov_branch_coverage=1 --rc genhtml_branch_coverage=1
 
@@ -32,7 +32,7 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/lib/libc/errno.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/vfs/los_vfs.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/spiffs/los_spiffs.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/fatfs/los_fatfs.c)
-SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/jffs2/los_jffs2.c)
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/jffs2/los_jffs2.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/stub.c)
 
 
@@ -89,7 +89,7 @@ CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))
 C_SRC := $(wildcard *.c)
 C_OBJ := $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
-all:$(BUILD_DIR) lib $(BIN) 
+all:$(BUILD_DIR) lib $(BIN)
 	@echo "los fs OK"
 lib:$(LIB)
 TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
@@ -118,7 +118,7 @@ $(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
-    
+
 clean:
 	rm -rf $(BUILD_DIR) bin gcov *.htm *.log
 
@@ -128,9 +128,9 @@ run:
 cov:
 	mkdir -p gcov
 	./$(BIN)
-	lcov -c -o gcov/gcov.info -d . -b . --rc lcov_branch_coverage=1
-	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info --rc lcov_branch_coverage=1
-	genhtml -o gcov/html gcov/gcov.info --rc genhtml_branch_coverage=1
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
 
 memcheck:
 	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log
