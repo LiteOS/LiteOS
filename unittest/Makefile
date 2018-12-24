@@ -9,6 +9,7 @@ SUB_DIR := \
     $(TOP_DIR)/osdepends/liteos \
     $(TOP_DIR)/components/net/at_device/gprs_sim900a \
     $(TOP_DIR)/components/net/at_device/nb_bc95 \
+    $(TOP_DIR)/components/net/at_device/emtc_bg36 \
     $(TOP_DIR)/components/net/at_device/wifi_esp8266 \
     $(TOP_DIR)/components/net/sal \
     $(TOP_DIR)/components/ota/flag_operate \
@@ -37,6 +38,7 @@ cov:
 	$(foreach N,$(SUB_DIR),make -C $(N) cov;)
 	mkdir -p build/result
 	genhtml -o build/html $(GCOV_INFOS) #--rc genhtml_branch_coverage=1
+
 	$(foreach N,$(SUB_DIR), cp $(N)/Result.htm build/result/Result_$(notdir $(N)).htm;)
 	
 memcheck:

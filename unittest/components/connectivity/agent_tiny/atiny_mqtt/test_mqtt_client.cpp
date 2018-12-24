@@ -315,20 +315,7 @@ extern "C"
 		  bind_para=(struct atiny_mqtt_bind_t *)para;
 		  
 		  atiny_mqtt_bind(bind_para->device_info,bind_para->handle);
-		  
 		}
-
-	
-
-
-
-
-
-
-
-
-
-
 
 }
 /* Global variables ---------------------------------------------------------*/
@@ -336,19 +323,11 @@ extern "C"
 /* Public functions ---------------------------------------------------------*/
 TestMQTT_Client::TestMQTT_Client()
 {
-
-	
-	
-
-
-
 	
     TEST_ADD(TestMQTT_Client::test_atiny_mqtt_init);
 
-	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_deinit);
+	//TEST_ADD(TestMQTT_Client::test_atiny_mqtt_deinit);
 	
-
-
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_subscribe_topic);
 
 	TEST_ADD(TestMQTT_Client::test_mqtt_dup_devinfo_fail);
@@ -380,21 +359,14 @@ TestMQTT_Client::TestMQTT_Client()
 	
 	TEST_ADD(TestMQTT_Client::test_mqtt_networkconnect_fail);
 
-
 	TEST_ADD(TestMQTT_Client::test_mqtt_cmd_ioctrlfail);
 	
-
-
-
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_bind_add);
+	
 #if 0
 
 #endif
 
-	
-	
-
-	
-	
 }
 
 TestMQTT_Client::~TestMQTT_Client()
@@ -449,7 +421,6 @@ CJSON_PUBLIC(cJSON *) stub_cJSON_GetObjectItem(cJSON * const object, char * stri
 	   return jsp2;
 	}
 
-
 	if(!strcmp(string,"secret"))
 	{  jsp3=(cJSON *)atiny_malloc(sizeof(cJSON));
 	   jsp3->valuestring="cloudSendSecret";
@@ -461,7 +432,6 @@ CJSON_PUBLIC(cJSON *) stub_cJSON_GetObjectItem(cJSON * const object, char * stri
 CJSON_PUBLIC(void) stub_cJSON_Delete(cJSON *c)
 {
 	atiny_free(c);
-
 }
 
 
@@ -686,7 +656,12 @@ int stub_MQTTSubscribe(MQTTClient *c, const char *topicFilter, enum QoS qos,
 	return 0;
 }
 
-
+int stub_MQTTSubscribe_dir(MQTTClient *c, const char *topicFilter, enum QoS qos,
+									messageHandler messageHandler)
+{   
+	return 0;
+}
+			  
 int stub_MQTTSubscribe2(MQTTClient *c, const char *topicFilter, enum QoS qos,
 									messageHandler messageHandler)
 {  
@@ -731,6 +706,12 @@ int stub_MQTTYield(MQTTClient *c, int timeout_ms)
 	phandle->dynamic_info.connection_update_flag=1;
 	return 0;
 }
+
+int stub_MQTTYield2(MQTTClient *c, int timeout_ms)
+{	
+	return 0;
+}
+
 
 void stub_NetworkDisconnect(Network *n)
 {
@@ -958,7 +939,7 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	atiny_free((*test_phandle).params.server_port);
 	atiny_free((*test_phandle).params.info.u.ca.ca_crt);
 }
-
+#if 0
 void TestMQTT_Client::test_atiny_mqtt_deinit()
 {
 	atiny_mqtt_deinit(NULL);	
@@ -968,7 +949,7 @@ void TestMQTT_Client::test_atiny_mqtt_deinit()
 	test_atiny_params.bind_quit=1;
 	atiny_mqtt_deinit(&test_atiny_params);
 }
-
+#endif
 void TestMQTT_Client::test_atiny_mqtt_isconnected()
 {
 	int result;
@@ -1543,6 +1524,126 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	atiny_free(jsp2);
 	atiny_free(jsp3);
 }
+
+
+void TestMQTT_Client::test_atiny_mqtt_bind_add()
+{
+    int ret;
+	mqtt_device_info_s device_info; 
+	mqtt_client_s handle;
+	mqtt_client_s *phandle=&handle;
+
+	pthread_t first_thread;
+	handle.atiny_quit=0;
+	handle.params.server_ip=(char *)atiny_malloc(16);
+	strcpy(handle.params.server_ip,"192.168.1.102");
+	handle.params.server_port=(char *)atiny_malloc(8);
+	strcpy(handle.params.server_port,"5683");
+	handle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.params.cmd_ioctl=cmd_ioctl_exam;
+	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.sub_topic=(char *)atiny_malloc(8);
+	strcpy(handle.sub_topic,"abc");
+	handle.dynamic_info.connection_update_flag=1;
+	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
+
+	test_gphandle->bind_quit=0;
+	
+	stubInfo stub_flashwr;
+	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
+	atiny_mqtt_init(&(handle.params),&test_gphandle);
+	device_info.connection_type=MQTT_STATIC_CONNECT;
+	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
+	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
+	device_info.password=(char *)atiny_malloc(8);
+	strcpy(device_info.password,"abc");
+    device_info.u.s_info.deviceid="hdell";
+	device_info.connection_type=MQTT_DYNAMIC_CONNECT;
+	device_info.u.d_info.productid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.productid,"lgko");
+	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.nodeid,"nodeid");
+	struct atiny_mqtt_bind_t mqtt_bind_para;
+	mqtt_bind_para.device_info=&device_info;
+	mqtt_bind_para.handle=test_gphandle;
+
+	stubInfo stub_info;
+	stubInfo stub_info1;
+	stubInfo stub_mci;
+	stubInfo stub_info_netcon;
+	stubInfo stub_mqttcon;
+	stubInfo stub_mqttsub;
+	stubInfo stub_mqttyie;
+	//stubInfo stub_jsonp;
+	//stubInfo stub_jsonitm;
+	//stubInfo stub_jsondel;
+	stubInfo stub_mbhc;
+	stubInfo stub_mpwm;
+	stubInfo stub_netdis;
+	
+	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
+	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
+	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
+	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
+	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe_dir, &stub_mqttsub);
+	setStub((void *)MQTTYield, (void *)stub_MQTTYield2, &stub_mqttyie);
+	//setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
+	//setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem, &stub_jsonitm);
+	//setStub((void *)cJSON_Delete, (void *)stub_cJSON_Delete, &stub_jsondel);
+	setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc, &stub_mbhc);
+	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
+	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
+	
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test1, (void *)&mqtt_bind_para);
+	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
+	usleep(10000);
+	test_gphandle->atiny_quit=1;
+	usleep(10000);
+	pthread_cancel(first_thread);
+	pthread_join(first_thread, NULL); 
+	
+	cleanStub(&stub_netdis);
+   	cleanStub(&stub_mpwm);
+    cleanStub(&stub_mbhc);
+    cleanStub(&stub_flashwr);
+   // cleanStub(&stub_jsondel);
+    //cleanStub(&stub_jsonitm);
+   // cleanStub(&stub_jsonp);
+    cleanStub(&stub_mqttyie);
+    cleanStub(&stub_mqttsub);
+    cleanStub(&stub_mqttcon);
+    cleanStub(&stub_info_netcon);
+	cleanStub(&stub_mci);
+	cleanStub(&stub_info1);
+	cleanStub(&stub_info);
+
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.productid);
+	atiny_free(device_info.u.d_info.nodeid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.sub_topic);
+	atiny_free(handle.params.server_ip);
+	
+	atiny_free(test_gphandle->sub_topic);
+	atiny_free(test_gphandle->params.server_ip);
+	atiny_free(test_gphandle->params.server_port);
+	atiny_free(test_gphandle->dynamic_info.got_passward);
+	atiny_free(test_gphandle->dynamic_info.save_info.deviceid);
+    atiny_free(test_gphandle->device_info.u.d_info.nodeid);
+	atiny_free(test_gphandle->device_info.u.d_info.productid);
+	atiny_free(test_gphandle->device_info.password);
+	
+	//atiny_free(jsp1);
+	//atiny_free(jsp2);
+	//atiny_free(jsp3);
+}
+
+
+
+
+
+
 
 void TestMQTT_Client::test_mqtt_proc_connect_nack()
 {
