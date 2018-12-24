@@ -135,10 +135,9 @@ void at_listner_list_destroy(at_task *at_tsk)
 {
     at_listener *head;
 
-    head = at_tsk->head;
-
-    while(head != NULL)
+    while(at_tsk->head != NULL)
     {
+        head = at_tsk->head;
         at_tsk->head = head->next;
         if (head->handle_data != NULL)
         {
@@ -534,8 +533,7 @@ void at_recv_task()
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp, &recv_buf);
 
-        if (recv_len <= 0)
-            continue;
+        
 
         //int32_t data_len = 0;
         AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
@@ -682,9 +680,9 @@ int32_t at_struct_init(at_task *at)
 
     //        atiny_free(at->linkid);
 malloc_linkid_failed:
-    at_free(at->userdata);
-malloc_saveddata_buf:
     at_free(at->saveddata);
+malloc_saveddata_buf:
+    at_free(at->userdata);
 malloc_userdata_buf:
     at_free(at->cmdresp);
 malloc_resp_buf:
@@ -806,13 +804,13 @@ at_config *at_get_config(void)
 }
 
 
-void at_init(at_config *config)
+int32_t at_init(at_config *config)
 {
 
     if(NULL == config)
     {
         AT_LOG("Config is NULL, failed!!\n");
-        return;
+        return AT_FAILED;
     }
     
     memcpy(&at_user_conf,config,sizeof(at_config));
@@ -823,7 +821,7 @@ void at_init(at_config *config)
     if (AT_OK != at_struct_init(&at))
     {
         AT_LOG("prepare AT struct failed!");
-        return;
+        return AT_FAILED;
     }
     at_init_oob();
 
@@ -831,17 +829,18 @@ void at_init(at_config *config)
     {
         AT_LOG("at_usart_init failed!");
         (void)at_struct_deinit(&at);
-        return;
+        return AT_FAILED;
     }
     if(LOS_OK != create_at_recv_task())
     {
         AT_LOG("create_at_recv_task failed!");
         at_usart_deinit();
         (void)at_struct_deinit(&at);
-        return;
+        return AT_FAILED;
     }
 
     AT_LOG("Config complete!!\n");
+    return AT_OK;
 }
 
 

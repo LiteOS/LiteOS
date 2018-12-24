@@ -32,25 +32,42 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __TEST_AT_API_INTERFACE__
-#define __TEST_AT_API_INTERFACE__
+#ifndef __AT_ADAPTER_H_
+#define __AT_ADAPTER_H_
 #include <cpptest.h>
+#include "adapter_layer.h"
+//#include "atiny_log.h"
 #include "stub.h"
 
-class TestAtApiInterface:public Test::Suite {
-    
-  protected:
-    void setup();
-    void tear_down();
+class TestAtadapter:public Test::Suite {
+	
+ protected:
+  void tear_down();
+  void setup();
 
-  public:
-    void test_at_api_register();
-    void test_at_api_connect();
-    void test_at_api_send();
-    void test_at_api_recv();
-    void test_at_api_recv_timeout();
-    void test_at_api_close();
-    TestAtApiInterface();
+ public:
+  void test_at_get_time();
+  void test_at_listener_list_add();
+  void test_at_listner_list_del();
+  void test_at_listner_list_destroy();
+  void test_at_get_unuse_linkid();
+  void test_store_resp_buf();
+  void test_at_cmd_in_callback();
+  void test_at_cmd_multi_suffix();
+  void test_at_cmd();
+  void test_at_write();
+  void test_cloud_cmd_matching();
+  void test_at_init_oob();
+  void test_at_recv_task();
+  void test_create_at_recv_task();
+
+  void test_at_struct_init();
+  void test_chartoint();
+  void test_at_init();
+  void test_at_oob_register();
+  void test_at_deinit();
+  
+  
+  TestAtadapter();
 };
-
 #endif

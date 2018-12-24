@@ -451,6 +451,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\uds_timer.c</FilePath>
             </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\rtc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -555,6 +560,16 @@
               <FileName>stm32l4xx_hal_tim_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_rtc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_rtc_ex.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -785,6 +800,11 @@
               <FileName>sht21_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\demos\sensor\sht21_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\demos\sensor\rtc_demo.c</FilePath>
             </File>
             <File>
               <FileName>timer_demo.c</FileName>

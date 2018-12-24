@@ -42,6 +42,7 @@
 
 #define uds_driv_init        los_driv_init
 #define uds_driv_register    los_driv_register
+#define uds_driv_unregister  los_driv_unregister
 #define uds_driv_event       los_driv_event
 
 #define uds_dev_open         los_dev_open

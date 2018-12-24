@@ -159,28 +159,28 @@ s32_t uds_gpio_read_input_pin(gpio_device_t *device, u8_t *data)
    // s32_t ret;
     switch (device->gpio_init.gpio_port_num)
     {
-        case 0:
+        case UDS_GPIO_A:
            *data = HAL_GPIO_ReadPin(GPIOA, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 1:
+        case UDS_GPIO_B:
            *data = HAL_GPIO_ReadPin(GPIOB, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 2:
+        case UDS_GPIO_C:
            *data = HAL_GPIO_ReadPin(GPIOC, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 3:
+        case UDS_GPIO_D:
            *data = HAL_GPIO_ReadPin(GPIOD, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 4:
+        case UDS_GPIO_E:
            *data = HAL_GPIO_ReadPin(GPIOE, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 5:
+        case UDS_GPIO_F:
            *data = HAL_GPIO_ReadPin(GPIOF, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 6:
+        case UDS_GPIO_G:
            *data = HAL_GPIO_ReadPin(GPIOG, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 7:
+        case UDS_GPIO_H:
            *data = HAL_GPIO_ReadPin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
         default:
@@ -222,37 +222,37 @@ GPIO_PinState HAL_GPIO_ReadOutputPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   */
 s32_t uds_gpio_read_output_pin(gpio_device_t *device,u8_t *data)
 {
-   // s32_t ret;
+    // s32_t ret;
     switch (device->gpio_init.gpio_port_num)
     {
-        case 0:
+        case UDS_GPIO_A:
            *data = HAL_GPIO_ReadOutputPin(GPIOA, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 1:
+        case UDS_GPIO_B:
            *data = HAL_GPIO_ReadOutputPin(GPIOB, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 2:
+        case UDS_GPIO_C:
            *data = HAL_GPIO_ReadOutputPin(GPIOC, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 3:
+        case UDS_GPIO_D:
            *data = HAL_GPIO_ReadOutputPin(GPIOD, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 4:
+        case UDS_GPIO_E:
            *data = HAL_GPIO_ReadOutputPin(GPIOE, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 5:
+        case UDS_GPIO_F:
            *data = HAL_GPIO_ReadOutputPin(GPIOF, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 6:
+        case UDS_GPIO_G:
            *data = HAL_GPIO_ReadOutputPin(GPIOG, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
-        case 7:
+        case UDS_GPIO_H:
            *data = HAL_GPIO_ReadOutputPin(GPIOH, (1<<(device->gpio_init.gpio_pin_num)));
            return UDS_OK;
         default:
            return -UDS_ERROR;
     }
-	
+
 }
 
 
@@ -516,41 +516,38 @@ static s32_t  uds_gpio_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t ti
 {
     
     return true;
-    /*
-    s32_t result = 0;
-    gpio_device_t *device = (gpio_device_t *)pri;
-    (void)offset;
-    if(buf[0])
-    {
-        result = uds_gpio_set_output_pin(device);
-    }
-    else
-    {
-        result = uds_gpio_clear_output_pin(device);
-    }
-    return result;
-    */
+    
 }
 
+typedef void (*gpio_callback_fun)(uint16_t);
+gpio_callback_fun gpio_user_callback;
 
-
+s32_t uds_gpio_set_exit_callback(gpio_device_t *device,gpio_callback_fun para)
+{
+    gpio_user_callback = para;
+    return UDS_OK;
+}
 
 
 static bool_t uds_gpio_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
 {
-    bool_t result = true;
+    bool_t result = UDS_OK;
+    gpio_device_t *device = (gpio_device_t *)pri; 
     switch(cmd)
     {
         case GPIO_TOGGLE_PIN:
-            result = uds_gpio_toggle_output_pin((gpio_device_t *)pri);
+            result = uds_gpio_toggle_output_pin(device);
             break;
         case GPIO_SET_PIN:
-            result = uds_gpio_set_output_pin((gpio_device_t *)pri);
+            result = uds_gpio_set_output_pin(device);
             break;
         case GPIO_CLEAR_PIN:
-            result = uds_gpio_clear_output_pin((gpio_device_t *)pri);
+            result = uds_gpio_clear_output_pin(device);
             break;
-		default:
+        case GPIO_SET_EXITCALLBACK:
+            result = uds_gpio_set_exit_callback(device,(gpio_callback_fun)para);
+            break;
+        default:
             result = -UDS_ERROR;
         break;
     }
@@ -574,7 +571,7 @@ bool_t uds_gpio_dev_install(const char *name, void *pri)
     memset(device, 0, sizeof(gpio_device_t));
 
     memcpy(&device->gpio_init,pri,sizeof(uds_gpio_init_t));
-    if(!uds_driv_register(name,&uds_opt,pri,0))
+    if(!uds_driv_register(name,&uds_opt,device,0))
     {
         return -UDS_ERROR;
     }
@@ -584,211 +581,116 @@ bool_t uds_gpio_dev_install(const char *name, void *pri)
 
 
 
-
-extern  gpio_device_t wakeup;
-
-
-void uds_exti0_callback(void)
+void uds_exti_callback(uint16_t GPIO_Pin)
 {
-    uint8_t ret = 0,data;
-    printf("enter PIN0 IT.\r\n");
     
-    ret = uds_gpio_read(&wakeup,0,&data,0,0);
-    if(ret)
-        printf("wakeup level is %d \r\n",data);
-    
- 
+    gpio_user_callback(GPIO_Pin);
 }
-
-
-void uds_exti1_callback(void)
-{
-   
- 
-}
-void uds_exti2_callback(void)
-{
-   
- 
-}
-void uds_exti3_callback(void)
-{
-   
- 
-}
-void uds_exti4_callback(void)
-{
-   
- 
-}
-void uds_exti5_callback(void)
-{
-   
- 
-}
-
-
-void uds_exti6_callback(void)
-{
-   
- 
-}
-void uds_exti7_callback(void)
-{
-   
- 
-}
-void uds_exti8_callback(void)
-{
-   
- 
-}
-void uds_exti9_callback(void)
-{
-   
- 
-}
-void uds_exti10_callback(void)
-{
-   
- 
-}
-
-
-void uds_exti11_callback(void)
-{
-   
- 
-}
-void uds_exti12_callback(void)
-{
-   
- 
-}
-void uds_exti13_callback(void)
-{
-   
- 
-}
-void uds_exti14_callback(void)
-{
-   
- 
-}
-void uds_exti15_callback(void)
-{
-   
- 
-}
-
 
 void EXTI0_IRQHandler(void)
 {
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
-  {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-    uds_exti0_callback();
-  }
-  
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+        uds_exti_callback(GPIO_PIN_0);
+    }
 }
 
 
 void EXTI1_IRQHandler(void)
 {
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
-            uds_exti1_callback();
-        }
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+        uds_exti_callback(GPIO_PIN_1);
+    }
 }
 
 
 void EXTI2_IRQHandler(void)
 {
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
-            uds_exti2_callback();
-        }
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
+        uds_exti_callback(GPIO_PIN_2);
+    }
 }
 void EXTI3_IRQHandler(void)
 {
-
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
-            uds_exti3_callback();
-        }
-        
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+        uds_exti_callback(GPIO_PIN_3);
+    }
 }
 void EXTI4_IRQHandler(void)
 {
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
-            uds_exti4_callback();
-        }
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+        uds_exti_callback(GPIO_PIN_4);
+    }
 }
 void EXTI9_5_IRQHandler(void)
 {
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_5) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5);
-            uds_exti5_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
-            uds_exti6_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
-            uds_exti7_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-            uds_exti8_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
-            uds_exti9_callback();
-        }
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5);
+        uds_exti_callback(GPIO_PIN_5);
+    }
+    else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+        uds_exti_callback(GPIO_PIN_6);
+    }
+    else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+        uds_exti_callback(GPIO_PIN_7);
+    }
+    else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+        uds_exti_callback(GPIO_PIN_8);
+    }
+    else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+        uds_exti_callback(GPIO_PIN_9);
+    }
 }
 void EXTI15_10_IRQHandler(void)
 {
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
-            uds_exti10_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_11);
-            uds_exti11_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
-            uds_exti12_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_13);
-            uds_exti13_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
-            uds_exti14_callback();
-        }
-        else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_15) != RESET)
-        {
-            __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
-            uds_exti15_callback();
-        }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
+        uds_exti_callback(GPIO_PIN_10);
+    }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_11);
+        uds_exti_callback(GPIO_PIN_11);
+    }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
+        uds_exti_callback(GPIO_PIN_12);
+    }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_13);
+        uds_exti_callback(GPIO_PIN_13);
+    }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
+        uds_exti_callback(GPIO_PIN_14);
+    }
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_15) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
+        uds_exti_callback(GPIO_PIN_15);
+    }
 }
 
 

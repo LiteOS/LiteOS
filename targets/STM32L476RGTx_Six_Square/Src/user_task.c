@@ -70,14 +70,16 @@ void atiny_task_entry(void)
 	extern void demo_gpio (void);
 	extern int fs_test_main(void);
 	extern void demo_timer (void);
+	extern void demo_mcu_rtc(void);
 
     usart1_init(); // initialize UART1 for printf
     //demo_usart();
     //demo_nbiot_only();
-    //demo_sht21_iic();
+	demo_mcu_rtc();
+   // demo_sht21_iic();
     //demo_gpio();
     //fs_test_main();
-	demo_timer();
+	//demo_timer();
 }
 
 UINT32 creat_main_task(VOID)
