@@ -37,11 +37,14 @@
 #include "net_sockets.h"
 #include "sys/socket.h"
 #include "unistd.h"
+#include "MQTTClient.h"
+#include "dtls_interface.h"
 static int i;
 extern "C"
 {   
+	
     #include "MQTTliteos.h"
-    
+    typedef mqtt_security_info_s *(*t_test_get_security_info)(void);
     static Timer t;
     //extern int mbedtls_mqtt_connect( mbedtls_net_context *ctx, const char *host,const char *port, int proto );
     static uint64_t stub_atiny_gettime_ms(void)
@@ -107,7 +110,23 @@ extern "C"
     {
         return sizeof(data);
     }
+	static void *stub_atiny_net_connect(const char *host, const char *port, int proto){
+		return NULL;
+	}
+	 int atiny_task_mutex_delete(atiny_task_mutex_s *mutex);
 	
+	 mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type);
+	
+	 int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info);
+	
+	void dtls_ssl_destroy(mbedtls_ssl_context *ssl);
+	static void print_ss(const char * p){
+		printf("+-+-+-+-+-+-+-+-+-+-    ");
+		printf("%s\n",p);
+	}
+	static int stub_atiny_task_mutex_delete(atiny_task_mutex_s *mutex){
+		return 0;
+	}
 	static int mbedtls_net_set_block( mbedtls_net_context *ctx )
 	{		
 		return 0;
@@ -117,8 +136,170 @@ extern "C"
 	{		
 		return 0;
 	}
-
-}
+	static int stub_MQTTDeserialize_ack(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
+	{
+		return 0;
+	}
+	static int stub_MQTTDeserialize_ack_ret1(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
+	{
+		return 0;
+	}
+	
+	static int stub_MQTTDeserialize_ack_ret2(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
+	{
+		//printf("+-+-+-+-+-+-	%p	+-+-+-+-+-+-\n",stub_MQTTDeserialize_ack_ret2);
+		return 2;
+	}
+	
+	static int stub_MQTTSerialize_ack(unsigned char* buf, int buflen, unsigned char packettype, unsigned char dup, unsigned short packetid)
+	{
+		return 0;
+	}
+	static int stub_MQTTSerialize_ack_ret(unsigned char* buf, int buflen, unsigned char packettype, unsigned char dup, unsigned short packetid)
+	{
+		return 10;
+	}
+	
+		static void test_fp_0(MessageData*){}
+		static void test_fp_1(MessageData*){}
+		static void test_fp_2(MessageData*){}
+		static void test_fp_3(MessageData*){}
+		static void test_fp_4(MessageData*){}
+		static void test_msg_handler(MessageData*){}
+		static int static_Ret_of_test_mqttread = 0;
+		static int test_mqttread(Network*v_network, unsigned char*v_char, int v_int1, int v_int2){
+			return static_Ret_of_test_mqttread;
+		}
+		static int static_mqttread_count = 0;
+		static int test_mqttread_con(Network*v_network, unsigned char*v_char, int v_int1, int v_int2){
+			if(static_mqttread_count<6){
+				static_mqttread_count++;
+				*v_char = 0x1111;
+				return 1;
+			}
+			return 0;
+		}
+		
+		static int test_mqttwrite(Network*, unsigned char*, int, int){
+			//printf("+-+-+-+-+-+-	0  +-+-+-+-+-+-\n");
+			return 0;
+		}
+		static int test_mqttwrite_ret10(Network*, unsigned char*, int, int){
+			//printf("+-+-+-+-+-+-	ret10  +-+-+-+-+-+-\n");
+			return 10;
+		}
+		static void test_disconnect(Network*){}
+		static mqtt_security_info_s static_l_s_msinfo_1;
+		static int static_count_get_secuInfo = 0;
+		static int static_secu_value_for_ifelse = 1;
+		static mqtt_security_info_s * test_get_security_info(void){
+			if(0==static_count_get_secuInfo){
+				static_count_get_secuInfo++;
+				static_l_s_msinfo_1.security_type = 0;
+			}
+			else if(1==static_count_get_secuInfo){
+				static_count_get_secuInfo++;
+				static_l_s_msinfo_1.security_type = 2;
+			}
+			else if(2==static_count_get_secuInfo){
+				static_count_get_secuInfo++;
+				static_l_s_msinfo_1.security_type = static_secu_value_for_ifelse;
+			}
+			return &static_l_s_msinfo_1;
+		}
+		static int stub_MutexLock(Mutex *mutex){return 0;}
+		static int stub_MutexUnlock(Mutex *mutex){return 0;}
+		static int stub_MQTTSerialize_disconnect(unsigned char *buf, int buflen){return 0;}
+		static int stub_MQTTSerialize_publish_ret10(unsigned char *buf, int buflen, unsigned char dup, int qos, unsigned char retained, unsigned short packetid,
+							  MQTTString topicName, unsigned char *payload, int payloadlen){
+			return 10;
+		}
+		static void stub_TimerCountdown(Timer *timer, unsigned int timeout){
+			//printf("+-+-+-+-+-+-	timer count down  +-+-+-+-+-+-\n");
+		}
+		static int static_count_for_thread = 0;
+		static void stub_TimerCountdownMS(Timer *timer, unsigned int timeout){
+			static_count_for_thread++;
+		}
+		static bool stub_TimerIsExpiredFalse(Timer *timer){return false;}
+		static int static_count_timer_expire = 0;
+		static bool stub_TimerIsExpired_con(Timer *timer){
+			if(static_count_timer_expire==0){
+				static_count_timer_expire++;
+				return false;
+			}
+			else if(static_count_timer_expire==2){
+				//static_count_timer_expire++;
+				return true;
+			}
+			
+			return false;
+		}
+		//stub_TimerIsExpired_keepalive
+		static int static_count_expire_keepalive;
+		static bool stub_TimerIsExpired_keepalive(Timer *timer){
+			if(static_count_expire_keepalive==0){
+				static_count_expire_keepalive++;
+				return true;
+				
+			}
+			else if(static_count_expire_keepalive==1){
+				static_count_expire_keepalive++;
+				return true;
+			}
+			return false;
+		}
+		static int static_count_waitfor=0;
+		static int stub_waitfor_ret(MQTTClient* c, int packet_type, Timer* timer){
+			static_count_waitfor++;
+			if(1==static_count_waitfor)return 4;
+			else if(2==static_count_waitfor)return 7;
+			else if(11 == static_count_waitfor) return 11;
+			else if(9 == static_count_waitfor) return 9;
+			else if(102 == static_count_waitfor) return 2;
+			return 0;
+			//static_count_waitfor++;
+			
+		}
+		static int stub_MQTTSerialize_unsubscribe_ret10(unsigned char *buf, int buflen, unsigned char dup, unsigned short packetid,
+								  int count, MQTTString topicFilters[]){return 10;}
+		static int stub_MQTTSerialize_subscribe_ret10(unsigned char *buf, int buflen, unsigned char dup, unsigned short packetid, int count,
+								MQTTString topicFilters[], int requestedQoSs[]){return 10;}
+		static int stub_MQTTDeserialize_suback(unsigned short *packetid, int maxcount, int *count, int grantedQoSs[], unsigned char *buf, int buflen){
+			*grantedQoSs = 0xa0;
+			return 1;
+		}
+		static int stub_MQTTSerialize_connect_ret10(unsigned char *buf, int buflen, MQTTPacket_connectData *options){
+			return 10;
+		}
+		static int static_ret_of_cycle = 0;
+		static int stub_cycle(MQTTClient* c, Timer* timer){return static_ret_of_cycle;}
+		static int stub_ThreadStart(Thread *thread, void (*fn)(void *), void *arg){return 0;}
+		static int stub_MQTTSerialize_pingreq(unsigned char *buf, int buflen){
+			return 1;
+		}
+		static int stub_TimerLeftMS(Timer *timer){
+			return 0;
+		}
+		static mbedtls_ssl_context static_mbedtls_ssl_context_1;
+	static mbedtls_ssl_context *stub_dtls_ssl_new(dtls_establish_info_s *info, char plat_type){
+		return &static_mbedtls_ssl_context_1;
+	}
+	static int stub_atiny_snprintf(char *buf, unsigned int size, const char *format, ...){
+		return 0;
+	}
+	static int stub_dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info){
+		return 0;
+	}
+	static int stub_dtls_shakehandFalse(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info){
+		return -1;
+	}
+	static void stub_dtls_ssl_destroy(mbedtls_ssl_context *ssl){}
+	static void stub_atiny_net_close(void *ctx){}
+	static int stub_atiny_net_recv_timeout_retneg2(void *ctx, unsigned char *buf, size_t len,uint32_t timeout){
+		return -2;
+	}
+}//extern "C"
 
 void TestMQTTLiteos::test_TimerInit()
 {
@@ -174,12 +355,40 @@ void TestMQTTLiteos::test_NetworkInit()
     
     memset(&n, sizeof(Network), 0);
     NetworkInit(NULL,NULL);
-    
+
     NetworkInit(&n,NULL);
+	t_test_get_security_info p_func;
+	NetworkInit(&n,p_func);
     TEST_ASSERT(&n != NULL);
 }
 void TestMQTTLiteos::test_los_read()
 {
+	Network l_s_network_1;
+	l_s_network_1.mqttread = test_mqttread;
+	l_s_network_1.mqttwrite = test_mqttwrite;
+	l_s_network_1.get_security_info = test_get_security_info;
+	l_s_network_1.ctx = NULL;
+	
+	static_count_get_secuInfo = 0;
+	t_test_get_security_info p_func;
+	NetworkInit(&l_s_network_1,p_func);
+	///
+	Network l_s_network_2;
+	l_s_network_2.mqttread = test_mqttread;
+	l_s_network_2.mqttwrite = test_mqttwrite;
+	l_s_network_2.get_security_info = test_get_security_info;
+	static_count_get_secuInfo = 0;
+	l_s_network_2.ctx = NULL;
+	char l_buffer_1[20];
+	int l_len_1 = 10;
+	///
+	(&l_s_network_1)->mqttread(NULL,NULL,0,0);
+	stubInfo si_atiny_net_recv_timeout;
+	setStub((void*)atiny_net_recv_timeout,(void*)stub_atiny_net_recv_timeout_retneg2,&si_atiny_net_recv_timeout);
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+	cleanStub(&si_atiny_net_recv_timeout);
+	
+#if 0
     Network n;
     unsigned char buffer[256];
     int timeout_ms = 100;
@@ -187,11 +396,6 @@ void TestMQTTLiteos::test_los_read()
     mqtt_context_t ctx;
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
-
-    memset(&n, 0, sizeof(Network));
-    memset(&ctx, 0, sizeof(mqtt_context_t));
-    memset(&ssl, 0, sizeof(mbedtls_ssl_context));
-    memset(&conf, 0, sizeof(mbedtls_ssl_config));
 
     NetworkInit(&n,NULL);
     ret = n.mqttread(NULL, buffer, sizeof(buffer), timeout_ms);
@@ -237,7 +441,7 @@ void TestMQTTLiteos::test_los_read()
     ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
     cleanStub(&si);
     TEST_ASSERT(ret == 1);
-    
+#endif
     
 }
 void TestMQTTLiteos::test_los_write()
@@ -284,6 +488,7 @@ void TestMQTTLiteos::test_los_write()
 }
 void TestMQTTLiteos::test_NetworkConnect()
 {
+
     Network n;
     char* addr = "192.168.1.189";
     int port = 8000;
@@ -293,70 +498,56 @@ void TestMQTTLiteos::test_NetworkConnect()
     memset(&n,  0, sizeof(Network));
     ctx = (mqtt_context_t *)malloc(sizeof(mqtt_context_t));
     NetworkInit(&n,NULL);
+
+
     ret = NetworkConnect(NULL, addr, port);
+	print_ss("306");
     TEST_ASSERT(ret == -1);
 
-    stubInfo si1;
-    setStub((void *)connect, (void *)stub_connect, &si1);
-    //n.proto = MQTT_PROTO_NONE;
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == 1);
-    NetworkDisconnect(&n);
-    
-    ctx->fd = 2;
-    n.ctx = ctx;
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == 1);
-    NetworkDisconnect(&n);
+	Network l_s_network_1;
+	l_s_network_1.mqttread = test_mqttread;
+	l_s_network_1.mqttwrite = test_mqttwrite;
+	l_s_network_1.get_security_info = test_get_security_info;
+	static_l_s_msinfo_1.security_type = 0;
+	stubInfo si_atiny_net_connect;
+	setStub((void*)atiny_net_connect,(void*)stub_atiny_net_connect,&si_atiny_net_connect);// NULL
+	ret = NetworkConnect(&l_s_network_1,addr,port);
+	cleanStub(&si_atiny_net_connect);
 
-    //n.proto = MQTT_PROTO_TLS_PSK;
-    //n.psk.psk = (unsigned char *)"jkkdhglkdfgh";
-    //n.psk.psk_len = strlen((char *)n.psk.psk);
-    //n.psk.psk_id = (unsigned char *)"123455";
-    //n.psk.psk_id_len = strlen((char *)n.psk.psk_id);
-	printf("before call NetworkConnect\n");
-    ret = NetworkConnect(&n, addr, port);
-	printf("afer call NetworkConnect, ret is %d\n",ret);
-    TEST_ASSERT(ret == -1);
-    
-    stubInfo si2;
-    setStub((void *)mbedtls_ctr_drbg_seed, (void *)stub_mbedtls_ctr_drbg_seed, &si2);
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == -1);
-    
-    stubInfo si3;
-    stubInfo si4;
-    stubInfo si5;
-    stubInfo si6;
-    //setStub((void *)mbedtls_mqtt_connect, (void *)stub_mbedtls_mqtt_connect, &si3);
-    setStub((void *)mbedtls_net_set_block, (void *)stub_mbedtls_net_set_block, &si4);
-    setStub((void *)mbedtls_ssl_handshake_step, (void *)stub_mbedtls_ssl_handshake_step, &si5);
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == -1);
-    cleanStub(&si5);
-    setStub((void *)mbedtls_ssl_handshake, (void *)stub_mbedtls_ssl_handshake, &si6);
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == 0);
-    
-    FILE *stream;
-    stream = fopen("fprintf.out","w");
-    ((mbedtls_ssl_context *)n.ctx)->conf->f_dbg(stream, 2, "/home/protocols/wsy/LiteOS/tests/components/connectivity/paho.mqtt.embedded-c-1.1./MQTTClient-C/src/liteOS/test_MQTTliteos.cpp", 288, "err"); 
-    fclose(stream);
+	static_l_s_msinfo_1.security_type = 3;
+	ret = NetworkConnect(&l_s_network_1,addr,port);
 	
-    cleanStub(&si6);
-    cleanStub(&si4);
-    //cleanStub(&si3);
-    cleanStub(&si2);
-    NetworkDisconnect(&n);
+	static_l_s_msinfo_1.security_type = 2;
+	uint8_t l_char_1[20];
+	uint8_t l_char_2[20];
+	uint8_t l_char_3[20];
+	static_l_s_msinfo_1.u.psk.psk_id = l_char_1;
+	static_l_s_msinfo_1.u.psk.psk = l_char_2;
+	static_l_s_msinfo_1.u.ca.ca_crt = l_char_3;
+	stubInfo	si_dtls_ssl_new;
+	stubInfo si_atiny_snprintf;
+	stubInfo si_dtls_shakehand;
+	stubInfo si_dtls_ssl_destroy;
+	setStub((void*)dtls_ssl_new,(void*)stub_dtls_ssl_new,&si_dtls_ssl_new);
+	setStub((void*)atiny_snprintf,(void*)stub_atiny_snprintf,&si_atiny_snprintf);
+	setStub((void*)dtls_shakehand,(void*)stub_dtls_shakehand,&si_dtls_shakehand);
+	setStub((void*)dtls_ssl_destroy,(void*)stub_dtls_ssl_destroy,&si_dtls_ssl_destroy);
+	static_count_get_secuInfo = 1;
+	static_secu_value_for_ifelse = 1;
+	ret = NetworkConnect(&l_s_network_1,addr,port);
+	static_count_get_secuInfo = 1;
+	static_secu_value_for_ifelse = 2;
+	ret = NetworkConnect(&l_s_network_1,addr,port);
 
-    //n.proto = MQTT_PROTO_MAX;
-    ret = NetworkConnect(&n, addr, port);
-    TEST_ASSERT(ret == -1);
-
-    cleanStub(&si1);
-
-	
-
+	cleanStub(&si_dtls_shakehand);
+	setStub((void*)dtls_shakehand,(void*)stub_dtls_shakehandFalse,&si_dtls_shakehand);
+	static_count_get_secuInfo = 1;
+	static_secu_value_for_ifelse = 2;
+	ret = NetworkConnect(&l_s_network_1,addr,port);
+	cleanStub(&si_dtls_ssl_destroy);
+	cleanStub(&si_dtls_ssl_new);
+	cleanStub(&si_atiny_snprintf);
+	cleanStub(&si_dtls_shakehand);	
 }
 void TestMQTTLiteos::test_mbedtls_net_set_block()
 {
@@ -382,14 +573,37 @@ void TestMQTTLiteos::test_NetworkDisconnect()
 {
     Network n;
     int ret = 0;
-    
     memset(&n, 0, sizeof(Network));
     NetworkDisconnect(NULL);
+	
+	Network l_s_network_1;
+	l_s_network_1.mqttread = test_mqttread;
+	l_s_network_1.mqttwrite = test_mqttwrite;
+	l_s_network_1.get_security_info = test_get_security_info;
+	l_s_network_1.ctx = NULL;
+	
+	static_count_get_secuInfo = 0;
+	stubInfo si_atiny_net_close;//void atiny_net_close(void *ctx)
+	setStub((void*)atiny_net_close,(void*)stub_atiny_net_close,&si_atiny_net_close);
+	NetworkDisconnect(&l_s_network_1);
 
-    //n.proto = MQTT_PROTO_MAX;
-    n.ctx = NULL;
-    NetworkDisconnect(&n);
+	static_count_get_secuInfo = 1;
+	
+	stubInfo si_dtls_ssl_destroy;
+	setStub((void*)dtls_ssl_destroy,(void*)stub_dtls_ssl_destroy,&si_dtls_ssl_destroy);
+	NetworkDisconnect(&l_s_network_1);
+	cleanStub(&si_atiny_net_close);
+	cleanStub(&si_dtls_ssl_destroy);
 
+}
+void TestMQTTLiteos::test_MutexDestory(){
+	Mutex a;
+	stubInfo si_atiny_task_mutex_delete;
+	setStub((void*)atiny_task_mutex_delete,(void*)stub_atiny_task_mutex_delete,&si_atiny_task_mutex_delete);
+		//
+	MutexDestory(&a);
+	cleanStub(&si_atiny_task_mutex_delete);
+	ThreadStart(NULL,NULL,NULL);
 }
 
 TestMQTTLiteos::TestMQTTLiteos()
@@ -402,20 +616,23 @@ TestMQTTLiteos::TestMQTTLiteos()
     TEST_ADD(TestMQTTLiteos::test_NetworkInit);
   //  TEST_ADD(TestMQTTLiteos::test_los_read);
    // TEST_ADD(TestMQTTLiteos::test_los_write);
- //   TEST_ADD(TestMQTTLiteos::test_NetworkConnect);
+    TEST_ADD(TestMQTTLiteos::test_NetworkConnect);
     TEST_ADD(TestMQTTLiteos::test_mbedtls_net_set_block);
     TEST_ADD(TestMQTTLiteos::test_mbedtls_net_set_nonblock);
- //   TEST_ADD(TestMQTTLiteos::test_NetworkDisconnect);
+ 
+     TEST_ADD(TestMQTTLiteos::test_MutexDestory);
+    TEST_ADD(TestMQTTLiteos::test_NetworkDisconnect);
+	TEST_ADD(TestMQTTLiteos::test_los_read);
 }
 
 void TestMQTTLiteos::setup()
 {
-    printf("TestMQTTLiteos:come into test func %d\n",++i);
+    //printf("TestMQTTLiteos:come into test func %d\n",++i);
     return;
 }
 void TestMQTTLiteos::tear_down()
 {
-    printf("TestMQTTLiteos:exit from test func %d\n",i);
+    //printf("TestMQTTLiteos:exit from test func %d\n",i);
     return ;
 }
 

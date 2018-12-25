@@ -28,7 +28,7 @@ extern "C"
 #include "los_sem.ph"
 #include <pthread.h>
 #include <unistd.h> 
-
+#include "string.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -92,6 +92,7 @@ int NetworkConnect(Network *n, char *addr, int port);
 void MQTTCleanSession(MQTTClient* c);
 void MQTTCloseSession(MQTTClient* c);
 int waitfor(MQTTClient* c, int packet_type, Timer* timer);
+int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message);
 
 
 static void message_handler(MessageData* data)
@@ -145,6 +146,11 @@ static int stub_MQTTDeserialize_ack(unsigned char* packettype, unsigned char* du
 {
     return 0;
 }
+static int stub_MQTTDeserialize_ack_ret1(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
+{
+    return 0;
+}
+
 static int stub_MQTTDeserialize_ack_ret2(unsigned char* packettype, unsigned char* dup, unsigned short* packetid, unsigned char* buf, int buflen)
 {
 	//printf("+-+-+-+-+-+-  %p  +-+-+-+-+-+-\n",stub_MQTTDeserialize_ack_ret2);
@@ -155,6 +161,11 @@ static int stub_MQTTSerialize_ack(unsigned char* buf, int buflen, unsigned char 
 {
     return 0;
 }
+	static int stub_MQTTSerialize_ack_ret(unsigned char* buf, int buflen, unsigned char packettype, unsigned char dup, unsigned short packetid)
+	{
+		return 10;
+	}
+
     static void test_fp_0(MessageData*){}
 	static void test_fp_1(MessageData*){}
 	static void test_fp_2(MessageData*){}
@@ -162,9 +173,19 @@ static int stub_MQTTSerialize_ack(unsigned char* buf, int buflen, unsigned char 
 	static void test_fp_4(MessageData*){}
 	static void test_msg_handler(MessageData*){}
 	static int static_Ret_of_test_mqttread = 0;
-	static int test_mqttread(Network*, unsigned char*, int, int){
+	static int test_mqttread(Network*v_network, unsigned char*v_char, int v_int1, int v_int2){
 		return static_Ret_of_test_mqttread;
 	}
+	static int static_mqttread_count = 0;
+	static int test_mqttread_con(Network*v_network, unsigned char*v_char, int v_int1, int v_int2){
+		if(static_mqttread_count<6){
+			static_mqttread_count++;
+			*v_char = 0x1111;
+			return 1;
+		}
+		return 0;
+	}
+	
 	static int test_mqttwrite(Network*, unsigned char*, int, int){
 		//printf("+-+-+-+-+-+-  0  +-+-+-+-+-+-\n");
 		return 0;
@@ -200,6 +221,22 @@ static int stub_MQTTSerialize_ack(unsigned char* buf, int buflen, unsigned char 
 			return false;
 		}
 		else if(static_count_timer_expire==2){
+			//static_count_timer_expire++;
+			return true;
+		}
+		
+		return false;
+	}
+	//stub_TimerIsExpired_keepalive
+	static int static_count_expire_keepalive;
+	static bool stub_TimerIsExpired_keepalive(Timer *timer){
+		if(static_count_expire_keepalive==0){
+			static_count_expire_keepalive++;
+			return true;
+			
+		}
+		else if(static_count_expire_keepalive==1){
+			static_count_expire_keepalive++;
 			return true;
 		}
 		return false;
@@ -248,6 +285,12 @@ static int stub_MQTTSerialize_ack(unsigned char* buf, int buflen, unsigned char 
 		cleanStub(&si_mutexlock);
 		cleanStub(&si_mutexunlock);
 	}
+	static int stub_MQTTSerialize_pingreq(unsigned char *buf, int buflen){
+		return 1;
+	}
+	static int stub_TimerLeftMS(Timer *timer){
+		return 0;
+	}
 } // extern "C"
 TestMQTTClient::~TestMQTTClient(){}
 TestMQTTClient::TestMQTTClient()
@@ -257,7 +300,7 @@ TestMQTTClient::TestMQTTClient()
     TEST_ADD(TestMQTTClient::test_MQTTClientInit);
     TEST_ADD(TestMQTTClient::test_MQTTClientDeInit);
     
-  //  TEST_ADD(TestMQTTClient::test_MQTTConnect);
+//  TEST_ADD(TestMQTTClient::test_MQTTConnect);
     TEST_ADD(TestMQTTClient::test_MQTTPublish);
 
     TEST_ADD(TestMQTTClient::test_MQTTSetMessageHandler);
@@ -273,8 +316,55 @@ TestMQTTClient::TestMQTTClient()
 	TEST_ADD(TestMQTTClient::test_MQTTConnectWithResults);
 	TEST_ADD(TestMQTTClient::test_waitfor);
 	TEST_ADD(TestMQTTClient::test_MQTTYield);
+	TEST_ADD(TestMQTTClient::test_deliverMessage);
 
 }
+void TestMQTTClient::test_deliverMessage(void){
+	int ret = 0;
+    MQTTClient l_s_mqttC_1;
+	char buf_1[100];
+	char buf_2[100];
+	char tf_buf_0[40];
+	char tf_buf_1[40];
+	char tf_buf_2[40];
+	char tf_buf_3[40];
+	char tf_buf_4[40];
+	l_s_mqttC_1.buf = buf_1;
+	l_s_mqttC_1.readbuf = buf_2;
+	l_s_mqttC_1.messageHandlers[0].fp = test_fp_0;
+	l_s_mqttC_1.messageHandlers[1].fp = test_fp_1;
+	l_s_mqttC_1.messageHandlers[2].fp = test_fp_2;
+	l_s_mqttC_1.messageHandlers[3].fp = test_fp_3;
+	l_s_mqttC_1.messageHandlers[4].fp = test_fp_4;
+	l_s_mqttC_1.messageHandlers[0].topicFilter = tf_buf_0;
+	l_s_mqttC_1.messageHandlers[1].topicFilter = tf_buf_1;
+	l_s_mqttC_1.messageHandlers[2].topicFilter = tf_buf_2;
+	l_s_mqttC_1.messageHandlers[3].topicFilter = tf_buf_3;
+	l_s_mqttC_1.messageHandlers[4].topicFilter = tf_buf_4;
+	l_s_mqttC_1.defaultMessageHandler = test_msg_handler;
+	Network l_s_nw_1;
+	l_s_nw_1.mqttread = test_mqttread;//(Network *, unsigned char *, int, int)
+	l_s_nw_1.mqttwrite = test_mqttwrite_ret10;//(Network *, unsigned char *, int, int)
+	//‘Network’ has no member named ‘disconnect’
+	l_s_nw_1.get_security_info = test_get_security_info;
+	l_s_mqttC_1.ipstack = &l_s_nw_1;
+	static_Ret_of_test_mqttread = 0;
+	MQTTString l_s_mqttString_1;
+	char l_string_1[20];
+	char l_data_1[20];
+	
+	l_s_mqttString_1.cstring = l_string_1;
+	l_s_mqttString_1.lenstring.data = l_data_1;
+	MQTTMessage l_s_mqttMsg_1;
+	
+	deliverMessage(&l_s_mqttC_1, &l_s_mqttString_1, &l_s_mqttMsg_1);
+	strcpy(tf_buf_0,"bayern");
+	strcpy(l_string_1,"string");
+	strcpy(l_data_1,"milan_");
+	deliverMessage(&l_s_mqttC_1, &l_s_mqttString_1, &l_s_mqttMsg_1);
+
+}
+
 void TestMQTTClient::test_waitfor(void){
 	//TimerIsExpired  cycle
 	MQTTClient c;
@@ -296,8 +386,11 @@ void TestMQTTClient::test_waitfor(void){
 	pthread_t s_thread;
 	static_count_for_thread = 0;
 	pthread_create(&s_thread,NULL,test_thread_mqttrun,NULL);
-	if(static_count_for_thread == 2){
-		pthread_cancel(&s_thread);
+	while(1){
+		if(static_count_for_thread == 2){
+			pthread_cancel(&s_thread);
+			break;
+		}
 	}
 }
 
@@ -894,9 +987,43 @@ void TestMQTTClient::test_cycle(void)
 	static_Ret_of_test_mqttread = 3;
     
 	setStub((void*)MQTTDeserialize_publish,(void*)stub_MQTTDeserialize_publish,&si_deserialize_publish);
+	print_ss();printf("919\n");
+	stubInfo si_MQTTSerialize_ack;
+	stubInfo si_TimerCountdownMS;
+	setStub((void*)TimerCountdownMS,(void*)stub_TimerCountdownMS,&si_TimerCountdownMS);
+	setStub((void*)MQTTSerialize_ack,(void*)stub_MQTTSerialize_ack_ret,&si_MQTTSerialize_ack);
 	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	cleanStub(&si_MQTTSerialize_ack);
+	
+	setStub((void*)MQTTSerialize_ack,(void*)stub_MQTTSerialize_ack,&si_MQTTSerialize_ack);
+	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	cleanStub(&si_MQTTSerialize_ack);
+	
+	cleanStub(&si_TimerCountdownMS);
+	print_ss();printf("921\n");
 	cleanStub(&si_deserialize_publish);
-    stubInfo si_write;
+
+	static_Ret_of_test_mqttread = 6;
+	stubInfo si_MQTTDeserialize_ack;
+	setStub((void*)MQTTDeserialize_ack,(void*)stub_MQTTDeserialize_ack,&si_MQTTDeserialize_ack);
+	//ret = cycle(&l_s_mqttC_1, &connect_timer);
+	cleanStub(&si_MQTTDeserialize_ack);
+
+	setStub((void*)MQTTSerialize_ack,(void*)stub_MQTTSerialize_ack,&si_MQTTSerialize_ack);
+	setStub((void*)MQTTDeserialize_ack,(void*)stub_MQTTDeserialize_ack_ret1,&si_MQTTDeserialize_ack);
+	
+	//ret = cycle(&l_s_mqttC_1, &connect_timer);
+	cleanStub(&si_MQTTDeserialize_ack);
+	cleanStub(&si_MQTTSerialize_ack);
+	
+	static_Ret_of_test_mqttread = 7;
+	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	static_Ret_of_test_mqttread = 13;
+	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	static_Ret_of_test_mqttread = 130;
+	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	static_Ret_of_test_mqttread = 3;
+	stubInfo si_write;
     setStub((void*)write, (void*)stub_write, &si_write);
     stubInfo si_recv;
     setStub((void*)recv, (void*)stub_recv, &si_recv);
@@ -992,22 +1119,71 @@ void TestMQTTClient::test_cycle(void)
 
     cleanStub(&si_write);
     cleanStub(&si_recv);
+	////
+	//static_Ret_of_test_mqttread = 1;
+	#if 0
+	stubInfo si_TimerLeftMS;
+	setStub((void*)TimerLeftMS,(void*)stub_TimerLeftMS,&si_TimerLeftMS);
+	l_s_mqttC_1.ipstack->mqttread = test_mqttread_con;
+	static_mqttread_count = 0;
+    
+	ret = cycle(&l_s_mqttC_1, &connect_timer);
+	cleanStub(&si_TimerLeftMS);
+	l_s_nw_1.mqttread = test_mqttread;
+	#endif
+	////
 }
 
 void TestMQTTClient::test_keepalive(void)
 {
-    int ret = 0;
+	MQTTClient l_s_mqttC_1;
+	char buf_1[100];
+	char buf_2[100];
+	char tf_buf_0[40];
+	char tf_buf_1[40];
+	char tf_buf_2[40];
+	char tf_buf_3[40];
+	char tf_buf_4[40];
+	l_s_mqttC_1.buf = buf_1;
+	l_s_mqttC_1.readbuf = buf_2;
+	l_s_mqttC_1.messageHandlers[0].fp = test_fp_0;
+	l_s_mqttC_1.messageHandlers[1].fp = test_fp_1;
+	l_s_mqttC_1.messageHandlers[2].fp = test_fp_2;
+	l_s_mqttC_1.messageHandlers[3].fp = test_fp_3;
+	l_s_mqttC_1.messageHandlers[4].fp = test_fp_4;
+	l_s_mqttC_1.messageHandlers[0].topicFilter = tf_buf_0;
+	l_s_mqttC_1.messageHandlers[1].topicFilter = tf_buf_1;
+	l_s_mqttC_1.messageHandlers[2].topicFilter = tf_buf_2;
+	l_s_mqttC_1.messageHandlers[3].topicFilter = tf_buf_3;
+	l_s_mqttC_1.messageHandlers[4].topicFilter = tf_buf_4;
+	l_s_mqttC_1.defaultMessageHandler = test_msg_handler;
+	Network l_s_nw_1;
+	l_s_nw_1.mqttread = test_mqttread;//(Network *, unsigned char *, int, int)
+	l_s_nw_1.mqttwrite = test_mqttwrite;//(Network *, unsigned char *, int, int)
+	//‘Network’ has no member named ‘disconnect’
+	l_s_nw_1.get_security_info = test_get_security_info;
+	l_s_mqttC_1.ipstack = &l_s_nw_1;
+	static_Ret_of_test_mqttread = 0;
 
-    stubInfo si_write;
-    setStub((void*)write, (void*)stub_write, &si_write);
-    stubInfo si_recv;
-    setStub((void*)recv, (void*)stub_recv, &si_recv);
-    
-    ret = keepalive(&s_client);
+    int ret = 0;
+	//
+    l_s_mqttC_1.ping_outstanding = false;
+	stubInfo si_countdownMS;
+    stubInfo si_timerexpire;
+	stubInfo si_pingreq;
+	setStub((void*)MQTTSerialize_pingreq,(void*)stub_MQTTSerialize_pingreq,&si_pingreq);
+	setStub((void*)TimerCountdownMS,(void*)stub_TimerCountdownMS,&si_countdownMS);
+	setStub((void*)TimerIsExpired,(void*)stub_TimerIsExpired_keepalive,&si_timerexpire);
+	static_count_expire_keepalive = 0;
+	l_s_mqttC_1.ipstack->mqttwrite = test_mqttwrite_ret10;
+    ret = keepalive(&l_s_mqttC_1);
+	//l_s_mqttC_1.ping_outstanding = true;
+	//ret = keepalive(&l_s_mqttC_1);
+	cleanStub(&si_timerexpire);
+	cleanStub(&si_pingreq);
+	cleanStub(&si_countdownMS);
     TEST_ASSERT_MSG((0 == ret), "keepalive(...) failed");
 
-    cleanStub(&si_write);
-    cleanStub(&si_recv);
 }
 /* Private functions --------------------------------------------------------*/
 void TestMQTTClient::setup()

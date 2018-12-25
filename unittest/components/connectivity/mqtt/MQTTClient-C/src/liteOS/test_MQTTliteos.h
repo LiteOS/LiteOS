@@ -57,6 +57,7 @@ class TestMQTTLiteos:public Test::Suite {
     void test_mbedtls_net_set_block();
     void test_mbedtls_net_set_nonblock();
     void test_NetworkDisconnect();
+	void test_MutexDestory();
     TestMQTTLiteos();
 };
 
