@@ -244,22 +244,22 @@ void TestObjectLocation::test_prv_location_read(void)
 
     tlvArrayP->id = 0;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);
 
     
     tlvArrayP->id = 1;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);
 
 
     tlvArrayP->id = 2;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);
 
 
     tlvArrayP->id = 3;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);
 #if 1
 
     tlvArrayP->id = 4;
@@ -271,17 +271,17 @@ void TestObjectLocation::test_prv_location_read(void)
 	#endif
     tlvArrayP->id = 5;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);
 
 
     tlvArrayP->id = 6;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);	
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);	
 
 
     tlvArrayP->id = 7;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);	
+    TEST_ASSERT(ret != COAP_400_BAD_REQUEST);	
 
 
 
