@@ -234,6 +234,28 @@ void TestObjectBinaryAppDataContainer::test_prv_read(void)
                     "prv_read(...) failed in object_binary_app_data_container.c");
     cleanStub(&stub_info);
 
+    
+    setStub((void *)lwm2m_malloc, (void *)stub_lwm2m_malloc, &stub_info);
+    ret = pAppDataObject->readFunc(0, &num, &pData, NULL, pAppDataObject);
+  
+    cleanStub(&stub_info);
+
+    num = 0;
+    setStub((void *)lwm2m_data_new, (void *)stub_lwm2m_data_new, &stub_info);
+    ret = pAppDataObject->readFunc(0, &num, &pData, NULL, pAppDataObject);  
+    cleanStub(&stub_info);
+
+
+    #if 0
+    stubInfo stub_info;
+    setStub((void *)lwm2m_data_new, (void *)stub_lwm2m_data_new, &stub_info);
+    ret = pAppDataObject->readFunc(0, &num, &pData, NULL, pAppDataObject);  
+    cleanStub(&stub_info);
+    #endif
+
+
+
+
     // free pData
     if(pData != NULL)
     {

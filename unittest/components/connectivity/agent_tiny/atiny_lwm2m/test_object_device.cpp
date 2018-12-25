@@ -59,10 +59,16 @@ extern "C" {
             g_object_index++;
             return atiny_malloc(s);
         }
-        return NULL;
-        
+        return NULL;       
         
     }
+	static int stub_lwm2m_data_decode_int(const lwm2m_data_t *dataP, int64_t *valueP)
+    {
+       
+		return 2;
+    }
+
+    
 }
 int test_io_num = 0;
 void TestObjectDevice::test_prv_device_read()
@@ -276,6 +282,42 @@ void TestObjectDevice::test_prv_device_read()
     lwm2m_data_free(1, data);
 
 
+    data = lwm2m_data_new(1);
+    uri.resourceId = 4;
+    data->id = uri.resourceId;
+    
+    setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_atiny_io);
+    result = testObj->readFunc(uri.instanceId, &len, &data, NULL, testObj);
+    
+    cleanStub(&si_atiny_io);
+    lwm2m_data_free(1, data);
+
+
+    data = lwm2m_data_new(1);
+    uri.resourceId = 5;
+    data->id = uri.resourceId;
+    
+    setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_atiny_io);
+    result = testObj->readFunc(uri.instanceId, &len, &data, NULL, testObj);
+    
+    cleanStub(&si_atiny_io);
+    lwm2m_data_free(1, data);
+
+
+
+    data = lwm2m_data_new(1);
+    uri.resourceId = 12;
+    data->id = uri.resourceId;
+    
+    setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_atiny_io);
+    result = testObj->readFunc(uri.instanceId, &len, &data, NULL, testObj);
+    
+    cleanStub(&si_atiny_io);
+    lwm2m_data_free(1, data);
+
+    
+
+
     len = 0;
     result = testObj->readFunc(uri.instanceId, &len, &data, NULL, testObj);
     TEST_ASSERT_EQUALS_MSG(result, COAP_205_CONTENT, result);
@@ -472,13 +514,19 @@ void TestObjectDevice::test_prv_device_write()
     cleanStub(&si_atiny_io);    
     
     setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_atiny_io);
-
     dataArray->id = 15;
     dataArray->value.asBuffer.buffer = (uint8_t *)"+03:2";
     dataArray->value.asBuffer.length = 3;
     result = testObj->writeFunc(uri.instanceId, 0, dataArray, testObj);    
     cleanStub(&si_atiny_io);
 
+
+    setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl, &si_atiny_io);
+    dataArray->id = 13;
+	
+	setStub((void*)lwm2m_data_decode_int,(void*)stub_lwm2m_data_decode_int,&si_atiny_io);
+    result = testObj->writeFunc(uri.instanceId, 0, dataArray, testObj);    
+    cleanStub(&si_atiny_io);
 
 
     
