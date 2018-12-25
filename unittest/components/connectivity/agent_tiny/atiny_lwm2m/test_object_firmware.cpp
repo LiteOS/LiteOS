@@ -36,6 +36,18 @@
 
 /* testcase for read 5/0 in object_app.c
 */
+extern "C"
+{
+    #include "atiny_fota_manager.h"
+
+    int stub_atiny_fota_manager_start_download(atiny_fota_manager_s *thi, const char *uri, uint32_t len)
+    {
+        return 0;
+    }
+
+}
+
+
 
 void TestObjectFirmware::test_prv_firmware_read()
 {
@@ -106,6 +118,13 @@ void TestObjectFirmware::test_prv_firmware_execute()
     result = testObj->executeFunc(uri.instanceId, uri.resourceId, buffer, len, testObj);
     TEST_ASSERT_EQUALS_MSG(result, COAP_405_METHOD_NOT_ALLOWED, result);
 
+    uri.instanceId = 1;
+
+    uri.resourceId = 0;
+    result = testObj->executeFunc(uri.instanceId, uri.resourceId, buffer, len, testObj);
+
+    
+
     free_object_firmware(testObj);
 }
 
@@ -139,6 +158,24 @@ void TestObjectFirmware::test_prv_firmware_write()
     dataArray->id = 0;
     result = testObj->writeFunc(uri.instanceId, 1, dataArray, testObj);
     TEST_ASSERT_EQUALS_MSG(result, COAP_405_METHOD_NOT_ALLOWED, result);
+
+
+
+    uri.instanceId = 0;
+
+    dataArray->id = 1;
+    dataArray->type = LWM2M_TYPE_STRING;
+    uint8_t buf[10] ="123";
+    dataArray->value.asBuffer.buffer=buf;
+    dataArray->value.asBuffer.length= strlen((char*)buf);
+    
+
+    stubInfo si; 
+    setStub((void*)atiny_fota_manager_start_download, (void*)stub_atiny_fota_manager_start_download, &si);
+    result = testObj->writeFunc(uri.instanceId, 1, dataArray, testObj);
+    cleanStub(&si);  
+    
+
 
 
     free(dataArray);
