@@ -157,6 +157,25 @@ extern "C"
 	
 	static void* stub_atiny_malloc(size_t size){return NULL;}
 	static pack_checksum_s *stub_pack_checksum_create(pack_head_s *head){return NULL;}
+	static int stub_pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len){
+		return 0;
+	}
+	static void print_ss(const char* s){
+		printf("=================================================================\n");
+		printf("+-+-+-+-+-+-    %s    +-+-+-+-+-+-\n",s);
+		printf("=================================================================\n");
+	}
+	static int static_int_count_pack_malloc=0;
+	static void * stub_pack_malloc_count(size_t size){
+		if(0==static_int_count_pack_malloc){
+			static_int_count_pack_malloc++;
+			print_ss("172");
+			return atiny_malloc(size);
+		}
+		else{
+			return NULL;
+		}
+	}
 } //extern "C"
 void TestPackageHead::test_pack_head_init(){
 	stubInfo si_stub_log;
@@ -265,8 +284,6 @@ void TestPackageHead::test_pack_head_parse_head_len(){
 	ret = pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
 	TEST_ASSERT(PACK_ERR == ret);
 	if(p->buff!=NULL){
-		printf("p->buff is not null \n");
-		//atiny_free(p->buff);
 		p->buff = NULL;
 	}
 
@@ -284,15 +301,28 @@ void TestPackageHead::test_pack_head_parse_head_len(){
 	l_head.head_len = 0;
 	buff_safe[3] = 0xaa;
 	buff_safe[6] = 0xff;
-	
-	
-	
+
 	stubInfo si;
 	setStub((void*)atiny_free,(void*)stub_atiny_free,&si);
 	ret = pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
+	if(p->buff!=NULL){
+		p->buff = NULL;
+	}
 	TEST_ASSERT(PACK_OK == ret);
-	cleanStub(&si);
+	stubInfo si_pack_malloc;
+	///
+	//cleanStub(&si_stub_malloc);
+	setStub((void*)pack_malloc,(void*)stub_pack_malloc_count,&si_pack_malloc);
+	static_int_count_pack_malloc=0;
+	pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
+	cleanStub(&si_pack_malloc);
+	//setStub((void*)pack_malloc,(void*)atiny_malloc,&si_stub_malloc);
+	///
+	len = 6;
+	pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
 	
+	cleanStub(&si);
+	len = 16;
 	buff_safe[6] = 0x00;
 	ret = pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
 	TEST_ASSERT(PACK_ERR == ret);
@@ -341,14 +371,14 @@ void TestPackageHead::test_pack_head_parse(){
 	l_head.stored_len  = 8;
 	l_head.head_len = 16;
 	pack_checksum_s * p_cksum = atiny_malloc(sizeof(pack_checksum_s));
-			pack_checksum_alg_s l_base;
-			l_base.destroy = ___destroy;
-		#if (PACK_CHECKSUM == PACK_SHA256_RSA2048)
-			p_cksum->alg.sha256.base = l_base;
-		#elif (PACK_CHECKSUM == PACK_SHA256)
-			p_cksum->alg.base = l_base;
-		#endif
-		pack_checksum_s* p_cksum_mark = p_cksum;
+		pack_checksum_alg_s l_base;
+		l_base.destroy = ___destroy;
+	#if (PACK_CHECKSUM == PACK_SHA256_RSA2048)
+		p_cksum->alg.sha256.base = l_base;
+	#elif (PACK_CHECKSUM == PACK_SHA256)
+		p_cksum->alg.base = l_base;
+	#endif
+	pack_checksum_s* p_cksum_mark = p_cksum;
 	l_head.checksum = p_cksum;
 	l_head.checksum_pos = l_buff2;
 	l_head.checksum_len = 16;
@@ -360,7 +390,6 @@ void TestPackageHead::test_pack_head_parse(){
 	uint16_t used_len = 12;
 	uint16_t * p_used_len = &used_len;
 	
-#if 1
 	ret = pack_head_parse(&l_head,offset,buff,len,p_used_len);
 	TEST_ASSERT(PACK_ERR == ret);
 	
@@ -396,8 +425,6 @@ void TestPackageHead::test_pack_head_parse(){
 	char * p_tmp_char = l_head.checksum_pos;
 	ret = pack_head_parse(&l_head,offset,buff,len,p_used_len);
 	TEST_ASSERT(PACK_ERR == ret);
-#endif
-#if 1
 	if(l_buff1==NULL)l_buff1 = atiny_malloc(50*sizeof(char));
 	if(p_cksum==NULL){
 		p_cksum = atiny_malloc(sizeof(pack_checksum_s));
@@ -415,7 +442,6 @@ void TestPackageHead::test_pack_head_parse(){
 	TEST_ASSERT(PACK_OK == ret);
 	
 	
-	
 	if(p_cksum==NULL)p_cksum = atiny_malloc(sizeof(pack_checksum_s)) ;
 	buff[0] = 0x04;
 	stubInfo si_createChecksum;
@@ -428,8 +454,10 @@ void TestPackageHead::test_pack_head_parse(){
 	buff[4] = 0xff; //>2 is fine
 	ret = pack_head_parse(&l_head,offset,buff,len,p_used_len);
 	TEST_ASSERT(PACK_ERR == ret);
-
-	
+	char buff_1[20] = {0,0,0,8};
+	l_head.buff = buff_1;
+	pack_head_parse(&l_head,offset,buff,len,p_used_len);
+	l_head.buff = l_buff1;
 	
 	
 	// ignore for depth
@@ -440,7 +468,6 @@ void TestPackageHead::test_pack_head_parse(){
 	setStub((void*)pack_head_parse_head_len,(void*)stub_pack_head_parse_head_len,&si2);
 	ret = pack_head_parse(&l_head,offset,buff,len,p_used_len);
 	TEST_ASSERT(PACK_OK == ret);
-	
 	
 	// ignore for depth , follow above
 	//run:if((head->head_len < PACK_HEADER_MIN_LEN)
@@ -469,9 +496,7 @@ void TestPackageHead::test_pack_head_parse(){
 	cleanStub(&si_stub_log);
 	cleanStub(&si_stub_malloc);
 	cleanStub(&si_stub_free);
-	
-	
-	#endif
+
 }
 
 void TestPackageHead::test_pack_head_check(){
@@ -504,8 +529,13 @@ void TestPackageHead::test_pack_head_check(){
 	v_head.checksum = NULL;
 	ret = pack_head_check(p,len);
 	TEST_ASSERT(ret == PACK_OK);
+	pack_checksum_s l_s_checksum_1;
+	v_head.checksum = &l_s_checksum_1;
+	stubInfo si_pack_checksum_check;
+	setStub((void*)pack_checksum_check,(void*)stub_pack_checksum_check,&si_pack_checksum_check);
+	ret = pack_head_check(p,len);
+	cleanStub(&si_pack_checksum_check);
 	cleanStub(&si_stub_log);
-	
 	
 	
 	

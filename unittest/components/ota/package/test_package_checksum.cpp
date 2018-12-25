@@ -155,7 +155,6 @@ extern "C"
 		device->params.printf = printf;
 		return &device->params;
 	}
-	static void print_ss(){printf("+-+-+-+-+-+-    ");}
 }//extern "C"
 void TestPackageChecksum::test_pack_checksum_delete(){
 	stubInfo si_stub_log;
@@ -258,34 +257,28 @@ void TestPackageChecksum::test_pack_checksum_update_data(){
 	pack_hardware_s * p_hardw = &v_hardware;
 	
 	ret = pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("261\n");
 	TEST_ASSERT(PACK_ERR == ret);
 	
 	stubInfo si_stub_malloc;
 	setStub((void*)pack_malloc,(void*)atiny_malloc,&si_stub_malloc);
 	ret = pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("267\n");
 	TEST_ASSERT(PACK_OK == ret);
 	len = 0;
 	ret = pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("271\n");
 	TEST_ASSERT(PACK_OK == ret);
 	len = 16;
 	const uint8_t * buff2 = NULL;
 	ret = pack_checksum_update_data(p_thi,offset,buff2,len,p_hardw);
-	print_ss();printf("276\n");
 	TEST_ASSERT(PACK_ERR == ret);
 	
 	p_thi->offset_flag = 0;
 	p_thi->head->head_len = 0;
 	pack_hardware_s * p_hardw_null = NULL;
 	pack_checksum_update_data(p_thi,offset,buff,len,p_hardw_null);
-	print_ss();printf("283\n");
 	TEST_ASSERT(PACK_ERR == ret);
 	p_thi->offset_flag = 0;
 	p_thi->head->head_len = 0;
 	pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("288\n");
 	TEST_ASSERT(PACK_ERR == ret);
 	p_thi->offset_flag = 1;
 	p_thi->offset = offset;
@@ -295,7 +288,6 @@ void TestPackageChecksum::test_pack_checksum_update_data(){
 	p_thi->alg.base.update = ___updateFalse;
 #endif
 	ret = pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("298\n");
 	TEST_ASSERT(PACK_ERR == ret);
 	
 #if (PACK_CHECKSUM == PACK_SHA256_RSA2048)
@@ -304,7 +296,6 @@ void TestPackageChecksum::test_pack_checksum_update_data(){
 	p_thi->alg.base.update = ___update;
 #endif
 	ret = pack_checksum_update_data(p_thi,offset,buff,len,p_hardw);
-	print_ss();printf("307\n");
 	TEST_ASSERT(PACK_OK == ret);
 	
 	cleanStub(&si_stub_log);
