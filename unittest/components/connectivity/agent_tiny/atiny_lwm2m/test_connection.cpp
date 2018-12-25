@@ -66,6 +66,18 @@ extern 	void connection_striger_server_initiated_bs(connection_t * sessionH);
     {
         return NULL;
     }
+
+    void *stub_atiny_net_bind(const char *host, const char *port, int proto)
+    {
+    
+		atiny_net_context *param_context = NULL;
+	    param_context = (atiny_net_context *)atiny_malloc(100);
+	    
+	    //atiny_net_close(param_ctx); 
+         
+        return param_context;
+    }
+    
     void *stub_atiny_mutex_create(void)
     {
         return (void *)"a";
@@ -126,6 +138,11 @@ void TestConnection::test_connection_create()
     connP = connection_create(&conn, &securityObj0, 0, NULL,1);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
 
+     char uri3[] = "coap://[192.168.1.12]:[5683";
+    ((security_instance_t*)(securityObj0.instanceList))->uri = uri3;
+    connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
+    TEST_ASSERT((connP == NULL));
+
 
     connP = NULL;
     lwm2m_context_t context;
@@ -154,6 +171,16 @@ void TestConnection::test_connection_create()
     TEST_ASSERT_MSG((connP == NULL), "Test in connection_create when atiny_net_connect return NULL is Failed!");
     lwm2m_free(connP);
     cleanStub(&si);
+
+   
+    setStub((void *)atiny_net_bind, (void *)stub_atiny_net_bind, &si);
+    
+    connP = connection_create(&conn, securityObj, 0, &context,1);//last 0 added by shensheng
+    TEST_ASSERT_MSG((connP == NULL), "Test in connection_create when atiny_net_connect return NULL is Failed!");
+    lwm2m_free(connP);
+    cleanStub(&si);
+
+    
 
     clean_security_object(securityObj);
 }

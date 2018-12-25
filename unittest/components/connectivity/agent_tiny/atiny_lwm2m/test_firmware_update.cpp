@@ -41,12 +41,18 @@ extern "C"
     {
         
     }
+    int test_write_software_end(pack_storage_device_api_s *thi, pack_download_result_e result, uint32_t total_len)
+    {
+        return 0;
+    } 
+
+
+    
     static int test_write_software(pack_storage_device_api_s *thi, uint32_t offset, const uint8_t *buffer, uint32_t len)
     {
         return s_write_ret;
     }
 
- 
 
     static int stub_atiny_net_send(void* ctx, const unsigned char* buf, size_t len)
     {
@@ -233,13 +239,19 @@ void TestFirmwareUpdate::test_start_firmware_download(void)
     message.block2_more = 0;
     callback(&transac, &message);
     
-    //storage_device.write_software_end = test_write_software_end;
-    callback(&transac, &message);
+    storage_device.write_software_end = test_write_software_end;
+    callback(&transac, &message);    
 
     transaction_remove(&userData, userData.transactionList);
 
     cleanStub(&si_coap_block);
     cleanStub(&si_trans_send);
+
+    storage_device.write_software_end = test_write_software_end;
+    setStub((void*)transaction_send, (void*)stub_transaction_send, &si);     
+    callback(&transac, &message);
+    cleanStub(&si);
+    
     
     transaction_remove(&context, context.transactionList);
     clean_firmware_record();
