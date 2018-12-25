@@ -64,6 +64,8 @@ extern "C"
 	static pack_head_s v_head;
 	static pack_hardware_s v_hardware;
 
+	static void * stub_pack_malloc_failed(size_t size){return NULL;}
+
 	static void __test_init_hardware(){
 		v_hardware.read_software = ___read_software;
 		v_hardware.write_software = ___write_software;
@@ -200,6 +202,11 @@ void TestPackageSha256Rsa2048::test_mbedtls_rsa_check_pubkey(){
 	l_head.key = {buf_N,buf_E};
 	p_a->sha256.base.check(&l_base_2,checksum,checksum_len);
 	
+	stubInfo si_stub5;
+	extern void * pack_malloc(size_t size);
+	setStub((void*)pack_malloc,(void*)stub_pack_malloc_failed,&si_stub5);
+	p_a->sha256.base.check(&l_base_2,checksum,checksum_len);
+	cleanStub(&si_stub5);
 
 	////
 	cleanStub(&si_stub4);

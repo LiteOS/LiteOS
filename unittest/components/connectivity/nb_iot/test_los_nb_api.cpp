@@ -41,6 +41,7 @@ extern "C" {
     #include "nb_iot/los_nb_api.h"
 	extern int32_t nb_data_ioctl(void* arg,int8_t * buf, int32_t len);
 	extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
+	extern int32_t nb_get_netstat(void);
 	static char g_state = 0;
 	static int32_t stub_at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf)
     {
@@ -52,7 +53,15 @@ extern "C" {
             memcpy(rep_buf, "SENT=6,\"0 1 2 a b\"", strlen("SENT=6,\"0 1 2 a b\""));
         return AT_OK;
     }
+    static int aa = 0;
+    static int32_t stub_nb_get_netstat(void)
+    {
     
+        aa++;
+        if(aa >5)return 0;
+        else
+            return -1;
+    }
     
 }
 
@@ -82,42 +91,26 @@ void TestNBApi::test_los_nb_init()
 	sec_param_s sec;
     sec.pskid = "868744031131026";
     sec.psk = "d1e1be0c05ac5b8c78ce196412f0cdb0";
+    sec.setpsk = 1;
     //g_state = TEST_STATE_ERR;
     setStub((void *)at_cmd,(void *)stub_at_cmd,&stub_info);
 	
     printf("in test_los_nb_init 89\n");
     ret = los_nb_init(host, port, &sec);
-	at_free(at.linkid);
-	at.linkid = NULL;
-	at_free(at.userdata);
-	at.userdata = NULL;
-	
-	at_free(at.saveddata);
-	at.saveddata  = NULL;
-	at_free(at.recv_buf);
-	at.recv_buf = NULL;
-	at_free(at.cmdresp);
-	at.cmdresp = NULL;
+    at.deinit();
+    aa = 0;
+    stubInfo stub_info2;
+    setStub((void *)nb_get_netstat,(void *)stub_nb_get_netstat,&stub_info2);
+    sec.setpsk = 0;
+    ret = los_nb_init(host, port, &sec);
+    at.deinit();
+    cleanStub(&stub_info2);
 
-    printf("in test_los_nb_init 91\n");
-	printf("ret is %d in test_los_nb_init\n",ret);
     TEST_ASSERT_MSG((ret != -1), "test at_api_connect for connect is NULL failed!");
     
-    ret = los_nb_init(host, port, &sec);
-	at_free(at.linkid);
-	at.linkid = NULL;
-	at_free(at.userdata);
-	at.userdata = NULL;
-	at_free(at.saveddata);
-	at.saveddata  = NULL;
-	at_free(at.recv_buf);
-	at.recv_buf = NULL;
-	
-	printf("exit test_los_nb_init,ret is %d\n",ret);
-    TEST_ASSERT_MSG((ret == AT_OK), "test at_api_connect for connect is normal failed!");
-	printf("exit test_los_nb_init\n");
-	cleanStub(&stub_info);
-    return;
+    printf("exit test_los_nb_init\n");
+    cleanStub(&stub_info);
+
 }
 
 void TestNBApi::test_los_nb_report()
