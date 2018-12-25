@@ -64,7 +64,9 @@ public:
 	void test_atiny_mqtt_data_send(void);
 	void test_atiny_mqtt_dup_dev_info(void);
 	void test_atiny_mqtt_subscribe_topic(void);
+	void test_atiny_mqtt_bind_add(void);
 	void test_atiny_mqtt_dup_devi_info(void);
+	void test_atiny_mqtt_dup_dev_check_info(void);
 	void test_atiny_mqtt_get_send_pw(void);
 	void test_atiny_mqttconnect(void);
 	void test_atiny_cjsparse(void);

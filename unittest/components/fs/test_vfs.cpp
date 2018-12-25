@@ -33,7 +33,9 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
+#include <malloc.h>
 #include "test_vfs.h"
+#include "stub.h"
 
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
@@ -44,6 +46,10 @@ extern "C"
 {
 #include "fs/sys/fcntl.h"
 #include "fs/los_vfs.h"
+
+int fatfs_init(void);
+int spiffs_init(void);
+struct mount_point *los_mp_find (const char *path, const char **path_in_mp);
 }
 
 /* Global variables ---------------------------------------------------------*/
@@ -55,6 +61,12 @@ char path_name[MAX_NAME_LEN];
 int fs_type;
 
 /* Private function prototypes ----------------------------------------------*/
+static void* stub_malloc(size_t size)
+{
+    return NULL;
+}
+
+
 /* Public functions ---------------------------------------------------------*/
 TestVfs::TestVfs()
 {
@@ -90,16 +102,16 @@ void TestVfs::test_file_open(void)
     int fd;
     int ret;
 
-    fd = open(NULL, O_CREAT);
+    fd = los_open(NULL, O_CREAT);
     TEST_ASSERT(fd < 0);
 
-    fd = open("/test/", O_CREAT);
+    fd = los_open("/test/", O_CREAT);
     TEST_ASSERT(fd < 0);
 
-    fd = open(file_name, O_CREAT | O_WRONLY | O_RDWR | O_EXCL);
+    fd = los_open(file_name, O_CREAT | O_WRONLY | O_RDWR | O_EXCL);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -109,28 +121,28 @@ void TestVfs::test_file_read(void)
     int ret = -1;
     char buf[16] = {0};
 
-    ret = read(fd, 0, 0);
+    ret = los_read(fd, 0, 0);
     TEST_ASSERT(ret < 0);
 
-    ret = read(LOS_MAX_FILES, buf, sizeof(buf));
+    ret = los_read(LOS_MAX_FILES, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_RDONLY);
+    fd = los_open(file_name, O_RDONLY);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = read(fd, buf, sizeof(buf));
+    ret = los_read(fd, buf, sizeof(buf));
     TEST_ASSERT(ret >= 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    fd = open(file_name, O_WRONLY);
+    fd = los_open(file_name, O_WRONLY);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = read(fd, buf, sizeof(buf));
+    ret = los_read(fd, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -140,28 +152,28 @@ void TestVfs::test_file_write(void)
     int ret;
     char buf[16] = {0};
 
-    ret = write(fd, 0, 0);
+    ret = los_write(fd, 0, 0);
     TEST_ASSERT(ret < 0);
 
-    ret = write(LOS_MAX_FILES, buf, sizeof(buf));
+    ret = los_write(LOS_MAX_FILES, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_WRONLY | O_APPEND | O_EXCL);
+    fd = los_open(file_name, O_WRONLY | O_APPEND | O_EXCL);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = write(fd, buf, sizeof(buf));
+    ret = los_write(fd, buf, sizeof(buf));
     TEST_ASSERT(ret >= 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    fd = open(file_name, O_RDONLY);
+    fd = los_open(file_name, O_RDONLY);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = write(fd, buf, sizeof(buf));
+    ret = los_write(fd, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -170,23 +182,23 @@ void TestVfs::test_file_seek(void)
     int fd;
     int ret;
 
-    lseek(LOS_MAX_FILES, 0, 0);
+    los_lseek(LOS_MAX_FILES, 0, 0);
 
-    fd = open(file_name, O_CREAT | O_RDWR | O_TRUNC);
+    fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = lseek(fd, 0, 0);
+    ret = los_lseek(fd, 0, 0);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    ret = lseek(fd, 0, 1);
+    ret = los_lseek(fd, 0, 1);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    ret = lseek(fd, 0, 2);
+    ret = los_lseek(fd, 0, 2);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    ret = lseek(fd, 0, 3);
+    ret = los_lseek(fd, 0, 3);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -195,16 +207,16 @@ void TestVfs::test_file_sync(void)
     int fd;
     int ret;
 
-    ret = fsync(LOS_MAX_FILES);
+    ret = los_sync(LOS_MAX_FILES);
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_CREAT | O_RDWR | O_TRUNC);
+    fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = fsync(fd);
+    ret = los_sync(fd);
     TEST_ASSERT(ret >= 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -214,19 +226,19 @@ void TestVfs::test_file_stat(void)
     int ret;
     struct stat s = {0};
 
-    ret = stat(NULL, NULL);
+    ret = los_stat(NULL, NULL);
     TEST_ASSERT(ret < 0);
 
-    ret = stat("error", &s);
+    ret = los_stat("error", &s);
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_CREAT | O_RDWR | O_TRUNC);
+    fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = stat(file_name, &s);
+    ret = los_stat(file_name, &s);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -234,16 +246,16 @@ void TestVfs::test_file_rename(void)
 {
     int ret;
 
-    ret = rename(NULL, NULL);
+    ret = los_rename(NULL, NULL);
     TEST_ASSERT(ret < 0);
 
-    ret = rename("old", file_rename);
+    ret = los_rename("old", file_rename);
     TEST_ASSERT(ret < 0);
 
-    ret = rename(file_name, "new");
+    ret = los_rename(file_name, "new");
     TEST_ASSERT(ret < 0);
 
-    ret = rename(file_name, file_rename);
+    ret = los_rename(file_name, file_rename);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -251,13 +263,13 @@ void TestVfs::test_file_unlink(void)
 {
     int ret;
 
-    ret = unlink(NULL);
+    ret = los_unlink(NULL);
     TEST_ASSERT(ret < 0);
 
-    ret = unlink("error");
+    ret = los_unlink("error");
     TEST_ASSERT(ret < 0);
 
-    ret = unlink(file_name);
+    ret = los_unlink(file_name);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -266,16 +278,16 @@ void TestVfs::test_file_ioctl(void)
     int fd;
     int ret;
 
-    ret = ioctl(LOS_MAX_FILES, 0);
+    ret = los_ioctl(LOS_MAX_FILES, 0);
     TEST_ASSERT(ret < 0);
 
-    fd = open(file_name, O_CREAT | O_RDWR | O_TRUNC);
+    fd = los_open(file_name, O_CREAT | O_RDWR | O_TRUNC);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = ioctl(fd, 0);
+    ret = los_ioctl(fd, 0);
     TEST_ASSERT(ret < 0);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 }
 
@@ -285,13 +297,13 @@ void TestVfs::test_dir_make(void)
 
     if (fs_type != TEST_FS_SPIFFS)
     {
-        ret = mkdir(NULL, 0);
+        ret = los_mkdir(NULL, 0);
         TEST_ASSERT(ret < 0);
 
-        ret = mkdir("error", 0);
+        ret = los_mkdir("error", 0);
         TEST_ASSERT(ret < 0);
 
-        ret = mkdir(dir_name, 0);
+        ret = los_mkdir(dir_name, 0);
         TEST_ASSERT_EQUALS(ret, 0);
     }
 }
@@ -302,25 +314,25 @@ void TestVfs::test_dir_read(void)
     struct dir *dir;
     struct dirent *dirent;
 
-    dir = opendir(NULL);
+    dir = los_opendir(NULL);
     TEST_ASSERT(dir == NULL);
 
-    dir = opendir("error");
+    dir = los_opendir("error");
     TEST_ASSERT(dir == NULL);
 
-    dir = opendir(dir_name);
+    dir = los_opendir(dir_name);
     TEST_ASSERT(dir != NULL);
 
-    dirent = readdir(NULL);
+    dirent = los_readdir(NULL);
     TEST_ASSERT(dirent == NULL);
 
-    dirent = readdir(dir);
+    dirent = los_readdir(dir);
     TEST_ASSERT(dirent != NULL);
 
-    ret = closedir(dir);
+    ret = los_closedir(dir);
     TEST_ASSERT_EQUALS(ret, 0);
 
-    ret = closedir(NULL);
+    ret = los_closedir(NULL);
     TEST_ASSERT(ret < 0);
 }
 
@@ -330,7 +342,13 @@ void TestVfs::test_vfs_exception(void)
     int fd;
     int ret;
 
-    ret = close(LOS_MAX_FILES);
+    struct mount_point *mp = los_mp_find(NULL, NULL);
+    TEST_ASSERT(mp == NULL);
+
+    fd = los_open("/xxx/xxx", O_CREAT);
+    TEST_ASSERT(fd < 0);
+
+    ret = los_close(LOS_MAX_FILES);
     TEST_ASSERT(ret < 0);
 
     ret = los_fs_register(NULL);
@@ -349,35 +367,62 @@ void TestVfs::test_vfs_exception(void)
     {
         struct dir *dir;
         struct dirent *dirent;
+        struct stat s = {0};
 
         g_mux_pend_ret = LOS_NOK;
-        fd = open(file_name, O_CREAT);
+        ret = los_stat(file_name, &s);
+        TEST_ASSERT(ret < 0);
+
+        fd = los_open(file_name, O_CREAT);
         TEST_ASSERT(fd < 0);
 
-        dir = opendir(dir_name);
+        dir = los_opendir(dir_name);
         TEST_ASSERT(dir == NULL);
 
         g_mux_pend_ret = LOS_OK;
-        dir = opendir(dir_name);
+        dir = los_opendir(dir_name);
         TEST_ASSERT(dir != NULL);
 
         g_mux_pend_ret = LOS_NOK;
-        dirent = readdir(dir);
+        dirent = los_readdir(dir);
         TEST_ASSERT(dirent == NULL);
 
         g_mux_pend_ret = LOS_NOK;
-        ret = closedir(dir);
+        ret = los_closedir(dir);
         TEST_ASSERT(ret < 0);
 
         g_mux_pend_ret = LOS_OK;
-        ret = closedir(dir);
+        ret = los_closedir(dir);
         TEST_ASSERT_EQUALS(ret, 0);
 
         g_mux_pend_ret = LOS_NOK;
-        ret = mkdir(dir_name, 0);
+        ret = los_mkdir(dir_name, 0);
         TEST_ASSERT(ret < 0);
 
+        g_mux_pend_ret = -1;
+        ret = los_mkdir(dir_name, 0);
+        TEST_ASSERT(ret < 0);
+
+        g_mux_pend_ret = -1;
+        dir = los_opendir(dir_name);
+        TEST_ASSERT(dir == NULL);
+
+        g_mux_pend_ret = -1;
+        fd = los_open(file_name, O_CREAT);
+        TEST_ASSERT(fd < 0);
+
         g_mux_pend_ret = LOS_OK;
+
+        stubInfo si;
+        setStub((void *)malloc, (void *)stub_malloc, &si);
+
+        dir = los_opendir("xxx");
+        TEST_ASSERT(dir == NULL);
+
+        ret = los_fs_mount("fatfs", "/fatxx/", NULL);
+        TEST_ASSERT_EQUALS(ret, LOS_NOK);
+
+        cleanStub(&si);
     }
 }
 
@@ -474,40 +519,40 @@ void TestVfs::test_vfs_nullfs(void)
     ret = los_fs_mount ("nullfs", "/nullfs/again/", NULL);
     TEST_ASSERT(ret == 0);
 
-    fd = open("/nullfs/f.txt", O_CREAT);
+    fd = los_open("/nullfs/f.txt", O_CREAT);
     TEST_ASSERT(fd >= 0 && fd < LOS_MAX_FILES);
 
-    ret = read(fd, buf, sizeof(buf));
+    ret = los_read(fd, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    ret = write(fd, buf, sizeof(buf));
+    ret = los_write(fd, buf, sizeof(buf));
     TEST_ASSERT(ret < 0);
 
-    ret = lseek(fd, 0, 0);
+    ret = los_lseek(fd, 0, 0);
     TEST_ASSERT(ret == 0);
 
-    ret = stat("/nullfs/f.txt", &s);
+    ret = los_stat("/nullfs/f.txt", &s);
     TEST_ASSERT(ret < 0);
 
-    ret = ioctl(fd, 0);
+    ret = los_ioctl(fd, 0);
     TEST_ASSERT(ret == 0);
 
-    ret = fsync(fd);
+    ret = los_sync(fd);
     TEST_ASSERT(ret < 0);
 
-    ret = rename("/nullfs/f.txt", "/nullfs/f2.txt");
+    ret = los_rename("/nullfs/f.txt", "/nullfs/f2.txt");
     TEST_ASSERT(ret < 0);
 
-    ret = rename(file_name, "/nullfs/f.txt");
+    ret = los_rename(file_name, "/nullfs/f.txt");
     TEST_ASSERT(ret < 0);
 
-    ret = mkdir("/nullfs/d", 0);
+    ret = los_mkdir("/nullfs/d", 0);
     TEST_ASSERT(ret < 0);
 
-    dir = opendir("/nullfs/d");
+    dir = los_opendir("/nullfs/d");
     TEST_ASSERT(dir == NULL);
 
-    ret = close(fd);
+    ret = los_close(fd);
     TEST_ASSERT_EQUALS(ret, 0);
 
     ret = los_fs_unmount("/nullfs/");
