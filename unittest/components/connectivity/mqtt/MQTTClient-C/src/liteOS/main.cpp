@@ -12,7 +12,7 @@ int main()
 {
     Test::Suite ts;
 
-    ts.add(std::auto_ptr<Test::Suite>(new TestMQTTClient)); // mce18
+   // ts.add(std::auto_ptr<Test::Suite>(new TestMQTTClient)); // mce18
     ts.add(std::auto_ptr<Test::Suite>(new TestMQTTLiteos));
 
     std::ofstream html;
