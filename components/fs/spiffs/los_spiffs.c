@@ -215,9 +215,6 @@ static int spiffs_op_close (struct file *file)
 
 static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 {
-    if (buff == NULL || bytes == 0)
-        return -EINVAL;
-
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
     s32_t res = SPIFFS_read (fs, s_file, buff, bytes);
@@ -227,9 +224,6 @@ static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)
 
 static ssize_t spiffs_op_write (struct file *file, const char *buff, size_t bytes)
 {
-    if (buff == NULL || bytes == 0)
-        return -EINVAL;
-
     spiffs_file  s_file = spifd_from_file (file);
     spiffs      *fs     = (spiffs *) file->f_mp->m_data;
     s32_t res = SPIFFS_write (fs, s_file, (void *) buff, bytes);

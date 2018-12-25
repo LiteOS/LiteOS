@@ -328,9 +328,6 @@ static ssize_t fatfs_op_read (struct file *file, char *buff, size_t bytes)
     FRESULT res;
     FIL     *fp = (FIL *)file->f_data;
 
-    if (buff == NULL || bytes == 0)
-        return -EINVAL;
-
     POINTER_ASSERT(fp);
     res = f_read (fp, buff, bytes, (UINT *)&size);
     if(res != FR_OK)
@@ -346,9 +343,6 @@ static ssize_t fatfs_op_write (struct file *file, const char *buff, size_t bytes
     ssize_t  size = 0;
     FRESULT  res;
     FIL     *fp = (FIL *)file->f_data;
-
-    if (buff == NULL || bytes == 0)
-        return -EINVAL;
 
     POINTER_ASSERT(fp);
     res = f_write (fp, buff, bytes, (UINT *)&size);
@@ -379,12 +373,12 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     	ret_to_errno(FR_INVALID_PARAMETER);
         return -1;
     }
-    
+
     if (off < 0)
     {
         return ret_to_errno(FR_INVALID_PARAMETER);
     }
-    
+
     FRESULT res = f_lseek(fp, off);
     if (res == FR_OK)
     {

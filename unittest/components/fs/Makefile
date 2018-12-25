@@ -32,12 +32,12 @@ SRC+= $(wildcard $(HW_LITEOSDIR)/components/lib/libc/errno.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/vfs/los_vfs.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/spiffs/los_spiffs.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/fatfs/los_fatfs.c)
-#SRC+= $(wildcard $(HW_LITEOSDIR)/components/fs/jffs2/los_jffs2.c)
 SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/stub.c)
 
 
 LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
 vpath %.c $(sort $(dir $(SRC)))
+vpath % vfs:fatfs:spiffs
 
 INCLUDES:= \
     -I$(HW_LITEOSDIR)/include/ \
@@ -78,15 +78,15 @@ INCLUDES:= \
 	-I$(HW_LITEOSDIR)/components/fs/spiffs/spiffs_git/src/default/ \
 	-I$(HW_LITEOSDIR)/components/fs/fatfs/ff13b/source/ \
 	-I$(HW_LITEOSDIR)/components/fs/fatfs/ff13b/source/default/ \
-	-I$(HW_LITEOSDIR)/components/fs/jffs2/ \
-	-I$(HW_LITEOSDIR)/components/fs/jffs2/src/ \
-	-I$(HW_LITEOSDIR)/components/fs/jffs2/port/
+	-I$(HW_LITEOSDIR)/unittest/components/fs/vfs/ \
+	-I$(HW_LITEOSDIR)/unittest/components/fs/fatfs/ \
+	-I$(HW_LITEOSDIR)/unittest/components/fs/spiffs/
 
 
-CPP_SRC := $(wildcard *.cpp)
+CPP_SRC := $(wildcard *.cpp) $(wildcard vfs/*.cpp) $(wildcard fatfs/*.cpp) $(wildcard spiffs/*.cpp)
 CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
 
-C_SRC := $(wildcard *.c)
+C_SRC := $(wildcard *.c) $(wildcard vfs/*.c) $(wildcard fatfs/*.c) $(wildcard spiffs/*.c)
 C_OBJ := $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
 
 all:$(BUILD_DIR) lib $(BIN)
