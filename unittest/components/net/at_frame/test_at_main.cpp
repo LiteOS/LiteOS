@@ -754,7 +754,7 @@ void TestAtadapter::test_at_recv_task()
     
     ln2 = malloc(sizeof(at_listener));
     memset(ln2, 0 ,sizeof(*ln2));
-    ln2->handle_data = handle_data_demo;
+    ln2->handle_data = NULL;
     ln2->expire_time = at_get_time() + 1000;
     at_listener_list_add(ln2);
     
@@ -768,6 +768,9 @@ void TestAtadapter::test_at_recv_task()
     setStub((void *)LOS_QueueReadCopy,(void *)stub_LOS_QueueReadCopy,&queue_recv);
     setStub((void *)read_resp,(void *)stub_read_resp,&queue_recv);
     at_recv_task();
+    
+    at_listner_list_del(ln2);
+    free(ln2);
     
     cleanStub(&queue_recv);
 
