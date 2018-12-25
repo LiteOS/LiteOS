@@ -68,6 +68,7 @@ class TestObjectObjectConnectivityStat:public Test::Suite {
   void test_prv_exec();
   void test_conn_s_updateTxStatistic();
   void test_conn_s_updateRxStatistic();
+  void test_get_object_conn_s();
 
 
   TestObjectObjectConnectivityStat();

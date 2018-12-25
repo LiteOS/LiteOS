@@ -67,6 +67,11 @@ extern "C"
     {
         return 0;
     }
+    int stub_start_firmware_download_notok(lwm2m_context_t *contextP, char *uri, pack_storage_device_api_s *storage_device_p)
+    {
+        return 1;
+    }
+    
     int stub_start_firmware_download2(lwm2m_context_t *contextP, char *uri, pack_storage_device_api_s *storage_device_p)
     {
         return -1;
@@ -105,6 +110,24 @@ extern "C"
     {
         return 0;
     }
+    
+    uint8_t stub_lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info)
+    {
+        return 1;
+    }
+
+    
+    pack_storage_device_api_s *stub_atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi)
+    {
+        return NULL;
+    }
+    
+    void stub_atiny_set_reboot_flag()
+    {
+        return ;
+    }
+   
+
     static int stub_flag_read(flag_type_e flag_type, void *buf, int32_t len){return 0;}
 	static int stub_flag_readFalse(flag_type_e flag_type, void *buf, int32_t len){return -1;}
 	static int stub_flag_write(flag_type_e flag_type, const void *buf, int32_t len){return 0;}
@@ -211,6 +234,9 @@ void TestAtinyFotaState::test_atiny_fota_idle_state_report_result()
     memset(&manager, 0, sizeof(atiny_fota_manager_s));
     memset(&manager_para, 0, sizeof(atiny_fota_manager_s));
     atiny_fota_idle_state_init(&thi, &manager);
+
+
+    
     thi_pare = (atiny_fota_idle_state_s *)malloc(sizeof(atiny_fota_idle_state_s));
     TEST_ASSERT(thi_pare != NULL);
     atiny_fota_idle_state_init(thi_pare, &manager);
@@ -356,6 +382,16 @@ void TestAtinyFotaState::test_atiny_fota_idle_state_recv_notify_ack()
     cleanStub(&si);
     cleanStub(&si1);
 
+    setStub((void*)start_firmware_download, (void*)stub_start_firmware_download_notok, &si);
+    
+    setStub((void *)lwm2m_resource_value_changed, (void *)stub_lwm2m_resource_value_changed, &si1);
+    result = thi_para.interface.recv_notify_ack(thi, status);
+    TEST_ASSERT(result == ATINY_OK);
+    cleanStub(&si);
+    cleanStub(&si1);
+
+    
+
     free(thi->manager->lwm2m_context);
     free(thi);
     
@@ -497,9 +533,44 @@ void TestAtinyFotaState::test_atiny_fota_downloaded_state_recv_notify_ack()
     result = thi_para.interface.recv_notify_ack(&thi, status);
     TEST_ASSERT(result != ATINY_ERR);
 
+    printf("hlm ----------------------------------------********************************\n");
+    thi.manager->rpt_state = ATINY_FOTA_UPDATING;
+    stubInfo si_info;
+    setStub((void*)lwm2m_get_observe_info, (void *)stub_lwm2m_get_observe_info, &si_info);
+    result = thi_para.interface.recv_notify_ack(&thi, status);
+    cleanStub(&si_info);
+
+  
+
+    #if 0
+    stubInfo si_info_flag;
+    
+    stubInfo si_info_state;
+    thi.manager->rpt_state = ATINY_FOTA_UPDATING;   
+    setStub((void*)atiny_fota_manager_get_storage_device, (void *)stub_atiny_fota_manager_get_storage_device, &si_info);
+    setStub((void*)flag_write, (void *)stub_flag_write, &si_info_flag);
+    
+    setStub((void*)atiny_set_reboot_flag, (void *)stub_atiny_set_reboot_flag, &si_info_state);
+
+    result = thi_para.interface.recv_notify_ack(&thi, status);
+    
+    cleanStub(&si_info_state);  
+    cleanStub(&si_info_flag);      
+    cleanStub(&si_info);  
+    #endif
+    
+    thi.manager->rpt_state = ATINY_FOTA_UPDATING;   
+    setStub((void*)atiny_fota_manager_get_storage_device, (void *)stub_atiny_fota_manager_get_storage_device, &si_info);
+    result = thi_para.interface.recv_notify_ack(&thi, status);
+    cleanStub(&si_info); 
+
+
     cleanStub(&si2);
     cleanStub(&si1);
     cleanStub(&si);
+
+
+    
 
     free(thi.manager->lwm2m_context->observedList);
     free(thi.manager->lwm2m_context);
