@@ -329,6 +329,7 @@ void TestMQTTClient::test_deliverMessage(void){
 	char tf_buf_2[40];
 	char tf_buf_3[40];
 	char tf_buf_4[40];
+	memset(tf_buf_0,0,sizeof(tf_buf_0));
 	l_s_mqttC_1.buf = buf_1;
 	l_s_mqttC_1.readbuf = buf_2;
 	l_s_mqttC_1.messageHandlers[0].fp = test_fp_0;
@@ -357,10 +358,23 @@ void TestMQTTClient::test_deliverMessage(void){
 	l_s_mqttString_1.lenstring.data = l_data_1;
 	MQTTMessage l_s_mqttMsg_1;
 	
+	deliverMessage(&l_s_mqttC_1, NULL, &l_s_mqttMsg_1);
+	
+	
+	//strcpy(l_string_1,"string");
+	//strcpy(l_data_1,"milan_");
+	l_s_mqttString_1.lenstring.len = 0;
+	print_ss();printf("366\n");
+	//printf("sizeof tf_buf_0 is %d\n",sizeof(tf_buf_0));
 	deliverMessage(&l_s_mqttC_1, &l_s_mqttString_1, &l_s_mqttMsg_1);
-	strcpy(tf_buf_0,"bayern");
-	strcpy(l_string_1,"string");
-	strcpy(l_data_1,"milan_");
+	l_s_mqttString_1.lenstring.len = 1;
+	strcpy(tf_buf_0,"b/#ern ");
+	strcpy(tf_buf_1,"b/#ern ");
+	strcpy(tf_buf_2,"b/#ern ");
+	strcpy(tf_buf_3,"b/#ern ");
+	strcpy(tf_buf_4,"b/#ern ");
+	strcpy(l_string_1,"b/#ern ");
+	print_ss();printf("368\n");
 	deliverMessage(&l_s_mqttC_1, &l_s_mqttString_1, &l_s_mqttMsg_1);
 
 }
@@ -1188,47 +1202,9 @@ void TestMQTTClient::test_keepalive(void)
 /* Private functions --------------------------------------------------------*/
 void TestMQTTClient::setup()
 {
-#if 0
-    int ret = 0;
-
-    NetworkInit(&s_network,NULL);
-    //s_network.proto = MQTT_PROTO_NONE;
-    stubInfo stub_info;
-    setStub((void*)connect, (void*)stub_connect, &stub_info);
-    ret = NetworkConnect(&s_network, options.host, options.port);
-    TEST_ASSERT_MSG((0 == ret), "NetworkConnect(...) failed");
-    cleanStub(&stub_info);
-
-    setStub((void*)atiny_mutex_create, (void*)stub_atiny_mutex_create, &stub_info);
-    ret = 0;
-    MQTTClientInit(&s_client, &s_network, 1000, s_buf, 100, s_readbuf, 100);
-    TEST_ASSERT_MSG((0 == ret), "MQTTClientInit(...) failed");
-    cleanStub(&stub_info);
-
-    s_connectdata.willFlag = 1;
-    s_connectdata.MQTTVersion = options.MQTTVersion;
-    s_connectdata.clientID.cstring = (char*)"single-threaded-test";
-    s_connectdata.username.cstring = (char*)"testuser";
-    s_connectdata.password.cstring = (char*)"testpassword";
-
-    s_connectdata.keepAliveInterval = 20;
-    s_connectdata.cleansession = 1;
-
-    s_connectdata.will.message.cstring = (char*)"will message";
-    s_connectdata.will.qos = 1;
-    s_connectdata.will.retained = 0;
-    s_connectdata.will.topicName.cstring = (char*)"will topic";
-	#endif
 }
 void TestMQTTClient::tear_down()
 {
-#if 0
-    int ret = 0;
-    MQTTClientDeInit(&s_client);
-    TEST_ASSERT_MSG((0 == ret), "MQTTClientDeInit(...) failed");
-    NetworkDisconnect(&s_network);
-    TEST_ASSERT_MSG((0 == ret), "NetworkDisconnect(...) failed");
-	#endif
 }
 
 

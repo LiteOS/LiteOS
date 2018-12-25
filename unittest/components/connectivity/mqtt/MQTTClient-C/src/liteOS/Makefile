@@ -9,7 +9,7 @@ BUILD_DIR=build
 # file match pattern
 # eg: "*wifi*.c" -- match the file that contains *wifi*.c in the path
 # if not use this, please define as "*"
-FILE_PATTERN = "*MQTTClient-C*src*.c"
+FILE_PATTERN = "*MQTTliteos.c"
 #FILE_PATTERN = "*"
 
 FOR32 := true

@@ -121,8 +121,9 @@ extern "C"
 	
 	void dtls_ssl_destroy(mbedtls_ssl_context *ssl);
 	static void print_ss(const char * p){
-		printf("+-+-+-+-+-+-+-+-+-+-    ");
-		printf("%s\n",p);
+		printf("===========================================================\n");
+		printf("+-+-+-+-+-+-+-    %s    +-+-+-+-+-+-\n",p);
+		printf("===========================================================\n");
 	}
 	static int stub_atiny_task_mutex_delete(atiny_task_mutex_s *mutex){
 		return 0;
@@ -204,6 +205,9 @@ extern "C"
 			else if(2==static_count_get_secuInfo){
 				static_count_get_secuInfo++;
 				static_l_s_msinfo_1.security_type = static_secu_value_for_ifelse;
+			}
+			else if(10==static_count_get_secuInfo){
+				static_l_s_msinfo_1.security_type = 10;
 			}
 			return &static_l_s_msinfo_1;
 		}
@@ -299,6 +303,31 @@ extern "C"
 	static int stub_atiny_net_recv_timeout_retneg2(void *ctx, unsigned char *buf, size_t len,uint32_t timeout){
 		return -2;
 	}
+	static void stub_mbedtls_ssl_conf_read_timeout( mbedtls_ssl_config *conf, uint32_t timeout ){}
+	static int stub_mbedtls_ssl_read_retneg0x6900( mbedtls_ssl_context *ssl, unsigned char *buf, size_t len ){
+		return -0x6900;
+	}
+	static int stub_mbedtls_ssl_read_retneg0x6880( mbedtls_ssl_context *ssl, unsigned char *buf, size_t len ){
+		return -0x6880;
+	}
+	static int stub_mbedtls_ssl_read_retneg0x6800( mbedtls_ssl_context *ssl, unsigned char *buf, size_t len ){
+		return -0x6800;
+	}
+	static int stub_atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,uint32_t timeout){
+		return 0;
+	}
+	static  int stub_dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len){
+		return 0;
+	}
+	static int stub_atiny_task_mutex_create_OK(atiny_task_mutex_s *mutex){
+		return 0;
+	}
+	static int stub_atiny_task_mutex_lock_OK(atiny_task_mutex_s *mutex){
+		return 0;
+	}
+	static int stub_atiny_task_mutex_unlock_OK(atiny_task_mutex_s *mutex){
+		return 0;
+	}
 }//extern "C"
 
 void TestMQTTLiteos::test_TimerInit()
@@ -370,7 +399,8 @@ void TestMQTTLiteos::test_los_read()
 	l_s_network_1.ctx = NULL;
 	
 	static_count_get_secuInfo = 0;
-	t_test_get_security_info p_func;
+	int a;
+	t_test_get_security_info p_func = (t_test_get_security_info)&a;
 	NetworkInit(&l_s_network_1,p_func);
 	///
 	Network l_s_network_2;
@@ -382,109 +412,82 @@ void TestMQTTLiteos::test_los_read()
 	char l_buffer_1[20];
 	int l_len_1 = 10;
 	///
-	(&l_s_network_1)->mqttread(NULL,NULL,0,0);
+	l_s_network_1.mqttread(NULL,NULL,0,0);
+
 	stubInfo si_atiny_net_recv_timeout;
 	setStub((void*)atiny_net_recv_timeout,(void*)stub_atiny_net_recv_timeout_retneg2,&si_atiny_net_recv_timeout);
+	static_count_get_secuInfo = 0;
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+	static_count_get_secuInfo = 1;
+	
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+	static_count_get_secuInfo = 1;
+
+	mbedtls_ssl_context l_s_mbedtls_ssl_context_1;
+	
+	l_s_network_2.ctx = &l_s_mbedtls_ssl_context_1;
+	stubInfo si_mbedtls_ssl_conf_read_timeout;
+	stubInfo si_mbedtls_ssl_read;
+	setStub((void*)mbedtls_ssl_read,(void*)stub_mbedtls_ssl_read_retneg0x6900,&si_mbedtls_ssl_read);
+	setStub((void*)mbedtls_ssl_conf_read_timeout,(void*)stub_mbedtls_ssl_conf_read_timeout,&si_mbedtls_ssl_conf_read_timeout);
+	
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+	
+	cleanStub(&si_mbedtls_ssl_read);
+	static_count_get_secuInfo = 1;
+	setStub((void*)mbedtls_ssl_read,(void*)stub_mbedtls_ssl_read_retneg0x6880,&si_mbedtls_ssl_read);
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+
+	cleanStub(&si_mbedtls_ssl_read);
+	static_count_get_secuInfo = 1;
+	setStub((void*)mbedtls_ssl_read,(void*)stub_mbedtls_ssl_read_retneg0x6800,&si_mbedtls_ssl_read);
+	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
+
+	cleanStub(&si_mbedtls_ssl_read);
+
+
+	
+	cleanStub(&si_mbedtls_ssl_conf_read_timeout);
+	static_count_get_secuInfo = 10;
 	(&l_s_network_1)->mqttread(&l_s_network_2,l_buffer_1,0,0);
 	cleanStub(&si_atiny_net_recv_timeout);
 	
-#if 0
-    Network n;
-    unsigned char buffer[256];
-    int timeout_ms = 100;
-    int ret = 0;
-    mqtt_context_t ctx;
-    mbedtls_ssl_context ssl;
-    mbedtls_ssl_config conf;
-
-    NetworkInit(&n,NULL);
-    ret = n.mqttread(NULL, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-    
-    //n.proto = MQTT_PROTO_NONE;
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-
-    //n.proto = MQTT_PROTO_TLS_PSK;
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-
-    //n.proto = MQTT_PROTO_NONE;
-    ctx.fd = 3;
-    n.ctx = &ctx;
-    stubInfo si1;
-    stubInfo si2;
-    stubInfo si3;
-    setStub((void *)select, (void *)stub_select, &si1);
-    setStub((void *)recv, (void *)stub_recv_err, &si3);
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-    cleanStub(&si3);
-    setStub((void *)recv, (void *)stub_recv, &si2);
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == 0);
-
-    timeout_ms = -100;
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == 0);
-    cleanStub(&si2);
-    cleanStub(&si1);
-
-    //n.proto = MQTT_PROTO_TLS_PSK;
-    timeout_ms = 100;
-    n.ctx = &ssl;
-    ssl.conf = &conf;
-    stubInfo si;
-    setStub((void *)mbedtls_ssl_read, (void *)stub_mbedtls_ssl_read, &si);
-    ret = n.mqttread(&n, buffer, sizeof(buffer), timeout_ms);
-    cleanStub(&si);
-    TEST_ASSERT(ret == 1);
-#endif
     
 }
 void TestMQTTLiteos::test_los_write()
 {
-    Network n;
-    unsigned char* buffer = (unsigned char *)"hgkllhfkghki";
-    int timeout_ms = 100;
-    int ret = 0;
-    mqtt_context_t ctx;
-    mbedtls_ssl_context ssl;
-    mbedtls_ssl_config conf;
-
-    memset(&n, 0, sizeof(Network));
-    memset(&ctx,  0, sizeof(mqtt_context_t));
-    memset(&ssl,  0, sizeof(mbedtls_ssl_context));
-    memset(&conf,  0, sizeof(mbedtls_ssl_config));
-    NetworkInit(&n,NULL);
-    ret = n.mqttwrite(NULL, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-    ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-    
-    //n.proto = MQTT_PROTO_NONE;
-    ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-
-    //n.proto = MQTT_PROTO_TLS_PSK;
-    ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == -1);
-
-    //n.proto = MQTT_PROTO_NONE;
-    ctx.fd = 3;
-    n.ctx = &ctx;
-    stubInfo si;
-    setStub((void *)write, (void *)stub_write, &si);
-    ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == sizeof(buffer));
-    cleanStub(&si);
-
-    timeout_ms = -100;
-    ret = n.mqttwrite(&n, buffer, sizeof(buffer), timeout_ms);
-    TEST_ASSERT(ret == sizeof(buffer));
-
+	Network l_s_network_1;
+	l_s_network_1.mqttread = test_mqttread;
+	l_s_network_1.mqttwrite = test_mqttwrite;
+	l_s_network_1.get_security_info = test_get_security_info;
+	l_s_network_1.ctx = NULL;
+	
+	static_count_get_secuInfo = 0;
+	int a;
+	t_test_get_security_info p_func = (t_test_get_security_info)&a;
+	NetworkInit(&l_s_network_1,p_func);
+	///
+	Network l_s_network_2;
+	l_s_network_2.mqttread = test_mqttread;
+	l_s_network_2.mqttwrite = test_mqttwrite;
+	l_s_network_2.get_security_info = test_get_security_info;
+	static_count_get_secuInfo = 0;
+	l_s_network_2.ctx = NULL;
+	char l_buffer_1[20];
+	int l_len_1 = 10;
+	l_s_network_1.mqttwrite(NULL,NULL,0,0);
+	stubInfo si_atiny_net_send_timeout;
+	stubInfo si_dtls_write;
+	setStub((void*)atiny_net_send_timeout,(void*)stub_atiny_net_send_timeout,&si_atiny_net_send_timeout);
+	setStub((void*)dtls_write,(void*)stub_dtls_write,&si_dtls_write);
+	static_count_get_secuInfo = 0;
+	l_s_network_1.mqttwrite(&l_s_network_2,l_buffer_1,0,0);
+	static_count_get_secuInfo = 1;
+	l_s_network_1.mqttwrite(&l_s_network_2,l_buffer_1,0,0);
+	static_count_get_secuInfo = 10;
+	l_s_network_1.mqttwrite(&l_s_network_2,l_buffer_1,0,0);
+	cleanStub(&si_atiny_net_send_timeout);
+	cleanStub(&si_dtls_write);
 }
 void TestMQTTLiteos::test_NetworkConnect()
 {
@@ -501,7 +504,6 @@ void TestMQTTLiteos::test_NetworkConnect()
 
 
     ret = NetworkConnect(NULL, addr, port);
-	print_ss("306");
     TEST_ASSERT(ret == -1);
 
 	Network l_s_network_1;
@@ -605,6 +607,26 @@ void TestMQTTLiteos::test_MutexDestory(){
 	cleanStub(&si_atiny_task_mutex_delete);
 	ThreadStart(NULL,NULL,NULL);
 }
+void TestMQTTLiteos::test_mutexInit(){
+	stubInfo si_mutex_create;
+	setStub((void*)atiny_task_mutex_create,(void*)stub_atiny_task_mutex_create_OK,&si_mutex_create);
+	MutexInit(NULL);
+	cleanStub(&si_mutex_create);
+}
+void TestMQTTLiteos::test_mutexLock(){
+	stubInfo si_atiny_task_mutex_lock;
+	setStub((void*)atiny_task_mutex_lock,(void*)stub_atiny_task_mutex_lock_OK,&si_atiny_task_mutex_lock);
+	MutexLock(NULL);
+	cleanStub(&si_atiny_task_mutex_lock);
+}
+void TestMQTTLiteos::test_mutexunlock(){
+	stubInfo si_atiny_task_mutex_unlock;
+	setStub((void*)atiny_task_mutex_unlock,(void*)stub_atiny_task_mutex_unlock_OK,&si_atiny_task_mutex_unlock);
+	MutexUnlock(NULL);
+	cleanStub(&si_atiny_task_mutex_unlock);
+}
+
+
 
 TestMQTTLiteos::TestMQTTLiteos()
 {
@@ -614,8 +636,7 @@ TestMQTTLiteos::TestMQTTLiteos()
     TEST_ADD(TestMQTTLiteos::test_TimerCountdown);
     TEST_ADD(TestMQTTLiteos::test_TimerLeftMS);
     TEST_ADD(TestMQTTLiteos::test_NetworkInit);
-  //  TEST_ADD(TestMQTTLiteos::test_los_read);
-   // TEST_ADD(TestMQTTLiteos::test_los_write);
+   // 
     TEST_ADD(TestMQTTLiteos::test_NetworkConnect);
     TEST_ADD(TestMQTTLiteos::test_mbedtls_net_set_block);
     TEST_ADD(TestMQTTLiteos::test_mbedtls_net_set_nonblock);
@@ -623,6 +644,10 @@ TestMQTTLiteos::TestMQTTLiteos()
      TEST_ADD(TestMQTTLiteos::test_MutexDestory);
     TEST_ADD(TestMQTTLiteos::test_NetworkDisconnect);
 	TEST_ADD(TestMQTTLiteos::test_los_read);
+	TEST_ADD(TestMQTTLiteos::test_los_write);
+	TEST_ADD(TestMQTTLiteos::test_mutexInit);
+	TEST_ADD(TestMQTTLiteos::test_mutexLock);
+	TEST_ADD(TestMQTTLiteos::test_mutexunlock);
 }
 
 void TestMQTTLiteos::setup()
