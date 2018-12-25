@@ -79,6 +79,9 @@ public:
 	void test_mqtt_dup_devinfo_fail(void);
 	void test_mqtt_dup_info_fail(void);
 	void test_mqtt_dup_devin_fail(void);
+	void test_atiny_mqtt_read_flash(void);
+	void test_atiny_mqtt_json_fail(void);
+	void test_atiny_mqtt_json_fail2(void);
 	
 	
 protected:
