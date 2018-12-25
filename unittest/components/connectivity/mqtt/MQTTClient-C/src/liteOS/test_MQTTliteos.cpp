@@ -392,6 +392,7 @@ void TestMQTTLiteos::test_NetworkInit()
 }
 void TestMQTTLiteos::test_los_read()
 {
+	int ret_value = 0;
 	Network l_s_network_1;
 	l_s_network_1.mqttread = test_mqttread;
 	l_s_network_1.mqttwrite = test_mqttwrite;
@@ -412,8 +413,8 @@ void TestMQTTLiteos::test_los_read()
 	char l_buffer_1[20];
 	int l_len_1 = 10;
 	///
-	l_s_network_1.mqttread(NULL,NULL,0,0);
-
+	ret_value = l_s_network_1.mqttread(NULL,NULL,0,0);
+	TEST_ASSERT(ret_value != 0);
 	stubInfo si_atiny_net_recv_timeout;
 	setStub((void*)atiny_net_recv_timeout,(void*)stub_atiny_net_recv_timeout_retneg2,&si_atiny_net_recv_timeout);
 	static_count_get_secuInfo = 0;
@@ -456,6 +457,7 @@ void TestMQTTLiteos::test_los_read()
 }
 void TestMQTTLiteos::test_los_write()
 {
+	int ret_value;
 	Network l_s_network_1;
 	l_s_network_1.mqttread = test_mqttread;
 	l_s_network_1.mqttwrite = test_mqttwrite;
@@ -475,7 +477,9 @@ void TestMQTTLiteos::test_los_write()
 	l_s_network_2.ctx = NULL;
 	char l_buffer_1[20];
 	int l_len_1 = 10;
-	l_s_network_1.mqttwrite(NULL,NULL,0,0);
+	
+	ret_value = l_s_network_1.mqttwrite(NULL,NULL,0,0);
+	TEST_ASSERT(ret_value != 0);
 	stubInfo si_atiny_net_send_timeout;
 	stubInfo si_dtls_write;
 	setStub((void*)atiny_net_send_timeout,(void*)stub_atiny_net_send_timeout,&si_atiny_net_send_timeout);
@@ -500,6 +504,7 @@ void TestMQTTLiteos::test_NetworkConnect()
     
     memset(&n,  0, sizeof(Network));
     ctx = (mqtt_context_t *)malloc(sizeof(mqtt_context_t));
+	mqtt_context_t * p_bak = ctx;
     NetworkInit(&n,NULL);
 
 
@@ -550,6 +555,7 @@ void TestMQTTLiteos::test_NetworkConnect()
 	cleanStub(&si_dtls_ssl_new);
 	cleanStub(&si_atiny_snprintf);
 	cleanStub(&si_dtls_shakehand);	
+	free(p_bak);
 }
 void TestMQTTLiteos::test_mbedtls_net_set_block()
 {
@@ -614,15 +620,20 @@ void TestMQTTLiteos::test_mutexInit(){
 	cleanStub(&si_mutex_create);
 }
 void TestMQTTLiteos::test_mutexLock(){
+	int ret_value = 0;
 	stubInfo si_atiny_task_mutex_lock;
 	setStub((void*)atiny_task_mutex_lock,(void*)stub_atiny_task_mutex_lock_OK,&si_atiny_task_mutex_lock);
-	MutexLock(NULL);
+	ret_value = MutexLock(NULL);
+	TEST_ASSERT(ret_value == 0);
 	cleanStub(&si_atiny_task_mutex_lock);
 }
 void TestMQTTLiteos::test_mutexunlock(){
+	int ret_value = 0;
+
 	stubInfo si_atiny_task_mutex_unlock;
 	setStub((void*)atiny_task_mutex_unlock,(void*)stub_atiny_task_mutex_unlock_OK,&si_atiny_task_mutex_unlock);
-	MutexUnlock(NULL);
+	ret_value = MutexUnlock(NULL);
+	TEST_ASSERT(ret_value == 0);
 	cleanStub(&si_atiny_task_mutex_unlock);
 }
 
