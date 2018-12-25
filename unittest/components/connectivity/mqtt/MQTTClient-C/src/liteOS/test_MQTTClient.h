@@ -51,6 +51,7 @@ public:
     void test_keepalive(void);
 	void test_clean_close_session(void);
 	void test_waitfor();
+	void test_deliverMessage();
 
 protected:
     void setup();

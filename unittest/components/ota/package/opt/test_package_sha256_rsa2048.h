@@ -32,37 +32,30 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef _TEST_MQTTLITEOS_H_
-#define _TEST_MQTTLITEOS_H_
+#ifndef TEST_FOTA_PACKAGE_SHA256_RSA2048_H
+#define TEST_FOTA_PACKAGE_SHA256_RSA2048_H
 
 #include <cpptest.h>
 #include "stub.h"
+#include "package_checksum.h"
+#include "package_sha256_rsa2048.h"
+#include "package_sha256.h"
+#include "package_head.h"
+#include <string.h>
+#include "rsa.h"
 
-class TestMQTTLiteos:public Test::Suite {
-    
-  protected:
-    void setup();
+class TestPackageSha256Rsa2048:public Test::Suite{
+public:
+	void test_pack_sha256_rsa2048_check();
+	void test_pack_sha256_rsa2048_init();
+	void test_mbedtls_rsa_check_pubkey();
+	void test_mbedtls_rsa_pkcs1_verify();
+
+    TestPackageSha256Rsa2048();
+protected:
     void tear_down();
-
-  public:
-    void test_TimerInit(); 
-    void test_TimerIsExpired();
-    void test_TimerCountdownMS();
-    void test_TimerCountdown();
-    void test_TimerLeftMS();
-    void test_NetworkInit();
-    void test_los_read();
-    void test_los_write();
-    void test_NetworkConnect();
-    void test_mbedtls_net_set_block();
-    void test_mbedtls_net_set_nonblock();
-    void test_NetworkDisconnect();
-	void test_MutexDestory();
-    TestMQTTLiteos();
+    void setup();
 };
 
-
-
-
-
 #endif
+
