@@ -55,6 +55,10 @@ extern "C"
     {
         return 10;
     }
+    static int stub_atiny_cmd_ioctl_ok(atiny_cmd_e cmd, char *arg, int len)
+    {
+        return 0;
+    }
 
     static lwm2m_data_t *stub_lwm2m_data_new(int size)
     {
@@ -76,6 +80,11 @@ extern "C"
             return mem;
         }
         return NULL;
+    }
+    
+    void stub_lwm2m_data_encode_opaque(uint8_t* buffer, size_t length, lwm2m_data_t* dataP)
+    {
+        return ;
     }
 }
 
@@ -223,10 +232,64 @@ void TestObjectLocation::test_prv_location_read(void)
 
     tlvArrayP->id = 6;
     ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
-    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);	
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);   
 	
-    cleanStub(&stub_info);		
+    cleanStub(&stub_info);	
     lwm2m_data_free(1, tlvArrayP);
+
+    
+    tlvArrayP = lwm2m_data_new(1);
+    setStub((void *)atiny_cmd_ioctl, (void *)stub_atiny_cmd_ioctl_ok, &stub_info);
+    num = 1;
+
+    tlvArrayP->id = 0;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+
+    
+    tlvArrayP->id = 1;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+
+
+    tlvArrayP->id = 2;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+
+
+    tlvArrayP->id = 3;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+#if 1
+
+    tlvArrayP->id = 4;
+    
+    stubInfo stub_info_opaque;
+    setStub((void *)lwm2m_data_encode_opaque, (void *)stub_lwm2m_data_encode_opaque, &stub_info_opaque);
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
+     cleanStub(&stub_info_opaque);	
+	#endif
+    tlvArrayP->id = 5;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);
+
+
+    tlvArrayP->id = 6;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);	
+
+
+    tlvArrayP->id = 7;
+    ret = pLocalObject->readFunc(0, &num, &tlvArrayP, NULL, NULL);	
+    TEST_ASSERT(ret == COAP_400_BAD_REQUEST);	
+
+
+
+    cleanStub(&stub_info);	
+    
+	
+    lwm2m_data_free(1, tlvArrayP);
+    
 
     free_object_location(pLocalObject);
 }
