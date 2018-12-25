@@ -7,7 +7,7 @@
 #include "test_package_checksum.h"
 #include "test_package.h"
 #include "test_package_head.h"
-include "opt/test_package_sha256.h"
+#include "opt/test_package_sha256.h"
 #include "opt/test_package_sha256_rsa2048.h"
 
 int main()

@@ -242,6 +242,10 @@ extern "C"{
 		device->params.printf = printf;
 		return &device->params;
 	}
+	static int static_int_for_local_calloc;
+	static int* stub_pack_malloc_for_local_calloc(){
+		return &static_int_for_local_calloc; 
+	}
 }//extern "C"
 
 void TestPackage::test_pack_storage_write_software_end(){
@@ -507,8 +511,13 @@ void TestPackage::test_pack_init_device(){
 	a.ota_opt.read_flash = ___test_read_flash;
 	a.ota_opt.write_flash = ___test_write_flash;
 	pack_init_device(p);
+	stubInfo si_pack_malloc;
+	setStub((void*)pack_malloc,(void*)stub_pack_malloc_for_local_calloc,&si_pack_malloc);
+	mbedtls_calloc(1,4);
+	cleanStub(&si_pack_malloc);
 	TEST_ASSERT( ret == PACK_ERR);
 	cleanStub(&si_stub_log);
+	
 }
 void TestPackage::test_pack_malloc(){
 	pack_params_s a;
