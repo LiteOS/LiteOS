@@ -87,9 +87,9 @@ HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c \
         $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c \
         $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \
-        $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c \
+        $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c \
         $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c \
-        $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c \
+        $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c
         
 
         C_SOURCES += $(HAL_DRIVER_SRC)
