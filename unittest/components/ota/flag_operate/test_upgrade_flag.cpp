@@ -66,16 +66,13 @@ int stub_flag_read(flag_type_e flag_type, void *buf, int32_t len)
 
 void TestUpgradeFlag::test_flag_upgrade_init()
 {
-	//无参数
 	
-	//ret = flag_read() 有 0和-1
-	//观察发现 外部无法影响到flad_read()的参数和返回值(分支覆盖率降低，不影响行覆盖率)（需要打桩）
+	
 
 	flag_upgrade_init();
 	
-	//打桩
-	//1
-   stubInfo stub_sem;//在此范围内，flag_read变成了stub_flag_read-------------------
+
+   stubInfo stub_sem;
    setStub((void *)flag_read,(void *)stub_flag_read,&stub_sem); 
    flag_upgrade_init();
    cleanStub(&stub_sem);//---------------------------------------------------------
@@ -83,16 +80,7 @@ void TestUpgradeFlag::test_flag_upgrade_init()
   
 }
 
-/*
-int flag_set_info(upgrade_type_e upgrade_type, uint32_t image_size)
-{
-    g_flag.upgrade_type = upgrade_type;
-    g_flag.image_size = image_size;
-    g_flag.upgrade_state = OTA_NEED_UPGRADE;
 
-    return save_flag();
-}
-*/	
 void TestUpgradeFlag::test_flag_set_info()
 {
 	upgrade_type_e upgrade_type;
@@ -100,19 +88,7 @@ void TestUpgradeFlag::test_flag_set_info()
 	flag_set_info(upgrade_type, image_size);
 }
 
-/*
-void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size, uint32_t *old_image_size, upgrade_state_e *upgrade_state)
-{
-    if (NULL != upgrade_type)
-        *upgrade_type = g_flag.upgrade_type;
-    if (NULL != image_size)
-        *image_size = g_flag.image_size;
-    if (NULL != old_image_size)
-        *old_image_size = g_flag.old_image_size;
-    if (NULL != upgrade_state)
-        *upgrade_state = g_flag.upgrade_state;
-}
-*/
+
 void TestUpgradeFlag::test_flag_get_info()
 {
 	upgrade_type_e 	upgrade_type;
@@ -128,83 +104,28 @@ void TestUpgradeFlag::test_flag_get_info()
 	flag_get_info(upgrade_type1,image_size1,old_image_size1,upgrade_state1);
 	
 }
-/*
-typedef enum
-{
-    OTA_IDLE = 0,
-    OTA_NEED_UPGRADE,
-    OTA_SUCCEED,
-    OTA_FAILED,
-} upgrade_state_e;
 
-int flag_upgrade_set_result(upgrade_state_e state)
-{
-    g_flag.upgrade_state = state;
-
-    return save_flag();
-}
-*/
 
 void TestUpgradeFlag::test_flag_upgrade_set_result()
 {
 	upgrade_state_e state=OTA_SUCCEED;
 	flag_upgrade_set_result(state,1);
 }
-/*
-int flag_upgrade_get_result(upgrade_state_e *state)
-{
-    if (NULL != state)
-        *state = g_flag.upgrade_state;
-    g_flag.upgrade_state = OTA_IDLE;
-    g_flag.old_image_size = g_flag.image_size;
 
-    return save_flag();
-}
-*/
 void TestUpgradeFlag::test_flag_upgrade_get_result()
 {
 	upgrade_state_e state=OTA_SUCCEED;
 	flag_upgrade_get_result(NULL);
 	flag_upgrade_get_result(&state);
 }
-/*
-typedef struct
-{
-    upgrade_type_e upgrade_type;
-    upgrade_state_e upgrade_state;
-    uint32_t image_size;
-    uint32_t old_image_size;
-    uint32_t recover_verify;
-    uint32_t verify_length;
-    uint32_t crc_flag;
-} upgrade_flag_s;
 
-static upgrade_flag_s g_flag;
-
-int flag_set_recover_verify(uint32_t recover_verify, uint32_t verify_length)
-{
-    g_flag.recover_verify = recover_verify;
-    g_flag.verify_length = verify_length;
-
-    return save_flag();
-}
-*/
 void TestUpgradeFlag::test_flag_set_recover_verify()
 {
 	uint32_t recover_verify;
 	uint32_t verify_length;
 	flag_set_recover_verify(recover_verify, verify_length);
 }
-/*
-void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)
-{
-    if (NULL != recover_verify)
-        *recover_verify = g_flag.recover_verify;
-    if (NULL != verify_length)
-        *verify_length = g_flag.verify_length;
-}
 
-*/
 void TestUpgradeFlag::test_flag_get_recover_verify()
 {
 	uint32_t recover_verify;
@@ -214,7 +135,7 @@ void TestUpgradeFlag::test_flag_get_recover_verify()
 	
 }
 
-//未在源代码中找到该函数的定义
+
 void TestUpgradeFlag::test_flag_enable_hwpatch()
 {
 	
@@ -222,7 +143,7 @@ void TestUpgradeFlag::test_flag_enable_hwpatch()
 
 TestUpgradeFlag::TestUpgradeFlag()
 {
-	printf("进入测试类的构造函数\n");
+	
     TEST_ADD(TestUpgradeFlag::test_flag_upgrade_init);
 	TEST_ADD(TestUpgradeFlag::test_flag_set_info);
 	TEST_ADD(TestUpgradeFlag::test_flag_get_info);
@@ -231,7 +152,7 @@ TestUpgradeFlag::TestUpgradeFlag()
 	TEST_ADD(TestUpgradeFlag::test_flag_set_recover_verify);
 	TEST_ADD(TestUpgradeFlag::test_flag_get_recover_verify);
 	TEST_ADD(TestUpgradeFlag::test_flag_enable_hwpatch);
-	printf("将测试代码装载进类中\n");
+
 
 }
 
@@ -241,12 +162,12 @@ TestUpgradeFlag::~TestUpgradeFlag()
 
 void TestUpgradeFlag::TestUpgradeFlag::setup()
 {
-    std::cout << "setup\n";
+    std::cout << "setup TestUpgradeFlag\n";
 }
 
 void TestUpgradeFlag::TestUpgradeFlag::tear_down()
 {
-    std::cout << "test_down\n";
+    std::cout << "test_down TestUpgradeFlag\n";
 }
 
 

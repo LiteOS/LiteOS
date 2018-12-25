@@ -33,7 +33,9 @@
  *---------------------------------------------------------------------------*/
 
 /* Includes -----------------------------------------------------------------*/
+#include <malloc.h>
 #include "test_spiffs.h"
+#include "stub.h"
 
 /* Defines ------------------------------------------------------------------*/
 /* Typedefs -----------------------------------------------------------------*/
@@ -72,6 +74,21 @@ static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size
 
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
+static void* stub_malloc(size_t size)
+{
+    return NULL;
+}
+
+static spiffs_DIR *stub_SPIFFS_opendir(spiffs *fs, const char *name, spiffs_DIR *d)
+{
+    return NULL;
+}
+
+static int stub_los_vfs_init(void)
+{
+    return LOS_NOK;
+}
+
 /* Public functions ---------------------------------------------------------*/
 TestSpiffs::TestSpiffs()
 {
@@ -91,7 +108,7 @@ void TestSpiffs::test_errno(void)
     for (int i = SPIFFS_ERR_NOT_MOUNTED; i >= SPIFFS_ERR_SEEK_BOUNDS; i--)
     {
         g_spiffs_errno = i;
-        unlink("/spiffs/f.txt");
+        los_unlink("/spiffs/f.txt");
     }
 
     g_spiffs_errno = SPIFFS_OK;
@@ -100,6 +117,8 @@ void TestSpiffs::test_errno(void)
 void TestSpiffs::test_exception(void)
 {
     extern s32_t spiffs_mount_ret;
+    extern char g_spiffs_isdir;
+    struct dir *dir;
     int ret;
 
     spiffs_mount_ret = SPIFFS_ERR_INTERNAL;
@@ -108,12 +127,42 @@ void TestSpiffs::test_exception(void)
             stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase);
     TEST_ASSERT(ret < 0);
     spiffs_mount_ret = SPIFFS_OK;
-}
 
+    g_spiffs_isdir = 1;
+    struct stat s = {0};
+    ret = los_stat(file_name, &s);
+    TEST_ASSERT(ret == 0);
+    g_spiffs_isdir = 0;
+
+    stubInfo si;
+    setStub((void *)SPIFFS_opendir, (void *)stub_SPIFFS_opendir, &si);
+    dir = los_opendir(dir_name);
+    TEST_ASSERT(dir == NULL);
+    cleanStub(&si);
+
+    setStub((void *)malloc, (void *)stub_malloc, &si);
+    ret = spiffs_mount("/spiffs/", 0, 0, 0, 0, 0, NULL, NULL, NULL);
+    TEST_ASSERT(ret < 0);
+    cleanStub(&si);
+}
 
 /* Private functions --------------------------------------------------------*/
 void TestSpiffs::setup()
 {
+    static int is_first = 1;
+    int ret;
+
+    if (is_first)
+    {
+        is_first = 0;
+
+        stubInfo si;
+        setStub((void *)los_vfs_init, (void *)stub_los_vfs_init, &si);
+        ret = spiffs_init();
+        TEST_ASSERT(ret == LOS_NOK);
+        cleanStub(&si);
+    }
+
     spiffs_init();
 
     if(spiffs_mount ("/spiffs/", 0, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,

@@ -35,9 +35,9 @@
 FRESULT f_mount_ret = FR_OK;
 
 FRESULT f_mount (
-	FATFS* fs,			/* Pointer to the filesystem object (NULL:unmount)*/
-	const TCHAR* path,	/* Logical drive number to be mounted/unmounted */
-	BYTE opt			/* Mode option 0:Do not mount (delayed mount), 1:Mount immediately */
+    FATFS* fs,			/* Pointer to the filesystem object (NULL:unmount)*/
+    const TCHAR* path,	/* Logical drive number to be mounted/unmounted */
+    BYTE opt			/* Mode option 0:Do not mount (delayed mount), 1:Mount immediately */
 )
 {
     static is_first = 1;
@@ -58,13 +58,15 @@ FRESULT f_mount (
 /* Open or Create a File                                                 */
 /*-----------------------------------------------------------------------*/
 
+FRESULT f_open_ret = FR_OK;
+
 FRESULT f_open (
-	FIL* fp,			/* Pointer to the blank file object */
-	const TCHAR* path,	/* Pointer to the file name */
-	BYTE mode			/* Access mode and file open mode flags */
+    FIL* fp,			/* Pointer to the blank file object */
+    const TCHAR* path,	/* Pointer to the file name */
+    BYTE mode			/* Access mode and file open mode flags */
 )
 {
-    return FR_OK;
+    return f_open_ret;
 }
 
 
@@ -75,10 +77,10 @@ FRESULT f_open (
 FRESULT f_read_ret = FR_OK;
 
 FRESULT f_read (
-	FIL* fp, 	/* Pointer to the file object */
-	void* buff,	/* Pointer to data buffer */
-	UINT btr,	/* Number of bytes to read */
-	UINT* br	/* Pointer to number of bytes read */
+    FIL* fp, 	/* Pointer to the file object */
+    void* buff,	/* Pointer to data buffer */
+    UINT btr,	/* Number of bytes to read */
+    UINT* br	/* Pointer to number of bytes read */
 )
 {
     return f_read_ret;
@@ -90,10 +92,10 @@ FRESULT f_read (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_write (
-	FIL* fp,			/* Pointer to the file object */
-	const void* buff,	/* Pointer to the data to be written */
-	UINT btw,			/* Number of bytes to write */
-	UINT* bw			/* Pointer to number of bytes written */
+    FIL* fp,			/* Pointer to the file object */
+    const void* buff,	/* Pointer to the data to be written */
+    UINT btw,			/* Number of bytes to write */
+    UINT* bw			/* Pointer to number of bytes written */
 )
 {
     return FR_OK;
@@ -105,7 +107,7 @@ FRESULT f_write (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_sync (
-	FIL* fp		/* Pointer to the file object */
+    FIL* fp		/* Pointer to the file object */
 )
 {
     return FR_OK;
@@ -117,10 +119,10 @@ FRESULT f_sync (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_close (
-	FIL* fp		/* Pointer to the file object to be closed */
+    FIL* fp		/* Pointer to the file object to be closed */
 )
 {
-	return FR_OK;
+    return FR_OK;
 }
 
 
@@ -129,11 +131,28 @@ FRESULT f_close (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_lseek (
-	FIL* fp,		/* Pointer to the file object */
-	FSIZE_t ofs		/* File pointer from top of file */
+    FIL* fp,		/* Pointer to the file object */
+    FSIZE_t ofs		/* File pointer from top of file */
 )
 {
     return FR_OK;
+}
+
+
+/*-----------------------------------------------------------------------*/
+/* Get File Status                                                       */
+/*-----------------------------------------------------------------------*/
+
+FRESULT f_stat_ret = FR_OK;
+char f_stat_isdir = 0;
+
+FRESULT f_stat (
+    const TCHAR* path,	/* Pointer to the file path */
+    FILINFO* fno		/* Pointer to file information to return */
+)
+{
+    if (fno && f_stat_isdir) fno->fattrib = AM_DIR;
+    return f_stat_ret;
 }
 
 
@@ -142,8 +161,8 @@ FRESULT f_lseek (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_opendir (
-	DIR* dp,			/* Pointer to directory object to create */
-	const TCHAR* path	/* Pointer to the directory path */
+    DIR* dp,			/* Pointer to directory object to create */
+    const TCHAR* path	/* Pointer to the directory path */
 )
 {
     return FR_OK;
@@ -155,7 +174,7 @@ FRESULT f_opendir (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_closedir (
-	DIR *dp		/* Pointer to the directory object to be closed */
+    DIR *dp		/* Pointer to the directory object to be closed */
 )
 {
     return FR_OK;
@@ -167,8 +186,8 @@ FRESULT f_closedir (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_readdir (
-	DIR* dp,			/* Pointer to the open directory object */
-	FILINFO* fno		/* Pointer to file information to return */
+    DIR* dp,			/* Pointer to the open directory object */
+    FILINFO* fno		/* Pointer to file information to return */
 )
 {
     return FR_OK;
@@ -182,7 +201,7 @@ FRESULT f_readdir (
 int g_fatfs_errno = FR_OK;
 
 FRESULT f_unlink (
-	const TCHAR* path		/* Pointer to the file or directory path */
+    const TCHAR* path		/* Pointer to the file or directory path */
 )
 {
     return g_fatfs_errno;
@@ -193,11 +212,13 @@ FRESULT f_unlink (
 /* Create a Directory                                                    */
 /*-----------------------------------------------------------------------*/
 
+FRESULT f_mkdir_ret = FR_OK;
+
 FRESULT f_mkdir (
-	const TCHAR* path		/* Pointer to the directory path */
+    const TCHAR* path		/* Pointer to the directory path */
 )
 {
-    return FR_OK;
+    return f_mkdir_ret;
 }
 
 
@@ -206,8 +227,8 @@ FRESULT f_mkdir (
 /*-----------------------------------------------------------------------*/
 
 FRESULT f_rename (
-	const TCHAR* path_old,	/* Pointer to the object name to be renamed */
-	const TCHAR* path_new	/* Pointer to the new name */
+    const TCHAR* path_old,	/* Pointer to the object name to be renamed */
+    const TCHAR* path_new	/* Pointer to the new name */
 )
 {
     return FR_OK;
