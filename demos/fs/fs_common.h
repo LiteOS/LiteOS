@@ -71,7 +71,7 @@ void make_dir(const char *name);
 void print_dir(const char *name, int level);
 
 void los_vfs_io(char *file_name, char *dir_name);
-void los_vfs_io_ex(char *file_name, char *dir_name);
+
 
 #ifdef __cplusplus
 }

@@ -53,12 +53,6 @@ void fs_demo(void)
     extern void fatfs_demo();
     fatfs_demo();
 #endif
-
-#if defined(FS_JFFS2)
-    extern void jffs2_demo();
-    jffs2_demo();
-#endif
-
 }
 
 
@@ -324,104 +318,6 @@ void print_dir(const char *name, int level)
         FS_LOG_ERR("los_closedir %s failed", name);
         return;
     }
-}
-
-void los_vfs_io_ex(char *file_name, char *dir_name)
-{
-    int fd;
-    int ret = 0;
-
-    /****************************
-     *  dir operation
-     ****************************/
-    (void)file_name;
-    (void)dir_name;
-
-    make_dir("/jffs2/base/.more/.less");
-    make_dir("/jffs2/test/case");
-    make_dir("/jffs2/zone");
-
-    /**************************
-     *  file operation
-     **************************/
-    ret = write_file("/jffs2/test/case/one", s_ucaWriteBuffer, sizeof(s_ucaWriteBuffer));
-    if(ret < 0)
-        FS_LOG_ERR("write_file failed: %d", ret);
-
-    fd = los_open("/jffs2/test/case/one", O_RDWR);
-    if(fd < 0)
-        FS_LOG_ERR("los_open failed: %d\n", fd);
-
-    ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
-    if(ret < 0)
-        FS_LOG_ERR("los_read failed: %d", ret);
-
-    printf("*********** read %d bytes ***********\n%s\n"
-           "**************************************\n", ret, s_ucaReadBuffer);
-
-    los_lseek(fd, 22, 0);
-    ret = los_write(fd, "108", 3);
-    if(ret < 0)
-        FS_LOG_ERR("los_write failed: %d", ret);
-
-    los_lseek(fd, -1, 2);
-    ret = los_write(fd, "00", 3);
-    if(ret < 0)
-        FS_LOG_ERR("los_write failed: %d", ret);
-
-    los_close(fd);
-
-    fd = los_open("/jffs2/test/case/one", O_RDONLY);
-    if(fd < 0)
-        FS_LOG_ERR("los_open failed: %d\n", fd);
-
-    ret = los_read(fd, s_ucaReadBuffer, sizeof(s_ucaReadBuffer));
-    if(ret < 0)
-        FS_LOG_ERR("los_read failed: %d", ret);
-
-    printf("*********** read %d bytes ***********\n%s\n"
-           "**************************************\n", ret, s_ucaReadBuffer);
-
-    los_close(fd);
-
-    struct stat s;
-    memset(&s, 0, sizeof(s));
-    los_stat("/jffs2/test/case/one", &s);
-    printf("/jffs2/test/case/one size: %ld, ctime: %ld, mtime: %ld\n",
-        s.st_size, s.st_ctime, s.st_mtime);
-
-    fd = los_open("/jffs2/base/.more/.less/junk", O_CREAT | O_WRONLY | O_TRUNC);
-    if(fd < 0)
-        FS_LOG_ERR("los_open failed: %d\n", fd);
-
-    los_close(fd);
-
-    /****************************
-     *  rename operation
-     ****************************/
-    print_dir("/jffs2", 1);
-    printf("\n");
-
-    ret = los_rename("/jffs2/base/.more/.less/junk", "/jffs2/base/.more/.less/trash");
-    if(ret)
-        FS_LOG_ERR("los_rename failed: %d", ret);
-
-    ret = los_rename("/jffs2/base/.more/.less", "/jffs2/test/case/null");
-    if(ret)
-        FS_LOG_ERR("los_rename failed: %d", ret);
-
-    print_dir("/jffs2", 1);
-
-    /****************************
-     *  unlink operation
-     ****************************/
-    ret = los_unlink("/jffs2/test/case/null/trash");
-    if(ret)
-        FS_LOG_ERR("los_unlink failed: %d", ret);
-
-    ret = los_unlink("/jffs2/test/case/null");
-    if(ret)
-        FS_LOG_ERR("los_unlink failed: %d", ret);
 }
 
 

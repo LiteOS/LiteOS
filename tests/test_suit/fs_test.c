@@ -29,11 +29,9 @@
 /* Defines ------------------------------------------------------------------*/
 #define TEST_FS_SPIFFS      0
 #define TEST_FS_FATFS       1
-#define TEST_FS_JFFS2       2
 
 #define SPIFFS_PATH         "/spiffs"
 #define FATFS_PATH          "/fatfs"
-#define JFFS2_PATH          "/jffs2"
 
 #define LOS_FILE            "f.txt"
 #define LOS_FILE_RN         "file.txt"
@@ -62,10 +60,8 @@ static int fs_type;
 /* Extern variables ---------------------------------------------------------*/
 extern int stm32f4xx_spiffs_init(int need_erase);
 extern int stm32f4xx_fatfs_init(int need_erase);
-extern int stm32f4xx_jffs2_init(int need_erase);
 extern int spiffs_unmount(const char *path);
 extern int fatfs_unmount(const char *path, uint8_t drive);
-extern int jffs2_unmount(const char *path);
 
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
@@ -580,10 +576,6 @@ static void test_dir_read_normal(void **state)
     {
         assert_true(strcasecmp(dirent->name, LOS_FILE) == 0);
     }
-    else if (fs_type == TEST_FS_JFFS2)
-    {
-        assert_string_equal(dirent->name, LOS_FILE);
-    }
 
     if (fs_type != TEST_FS_SPIFFS)
     {
@@ -678,26 +670,8 @@ int fs_test_main(void)
 
     printf("Huawei LiteOS File System Test\n");
 
-    // jffs2
-    int ret = stm32f4xx_jffs2_init(1);
-    if(ret < 0)
-    {
-        FS_PRINTF("stm32f4xx_jffs2_init failed: %d", ret);
-        return -1;
-    }
-
-    snprintf(file_name, sizeof(file_name), "%s/%s", JFFS2_PATH, LOS_FILE);
-    snprintf(file_rename, sizeof(file_rename), "%s/%s", JFFS2_PATH, LOS_FILE_RN);
-    snprintf(dir_name, sizeof(dir_name), "%s/%s", JFFS2_PATH, LOS_DIR);
-    snprintf(path_name, sizeof(path_name), "%s/%s", dir_name, LOS_FILE);
-
-    print_dir("/jffs2", 1);
-    fs_type = TEST_FS_JFFS2;
-    run_tests(tests);
-    jffs2_unmount("/jffs2/");
-
     // spiffs
-    ret = stm32f4xx_spiffs_init(0);
+    int ret = stm32f4xx_spiffs_init(0);
     if(ret < 0)
     {
         FS_PRINTF("stm32f4xx_spiffs_init failed: %d", ret);

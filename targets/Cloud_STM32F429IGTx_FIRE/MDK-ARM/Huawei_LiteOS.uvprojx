@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32F429IGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.11.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IRAM(0x20000000,0x30000) IRAM2(0x10000000,0x10000) IROM(0x08000000,0x100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -337,7 +337,7 @@
               <MiscControls>--diag_suppress=1,47,177,186,223,1294,1295</MiscControls>
               <Define>USE_HAL_DRIVER, STM32F429xx,MBEDTLS_CONFIG_FILE=&lt;los_mbedtls_config.h&gt;,WITH_LWM2M,LWM2M_LITTLE_ENDIAN,LWM2M_CLIENT_MODE,NDEBUG,WITH_DTLS,WITH_AT_FRAMEWORK,LWM2M_WITH_LOGS,CONFIG_FEATURE_FOTA,USE_NB_NEUL95_NO_ATINY,WITH_SOTA</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\components\fs\jffs2;..\..\..\components\fs\jffs2\src;..\..\..\components\fs\jffs2\port;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google;..\..\..\components/connectivity/agent_tiny/atiny_lwm2m</IncludePath>
+              <IncludePath>..\Inc;..\..\..\include\osdepends\liteos;..\OS_CONFIG;..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\..\components\connectivity\lwm2m\core\er-coap-13;..\..\..\components\connectivity\lwm2m\core;..\..\..\components\connectivity\lwm2m\examples\shared;..\..\..\components\connectivity\lwm2m\examples\client;..\..\..\components\security\mbedtls\mbedtls_port;..\..\..\components\security\mbedtls\mbedtls-2.6.0\include;..\..\..\include;..\Hardware\Inc;..\..\..\demos;..\..\..\components\fs\include;..\..\..\components\fs\spiffs\spiffs_git\src;..\..\..\components\fs\spiffs\spiffs_git\src\default;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\kernel\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\arch\arm\arm-m\include;..\..\..\arch\arm\common\cmsis;..\..\..\components\net\lwip\lwip-2.0.3\src\include;..\..\..\components\net\lwip\lwip_port;..\..\..\components\net\lwip\lwip_port\OS;..\..\..\components\ota\flag_operate;..\..\..\components\ota\utility;..\..\..\tests\cmockery\src\google;..\..\..\components/connectivity/agent_tiny/atiny_lwm2m</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -440,11 +440,6 @@
               <FileName>fatfs_hal.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\fatfs_hal.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\jffs2_hal.c</FilePath>
             </File>
             <File>
               <FileName>spiffs_hal.c</FileName>
@@ -1520,191 +1515,6 @@
               <FileName>ffunicode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\fs\fatfs\ff13b\source\ffunicode.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>jffs2</GroupName>
-          <Files>
-            <File>
-              <FileName>los_jffs2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\los_jffs2.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_build.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_build.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_compr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_compr.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_compr_rtime.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_compr_rtime.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_compr_rubin.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_compr_rubin.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_compr_zlib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_compr_zlib.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_dir.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_dir.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_erase.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_erase.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_fs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_fs.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_gc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_gc.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_malloc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_malloc.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_nodelist.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_nodelist.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_nodemgmt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_nodemgmt.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_rbtree.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_rbtree.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_read.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_read.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_readinode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_readinode.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_scan.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_scan.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_write.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\src\jffs2_write.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_flashio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_flashio.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_gcthread.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_gcthread.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_os.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_os.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_port.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_slab.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_slab.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_spinlock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_spinlock.c</FilePath>
-            </File>
-            <File>
-              <FileName>jffs2_wait.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\port\jffs2_wait.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>jffs2/cyg</GroupName>
-          <Files>
-            <File>
-              <FileName>adler32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\adler32.c</FilePath>
-            </File>
-            <File>
-              <FileName>compress.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\compress.c</FilePath>
-            </File>
-            <File>
-              <FileName>deflate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\deflate.c</FilePath>
-            </File>
-            <File>
-              <FileName>inffast.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\inffast.c</FilePath>
-            </File>
-            <File>
-              <FileName>inflate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\inflate.c</FilePath>
-            </File>
-            <File>
-              <FileName>inftrees.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\inftrees.c</FilePath>
-            </File>
-            <File>
-              <FileName>trees.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\trees.c</FilePath>
-            </File>
-            <File>
-              <FileName>zutil.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\compress\zutil.c</FilePath>
-            </File>
-            <File>
-              <FileName>crc32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\components\fs\jffs2\cyg\crc\crc32.c</FilePath>
             </File>
           </Files>
         </Group>
