@@ -33,6 +33,34 @@
  *---------------------------------------------------------------------------*/
 
 #include "test_object_connectivity_stat.h"
+int g_object_index_stat = 0;
+int g_object_index_stat2 = 0;
+
+extern "C"
+{
+    static void *stub_lwm2m_malloc(size_t s)
+    {
+        if (g_object_index_stat == 0)
+        {
+            g_object_index_stat++;
+            return atiny_malloc(s);
+        }
+        return NULL;       
+        
+    }
+
+     static void *stub_lwm2m_malloc2(size_t s)
+    {
+        if (g_object_index_stat2 == 0 || g_object_index_stat2 == 1)
+        {
+            g_object_index_stat2++;
+            return atiny_malloc(s);
+        }
+        return NULL;       
+        
+    }   
+
+}
 
 void TestObjectObjectConnectivityStat::test_prv_read()
 {
@@ -127,6 +155,25 @@ void TestObjectObjectConnectivityStat::test_conn_s_updateRxStatistic()
     free_object_conn_s(testObj);
 }
 
+void TestObjectObjectConnectivityStat::test_get_object_conn_s()
+{
+    
+    lwm2m_object_t *testObj = NULL;
+  
+
+
+    stubInfo si;
+    setStub((void*)lwm2m_malloc, (void*)stub_lwm2m_malloc, &si);
+    testObj = get_object_conn_s();
+    cleanStub(&si);
+
+    setStub((void*)lwm2m_malloc, (void*)stub_lwm2m_malloc2, &si);
+    testObj = get_object_conn_s();
+    
+    cleanStub(&si);
+    //atiny_free(testObj->instanceList);
+}
+
 
 
 
@@ -147,6 +194,9 @@ printf("in TestObjectObjectConnectivityStat 135\n");
       TEST_ADD(TestObjectObjectConnectivityStat::test_conn_s_updateRxStatistic);
 	  
 	  printf("in TestObjectObjectConnectivityStat 147\n");
+      TEST_ADD(TestObjectObjectConnectivityStat::test_get_object_conn_s);
+      
+      
  }
 
 void TestObjectObjectConnectivityStat::setup()

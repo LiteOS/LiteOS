@@ -185,7 +185,16 @@ void TestFirmwareUpdate::test_start_firmware_download(void)
     ret = start_firmware_download(&context, uri, &storage_device);
     TEST_ASSERT_MSG((-1 == ret), "start_firmware_download(...) failed");
     printf("[%s:%d] ******* ret=%d\n", __func__, __LINE__, ret);
-  
+
+
+    ///////////
+    stubInfo si_trans_send_block2;
+    setStub((void *)coap_set_header_block2, (void *)stub_coap_set_header_block2, &si_trans_send_block2);
+    ret = start_firmware_download(&context, uri, &storage_device);
+    cleanStub(&si_trans_send_block2);
+
+
+    
     if(NULL != context.transactionList){
         callback = context.transactionList->callback;
     }

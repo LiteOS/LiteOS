@@ -100,6 +100,11 @@ extern 	void connection_striger_server_initiated_bs(connection_t * sessionH);
     {
         return;
     }
+
+    static void *stub_lwm2m_malloc(size_t s)
+    {
+        return NULL;
+    }
 	//static int stub_atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     //                       uint32_t timeout){return 0;}
 	
@@ -113,6 +118,8 @@ void TestConnection::test_connection_create()
     securityObj0.instanceList = NULL;
     connection_t *connP = connection_create(&conn, &securityObj0, 0, NULL,0);//last 0 added by shensheng
     TEST_ASSERT((connP == NULL));
+
+    
 
     memset(&instanceList, 0, sizeof(lwm2m_list_t));
     securityObj0.instanceList = &instanceList;
@@ -152,6 +159,13 @@ void TestConnection::test_connection_create()
 
     lwm2m_object_t *securityObj = get_security_object(serverId, atiny_params, &context);
     TEST_ASSERT((securityObj != NULL));
+
+    stubInfo stub_info;
+    setStub((void *)lwm2m_malloc, (void *)stub_lwm2m_malloc, &stub_info);
+    connection_create(&conn, securityObj, 0, &context,0);//last 0 added by shensheng
+    cleanStub(&stub_info);
+
+    
     
     connP = connection_create(&conn, securityObj, 0, &context,0);//last 0 added by shensheng
 
