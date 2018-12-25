@@ -12,14 +12,12 @@ SUB_DIR := \
 	$(TOP_DIR)/components/net/at_frame \
     $(TOP_DIR)/components/net/at_device/gprs_sim900a \
     $(TOP_DIR)/components/net/at_device/nb_bc95 \
-    #$(TOP_DIR)/components/net/at_device/emtc_bg36 \
+    $(TOP_DIR)/components/net/at_device/emtc_bg36 \
     $(TOP_DIR)/components/net/at_device/wifi_esp8266 \
     $(TOP_DIR)/components/net/sal \
     $(TOP_DIR)/components/ota/flag_operate \
     $(TOP_DIR)/components/log \
-    $(TOP_DIR)/components/fs/fatfs \
-    $(TOP_DIR)/components/fs/spiffs \
-    $(TOP_DIR)/components/fs/vfs
+    $(TOP_DIR)/components/fs
 
 
 GCOV_INFO_SUFFIX := /gcov/gcov.info 
