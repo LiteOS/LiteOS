@@ -1,0 +1,612 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - fs/spiffs/los_spiffs.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">fs/spiffs</a> - los_spiffs.c<span style="font-size: 80%;"> (source / <a href="los_spiffs.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">190</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryHi">96.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryMed">78.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2013-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /* NOTE: this is a demo for adapting the SPIFFS */
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      40 </span>                :            : #include &quot;fs/sys/errno.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;fs/sys/fcntl.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;fs/sys/stat.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;fs/los_vfs.h&quot;
+<span class="lineNum">      44 </span>                :            : #include &quot;los_printf.h&quot;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : #include &quot;spiffs.h&quot;
+<span class="lineNum">      47 </span>                :            : #include &quot;spiffs_nucleus.h&quot;
+<a name="48"><span class="lineNum">      48 </span>                :            : </a>
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :<span class="lineCov">         55 : static int ret_to_errno(int ret)</span>
+<span class="lineNum">      51 </span>                :            : {
+<span class="lineNum">      52 </span>                :<span class="lineCov">         55 :     int err = 0;</span>
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>  [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span> :<span class="lineCov">         55 :     switch (ret)</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchCov" title="Branch 7 was taken 9 times"> + </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchCov" title="Branch 11 was taken 2 times"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>            <span class="branchCov" title="Branch 13 was taken 3 times"> + </span>]
+<span class="lineNum">      55 </span>                :            :     {
+<span class="lineNum">      56 </span>                :            :     case SPIFFS_OK:
+<span class="lineNum">      57 </span>                :<span class="lineCov">         14 :         return 0;</span>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :     case SPIFFS_ERR_DATA_SPAN_MISMATCH:
+<span class="lineNum">      60 </span>                :            :     case SPIFFS_ERR_IS_INDEX:
+<span class="lineNum">      61 </span>                :            :     case SPIFFS_ERR_INDEX_REF_FREE:
+<span class="lineNum">      62 </span>                :            :     case SPIFFS_ERR_INDEX_REF_LU:
+<span class="lineNum">      63 </span>                :            :     case SPIFFS_ERR_INDEX_REF_INVALID:
+<span class="lineNum">      64 </span>                :            :     case SPIFFS_ERR_INDEX_FREE:
+<span class="lineNum">      65 </span>                :            :     case SPIFFS_ERR_INDEX_LU:
+<span class="lineNum">      66 </span>                :            :     case SPIFFS_ERR_INDEX_INVALID:
+<span class="lineNum">      67 </span>                :            :     case SPIFFS_ERR_CONFLICTING_NAME:
+<span class="lineNum">      68 </span>                :            :     case SPIFFS_ERR_INVALID_PARA:
+<span class="lineNum">      69 </span>                :<span class="lineCov">          9 :         err = EINVAL;</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">          9 :         break;</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :     case SPIFFS_ERR_NOT_WRITABLE:
+<span class="lineNum">      73 </span>                :            :     case SPIFFS_ERR_NOT_READABLE:
+<span class="lineNum">      74 </span>                :            :     case SPIFFS_ERR_NOT_CONFIGURED:
+<span class="lineNum">      75 </span>                :<span class="lineCov">          3 :         err = EACCES;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          3 :         break;</span>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :     case SPIFFS_ERR_NOT_MOUNTED:
+<span class="lineNum">      79 </span>                :            :     case SPIFFS_ERR_NOT_A_FS:
+<span class="lineNum">      80 </span>                :            :     case SPIFFS_ERR_PROBE_NOT_A_FS:
+<span class="lineNum">      81 </span>                :            :     case SPIFFS_ERR_MAGIC_NOT_POSSIBLE:
+<span class="lineNum">      82 </span>                :<span class="lineCov">          4 :         err = ENODEV;</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">          4 :         break;</span>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :     case SPIFFS_ERR_FULL:
+<span class="lineNum">      86 </span>                :            :     case SPIFFS_ERR_PROBE_TOO_FEW_BLOCKS:
+<span class="lineNum">      87 </span>                :<span class="lineCov">          2 :         err = ENOSPC;</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :     case SPIFFS_ERR_BAD_DESCRIPTOR:
+<span class="lineNum">      91 </span>                :            :     case SPIFFS_ERR_OUT_OF_FILE_DESCS:
+<span class="lineNum">      92 </span>                :<span class="lineCov">          2 :         err = EBADF;</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :     case SPIFFS_ERR_MOUNTED:
+<span class="lineNum">      96 </span>                :            :     case SPIFFS_ERR_FILE_EXISTS:
+<span class="lineNum">      97 </span>                :<span class="lineCov">          2 :         err = EEXIST;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :     case SPIFFS_ERR_NOT_FOUND:
+<span class="lineNum">     101 </span>                :            :     case SPIFFS_ERR_NOT_A_FILE:
+<span class="lineNum">     102 </span>                :            :     case SPIFFS_ERR_DELETED:
+<span class="lineNum">     103 </span>                :            :     case SPIFFS_ERR_FILE_DELETED:
+<span class="lineNum">     104 </span>                :            :     case SPIFFS_ERR_NOT_FINALIZED:
+<span class="lineNum">     105 </span>                :            :     case SPIFFS_ERR_NOT_INDEX:
+<span class="lineNum">     106 </span>                :            :     case SPIFFS_ERR_IS_FREE:
+<span class="lineNum">     107 </span>                :            :     case SPIFFS_ERR_INDEX_SPAN_MISMATCH:
+<span class="lineNum">     108 </span>                :            :     case SPIFFS_ERR_FILE_CLOSED:
+<span class="lineNum">     109 </span>                :<span class="lineCov">          9 :         err = ENOENT;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          9 :         break;</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :     case SPIFFS_ERR_NAME_TOO_LONG:
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :         err = ENAMETOOLONG;</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            :     case SPIFFS_ERR_RO_NOT_IMPL:
+<span class="lineNum">     117 </span>                :            :     case SPIFFS_ERR_RO_ABORTED_OPERATION:
+<span class="lineNum">     118 </span>                :<span class="lineCov">          2 :         err = EROFS;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :     case SPIFFS_ERR_SEEK_BOUNDS:
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :         err = EOVERFLOW;</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :     case SPIFFS_ERR_END_OF_OBJECT:
+<span class="lineNum">     126 </span>                :            :     case SPIFFS_ERR_NO_DELETED_BLOCKS:
+<span class="lineNum">     127 </span>                :<span class="lineCov">          2 :         err = ENODATA;</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :     case SPIFFS_ERR_ERASE_FAIL:
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :         err = EIO;</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            :     default:
+<span class="lineNum">     135 </span>                :<span class="lineCov">          3 :         err = EIO;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">          3 :         break;</span>
+<span class="lineNum">     137 </span>                :            :     }
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineCov">         41 :     VFS_ERRNO_SET (err);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         55 :     return -err;</span>
+<a name="141"><span class="lineNum">     141 </span>                :            : }</a>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :<span class="lineCov">          9 : static int spiffs_flags_get (int oflags)</span>
+<span class="lineNum">     144 </span>                :            : {
+<span class="lineNum">     145 </span>                :<span class="lineCov">          9 :     int flags = 0;</span>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          9 :     switch (oflags &amp; O_ACCMODE)</span>
+<span class="lineNum">     148 </span>                :            :     {
+<span class="lineNum">     149 </span>                :            :     case O_RDONLY:
+<span class="lineNum">     150 </span>                :<span class="lineCov">          2 :         flags |= SPIFFS_O_RDONLY;</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     152 </span>                :            :     case O_WRONLY:
+<span class="lineNum">     153 </span>                :<span class="lineCov">          2 :         flags |= SPIFFS_O_WRONLY;</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     155 </span>                :            :     case O_RDWR:
+<span class="lineNum">     156 </span>                :<span class="lineCov">          4 :         flags |= SPIFFS_O_RDWR;</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">          4 :         break;</span>
+<span class="lineNum">     158 </span>                :            :     default:
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     160 </span>                :            :     }
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          9 :     if (oflags &amp; O_CREAT)</span>
+<span class="lineNum">     163 </span>                :            :     {
+<span class="lineNum">     164 </span>                :<span class="lineCov">          5 :         flags |= SPIFFS_O_CREAT;</span>
+<span class="lineNum">     165 </span>                :            :     }
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          9 :     if (oflags &amp; O_EXCL)</span>
+<span class="lineNum">     168 </span>                :            :     {
+<span class="lineNum">     169 </span>                :<span class="lineCov">          2 :         flags |= SPIFFS_O_EXCL;</span>
+<span class="lineNum">     170 </span>                :            :     }
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          9 :     if (oflags &amp; O_TRUNC)</span>
+<span class="lineNum">     173 </span>                :            :     {
+<span class="lineNum">     174 </span>                :<span class="lineCov">          4 :         flags |= SPIFFS_O_TRUNC;</span>
+<span class="lineNum">     175 </span>                :            :     }
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          9 :     if (oflags &amp; O_APPEND)</span>
+<span class="lineNum">     178 </span>                :            :     {
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :         flags |= SPIFFS_O_CREAT | SPIFFS_O_APPEND;</span>
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :<span class="lineCov">          9 :     return flags;</span>
+<a name="183"><span class="lineNum">     183 </span>                :            : }</a>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineCov">          9 : static int spiffs_op_open (struct file *file, const char *path_in_mp, int flags)</span>
+<span class="lineNum">     186 </span>                :            : {
+<span class="lineNum">     187 </span>                :<span class="lineCov">          9 :     spiffs              *fs = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     188 </span>                :            :     spiffs_file          s_file;
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineCov">          9 :     s_file = SPIFFS_open (fs, path_in_mp, spiffs_flags_get (flags), 0);</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">          9 :     if (s_file &lt; SPIFFS_OK)</span>
+<span class="lineNum">     193 </span>                :            :     {
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :         return ret_to_errno(s_file);</span>
+<span class="lineNum">     195 </span>                :            :     }
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineCov">          9 :     file-&gt;f_data = (void *) (uintptr_t) s_file;</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineCov">          9 :     return 0;</span>
+<a name="200"><span class="lineNum">     200 </span>                :            : }</a>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineCov">         16 : static spiffs_file spifd_from_file (struct file *file)</span>
+<span class="lineNum">     203 </span>                :            : {
+<span class="lineNum">     204 </span>                :<span class="lineCov">         16 :     return (spiffs_file) (uintptr_t) file-&gt;f_data;</span>
+<a name="205"><span class="lineNum">     205 </span>                :            : }</a>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineCov">          9 : static int spiffs_op_close (struct file *file)</span>
+<span class="lineNum">     208 </span>                :            : {
+<span class="lineNum">     209 </span>                :<span class="lineCov">          9 :     spiffs_file  s_file = spifd_from_file (file);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          9 :     spiffs      *fs     = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">          9 :     s32_t res = SPIFFS_close (fs, s_file);</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineCov">          9 :     return ret_to_errno(res);</span>
+<a name="214"><span class="lineNum">     214 </span>                :            : }</a>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineCov">          1 : static ssize_t spiffs_op_read (struct file *file, char *buff, size_t bytes)</span>
+<span class="lineNum">     217 </span>                :            : {
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :     spiffs_file  s_file = spifd_from_file (file);</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :     spiffs      *fs     = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :     s32_t res = SPIFFS_read (fs, s_file, buff, bytes);</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     return res &lt; 0 ? ret_to_errno(res) : res;</span>
+<a name="223"><span class="lineNum">     223 </span>                :            : }</a>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 : static ssize_t spiffs_op_write (struct file *file, const char *buff, size_t bytes)</span>
+<span class="lineNum">     226 </span>                :            : {
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :     spiffs_file  s_file = spifd_from_file (file);</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :     spiffs      *fs     = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :     s32_t res = SPIFFS_write (fs, s_file, (void *) buff, bytes);</span>
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     return res &lt; 0 ? ret_to_errno(res) : res;</span>
+<a name="232"><span class="lineNum">     232 </span>                :            : }</a>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">          4 : static off_t spiffs_op_lseek (struct file *file, off_t off, int whence)</span>
+<span class="lineNum">     235 </span>                :            : {
+<span class="lineNum">     236 </span>                :<span class="lineCov">          4 :     spiffs_file  s_file = spifd_from_file (file);</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          4 :     spiffs      *fs     = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          4 :     s32_t res = SPIFFS_lseek (fs, s_file, off, whence);</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     return res &lt; 0 ? ret_to_errno(res) : res;</span>
+<a name="241"><span class="lineNum">     241 </span>                :            : }</a>
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :<span class="lineCov">          2 : int spiffs_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *stat)</span>
+<span class="lineNum">     244 </span>                :            : {
+<span class="lineNum">     245 </span>                :<span class="lineCov">          2 :     spiffs_stat s = {0};</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :<span class="lineCov">          2 :     memset(stat, 0, sizeof(*stat));</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">          2 :     s32_t res = SPIFFS_stat((spiffs *)mp-&gt;m_data, path_in_mp, &amp;s);</span>
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (res == SPIFFS_OK)</span>
+<span class="lineNum">     250 </span>                :            :     {
+<span class="lineNum">     251 </span>                :<span class="lineCov">          2 :         stat-&gt;st_size = s.size;</span>
+<span class="lineNum">     252 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (s.type == SPIFFS_TYPE_DIR)</span>
+<span class="lineNum">     253 </span>                :            :         {
+<span class="lineNum">     254 </span>                :<span class="lineCov">          1 :             stat-&gt;st_mode = S_IFDIR;</span>
+<span class="lineNum">     255 </span>                :            :         }
+<span class="lineNum">     256 </span>                :            :         else
+<span class="lineNum">     257 </span>                :            :         {
+<span class="lineNum">     258 </span>                :<span class="lineCov">          1 :             stat-&gt;st_mode = S_IFREG;</span>
+<span class="lineNum">     259 </span>                :            :         }
+<span class="lineNum">     260 </span>                :            :     }
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :<span class="lineCov">          2 :     return ret_to_errno(res);</span>
+<a name="263"><span class="lineNum">     263 </span>                :            : }</a>
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :<span class="lineCov">         42 : static int spiffs_op_unlink (struct mount_point *mp, const char *path_in_mp)</span>
+<span class="lineNum">     266 </span>                :            : {
+<span class="lineNum">     267 </span>                :<span class="lineCov">         42 :     s32_t res = SPIFFS_remove ((spiffs *) mp-&gt;m_data, path_in_mp);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">         42 :     return ret_to_errno(res);</span>
+<a name="269"><span class="lineNum">     269 </span>                :            : }</a>
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>                :<span class="lineCov">          1 : static int spiffs_op_rename (struct mount_point *mp, const char *path_in_mp_old,</span>
+<span class="lineNum">     272 </span>                :            :                              const char *path_in_mp_new)
+<span class="lineNum">     273 </span>                :            : {
+<span class="lineNum">     274 </span>                :<span class="lineCov">          1 :     s32_t res = SPIFFS_rename ((spiffs *) mp-&gt;m_data, path_in_mp_old, path_in_mp_new);</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :     return ret_to_errno(res);</span>
+<a name="276"><span class="lineNum">     276 </span>                :            : }</a>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 : static int spiffs_op_sync (struct file *file)</span>
+<span class="lineNum">     279 </span>                :            : {
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :     spiffs_file  s_file = spifd_from_file (file);</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :     spiffs      *fs     = (spiffs *) file-&gt;f_mp-&gt;m_data;</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">          1 :     s32_t res = SPIFFS_fflush (fs, s_file);</span>
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     return res &lt; 0 ? ret_to_errno(res) : res;</span>
+<a name="285"><span class="lineNum">     285 </span>                :            : }</a>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :<span class="lineCov">          2 : static int spiffs_op_opendir (struct dir *dir, const char *path)</span>
+<span class="lineNum">     288 </span>                :            : {
+<span class="lineNum">     289 </span>                :<span class="lineCov">          2 :     spiffs      *fs     = (spiffs *) dir-&gt;d_mp-&gt;m_data;</span>
+<span class="lineNum">     290 </span>                :            :     spiffs_DIR *sdir;
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :<span class="lineCov">          2 :     sdir = (spiffs_DIR *) malloc (sizeof (spiffs_DIR));</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (sdir == NULL)</span>
+<span class="lineNum">     295 </span>                :            :     {
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         PRINT_ERR (&quot;fail to malloc memory in SPIFFS, &lt;malloc.c&gt; is needed,&quot;</span>
+<span class="lineNum">     297 </span>                :            :                    &quot;make sure it is added\n&quot;);
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         return -ENOMEM;</span>
+<span class="lineNum">     299 </span>                :            :     }
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :<span class="lineCov">          2 :     dir-&gt;d_data   = (void *) SPIFFS_opendir (fs, path, sdir);</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          2 :     dir-&gt;d_offset = 0;</span>
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (dir-&gt;d_data == 0)</span>
+<span class="lineNum">     305 </span>                :            :     {
+<span class="lineNum">     306 </span>                :<span class="lineCov">          1 :         free (sdir);</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          1 :         return -ENOENT;</span>
+<span class="lineNum">     308 </span>                :            :     }
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :<span class="lineCov">          2 :     return LOS_OK;</span>
+<a name="311"><span class="lineNum">     311 </span>                :            : }</a>
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :<span class="lineCov">          1 : int spiffs_op_readdir (struct dir *dir, struct dirent *dent)</span>
+<span class="lineNum">     314 </span>                :            : {
+<span class="lineNum">     315 </span>                :            :     struct spiffs_dirent e;
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (NULL == SPIFFS_readdir ((spiffs_DIR *) dir-&gt;d_data, &amp;e))</span>
+<span class="lineNum">     318 </span>                :            :     {
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         return -ENOENT;</span>
+<span class="lineNum">     320 </span>                :            :     }
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :     strncpy (dent-&gt;name, (const char *) e.name, LOS_MAX_FILE_NAME_LEN - 1);</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          1 :     dent-&gt;name [LOS_MAX_FILE_NAME_LEN - 1] = '\0';</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :     dent-&gt;size = e.size;</span>
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (e.type == SPIFFS_TYPE_DIR)</span>
+<span class="lineNum">     327 </span>                :            :     {
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :         dent-&gt;type = VFS_TYPE_DIR;</span>
+<span class="lineNum">     329 </span>                :            :     }
+<span class="lineNum">     330 </span>                :            :     else
+<span class="lineNum">     331 </span>                :            :     {
+<span class="lineNum">     332 </span>                :<span class="lineCov">          1 :         dent-&gt;type = VFS_TYPE_FILE;</span>
+<span class="lineNum">     333 </span>                :            :     }
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :     return LOS_OK;</span>
+<a name="336"><span class="lineNum">     336 </span>                :            : }</a>
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :<span class="lineCov">          1 : static int spiffs_op_closedir (struct dir *dir)</span>
+<span class="lineNum">     339 </span>                :            : {
+<span class="lineNum">     340 </span>                :<span class="lineCov">          1 :     spiffs_DIR *sdir = (spiffs_DIR *) dir-&gt;d_data;</span>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 :     s32_t res = SPIFFS_closedir (sdir);</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineCov">          1 :     free (sdir);</span>
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :     return ret_to_errno(res);</span>
+<span class="lineNum">     347 </span>                :            : }
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            : static struct file_ops spiffs_ops =
+<span class="lineNum">     350 </span>                :            : {
+<span class="lineNum">     351 </span>                :            :     spiffs_op_open,
+<span class="lineNum">     352 </span>                :            :     spiffs_op_close,
+<span class="lineNum">     353 </span>                :            :     spiffs_op_read,
+<span class="lineNum">     354 </span>                :            :     spiffs_op_write,
+<span class="lineNum">     355 </span>                :            :     spiffs_op_lseek,
+<span class="lineNum">     356 </span>                :            :     spiffs_op_stat,
+<span class="lineNum">     357 </span>                :            :     spiffs_op_unlink,
+<span class="lineNum">     358 </span>                :            :     spiffs_op_rename,
+<span class="lineNum">     359 </span>                :            :     NULL,               /* ioctl not supported for now */
+<span class="lineNum">     360 </span>                :            :     spiffs_op_sync,
+<span class="lineNum">     361 </span>                :            :     spiffs_op_opendir,
+<span class="lineNum">     362 </span>                :            :     spiffs_op_readdir,
+<span class="lineNum">     363 </span>                :            :     spiffs_op_closedir,
+<span class="lineNum">     364 </span>                :            :     NULL                /* spiffs do not support mkdir */
+<span class="lineNum">     365 </span>                :            : };
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :            : static struct file_system spiffs_fs =
+<span class="lineNum">     368 </span>                :            : {
+<span class="lineNum">     369 </span>                :            :     &quot;spiffs&quot;,
+<span class="lineNum">     370 </span>                :            :     &amp;spiffs_ops,
+<span class="lineNum">     371 </span>                :            :     NULL,
+<span class="lineNum">     372 </span>                :            :     0
+<span class="lineNum">     373 </span>                :            : };
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :            : static spiffs *fs_ptr = NULL;
+<span class="lineNum">     376 </span>                :            : static u8_t *wbuf_ptr = NULL;
+<span class="lineNum">     377 </span>                :            : static u8_t *fds_ptr = NULL;
+<a name="378"><span class="lineNum">     378 </span>                :            : static u8_t *cache_ptr = NULL;</a>
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :<span class="lineCov">         17 : int spiffs_mount (const char *path, u32_t phys_addr, u32_t phys_size,</span>
+<span class="lineNum">     381 </span>                :            :                   u32_t phys_erase_block, u32_t log_block_size,
+<span class="lineNum">     382 </span>                :            :                   u32_t log_page_size,
+<span class="lineNum">     383 </span>                :            :                   s32_t (*spi_rd) (struct spiffs_t *, u32_t, u32_t, u8_t *),
+<span class="lineNum">     384 </span>                :            :                   s32_t (*spi_wr) (struct spiffs_t *, u32_t, u32_t, u8_t *),
+<span class="lineNum">     385 </span>                :            :                   s32_t (*spi_er) (struct spiffs_t *, u32_t, u32_t))
+<span class="lineNum">     386 </span>                :            : {
+<span class="lineNum">     387 </span>                :            :     spiffs         *fs;
+<span class="lineNum">     388 </span>                :            :     spiffs_config   c;
+<span class="lineNum">     389 </span>                :            :     u8_t           *wbuf;
+<span class="lineNum">     390 </span>                :            :     u8_t           *fds;
+<span class="lineNum">     391 </span>                :            :     u8_t           *cache;
+<span class="lineNum">     392 </span>                :<span class="lineCov">         17 :     int             ret = -1;</span>
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            : #define LOS_SPIFFS_FD_SIZE      (sizeof (spiffs_fd) * 8)
+<span class="lineNum">     395 </span>                :            : #define LOS_SPIFFS_CACHE_SIZE   (((log_page_size + 32) * 4) + 40)
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">         17 :     fs    = (spiffs *) malloc (sizeof (spiffs));</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">         17 :     wbuf  = (u8_t *)   malloc (log_page_size * 2);</span>
+<span class="lineNum">     399 </span>                :<span class="lineCov">         17 :     fds   = (u8_t *)   malloc (LOS_SPIFFS_FD_SIZE);</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">         17 :     cache = (u8_t *)   malloc (LOS_SPIFFS_CACHE_SIZE);</span>
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>[<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         17 :     if ((fs == NULL) || (wbuf == NULL) || (fds == NULL) || (cache == NULL))</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 16 times"> + </span>]
+<span class="lineNum">     403 </span>                :            :     {
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :         PRINT_ERR (&quot;fail to malloc memory in SPIFFS, &lt;malloc.c&gt; is needed,&quot;</span>
+<span class="lineNum">     405 </span>                :            :                    &quot;make sure it is added\n&quot;);
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :         goto err_free;</span>
+<span class="lineNum">     407 </span>                :            :     }
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :<span class="lineCov">         16 :     memset (fs, 0, sizeof (spiffs));</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">         16 :     c.hal_read_f       = spi_rd;</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">         16 :     c.hal_write_f      = spi_wr;</span>
+<span class="lineNum">     413 </span>                :<span class="lineCov">         16 :     c.hal_erase_f      = spi_er;</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">         16 :     c.log_block_size   = log_block_size;</span>
+<span class="lineNum">     415 </span>                :<span class="lineCov">         16 :     c.log_page_size    = log_page_size;</span>
+<span class="lineNum">     416 </span>                :<span class="lineCov">         16 :     c.phys_addr        = phys_addr;</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">         16 :     c.phys_erase_block = phys_erase_block;</span>
+<span class="lineNum">     418 </span>                :<span class="lineCov">         16 :     c.phys_size        = phys_size;</span>
+<span class="lineNum">     419 </span>                :<span class="lineCov">         16 :     c.fh_ix_offset     = TEST_SPIFFS_FILEHDL_OFFSET;</span>
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :<span class="lineCov">         16 :     ret = SPIFFS_mount (fs, &amp;c, wbuf, fds, LOS_SPIFFS_FD_SIZE, cache,</span>
+<span class="lineNum">     422 </span>                :            :                         LOS_SPIFFS_CACHE_SIZE, NULL);
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (ret == SPIFFS_ERR_NOT_A_FS)</span>
+<span class="lineNum">     425 </span>                :            :     {
+<span class="lineNum">     426 </span>                :            :         PRINT_INFO (&quot;formating fs...\n&quot;);
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :         SPIFFS_format (fs);</span>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :         ret = SPIFFS_mount (fs, &amp;c, wbuf, fds, LOS_SPIFFS_FD_SIZE, cache,</span>
+<span class="lineNum">     431 </span>                :            :                             LOS_SPIFFS_CACHE_SIZE, NULL);
+<span class="lineNum">     432 </span>                :            :     }
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (ret != SPIFFS_OK)</span>
+<span class="lineNum">     435 </span>                :            :     {
+<span class="lineNum">     436 </span>                :<span class="lineCov">          1 :         PRINT_ERR (&quot;format fail!\n&quot;);</span>
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :         goto err_unmount;</span>
+<span class="lineNum">     438 </span>                :            :     }
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>                :<span class="lineCov">         15 :     ret = los_fs_mount (&quot;spiffs&quot;, path, fs);</span>
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (ret == LOS_OK)</span>
+<span class="lineNum">     443 </span>                :            :     {
+<span class="lineNum">     444 </span>                :<span class="lineCov">         15 :         fs_ptr = fs;</span>
+<span class="lineNum">     445 </span>                :<span class="lineCov">         15 :         wbuf_ptr = wbuf;</span>
+<span class="lineNum">     446 </span>                :<span class="lineCov">         15 :         fds_ptr = fds;</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">         15 :         cache_ptr = cache;</span>
+<span class="lineNum">     448 </span>                :            :         PRINT_INFO (&quot;spiffs mount at %s done!\n&quot;, path);
+<span class="lineNum">     449 </span>                :<span class="lineCov">         15 :         return LOS_OK;</span>
+<span class="lineNum">     450 </span>                :            :     }
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :     PRINT_ERR (&quot;failed to mount!\n&quot;);</span>
+<span class="lineNum">     453 </span>                :            : 
+<span class="lineNum">     454 </span>                :            : err_unmount:
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :     SPIFFS_unmount (fs);</span>
+<span class="lineNum">     456 </span>                :            : err_free:
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (fs != NULL)</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">          1 :         free (fs);</span>
+<span class="lineNum">     459 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (wbuf != NULL)</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :         free (wbuf);</span>
+<span class="lineNum">     461 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (fds != NULL)</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :         free (fds);</span>
+<span class="lineNum">     463 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (cache != NULL)</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          1 :         free (cache);</span>
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :<span class="lineCov">         17 :     return ret;</span>
+<a name="467"><span class="lineNum">     467 </span>                :            : }</a>
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>                :<span class="lineCov">         15 : int spiffs_unmount(const char *path)</span>
+<span class="lineNum">     470 </span>                :            : {
+<span class="lineNum">     471 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (fs_ptr)</span>
+<span class="lineNum">     472 </span>                :            :     {
+<span class="lineNum">     473 </span>                :<span class="lineCov">         15 :         SPIFFS_unmount(fs_ptr);</span>
+<span class="lineNum">     474 </span>                :<span class="lineCov">         15 :         free(fs_ptr);</span>
+<span class="lineNum">     475 </span>                :<span class="lineCov">         15 :         fs_ptr = NULL;</span>
+<span class="lineNum">     476 </span>                :            :     }
+<span class="lineNum">     477 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (wbuf_ptr)</span>
+<span class="lineNum">     478 </span>                :            :     {
+<span class="lineNum">     479 </span>                :<span class="lineCov">         15 :         free(wbuf_ptr);</span>
+<span class="lineNum">     480 </span>                :<span class="lineCov">         15 :         wbuf_ptr = NULL;</span>
+<span class="lineNum">     481 </span>                :            :     }
+<span class="lineNum">     482 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (fds_ptr)</span>
+<span class="lineNum">     483 </span>                :            :     {
+<span class="lineNum">     484 </span>                :<span class="lineCov">         15 :         free(fds_ptr);</span>
+<span class="lineNum">     485 </span>                :<span class="lineCov">         15 :         fds_ptr = NULL;</span>
+<span class="lineNum">     486 </span>                :            :     }
+<span class="lineNum">     487 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (cache_ptr)</span>
+<span class="lineNum">     488 </span>                :            :     {
+<span class="lineNum">     489 </span>                :<span class="lineCov">         15 :         free(cache_ptr);</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">         15 :         cache_ptr = NULL;</span>
+<span class="lineNum">     491 </span>                :            :     }
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>                :<span class="lineCov">         15 :     los_fs_unmount(path);</span>
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :<span class="lineCov">         15 :     return 0;</span>
+<a name="496"><span class="lineNum">     496 </span>                :            : }</a>
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :<span class="lineCov">         16 : int spiffs_init (void)</span>
+<span class="lineNum">     499 </span>                :            : {
+<span class="lineNum">     500 </span>                :            :     static int spiffs_inited = FALSE;
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         16 :     if (spiffs_inited)</span>
+<span class="lineNum">     503 </span>                :            :     {
+<span class="lineNum">     504 </span>                :<span class="lineCov">         14 :         return LOS_OK;</span>
+<span class="lineNum">     505 </span>                :            :     }
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (los_vfs_init () != LOS_OK)</span>
+<span class="lineNum">     508 </span>                :            :     {
+<span class="lineNum">     509 </span>                :<span class="lineCov">          1 :         return LOS_NOK;</span>
+<span class="lineNum">     510 </span>                :            :     }
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (los_fs_register (&amp;spiffs_fs) != LOS_OK)</span>
+<span class="lineNum">     513 </span>                :            :     {
+<span class="lineNum">     514 </span>                :<span class="lineNoCov">          0 :         PRINT_ERR (&quot;failed to register fs!\n&quot;);</span>
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :         return LOS_NOK;</span>
+<span class="lineNum">     516 </span>                :            :     }
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :<span class="lineCov">          1 :     spiffs_inited = TRUE;</span>
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            :     PRINT_INFO (&quot;register spiffs done!\n&quot;);
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>                :<span class="lineCov">         16 :     return LOS_OK;</span>
+<span class="lineNum">     523 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - fs/fatfs/los_fatfs.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">fs/fatfs</a> - los_fatfs.c<span style="font-size: 80%;"> (source / <a href="los_fatfs.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">262</td>
+            <td class="headerCovTableEntry">275</td>
+            <td class="headerCovTableEntryHi">95.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">98</td>
+            <td class="headerCovTableEntry">127</td>
+            <td class="headerCovTableEntryMed">77.2 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2013-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /* Includes -----------------------------------------------------------------*/
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      40 </span>                :            : #include &quot;fs/sys/errno.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;fs/sys/fcntl.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;fs/sys/stat.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;fs/los_vfs.h&quot;
+<span class="lineNum">      44 </span>                :            : #include &quot;fs/los_fatfs.h&quot;
+<span class="lineNum">      45 </span>                :            : #include &quot;los_printf.h&quot;
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : /* Defines ------------------------------------------------------------------*/
+<span class="lineNum">      49 </span>                :            : /* Typedefs -----------------------------------------------------------------*/
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : /* Macros -------------------------------------------------------------------*/
+<span class="lineNum">      52 </span>                :            : #ifndef MIN
+<span class="lineNum">      53 </span>                :            : #define MIN(a,b) ((a) &lt; (b) ? (a) : (b))
+<span class="lineNum">      54 </span>                :            : #endif
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #ifndef POINTER_ASSERT
+<span class="lineNum">      57 </span>                :            : #define POINTER_ASSERT(p) \
+<span class="lineNum">      58 </span>                :            :     if(p == NULL) \
+<span class="lineNum">      59 </span>                :            :     { \
+<span class="lineNum">      60 </span>                :            :         return -EINVAL; \
+<span class="lineNum">      61 </span>                :            :     }
+<span class="lineNum">      62 </span>                :            : #endif
+<span class="lineNum">      63 </span>                :            : /* Local variables ----------------------------------------------------------*/
+<span class="lineNum">      64 </span>                :            : struct disk_mnt disk;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : /* Extern variables ---------------------------------------------------------*/
+<span class="lineNum">      67 </span>                :            : /* Global variables ---------------------------------------------------------*/
+<span class="lineNum">      68 </span>                :            : /* Private function prototypes ----------------------------------------------*/
+<a name="69"><span class="lineNum">      69 </span>                :            : /* Public functions ---------------------------------------------------------*/</a>
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineCov">         53 : static int ret_to_errno(FRESULT result)</span>
+<span class="lineNum">      72 </span>                :            : {
+<span class="lineNum">      73 </span>                :<span class="lineCov">         53 :     int err = 0;</span>
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>  [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span> :<span class="lineCov">         53 :     switch (result)</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span> 
+<span class="lineNum">         </span><span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span><span class="branchCov" title="Branch 13 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>      <span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchCov" title="Branch 15 was taken 1 time"> + </span><span class="branchCov" title="Branch 16 was taken 1 time"> + </span>]
+<span class="lineNum">      76 </span>                :            :     {
+<span class="lineNum">      77 </span>                :            :     case FR_OK:
+<span class="lineNum">      78 </span>                :<span class="lineCov">         30 :         return 0;</span>
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :     case FR_NO_PATH:
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :         err = ENOTDIR;</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            :     case FR_NO_FILE:
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :         err = ENOENT;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :     case FR_NO_FILESYSTEM:
+<span class="lineNum">      89 </span>                :<span class="lineCov">          1 :         err = ENODEV;</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :     case FR_TOO_MANY_OPEN_FILES:
+<span class="lineNum">      93 </span>                :<span class="lineCov">          1 :         err = ENFILE;</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :     case FR_INVALID_NAME:
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :         err = ENAMETOOLONG;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :     case FR_INVALID_PARAMETER:
+<span class="lineNum">     101 </span>                :            :     case FR_INVALID_OBJECT:
+<span class="lineNum">     102 </span>                :            :     case FR_INT_ERR:
+<span class="lineNum">     103 </span>                :<span class="lineCov">          6 :         err = EINVAL;</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          6 :         break;</span>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :     case FR_INVALID_DRIVE:
+<span class="lineNum">     107 </span>                :            :     case FR_NOT_ENABLED:
+<span class="lineNum">     108 </span>                :<span class="lineCov">          2 :         err = ENXIO;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            :     case FR_EXIST:
+<span class="lineNum">     112 </span>                :<span class="lineCov">          1 :         err = EEXIST;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     case FR_DISK_ERR:
+<span class="lineNum">     116 </span>                :            :     case FR_NOT_READY:
+<span class="lineNum">     117 </span>                :<span class="lineCov">          2 :         err = EIO;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :     case FR_WRITE_PROTECTED:
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :         err = EROFS;</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :     case FR_LOCKED:
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         err = EBUSY;</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :     case FR_DENIED:
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :         err = EISDIR;</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :     case FR_MKFS_ABORTED:
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         err = EBUSY;</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            :     case FR_NOT_ENOUGH_CORE:
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :         err = ENOMEM;</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :     case FR_TIMEOUT:
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 :         err = ETIMEDOUT;</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :     default:
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :         err = EIO;</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     147 </span>                :            :     }
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineCov">         23 :     VFS_ERRNO_SET (err);</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">         53 :     return -err;</span>
+<span class="lineNum">     151 </span>                :            : }
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            : /**
+<span class="lineNum">     154 </span>                :            :   * @brief  Links a compatible diskio driver/lun id and increments the number of active
+<span class="lineNum">     155 </span>                :            :   *         linked drivers.
+<span class="lineNum">     156 </span>                :            :   * @note   The number of linked drivers (volumes) is up to 10 due to FatFs limits.
+<span class="lineNum">     157 </span>                :            :   * @param  drv: pointer to the disk IO Driver structure
+<span class="lineNum">     158 </span>                :            :   * @param  lun : only used for USB Key Disk to add multi-lun management
+<span class="lineNum">     159 </span>                :            :             else the parameter must be equal to 0
+<a name="160"><span class="lineNum">     160 </span>                :            :   * @retval Returns -1 in case of failure, otherwise return the drive (0 to volumes).</a>
+<span class="lineNum">     161 </span>                :            :   */
+<span class="lineNum">     162 </span>                :<span class="lineCov">         17 : static int fatfs_link_driver(const struct diskio_drv *drv, uint8_t lun)</span>
+<span class="lineNum">     163 </span>                :            : {
+<span class="lineNum">     164 </span>                :<span class="lineCov">         17 :     int ret = -1;</span>
+<span class="lineNum">     165 </span>                :            :     int i;
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :     if(disk.num &gt;= FF_VOLUMES)</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          1 :         return ret;</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :     for(i = 0; i &lt; FF_VOLUMES; i++)</span>
+<span class="lineNum">     171 </span>                :            :     {
+<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :         if(disk.dev[i].drv != 0)</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :<span class="lineCov">         16 :         disk.dev[disk.num].state = 0;</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">         16 :         disk.dev[disk.num].drv = drv;</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">         16 :         disk.dev[disk.num].lun = lun;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">         16 :         disk.num++;</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">         16 :         return i;</span>
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :<span class="lineCov">         17 :     return ret;</span>
+<span class="lineNum">     182 </span>                :            : }
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            : /**
+<span class="lineNum">     185 </span>                :            :   * @brief  Unlinks a diskio driver and decrements the number of active linked
+<span class="lineNum">     186 </span>                :            :   *         drivers.
+<span class="lineNum">     187 </span>                :            :   * @param  drive: the disk drive (0 to volumes)
+<span class="lineNum">     188 </span>                :            :   * @param  lun : not used
+<a name="189"><span class="lineNum">     189 </span>                :            :   * @retval Returns -1 in case of failure, otherwise return the drive (0 to volumes).</a>
+<span class="lineNum">     190 </span>                :            :   */
+<span class="lineNum">     191 </span>                :<span class="lineCov">         16 : static int fatfs_unlink_driver(uint8_t drive, uint8_t lun)</span>
+<span class="lineNum">     192 </span>                :            : {
+<span class="lineNum">     193 </span>                :<span class="lineCov">         16 :     int ret = -1;</span>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>[<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         16 :     if(disk.num &gt;= 1 &amp;&amp; drive &lt; FF_VOLUMES)</span>
+<span class="lineNum">     196 </span>                :            :     {
+<span class="lineNum">     197 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :         if(disk.dev[drive].drv != 0)</span>
+<span class="lineNum">     198 </span>                :            :         {
+<span class="lineNum">     199 </span>                :<span class="lineCov">         16 :             disk.dev[drive].state= 0;</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">         16 :             disk.dev[drive].drv = 0;</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">         16 :             disk.dev[drive].lun = 0;</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">         16 :             disk.num--;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">         16 :             return drive;</span>
+<span class="lineNum">     204 </span>                :            :         }
+<span class="lineNum">     205 </span>                :            :     }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineCov">         16 :     return ret;</span>
+<a name="208"><span class="lineNum">     208 </span>                :            : }</a>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :<span class="lineCov">         17 : int fatfs_register(const struct diskio_drv *drv)</span>
+<span class="lineNum">     211 </span>                :            : {
+<span class="lineNum">     212 </span>                :<span class="lineCov">         17 :     return fatfs_link_driver(drv, 0);</span>
+<a name="213"><span class="lineNum">     213 </span>                :            : }</a>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineCov">         16 : int fatfs_unregister(uint8_t drive)</span>
+<span class="lineNum">     216 </span>                :            : {
+<span class="lineNum">     217 </span>                :<span class="lineCov">         16 :     return fatfs_unlink_driver(drive, 0);</span>
+<a name="218"><span class="lineNum">     218 </span>                :            : }</a>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineCov">         11 : static int fatfs_flags_get (int oflags)</span>
+<span class="lineNum">     221 </span>                :            : {
+<span class="lineNum">     222 </span>                :<span class="lineCov">         11 :     int flags = 0;</span>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>  [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">         11 :     switch (oflags &amp; O_ACCMODE)</span>
+<span class="lineNum">     225 </span>                :            :     {
+<span class="lineNum">     226 </span>                :            :     case O_RDONLY:
+<span class="lineNum">     227 </span>                :<span class="lineCov">          4 :         flags |= FA_READ;</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          4 :         break;</span>
+<span class="lineNum">     229 </span>                :            :     case O_WRONLY:
+<span class="lineNum">     230 </span>                :<span class="lineCov">          2 :         flags |= FA_WRITE;</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     232 </span>                :            :     case O_RDWR:
+<span class="lineNum">     233 </span>                :<span class="lineCov">          4 :         flags |= FA_READ | FA_WRITE;</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">          4 :         break;</span>
+<span class="lineNum">     235 </span>                :            :     default:
+<span class="lineNum">     236 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     237 </span>                :            :     }
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         11 :     if (oflags &amp; O_CREAT)</span>
+<span class="lineNum">     240 </span>                :            :     {
+<span class="lineNum">     241 </span>                :<span class="lineCov">          5 :         flags |= FA_OPEN_ALWAYS;</span>
+<span class="lineNum">     242 </span>                :            :     }
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         11 :     if ((oflags &amp; O_CREAT) &amp;&amp; (oflags &amp; O_EXCL))</span>
+<span class="lineNum">     245 </span>                :            :     {
+<span class="lineNum">     246 </span>                :<span class="lineCov">          1 :         flags |= FA_CREATE_NEW;</span>
+<span class="lineNum">     247 </span>                :            :     }
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         11 :     if (oflags &amp; O_TRUNC)</span>
+<span class="lineNum">     250 </span>                :            :     {
+<span class="lineNum">     251 </span>                :<span class="lineCov">          4 :         flags |= FA_CREATE_ALWAYS;</span>
+<span class="lineNum">     252 </span>                :            :     }
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (oflags &amp; O_APPEND)</span>
+<span class="lineNum">     255 </span>                :            :     {
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :         flags |= FA_READ | FA_WRITE | FA_OPEN_APPEND;</span>
+<span class="lineNum">     257 </span>                :            :     }
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineCov">         11 :     return flags;</span>
+<a name="260"><span class="lineNum">     260 </span>                :            : }</a>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :<span class="lineCov">         12 : static int fatfs_op_open (struct file *file, const char *path_in_mp, int flags)</span>
+<span class="lineNum">     263 </span>                :            : {
+<span class="lineNum">     264 </span>                :            :     FRESULT res;
+<span class="lineNum">     265 </span>                :            :     FIL     *fp;
+<span class="lineNum">     266 </span>                :<span class="lineCov">         12 :     FILINFO info = {0};</span>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :<span class="lineCov">         12 :     fp = (FIL *) malloc (sizeof(FIL));</span>
+<span class="lineNum">     269 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :     if (fp == NULL)</span>
+<span class="lineNum">     270 </span>                :            :     {
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         PRINT_ERR (&quot;fail to malloc memory in FATFS, &lt;malloc.c&gt; is needed,&quot;</span>
+<span class="lineNum">     272 </span>                :            :                    &quot;make sure it is added\n&quot;);
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :         return -EINVAL;</span>
+<span class="lineNum">     274 </span>                :            :     }
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         12 :     if (!(flags &amp; O_CREAT) &amp;&amp; (flags &amp; O_TRUNC))</span>
+<span class="lineNum">     277 </span>                :            :     {
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :         res = f_stat(path_in_mp, &amp;info);</span>
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(res != FR_OK)</span>
+<span class="lineNum">     280 </span>                :            :         {
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :             free(fp);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">          1 :             return res;</span>
+<span class="lineNum">     283 </span>                :            :         }
+<span class="lineNum">     284 </span>                :            :     }
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :<span class="lineCov">         11 :     res = f_open (fp, path_in_mp, fatfs_flags_get (flags));</span>
+<span class="lineNum">     287 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         11 :     if(res == FR_OK)</span>
+<span class="lineNum">     288 </span>                :            :     {
+<span class="lineNum">     289 </span>                :<span class="lineCov">         10 :         file-&gt;f_data = (void *) fp;</span>
+<span class="lineNum">     290 </span>                :            :     }
+<span class="lineNum">     291 </span>                :            :     else
+<span class="lineNum">     292 </span>                :            :     {
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :         free(fp);</span>
+<span class="lineNum">     294 </span>                :            :     }
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (FR_LOCKED == res)</span>
+<span class="lineNum">     296 </span>                :            :     {
+<span class="lineNum">     297 </span>                :<span class="lineCov">          1 :         int err = 0;</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :         VFS_ERRNO_SET (EACCES);</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">          1 :         err = EACCES;</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          1 :         return -err;</span>
+<span class="lineNum">     301 </span>                :            :     }
+<span class="lineNum">     302 </span>                :            :     else
+<span class="lineNum">     303 </span>                :            :     {
+<span class="lineNum">     304 </span>                :<span class="lineCov">         12 :         return ret_to_errno(res);</span>
+<span class="lineNum">     305 </span>                :            :     }
+<a name="306"><span class="lineNum">     306 </span>                :            : }</a>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">         10 : static int fatfs_op_close (struct file *file)</span>
+<span class="lineNum">     309 </span>                :            : {
+<span class="lineNum">     310 </span>                :            :     FRESULT res;
+<span class="lineNum">     311 </span>                :<span class="lineCov">         10 :     FIL     *fp = (FIL *)file-&gt;f_data;</span>
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :     POINTER_ASSERT(fp);</span>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineCov">         10 :     res = f_close(fp);</span>
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :     if(res == FR_OK)</span>
+<span class="lineNum">     317 </span>                :            :     {
+<span class="lineNum">     318 </span>                :<span class="lineCov">         10 :         free(fp);</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">         10 :         file-&gt;f_data = NULL;</span>
+<span class="lineNum">     320 </span>                :            :     }
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">         10 :     return ret_to_errno(res);</span>
+<a name="323"><span class="lineNum">     323 </span>                :            : }</a>
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :<span class="lineCov">          2 : static ssize_t fatfs_op_read (struct file *file, char *buff, size_t bytes)</span>
+<span class="lineNum">     326 </span>                :            : {
+<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :     ssize_t size = 0;</span>
+<span class="lineNum">     328 </span>                :            :     FRESULT res;
+<span class="lineNum">     329 </span>                :<span class="lineCov">          2 :     FIL     *fp = (FIL *)file-&gt;f_data;</span>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     POINTER_ASSERT(fp);</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">          2 :     res = f_read (fp, buff, bytes, (UINT *)&amp;size);</span>
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(res != FR_OK)</span>
+<span class="lineNum">     334 </span>                :            :     {
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :         PRINT_ERR (&quot;failed to read, res=%d\n&quot;, res);</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          1 :         return ret_to_errno(res);</span>
+<span class="lineNum">     337 </span>                :            :     }
+<span class="lineNum">     338 </span>                :<span class="lineCov">          2 :     return size;</span>
+<a name="339"><span class="lineNum">     339 </span>                :            : }</a>
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :<span class="lineCov">          1 : static ssize_t fatfs_op_write (struct file *file, const char *buff, size_t bytes)</span>
+<span class="lineNum">     342 </span>                :            : {
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :     ssize_t  size = 0;</span>
+<span class="lineNum">     344 </span>                :            :     FRESULT  res;
+<span class="lineNum">     345 </span>                :<span class="lineCov">          1 :     FIL     *fp = (FIL *)file-&gt;f_data;</span>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     POINTER_ASSERT(fp);</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">          1 :     res = f_write (fp, buff, bytes, (UINT *)&amp;size);</span>
+<span class="lineNum">     349 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if(res != FR_OK || size == 0)</span>
+<span class="lineNum">     350 </span>                :            :     {
+<span class="lineNum">     351 </span>                :<span class="lineCov">          1 :         PRINT_ERR (&quot;failed to write, res=%d\n&quot;, res);</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">          1 :         return ret_to_errno(res);</span>
+<span class="lineNum">     353 </span>                :            :     }
+<span class="lineNum">     354 </span>                :<span class="lineCov">          1 :     return size;</span>
+<a name="355"><span class="lineNum">     355 </span>                :            : }</a>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :<span class="lineCov">          5 : static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)</span>
+<span class="lineNum">     358 </span>                :            : {
+<span class="lineNum">     359 </span>                :<span class="lineCov">          5 :     FIL *fp = (FIL *)file-&gt;f_data;</span>
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :     POINTER_ASSERT(fp);</span>
+<span class="lineNum">     362 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     switch (whence)</span>
+<span class="lineNum">     363 </span>                :            :     {
+<span class="lineNum">     364 </span>                :            :     case 0: // SEEK_SET
+<span class="lineNum">     365 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     366 </span>                :            :     case 1: // SEEK_CUR
+<span class="lineNum">     367 </span>                :<span class="lineCov">          1 :         off += f_tell(fp);</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     369 </span>                :            :     case 2: // SEEK_END
+<span class="lineNum">     370 </span>                :<span class="lineCov">          1 :         off += f_size(fp);</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     372 </span>                :            :     default:
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :         ret_to_errno(FR_INVALID_PARAMETER);</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     375 </span>                :            :     }
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (off &lt; 0)</span>
+<span class="lineNum">     378 </span>                :            :     {
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :         return ret_to_errno(FR_INVALID_PARAMETER);</span>
+<span class="lineNum">     380 </span>                :            :     }
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineCov">          3 :     FRESULT res = f_lseek(fp, off);</span>
+<span class="lineNum">     383 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (res == FR_OK)</span>
+<span class="lineNum">     384 </span>                :            :     {
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineCov">          3 :         return off;</span>
+<span class="lineNum">     387 </span>                :            :     }
+<span class="lineNum">     388 </span>                :            :     else
+<span class="lineNum">     389 </span>                :<span class="lineCov">          5 :         return ret_to_errno(res);</span>
+<a name="390"><span class="lineNum">     390 </span>                :            : }</a>
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :<span class="lineCov">          3 : int fatfs_op_stat (struct mount_point *mp, const char *path_in_mp, struct stat *stat)</span>
+<span class="lineNum">     393 </span>                :            : {
+<span class="lineNum">     394 </span>                :            :     FRESULT res;
+<span class="lineNum">     395 </span>                :<span class="lineCov">          3 :     FILINFO info = {0};</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">          3 :     memset(stat, 0, sizeof(*stat));</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">          3 :     res = f_stat(path_in_mp, &amp;info);</span>
+<span class="lineNum">     399 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     if (res == FR_OK)</span>
+<span class="lineNum">     400 </span>                :            :     {
+<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :         stat-&gt;st_size = info.fsize;</span>
+<span class="lineNum">     402 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (info.fattrib &amp; AM_DIR)</span>
+<span class="lineNum">     403 </span>                :            :         {
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :             stat-&gt;st_mode = S_IFDIR;</span>
+<span class="lineNum">     405 </span>                :            :         }
+<span class="lineNum">     406 </span>                :            :         else
+<span class="lineNum">     407 </span>                :            :         {
+<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :             stat-&gt;st_mode = S_IFREG;</span>
+<span class="lineNum">     409 </span>                :            :         }
+<span class="lineNum">     410 </span>                :            :     }
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :<span class="lineCov">          3 :     return ret_to_errno(res);</span>
+<a name="413"><span class="lineNum">     413 </span>                :            : }</a>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :<span class="lineCov">         22 : static int fatfs_op_unlink (struct mount_point *mp, const char *path_in_mp)</span>
+<span class="lineNum">     416 </span>                :            : {
+<span class="lineNum">     417 </span>                :<span class="lineCov">         22 :     FRESULT res = f_unlink(path_in_mp);</span>
+<span class="lineNum">     418 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         22 :     if (FR_NO_PATH == res)</span>
+<span class="lineNum">     419 </span>                :            :     {
+<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :         int err = 0;</span>
+<span class="lineNum">     421 </span>                :<span class="lineCov">          1 :         VFS_ERRNO_SET (ENOENT);</span>
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :         err = ENOENT;</span>
+<span class="lineNum">     423 </span>                :<span class="lineCov">          1 :         return -err;</span>
+<span class="lineNum">     424 </span>                :            :     }
+<span class="lineNum">     425 </span>                :            :     else
+<span class="lineNum">     426 </span>                :            :     {
+<span class="lineNum">     427 </span>                :<span class="lineCov">         22 :         return ret_to_errno(res);</span>
+<span class="lineNum">     428 </span>                :            :     }
+<span class="lineNum">     429 </span>                :            : 
+<a name="430"><span class="lineNum">     430 </span>                :            : }</a>
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 : static int fatfs_op_rename (struct mount_point *mp, const char *path_in_mp_old,</span>
+<span class="lineNum">     433 </span>                :            :                              const char *path_in_mp_new)
+<span class="lineNum">     434 </span>                :            : {
+<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :     FRESULT res = f_rename(path_in_mp_old, path_in_mp_new);</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">          1 :     return ret_to_errno(res);</span>
+<a name="437"><span class="lineNum">     437 </span>                :            : }</a>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :<span class="lineCov">          1 : static int fatfs_op_sync (struct file *file)</span>
+<span class="lineNum">     440 </span>                :            : {
+<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :     FIL *fp = (FIL *)file-&gt;f_data;</span>
+<span class="lineNum">     442 </span>                :            :     FRESULT res;
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     POINTER_ASSERT(fp);</span>
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :<span class="lineCov">          1 :     res = f_sync(fp);</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :     return ret_to_errno(res);</span>
+<a name="448"><span class="lineNum">     448 </span>                :            : }</a>
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :<span class="lineCov">          2 : static int fatfs_op_opendir (struct dir *dir, const char *path)</span>
+<span class="lineNum">     451 </span>                :            : {
+<span class="lineNum">     452 </span>                :            :     FRESULT  res;
+<span class="lineNum">     453 </span>                :            :     DIR     *dp;
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :<span class="lineCov">          2 :     dp = (DIR *) malloc (sizeof (DIR));</span>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (dp == NULL)</span>
+<span class="lineNum">     458 </span>                :            :     {
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :         PRINT_ERR (&quot;fail to malloc memory in SPIFFS, &lt;malloc.c&gt; is needed,&quot;</span>
+<span class="lineNum">     460 </span>                :            :                    &quot;make sure it is added\n&quot;);
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :         return -ENOMEM;</span>
+<span class="lineNum">     462 </span>                :            :     }
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :<span class="lineCov">          2 :     res = f_opendir(dp, path);</span>
+<span class="lineNum">     465 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(res != FR_OK)</span>
+<span class="lineNum">     466 </span>                :            :     {
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :         free(dp);</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :         return ret_to_errno(res);</span>
+<span class="lineNum">     469 </span>                :            :     }
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :<span class="lineCov">          2 :     dir-&gt;d_data   = dp;</span>
+<span class="lineNum">     472 </span>                :<span class="lineCov">          2 :     dir-&gt;d_offset = 0;</span>
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :<span class="lineCov">          2 :     return FR_OK;</span>
+<a name="475"><span class="lineNum">     475 </span>                :            : }</a>
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :<span class="lineCov">          1 : static int fatfs_op_readdir (struct dir *dir, struct dirent *dent)</span>
+<span class="lineNum">     478 </span>                :            : {
+<span class="lineNum">     479 </span>                :            :     FRESULT  res;
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 :     DIR     *dp = (DIR *) dir-&gt;d_data;</span>
+<span class="lineNum">     481 </span>                :            :     FILINFO  e;
+<span class="lineNum">     482 </span>                :            :     int     len;
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     POINTER_ASSERT(dp);</span>
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :<span class="lineCov">          1 :     res = f_readdir(dp, &amp;e);</span>
+<span class="lineNum">     487 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (res != FR_OK)</span>
+<span class="lineNum">     488 </span>                :            :     {
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :         return ret_to_errno(res);</span>
+<span class="lineNum">     490 </span>                :            :     }
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :<span class="lineCov">          1 :     len = MIN(sizeof(e.fname), LOS_MAX_DIR_NAME_LEN+1) - 1;</span>
+<span class="lineNum">     493 </span>                :<span class="lineCov">          1 :     strncpy ((char *)dent-&gt;name, (const char *) e.fname, len);</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">          1 :     dent-&gt;name [len] = '\0';</span>
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :     dent-&gt;size = e.fsize;</span>
+<span class="lineNum">     496 </span>                :            : 
+<span class="lineNum">     497 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (e.fattrib == AM_DIR)</span>
+<span class="lineNum">     498 </span>                :            :     {
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :         dent-&gt;type = VFS_TYPE_DIR;</span>
+<span class="lineNum">     500 </span>                :            :     }
+<span class="lineNum">     501 </span>                :            :     else
+<span class="lineNum">     502 </span>                :            :     {
+<span class="lineNum">     503 </span>                :<span class="lineCov">          1 :         dent-&gt;type = VFS_TYPE_FILE;</span>
+<span class="lineNum">     504 </span>                :            :     }
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :<span class="lineCov">          1 :     return FR_OK;</span>
+<a name="507"><span class="lineNum">     507 </span>                :            : }</a>
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :<span class="lineCov">          2 : static int fatfs_op_closedir (struct dir *dir)</span>
+<span class="lineNum">     510 </span>                :            : {
+<span class="lineNum">     511 </span>                :            :     FRESULT  res;
+<span class="lineNum">     512 </span>                :<span class="lineCov">          2 :     DIR     *dp = (DIR *) dir-&gt;d_data;</span>
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     POINTER_ASSERT(dp);</span>
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :<span class="lineCov">          2 :     res = f_closedir (dp);</span>
+<span class="lineNum">     517 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if(res == FR_OK)</span>
+<span class="lineNum">     518 </span>                :            :     {
+<span class="lineNum">     519 </span>                :<span class="lineCov">          2 :         free (dp);</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">          2 :         dir-&gt;d_data = NULL;</span>
+<span class="lineNum">     521 </span>                :            :     }
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>                :<span class="lineCov">          2 :     return ret_to_errno(res);</span>
+<a name="524"><span class="lineNum">     524 </span>                :            : }</a>
+<span class="lineNum">     525 </span>                :            : 
+<span class="lineNum">     526 </span>                :<span class="lineCov">          2 : static int fatfs_op_mkdir(struct mount_point *mp, const char *path)</span>
+<span class="lineNum">     527 </span>                :            : {
+<span class="lineNum">     528 </span>                :<span class="lineCov">          2 :     FRESULT res = f_mkdir(path);</span>
+<span class="lineNum">     529 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (FR_NO_PATH == res)</span>
+<span class="lineNum">     530 </span>                :            :     {
+<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :         int err = 0;</span>
+<span class="lineNum">     532 </span>                :<span class="lineCov">          1 :         VFS_ERRNO_SET (ENOENT);</span>
+<span class="lineNum">     533 </span>                :<span class="lineCov">          1 :         err = ENOENT;</span>
+<span class="lineNum">     534 </span>                :<span class="lineCov">          1 :         return -err;</span>
+<span class="lineNum">     535 </span>                :            :     }
+<span class="lineNum">     536 </span>                :            :     else
+<span class="lineNum">     537 </span>                :            :     {
+<span class="lineNum">     538 </span>                :<span class="lineCov">          2 :         return ret_to_errno(res);</span>
+<span class="lineNum">     539 </span>                :            :     }
+<span class="lineNum">     540 </span>                :            : }
+<span class="lineNum">     541 </span>                :            : 
+<span class="lineNum">     542 </span>                :            : static struct file_ops fatfs_ops =
+<span class="lineNum">     543 </span>                :            : {
+<span class="lineNum">     544 </span>                :            :     fatfs_op_open,
+<span class="lineNum">     545 </span>                :            :     fatfs_op_close,
+<span class="lineNum">     546 </span>                :            :     fatfs_op_read,
+<span class="lineNum">     547 </span>                :            :     fatfs_op_write,
+<span class="lineNum">     548 </span>                :            :     fatfs_op_lseek,
+<span class="lineNum">     549 </span>                :            :     fatfs_op_stat,
+<span class="lineNum">     550 </span>                :            :     fatfs_op_unlink,
+<span class="lineNum">     551 </span>                :            :     fatfs_op_rename,
+<span class="lineNum">     552 </span>                :            :     NULL,               /* ioctl not supported for now */
+<span class="lineNum">     553 </span>                :            :     fatfs_op_sync,
+<span class="lineNum">     554 </span>                :            :     fatfs_op_opendir,
+<span class="lineNum">     555 </span>                :            :     fatfs_op_readdir,
+<span class="lineNum">     556 </span>                :            :     fatfs_op_closedir,
+<span class="lineNum">     557 </span>                :            :     fatfs_op_mkdir
+<span class="lineNum">     558 </span>                :            : };
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :            : static struct file_system fatfs_fs =
+<span class="lineNum">     561 </span>                :            : {
+<span class="lineNum">     562 </span>                :            :     &quot;fatfs&quot;,
+<span class="lineNum">     563 </span>                :            :     &amp;fatfs_ops,
+<span class="lineNum">     564 </span>                :            :     NULL,
+<span class="lineNum">     565 </span>                :            :     0
+<a name="566"><span class="lineNum">     566 </span>                :            : };</a>
+<span class="lineNum">     567 </span>                :            : 
+<span class="lineNum">     568 </span>                :<span class="lineCov">         17 : int fatfs_init (void)</span>
+<span class="lineNum">     569 </span>                :            : {
+<span class="lineNum">     570 </span>                :            :     static int fatfs_inited = FALSE;
+<span class="lineNum">     571 </span>                :            : 
+<span class="lineNum">     572 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         17 :     if (fatfs_inited)</span>
+<span class="lineNum">     573 </span>                :            :     {
+<span class="lineNum">     574 </span>                :<span class="lineCov">         14 :         return LOS_OK;</span>
+<span class="lineNum">     575 </span>                :            :     }
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (los_vfs_init () != LOS_OK)</span>
+<span class="lineNum">     578 </span>                :            :     {
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :         return LOS_NOK;</span>
+<span class="lineNum">     580 </span>                :            :     }
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (los_fs_register (&amp;fatfs_fs) != LOS_OK)</span>
+<span class="lineNum">     583 </span>                :            :     {
+<span class="lineNum">     584 </span>                :<span class="lineCov">          1 :         PRINT_ERR (&quot;failed to register fs!\n&quot;);</span>
+<span class="lineNum">     585 </span>                :<span class="lineCov">          1 :         return LOS_NOK;</span>
+<span class="lineNum">     586 </span>                :            :     }
+<span class="lineNum">     587 </span>                :            : 
+<span class="lineNum">     588 </span>                :<span class="lineCov">          1 :     fatfs_inited = TRUE;</span>
+<span class="lineNum">     589 </span>                :            : 
+<span class="lineNum">     590 </span>                :            :     PRINT_INFO (&quot;register fatfs done!\n&quot;);
+<span class="lineNum">     591 </span>                :            : 
+<span class="lineNum">     592 </span>                :<span class="lineCov">         17 :     return LOS_OK;</span>
+<span class="lineNum">     593 </span>                :            : }
+<span class="lineNum">     594 </span>                :            : 
+<a name="595"><span class="lineNum">     595 </span>                :            : static FATFS *fatfs_ptr = NULL;</a>
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :<span class="lineCov">         17 : int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive)</span>
+<span class="lineNum">     598 </span>                :            : {
+<span class="lineNum">     599 </span>                :            :     int s_drive;
+<span class="lineNum">     600 </span>                :<span class="lineCov">         17 :     char dpath[10] = {0};</span>
+<span class="lineNum">     601 </span>                :<span class="lineCov">         17 :     int ret = -1;</span>
+<span class="lineNum">     602 </span>                :<span class="lineCov">         17 :     BYTE *work_buff = NULL;</span>
+<span class="lineNum">     603 </span>                :            :     FRESULT res;
+<span class="lineNum">     604 </span>                :<span class="lineCov">         17 :     FATFS   *fs = NULL;</span>
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineCov">         17 :     s_drive = fatfs_register(drv);</span>
+<span class="lineNum">     607 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :     if(s_drive &lt; 0)</span>
+<span class="lineNum">     608 </span>                :            :     {
+<span class="lineNum">     609 </span>                :<span class="lineCov">          1 :         PRINT_ERR(&quot;failed to register diskio!\n&quot;);</span>
+<span class="lineNum">     610 </span>                :<span class="lineCov">          1 :         return s_drive;</span>
+<span class="lineNum">     611 </span>                :            :     }
+<span class="lineNum">     612 </span>                :<span class="lineCov">         16 :     fs = (FATFS *) malloc (sizeof (FATFS));</span>
+<span class="lineNum">     613 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :     if (fs == NULL)</span>
+<span class="lineNum">     614 </span>                :            :     {
+<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :         PRINT_ERR (&quot;fail to malloc memory in FATFS, &lt;malloc.c&gt; is needed,&quot;</span>
+<span class="lineNum">     616 </span>                :            :                    &quot;make sure it is added\n&quot;);
+<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 :         goto err;</span>
+<span class="lineNum">     618 </span>                :            :     }
+<span class="lineNum">     619 </span>                :<span class="lineCov">         16 :     memset(fs, 0, sizeof(FATFS));</span>
+<span class="lineNum">     620 </span>                :<span class="lineCov">         16 :     sprintf(dpath, &quot;%d:/&quot;, s_drive);</span>
+<span class="lineNum">     621 </span>                :<span class="lineCov">         16 :     res = f_mount(fs, (const TCHAR *)dpath, 1);</span>
+<span class="lineNum">     622 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if(res == FR_NO_FILESYSTEM)</span>
+<span class="lineNum">     623 </span>                :            :     {
+<span class="lineNum">     624 </span>                :<span class="lineCov">          1 :         work_buff = (BYTE *)malloc(FF_MAX_SS);</span>
+<span class="lineNum">     625 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if(work_buff == NULL)</span>
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :             goto err_free;</span>
+<span class="lineNum">     627 </span>                :<span class="lineCov">          1 :         memset(work_buff, 0, FF_MAX_SS);</span>
+<span class="lineNum">     628 </span>                :<span class="lineCov">          1 :         res = f_mkfs((const TCHAR *)dpath, FM_ANY | FM_SFD, 0, work_buff, FF_MAX_SS);</span>
+<span class="lineNum">     629 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if(res == FR_OK)</span>
+<span class="lineNum">     630 </span>                :            :         {
+<span class="lineNum">     631 </span>                :<span class="lineCov">          1 :             res = f_mount(NULL, (const TCHAR *)dpath, 1);</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :             res = f_mount(fs, (const TCHAR *)dpath, 1);</span>
+<span class="lineNum">     633 </span>                :            :         }
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :         free(work_buff);</span>
+<span class="lineNum">     635 </span>                :            :     }
+<span class="lineNum">     636 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if(res != FR_OK)</span>
+<span class="lineNum">     637 </span>                :            :     {
+<span class="lineNum">     638 </span>                :<span class="lineCov">          1 :         PRINT_ERR(&quot;failed to mount fatfs, res=%d!\n&quot;, res);</span>
+<span class="lineNum">     639 </span>                :<span class="lineCov">          1 :         goto err_free;</span>
+<span class="lineNum">     640 </span>                :            :     }
+<span class="lineNum">     641 </span>                :            : 
+<span class="lineNum">     642 </span>                :<span class="lineCov">         15 :     ret = los_fs_mount (&quot;fatfs&quot;, path, fs);</span>
+<span class="lineNum">     643 </span>                :            : 
+<span class="lineNum">     644 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (ret == LOS_OK)</span>
+<span class="lineNum">     645 </span>                :            :     {
+<span class="lineNum">     646 </span>                :            :         PRINT_INFO (&quot;fatfs mount at %s done!\n&quot;, path);
+<span class="lineNum">     647 </span>                :<span class="lineCov">         15 :         *drive = s_drive;</span>
+<span class="lineNum">     648 </span>                :<span class="lineCov">         15 :         fatfs_ptr = fs;</span>
+<span class="lineNum">     649 </span>                :<span class="lineCov">         15 :         return LOS_OK;</span>
+<span class="lineNum">     650 </span>                :            :     }
+<span class="lineNum">     651 </span>                :            : 
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :     PRINT_ERR (&quot;failed to mount!\n&quot;);</span>
+<span class="lineNum">     653 </span>                :            : 
+<span class="lineNum">     654 </span>                :            : err_free:
+<span class="lineNum">     655 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(fs != NULL)</span>
+<span class="lineNum">     656 </span>                :<span class="lineCov">          1 :         free(fs);</span>
+<span class="lineNum">     657 </span>                :            : err:
+<span class="lineNum">     658 </span>                :<span class="lineCov">          1 :     fatfs_unregister(s_drive);</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">         17 :     return ret;</span>
+<a name="660"><span class="lineNum">     660 </span>                :            : }</a>
+<span class="lineNum">     661 </span>                :            : 
+<span class="lineNum">     662 </span>                :<span class="lineCov">         15 : int fatfs_unmount(const char *path, uint8_t drive)</span>
+<span class="lineNum">     663 </span>                :            : {
+<span class="lineNum">     664 </span>                :<span class="lineCov">         15 :     char dpath[10] = {0};</span>
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :<span class="lineCov">         15 :     sprintf(dpath, &quot;%d:/&quot;, drive);</span>
+<span class="lineNum">     667 </span>                :<span class="lineCov">         15 :     fatfs_unregister(drive);</span>
+<span class="lineNum">     668 </span>                :<span class="lineCov">         15 :     f_mount(NULL, (const TCHAR *)dpath, 1);</span>
+<span class="lineNum">     669 </span>                :<span class="lineCov">         15 :     los_fs_unmount(path);</span>
+<span class="lineNum">     670 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :     if (fatfs_ptr)</span>
+<span class="lineNum">     671 </span>                :            :     {
+<span class="lineNum">     672 </span>                :<span class="lineCov">         15 :         free(fatfs_ptr);</span>
+<span class="lineNum">     673 </span>                :<span class="lineCov">         15 :         fatfs_ptr = NULL;</span>
+<span class="lineNum">     674 </span>                :            :     }
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">         15 :     return 0;</span>
+<span class="lineNum">     677 </span>                :            : }
+<span class="lineNum">     678 </span>                :            : 
+<span class="lineNum">     679 </span>                :            : /* Private functions --------------------------------------------------------*/
+<span class="lineNum">     680 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

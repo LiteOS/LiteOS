@@ -1,0 +1,820 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/object_device.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - object_device.c<span style="font-size: 80%;"> (source / <a href="object_device.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">216</td>
+            <td class="headerCovTableEntry">219</td>
+            <td class="headerCovTableEntryHi">98.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">128</td>
+            <td class="headerCovTableEntry">155</td>
+            <td class="headerCovTableEntryMed">82.6 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /*******************************************************************************
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * Copyright (c) 2013, 2014 Intel Corporation and others.
+<span class="lineNum">      38 </span>                :            :  * All rights reserved. This program and the accompanying materials
+<span class="lineNum">      39 </span>                :            :  * are made available under the terms of the Eclipse Public License v1.0
+<span class="lineNum">      40 </span>                :            :  * and Eclipse Distribution License v1.0 which accompany this distribution.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * The Eclipse Public License is available at
+<span class="lineNum">      43 </span>                :            :  *    http://www.eclipse.org/legal/epl-v10.html
+<span class="lineNum">      44 </span>                :            :  * The Eclipse Distribution License is available at
+<span class="lineNum">      45 </span>                :            :  *    http://www.eclipse.org/org/documents/edl-v10.php.
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Contributors:
+<span class="lineNum">      48 </span>                :            :  *    David Navarro, Intel Corporation - initial API and implementation
+<span class="lineNum">      49 </span>                :            :  *    domedambrosio - Please refer to git log
+<span class="lineNum">      50 </span>                :            :  *    Fabien Fleutot - Please refer to git log
+<span class="lineNum">      51 </span>                :            :  *    Axel Lorente - Please refer to git log
+<span class="lineNum">      52 </span>                :            :  *    Bosch Software Innovations GmbH - Please refer to git log
+<span class="lineNum">      53 </span>                :            :  *    Pascal Rieux - Please refer to git log
+<span class="lineNum">      54 </span>                :            :  *
+<span class="lineNum">      55 </span>                :            :  *******************************************************************************/
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : /*
+<span class="lineNum">      58 </span>                :            :  Copyright (c) 2013, 2014 Intel Corporation
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            :  Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">      61 </span>                :            :  are permitted provided that the following conditions are met:
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            :      * Redistributions of source code must retain the above copyright notice,
+<span class="lineNum">      64 </span>                :            :        this list of conditions and the following disclaimer.
+<span class="lineNum">      65 </span>                :            :      * Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      66 </span>                :            :        this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      67 </span>                :            :        and/or other materials provided with the distribution.
+<span class="lineNum">      68 </span>                :            :      * Neither the name of Intel Corporation nor the names of its contributors
+<span class="lineNum">      69 </span>                :            :        may be used to endorse or promote products derived from this software
+<span class="lineNum">      70 </span>                :            :        without specific prior written permission.
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      73 </span>                :            :  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      74 </span>                :            :  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+<span class="lineNum">      75 </span>                :            :  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+<span class="lineNum">      76 </span>                :            :  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+<span class="lineNum">      77 </span>                :            :  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+<span class="lineNum">      78 </span>                :            :  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+<span class="lineNum">      79 </span>                :            :  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      80 </span>                :            :  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+<span class="lineNum">      81 </span>                :            :  THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :  David Navarro &lt;david.navarro@intel.com&gt;
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : */
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : /*
+<span class="lineNum">      88 </span>                :            :  * This object is single instance only, and is mandatory to all LWM2M device as it describe the object such as its
+<span class="lineNum">      89 </span>                :            :  * manufacturer, model, etc...
+<span class="lineNum">      90 </span>                :            :  */
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            : #include &quot;object_comm.h&quot;
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            : #define PRV_OFFSET_MAXLEN   7 //+HH:MM\0 at max
+<span class="lineNum">      95 </span>                :            : #define PRV_TIMEZONE_MAXLEN 25
+<span class="lineNum">      96 </span>                :            : #define MAX_STRING_LEN  64
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            : // Resource Id's:
+<span class="lineNum">      99 </span>                :            : #define RES_O_MANUFACTURER          0
+<span class="lineNum">     100 </span>                :            : #define RES_O_MODEL_NUMBER          1
+<span class="lineNum">     101 </span>                :            : #define RES_O_SERIAL_NUMBER         2
+<span class="lineNum">     102 </span>                :            : #define RES_O_FIRMWARE_VERSION      3
+<span class="lineNum">     103 </span>                :            : #define RES_M_REBOOT                4
+<span class="lineNum">     104 </span>                :            : #define RES_O_FACTORY_RESET         5
+<span class="lineNum">     105 </span>                :            : #define RES_O_AVL_POWER_SOURCES     6
+<span class="lineNum">     106 </span>                :            : #define RES_O_POWER_SOURCE_VOLTAGE  7
+<span class="lineNum">     107 </span>                :            : #define RES_O_POWER_SOURCE_CURRENT  8
+<span class="lineNum">     108 </span>                :            : #define RES_O_BATTERY_LEVEL         9
+<span class="lineNum">     109 </span>                :            : #define RES_O_MEMORY_FREE           10
+<span class="lineNum">     110 </span>                :            : #define RES_M_ERROR_CODE            11
+<span class="lineNum">     111 </span>                :            : #define RES_O_RESET_ERROR_CODE      12
+<span class="lineNum">     112 </span>                :            : #define RES_O_CURRENT_TIME          13
+<span class="lineNum">     113 </span>                :            : #define RES_O_UTC_OFFSET            14
+<span class="lineNum">     114 </span>                :            : #define RES_O_TIMEZONE              15
+<span class="lineNum">     115 </span>                :            : #define RES_M_BINDING_MODES         16
+<span class="lineNum">     116 </span>                :            : // since TS 20141126-C:
+<span class="lineNum">     117 </span>                :            : #define RES_O_DEVICE_TYPE           17
+<span class="lineNum">     118 </span>                :            : #define RES_O_HARDWARE_VERSION      18
+<span class="lineNum">     119 </span>                :            : #define RES_O_SOFTWARE_VERSION      19
+<span class="lineNum">     120 </span>                :            : #define RES_O_BATTERY_STATUS        20
+<span class="lineNum">     121 </span>                :            : #define RES_O_MEMORY_TOTAL          21
+<span class="lineNum">     122 </span>                :            : 
+<a name="123"><span class="lineNum">     123 </span>                :            : // basic check that the time offset value is at ISO 8601 format</a>
+<span class="lineNum">     124 </span>                :            : // bug: +12:30 is considered a valid value by this function
+<span class="lineNum">     125 </span>                :<span class="lineCov">          6 : static int prv_check_time_offset(char *buffer,</span>
+<span class="lineNum">     126 </span>                :            :                                  int length)
+<span class="lineNum">     127 </span>                :            : {
+<span class="lineNum">     128 </span>                :            :     int min_index;
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          6 :     if (length != 3 &amp;&amp; length != 5 &amp;&amp; length != 6) return 0;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]
+<span class="lineNum">     131 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          5 :     if (buffer[0] != '-' &amp;&amp; buffer[0] != '+') return 0;</span>
+<span class="lineNum">     132 </span>     [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     switch (buffer[1])</span>
+<span class="lineNum">     133 </span>                :            :     {
+<span class="lineNum">     134 </span>                :            :     case '0':
+<span class="lineNum">     135 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (buffer[2] &lt; '0' || buffer[2] &gt; '9') return 0;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     137 </span>                :            :     case '1':
+<span class="lineNum">     138 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (buffer[2] &lt; '0' || buffer[2] &gt; '2') return 0;</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     140 </span>                :            :     default:
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 :         return 0;</span>
+<span class="lineNum">     142 </span>                :            :     }
+<span class="lineNum">     143 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          4 :     switch (length)</span>
+<span class="lineNum">     144 </span>                :            :     {
+<span class="lineNum">     145 </span>                :            :     case 3:
+<span class="lineNum">     146 </span>                :<span class="lineCov">          2 :         return 1;</span>
+<span class="lineNum">     147 </span>                :            :     case 5:
+<span class="lineNum">     148 </span>                :<span class="lineCov">          1 :         min_index = 3;</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     150 </span>                :            :     case 6:
+<span class="lineNum">     151 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (buffer[3] != ':') return 0;</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          1 :         min_index = 4;</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     154 </span>                :            :     default:
+<span class="lineNum">     155 </span>                :            :         // never happen
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (buffer[min_index] &lt; '0' || buffer[min_index] &gt; '5') return 0;</span>
+<span class="lineNum">     159 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (buffer[min_index + 1] &lt; '0' || buffer[min_index + 1] &gt; '9') return 0;</span>
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :<span class="lineCov">          6 :     return 1;</span>
+<a name="162"><span class="lineNum">     162 </span>                :            : }</a>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineCov">         44 : static uint8_t prv_set_value(lwm2m_data_t *dataP)</span>
+<span class="lineNum">     165 </span>                :            : {
+<span class="lineNum">     166 </span>                :<span class="lineCov">         44 :     char str[MAX_STRING_LEN + 1] = {0};</span>
+<span class="lineNum">     167 </span>                :            :     int64_t current_time;
+<span class="lineNum">     168 </span>                :            :     char UTC_offset[PRV_OFFSET_MAXLEN];
+<span class="lineNum">     169 </span>                :            :     char timezone[PRV_TIMEZONE_MAXLEN];
+<span class="lineNum">     170 </span>                :            :     lwm2m_data_t *subTlvP;
+<span class="lineNum">     171 </span>                :            :     int power;
+<span class="lineNum">     172 </span>                :            :     int voltage;
+<span class="lineNum">     173 </span>                :            :     int battery_level;
+<span class="lineNum">     174 </span>                :            :     int free_memory;
+<span class="lineNum">     175 </span>                :            :     int err;
+<span class="lineNum">     176 </span>                :            :     int result;
+<span class="lineNum">     177 </span>                :            :     // a simple switch structure is used to respond at the specified resource asked
+<span class="lineNum">     178 </span>  [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 3 times"> + </span> :<span class="lineCov">         44 :     switch (dataP-&gt;id)</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchCov" title="Branch 6 was taken 3 times"> + </span><span class="branchCov" title="Branch 7 was taken 3 times"> + </span><span class="branchCov" title="Branch 8 was taken 3 times"> + </span> 
+<span class="lineNum">         </span><span class="branchCov" title="Branch 9 was taken 3 times"> + </span><span class="branchCov" title="Branch 10 was taken 3 times"> + </span><span class="branchCov" title="Branch 11 was taken 3 times"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span><span class="branchCov" title="Branch 13 was taken 3 times"> + </span> 
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 14 was taken 2 times"> + </span><span class="branchCov" title="Branch 15 was taken 3 times"> + </span><span class="branchCov" title="Branch 16 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     179 </span>                :            :     {
+<span class="lineNum">     180 </span>                :            :     case RES_O_MANUFACTURER:
+<span class="lineNum">     181 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_MANUFACTURER, str, MAX_STRING_LEN);</span>
+<span class="lineNum">     182 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     183 </span>                :            :         {
+<span class="lineNum">     184 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(str, dataP);</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     186 </span>                :            :         }
+<span class="lineNum">     187 </span>                :            :         else
+<span class="lineNum">     188 </span>                :            :         {
+<span class="lineNum">     189 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     190 </span>                :            :         }
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            :     case RES_O_MODEL_NUMBER:
+<span class="lineNum">     193 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_MODEL_NUMBER, str, MAX_STRING_LEN);</span>
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     195 </span>                :            :         {
+<span class="lineNum">     196 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(str, dataP);</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     198 </span>                :            :         }
+<span class="lineNum">     199 </span>                :            :         else
+<span class="lineNum">     200 </span>                :            :         {
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     202 </span>                :            :         }
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            :     case RES_O_SERIAL_NUMBER:
+<span class="lineNum">     205 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_SERIAL_NUMBER, str, MAX_STRING_LEN);</span>
+<span class="lineNum">     206 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     207 </span>                :            :         {
+<span class="lineNum">     208 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(str, dataP);</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     210 </span>                :            :         }
+<span class="lineNum">     211 </span>                :            :         else
+<span class="lineNum">     212 </span>                :            :         {
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     214 </span>                :            :         }
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :            :     case RES_O_FIRMWARE_VERSION:
+<span class="lineNum">     217 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_FIRMWARE_VER, str, MAX_STRING_LEN);</span>
+<span class="lineNum">     218 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     219 </span>                :            :         {
+<span class="lineNum">     220 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(str, dataP);</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     222 </span>                :            :         }
+<span class="lineNum">     223 </span>                :            :         else
+<span class="lineNum">     224 </span>                :            :         {
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     226 </span>                :            :         }
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            :     case RES_M_REBOOT:
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :         return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            :     case RES_O_FACTORY_RESET:
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :         return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            :     case RES_O_AVL_POWER_SOURCES:
+<span class="lineNum">     235 </span>                :            :     {
+<span class="lineNum">     236 </span>                :<span class="lineCov">          3 :         subTlvP = lwm2m_data_new(1);</span>
+<span class="lineNum">     237 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          3 :         subTlvP[0].id = 0;</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_POWER_SOURCE, (char *)&amp;power, sizeof(int));</span>
+<span class="lineNum">     240 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     241 </span>                :            :         {
+<span class="lineNum">     242 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(power, subTlvP);</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_instances(subTlvP, 1, dataP);</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     245 </span>                :            :         }
+<span class="lineNum">     246 </span>                :            :         else
+<span class="lineNum">     247 </span>                :            :         {
+<span class="lineNum">     248 </span>                :<span class="lineCov">          1 :             lwm2m_free(subTlvP);</span>
+<span class="lineNum">     249 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     250 </span>                :            :         }
+<span class="lineNum">     251 </span>                :            :     }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            :     case RES_O_POWER_SOURCE_VOLTAGE:
+<span class="lineNum">     254 </span>                :            :     {
+<span class="lineNum">     255 </span>                :<span class="lineCov">          3 :         subTlvP = lwm2m_data_new(1);</span>
+<span class="lineNum">     256 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          3 :         subTlvP[0].id = 0;</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_SOURCE_VOLTAGE, (char *)&amp;voltage, sizeof(int));</span>
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     260 </span>                :            :         {
+<span class="lineNum">     261 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(voltage, subTlvP);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_instances(subTlvP, 1, dataP);</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     264 </span>                :            :         }
+<span class="lineNum">     265 </span>                :            :         else
+<span class="lineNum">     266 </span>                :            :         {
+<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :             lwm2m_free(subTlvP);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     269 </span>                :            :         }
+<span class="lineNum">     270 </span>                :            :     }
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            :     case RES_O_POWER_SOURCE_CURRENT:
+<span class="lineNum">     273 </span>                :            :     {
+<span class="lineNum">     274 </span>                :<span class="lineCov">          3 :         subTlvP = lwm2m_data_new(1);</span>
+<span class="lineNum">     275 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">          3 :         subTlvP[0].id = 0;</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_POWER_CURRENT, (char *)&amp;power, sizeof(int));</span>
+<span class="lineNum">     278 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     279 </span>                :            :         {
+<span class="lineNum">     280 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(power, &amp;subTlvP[0]);</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_instances(subTlvP, 1, dataP);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     283 </span>                :            :         }
+<span class="lineNum">     284 </span>                :            :         else
+<span class="lineNum">     285 </span>                :            :         {
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :             lwm2m_free(subTlvP);</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     288 </span>                :            :         }
+<span class="lineNum">     289 </span>                :            :     }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :     case RES_O_BATTERY_LEVEL:
+<span class="lineNum">     292 </span>                :            :     {
+<span class="lineNum">     293 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_BATERRY_LEVEL, (char *)&amp;battery_level, sizeof(int));</span>
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     295 </span>                :            :         {
+<span class="lineNum">     296 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(battery_level, dataP);</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     298 </span>                :            :         }
+<span class="lineNum">     299 </span>                :            :         else
+<span class="lineNum">     300 </span>                :            :         {
+<span class="lineNum">     301 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     302 </span>                :            :         }
+<span class="lineNum">     303 </span>                :            :     }
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :            :     case RES_O_MEMORY_FREE:
+<span class="lineNum">     306 </span>                :            :     {
+<span class="lineNum">     307 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_MEMORY_FREE, (char *)&amp;free_memory, sizeof(int));</span>
+<span class="lineNum">     308 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     309 </span>                :            :         {
+<span class="lineNum">     310 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(free_memory, dataP);</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     312 </span>                :            :         }
+<span class="lineNum">     313 </span>                :            :         else
+<span class="lineNum">     314 </span>                :            :         {
+<span class="lineNum">     315 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     316 </span>                :            :         }
+<span class="lineNum">     317 </span>                :            :     }
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :            :     case RES_M_ERROR_CODE:
+<span class="lineNum">     320 </span>                :            :     {
+<span class="lineNum">     321 </span>                :<span class="lineCov">          3 :         subTlvP = lwm2m_data_new(1);</span>
+<span class="lineNum">     322 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          3 :         subTlvP[0].id = 0;</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_DEV_ERR, (char *)&amp;err, sizeof(int));</span>
+<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     326 </span>                :            :         {
+<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(err, subTlvP);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_instances(subTlvP, 1, dataP);</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     330 </span>                :            :         }
+<span class="lineNum">     331 </span>                :            :         else
+<span class="lineNum">     332 </span>                :            :         {
+<span class="lineNum">     333 </span>                :<span class="lineCov">          1 :             lwm2m_free(subTlvP);</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     335 </span>                :            :         }
+<span class="lineNum">     336 </span>                :            :     }
+<span class="lineNum">     337 </span>                :            :     case RES_O_RESET_ERROR_CODE:
+<span class="lineNum">     338 </span>                :<span class="lineCov">          1 :         return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            :     case RES_O_CURRENT_TIME:
+<span class="lineNum">     341 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_CURRENT_TIME, (char *)&amp;current_time, sizeof(int64_t));</span>
+<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     343 </span>                :            :         {
+<span class="lineNum">     344 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_int(current_time, dataP);</span>
+<span class="lineNum">     345 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     346 </span>                :            :         }
+<span class="lineNum">     347 </span>                :            :         else
+<span class="lineNum">     348 </span>                :            :         {
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     350 </span>                :            :         }
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            :     case RES_O_UTC_OFFSET:
+<span class="lineNum">     353 </span>                :<span class="lineCov">          2 :         result = atiny_cmd_ioctl(ATINY_GET_UTC_OFFSET, UTC_offset, PRV_OFFSET_MAXLEN);</span>
+<span class="lineNum">     354 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     355 </span>                :            :         {
+<span class="lineNum">     356 </span>                :<span class="lineCov">          1 :             lwm2m_data_encode_string(UTC_offset, dataP);</span>
+<span class="lineNum">     357 </span>                :<span class="lineCov">          1 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     358 </span>                :            :         }
+<span class="lineNum">     359 </span>                :            :         else
+<span class="lineNum">     360 </span>                :            :         {
+<span class="lineNum">     361 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     362 </span>                :            :         }
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :            :     case RES_O_TIMEZONE:
+<span class="lineNum">     365 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_TIMEZONE, timezone, PRV_TIMEZONE_MAXLEN);</span>
+<span class="lineNum">     366 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     367 </span>                :            :         {
+<span class="lineNum">     368 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(timezone, dataP);</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     370 </span>                :            :         }
+<span class="lineNum">     371 </span>                :            :         else
+<span class="lineNum">     372 </span>                :            :         {
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     374 </span>                :            :         }
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            :     case RES_M_BINDING_MODES:
+<span class="lineNum">     377 </span>                :<span class="lineCov">          3 :         result = atiny_cmd_ioctl(ATINY_GET_BINDING_MODES, str, MAX_STRING_LEN);</span>
+<span class="lineNum">     378 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     379 </span>                :            :         {
+<span class="lineNum">     380 </span>                :<span class="lineCov">          2 :             lwm2m_data_encode_string(str, dataP);</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          2 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     382 </span>                :            :         }
+<span class="lineNum">     383 </span>                :            :         else
+<span class="lineNum">     384 </span>                :            :         {
+<span class="lineNum">     385 </span>                :<span class="lineCov">          1 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     386 </span>                :            :         }
+<span class="lineNum">     387 </span>                :            :     default:
+<span class="lineNum">     388 </span>                :<span class="lineCov">         44 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     389 </span>                :            :     }
+<a name="390"><span class="lineNum">     390 </span>                :            : }</a>
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :<span class="lineCov">         32 : static uint8_t prv_device_read(uint16_t instanceId,</span>
+<span class="lineNum">     393 </span>                :            :                                int *numDataP,
+<span class="lineNum">     394 </span>                :            :                                lwm2m_data_t **dataArrayP,
+<span class="lineNum">     395 </span>                :            :                                lwm2m_data_cfg_t *dataCfg,
+<span class="lineNum">     396 </span>                :            :                                lwm2m_object_t *objectP)
+<span class="lineNum">     397 </span>                :            : {
+<span class="lineNum">     398 </span>                :            :     uint8_t result;
+<span class="lineNum">     399 </span>                :            :     int i;
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :            :     // this is a single instance object
+<span class="lineNum">     402 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 31 times"> + </span>]:<span class="lineCov">         32 :     if (instanceId != 0)</span>
+<span class="lineNum">     403 </span>                :            :     {
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     405 </span>                :            :     }
+<span class="lineNum">     406 </span>                :            : 
+<span class="lineNum">     407 </span>                :            :     // is the server asking for the full object ?
+<span class="lineNum">     408 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         31 :     if (*numDataP == 0)</span>
+<span class="lineNum">     409 </span>                :            :     {
+<span class="lineNum">     410 </span>                :<span class="lineCov">          1 :         uint16_t resList[] =</span>
+<span class="lineNum">     411 </span>                :            :         {
+<span class="lineNum">     412 </span>                :            :             RES_O_MANUFACTURER,
+<span class="lineNum">     413 </span>                :            :             RES_O_MODEL_NUMBER,
+<span class="lineNum">     414 </span>                :            :             RES_O_SERIAL_NUMBER,
+<span class="lineNum">     415 </span>                :            :             RES_O_FIRMWARE_VERSION,
+<span class="lineNum">     416 </span>                :            :             //E: RES_M_REBOOT,
+<span class="lineNum">     417 </span>                :            :             //E: RES_O_FACTORY_RESET,
+<span class="lineNum">     418 </span>                :            :             RES_O_AVL_POWER_SOURCES,
+<span class="lineNum">     419 </span>                :            :             RES_O_POWER_SOURCE_VOLTAGE,
+<span class="lineNum">     420 </span>                :            :             RES_O_POWER_SOURCE_CURRENT,
+<span class="lineNum">     421 </span>                :            :             RES_O_BATTERY_LEVEL,
+<span class="lineNum">     422 </span>                :            :             RES_O_MEMORY_FREE,
+<span class="lineNum">     423 </span>                :            :             RES_M_ERROR_CODE,
+<span class="lineNum">     424 </span>                :            :             //E: RES_O_RESET_ERROR_CODE,
+<span class="lineNum">     425 </span>                :            :             RES_O_CURRENT_TIME,
+<span class="lineNum">     426 </span>                :            :             RES_O_UTC_OFFSET,
+<span class="lineNum">     427 </span>                :            :             RES_O_TIMEZONE,
+<span class="lineNum">     428 </span>                :            :             RES_M_BINDING_MODES
+<span class="lineNum">     429 </span>                :            :         };
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :         int nbRes = sizeof(resList) / sizeof(uint16_t);</span>
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 :         *dataArrayP = lwm2m_data_new(nbRes);</span>
+<span class="lineNum">     433 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :         *numDataP = nbRes;</span>
+<span class="lineNum">     435 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         15 :         for (i = 0 ; i &lt; nbRes ; i++)</span>
+<span class="lineNum">     436 </span>                :            :         {
+<span class="lineNum">     437 </span>                :<span class="lineCov">         14 :             (*dataArrayP)[i].id = resList[i];</span>
+<span class="lineNum">     438 </span>                :            :         }
+<span class="lineNum">     439 </span>                :            :     }
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :<span class="lineCov">         31 :     i = 0;</span>
+<span class="lineNum">     442 </span>                :            :     do
+<span class="lineNum">     443 </span>                :            :     {
+<span class="lineNum">     444 </span>                :<span class="lineCov">         44 :         result = prv_set_value((*dataArrayP) + i);</span>
+<span class="lineNum">     445 </span>                :<span class="lineCov">         44 :         i++;</span>
+<span class="lineNum">     446 </span>                :            :     }
+<span class="lineNum">     447 </span>[<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchCov" title="Branch 1 was taken 31 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         44 :     while (i &lt; *numDataP &amp;&amp; result == COAP_205_CONTENT);</span>
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :<span class="lineCov">         32 :     return result;</span>
+<a name="450"><span class="lineNum">     450 </span>                :            : }</a>
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>                :<span class="lineCov">          2 : static uint8_t prv_device_discover(uint16_t instanceId,</span>
+<span class="lineNum">     453 </span>                :            :                                    int *numDataP,
+<span class="lineNum">     454 </span>                :            :                                    lwm2m_data_t **dataArrayP,
+<span class="lineNum">     455 </span>                :            :                                    lwm2m_object_t *objectP)
+<span class="lineNum">     456 </span>                :            : {
+<span class="lineNum">     457 </span>                :            :     uint8_t result;
+<span class="lineNum">     458 </span>                :            :     int i;
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :            :     // this is a single instance object
+<span class="lineNum">     461 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (instanceId != 0)</span>
+<span class="lineNum">     462 </span>                :            :     {
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     464 </span>                :            :     }
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :<span class="lineCov">          2 :     result = COAP_205_CONTENT;</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :            :     // is the server asking for the full object ?
+<span class="lineNum">     469 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (*numDataP == 0)</span>
+<span class="lineNum">     470 </span>                :            :     {
+<span class="lineNum">     471 </span>                :<span class="lineCov">          1 :         uint16_t resList[] =</span>
+<span class="lineNum">     472 </span>                :            :         {
+<span class="lineNum">     473 </span>                :            :             RES_O_MANUFACTURER,
+<span class="lineNum">     474 </span>                :            :             RES_O_MODEL_NUMBER,
+<span class="lineNum">     475 </span>                :            :             RES_O_SERIAL_NUMBER,
+<span class="lineNum">     476 </span>                :            :             RES_O_FIRMWARE_VERSION,
+<span class="lineNum">     477 </span>                :            :             RES_M_REBOOT,
+<span class="lineNum">     478 </span>                :            :             RES_O_FACTORY_RESET,
+<span class="lineNum">     479 </span>                :            :             RES_O_AVL_POWER_SOURCES,
+<span class="lineNum">     480 </span>                :            :             RES_O_POWER_SOURCE_VOLTAGE,
+<span class="lineNum">     481 </span>                :            :             RES_O_POWER_SOURCE_CURRENT,
+<span class="lineNum">     482 </span>                :            :             RES_O_BATTERY_LEVEL,
+<span class="lineNum">     483 </span>                :            :             RES_O_MEMORY_FREE,
+<span class="lineNum">     484 </span>                :            :             RES_M_ERROR_CODE,
+<span class="lineNum">     485 </span>                :            :             RES_O_RESET_ERROR_CODE,
+<span class="lineNum">     486 </span>                :            :             RES_O_CURRENT_TIME,
+<span class="lineNum">     487 </span>                :            :             RES_O_UTC_OFFSET,
+<span class="lineNum">     488 </span>                :            :             RES_O_TIMEZONE,
+<span class="lineNum">     489 </span>                :            :             RES_M_BINDING_MODES
+<span class="lineNum">     490 </span>                :            :         };
+<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :         int nbRes = sizeof(resList) / sizeof(uint16_t);</span>
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>                :<span class="lineCov">          1 :         *dataArrayP = lwm2m_data_new(nbRes);</span>
+<span class="lineNum">     494 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :         *numDataP = nbRes;</span>
+<span class="lineNum">     496 </span>        [<span class="branchCov" title="Branch 0 was taken 17 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         18 :         for (i = 0; i &lt; nbRes; i++)</span>
+<span class="lineNum">     497 </span>                :            :         {
+<span class="lineNum">     498 </span>                :<span class="lineCov">         17 :             (*dataArrayP)[i].id = resList[i];</span>
+<span class="lineNum">     499 </span>                :            :         }
+<span class="lineNum">     500 </span>                :            :     }
+<span class="lineNum">     501 </span>                :            :     else
+<span class="lineNum">     502 </span>                :            :     {
+<span class="lineNum">     503 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; *numDataP &amp;&amp; result == COAP_205_CONTENT; i++)</span>
+<span class="lineNum">     504 </span>                :            :         {
+<span class="lineNum">     505 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             switch ((*dataArrayP)[i].id)</span>
+<span class="lineNum">     506 </span>                :            :             {
+<span class="lineNum">     507 </span>                :            :             case RES_O_MANUFACTURER:
+<span class="lineNum">     508 </span>                :            :             case RES_O_MODEL_NUMBER:
+<span class="lineNum">     509 </span>                :            :             case RES_O_SERIAL_NUMBER:
+<span class="lineNum">     510 </span>                :            :             case RES_O_FIRMWARE_VERSION:
+<span class="lineNum">     511 </span>                :            :             case RES_M_REBOOT:
+<span class="lineNum">     512 </span>                :            :             case RES_O_FACTORY_RESET:
+<span class="lineNum">     513 </span>                :            :             case RES_O_AVL_POWER_SOURCES:
+<span class="lineNum">     514 </span>                :            :             case RES_O_POWER_SOURCE_VOLTAGE:
+<span class="lineNum">     515 </span>                :            :             case RES_O_POWER_SOURCE_CURRENT:
+<span class="lineNum">     516 </span>                :            :             case RES_O_BATTERY_LEVEL:
+<span class="lineNum">     517 </span>                :            :             case RES_O_MEMORY_FREE:
+<span class="lineNum">     518 </span>                :            :             case RES_M_ERROR_CODE:
+<span class="lineNum">     519 </span>                :            :             case RES_O_RESET_ERROR_CODE:
+<span class="lineNum">     520 </span>                :            :             case RES_O_CURRENT_TIME:
+<span class="lineNum">     521 </span>                :            :             case RES_O_UTC_OFFSET:
+<span class="lineNum">     522 </span>                :            :             case RES_O_TIMEZONE:
+<span class="lineNum">     523 </span>                :            :             case RES_M_BINDING_MODES:
+<span class="lineNum">     524 </span>                :<span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     525 </span>                :            :             default:
+<span class="lineNum">     526 </span>                :<span class="lineNoCov">          0 :                 result = COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     527 </span>                :            :             }
+<span class="lineNum">     528 </span>                :            :         }
+<span class="lineNum">     529 </span>                :            :     }
+<span class="lineNum">     530 </span>                :            : 
+<span class="lineNum">     531 </span>                :<span class="lineCov">          2 :     return result;</span>
+<a name="532"><span class="lineNum">     532 </span>                :            : }</a>
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>                :<span class="lineCov">         13 : static uint8_t prv_device_write(uint16_t instanceId,</span>
+<span class="lineNum">     535 </span>                :            :                                 int numData,
+<span class="lineNum">     536 </span>                :            :                                 lwm2m_data_t *dataArray,
+<span class="lineNum">     537 </span>                :            :                                 lwm2m_object_t *objectP)
+<span class="lineNum">     538 </span>                :            : {
+<span class="lineNum">     539 </span>                :            :     int i;
+<span class="lineNum">     540 </span>                :            :     uint8_t result;
+<span class="lineNum">     541 </span>                :            :     int64_t current_time;
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :            :     // this is a single instance object
+<span class="lineNum">     544 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         13 :     if (instanceId != 0)</span>
+<span class="lineNum">     545 </span>                :            :     {
+<span class="lineNum">     546 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     547 </span>                :            :     }
+<span class="lineNum">     548 </span>                :            : 
+<span class="lineNum">     549 </span>                :<span class="lineCov">         12 :     i = 0;</span>
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :            :     do
+<span class="lineNum">     552 </span>                :            :     {
+<span class="lineNum">     553 </span>  [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">         12 :         switch (dataArray[i].id)</span>
+<span class="lineNum">     554 </span>                :            :         {
+<span class="lineNum">     555 </span>                :            :         case RES_O_CURRENT_TIME:
+<span class="lineNum">     556 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          3 :             if (1 == lwm2m_data_decode_int(dataArray + i, &amp;current_time))</span>
+<span class="lineNum">     557 </span>                :            :             {
+<span class="lineNum">     558 </span>                :<span class="lineCov">          2 :                 result = atiny_cmd_ioctl(ATINY_SET_CURRENT_TIME, (char *)&amp;current_time, sizeof(int64_t));</span>
+<span class="lineNum">     559 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if(result == ATINY_OK)</span>
+<span class="lineNum">     560 </span>                :            :                 {
+<span class="lineNum">     561 </span>                :<span class="lineCov">          1 :                     return COAP_204_CHANGED;</span>
+<span class="lineNum">     562 </span>                :            :                 }
+<span class="lineNum">     563 </span>                :            :                 else
+<span class="lineNum">     564 </span>                :            :                 {
+<span class="lineNum">     565 </span>                :<span class="lineCov">          1 :                     return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     566 </span>                :            :                 }
+<span class="lineNum">     567 </span>                :            :             }
+<span class="lineNum">     568 </span>                :            :             else
+<span class="lineNum">     569 </span>                :            :             {
+<span class="lineNum">     570 </span>                :<span class="lineCov">          1 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     571 </span>                :            :             }
+<span class="lineNum">     572 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     573 </span>                :            : 
+<span class="lineNum">     574 </span>                :            :         case RES_O_UTC_OFFSET:
+<span class="lineNum">     575 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          6 :             if (1 == prv_check_time_offset((char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length))</span>
+<span class="lineNum">     576 </span>                :            :             {
+<span class="lineNum">     577 </span>                :<span class="lineCov">          3 :                 result = atiny_cmd_ioctl(ATINY_SET_UTC_OFFSET, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     578 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :                 if(result == ATINY_OK)</span>
+<span class="lineNum">     579 </span>                :            :                 {
+<span class="lineNum">     580 </span>                :<span class="lineCov">          2 :                     return COAP_204_CHANGED;</span>
+<span class="lineNum">     581 </span>                :            :                 }
+<span class="lineNum">     582 </span>                :            :                 else
+<span class="lineNum">     583 </span>                :            :                 {
+<span class="lineNum">     584 </span>                :<span class="lineCov">          1 :                     return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     585 </span>                :            :                 }
+<span class="lineNum">     586 </span>                :            :             }
+<span class="lineNum">     587 </span>                :            :             else
+<span class="lineNum">     588 </span>                :            :             {
+<span class="lineNum">     589 </span>                :<span class="lineCov">          3 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     590 </span>                :            :             }
+<span class="lineNum">     591 </span>                :<span class="lineCov">          3 :             break;</span>
+<span class="lineNum">     592 </span>                :            : 
+<span class="lineNum">     593 </span>                :            :         case RES_O_TIMEZONE:
+<span class="lineNum">     594 </span>                :<span class="lineCov">          2 :             result = atiny_cmd_ioctl(ATINY_SET_TIMEZONE, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     595 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if(result == ATINY_OK)</span>
+<span class="lineNum">     596 </span>                :            :             {
+<span class="lineNum">     597 </span>                :<span class="lineCov">          1 :                 return COAP_204_CHANGED;</span>
+<span class="lineNum">     598 </span>                :            :             }
+<span class="lineNum">     599 </span>                :            :             else
+<span class="lineNum">     600 </span>                :            :             {
+<span class="lineNum">     601 </span>                :<span class="lineCov">          1 :                 return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     602 </span>                :            :             }
+<span class="lineNum">     603 </span>                :            :         //break;
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>                :            :         default:
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 :             result = COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     607 </span>                :            :         }
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>                :<span class="lineCov">          5 :         i++;</span>
+<span class="lineNum">     610 </span>                :            :     }
+<span class="lineNum">     611 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          5 :     while (i &lt; numData &amp;&amp; result == COAP_204_CHANGED);</span>
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :<span class="lineCov">         13 :     return result;</span>
+<a name="614"><span class="lineNum">     614 </span>                :            : }</a>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :<span class="lineCov">          7 : static uint8_t prv_device_execute(uint16_t instanceId,</span>
+<span class="lineNum">     617 </span>                :            :                                   uint16_t resourceId,
+<span class="lineNum">     618 </span>                :            :                                   uint8_t *buffer,
+<span class="lineNum">     619 </span>                :            :                                   int length,
+<span class="lineNum">     620 </span>                :            :                                   lwm2m_object_t *objectP)
+<span class="lineNum">     621 </span>                :            : {
+<span class="lineNum">     622 </span>                :            :     int result;
+<span class="lineNum">     623 </span>                :            :     // this is a single instance object
+<span class="lineNum">     624 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (instanceId != 0)</span>
+<span class="lineNum">     625 </span>                :            :     {
+<span class="lineNum">     626 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     627 </span>                :            :     }
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (length != 0) return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     630 </span>                :            : 
+<span class="lineNum">     631 </span>  [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     switch (resourceId)</span>
+<span class="lineNum">     632 </span>                :            :     {
+<span class="lineNum">     633 </span>                :            :     case RES_M_REBOOT:
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :         g_reboot = 1;</span>
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :         return COAP_204_CHANGED;</span>
+<span class="lineNum">     636 </span>                :            :     case RES_O_FACTORY_RESET:
+<span class="lineNum">     637 </span>                :<span class="lineCov">          2 :         result = atiny_cmd_ioctl(ATINY_DO_FACTORY_RESET, NULL, 0);</span>
+<span class="lineNum">     638 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     639 </span>                :            :         {
+<span class="lineNum">     640 </span>                :<span class="lineCov">          1 :             return COAP_204_CHANGED;</span>
+<span class="lineNum">     641 </span>                :            :         }
+<span class="lineNum">     642 </span>                :            :         else
+<span class="lineNum">     643 </span>                :            :         {
+<span class="lineNum">     644 </span>                :<span class="lineCov">          1 :             return COAP_503_SERVICE_UNAVAILABLE;</span>
+<span class="lineNum">     645 </span>                :            :         }
+<span class="lineNum">     646 </span>                :            :     case RES_O_RESET_ERROR_CODE:
+<span class="lineNum">     647 </span>                :<span class="lineCov">          2 :         result = atiny_cmd_ioctl(ATINY_DO_RESET_DEV_ERR, NULL, 0);</span>
+<span class="lineNum">     648 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(result == ATINY_OK)</span>
+<span class="lineNum">     649 </span>                :            :         {
+<span class="lineNum">     650 </span>                :<span class="lineCov">          1 :             return COAP_204_CHANGED;</span>
+<span class="lineNum">     651 </span>                :            :         }
+<span class="lineNum">     652 </span>                :            :         else
+<span class="lineNum">     653 </span>                :            :         {
+<span class="lineNum">     654 </span>                :<span class="lineCov">          1 :             return COAP_503_SERVICE_UNAVAILABLE;</span>
+<span class="lineNum">     655 </span>                :            :         }
+<span class="lineNum">     656 </span>                :            :     default:
+<span class="lineNum">     657 </span>                :<span class="lineCov">          7 :         return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     658 </span>                :            :     }
+<a name="659"><span class="lineNum">     659 </span>                :            : }</a>
+<span class="lineNum">     660 </span>                :            : 
+<span class="lineNum">     661 </span>                :<span class="lineCov">          1 : void display_device_object(lwm2m_object_t *object)</span>
+<span class="lineNum">     662 </span>                :            : {
+<span class="lineNum">     663 </span>                :            : #ifdef WITH_LOGS
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>                :            : #endif
+<span class="lineNum">     666 </span>                :<span class="lineCov">          1 : }</span>
+<a name="667"><span class="lineNum">     667 </span>                :            : </a>
+<span class="lineNum">     668 </span>                :            : 
+<span class="lineNum">     669 </span>                :<span class="lineCov">         13 : lwm2m_object_t *get_object_device(atiny_param_t *atiny_params, const char *manufacturer)</span>
+<span class="lineNum">     670 </span>                :            : {
+<span class="lineNum">     671 </span>                :            :     /*
+<span class="lineNum">     672 </span>                :            :      * The get_object_device function create the object itself and return a pointer to the structure that represent it.
+<span class="lineNum">     673 </span>                :            :      */
+<span class="lineNum">     674 </span>                :            :     lwm2m_object_t *deviceObj;
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">         13 :     deviceObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         13 :     if (NULL != deviceObj)</span>
+<span class="lineNum">     679 </span>                :            :     {
+<span class="lineNum">     680 </span>                :<span class="lineCov">         13 :         memset(deviceObj, 0, sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     681 </span>                :            : 
+<span class="lineNum">     682 </span>                :            :         /*
+<span class="lineNum">     683 </span>                :            :          * It assigns his unique ID
+<span class="lineNum">     684 </span>                :            :          * The 3 is the standard ID for the mandatory object &quot;Object device&quot;.
+<span class="lineNum">     685 </span>                :            :          */
+<span class="lineNum">     686 </span>                :<span class="lineCov">         13 :         deviceObj-&gt;objID = LWM2M_DEVICE_OBJECT_ID;</span>
+<span class="lineNum">     687 </span>                :            : 
+<span class="lineNum">     688 </span>                :            :         /*
+<span class="lineNum">     689 </span>                :            :          * and its unique instance
+<span class="lineNum">     690 </span>                :            :          *
+<span class="lineNum">     691 </span>                :            :          */
+<span class="lineNum">     692 </span>                :<span class="lineCov">         13 :         deviceObj-&gt;instanceList = (lwm2m_list_t *)lwm2m_malloc(sizeof(lwm2m_list_t));</span>
+<span class="lineNum">     693 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         13 :         if (NULL != deviceObj-&gt;instanceList)</span>
+<span class="lineNum">     694 </span>                :            :         {
+<span class="lineNum">     695 </span>                :<span class="lineCov">         12 :             memset(deviceObj-&gt;instanceList, 0, sizeof(lwm2m_list_t));</span>
+<span class="lineNum">     696 </span>                :            :         }
+<span class="lineNum">     697 </span>                :            :         else
+<span class="lineNum">     698 </span>                :            :         {
+<span class="lineNum">     699 </span>                :<span class="lineCov">          1 :             lwm2m_free(deviceObj);</span>
+<span class="lineNum">     700 </span>                :<span class="lineCov">          1 :             return NULL;</span>
+<span class="lineNum">     701 </span>                :            :         }
+<span class="lineNum">     702 </span>                :            : 
+<span class="lineNum">     703 </span>                :            :         /*
+<span class="lineNum">     704 </span>                :            :          * And the private function that will access the object.
+<span class="lineNum">     705 </span>                :            :          * Those function will be called when a read/write/execute query is made by the server. In fact the library don't need to
+<span class="lineNum">     706 </span>                :            :          * know the resources of the object, only the server does.
+<span class="lineNum">     707 </span>                :            :          */
+<span class="lineNum">     708 </span>                :<span class="lineCov">         12 :         deviceObj-&gt;readFunc     = prv_device_read;</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">         12 :         deviceObj-&gt;discoverFunc = prv_device_discover;</span>
+<span class="lineNum">     710 </span>                :<span class="lineCov">         12 :         deviceObj-&gt;writeFunc    = prv_device_write;</span>
+<span class="lineNum">     711 </span>                :<span class="lineCov">         12 :         deviceObj-&gt;executeFunc  = prv_device_execute;</span>
+<span class="lineNum">     712 </span>                :            :     }
+<span class="lineNum">     713 </span>                :            : 
+<span class="lineNum">     714 </span>                :<span class="lineCov">         13 :     return deviceObj;</span>
+<a name="715"><span class="lineNum">     715 </span>                :            : }</a>
+<span class="lineNum">     716 </span>                :            : 
+<span class="lineNum">     717 </span>                :<span class="lineCov">         12 : void free_object_device(lwm2m_object_t *objectP)</span>
+<span class="lineNum">     718 </span>                :            : {
+<span class="lineNum">     719 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if (NULL != objectP-&gt;userData)</span>
+<span class="lineNum">     720 </span>                :            :     {
+<span class="lineNum">     721 </span>                :<span class="lineCov">          1 :         lwm2m_free(objectP-&gt;userData);</span>
+<span class="lineNum">     722 </span>                :<span class="lineCov">          1 :         objectP-&gt;userData = NULL;</span>
+<span class="lineNum">     723 </span>                :            :     }
+<span class="lineNum">     724 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         12 :     if (NULL != objectP-&gt;instanceList)</span>
+<span class="lineNum">     725 </span>                :            :     {
+<span class="lineNum">     726 </span>                :<span class="lineCov">         12 :         lwm2m_list_free(objectP-&gt;instanceList);</span>
+<span class="lineNum">     727 </span>                :<span class="lineCov">         12 :         objectP-&gt;instanceList = NULL;</span>
+<span class="lineNum">     728 </span>                :            :     }
+<span class="lineNum">     729 </span>                :            : 
+<span class="lineNum">     730 </span>                :<span class="lineCov">         12 :     lwm2m_free(objectP);</span>
+<span class="lineNum">     731 </span>                :<span class="lineCov">         12 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

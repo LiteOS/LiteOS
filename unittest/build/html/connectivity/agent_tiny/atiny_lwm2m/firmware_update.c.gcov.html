@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/firmware_update.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - firmware_update.c<span style="font-size: 80%;"> (source / <a href="firmware_update.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntry">178</td>
+            <td class="headerCovTableEntryHi">93.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntryLo">61.2 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;internals.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;atiny_lwm2m/agenttiny.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;log/atiny_log.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;ota/package.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;firmware_update.h&quot;
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : #define FW_BLOCK_SIZE (512)
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : #define COAP_PROTO_PREFIX &quot;coap://&quot;
+<span class="lineNum">      44 </span>                :            : #define COAPS_PROTO_PREFIX &quot;coaps://&quot;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : typedef struct fw_update_record
+<span class="lineNum">      47 </span>                :            : {
+<span class="lineNum">      48 </span>                :            :     uint8_t in_use;
+<span class="lineNum">      49 </span>                :            :     uint8_t block_more;
+<span class="lineNum">      50 </span>                :            :     uint16_t block_size;
+<span class="lineNum">      51 </span>                :            :     uint32_t block_num;
+<span class="lineNum">      52 </span>                :            :     uint32_t block_offset;
+<span class="lineNum">      53 </span>                :            :     uint32_t uri_len;
+<span class="lineNum">      54 </span>                :            :     char *uri;
+<span class="lineNum">      55 </span>                :            : } fw_update_record_t;
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : static char *g_ota_uri = NULL;
+<span class="lineNum">      58 </span>                :            : static pack_storage_device_api_s *g_fota_storage_device = NULL;
+<span class="lineNum">      59 </span>                :            : static fw_update_record_t g_fw_update_record = {0};
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : static firmware_update_notify g_firmware_update_notify = NULL;
+<a name="62"><span class="lineNum">      62 </span>                :            : static void *g_firmware_update_notify_param = NULL;</a>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineCov">         12 : static void firmware_download_reply(lwm2m_transaction_t *transacP,</span>
+<span class="lineNum">      65 </span>                :            :                                     void *message)
+<span class="lineNum">      66 </span>                :            : {
+<span class="lineNum">      67 </span>                :<span class="lineCov">         12 :     coap_packet_t *packet = (coap_packet_t *)message;</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">         12 :     lwm2m_context_t *contextP = (lwm2m_context_t *)(transacP-&gt;userData);</span>
+<span class="lineNum">      69 </span>                :            :     lwm2m_transaction_t *transaction;
+<span class="lineNum">      70 </span>                :<span class="lineCov">         12 :     uint32_t len = 0;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">         12 :     uint32_t block_num = 0;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">         12 :     uint8_t block2_more = 0;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">         12 :     uint16_t block_size = FW_BLOCK_SIZE;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">         12 :     uint32_t block_offset = 0;</span>
+<span class="lineNum">      75 </span>                :<span class="lineCov">         12 :     int ret = 0;</span>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if(NULL == message)</span>
+<span class="lineNum">      78 </span>                :            :     {
+<span class="lineNum">      79 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;transaction timeout&quot;);</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :         goto failed_exit;</span>
+<span class="lineNum">      81 </span>                :            :     }
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 9 times"> + </span>]:<span class="lineCov">         11 :     if(1 != coap_get_header_block2(message, &amp;block_num, &amp;block2_more, &amp;block_size, &amp;block_offset))</span>
+<span class="lineNum">      84 </span>                :            :     {
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;coap_get_header_block2 failed&quot;);</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          2 :         goto failed_exit;</span>
+<span class="lineNum">      87 </span>                :            :     }
+<span class="lineNum">      88 </span>        [<span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          9 :     ATINY_LOG(LOG_ERR, &quot;block_num : %lu, block2_more : %lu, block_offset : %lu, payload_len is %u&quot;,</span>
+<span class="lineNum">      89 </span>                :            :               block_num, (uint32_t)block2_more, block_offset, packet-&gt;payload_len);
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          9 :     if(0 == block_num)</span>
+<span class="lineNum">      92 </span>                :            :     {
+<span class="lineNum">      93 </span>                :<span class="lineCov">          1 :         g_fw_update_record.in_use = 1;</span>
+<span class="lineNum">      94 </span>                :            :     }
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :<span class="lineCov">          9 :     g_fw_update_record.block_size = block_size;</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          9 :     g_fw_update_record.block_num = block_num;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          9 :     g_fw_update_record.block_offset = block_offset;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          9 :     g_fw_update_record.block_more = block2_more;</span>
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :<span class="lineCov">          9 :     len = (uint32_t)(packet-&gt;payload_len);</span>
+<span class="lineNum">     102 </span>[<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          9 :     if(g_fota_storage_device &amp;&amp; g_fota_storage_device-&gt;write_software)</span>
+<span class="lineNum">     103 </span>                :            :     {
+<span class="lineNum">     104 </span>                :<span class="lineCov">          7 :         ret = g_fota_storage_device-&gt;write_software(g_fota_storage_device, block_offset, packet-&gt;payload, len);</span>
+<span class="lineNum">     105 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :         if(ret != 0)</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :             goto failed_exit;</span>
+<span class="lineNum">     107 </span>                :            :     }
+<span class="lineNum">     108 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     else if(NULL == g_fota_storage_device)</span>
+<span class="lineNum">     109 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device NULL&quot;);</span>
+<span class="lineNum">     110 </span>                :            :     else
+<span class="lineNum">     111 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device-&gt;write_software NULL&quot;);</span>
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :<span class="lineCov">          8 :     len = block_offset + (uint32_t)(packet-&gt;payload_len);</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :     if(block2_more)</span>
+<span class="lineNum">     116 </span>                :            :     {
+<span class="lineNum">     117 </span>                :<span class="lineCov">          6 :         transaction = transaction_new(transacP-&gt;peerH, COAP_GET, NULL, NULL, contextP-&gt;nextMID++, 4, NULL);</span>
+<span class="lineNum">     118 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :         if(!transaction)</span>
+<span class="lineNum">     119 </span>                :            :         {
+<span class="lineNum">     120 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_ERR, &quot;transaction_new failed&quot;);</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :             goto failed_exit;</span>
+<span class="lineNum">     122 </span>                :            :         }
+<span class="lineNum">     123 </span>                :<span class="lineCov">          5 :         ret = coap_set_header_uri_path(transaction-&gt;message, g_ota_uri);</span>
+<span class="lineNum">     124 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          5 :         if(ret &lt; 0 || NULL == transaction-&gt;message-&gt;uri_path)</span>
+<span class="lineNum">     125 </span>                :            :         {
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :             transaction_free(transaction);</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :             goto failed_exit;</span>
+<span class="lineNum">     128 </span>                :            :         }
+<span class="lineNum">     129 </span>                :            :         //coap_set_header_uri_query(transaction-&gt;message, query);
+<span class="lineNum">     130 </span>                :<span class="lineCov">          4 :         ret = coap_set_header_block2(transaction-&gt;message, g_fw_update_record.block_num + 1, 0, g_fw_update_record.block_size);</span>
+<span class="lineNum">     131 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :         if(ret &lt; 0)</span>
+<span class="lineNum">     132 </span>                :            :         {
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :             transaction_free(transaction);</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :             goto failed_exit;</span>
+<span class="lineNum">     135 </span>                :            :         }
+<span class="lineNum">     136 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         ATINY_LOG(LOG_DEBUG, &quot;get next : %lu&quot;, block_num + 1);</span>
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :<span class="lineCov">          3 :         transaction-&gt;callback = firmware_download_reply;</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          3 :         transaction-&gt;userData = (void *)contextP;</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          3 :         contextP-&gt;transactionList = (lwm2m_transaction_t *)LWM2M_LIST_ADD(contextP-&gt;transactionList, transaction);</span>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :         if(transaction_send(contextP, transaction) != 0)</span>
+<span class="lineNum">     144 </span>                :            :         {
+<span class="lineNum">     145 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :             ATINY_LOG(LOG_ERR, &quot;transaction_send failed&quot;);</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">          3 :             goto failed_exit;</span>
+<span class="lineNum">     147 </span>                :            :         }
+<span class="lineNum">     148 </span>                :            :     }
+<span class="lineNum">     149 </span>                :            :     else
+<span class="lineNum">     150 </span>                :            :     {
+<span class="lineNum">     151 </span>                :<span class="lineCov">          2 :         ret = ATINY_ERR;</span>
+<span class="lineNum">     152 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(g_fota_storage_device &amp;&amp; g_fota_storage_device-&gt;write_software_end)</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :             ret = g_fota_storage_device-&gt;write_software_end(g_fota_storage_device, PACK_DOWNLOAD_OK, len);</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         else if(NULL == g_fota_storage_device)</span>
+<span class="lineNum">     155 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device NULL&quot;);</span>
+<span class="lineNum">     156 </span>                :            :         else
+<span class="lineNum">     157 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device-&gt;write_software_end NULL&quot;);</span>
+<span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;g_firmware_update_notify FIRMWARE_UPDATE_RST_SUCCESS, write end ret %d&quot;, ret);</span>
+<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if(g_firmware_update_notify)</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">          2 :             g_firmware_update_notify((ret == ATINY_OK) ?  FIRMWARE_UPDATE_RST_SUCCESS : FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);</span>
+<span class="lineNum">     161 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;download success, total size : %lu, write end ret %d&quot;, len, ret);</span>
+<span class="lineNum">     162 </span>                :            :     }
+<span class="lineNum">     163 </span>                :<span class="lineCov">          2 :     return;</span>
+<span class="lineNum">     164 </span>                :            : failed_exit:
+<span class="lineNum">     165 </span>[<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if(g_fota_storage_device &amp;&amp; g_fota_storage_device-&gt;write_software_end)</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :         (void)g_fota_storage_device-&gt;write_software_end(g_fota_storage_device, PACK_DOWNLOAD_FAIL, len);</span>
+<span class="lineNum">     167 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">          9 :     else if(NULL == g_fota_storage_device)</span>
+<span class="lineNum">     168 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device NULL&quot;);</span>
+<span class="lineNum">     169 </span>                :            :     else
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          9 :         ATINY_LOG(LOG_ERR, &quot;g_fota_storage_device-&gt;write_software_end NULL&quot;);</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         10 :     ATINY_LOG(LOG_INFO, &quot;g_firmware_update_notify FIRMWARE_UPDATE_RST_FAILED&quot;);</span>
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :     if(g_firmware_update_notify)</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">         10 :         g_firmware_update_notify(FIRMWARE_UPDATE_RST_FAILED, g_firmware_update_notify_param);</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">         12 :     return;</span>
+<a name="175"><span class="lineNum">     175 </span>                :            : }</a>
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :<span class="lineCov">          7 : static int record_fw_uri(char *uri, int uri_len)</span>
+<span class="lineNum">     178 </span>                :            : {
+<span class="lineNum">     179 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          7 :     if(!uri || *uri == '\0' || uri_len &lt;= 0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 7 times"> + </span>]
+<span class="lineNum">     180 </span>                :            :     {
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     182 </span>                :            :     }
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineCov">          7 :     g_fw_update_record.uri = (char *)lwm2m_malloc(uri_len + 1);</span>
+<span class="lineNum">     185 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :     if(NULL == g_fw_update_record.uri)</span>
+<span class="lineNum">     186 </span>                :            :     {
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;lwm2m_malloc failed&quot;);</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     189 </span>                :            :     }
+<span class="lineNum">     190 </span>                :<span class="lineCov">          7 :     memcpy(g_fw_update_record.uri, uri, uri_len);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          7 :     g_fw_update_record.uri[uri_len] = '\0';</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          7 :     g_fw_update_record.uri_len = uri_len;</span>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineCov">          7 :     return 0;</span>
+<a name="195"><span class="lineNum">     195 </span>                :            : }</a>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineCov">          7 : static int update_uri_info(char *uri, int uri_len, unsigned char *update_flag)</span>
+<span class="lineNum">     198 </span>                :            : {
+<span class="lineNum">     199 </span>                :<span class="lineCov">          7 :     int ret = -1;</span>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          7 :     if(!uri || *uri == '\0' || uri_len &lt;= 0 || !update_flag)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 7 times"> + </span>]
+<span class="lineNum">     202 </span>                :            :     {
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     204 </span>                :            :     }
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          7 :     if(1 == g_fw_update_record.in_use &amp;&amp; NULL != g_fw_update_record.uri &amp;&amp; 0 == memcmp(g_fw_update_record.uri, uri, uri_len))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     207 </span>                :            :     {
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         *update_flag = 0;</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     210 </span>                :            :     }
+<span class="lineNum">     211 </span>                :            :     else
+<span class="lineNum">     212 </span>                :            :     {
+<span class="lineNum">     213 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          7 :         if(NULL != g_fw_update_record.uri)</span>
+<span class="lineNum">     214 </span>                :            :         {
+<span class="lineNum">     215 </span>                :<span class="lineCov">          2 :             lwm2m_free(g_fw_update_record.uri);</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">          2 :             g_fw_update_record.uri = NULL;</span>
+<span class="lineNum">     217 </span>                :            :         }
+<span class="lineNum">     218 </span>                :<span class="lineCov">          7 :         memset(&amp;g_fw_update_record, 0x0, sizeof(g_fw_update_record));</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          7 :         ret = record_fw_uri(uri, uri_len);</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          7 :         *update_flag = 1;</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :         if(0 != ret)</span>
+<span class="lineNum">     222 </span>                :            :         {
+<span class="lineNum">     223 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             ATINY_LOG(LOG_ERR, &quot;record_fw_uri failed&quot;);</span>
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :             return -1;</span>
+<span class="lineNum">     225 </span>                :            :         }
+<span class="lineNum">     226 </span>                :<span class="lineCov">          7 :         return 0;</span>
+<span class="lineNum">     227 </span>                :            :     }
+<a name="228"><span class="lineNum">     228 </span>                :            : }</a>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineCov">         13 : void set_firmware_update_notify(firmware_update_notify notify_cb, void *param)</span>
+<span class="lineNum">     231 </span>                :            : {
+<span class="lineNum">     232 </span>                :<span class="lineCov">         13 :     g_firmware_update_notify = notify_cb;</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">         13 :     g_firmware_update_notify_param = param;</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :<span class="lineCov">         13 :     return;</span>
+<a name="236"><span class="lineNum">     236 </span>                :            : }</a>
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineCov">         13 : int parse_firmware_uri(char *uri, int uri_len)</span>
+<span class="lineNum">     239 </span>                :            : {
+<span class="lineNum">     240 </span>                :            :     char *char_p, *path;
+<span class="lineNum">     241 </span>                :            :     int path_len, proto_len;
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         13 :     if(!uri || *uri == '\0' || uri_len &lt;= 0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 12 times"> + </span>]
+<span class="lineNum">     244 </span>                :            :     {
+<span class="lineNum">     245 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     246 </span>                :            :     }
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         12 :     if(0 == strncmp(uri, COAP_PROTO_PREFIX, strlen(COAP_PROTO_PREFIX)))</span>
+<span class="lineNum">     249 </span>                :<span class="lineCov">         10 :         proto_len = strlen(COAP_PROTO_PREFIX);</span>
+<span class="lineNum">     250 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     else if(0 == strncmp(uri, COAPS_PROTO_PREFIX, strlen(COAPS_PROTO_PREFIX)))</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">          1 :         proto_len = strlen(COAPS_PROTO_PREFIX);</span>
+<span class="lineNum">     252 </span>                :            :     else
+<span class="lineNum">     253 </span>                :            :     {
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;unsupported proto&quot;);</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     256 </span>                :            :     }
+<span class="lineNum">     257 </span>                :            :     //暂不考虑query
+<span class="lineNum">     258 </span>                :<span class="lineCov">         11 :     char_p = uri + proto_len;</span>
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if(*char_p == '\0') // eg. just &quot;coap://&quot;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">         10 :     path = strchr(char_p, '/');</span>
+<span class="lineNum">     262 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         10 :     if(NULL == path)</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          2 :         return -1;</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          8 :     path_len = uri_len - (path - uri);</span>
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :<span class="lineCov">          8 :     g_ota_uri = (char *)lwm2m_malloc(path_len + 1);</span>
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if(!g_ota_uri)</span>
+<span class="lineNum">     268 </span>                :            :     {
+<span class="lineNum">     269 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;lwm2m_malloc failed&quot;);</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     271 </span>                :            :     }
+<span class="lineNum">     272 </span>                :            :     /*lint -esym(668,memcpy) */
+<span class="lineNum">     273 </span>                :<span class="lineCov">          7 :     memcpy(g_ota_uri, path, path_len);</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">          7 :     g_ota_uri[path_len] = '\0';</span>
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :<span class="lineCov">         13 :     return 0;</span>
+<a name="277"><span class="lineNum">     277 </span>                :            : }</a>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :<span class="lineCov">          9 : int start_firmware_download(lwm2m_context_t *contextP, char *uri,</span>
+<span class="lineNum">     280 </span>                :            :                             pack_storage_device_api_s *storage_device_p)
+<span class="lineNum">     281 </span>                :            : {
+<span class="lineNum">     282 </span>                :            :     lwm2m_transaction_t *transaction;
+<span class="lineNum">     283 </span>                :<span class="lineCov">          9 :     unsigned char update_flag = 0;</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          9 :     int ret = -1;</span>
+<span class="lineNum">     285 </span>                :            :     int uri_len;
+<span class="lineNum">     286 </span>                :            :     lwm2m_server_t *server;
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          9 :     if(!contextP || !uri || *uri == '\0' || !storage_device_p)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 8 times"> + </span>]
+<span class="lineNum">     289 </span>                :            :     {
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;invalid params&quot;);</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     292 </span>                :            :     }
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          8 :     ATINY_LOG(LOG_ERR, &quot;start download&quot;);</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          8 :     g_fota_storage_device = storage_device_p;</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          8 :     uri_len = strlen(uri);</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">          8 :     server = registration_get_registered_server(contextP);</span>
+<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if(NULL == server)</span>
+<span class="lineNum">     298 </span>                :            :     {
+<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;registration_get_registered_server failed&quot;);</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     301 </span>                :            :     }
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineCov">          7 :     ret = update_uri_info(uri, uri_len, &amp;update_flag);</span>
+<span class="lineNum">     304 </span>                :            :     if(0 != ret)
+<span class="lineNum">     305 </span>                :            :     {
+<span class="lineNum">     306 </span>                :            :         ;// continue to although update_uri_info failed
+<span class="lineNum">     307 </span>                :            :     }
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 7 times"> + </span>]:<span class="lineCov">          7 :     ATINY_LOG(LOG_DEBUG, &quot;update_flag = %u&quot;, update_flag);</span>
+<span class="lineNum">     310 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          7 :     if(!(0 == update_flag &amp;&amp; NULL != g_ota_uri))</span>
+<span class="lineNum">     311 </span>                :            :     {
+<span class="lineNum">     312 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          7 :         if(NULL != g_ota_uri)</span>
+<span class="lineNum">     313 </span>                :            :         {
+<span class="lineNum">     314 </span>                :<span class="lineCov">          2 :             lwm2m_free(g_ota_uri);</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">          2 :             g_ota_uri = NULL;</span>
+<span class="lineNum">     316 </span>                :            :         }
+<span class="lineNum">     317 </span>                :<span class="lineCov">          7 :         ret = parse_firmware_uri(uri, uri_len);</span>
+<span class="lineNum">     318 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :         if(0 != ret)</span>
+<span class="lineNum">     319 </span>                :            :         {
+<span class="lineNum">     320 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_ERR, &quot;parse_firmware_uri failed&quot;);</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">          1 :             return -1;</span>
+<span class="lineNum">     322 </span>                :            :         }
+<span class="lineNum">     323 </span>                :            :     }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :<span class="lineCov">          6 :     transaction = transaction_new(server-&gt;sessionH, COAP_GET, NULL, NULL, contextP-&gt;nextMID++, 4, NULL);</span>
+<span class="lineNum">     326 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          6 :     if(!transaction)</span>
+<span class="lineNum">     327 </span>                :            :     {
+<span class="lineNum">     328 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;transaction_new failed&quot;);</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          2 :         return -1;</span>
+<span class="lineNum">     330 </span>                :            :     }
+<span class="lineNum">     331 </span>                :<span class="lineCov">          4 :     ret = coap_set_header_uri_path(transaction-&gt;message, g_ota_uri);</span>
+<span class="lineNum">     332 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if(ret &lt; 0 || NULL == transaction-&gt;message-&gt;uri_path)</span>
+<span class="lineNum">     333 </span>                :            :     {
+<span class="lineNum">     334 </span>                :<span class="lineCov">          1 :         transaction_free(transaction);</span>
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     336 </span>                :            :     }
+<span class="lineNum">     337 </span>                :            :     //coap_set_header_uri_query(transaction-&gt;message, query);
+<span class="lineNum">     338 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :     if(1 == g_fw_update_record.in_use)</span>
+<span class="lineNum">     339 </span>                :            :     {
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :         ret = coap_set_header_block2(transaction-&gt;message, g_fw_update_record.block_num + 1, 0, g_fw_update_record.block_size);</span>
+<span class="lineNum">     341 </span>                :            :     }
+<span class="lineNum">     342 </span>                :            :     else
+<span class="lineNum">     343 </span>                :            :     {
+<span class="lineNum">     344 </span>                :<span class="lineCov">          3 :         ret = coap_set_header_block2(transaction-&gt;message, 0, 0, FW_BLOCK_SIZE);</span>
+<span class="lineNum">     345 </span>                :            :     }
+<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if(ret != 1)</span>
+<span class="lineNum">     347 </span>                :            :     {
+<span class="lineNum">     348 </span>                :<span class="lineCov">          1 :         transaction_free(transaction);</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     350 </span>                :            :     }
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineCov">          2 :     transaction-&gt;callback = firmware_download_reply;</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">          2 :     transaction-&gt;userData = (void *)contextP;</span>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :<span class="lineCov">          2 :     contextP-&gt;transactionList = (lwm2m_transaction_t *)LWM2M_LIST_ADD(contextP-&gt;transactionList, transaction);</span>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     if(transaction_send(contextP, transaction) != 0)</span>
+<span class="lineNum">     358 </span>                :            :     {
+<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_ERR, &quot;transaction_send failed&quot;);</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          2 :         return -1;</span>
+<span class="lineNum">     361 </span>                :            :     }
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :<span class="lineCov">          9 :     return 0;</span>
+<a name="364"><span class="lineNum">     364 </span>                :            : }</a>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :<span class="lineCov">          6 : void clean_firmware_record(void)</span>
+<span class="lineNum">     367 </span>                :            : {
+<span class="lineNum">     368 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     if(NULL != g_ota_uri)</span>
+<span class="lineNum">     369 </span>                :            :     {
+<span class="lineNum">     370 </span>                :<span class="lineCov">          5 :         lwm2m_free(g_ota_uri);</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">          5 :         g_ota_uri = NULL;</span>
+<span class="lineNum">     372 </span>                :            :     }
+<span class="lineNum">     373 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     if(NULL != g_fw_update_record.uri)</span>
+<span class="lineNum">     374 </span>                :            :     {
+<span class="lineNum">     375 </span>                :<span class="lineCov">          5 :         lwm2m_free(g_fw_update_record.uri);</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          5 :         g_fw_update_record.uri = NULL;</span>
+<span class="lineNum">     377 </span>                :            :     }
+<span class="lineNum">     378 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">     379 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

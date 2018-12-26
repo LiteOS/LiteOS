@@ -1,0 +1,984 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - net/at_device/nb_bc95/bc95.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">net/at_device/nb_bc95</a> - bc95.c<span style="font-size: 80%;"> (source / <a href="bc95.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">361</td>
+            <td class="headerCovTableEntry">377</td>
+            <td class="headerCovTableEntryHi">95.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryMed">77.2 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;ctype.h&gt;
+<span class="lineNum">      36 </span>                :            : #if defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">      37 </span>                :            : #include &quot;at_device/bc95.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;at_hal.h&quot;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : //#include &quot;bc95_test.h&quot;
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : extern at_task at;
+<span class="lineNum">      46 </span>                :            : at_adaptor_api bc95_interface;
+<span class="lineNum">      47 </span>                :            : extern char rbuf[AT_DATA_LEN];
+<span class="lineNum">      48 </span>                :            : extern char wbuf[AT_DATA_LEN];
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : typedef struct
+<span class="lineNum">      52 </span>                :            : {
+<span class="lineNum">      53 </span>                :            :     uint32_t data_len;
+<span class="lineNum">      54 </span>                :            :     int link_idx;
+<span class="lineNum">      55 </span>                :            :     bool valid_flag;
+<span class="lineNum">      56 </span>                :            : }nb_data_ind_info_s;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : char tmpbuf[AT_DATA_LEN]={0}; //transform to hex
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : socket_info sockinfo[MAX_SOCK_NUM];
+<span class="lineNum">      61 </span>                :            : static nb_data_ind_info_s g_data_ind_info;
+<a name="62"><span class="lineNum">      62 </span>                :            : </a>
+<span class="lineNum">      63 </span>                :            : #if defined ( __CC_ARM ) || defined ( __ICCARM__ )
+<span class="lineNum">      64 </span>                :<span class="lineCov">          1 : static char *strnstr(const char *s1, const char *s2, size_t len)</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :            :     size_t l2;
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :     l2 = strlen(s2);</span>
+<span class="lineNum">      69 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (!l2)</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :         return (char *)s1;</span>
+<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     while (len &gt;= l2) {</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         len--;</span>
+<span class="lineNum">      73 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!memcmp(s1, s2, l2))</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :             return (char *)s1;</span>
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :         s1++;</span>
+<span class="lineNum">      76 </span>                :            :     }
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :     return NULL;</span>
+<span class="lineNum">      78 </span>                :            : }
+<a name="79"><span class="lineNum">      79 </span>                :            : #endif</a>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineCov">          5 : static int nb_alloc_sock(int socket)</span>
+<span class="lineNum">      82 </span>                :            : {
+<span class="lineNum">      83 </span>                :            :     int idx;
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 0 was taken 17 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         20 :     for (uint32_t i = 0; i &lt; MAX_SOCK_NUM; ++i)</span>
+<span class="lineNum">      86 </span>                :            :     {
+<span class="lineNum">      87 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         17 :         if (sockinfo[i].used_flag  &amp;&amp; (sockinfo[i].socket == socket))</span>
+<span class="lineNum">      88 </span>                :            :         {
+<span class="lineNum">      89 </span>                :<span class="lineCov">          2 :             return i;</span>
+<span class="lineNum">      90 </span>                :            :         }
+<span class="lineNum">      91 </span>                :            :     }
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineCov">          3 :     idx  = (socket % MAX_SOCK_NUM);</span>
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (!sockinfo[idx].used_flag)</span>
+<span class="lineNum">      95 </span>                :            :     {
+<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :         return idx;</span>
+<span class="lineNum">      97 </span>                :            :     }
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          7 :     for (uint32_t i = 0; i &lt; MAX_SOCK_NUM; ++i)</span>
+<span class="lineNum">     100 </span>                :            :     {
+<span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :         if (!sockinfo[i].used_flag)</span>
+<span class="lineNum">     102 </span>                :            :         {
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :             return i;</span>
+<span class="lineNum">     104 </span>                :            :         }
+<span class="lineNum">     105 </span>                :            :     }
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :     AT_LOG(&quot;save socket fail %d&quot;, socket);</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          5 :     return MAX_SOCK_NUM;</span>
+<a name="108"><span class="lineNum">     108 </span>                :            : }</a>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineCov">          8 : static int nb_sock_to_idx(int socket)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :            :     int idx;
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineCov">          8 :     idx  = (socket % MAX_SOCK_NUM);</span>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          8 :     if (sockinfo[idx].used_flag &amp;&amp; (socket == sockinfo[idx].socket))</span>
+<span class="lineNum">     117 </span>                :            :     {
+<span class="lineNum">     118 </span>                :<span class="lineCov">          6 :         return idx;</span>
+<span class="lineNum">     119 </span>                :            :     }
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         12 :     for (uint32_t i = 0; i &lt; MAX_SOCK_NUM; ++i)</span>
+<span class="lineNum">     122 </span>                :            :     {
+<span class="lineNum">     123 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         10 :         if (sockinfo[i].used_flag &amp;&amp; (socket == sockinfo[i].socket))</span>
+<span class="lineNum">     124 </span>                :            :         {
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :             return i;</span>
+<span class="lineNum">     126 </span>                :            :         }
+<span class="lineNum">     127 </span>                :            :     }
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">          8 :     return MAX_SOCK_NUM;</span>
+<a name="130"><span class="lineNum">     130 </span>                :            : }</a>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineCov">          5 : int str_to_hex(const char *bufin, int len, char *bufout)</span>
+<span class="lineNum">     133 </span>                :            : {
+<span class="lineNum">     134 </span>                :<span class="lineCov">          5 :     int i = 0;</span>
+<span class="lineNum">     135 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :     if (NULL == bufin || len &lt;= 0 || NULL == bufout)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 4 times"> + </span>]
+<span class="lineNum">     136 </span>                :            :     {
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     138 </span>                :            :     }
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         18 :     for(i = 0; i &lt; len; i++)</span>
+<span class="lineNum">     140 </span>                :            :     {
+<span class="lineNum">     141 </span>                :<span class="lineCov">         14 :         sprintf(bufout+i*2, &quot;%02X&quot;, bufin[i]);</span>
+<span class="lineNum">     142 </span>                :            :     }
+<span class="lineNum">     143 </span>                :<span class="lineCov">          5 :     return 0;</span>
+<a name="144"><span class="lineNum">     144 </span>                :            : }</a>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineCov">          3 : void HexStrToStr(const unsigned char *source, unsigned char *dest, int sourceLen)</span>
+<span class="lineNum">     147 </span>                :            : {
+<span class="lineNum">     148 </span>                :            :     short i;
+<span class="lineNum">     149 </span>                :            :     unsigned char highByte, lowByte;
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :     for (i = 0; i &lt; sourceLen; i += 2)</span>
+<span class="lineNum">     151 </span>                :            :     {
+<span class="lineNum">     152 </span>                :<span class="lineCov">          3 :         highByte = toupper(source[i]);</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          3 :         lowByte  = toupper(source[i + 1]);</span>
+<span class="lineNum">     154 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (highByte &gt; 0x39)</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">          1 :             highByte -= 0x37;</span>
+<span class="lineNum">     156 </span>                :            :         else
+<span class="lineNum">     157 </span>                :<span class="lineCov">          2 :             highByte -= 0x30;</span>
+<span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (lowByte &gt; 0x39)</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :             lowByte -= 0x37;</span>
+<span class="lineNum">     160 </span>                :            :         else
+<span class="lineNum">     161 </span>                :<span class="lineCov">          2 :             lowByte -= 0x30;</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">          3 :         dest[i / 2] = (highByte &lt;&lt; 4) | lowByte;</span>
+<span class="lineNum">     163 </span>                :            :     }
+<span class="lineNum">     164 </span>                :<span class="lineCov">          3 :     return ;</span>
+<a name="165"><span class="lineNum">     165 </span>                :            : }</a>
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :<span class="lineCov">          2 : int32_t nb_reboot(void)</span>
+<span class="lineNum">     168 </span>                :            : {
+<span class="lineNum">     169 </span>                :            :    // memset(sockinfo, 0, MAX_SOCK_NUM * sizeof(struct _socket_info_t));
+<span class="lineNum">     170 </span>                :<span class="lineCov">          2 :     return at.cmd((int8_t*)AT_NB_reboot, strlen(AT_NB_reboot), &quot;OK&quot;, NULL,NULL);</span>
+<a name="171"><span class="lineNum">     171 </span>                :            : }</a>
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">          1 : int32_t nb_hw_detect(void)//&quot;AT+CFUN?\r&quot;</span>
+<span class="lineNum">     174 </span>                :            : {
+<span class="lineNum">     175 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)AT_NB_hw_detect, strlen(AT_NB_hw_detect), &quot;+CFUN:1&quot;, NULL,NULL);</span>
+<a name="176"><span class="lineNum">     176 </span>                :            : }</a>
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineCov">          1 : int32_t nb_check_csq(void)</span>
+<span class="lineNum">     179 </span>                :            : {
+<span class="lineNum">     180 </span>                :<span class="lineCov">          1 :     char *cmd = &quot;AT+CSQ\r&quot;;</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)cmd, strlen(cmd), &quot;+CSQ:&quot;, NULL,NULL);</span>
+<a name="182"><span class="lineNum">     182 </span>                :            : }</a>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineCov">          3 : int32_t nb_set_cdpserver(char* host, char* port)</span>
+<span class="lineNum">     185 </span>                :            : {
+<span class="lineNum">     186 </span>                :<span class="lineCov">          3 :     char *cmd = &quot;AT+NCDP=&quot;;</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          3 :     char *cmd2 = &quot;AT+NCDP?&quot;;</span>
+<span class="lineNum">     188 </span>                :<span class="lineCov">          3 :         char *cmdNNMI = &quot;AT+NNMI=1\r&quot;;</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">          3 :     char *cmdCMEE = &quot;AT+CMEE=1\r&quot;;</span>
+<span class="lineNum">     190 </span>                :            :         //char *cmdCGP = &quot;AT+CGPADDR&quot;;
+<span class="lineNum">     191 </span>                :<span class="lineCov">          3 :         char tmpbuf[128] = {0};</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          3 :         int ret = -1;</span>
+<span class="lineNum">     193 </span>                :<span class="lineCov">          3 :     char ipaddr[100] = {0};</span>
+<span class="lineNum">     194 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     if(strlen(host) &gt; 70 || strlen(port) &gt; 20 || host==NULL || port == NULL)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 2 times"> + </span>]
+<span class="lineNum">     195 </span>                :            :     {
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :         ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :         ret = at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :         return ret;</span>
+<span class="lineNum">     199 </span>                :            :     }
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineCov">          2 :     snprintf(ipaddr, sizeof(ipaddr) - 1, &quot;%s,%s\r&quot;, host, port);</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          2 :         snprintf(tmpbuf, sizeof(tmpbuf) - 1, &quot;%s%s%c&quot;, cmd, ipaddr, '\r');</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineCov">          2 :     ret = at.cmd((int8_t*)tmpbuf, strlen(tmpbuf), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(ret &lt; 0)</span>
+<span class="lineNum">     206 </span>                :            :         {
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :                 return ret;</span>
+<span class="lineNum">     208 </span>                :            :         }
+<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :         ret = at.cmd((int8_t*)cmd2, strlen(cmd2), ipaddr, NULL,NULL);</span>
+<span class="lineNum">     210 </span>                :            :         //LOS_TaskDelay(1000);
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :         ret = at.cmd((int8_t*)cmdNNMI, strlen(cmdNNMI), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     212 </span>                :            :         //at.cmd((int8_t*)cmdCMEE, strlen(cmdCMEE), &quot;OK&quot;, NULL, NULL);
+<span class="lineNum">     213 </span>                :            :     //ret = at.cmd((int8_t*)cmdCGP, strlen(cmdCGP), NULL, NULL);
+<span class="lineNum">     214 </span>                :<span class="lineCov">          3 :         return ret;</span>
+<a name="215"><span class="lineNum">     215 </span>                :            : }</a>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineCov">          1 : int32_t nb_send_psk(char* pskid, char* psk)</span>
+<span class="lineNum">     218 </span>                :            : {
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :     char* cmds = &quot;AT+QSECSWT&quot;;//AT+QSECSWT=1,100    OK</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :     char* cmdp = &quot;AT+QSETPSK&quot;;//AT+QSETPSK=86775942,E6F4C799   OK</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :     sprintf(wbuf, &quot;%s=%d,%d\r&quot;, cmds, 1, 100);//min</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :     at.cmd((int8_t*)wbuf, strlen(wbuf), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :     snprintf(wbuf, AT_DATA_LEN, &quot;%s=%s,%s\r&quot;, cmdp, pskid, psk);</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)wbuf, strlen(wbuf), &quot;OK&quot;, NULL,NULL);</span>
+<a name="225"><span class="lineNum">     225 </span>                :            : }</a>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 : int32_t nb_set_no_encrypt(void)</span>
+<span class="lineNum">     228 </span>                :            : {
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :     char* cmd = &quot;AT+QSECSWT=0\r&quot;;</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)cmd, strlen(cmd), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     231 </span>                :            : }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            : #ifdef WITH_SOTA
+<span class="lineNum">     234 </span>                :            : int sota_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
+<span class="lineNum">     235 </span>                :            : {
+<span class="lineNum">     236 </span>                :            :     AT_LOG(&quot;sota_cmd:%s&quot;, cmd);
+<span class="lineNum">     237 </span>                :            :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);
+<span class="lineNum">     238 </span>                :            :     at_transmit((uint8_t *)cmd, len, 1);
+<span class="lineNum">     239 </span>                :            :     LOS_MuxPost(at.cmd_mux);
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            :     return AT_OK;
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            : }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            : int nb_send_str(const char* buf, int len)
+<span class="lineNum">     246 </span>                :            : {
+<span class="lineNum">     247 </span>                :            :     char *cmd1 = &quot;AT+NMGS=&quot;;
+<span class="lineNum">     248 </span>                :            :     memset(wbuf, 0, AT_DATA_LEN);
+<span class="lineNum">     249 </span>                :            :     memset(rbuf, 0, AT_DATA_LEN);
+<span class="lineNum">     250 </span>                :            :     snprintf(wbuf, AT_DATA_LEN, &quot;%s%d,%s%c&quot;,cmd1,(int)len/2,buf,'\r');
+<span class="lineNum">     251 </span>                :            :     return sota_cmd((int8_t*)wbuf, strlen(wbuf), &quot;OK&quot;, NULL,NULL);
+<span class="lineNum">     252 </span>                :            : 
+<a name="253"><span class="lineNum">     253 </span>                :            : }</a>
+<span class="lineNum">     254 </span>                :            : #endif
+<span class="lineNum">     255 </span>                :<span class="lineCov">          3 : int32_t nb_send_payload(const char* buf, int len)</span>
+<span class="lineNum">     256 </span>                :            : {
+<span class="lineNum">     257 </span>                :<span class="lineCov">          3 :     char *cmd1 = &quot;AT+NMGS=&quot;;</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">          3 :     char *cmd2 = &quot;AT+NQMGS\r&quot;;</span>
+<span class="lineNum">     259 </span>                :            :     int ret;
+<span class="lineNum">     260 </span>                :<span class="lineCov">          3 :     char* str = NULL;</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">          3 :     int curcnt = 0;</span>
+<span class="lineNum">     262 </span>                :            :     int rbuflen;
+<span class="lineNum">     263 </span>                :            :     static int sndcnt = 0;
+<span class="lineNum">     264 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if(buf == NULL || len &gt; AT_MAX_PAYLOADLEN)</span>
+<span class="lineNum">     265 </span>                :            :     {
+<span class="lineNum">     266 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;payload too long&quot;);</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     268 </span>                :            :     }
+<span class="lineNum">     269 </span>                :<span class="lineCov">          2 :     memset(tmpbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          2 :     memset(wbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          2 :     str_to_hex(buf, len, tmpbuf);</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">          2 :     memset(rbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">          2 :     snprintf(wbuf, AT_DATA_LEN,&quot;%s%d,%s%c&quot;,cmd1,(int)len,tmpbuf,'\r');</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">          2 :     ret = at.cmd((int8_t*)wbuf, strlen(wbuf), &quot;OK&quot;, NULL,NULL);</span>
+<span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(ret &lt; 0)</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :     ret = at.cmd((int8_t*)cmd2, strlen(cmd2), &quot;SENT=&quot;, rbuf,&amp;rbuflen);</span>
+<span class="lineNum">     278 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if(ret &lt; 0)</span>
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :     str = strstr(rbuf,&quot;SENT=&quot;);</span>
+<span class="lineNum">     281 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if(str == NULL)</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :     sscanf(str,&quot;SENT=%d,%s&quot;,&amp;curcnt,wbuf);</span>
+<span class="lineNum">     284 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if(curcnt == sndcnt)</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :     sndcnt = curcnt;</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">          3 :     return ret;</span>
+<a name="288"><span class="lineNum">     288 </span>                :            : }</a>
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :<span class="lineCov">          1 : int nb_query_ip(void)</span>
+<span class="lineNum">     291 </span>                :            : {
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :         char *cmd = &quot;AT+CGPADDR\r&quot;;</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)cmd, strlen(cmd), &quot;+CGPADDR:0,&quot;, NULL,NULL);</span>
+<a name="294"><span class="lineNum">     294 </span>                :            : }</a>
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 : int32_t nb_get_netstat(void)</span>
+<span class="lineNum">     297 </span>                :            : {
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :         char *cmd = &quot;AT+CGATT?\r&quot;;</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">          1 :     return at.cmd((int8_t*)cmd, strlen(cmd), &quot;CGATT:1&quot;, NULL,NULL);</span>
+<a name="300"><span class="lineNum">     300 </span>                :            : }</a>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineCov">         14 : static int32_t nb_cmd_with_2_suffix(const int8_t *cmd, int  len,</span>
+<span class="lineNum">     303 </span>                :            :                         const char* suffix_ok, const char* suffix_err,  char *resp_buf, uint32_t* resp_len)
+<span class="lineNum">     304 </span>                :            : {
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :<span class="lineCov">         14 :     const char *suffix[2] = {0};</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">         14 :     at_cmd_info_s cmd_info = {0};</span>
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :<span class="lineCov">         14 :     suffix[0] = suffix_ok;</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">         14 :     suffix[1] = suffix_err;</span>
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">         14 :     cmd_info.suffix = suffix;</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">         14 :     cmd_info.suffix_num = array_size(suffix);</span>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineCov">         14 :     cmd_info.resp_buf = resp_buf;</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">         14 :     cmd_info.resp_len = resp_len;</span>
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 14 times"> + </span>]:<span class="lineCov">         14 :         if (at.cmd_multi_suffix(cmd, len, &amp;cmd_info) != AT_OK)</span>
+<span class="lineNum">     319 </span>                :            :     {
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :         return AT_FAILED;</span>
+<span class="lineNum">     321 </span>                :            :     }
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         14 :     if (cmd_info.match_idx != 0)</span>
+<span class="lineNum">     324 </span>                :            :     {
+<span class="lineNum">     325 </span>                :<span class="lineCov">          2 :         AT_LOG(&quot;cmd_info.match_idx %d&quot;, cmd_info.match_idx);</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          2 :         return AT_FAILED;</span>
+<span class="lineNum">     327 </span>                :            :     }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :<span class="lineCov">         14 :     return AT_OK;</span>
+<span class="lineNum">     330 </span>                :            : }
+<a name="331"><span class="lineNum">     331 </span>                :            : </a>
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :<span class="lineCov">          6 : int32_t nb_create_sock(int port,int proto)</span>
+<span class="lineNum">     334 </span>                :            : {
+<span class="lineNum">     335 </span>                :            :         int socket;
+<span class="lineNum">     336 </span>                :<span class="lineCov">          6 :     int rbuflen = AT_DATA_LEN;</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">          6 :         const char *cmdudp = &quot;AT+NSOCR=DGRAM,17,&quot;;//udp</span>
+<span class="lineNum">     338 </span>                :<span class="lineCov">          6 :         const char *cmdtcp = &quot;AT+NSOCR=STREAM,6,&quot;;//tcp</span>
+<span class="lineNum">     339 </span>                :            :         int ret;
+<span class="lineNum">     340 </span>                :            :     char buf[64];
+<span class="lineNum">     341 </span>                :            :     int cmd_len;
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          6 :         if(proto!=17 &amp;&amp; proto!=6)</span>
+<span class="lineNum">     344 </span>                :            :     {
+<span class="lineNum">     345 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;proto invalid!&quot;);</span>
+<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     347 </span>                :            :     }
+<span class="lineNum">     348 </span>                :<span class="lineCov">          5 :     memset(rbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     if (proto == 17)</span>
+<span class="lineNum">     351 </span>                :            :     {
+<span class="lineNum">     352 </span>                :<span class="lineCov">          4 :         cmd_len = snprintf(buf, sizeof(buf), &quot;%s%d,1\r&quot;, cmdudp, port);//udp</span>
+<span class="lineNum">     353 </span>                :            :     }
+<span class="lineNum">     354 </span>                :            :     else
+<span class="lineNum">     355 </span>                :            :     {
+<span class="lineNum">     356 </span>                :<span class="lineCov">          1 :         cmd_len = snprintf(buf, sizeof(buf), &quot;%s%d,1\r&quot;, cmdtcp, port);</span>
+<span class="lineNum">     357 </span>                :            :     }
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :<span class="lineCov">          5 :         nb_cmd_with_2_suffix((int8_t*)buf, cmd_len, &quot;OK&quot;, &quot;ERROR&quot;, rbuf, (uint32_t *)&amp;rbuflen);</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          5 :         ret = sscanf(rbuf, &quot;%d\r%s&quot;,&amp;socket, tmpbuf);</span>
+<span class="lineNum">     361 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :     if ((2 == ret) &amp;&amp; (socket &gt;= 0)</span>
+<span class="lineNum">     362 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         &amp;&amp; (strnstr(tmpbuf, &quot;OK&quot;, sizeof(tmpbuf))))</span>
+<span class="lineNum">     363 </span>                :            :     {
+<span class="lineNum">     364 </span>                :<span class="lineCov">          1 :         return socket;</span>
+<span class="lineNum">     365 </span>                :            :     }
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineCov">          4 :     AT_LOG(&quot;sscanf fail,ret=%d,socket=%d&quot;, ret, socket);</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">          6 :     return -1;</span>
+<a name="369"><span class="lineNum">     369 </span>                :            : }</a>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :<span class="lineCov">          9 : static bool nb_is_addr_valid(const char *addr)</span>
+<span class="lineNum">     372 </span>                :            : {
+<span class="lineNum">     373 </span>                :<span class="lineCov">          9 :     const int size = 4;</span>
+<span class="lineNum">     374 </span>                :            :     int tmp[4];
+<span class="lineNum">     375 </span>                :            :     int ret;
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :<span class="lineCov">          9 :     ret = sscanf(addr, &quot;%d.%d.%d.%d&quot;, &amp;tmp[0], &amp;tmp[1], &amp;tmp[2], &amp;tmp[3]);</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          9 :     return  (size == ret);</span>
+<a name="379"><span class="lineNum">     379 </span>                :            : }</a>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :<span class="lineCov">         11 : int nb_decompose_str(const char* str, int *readleft, int *out_sockid)</span>
+<span class="lineNum">     382 </span>                :            : {
+<span class="lineNum">     383 </span>                :            :     const char *tmp,*trans;
+<span class="lineNum">     384 </span>                :            :     int sockid;
+<span class="lineNum">     385 </span>                :            :     QUEUE_BUFF qbuf;
+<span class="lineNum">     386 </span>                :<span class="lineCov">         11 :     int ret = AT_FAILED;</span>
+<span class="lineNum">     387 </span>                :            :     int rlen;
+<span class="lineNum">     388 </span>                :            :     int link_id;
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :<span class="lineCov">         11 :     tmp = strstr(str,&quot;,&quot;);</span>
+<span class="lineNum">     392 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if(tmp == NULL)</span>
+<span class="lineNum">     393 </span>                :            :     {
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     395 </span>                :            :     }
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">         10 :     sockid = chartoint(str);</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">         10 :     trans = strstr(tmp+1,&quot;,&quot;);</span>
+<span class="lineNum">     399 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if(trans == NULL)</span>
+<span class="lineNum">     400 </span>                :            :     {
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     402 </span>                :            :     }
+<span class="lineNum">     403 </span>                :<span class="lineCov">          9 :     strncpy(qbuf.ipaddr,tmp+1,MIN((trans-tmp),AT_DATA_LEN/2));</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          9 :     qbuf.ipaddr[trans-tmp-1] = '\0';</span>
+<span class="lineNum">     405 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          9 :     if (!nb_is_addr_valid(qbuf.ipaddr))</span>
+<span class="lineNum">     406 </span>                :            :     {
+<span class="lineNum">     407 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     408 </span>                :            :     }
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>                :<span class="lineCov">          8 :     qbuf.port = chartoint((char*)(trans+1));</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">          8 :     tmp = strstr(trans+1,&quot;,&quot;);</span>
+<span class="lineNum">     412 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if(tmp == NULL)</span>
+<span class="lineNum">     413 </span>                :            :     {
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     415 </span>                :            :     }
+<span class="lineNum">     416 </span>                :<span class="lineCov">          7 :     rlen = chartoint((char*)(tmp+1));</span>
+<span class="lineNum">     417 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if(rlen &gt;= AT_DATA_LEN/2 || rlen &lt; 0)</span>
+<span class="lineNum">     418 </span>                :            :     {
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;rlen %d&quot;, rlen);</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     421 </span>                :            :     }
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :<span class="lineCov">          6 :     trans = strstr(tmp+1,&quot;,&quot;);</span>
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if(trans == NULL)</span>
+<span class="lineNum">     425 </span>                :            :     {
+<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     427 </span>                :            :     }
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineCov">          5 :     tmp = strstr(trans+1,&quot;,&quot;);</span>
+<span class="lineNum">     430 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (tmp == NULL)</span>
+<span class="lineNum">     431 </span>                :            :     {
+<span class="lineNum">     432 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     433 </span>                :            :     }
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :<span class="lineCov">          4 :     *readleft = chartoint((char*)(tmp+1));</span>
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :<span class="lineCov">          4 :     *out_sockid = sockid;</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :<span class="lineCov">          4 :     link_id = nb_sock_to_idx(sockid);</span>
+<span class="lineNum">     440 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (link_id &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     441 </span>                :            :     {
+<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;sockid invalid %d&quot;, sockid);</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">          1 :         return AT_OK;</span>
+<span class="lineNum">     444 </span>                :            :     }
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :<span class="lineCov">          3 :     qbuf.addr = at_malloc(rlen);</span>
+<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     if (qbuf.addr == NULL)</span>
+<span class="lineNum">     448 </span>                :            :     {
+<span class="lineNum">     449 </span>                :<span class="lineCov">          2 :         AT_LOG(&quot;at_malloc null&quot;);</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">          2 :         return AT_OK;</span>
+<span class="lineNum">     451 </span>                :            :     }
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :     HexStrToStr((const unsigned char*)(trans+1), qbuf.addr, (rlen)*2);</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :     qbuf.len = rlen;</span>
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 :     ret = LOS_QueueWriteCopy(at.linkid[link_id].qid, &amp;qbuf, sizeof(qbuf), 0);</span>
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (LOS_OK != ret)</span>
+<span class="lineNum">     458 </span>                :            :     {
+<span class="lineNum">     459 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;LOS_QueueWriteCopy  failed! ret %d&quot;, ret);</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :         at_free(qbuf.addr);</span>
+<span class="lineNum">     461 </span>                :            :     }
+<span class="lineNum">     462 </span>                :            : 
+<span class="lineNum">     463 </span>                :            :     //AT_LOG(&quot;wwww write data,qid %d, len %ld, ret %d&quot;, at.linkid[link_id].qid, qbuf.len, ret);
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :<span class="lineCov">         11 :     return AT_OK;</span>
+<a name="467"><span class="lineNum">     467 </span>                :            : }</a>
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>                :<span class="lineCov">          5 : static void nb_close_sock(int sock)</span>
+<span class="lineNum">     470 </span>                :            : {
+<span class="lineNum">     471 </span>                :<span class="lineCov">          5 :     const char *cmd = &quot;AT+NSOCL=&quot;;</span>
+<span class="lineNum">     472 </span>                :            :     char buf[64];
+<span class="lineNum">     473 </span>                :            :     int cmd_len;
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :<span class="lineCov">          5 :         cmd_len = snprintf(buf, sizeof(buf), &quot;%s%d\r&quot;, cmd, sock);</span>
+<span class="lineNum">     476 </span>                :<span class="lineCov">          5 :         nb_cmd_with_2_suffix((int8_t*)buf, cmd_len, &quot;OK&quot;, &quot;ERROR&quot;, NULL,NULL);</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">          5 : }</span>
+<a name="478"><span class="lineNum">     478 </span>                :            : </a>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :<span class="lineCov">          8 : static int nb_create_sock_link(int portnum, int *link_id)</span>
+<span class="lineNum">     481 </span>                :            : {
+<span class="lineNum">     482 </span>                :<span class="lineCov">          8 :     int ret = 0;</span>
+<span class="lineNum">     483 </span>                :            :     int sock;
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>                :<span class="lineCov">          8 :     sock = nb_create_sock(portnum, UDP_PROTO);</span>
+<span class="lineNum">     486 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          8 :         if(sock &lt; 0)</span>
+<span class="lineNum">     487 </span>                :            :         {
+<span class="lineNum">     488 </span>                :<span class="lineCov">          3 :                 AT_LOG(&quot;sock num exceeded,ret is %d&quot;, sock);</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">          3 :                 return AT_FAILED;</span>
+<span class="lineNum">     490 </span>                :            :         }
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :<span class="lineCov">          5 :     ret = nb_alloc_sock(sock);</span>
+<span class="lineNum">     493 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (ret &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     494 </span>                :            :         {
+<span class="lineNum">     495 </span>                :            : 
+<span class="lineNum">     496 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;sock num exceeded,socket is %d&quot;, sock);</span>
+<span class="lineNum">     497 </span>                :<span class="lineCov">          1 :         goto CLOSE_SOCk;</span>
+<span class="lineNum">     498 </span>                :            :     }
+<span class="lineNum">     499 </span>                :            : 
+<span class="lineNum">     500 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          4 :     if (LOS_QueueCreate(&quot;dataQueue&quot;, 16, &amp;at.linkid[ret].qid, 0, sizeof(QUEUE_BUFF)) != LOS_OK)</span>
+<span class="lineNum">     501 </span>                :            :     {
+<span class="lineNum">     502 </span>                :<span class="lineCov">          3 :         AT_LOG(&quot;init dataQueue failed, ret is %d!&quot;,ret);</span>
+<span class="lineNum">     503 </span>                :<span class="lineCov">          3 :         goto CLOSE_SOCk;</span>
+<span class="lineNum">     504 </span>                :            :     }
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :<span class="lineCov">          1 :     *link_id = ret;</span>
+<span class="lineNum">     507 </span>                :<span class="lineCov">          1 :     sockinfo[ret].socket = sock;</span>
+<span class="lineNum">     508 </span>                :<span class="lineCov">          1 :     sockinfo[ret].used_flag = true;</span>
+<span class="lineNum">     509 </span>                :<span class="lineCov">          1 :     return AT_OK;</span>
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :            : CLOSE_SOCk:
+<span class="lineNum">     512 </span>                :<span class="lineCov">          4 :     nb_close_sock(sock);</span>
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :<span class="lineCov">          8 :     return AT_FAILED;</span>
+<span class="lineNum">     515 </span>                :            : 
+<a name="516"><span class="lineNum">     516 </span>                :            : }</a>
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :<span class="lineCov">          1 : int32_t nb_bind(const int8_t * host, const int8_t *port, int32_t proto)</span>
+<span class="lineNum">     519 </span>                :            : {
+<span class="lineNum">     520 </span>                :<span class="lineCov">          1 :         int ret = 0;</span>
+<span class="lineNum">     521 </span>                :            :         int portnum;
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>                :            :     (void)host;
+<span class="lineNum">     524 </span>                :            :     (void)proto;
+<span class="lineNum">     525 </span>                :<span class="lineCov">          1 :         portnum = chartoint((char*)port);</span>
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (nb_create_sock_link(portnum, &amp;ret) != AT_OK)</span>
+<span class="lineNum">     528 </span>                :            :     {
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     530 </span>                :            :     }
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>                :<span class="lineNoCov">          0 :     sockinfo[ret].localport = *(unsigned short*)portnum;</span>
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>                :<span class="lineCov">          1 :     return AT_OK;</span>
+<a name="535"><span class="lineNum">     535 </span>                :            : }</a>
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :<span class="lineCov">          7 : int32_t nb_connect(const int8_t * host, const int8_t *port, int32_t proto)</span>
+<span class="lineNum">     538 </span>                :            : {
+<span class="lineNum">     539 </span>                :<span class="lineCov">          7 :         int ret = 0;</span>
+<span class="lineNum">     540 </span>                :            :         static uint16_t localport = NB_STAT_LOCALPORT;
+<span class="lineNum">     541 </span>                :<span class="lineCov">          7 :     const int COAP_SEVER_PORT = 5683;</span>
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          7 :     if (nb_create_sock_link(localport, &amp;ret) != AT_OK)</span>
+<span class="lineNum">     544 </span>                :            :     {
+<span class="lineNum">     545 </span>                :<span class="lineCov">          6 :         return AT_FAILED;</span>
+<span class="lineNum">     546 </span>                :            :     }
+<span class="lineNum">     547 </span>                :            : 
+<span class="lineNum">     548 </span>                :<span class="lineCov">          1 :         localport++;</span>
+<span class="lineNum">     549 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (localport == COAP_SEVER_PORT || localport == (COAP_SEVER_PORT + 1))</span>
+<span class="lineNum">     550 </span>                :            :     {
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :         localport = 5685;</span>
+<span class="lineNum">     552 </span>                :            :     }
+<span class="lineNum">     553 </span>                :            : 
+<span class="lineNum">     554 </span>                :<span class="lineCov">          1 :         strncpy(sockinfo[ret].remoteip, (const char *)host, sizeof(sockinfo[ret].remoteip));</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">          1 :     sockinfo[ret].remoteip[sizeof(sockinfo[ret].remoteip) - 1] = '\0';</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">          1 :         sockinfo[ret].remoteport = chartoint((char*)port);</span>
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>                :<span class="lineCov">          1 :     AT_LOG(&quot;ret:%d remoteip:%s port:%d&quot;,ret,sockinfo[ret].remoteip,sockinfo[ret].remoteport);</span>
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineCov">          7 :     return ret;</span>
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            : }
+<a name="563"><span class="lineNum">     563 </span>                :            : </a>
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>                :<span class="lineCov">          2 : int32_t nb_sendto(int32_t id , const uint8_t  *buf, uint32_t len, char* ipaddr, int port)</span>
+<span class="lineNum">     566 </span>                :            : {
+<span class="lineNum">     567 </span>                :<span class="lineCov">          2 :         char *cmd = &quot;AT+NSOST=&quot;;</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          2 :         int data_len = len/2;</span>
+<span class="lineNum">     569 </span>                :            :     int cmd_len;
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :     if(buf == NULL || data_len &gt; AT_MAX_PAYLOADLEN || id &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]
+<span class="lineNum">     572 </span>                :            :     {
+<span class="lineNum">     573 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;invalid args&quot;);</span>
+<span class="lineNum">     574 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     575 </span>                :            :     }
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>                :<span class="lineCov">          1 :     AT_LOG(&quot;id:%d remoteip:%s port:%d&quot;,(int)sockinfo[id].socket, ipaddr, port);</span>
+<span class="lineNum">     578 </span>                :<span class="lineCov">          1 :         memset(wbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :         memset(tmpbuf, 0, AT_DATA_LEN);</span>
+<span class="lineNum">     580 </span>                :<span class="lineCov">          1 :         str_to_hex((const char *)buf, len, tmpbuf);</span>
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>                :<span class="lineCov">          1 :         cmd_len = snprintf(wbuf, AT_DATA_LEN, &quot;%s%d,%s,%d,%d,%s\r&quot;,cmd,(int)sockinfo[id].socket,</span>
+<span class="lineNum">     583 </span>                :            :         ipaddr, port, (int)len, tmpbuf);
+<span class="lineNum">     584 </span>                :            : 
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (nb_cmd_with_2_suffix((int8_t*)wbuf, cmd_len, &quot;OK&quot;, &quot;ERROR&quot;,</span>
+<span class="lineNum">     587 </span>                :            :                 NULL, NULL) != AT_OK)
+<span class="lineNum">     588 </span>                :            :     {
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :         return AT_FAILED;</span>
+<span class="lineNum">     590 </span>                :            :     }
+<span class="lineNum">     591 </span>                :            : 
+<span class="lineNum">     592 </span>                :<span class="lineCov">          2 :     return len;</span>
+<span class="lineNum">     593 </span>                :            : }
+<a name="594"><span class="lineNum">     594 </span>                :            : </a>
+<span class="lineNum">     595 </span>                :            : 
+<span class="lineNum">     596 </span>                :<span class="lineCov">          3 : int32_t nb_send(int32_t id , const uint8_t *buf, uint32_t len)</span>
+<span class="lineNum">     597 </span>                :            : {
+<span class="lineNum">     598 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (id &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     599 </span>                :            :     {
+<span class="lineNum">     600 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;invalid args&quot;);</span>
+<span class="lineNum">     601 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     602 </span>                :            :     }
+<span class="lineNum">     603 </span>                :<span class="lineCov">          3 :     return nb_sendto(id , buf, len, sockinfo[id].remoteip,(int)sockinfo[id].remoteport);</span>
+<a name="604"><span class="lineNum">     604 </span>                :            : }</a>
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineCov">          2 : int32_t nb_recv(int32_t id , uint8_t  *buf, uint32_t len)</span>
+<span class="lineNum">     607 </span>                :            : {
+<span class="lineNum">     608 </span>                :<span class="lineCov">          2 :     return nb_recv_timeout(id, buf, len,NULL,NULL, LOS_WAIT_FOREVER);</span>
+<a name="609"><span class="lineNum">     609 </span>                :            : }</a>
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineCov">          1 : int32_t nb_recvfrom(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port)</span>
+<span class="lineNum">     612 </span>                :            : {
+<span class="lineNum">     613 </span>                :<span class="lineCov">          1 :     return nb_recv_timeout(id, buf, len, ipaddr,port,LOS_WAIT_FOREVER);</span>
+<a name="614"><span class="lineNum">     614 </span>                :            : }</a>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :<span class="lineCov">          5 : int32_t nb_recv_timeout(int32_t id , uint8_t  *buf, uint32_t len,char* ipaddr,int* port, int32_t timeout)</span>
+<span class="lineNum">     617 </span>                :            : {
+<span class="lineNum">     618 </span>                :<span class="lineCov">          5 :     int rlen = 0;</span>
+<span class="lineNum">     619 </span>                :            :     int ret;
+<span class="lineNum">     620 </span>                :            :     QUEUE_BUFF  qbuf;
+<span class="lineNum">     621 </span>                :<span class="lineCov">          5 :     UINT32 qlen = sizeof(QUEUE_BUFF);</span>
+<span class="lineNum">     622 </span>                :            : 
+<span class="lineNum">     623 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :     if (id  &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     624 </span>                :            :     {
+<span class="lineNum">     625 </span>                :<span class="lineCov">          2 :         AT_LOG(&quot;link id %ld invalid&quot;, id);</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">          2 :         return AT_FAILED;</span>
+<span class="lineNum">     627 </span>                :            :     }
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>                :            : 
+<span class="lineNum">     630 </span>                :<span class="lineCov">          3 :     ret = LOS_QueueReadCopy(at.linkid[id].qid, &amp;qbuf, &amp;qlen, timeout);</span>
+<span class="lineNum">     631 </span>                :            :     //AT_LOG(&quot;wwww LOS_QueueReadCopy data,qid %d, len %ld, ret %d&quot;, at.linkid[id].qid, qbuf.len, ret);
+<span class="lineNum">     632 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     633 </span>                :            :     {
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :         return AT_TIMEOUT;</span>
+<span class="lineNum">     635 </span>                :            :     }
+<span class="lineNum">     636 </span>                :            : 
+<span class="lineNum">     637 </span>                :            : 
+<span class="lineNum">     638 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (('\0' == sockinfo[id].remoteip[0])</span>
+<span class="lineNum">     639 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         || (0 == sockinfo[id].remoteport))</span>
+<span class="lineNum">     640 </span>                :            :     {
+<span class="lineNum">     641 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;update ip and port for link %ld&quot;, id);</span>
+<span class="lineNum">     642 </span>                :<span class="lineCov">          1 :         strncpy(sockinfo[id].remoteip, qbuf.ipaddr, sizeof(sockinfo[id].remoteip));</span>
+<span class="lineNum">     643 </span>                :<span class="lineCov">          1 :         sockinfo[id].remoteip[sizeof(sockinfo[id].remoteip) - 1] = '\0';</span>
+<span class="lineNum">     644 </span>                :<span class="lineCov">          1 :         sockinfo[id].remoteport = qbuf.port;</span>
+<span class="lineNum">     645 </span>                :            :     }
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if(ipaddr != NULL)</span>
+<span class="lineNum">     648 </span>                :            :         {
+<span class="lineNum">     649 </span>                :<span class="lineCov">          1 :             memcpy(ipaddr,qbuf.ipaddr,strlen(qbuf.ipaddr));</span>
+<span class="lineNum">     650 </span>                :<span class="lineCov">          1 :         *port = qbuf.port;</span>
+<span class="lineNum">     651 </span>                :            :         }
+<span class="lineNum">     652 </span>                :            : 
+<span class="lineNum">     653 </span>                :<span class="lineCov">          2 :     rlen = MIN(qbuf.len, len);</span>
+<span class="lineNum">     654 </span>                :            : 
+<span class="lineNum">     655 </span>                :            :     //AT_LOG(&quot;recv data, %d&quot;, rlen);
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (rlen){</span>
+<span class="lineNum">     658 </span>                :<span class="lineCov">          2 :         memcpy(buf, qbuf.addr, rlen);</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">          2 :         at_free(qbuf.addr);</span>
+<span class="lineNum">     660 </span>                :            :     }
+<span class="lineNum">     661 </span>                :<span class="lineCov">          5 :     return rlen;</span>
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :            : }
+<a name="664"><span class="lineNum">     664 </span>                :            : </a>
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :<span class="lineCov">          2 : int32_t nb_close(int32_t id)</span>
+<span class="lineNum">     667 </span>                :            : {
+<span class="lineNum">     668 </span>                :            :     int ret;
+<span class="lineNum">     669 </span>                :            : 
+<span class="lineNum">     670 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if ((id  &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     671 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         || (!sockinfo[id].used_flag))</span>
+<span class="lineNum">     672 </span>                :            :     {
+<span class="lineNum">     673 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;link id %ld invalid&quot;, id);</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     675 </span>                :            :     }
+<span class="lineNum">     676 </span>                :            : 
+<span class="lineNum">     677 </span>                :<span class="lineCov">          1 :     nb_close_sock(sockinfo[id].socket);</span>
+<span class="lineNum">     678 </span>                :            : 
+<span class="lineNum">     679 </span>                :            :     do
+<span class="lineNum">     680 </span>                :            :     {
+<span class="lineNum">     681 </span>                :<span class="lineCov">          1 :         QUEUE_BUFF      qbuf = {0};</span>
+<span class="lineNum">     682 </span>                :<span class="lineCov">          1 :         UINT32 qlen = sizeof(QUEUE_BUFF);</span>
+<span class="lineNum">     683 </span>                :<span class="lineCov">          1 :         ret = LOS_QueueReadCopy(at.linkid[id].qid, &amp;qbuf, &amp;qlen, 0);</span>
+<span class="lineNum">     684 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if (ret == LOS_OK &amp;&amp; qbuf.addr != NULL)</span>
+<span class="lineNum">     685 </span>                :            :         {
+<span class="lineNum">     686 </span>                :<span class="lineNoCov">          0 :             at_free(qbuf.addr);</span>
+<span class="lineNum">     687 </span>                :            :         }
+<span class="lineNum">     688 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     }while(ret == LOS_OK);</span>
+<span class="lineNum">     689 </span>                :<span class="lineCov">          1 :     ret = LOS_QueueDelete(at.linkid[id].qid);</span>
+<span class="lineNum">     690 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     691 </span>                :            :     {
+<span class="lineNum">     692 </span>                :<span class="lineNoCov">          0 :         AT_LOG(&quot;LOS_QueueDelete failed, ret is %d!,qid %d&quot;, ret, at.linkid[id].qid);</span>
+<span class="lineNum">     693 </span>                :            :     }
+<span class="lineNum">     694 </span>                :<span class="lineCov">          1 :     (void)memset(&amp;sockinfo[id], 0, sizeof(sockinfo[id]));</span>
+<span class="lineNum">     695 </span>                :            : 
+<span class="lineNum">     696 </span>                :<span class="lineCov">          2 :     return AT_OK;</span>
+<a name="697"><span class="lineNum">     697 </span>                :            : }</a>
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>                :<span class="lineCov">          1 : int32_t nb_recv_cb(int32_t id)</span>
+<span class="lineNum">     700 </span>                :            : {
+<span class="lineNum">     701 </span>                :<span class="lineCov">          1 :     return AT_FAILED;</span>
+<a name="702"><span class="lineNum">     702 </span>                :            : }</a>
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>                :<span class="lineCov">          1 : static int32_t nb_int(void)</span>
+<span class="lineNum">     705 </span>                :            : {
+<span class="lineNum">     706 </span>                :<span class="lineCov">          1 :     at_config at_user_conf = {</span>
+<span class="lineNum">     707 </span>                :            :         .name = AT_MODU_NAME,
+<span class="lineNum">     708 </span>                :            :         .usart_port = AT_USART_PORT,
+<span class="lineNum">     709 </span>                :            :         .buardrate = AT_BUARDRATE,
+<span class="lineNum">     710 </span>                :            :         .linkid_num = AT_MAX_LINK_NUM,
+<span class="lineNum">     711 </span>                :            :         .user_buf_len = MAX_AT_USERDATA_LEN,
+<span class="lineNum">     712 </span>                :            :         .cmd_begin = AT_CMD_BEGIN,
+<span class="lineNum">     713 </span>                :            :         .line_end = AT_LINE_END,
+<span class="lineNum">     714 </span>                :            :         .mux_mode = 1, //support multi connection mode
+<span class="lineNum">     715 </span>                :            :         .timeout = AT_CMD_TIMEOUT,   //  ms
+<span class="lineNum">     716 </span>                :            :     };
+<span class="lineNum">     717 </span>                :            :     
+<span class="lineNum">     718 </span>                :<span class="lineCov">          1 :     at_set_config(&amp;at_user_conf);</span>
+<span class="lineNum">     719 </span>                :<span class="lineCov">          1 :     memset(&amp;sockinfo, 0, sizeof(sockinfo));</span>
+<span class="lineNum">     720 </span>                :<span class="lineCov">          1 :     memset(&amp;g_data_ind_info, 0, sizeof(g_data_ind_info));</span>
+<span class="lineNum">     721 </span>                :<span class="lineCov">          1 :     at_reg_step_callback(&amp;at, nb_step);</span>
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>                :<span class="lineCov">          1 :     return AT_OK;</span>
+<a name="724"><span class="lineNum">     724 </span>                :            : }</a>
+<span class="lineNum">     725 </span>                :            : 
+<span class="lineNum">     726 </span>                :<span class="lineCov">          1 : int32_t nb_deinit(void)</span>
+<span class="lineNum">     727 </span>                :            : {
+<span class="lineNum">     728 </span>                :            : 
+<span class="lineNum">     729 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     for (int i = 0; i &lt; MAX_SOCK_NUM; ++i)</span>
+<span class="lineNum">     730 </span>                :            :     {
+<span class="lineNum">     731 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if (sockinfo[i].used_flag)</span>
+<span class="lineNum">     732 </span>                :            :         {
+<span class="lineNum">     733 </span>                :<span class="lineNoCov">          0 :             nb_close(i);</span>
+<span class="lineNum">     734 </span>                :            :         }
+<span class="lineNum">     735 </span>                :            :     }
+<span class="lineNum">     736 </span>                :<span class="lineCov">          1 :     return nb_reboot();</span>
+<span class="lineNum">     737 </span>                :            : }
+<span class="lineNum">     738 </span>                :            : 
+<span class="lineNum">     739 </span>                :            : at_adaptor_api bc95_interface =
+<span class="lineNum">     740 </span>                :            : {
+<span class="lineNum">     741 </span>                :            :     .init = nb_int,
+<span class="lineNum">     742 </span>                :            : 
+<span class="lineNum">     743 </span>                :            :     .bind = nb_bind,
+<span class="lineNum">     744 </span>                :            : 
+<span class="lineNum">     745 </span>                :            :     .connect = nb_connect,
+<span class="lineNum">     746 </span>                :            :     .send = nb_send,
+<span class="lineNum">     747 </span>                :            :     .sendto = nb_sendto,
+<span class="lineNum">     748 </span>                :            : 
+<span class="lineNum">     749 </span>                :            :     .recv_timeout = nb_recv_timeout,
+<span class="lineNum">     750 </span>                :            :     .recv = nb_recv,
+<span class="lineNum">     751 </span>                :            :     .recvfrom = nb_recvfrom,
+<span class="lineNum">     752 </span>                :            : 
+<span class="lineNum">     753 </span>                :            :     .close = nb_close,
+<span class="lineNum">     754 </span>                :            :     .recv_cb = nb_recv_cb,
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>                :            :     .deinit = nb_deinit,
+<a name="757"><span class="lineNum">     757 </span>                :            : };</a>
+<span class="lineNum">     758 </span>                :            : 
+<span class="lineNum">     759 </span>                :<span class="lineCov">          1 : void nb_reattach(void)</span>
+<span class="lineNum">     760 </span>                :            : {
+<span class="lineNum">     761 </span>                :<span class="lineCov">          1 :     (void)nb_cmd_with_2_suffix((int8_t*)CGATT, strlen(CGATT), &quot;OK&quot;, &quot;ERROR&quot;, NULL, NULL);</span>
+<span class="lineNum">     762 </span>                :<span class="lineCov">          1 :      (void)nb_cmd_with_2_suffix((int8_t*)CGATT_DEATTACH, strlen(CGATT_DEATTACH), &quot;OK&quot;, &quot;ERROR&quot;, NULL, NULL);</span>
+<span class="lineNum">     763 </span>                :<span class="lineCov">          1 :      LOS_TaskDelay(1000);</span>
+<span class="lineNum">     764 </span>                :<span class="lineCov">          1 :      (void)nb_cmd_with_2_suffix((int8_t*)CGATT_ATTACH, strlen(CGATT_ATTACH), &quot;OK&quot;, &quot;ERROR&quot;, NULL, NULL);</span>
+<span class="lineNum">     765 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     766 </span>                :            : 
+<span class="lineNum">     767 </span>                :            : static int nb_cmd_rcv_data(int sockid, int readleft);
+<a name="768"><span class="lineNum">     768 </span>                :            : </a>
+<span class="lineNum">     769 </span>                :            : 
+<span class="lineNum">     770 </span>                :<span class="lineCov">          3 : static int32_t nb_handle_sock_data(const int8_t *data, uint32_t len)</span>
+<span class="lineNum">     771 </span>                :            : {
+<span class="lineNum">     772 </span>                :            :     (void) len;
+<span class="lineNum">     773 </span>                :<span class="lineCov">          3 :     char *curr = (char *)data;</span>
+<span class="lineNum">     774 </span>                :            : 
+<span class="lineNum">     775 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (strstr((char *) data, &quot;ERROR&quot;) != NULL)</span>
+<span class="lineNum">     776 </span>                :            :     {
+<span class="lineNum">     777 </span>                :<span class="lineCov">          1 :         return AT_OK;</span>
+<span class="lineNum">     778 </span>                :            :     }
+<span class="lineNum">     779 </span>                :            : 
+<span class="lineNum">     780 </span>                :            :     do
+<span class="lineNum">     781 </span>                :            :     {
+<span class="lineNum">     782 </span>                :            : 
+<span class="lineNum">     783 </span>                :            :         int readleft;
+<span class="lineNum">     784 </span>                :            :         int sockid;
+<span class="lineNum">     785 </span>                :            : 
+<span class="lineNum">     786 </span>                :<span class="lineCov">          3 :         char *next = strstr(curr, &quot;\r\n&quot;);</span>
+<span class="lineNum">     787 </span>                :            : 
+<span class="lineNum">     788 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (next == curr)</span>
+<span class="lineNum">     789 </span>                :            :         {
+<span class="lineNum">     790 </span>                :<span class="lineCov">          2 :             curr += 2;</span>
+<span class="lineNum">     791 </span>                :            :         }
+<span class="lineNum">     792 </span>                :            : 
+<span class="lineNum">     793 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (next != NULL)</span>
+<span class="lineNum">     794 </span>                :            :         {
+<span class="lineNum">     795 </span>                :<span class="lineCov">          2 :             next += 2;</span>
+<span class="lineNum">     796 </span>                :            :         }
+<span class="lineNum">     797 </span>                :            : 
+<span class="lineNum">     798 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (nb_decompose_str(curr, &amp;readleft, &amp;sockid) == AT_OK)</span>
+<span class="lineNum">     799 </span>                :            :         {
+<span class="lineNum">     800 </span>                :            :         /*
+<span class="lineNum">     801 </span>                :            :             if (readleft != 0)
+<span class="lineNum">     802 </span>                :            :             {
+<span class="lineNum">     803 </span>                :            :                 nb_cmd_rcv_data(sockid, readleft);
+<span class="lineNum">     804 </span>                :            :             }*/
+<span class="lineNum">     805 </span>                :<span class="lineCov">          1 :             return AT_OK;</span>
+<span class="lineNum">     806 </span>                :            :         }
+<span class="lineNum">     807 </span>                :<span class="lineCov">          2 :         curr = next;</span>
+<span class="lineNum">     808 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     }while(curr);</span>
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>                :<span class="lineCov">          3 :     return AT_FAILED;</span>
+<span class="lineNum">     811 </span>                :            : }
+<a name="812"><span class="lineNum">     812 </span>                :            : </a>
+<span class="lineNum">     813 </span>                :            : 
+<span class="lineNum">     814 </span>                :<span class="lineCov">          3 : static int nb_cmd_rcv_data(int sockid, int readleft)</span>
+<span class="lineNum">     815 </span>                :            : {
+<span class="lineNum">     816 </span>                :            :     int cmdlen;
+<span class="lineNum">     817 </span>                :            :     char cmdbuf[40];
+<span class="lineNum">     818 </span>                :<span class="lineCov">          3 :     const char* cmd = &quot;AT+NSORF=&quot;;</span>
+<span class="lineNum">     819 </span>                :<span class="lineCov">          3 :     const uint32_t timeout = 10;</span>
+<span class="lineNum">     820 </span>                :            : 
+<span class="lineNum">     821 </span>                :<span class="lineCov">          3 :     cmdlen = snprintf(cmdbuf, sizeof(cmdbuf), &quot;%s%d,%d\r&quot;, cmd, sockid, readleft);</span>
+<span class="lineNum">     822 </span>                :<span class="lineCov">          3 :     return at_cmd_in_callback((int8_t*)cmdbuf, cmdlen, nb_handle_sock_data, timeout);</span>
+<a name="823"><span class="lineNum">     823 </span>                :            : }</a>
+<span class="lineNum">     824 </span>                :            : 
+<span class="lineNum">     825 </span>                :<span class="lineCov">          6 : static int32_t nb_handle_data_ind(const char *buf)</span>
+<span class="lineNum">     826 </span>                :            : {
+<span class="lineNum">     827 </span>                :            :     int32_t sockid;
+<span class="lineNum">     828 </span>                :            :     int32_t data_len;
+<span class="lineNum">     829 </span>                :            :     const char *p1, *p2;
+<span class="lineNum">     830 </span>                :            :     int link_idx;
+<span class="lineNum">     831 </span>                :            : 
+<span class="lineNum">     832 </span>                :<span class="lineCov">          6 :     p2 = strstr(buf, AT_DATAF_PREFIX);</span>
+<span class="lineNum">     833 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == p2)</span>
+<span class="lineNum">     834 </span>                :            :     {
+<span class="lineNum">     835 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     836 </span>                :            :     }
+<span class="lineNum">     837 </span>                :<span class="lineCov">          5 :     p2+=strlen(AT_DATAF_PREFIX);</span>
+<span class="lineNum">     838 </span>                :            : 
+<span class="lineNum">     839 </span>                :<span class="lineCov">          5 :     p1 = strstr(p2, &quot;,&quot;);</span>
+<span class="lineNum">     840 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (p1 == NULL)</span>
+<span class="lineNum">     841 </span>                :            :     {
+<span class="lineNum">     842 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     843 </span>                :            :     }
+<span class="lineNum">     844 </span>                :<span class="lineCov">          4 :     sockid = chartoint(p2);</span>
+<span class="lineNum">     845 </span>                :<span class="lineCov">          4 :     data_len = chartoint(p1 + 1);</span>
+<span class="lineNum">     846 </span>                :<span class="lineCov">          4 :     link_idx = nb_sock_to_idx(sockid);</span>
+<span class="lineNum">     847 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (link_idx &gt;= MAX_SOCK_NUM)</span>
+<span class="lineNum">     848 </span>                :            :     {
+<span class="lineNum">     849 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;invalid sock id %ld&quot;, sockid);</span>
+<span class="lineNum">     850 </span>                :            : 
+<span class="lineNum">     851 </span>                :            : 
+<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :         return AT_OK;</span>
+<span class="lineNum">     853 </span>                :            :     }
+<span class="lineNum">     854 </span>                :            : 
+<span class="lineNum">     855 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (nb_cmd_rcv_data(sockid, data_len) != AT_OK)</span>
+<span class="lineNum">     856 </span>                :            :     {
+<span class="lineNum">     857 </span>                :<span class="lineCov">          1 :         g_data_ind_info.data_len = (uint32_t)data_len;</span>
+<span class="lineNum">     858 </span>                :<span class="lineCov">          1 :         g_data_ind_info.link_idx = link_idx;</span>
+<span class="lineNum">     859 </span>                :<span class="lineCov">          1 :         g_data_ind_info.valid_flag = true;</span>
+<span class="lineNum">     860 </span>                :            :     }
+<span class="lineNum">     861 </span>                :            :     else
+<span class="lineNum">     862 </span>                :            :     {
+<span class="lineNum">     863 </span>                :<span class="lineCov">          2 :         g_data_ind_info.valid_flag = false;</span>
+<span class="lineNum">     864 </span>                :            :     }
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>                :<span class="lineCov">          6 :     return AT_OK;</span>
+<span class="lineNum">     867 </span>                :            : 
+<span class="lineNum">     868 </span>                :            : }
+<a name="869"><span class="lineNum">     869 </span>                :            : </a>
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineCov">          7 : int32_t nb_cmd_match(const char *buf, char* featurestr,int len)</span>
+<span class="lineNum">     872 </span>                :            : {
+<span class="lineNum">     873 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (buf == NULL)</span>
+<span class="lineNum">     874 </span>                :            :     {
+<span class="lineNum">     875 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     876 </span>                :            :     }
+<span class="lineNum">     877 </span>                :            : 
+<span class="lineNum">     878 </span>                :<span class="lineCov">          6 :     nb_handle_data_ind(buf);</span>
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :<span class="lineCov">          7 :     return AT_FAILED;</span>
+<a name="881"><span class="lineNum">     881 </span>                :            : }</a>
+<span class="lineNum">     882 </span>                :            : 
+<span class="lineNum">     883 </span>                :<span class="lineCov">          1 : void nb_step(void)</span>
+<span class="lineNum">     884 </span>                :            : {
+<span class="lineNum">     885 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if ((!g_data_ind_info.valid_flag)</span>
+<span class="lineNum">     886 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         || (!sockinfo[g_data_ind_info.link_idx].used_flag))</span>
+<span class="lineNum">     887 </span>                :            :     {
+<span class="lineNum">     888 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     889 </span>                :            :     }
+<span class="lineNum">     890 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (nb_cmd_rcv_data(sockinfo[g_data_ind_info.link_idx].socket, g_data_ind_info.data_len) == AT_OK)</span>
+<span class="lineNum">     891 </span>                :            :     {
+<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 :         g_data_ind_info.valid_flag = false;</span>
+<span class="lineNum">     893 </span>                :            :     }
+<span class="lineNum">     894 </span>                :            : }
+<span class="lineNum">     895 </span>                :            : 
+<span class="lineNum">     896 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

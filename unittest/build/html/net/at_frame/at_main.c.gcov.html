@@ -1,0 +1,1021 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - net/at_frame/at_main.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">net/at_frame</a> - at_main.c<span style="font-size: 80%;"> (source / <a href="at_main.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">406</td>
+            <td class="headerCovTableEntry">421</td>
+            <td class="headerCovTableEntryHi">96.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntryMed">75.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #if defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : #include &quot;los_memory.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;at_frame/at_main.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;at_hal.h&quot;
+<span class="lineNum">      40 </span>                :            : #ifdef WITH_SOTA
+<span class="lineNum">      41 </span>                :            : #include &quot;sota/sota.h&quot;
+<span class="lineNum">      42 </span>                :            : #endif
+<span class="lineNum">      43 </span>                :            : #include &quot;los_sys.ph&quot;
+<span class="lineNum">      44 </span>                :            : #include &quot;los_tick.ph&quot;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : static at_config at_user_conf;
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : /* FUNCTION */
+<span class="lineNum">      49 </span>                :            : void at_set_config(at_config *config);
+<span class="lineNum">      50 </span>                :            : at_config *at_get_config(void);
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : int32_t at_init(at_config *config);
+<span class="lineNum">      53 </span>                :            : //int32_t at_read(int32_t id, int8_t * buf, uint32_t len, int32_t timeout);
+<span class="lineNum">      54 </span>                :            : int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len);
+<span class="lineNum">      55 </span>                :            : int32_t at_get_unuse_linkid(void);
+<span class="lineNum">      56 </span>                :            : void at_listener_list_add(at_listener *p);
+<span class="lineNum">      57 </span>                :            : void at_listner_list_del(at_listener *p);
+<span class="lineNum">      58 </span>                :            : int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len);
+<span class="lineNum">      59 </span>                :            : int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : void at_deinit(void);
+<span class="lineNum">      62 </span>                :            : //init function for at struct
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : at_oob_t at_oob;
+<span class="lineNum">      65 </span>                :            : char rbuf[AT_DATA_LEN] = {0};
+<a name="66"><span class="lineNum">      66 </span>                :            : char wbuf[AT_DATA_LEN] = {0};</a>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">         65 : uint32_t at_get_time(void)</span>
+<span class="lineNum">      69 </span>                :            : {
+<span class="lineNum">      70 </span>                :<span class="lineCov">         65 :     return ((uint32_t)(LOS_TickCountGet()* (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)) )/ 1000;</span>
+<span class="lineNum">      71 </span>                :            : }
+<a name="72"><span class="lineNum">      72 </span>                :            : </a>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 : int chartoint(const char* port)</span>
+<span class="lineNum">      75 </span>                :            : {
+<span class="lineNum">      76 </span>                :<span class="lineCov">          1 :         int tmp=0;</span>
+<span class="lineNum">      77 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :         while(*port &gt;= '0' &amp;&amp; *port &lt;= '9')</span>
+<span class="lineNum">      78 </span>                :            :         {
+<span class="lineNum">      79 </span>                :<span class="lineCov">          4 :                 tmp = tmp*10+*port-'0';</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          4 :                 port++;</span>
+<span class="lineNum">      81 </span>                :            :         }
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :         return tmp;</span>
+<span class="lineNum">      83 </span>                :            : }
+<a name="84"><span class="lineNum">      84 </span>                :            : </a>
+<span class="lineNum">      85 </span>                :            : //add p to tail;
+<span class="lineNum">      86 </span>                :<span class="lineCov">         14 : void at_listener_list_add(at_listener *p)</span>
+<span class="lineNum">      87 </span>                :            : {
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineCov">         14 :     at_listener *head = at.head;</span>
+<span class="lineNum">      90 </span>                :            :     at_listener *cur;
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :     //AT_LOG(&quot;www add listener %p, callback %p&quot;, p, p-&gt;handle_data);
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :<span class="lineCov">         14 :     p-&gt;next = NULL;</span>
+<span class="lineNum">      95 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         14 :     if (NULL == head)</span>
+<span class="lineNum">      96 </span>                :            :     {
+<span class="lineNum">      97 </span>                :<span class="lineCov">         10 :         at.head = p;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">         14 :         return;</span>
+<span class="lineNum">      99 </span>                :            :     }
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :<span class="lineCov">          4 :     cur = head;</span>
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     while(cur-&gt;next)</span>
+<span class="lineNum">     103 </span>                :            :     {
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :         cur = cur-&gt;next;</span>
+<span class="lineNum">     105 </span>                :            :     }
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineCov">          4 :     cur-&gt;next = p;</span>
+<a name="108"><span class="lineNum">     108 </span>                :            :  }</a>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineCov">         10 : void at_listner_list_del(at_listener *p)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :<span class="lineCov">         10 :     at_listener *head = at.head;</span>
+<span class="lineNum">     113 </span>                :            :     at_listener *cur;
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     //AT_LOG(&quot;www del listener %p callback  %p&quot;, p, p-&gt;handle_data);
+<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         10 :     if (p == head)</span>
+<span class="lineNum">     117 </span>                :            :     {
+<span class="lineNum">     118 </span>                :<span class="lineCov">          9 :         at.head = head-&gt;next;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">         10 :         return;</span>
+<span class="lineNum">     120 </span>                :            :     }
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :<span class="lineCov">          1 :     cur = head;</span>
+<span class="lineNum">     124 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     while(cur-&gt;next)</span>
+<span class="lineNum">     125 </span>                :            :     {
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (cur-&gt;next == p)</span>
+<span class="lineNum">     127 </span>                :            :         {
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :             cur-&gt;next = p-&gt;next;</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     130 </span>                :            :         }
+<span class="lineNum">     131 </span>                :            :     }
+<a name="132"><span class="lineNum">     132 </span>                :            : }</a>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :<span class="lineCov">          9 : void at_listner_list_destroy(at_task *at_tsk)</span>
+<span class="lineNum">     135 </span>                :            : {
+<span class="lineNum">     136 </span>                :            :     at_listener *head;
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         12 :     while(at_tsk-&gt;head != NULL)</span>
+<span class="lineNum">     139 </span>                :            :     {
+<span class="lineNum">     140 </span>                :<span class="lineCov">          3 :         head = at_tsk-&gt;head;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          3 :         at_tsk-&gt;head = head-&gt;next;</span>
+<span class="lineNum">     142 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         if (head-&gt;handle_data != NULL)</span>
+<span class="lineNum">     143 </span>                :            :         {
+<span class="lineNum">     144 </span>                :<span class="lineCov">          3 :             at_free(head);</span>
+<span class="lineNum">     145 </span>                :            :         }
+<span class="lineNum">     146 </span>                :            :     }
+<span class="lineNum">     147 </span>                :<span class="lineCov">          9 : }</span>
+<a name="148"><span class="lineNum">     148 </span>                :            : </a>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :<span class="lineCov">          1 : static void at_rm_node(at_listener *listener, at_listener *pre)</span>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :            :     //AT_LOG(&quot;www del listener %p callback %p&quot;, listener, listener-&gt;handle_data);
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (at.head == listener)</span>
+<span class="lineNum">     154 </span>                :            :     {
+<span class="lineNum">     155 </span>                :<span class="lineCov">          1 :         at.head = listener-&gt;next;</span>
+<span class="lineNum">     156 </span>                :            :     }
+<span class="lineNum">     157 </span>                :            :     else
+<span class="lineNum">     158 </span>                :            :     {
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (pre)</span>
+<span class="lineNum">     160 </span>                :            :         {
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :             pre-&gt;next = listener-&gt;next;</span>
+<span class="lineNum">     162 </span>                :            :         }
+<span class="lineNum">     163 </span>                :            :     }
+<span class="lineNum">     164 </span>                :<span class="lineCov">          1 :     at_free(listener);</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :     LOS_MuxPost(at.trx_mux);</span>
+<a name="167"><span class="lineNum">     167 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :<span class="lineCov">          8 : static void at_rm_timeout_nodes()</span>
+<span class="lineNum">     170 </span>                :            : {
+<span class="lineNum">     171 </span>                :<span class="lineCov">          8 :     at_listener *pre = NULL;</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          8 :     at_listener *next = NULL;</span>
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         22 :     for (at_listener *listener = at.head; listener != NULL;  listener = next)</span>
+<span class="lineNum">     175 </span>                :            :     {
+<span class="lineNum">     176 </span>                :<span class="lineCov">         14 :         next = listener-&gt;next;</span>
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         14 :         if (listener-&gt;handle_data == NULL)</span>
+<span class="lineNum">     179 </span>                :            :         {
+<span class="lineNum">     180 </span>                :<span class="lineCov">          8 :             pre = listener;</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">          8 :             continue;</span>
+<span class="lineNum">     182 </span>                :            :         }
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (listener-&gt;expire_time &lt;= at_get_time())</span>
+<span class="lineNum">     185 </span>                :            :         {
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :             AT_LOG(&quot;get recv data timeout&quot;);</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :             at_rm_node(listener, pre);</span>
+<span class="lineNum">     188 </span>                :            :         }
+<span class="lineNum">     189 </span>                :            :         else
+<span class="lineNum">     190 </span>                :            :         {
+<span class="lineNum">     191 </span>                :<span class="lineCov">          6 :             pre = listener;</span>
+<span class="lineNum">     192 </span>                :            :         }
+<span class="lineNum">     193 </span>                :            :     }
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineCov">          8 : }</span>
+<a name="196"><span class="lineNum">     196 </span>                :            : </a>
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 : int32_t at_get_unuse_linkid(void)</span>
+<span class="lineNum">     199 </span>                :            : {
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :     int i = 0;</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (AT_MUXMODE_MULTI == at.mux_mode)</span>
+<span class="lineNum">     203 </span>                :            :     {
+<span class="lineNum">     204 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         for (i = 0; i &lt; at_user_conf.linkid_num; i++)</span>
+<span class="lineNum">     205 </span>                :            :         {
+<span class="lineNum">     206 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if (AT_LINK_UNUSE == at.linkid[i].usable)</span>
+<span class="lineNum">     207 </span>                :            :             {
+<span class="lineNum">     208 </span>                :<span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     209 </span>                :            :             }
+<span class="lineNum">     210 </span>                :            :         }
+<span class="lineNum">     211 </span>                :            :     }
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (i &lt; at_user_conf.linkid_num)</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :         at.linkid[i].usable = AT_LINK_INUSE;</span>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineCov">          1 :     return i;</span>
+<span class="lineNum">     217 </span>                :            : }
+<a name="218"><span class="lineNum">     218 </span>                :            : </a>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 : void store_resp_buf(int8_t *resp_buf, const int8_t *src, uint32_t src_len, uint32_t* maxlen)</span>
+<span class="lineNum">     221 </span>                :            : {
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            :     int copy_len;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :     copy_len = MIN(*maxlen, src_len);</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          1 :     memcpy((char *)resp_buf, (char *)src, copy_len);</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :     *maxlen = copy_len;</span>
+<a name="228"><span class="lineNum">     228 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineCov">          3 : int32_t at_cmd_in_callback(const int8_t *cmd, int32_t len,</span>
+<span class="lineNum">     231 </span>                :            :                     int32_t (*handle_data)(const int8_t *data, uint32_t len),  uint32_t timeout)
+<span class="lineNum">     232 </span>                :            : {
+<span class="lineNum">     233 </span>                :<span class="lineCov">          3 :     int32_t ret = AT_FAILED;</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (handle_data != NULL)</span>
+<span class="lineNum">     236 </span>                :            :     {
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (LOS_MuxPend(at.trx_mux, 0) != AT_OK)</span>
+<span class="lineNum">     238 </span>                :            :         {
+<span class="lineNum">     239 </span>                :<span class="lineCov">          1 :             return AT_FAILED;</span>
+<span class="lineNum">     240 </span>                :            :         }
+<span class="lineNum">     241 </span>                :            :     }
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     244 </span>                :            :     //at_rm_timeout_nodes();
+<span class="lineNum">     245 </span>                :<span class="lineCov">          2 :     at_transmit((uint8_t *)cmd, len, 1);</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (handle_data != NULL)</span>
+<span class="lineNum">     248 </span>                :            :     {
+<span class="lineNum">     249 </span>                :<span class="lineCov">          2 :         at_listener *listener = NULL;</span>
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :<span class="lineCov">          2 :         listener = at_malloc(sizeof(*listener));</span>
+<span class="lineNum">     252 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (listener == NULL)</span>
+<span class="lineNum">     253 </span>                :            :         {
+<span class="lineNum">     254 </span>                :<span class="lineCov">          1 :             AT_LOG(&quot;at_malloc fail&quot;);</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :             goto EXIT;</span>
+<span class="lineNum">     256 </span>                :            :         }
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :         memset(listener, 0 ,sizeof(*listener));</span>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineCov">          1 :         listener-&gt;handle_data = handle_data;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          1 :         listener-&gt;expire_time = at_get_time() + timeout;</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :         at_listener_list_add(listener);</span>
+<span class="lineNum">     262 </span>                :            :     }
+<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :     ret = AT_OK;</span>
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            : EXIT:
+<span class="lineNum">     267 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :<span class="lineCov">          2 :     AT_LOG(&quot;len %ld,cmd %s&quot;, len, cmd);</span>
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>                :<span class="lineCov">          3 :     return ret;</span>
+<span class="lineNum">     272 </span>                :            : }
+<a name="273"><span class="lineNum">     273 </span>                :            : </a>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineCov">          3 : int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info)</span>
+<span class="lineNum">     276 </span>                :            : {
+<span class="lineNum">     277 </span>                :            :     at_listener listener;
+<span class="lineNum">     278 </span>                :            :     int ret;
+<span class="lineNum">     279 </span>                :            :     int print_len;
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if ((cmd_info == NULL)</span>
+<span class="lineNum">     282 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         || (cmd == NULL))</span>
+<span class="lineNum">     283 </span>                :            :     {
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     285 </span>                :            :     }
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :<span class="lineCov">          2 :     memset(&amp;listener, 0, sizeof(listener));</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          2 :     listener.cmd_info = *cmd_info;</span>
+<span class="lineNum">     289 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          2 :     print_len = ((cmd_info-&gt;resp_buf &amp;&amp; cmd_info-&gt;resp_len) ? (int)*(cmd_info-&gt;resp_len) : -1);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          2 :     AT_LOG(&quot;cmd len %d, %p,%d&quot;, print_len,cmd_info-&gt;resp_buf,(int)cmd_info-&gt;resp_len);</span>
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     295 </span>                :            :     //at_rm_timeout_nodes();
+<span class="lineNum">     296 </span>                :<span class="lineCov">          2 :     at_listener_list_add(&amp;listener);</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          2 :     at_transmit((uint8_t *)cmd, len, 1);</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :<span class="lineCov">          2 :     ret = LOS_SemPend(at.resp_sem, at.timeout);</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          2 :     at_listner_list_del(&amp;listener);</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.trx_mux);</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          2 :     write_at_task_msg(AT_SENT_DONE);</span>
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     310 </span>                :            :     {
+<span class="lineNum">     311 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;LOS_SemPend for listener.resp_sem failed(ret = %x, cmd = %s)!&quot;, ret,cmd);</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     313 </span>                :            :     }
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineCov">          1 :     *cmd_info = listener.cmd_info;</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">          3 :     return AT_OK;</span>
+<span class="lineNum">     317 </span>                :            : 
+<a name="318"><span class="lineNum">     318 </span>                :            : }</a>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :<span class="lineCov">          3 : int32_t at_cmd(int8_t *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)</span>
+<span class="lineNum">     321 </span>                :            : {
+<span class="lineNum">     322 </span>                :<span class="lineCov">          3 :     const char *suffix_array[1] = {suffix};</span>
+<span class="lineNum">     323 </span>                :            :     at_cmd_info_s cmd_info;
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :<span class="lineCov">          3 :     memset(&amp;cmd_info, 0, sizeof(cmd_info));</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          3 :     cmd_info.suffix = suffix_array;</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          3 :     cmd_info.suffix_num = array_size(suffix_array);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          3 :     cmd_info.resp_buf = resp_buf;</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          3 :     cmd_info.resp_len = (uint32_t *)resp_len;</span>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :<span class="lineCov">          3 :     return at_cmd_multi_suffix(cmd, len, &amp;cmd_info);</span>
+<a name="332"><span class="lineNum">     332 </span>                :            : }</a>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineCov">          2 : int32_t at_write(int8_t *cmd, int8_t *suffix, int8_t *buf, int32_t len)</span>
+<span class="lineNum">     335 </span>                :            : {
+<span class="lineNum">     336 </span>                :            :     const char *suffix_array[1];
+<span class="lineNum">     337 </span>                :            :     at_listener listener;
+<span class="lineNum">     338 </span>                :<span class="lineCov">          2 :     int ret = AT_FAILED;</span>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :<span class="lineCov">          2 :     memset(&amp;listener, 0, sizeof(listener));</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">          2 :     listener.cmd_info.suffix_num = 1;</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">          2 :     suffix_array[0] = &quot;&gt;&quot;;</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          2 :     listener.cmd_info.suffix = suffix_array;</span>
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.trx_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     348 </span>                :            :     //at_rm_timeout_nodes();
+<span class="lineNum">     349 </span>                :<span class="lineCov">          2 :     at_listener_list_add(&amp;listener);</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">          2 :     at_transmit((uint8_t *)cmd, strlen((char *)cmd), 1);</span>
+<span class="lineNum">     351 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineCov">          2 :     (void)LOS_SemPend(at.resp_sem, 200);</span>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     356 </span>                :<span class="lineCov">          2 :     suffix_array[0] = (char *)suffix;</span>
+<span class="lineNum">     357 </span>                :<span class="lineCov">          2 :     at_listner_list_del(&amp;listener);</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">          2 :     at_listener_list_add(&amp;listener);</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">          2 :     at_transmit((uint8_t *)buf, len, 0);</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :<span class="lineCov">          2 :     ret = LOS_SemPend(at.resp_sem, at.timeout);</span>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :<span class="lineCov">          2 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     365 </span>                :<span class="lineCov">          2 :     at_listner_list_del(&amp;listener);</span>
+<span class="lineNum">     366 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :<span class="lineCov">          2 :     LOS_MuxPost(at.trx_mux);</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">          2 :     write_at_task_msg(AT_SENT_DONE);</span>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     372 </span>                :            :     {
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;LOS_SemPend for listener.resp_sem failed(ret = %x)!&quot;, ret);</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     375 </span>                :            :     }
+<span class="lineNum">     376 </span>                :<span class="lineCov">          2 :     return len;</span>
+<a name="377"><span class="lineNum">     377 </span>                :            : }</a>
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :<span class="lineCov">          6 : int cloud_cmd_matching(int8_t *buf, int32_t len)</span>
+<span class="lineNum">     380 </span>                :            : {
+<span class="lineNum">     381 </span>                :<span class="lineCov">          6 :     int ret = 0;</span>
+<span class="lineNum">     382 </span>                :<span class="lineCov">          6 :     char *cmp = NULL;</span>
+<span class="lineNum">     383 </span>                :            :     int i;
+<span class="lineNum">     384 </span>                :            :     //    int rlen;
+<span class="lineNum">     385 </span>                :            :     //    memset(wbuf, 0, AT_DATA_LEN);
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :     for(i = 0; i &lt; at_oob.oob_num; i++)</span>
+<span class="lineNum">     388 </span>                :            :     {
+<span class="lineNum">     389 </span>                :            :         //cmp = strstr((char *)buf, at_oob.oob[i].featurestr);
+<span class="lineNum">     390 </span>                :<span class="lineCov">          3 :         ret = at_oob.oob[i].cmd_match((const char *)buf, at_oob.oob[i].featurestr,at_oob.oob[i].len);</span>
+<span class="lineNum">     391 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         if(ret == 0)</span>
+<span class="lineNum">     392 </span>                :            :         {
+<span class="lineNum">     393 </span>                :<span class="lineCov">          3 :             cmp += at_oob.oob[i].len;</span>
+<span class="lineNum">     394 </span>                :            :             //            sscanf(cmp,&quot;%d,%s&quot;,&amp;rlen,wbuf);
+<span class="lineNum">     395 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :             if(at_oob.oob[i].callback != NULL)</span>
+<span class="lineNum">     396 </span>                :            :             {
+<span class="lineNum">     397 </span>                :<span class="lineCov">          3 :                 (void)at_oob.oob[i].callback(at_oob.oob[i].arg, (int8_t *)buf, (int32_t)len);</span>
+<span class="lineNum">     398 </span>                :            :             }
+<span class="lineNum">     399 </span>                :<span class="lineCov">          3 :             return len;</span>
+<span class="lineNum">     400 </span>                :            :         }
+<span class="lineNum">     401 </span>                :            :     }
+<span class="lineNum">     402 </span>                :<span class="lineCov">          6 :     return 0;</span>
+<span class="lineNum">     403 </span>                :            : }
+<a name="404"><span class="lineNum">     404 </span>                :            : </a>
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineCov">          2 : static int at_handle_callback_cmd_resp(at_listener *listener, int8_t *resp_buf, uint32_t resp_len)</span>
+<span class="lineNum">     407 </span>                :            : {
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (listener-&gt;handle_data == NULL)</span>
+<span class="lineNum">     410 </span>                :            :     {
+<span class="lineNum">     411 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     412 </span>                :            :     }
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     if (listener-&gt;handle_data(resp_buf, resp_len) == AT_OK)</span>
+<span class="lineNum">     415 </span>                :            :     {
+<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :         at_rm_node(listener, NULL);</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">          1 :         return AT_OK;</span>
+<span class="lineNum">     418 </span>                :            :     }
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :<span class="lineCov">          2 :     return AT_FAILED;</span>
+<a name="421"><span class="lineNum">     421 </span>                :            : }</a>
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :<span class="lineCov">          2 : static void at_handle_resp(int8_t *resp_buf, uint32_t resp_len)</span>
+<span class="lineNum">     424 </span>                :            : {
+<span class="lineNum">     425 </span>                :<span class="lineCov">          2 :     at_listener *listener = NULL;</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineCov">          2 :     listener = at.head;</span>
+<span class="lineNum">     428 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (NULL == listener)</span>
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (at_handle_callback_cmd_resp(listener, resp_buf, resp_len) == AT_OK)</span>
+<span class="lineNum">     432 </span>                :            :     {
+<span class="lineNum">     433 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     434 </span>                :            :     }
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(listener-&gt;cmd_info.suffix == NULL)</span>
+<span class="lineNum">     437 </span>                :            :     {
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            :         //store_resp_buf((int8_t *)listener-&gt;resp, (int8_t*)p1, p2 - p1);
+<span class="lineNum">     440 </span>                :<span class="lineCov">          1 :         (void)LOS_SemPost(at.resp_sem);</span>
+<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :         listener = NULL;</span>
+<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     443 </span>                :            :     }
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">          2 :     for (uint32_t i = 0;  i &lt; listener-&gt;cmd_info.suffix_num; i++)</span>
+<span class="lineNum">     446 </span>                :            :     {
+<span class="lineNum">     447 </span>                :            :         char *suffix;
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (listener-&gt;cmd_info.suffix[i] == NULL)</span>
+<span class="lineNum">     450 </span>                :            :         {
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     452 </span>                :            :         }
+<span class="lineNum">     453 </span>                :            : 
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :         suffix = strstr((char *)resp_buf, (const char *)listener-&gt;cmd_info.suffix[i]);</span>
+<span class="lineNum">     455 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (suffix != NULL)</span>
+<span class="lineNum">     456 </span>                :            :         {
+<span class="lineNum">     457 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if ((NULL != listener-&gt;cmd_info.resp_buf) &amp;&amp; (NULL != listener-&gt;cmd_info.resp_len) &amp;&amp; (resp_len &gt; 0))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     458 </span>                :            :             {
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :                 store_resp_buf((int8_t *)listener-&gt;cmd_info.resp_buf, resp_buf, resp_len, listener-&gt;cmd_info.resp_len);//suffix + strlen((char *)listener-&gt;suffix) - p1</span>
+<span class="lineNum">     460 </span>                :            :             }
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :             listener-&gt;cmd_info.match_idx = i;</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :             (void)LOS_SemPost(at.resp_sem);</span>
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     464 </span>                :            :         }
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :            :     }
+<a name="467"><span class="lineNum">     467 </span>                :            : }</a>
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>                :<span class="lineCov">          8 : static uint32_t at_get_queue_wait_time()</span>
+<span class="lineNum">     470 </span>                :            : {
+<span class="lineNum">     471 </span>                :            :     uint32_t ret;
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :     if (at.step_callback == NULL)</span>
+<span class="lineNum">     474 </span>                :            :     {
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :         return LOS_WAIT_FOREVER;</span>
+<span class="lineNum">     476 </span>                :            :     }
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>                :<span class="lineCov">          8 :     LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     479 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          8 :     if ((at.head == NULL) || (at.head-&gt;handle_data == NULL))</span>
+<span class="lineNum">     480 </span>                :            :     {
+<span class="lineNum">     481 </span>                :<span class="lineCov">          2 :         ret = LOS_WAIT_FOREVER;</span>
+<span class="lineNum">     482 </span>                :            :     }
+<span class="lineNum">     483 </span>                :            :     else
+<span class="lineNum">     484 </span>                :            :     {
+<span class="lineNum">     485 </span>                :<span class="lineCov">          6 :         const uint32_t min_wait_time = 100;</span>
+<span class="lineNum">     486 </span>                :<span class="lineCov">          6 :         uint32_t  current = at_get_time();</span>
+<span class="lineNum">     487 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         ret = ((current &gt;= at.head-&gt;expire_time) ? min_wait_time :((at.head-&gt;expire_time - current) * 1000));</span>
+<span class="lineNum">     488 </span>                :            :     }
+<span class="lineNum">     489 </span>                :            : 
+<span class="lineNum">     490 </span>                :<span class="lineCov">          8 :     LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     491 </span>                :<span class="lineCov">          8 :     return ret;</span>
+<a name="492"><span class="lineNum">     492 </span>                :            : }</a>
+<span class="lineNum">     493 </span>                :            : 
+<span class="lineNum">     494 </span>                :<span class="lineCov">          1 : void at_recv_task()</span>
+<span class="lineNum">     495 </span>                :            : {
+<span class="lineNum">     496 </span>                :<span class="lineCov">          1 :     uint32_t recv_len = 0;</span>
+<span class="lineNum">     497 </span>                :<span class="lineCov">          1 :     uint8_t *tmp = at.userdata;  //[MAX_USART_BUF_LEN] = {0};</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">          1 :     int ret = 0;</span>
+<span class="lineNum">     499 </span>                :            :     recv_buff recv_buf;
+<span class="lineNum">     500 </span>                :<span class="lineCov">          1 :     UINT32 rlen = sizeof(recv_buff);</span>
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :            :     while(1)
+<span class="lineNum">     503 </span>                :            :     {
+<span class="lineNum">     504 </span>                :<span class="lineCov">          8 :         uint32_t wait_time = at_get_queue_wait_time();</span>
+<span class="lineNum">     505 </span>                :            :         //AT_LOG(&quot;www wait time %ld&quot;, wait_time);
+<span class="lineNum">     506 </span>                :<span class="lineCov">          8 :         ret = LOS_QueueReadCopy(at.rid, &amp;recv_buf, &amp;rlen, wait_time);</span>
+<span class="lineNum">     507 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :         if(ret != LOS_OK)</span>
+<span class="lineNum">     508 </span>                :            :         {
+<span class="lineNum">     509 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">     510 </span>                :            :         }
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :         if (recv_buf.msg_type == AT_TASK_QUIT)</span>
+<span class="lineNum">     513 </span>                :            :         {
+<span class="lineNum">     514 </span>                :<span class="lineCov">          1 :             AT_LOG(&quot;at recv task quit&quot;);</span>
+<span class="lineNum">     515 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     516 </span>                :            :         }
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :<span class="lineCov">          6 :         LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     519 </span>                :<span class="lineCov">          6 :         at_rm_timeout_nodes();</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">          6 :                 LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (at.step_callback)</span>
+<span class="lineNum">     523 </span>                :            :         {
+<span class="lineNum">     524 </span>                :<span class="lineCov">          6 :             at.step_callback();</span>
+<span class="lineNum">     525 </span>                :            :         }
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :         if (recv_buf.msg_type != AT_USART_RX)</span>
+<span class="lineNum">     528 </span>                :            :         {
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :             AT_LOG(&quot;at recv msg sent done&quot;);</span>
+<span class="lineNum">     530 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">     531 </span>                :            :         }
+<span class="lineNum">     532 </span>                :            : 
+<span class="lineNum">     533 </span>                :<span class="lineCov">          5 :         memset(tmp, 0, at_user_conf.user_buf_len);</span>
+<span class="lineNum">     534 </span>                :<span class="lineCov">          5 :         recv_len = read_resp(tmp, &amp;recv_buf);</span>
+<span class="lineNum">     535 </span>                :            : 
+<span class="lineNum">     536 </span>                :            :         
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            :         //int32_t data_len = 0;
+<span class="lineNum">     539 </span>                :<span class="lineCov">          5 :         AT_LOG_DEBUG(&quot;recv len = %lu buf = %s &quot;, recv_len, tmp);</span>
+<span class="lineNum">     540 </span>                :            : 
+<span class="lineNum">     541 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :         if (recv_len &lt;= 0)</span>
+<span class="lineNum">     542 </span>                :            :         {
+<span class="lineNum">     543 </span>                :<span class="lineCov">          1 :             AT_LOG(&quot;err, recv_len = %ld&quot;, recv_len);</span>
+<span class="lineNum">     544 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">     545 </span>                :            :         }
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :<span class="lineCov">          4 :         ret = cloud_cmd_matching((int8_t *)tmp, recv_len);</span>
+<span class="lineNum">     548 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         if(ret &gt; 0)</span>
+<span class="lineNum">     549 </span>                :            :         {
+<span class="lineNum">     550 </span>                :<span class="lineCov">          2 :             continue;</span>
+<span class="lineNum">     551 </span>                :            :         }
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :<span class="lineCov">          2 :         LOS_MuxPend(at.cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     554 </span>                :<span class="lineCov">          2 :         at_rm_timeout_nodes();</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">          2 :         at_handle_resp((int8_t *)tmp, recv_len);</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">          2 :         LOS_MuxPost(at.cmd_mux);</span>
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>                :<span class="lineCov">          7 :     }</span>
+<a name="559"><span class="lineNum">     559 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     560 </span>                :            : 
+<span class="lineNum">     561 </span>                :<span class="lineCov">          2 : uint32_t create_at_recv_task()</span>
+<span class="lineNum">     562 </span>                :            : {
+<span class="lineNum">     563 </span>                :<span class="lineCov">          2 :     uint32_t uwRet = LOS_OK;</span>
+<span class="lineNum">     564 </span>                :            :     TSK_INIT_PARAM_S task_init_param;
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :<span class="lineCov">          2 :     task_init_param.usTaskPrio = 0;</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">          2 :     task_init_param.pcName = &quot;at_recv_task&quot;;</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          2 :     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)at_recv_task;</span>
+<span class="lineNum">     569 </span>                :<span class="lineCov">          2 :     task_init_param.uwStackSize = 0x1000;</span>
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>                :<span class="lineCov">          2 :     uwRet = LOS_TaskCreate((UINT32 *)&amp;at.tsk_hdl, &amp;task_init_param);</span>
+<span class="lineNum">     572 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(LOS_OK != uwRet)</span>
+<span class="lineNum">     573 </span>                :            :     {
+<span class="lineNum">     574 </span>                :<span class="lineCov">          1 :         return uwRet;</span>
+<span class="lineNum">     575 </span>                :            :     }
+<span class="lineNum">     576 </span>                :<span class="lineCov">          2 :     return uwRet;</span>
+<span class="lineNum">     577 </span>                :            : 
+<a name="578"><span class="lineNum">     578 </span>                :            : }</a>
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>                :<span class="lineCov">          9 : void at_init_oob(void)</span>
+<span class="lineNum">     581 </span>                :            : {
+<span class="lineNum">     582 </span>                :<span class="lineCov">          9 :     at_oob.oob_num = 0;</span>
+<span class="lineNum">     583 </span>                :<span class="lineCov">          9 :     memset(at_oob.oob, 0, OOB_MAX_NUM * sizeof(struct oob_s));</span>
+<a name="584"><span class="lineNum">     584 </span>                :<span class="lineCov">          9 : }</span></a>
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :<span class="lineCov">         16 : int32_t at_struct_init(at_task *at)</span>
+<span class="lineNum">     587 </span>                :            : {
+<span class="lineNum">     588 </span>                :<span class="lineCov">         16 :     int ret = -1;</span>
+<span class="lineNum">     589 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (NULL == at)</span>
+<span class="lineNum">     590 </span>                :            :     {
+<span class="lineNum">     591 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;invaild param!&quot;);</span>
+<span class="lineNum">     592 </span>                :<span class="lineCov">          1 :         return ret;</span>
+<span class="lineNum">     593 </span>                :            :     }
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :<span class="lineCov">         15 :     ret = LOS_QueueCreate(&quot;recvQueue&quot;, 32, (UINT32 *)&amp;at-&gt;rid, 0, sizeof(recv_buff));</span>
+<span class="lineNum">     596 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">         15 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     597 </span>                :            :     {
+<span class="lineNum">     598 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;init recvQueue failed!&quot;);</span>
+<span class="lineNum">     599 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     600 </span>                :            :     }
+<span class="lineNum">     601 </span>                :<span class="lineCov">         14 :     at-&gt;rid_flag = true;</span>
+<span class="lineNum">     602 </span>                :            : 
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :<span class="lineCov">         14 :     ret = LOS_SemCreate(0, (UINT32 *)&amp;at-&gt;recv_sem);</span>
+<span class="lineNum">     605 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 13 times"> + </span>]:<span class="lineCov">         14 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     606 </span>                :            :     {
+<span class="lineNum">     607 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;init at_recv_sem failed!&quot;);</span>
+<span class="lineNum">     608 </span>                :<span class="lineCov">          1 :         goto at_recv_sem_failed;</span>
+<span class="lineNum">     609 </span>                :            :     }
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineCov">         13 :     ret = LOS_MuxCreate((UINT32 *)&amp;at-&gt;cmd_mux);</span>
+<span class="lineNum">     612 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         13 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     613 </span>                :            :     {
+<span class="lineNum">     614 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;init cmd_mux failed!&quot;);</span>
+<span class="lineNum">     615 </span>                :<span class="lineCov">          1 :         goto at_cmd_mux_failed;</span>
+<span class="lineNum">     616 </span>                :            :     }
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>                :<span class="lineCov">         12 :     ret = LOS_MuxCreate((UINT32 *)&amp;at-&gt;trx_mux);</span>
+<span class="lineNum">     619 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     620 </span>                :            :     {
+<span class="lineNum">     621 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;init cmd_mux failed!&quot;);</span>
+<span class="lineNum">     622 </span>                :<span class="lineCov">          1 :         goto at_cmd_mux_failed;</span>
+<span class="lineNum">     623 </span>                :            :     }
+<span class="lineNum">     624 </span>                :<span class="lineCov">         11 :     at-&gt;trx_mux_flag = true;</span>
+<span class="lineNum">     625 </span>                :            : 
+<span class="lineNum">     626 </span>                :<span class="lineCov">         11 :     ret = LOS_SemCreate(0, (UINT32 *)&amp;at-&gt;resp_sem);</span>
+<span class="lineNum">     627 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (ret != LOS_OK)</span>
+<span class="lineNum">     628 </span>                :            :     {
+<span class="lineNum">     629 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;init resp_sem failed!&quot;);</span>
+<span class="lineNum">     630 </span>                :<span class="lineCov">          1 :         goto at_resp_sem_failed;</span>
+<span class="lineNum">     631 </span>                :            :     }
+<span class="lineNum">     632 </span>                :            : #ifndef USE_USARTRX_DMA
+<span class="lineNum">     633 </span>                :<span class="lineCov">         10 :     at-&gt;recv_buf = at_malloc(at_user_conf.user_buf_len);</span>
+<span class="lineNum">     634 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if (NULL == at-&gt;recv_buf)</span>
+<span class="lineNum">     635 </span>                :            :     {
+<span class="lineNum">     636 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;malloc recv_buf failed!&quot;);</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 :         goto malloc_recv_buf;</span>
+<span class="lineNum">     638 </span>                :            :     }
+<span class="lineNum">     639 </span>                :            : #else
+<span class="lineNum">     640 </span>                :            :     at-&gt;recv_buf = at_malloc(at_user_conf.recv_buf_len);
+<span class="lineNum">     641 </span>                :            :     if (NULL == at-&gt;recv_buf)
+<span class="lineNum">     642 </span>                :            :     {
+<span class="lineNum">     643 </span>                :            :         AT_LOG(&quot;malloc recv_buf failed!&quot;);
+<span class="lineNum">     644 </span>                :            :         goto malloc_recv_buf;
+<span class="lineNum">     645 </span>                :            :     }
+<span class="lineNum">     646 </span>                :            : #endif
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :<span class="lineCov">          9 :     at-&gt;cmdresp = at_malloc(at_user_conf.user_buf_len);</span>
+<span class="lineNum">     649 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          9 :     if (NULL == at-&gt;cmdresp)</span>
+<span class="lineNum">     650 </span>                :            :     {
+<span class="lineNum">     651 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;malloc cmdresp failed!&quot;);</span>
+<span class="lineNum">     652 </span>                :<span class="lineCov">          1 :         goto malloc_resp_buf;</span>
+<span class="lineNum">     653 </span>                :            :     }
+<span class="lineNum">     654 </span>                :            : 
+<span class="lineNum">     655 </span>                :<span class="lineCov">          8 :     at-&gt;userdata = at_malloc(at_user_conf.user_buf_len);</span>
+<span class="lineNum">     656 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if (NULL == at-&gt;userdata)</span>
+<span class="lineNum">     657 </span>                :            :     {
+<span class="lineNum">     658 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;malloc userdata failed!&quot;);</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">          1 :         goto malloc_userdata_buf;</span>
+<span class="lineNum">     660 </span>                :            :     }
+<span class="lineNum">     661 </span>                :<span class="lineCov">          7 :     at-&gt;saveddata = at_malloc(at_user_conf.user_buf_len);</span>
+<span class="lineNum">     662 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (NULL == at-&gt;saveddata)</span>
+<span class="lineNum">     663 </span>                :            :     {
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;malloc saveddata failed!&quot;);</span>
+<span class="lineNum">     665 </span>                :<span class="lineCov">          1 :         goto malloc_saveddata_buf;</span>
+<span class="lineNum">     666 </span>                :            :     }
+<span class="lineNum">     667 </span>                :            : 
+<span class="lineNum">     668 </span>                :<span class="lineCov">          6 :     at-&gt;linkid = (at_link *)at_malloc(at_user_conf.linkid_num * sizeof(at_link));</span>
+<span class="lineNum">     669 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == at-&gt;linkid)</span>
+<span class="lineNum">     670 </span>                :            :     {
+<span class="lineNum">     671 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;malloc for at linkid array failed!&quot;);</span>
+<span class="lineNum">     672 </span>                :<span class="lineCov">          1 :         goto malloc_linkid_failed;</span>
+<span class="lineNum">     673 </span>                :            :     }
+<span class="lineNum">     674 </span>                :<span class="lineCov">          5 :     memset(at-&gt;linkid, 0, at_user_conf.linkid_num * sizeof(at_link));</span>
+<span class="lineNum">     675 </span>                :            : 
+<span class="lineNum">     676 </span>                :<span class="lineCov">          5 :     at-&gt;head = NULL;</span>
+<span class="lineNum">     677 </span>                :<span class="lineCov">          5 :     at-&gt;mux_mode = at_user_conf.mux_mode;</span>
+<span class="lineNum">     678 </span>                :<span class="lineCov">          5 :     at-&gt;timeout = at_user_conf.timeout;</span>
+<span class="lineNum">     679 </span>                :<span class="lineCov">          5 :     return AT_OK;</span>
+<span class="lineNum">     680 </span>                :            : 
+<span class="lineNum">     681 </span>                :            :     //        atiny_free(at-&gt;linkid);
+<span class="lineNum">     682 </span>                :            : malloc_linkid_failed:
+<span class="lineNum">     683 </span>                :<span class="lineCov">          1 :     at_free(at-&gt;saveddata);</span>
+<span class="lineNum">     684 </span>                :            : malloc_saveddata_buf:
+<span class="lineNum">     685 </span>                :<span class="lineCov">          2 :     at_free(at-&gt;userdata);</span>
+<span class="lineNum">     686 </span>                :            : malloc_userdata_buf:
+<span class="lineNum">     687 </span>                :<span class="lineCov">          3 :     at_free(at-&gt;cmdresp);</span>
+<span class="lineNum">     688 </span>                :            : malloc_resp_buf:
+<span class="lineNum">     689 </span>                :<span class="lineCov">          4 :     at_free(at-&gt;recv_buf);</span>
+<span class="lineNum">     690 </span>                :            : malloc_recv_buf:
+<span class="lineNum">     691 </span>                :<span class="lineCov">          5 :     (void)LOS_SemDelete(at-&gt;resp_sem);</span>
+<span class="lineNum">     692 </span>                :            : at_resp_sem_failed:
+<span class="lineNum">     693 </span>                :<span class="lineCov">          6 :     (void)LOS_MuxDelete(at-&gt;cmd_mux);</span>
+<span class="lineNum">     694 </span>                :            : at_cmd_mux_failed:
+<span class="lineNum">     695 </span>                :<span class="lineCov">          8 :     (void)LOS_SemDelete(at-&gt;recv_sem);</span>
+<span class="lineNum">     696 </span>                :            : at_recv_sem_failed:
+<span class="lineNum">     697 </span>                :            : 
+<span class="lineNum">     698 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          9 :     if (at-&gt;trx_mux_flag)</span>
+<span class="lineNum">     699 </span>                :            :     {
+<span class="lineNum">     700 </span>                :<span class="lineCov">          6 :         (void)LOS_MuxDelete(at-&gt;trx_mux);</span>
+<span class="lineNum">     701 </span>                :<span class="lineCov">          6 :         at-&gt;trx_mux_flag = false;</span>
+<span class="lineNum">     702 </span>                :            :     }
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          9 :     if (at-&gt;rid_flag)</span>
+<span class="lineNum">     705 </span>                :            :     {
+<span class="lineNum">     706 </span>                :<span class="lineCov">          9 :         (VOID)LOS_QueueDelete(at-&gt;rid);</span>
+<span class="lineNum">     707 </span>                :<span class="lineCov">          9 :         at-&gt;rid_flag = false;</span>
+<span class="lineNum">     708 </span>                :            :     }
+<span class="lineNum">     709 </span>                :<span class="lineCov">         16 :     return AT_FAILED;</span>
+<a name="710"><span class="lineNum">     710 </span>                :            : }</a>
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>                :<span class="lineCov">          8 : int32_t at_struct_deinit(at_task *at)</span>
+<span class="lineNum">     713 </span>                :            : {
+<span class="lineNum">     714 </span>                :<span class="lineCov">          8 :     int32_t ret = AT_OK;</span>
+<span class="lineNum">     715 </span>                :            : 
+<span class="lineNum">     716 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if(at == NULL)</span>
+<span class="lineNum">     717 </span>                :            :     {
+<span class="lineNum">     718 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;invaild param!&quot;);</span>
+<span class="lineNum">     719 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     720 </span>                :            :     }
+<span class="lineNum">     721 </span>                :            : 
+<span class="lineNum">     722 </span>                :<span class="lineCov">          7 :     LOS_MuxPend(at-&gt;cmd_mux, LOS_WAIT_FOREVER);</span>
+<span class="lineNum">     723 </span>                :<span class="lineCov">          7 :     at_listner_list_destroy(at);</span>
+<span class="lineNum">     724 </span>                :<span class="lineCov">          7 :     LOS_MuxPost(at-&gt;cmd_mux);</span>
+<span class="lineNum">     725 </span>                :            : 
+<span class="lineNum">     726 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          7 :     if (LOS_SemDelete(at-&gt;recv_sem) != LOS_OK)</span>
+<span class="lineNum">     727 </span>                :            :     {
+<span class="lineNum">     728 </span>                :<span class="lineCov">          2 :         AT_LOG(&quot;delete at.recv_sem failed!&quot;);</span>
+<span class="lineNum">     729 </span>                :<span class="lineCov">          2 :         ret = AT_FAILED;</span>
+<span class="lineNum">     730 </span>                :            :     }
+<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     732 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (LOS_MuxDelete(at-&gt;cmd_mux) != LOS_OK)</span>
+<span class="lineNum">     733 </span>                :            :     {
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;delete at.cmd_mux failed!&quot;);</span>
+<span class="lineNum">     735 </span>                :<span class="lineCov">          1 :         ret = AT_FAILED;</span>
+<span class="lineNum">     736 </span>                :            :     }
+<span class="lineNum">     737 </span>                :            : 
+<span class="lineNum">     738 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (LOS_SemDelete(at-&gt;resp_sem) != LOS_OK)</span>
+<span class="lineNum">     739 </span>                :            :     {
+<span class="lineNum">     740 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;delete at.resp_sem failed!&quot;);</span>
+<span class="lineNum">     741 </span>                :<span class="lineCov">          1 :         ret = AT_FAILED;</span>
+<span class="lineNum">     742 </span>                :            :     }
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (at-&gt;trx_mux_flag)</span>
+<span class="lineNum">     745 </span>                :            :     {
+<span class="lineNum">     746 </span>                :<span class="lineCov">          5 :         (void)LOS_MuxDelete(at-&gt;trx_mux);</span>
+<span class="lineNum">     747 </span>                :<span class="lineCov">          5 :         at-&gt;trx_mux_flag = false;</span>
+<span class="lineNum">     748 </span>                :            :     }
+<span class="lineNum">     749 </span>                :            : 
+<span class="lineNum">     750 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (at-&gt;rid_flag)</span>
+<span class="lineNum">     751 </span>                :            :     {
+<span class="lineNum">     752 </span>                :<span class="lineCov">          5 :         (VOID)LOS_QueueDelete(at-&gt;rid);</span>
+<span class="lineNum">     753 </span>                :<span class="lineCov">          5 :         at-&gt;rid_flag = false;</span>
+<span class="lineNum">     754 </span>                :            :     }
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (NULL != at-&gt;recv_buf)</span>
+<span class="lineNum">     757 </span>                :            :     {
+<span class="lineNum">     758 </span>                :<span class="lineCov">          5 :         at_free(at-&gt;recv_buf);</span>
+<span class="lineNum">     759 </span>                :<span class="lineCov">          5 :         at-&gt;recv_buf = NULL;</span>
+<span class="lineNum">     760 </span>                :            :     }
+<span class="lineNum">     761 </span>                :            : 
+<span class="lineNum">     762 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (NULL != at-&gt;cmdresp)</span>
+<span class="lineNum">     763 </span>                :            :     {
+<span class="lineNum">     764 </span>                :<span class="lineCov">          5 :         at_free(at-&gt;cmdresp);</span>
+<span class="lineNum">     765 </span>                :<span class="lineCov">          5 :         at-&gt;cmdresp = NULL;</span>
+<span class="lineNum">     766 </span>                :            :     }
+<span class="lineNum">     767 </span>                :            : 
+<span class="lineNum">     768 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (NULL != at-&gt;userdata)</span>
+<span class="lineNum">     769 </span>                :            :     {
+<span class="lineNum">     770 </span>                :<span class="lineCov">          5 :         at_free(at-&gt;userdata);</span>
+<span class="lineNum">     771 </span>                :<span class="lineCov">          5 :         at-&gt;userdata = NULL;</span>
+<span class="lineNum">     772 </span>                :            :     }
+<span class="lineNum">     773 </span>                :            : 
+<span class="lineNum">     774 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (NULL != at-&gt;saveddata)</span>
+<span class="lineNum">     775 </span>                :            :     {
+<span class="lineNum">     776 </span>                :<span class="lineCov">          5 :         at_free(at-&gt;saveddata);</span>
+<span class="lineNum">     777 </span>                :<span class="lineCov">          5 :         at-&gt;saveddata = NULL;</span>
+<span class="lineNum">     778 </span>                :            :     }
+<span class="lineNum">     779 </span>                :            : 
+<span class="lineNum">     780 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :     if (NULL != at-&gt;linkid)</span>
+<span class="lineNum">     781 </span>                :            :     {
+<span class="lineNum">     782 </span>                :<span class="lineCov">          5 :         at_free(at-&gt;linkid);</span>
+<span class="lineNum">     783 </span>                :<span class="lineCov">          5 :         at-&gt;linkid = NULL;</span>
+<span class="lineNum">     784 </span>                :            :     }
+<span class="lineNum">     785 </span>                :            : 
+<span class="lineNum">     786 </span>                :<span class="lineCov">          7 :     at-&gt;tsk_hdl = 0xFFFF;</span>
+<span class="lineNum">     787 </span>                :<span class="lineCov">          7 :     at-&gt;head = NULL;</span>
+<span class="lineNum">     788 </span>                :<span class="lineCov">          7 :     at-&gt;mux_mode = AT_MUXMODE_SINGLE;</span>
+<span class="lineNum">     789 </span>                :<span class="lineCov">          7 :     at-&gt;timeout = 0;</span>
+<span class="lineNum">     790 </span>                :            : 
+<span class="lineNum">     791 </span>                :<span class="lineCov">          8 :     return ret;</span>
+<a name="792"><span class="lineNum">     792 </span>                :            : }</a>
+<span class="lineNum">     793 </span>                :            : 
+<span class="lineNum">     794 </span>                :<span class="lineCov">          1 : void at_set_config(at_config *config)</span>
+<span class="lineNum">     795 </span>                :            : {
+<span class="lineNum">     796 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(NULL != config){</span>
+<span class="lineNum">     797 </span>                :<span class="lineCov">          1 :         memcpy(&amp;at_user_conf,config,sizeof(at_config));</span>
+<span class="lineNum">     798 </span>                :            :     }
+<a name="799"><span class="lineNum">     799 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     800 </span>                :            : 
+<span class="lineNum">     801 </span>                :<span class="lineCov">          1 : at_config *at_get_config(void)</span>
+<span class="lineNum">     802 </span>                :            : {
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :     return &amp;at_user_conf;</span>
+<span class="lineNum">     804 </span>                :            : }
+<a name="805"><span class="lineNum">     805 </span>                :            : </a>
+<span class="lineNum">     806 </span>                :            : 
+<span class="lineNum">     807 </span>                :<span class="lineCov">          6 : int32_t at_init(at_config *config)</span>
+<span class="lineNum">     808 </span>                :            : {
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if(NULL == config)</span>
+<span class="lineNum">     811 </span>                :            :     {
+<span class="lineNum">     812 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;Config is NULL, failed!!\n&quot;);</span>
+<span class="lineNum">     813 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     814 </span>                :            :     }
+<span class="lineNum">     815 </span>                :            :     
+<span class="lineNum">     816 </span>                :<span class="lineCov">          5 :     memcpy(&amp;at_user_conf,config,sizeof(at_config));</span>
+<span class="lineNum">     817 </span>                :            :     
+<span class="lineNum">     818 </span>                :<span class="lineCov">          5 :     AT_LOG(&quot;Config %s(buffer total is %lu)......\n&quot;, at_user_conf.name, at_user_conf.user_buf_len);</span>
+<span class="lineNum">     819 </span>                :            : 
+<span class="lineNum">     820 </span>                :            :     //LOS_TaskDelay(200);
+<span class="lineNum">     821 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (AT_OK != at_struct_init(&amp;at))</span>
+<span class="lineNum">     822 </span>                :            :     {
+<span class="lineNum">     823 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;prepare AT struct failed!&quot;);</span>
+<span class="lineNum">     824 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     825 </span>                :            :     }
+<span class="lineNum">     826 </span>                :<span class="lineCov">          4 :     at_init_oob();</span>
+<span class="lineNum">     827 </span>                :            : 
+<span class="lineNum">     828 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if(AT_OK != at_usart_init())</span>
+<span class="lineNum">     829 </span>                :            :     {
+<span class="lineNum">     830 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;at_usart_init failed!&quot;);</span>
+<span class="lineNum">     831 </span>                :<span class="lineCov">          1 :         (void)at_struct_deinit(&amp;at);</span>
+<span class="lineNum">     832 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     833 </span>                :            :     }
+<span class="lineNum">     834 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if(LOS_OK != create_at_recv_task())</span>
+<span class="lineNum">     835 </span>                :            :     {
+<span class="lineNum">     836 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;create_at_recv_task failed!&quot;);</span>
+<span class="lineNum">     837 </span>                :<span class="lineCov">          1 :         at_usart_deinit();</span>
+<span class="lineNum">     838 </span>                :<span class="lineCov">          1 :         (void)at_struct_deinit(&amp;at);</span>
+<span class="lineNum">     839 </span>                :<span class="lineCov">          1 :         return AT_FAILED;</span>
+<span class="lineNum">     840 </span>                :            :     }
+<span class="lineNum">     841 </span>                :            : 
+<span class="lineNum">     842 </span>                :<span class="lineCov">          2 :     AT_LOG(&quot;Config complete!!\n&quot;);</span>
+<span class="lineNum">     843 </span>                :<span class="lineCov">          6 :     return AT_OK;</span>
+<span class="lineNum">     844 </span>                :            : }
+<a name="845"><span class="lineNum">     845 </span>                :            : </a>
+<span class="lineNum">     846 </span>                :            : 
+<span class="lineNum">     847 </span>                :<span class="lineCov">          2 : void at_deinit(void)</span>
+<span class="lineNum">     848 </span>                :            : {
+<span class="lineNum">     849 </span>                :            : 
+<span class="lineNum">     850 </span>                :            : 
+<span class="lineNum">     851 </span>                :<span class="lineCov">          2 :     int cnt = 0;</span>
+<span class="lineNum">     852 </span>                :<span class="lineCov">          2 :     const int max_try_num = 10;</span>
+<span class="lineNum">     853 </span>                :            : 
+<span class="lineNum">     854 </span>                :            : 
+<span class="lineNum">     855 </span>[<span class="branchCov" title="Branch 1 was taken 11 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 3 was taken 10 times"> + </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">         12 :     while(LOS_TaskNameGet(at.tsk_hdl) != NULL &amp;&amp; cnt &lt; max_try_num)</span>
+<span class="lineNum">     856 </span>                :            :     {
+<span class="lineNum">     857 </span>                :<span class="lineCov">         10 :         write_at_task_msg(AT_TASK_QUIT);</span>
+<span class="lineNum">     858 </span>                :<span class="lineCov">         10 :         LOS_TaskDelay(1000);</span>
+<span class="lineNum">     859 </span>                :<span class="lineCov">         10 :         cnt++;</span>
+<span class="lineNum">     860 </span>                :            :     }
+<span class="lineNum">     861 </span>                :            : 
+<span class="lineNum">     862 </span>                :            : 
+<span class="lineNum">     863 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (LOS_TaskNameGet(at.tsk_hdl) != NULL)</span>
+<span class="lineNum">     864 </span>                :            :     {
+<span class="lineNum">     865 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if(LOS_OK != LOS_TaskDelete(at.tsk_hdl))</span>
+<span class="lineNum">     866 </span>                :            :         {
+<span class="lineNum">     867 </span>                :<span class="lineCov">          1 :             AT_LOG(&quot;at_recv_task delete failed!&quot;);</span>
+<span class="lineNum">     868 </span>                :            :         }
+<span class="lineNum">     869 </span>                :            :     }
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineCov">          2 :     at_usart_deinit();</span>
+<span class="lineNum">     872 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(AT_OK != at_struct_deinit(&amp;at))</span>
+<span class="lineNum">     873 </span>                :            :     {
+<span class="lineNum">     874 </span>                :<span class="lineCov">          1 :         AT_LOG(&quot;at_struct_deinit failed!&quot;);</span>
+<span class="lineNum">     875 </span>                :            :     }
+<span class="lineNum">     876 </span>                :<span class="lineCov">          2 :     at_init_oob();</span>
+<span class="lineNum">     877 </span>                :            : 
+<span class="lineNum">     878 </span>                :<span class="lineCov">          2 : }</span>
+<a name="879"><span class="lineNum">     879 </span>                :            : </a>
+<span class="lineNum">     880 </span>                :            : 
+<span class="lineNum">     881 </span>                :<span class="lineCov">          3 : int32_t at_oob_register(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match)</span>
+<span class="lineNum">     882 </span>                :            : {
+<span class="lineNum">     883 </span>                :            :     oob_t *oob;
+<span class="lineNum">     884 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :     if(featurestr == NULL || cmd_match == NULL || at_oob.oob_num == OOB_MAX_NUM || cmdlen &gt;= OOB_CMD_LEN - 1)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 2 times"> + </span>]
+<span class="lineNum">     885 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     886 </span>                :<span class="lineCov">          2 :     oob = &amp;(at_oob.oob[at_oob.oob_num++]);</span>
+<span class="lineNum">     887 </span>                :<span class="lineCov">          2 :     memcpy(oob-&gt;featurestr, featurestr, cmdlen);</span>
+<span class="lineNum">     888 </span>                :<span class="lineCov">          2 :     oob-&gt;len = strlen(featurestr);</span>
+<span class="lineNum">     889 </span>                :<span class="lineCov">          2 :     oob-&gt;callback = callback;</span>
+<span class="lineNum">     890 </span>                :<span class="lineCov">          2 :     oob-&gt;cmd_match = cmd_match;</span>
+<span class="lineNum">     891 </span>                :<span class="lineCov">          3 :     return 0;</span>
+<a name="892"><span class="lineNum">     892 </span>                :            : }</a>
+<span class="lineNum">     893 </span>                :            : 
+<span class="lineNum">     894 </span>                :<span class="lineCov">         41 : void *at_malloc(size_t size)</span>
+<span class="lineNum">     895 </span>                :            : {
+<span class="lineNum">     896 </span>                :<span class="lineCov">         41 :     void *pMem = LOS_MemAlloc(m_aucSysMem0, size);</span>
+<span class="lineNum">     897 </span>        [<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         41 :     if(NULL != pMem)</span>
+<span class="lineNum">     898 </span>                :            :     {
+<span class="lineNum">     899 </span>                :<span class="lineCov">         36 :         memset(pMem, 0, size);</span>
+<span class="lineNum">     900 </span>                :            :     }
+<span class="lineNum">     901 </span>                :<span class="lineCov">         41 :     return pMem;</span>
+<a name="902"><span class="lineNum">     902 </span>                :            : }</a>
+<span class="lineNum">     903 </span>                :            : 
+<span class="lineNum">     904 </span>                :<span class="lineCov">         39 : void at_free(void *ptr)</span>
+<span class="lineNum">     905 </span>                :            : {
+<span class="lineNum">     906 </span>                :<span class="lineCov">         39 :     (void)LOS_MemFree(m_aucSysMem0, ptr);</span>
+<a name="907"><span class="lineNum">     907 </span>                :<span class="lineCov">         39 : }</span></a>
+<span class="lineNum">     908 </span>                :            : 
+<span class="lineNum">     909 </span>                :<span class="lineCov">          1 : void at_reg_step_callback(at_task *at_tsk, void (*step_callback)(void))</span>
+<span class="lineNum">     910 </span>                :            : {
+<span class="lineNum">     911 </span>                :<span class="lineCov">          1 :     at_tsk-&gt;step_callback = step_callback;</span>
+<span class="lineNum">     912 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     913 </span>                :            : 
+<span class="lineNum">     914 </span>                :            : 
+<span class="lineNum">     915 </span>                :            : at_task at =
+<span class="lineNum">     916 </span>                :            : {
+<span class="lineNum">     917 </span>                :            :     .tsk_hdl = 0xFFFF,
+<span class="lineNum">     918 </span>                :            :     .recv_buf = NULL,
+<span class="lineNum">     919 </span>                :            :     .cmdresp = NULL,
+<span class="lineNum">     920 </span>                :            :     .userdata = NULL,
+<span class="lineNum">     921 </span>                :            :     .linkid = NULL,
+<span class="lineNum">     922 </span>                :            :     .head = NULL,
+<span class="lineNum">     923 </span>                :            : 
+<span class="lineNum">     924 </span>                :            :     .init = at_init,
+<span class="lineNum">     925 </span>                :            :     .deinit = at_deinit,
+<span class="lineNum">     926 </span>                :            :     .cmd = at_cmd,
+<span class="lineNum">     927 </span>                :            :     .write = at_write,
+<span class="lineNum">     928 </span>                :            :     .oob_register = at_oob_register,
+<span class="lineNum">     929 </span>                :            :     .get_id = at_get_unuse_linkid,
+<span class="lineNum">     930 </span>                :            :     .cmd_multi_suffix = at_cmd_multi_suffix
+<span class="lineNum">     931 </span>                :            : };
+<span class="lineNum">     932 </span>                :            : 
+<span class="lineNum">     933 </span>                :            : 
+<span class="lineNum">     934 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

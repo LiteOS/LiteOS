@@ -1,0 +1,794 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/agenttiny.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - agenttiny.c<span style="font-size: 80%;"> (source / <a href="agenttiny.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">268</td>
+            <td class="headerCovTableEntry">293</td>
+            <td class="headerCovTableEntryHi">91.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">147</td>
+            <td class="headerCovTableEntry">221</td>
+            <td class="headerCovTableEntryLo">66.5 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;internals.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;atiny_lwm2m/agenttiny.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;atiny_context.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;connection.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;log/atiny_log.h&quot;
+<span class="lineNum">      40 </span>                :            : #include &quot;atiny_rpt.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;osdepends/atiny_osdep.h&quot;
+<span class="lineNum">      42 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">      43 </span>                :            : #include &quot;atiny_fota_manager.h&quot;
+<span class="lineNum">      44 </span>                :            : #endif
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : int g_reboot = 0;
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : void observe_handle_ack(lwm2m_transaction_t *transacP, void *message);
+<span class="lineNum">      52 </span>                :            : static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params);
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : static handle_data_t g_atiny_handle;
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : /*
+<span class="lineNum">      57 </span>                :            :  * modify date:   2018-06-20
+<span class="lineNum">      58 </span>                :            :  * description: in order to check the params for the bootstrap, expecialy for the mode and the ip/port
+<span class="lineNum">      59 </span>                :            :  * return:
+<span class="lineNum">      60 </span>                :            :  *              success: ATINY_OK
+<span class="lineNum">      61 </span>                :            :  *              fail:    ATINY_ARG_INVALID
+<a name="62"><span class="lineNum">      62 </span>                :            :  *</a>
+<span class="lineNum">      63 </span>                :            :  */
+<span class="lineNum">      64 </span>                :<span class="lineCov">         32 : static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 32 times"> + </span>]:<span class="lineCov">         32 :     if(NULL == atiny_params)</span>
+<span class="lineNum">      67 </span>                :            :     {
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">      69 </span>                :            :     }
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 0 was taken 28 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         32 :     if(BOOTSTRAP_FACTORY == atiny_params-&gt;server_params.bootstrap_mode)</span>
+<span class="lineNum">      72 </span>                :            :     {
+<span class="lineNum">      73 </span>[<span class="branchCov" title="Branch 0 was taken 27 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 27 times"> + </span>]:<span class="lineCov">         28 :         if((NULL == atiny_params-&gt;security_params[0].server_ip) || (NULL == atiny_params-&gt;security_params[0].server_port))</span>
+<span class="lineNum">      74 </span>                :            :         {
+<span class="lineNum">      75 </span>                :            :             LOG(&quot;[bootstrap_tag]: BOOTSTRAP_FACTORY mode's params is wrong, should have iot server ip/port&quot;);
+<span class="lineNum">      76 </span>                :<span class="lineCov">          1 :             return ATINY_ARG_INVALID;</span>
+<span class="lineNum">      77 </span>                :            :         }
+<span class="lineNum">      78 </span>                :            :     }
+<span class="lineNum">      79 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     else if(BOOTSTRAP_CLIENT_INITIATED == atiny_params-&gt;server_params.bootstrap_mode)</span>
+<span class="lineNum">      80 </span>                :            :     {
+<span class="lineNum">      81 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if((NULL == atiny_params-&gt;security_params[1].server_ip) || (NULL == atiny_params-&gt;security_params[1].server_port))</span>
+<span class="lineNum">      82 </span>                :            :         {
+<span class="lineNum">      83 </span>                :            :             LOG(&quot;[bootstrap_tag]: BOOTSTRAP_CLIENT_INITIATED mode's params is wrong, should have bootstrap server ip/port&quot;);
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :             return ATINY_ARG_INVALID;</span>
+<span class="lineNum">      85 </span>                :            :         }
+<span class="lineNum">      86 </span>                :            :     }
+<span class="lineNum">      87 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     else if(BOOTSTRAP_SEQUENCE == atiny_params-&gt;server_params.bootstrap_mode)</span>
+<span class="lineNum">      88 </span>                :            :     {
+<span class="lineNum">      89 </span>                :<span class="lineCov">          2 :         return ATINY_OK;</span>
+<span class="lineNum">      90 </span>                :            :     }
+<span class="lineNum">      91 </span>                :            :     else
+<span class="lineNum">      92 </span>                :            :     {
+<span class="lineNum">      93 </span>                :            :         //it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
+<span class="lineNum">      94 </span>                :            :         LOG(&quot;[bootstrap_tag]: BOOTSTRAP only have three mode, should been :0,1,2&quot;);
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">      96 </span>                :            :     }
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :<span class="lineCov">         32 :     return ATINY_OK;</span>
+<span class="lineNum">     100 </span>                :            : }
+<a name="101"><span class="lineNum">     101 </span>                :            : </a>
+<span class="lineNum">     102 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     103 </span>                :<span class="lineCov">         29 : static int atiny_check_psk_init_param(atiny_param_t *atiny_params)</span>
+<span class="lineNum">     104 </span>                :            : {
+<span class="lineNum">     105 </span>                :<span class="lineCov">         29 :     int i = 0;</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">         29 :     int psk_id_len = 0;</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">         29 :     int psk_len = 0;</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">         29 :     const int PSK_ID_LIMIT_LEN = 128;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">         29 :     const int PSK_LIMIT_LEN = 64;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">         29 :     int total_element = 0;</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 29 times"> + </span>]:<span class="lineCov">         29 :     if(NULL == atiny_params)</span>
+<span class="lineNum">     113 </span>                :            :     {
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     115 </span>                :            :     }
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :     //security_params have 2 element, we have 2 pair psk.
+<span class="lineNum">     118 </span>                :<span class="lineCov">         29 :     total_element = (sizeof(atiny_params-&gt;security_params)) / (sizeof(atiny_params-&gt;security_params[0]));</span>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>        [<span class="branchCov" title="Branch 0 was taken 58 times"> + </span><span class="branchCov" title="Branch 1 was taken 29 times"> + </span>]:<span class="lineCov">         87 :     for(i = 0; i &lt; total_element; i++)</span>
+<span class="lineNum">     121 </span>                :            :     {
+<span class="lineNum">     122 </span>                :            :         //if there are null, we could run not in security mode
+<span class="lineNum">     123 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 57 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         58 :         if((atiny_params-&gt;security_params[i].psk_Id != NULL) &amp;&amp; (atiny_params-&gt;security_params[i].psk != NULL))</span>
+<span class="lineNum">     124 </span>                :            :         {
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :             psk_id_len = strlen(atiny_params-&gt;security_params[i].psk_Id);</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :             psk_len = strlen(atiny_params-&gt;security_params[i].psk);</span>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :             //the limit of the len, please read RFC4279  or OMA-TS-LightweightM2M E.1.1
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if((psk_id_len &gt; PSK_ID_LIMIT_LEN) || (psk_len &gt; PSK_LIMIT_LEN))</span>
+<span class="lineNum">     130 </span>                :            :             {
+<span class="lineNum">     131 </span>                :            :                 LOG(&quot;[bootstrap_tag]: psk_Id len over 128 or psk len over 64&quot;);
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     133 </span>                :            :             }
+<span class="lineNum">     134 </span>                :            :         }
+<span class="lineNum">     135 </span>                :            :     }
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineCov">         29 :     return ATINY_OK;</span>
+<span class="lineNum">     138 </span>                :            : }
+<span class="lineNum">     139 </span>                :            : #endif
+<a name="140"><span class="lineNum">     140 </span>                :            : </a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineCov">         33 : int  atiny_init(atiny_param_t *atiny_params, void **phandle)</span>
+<span class="lineNum">     143 </span>                :            : {
+<span class="lineNum">     144 </span>                :            :     int result;
+<span class="lineNum">     145 </span>                :            :     
+<span class="lineNum">     146 </span>                :<span class="lineCov">         33 :     result = atiny_init_rpt();</span>
+<span class="lineNum">     147 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 33 times"> + </span>]:<span class="lineCov">         33 :     if (result != ATINY_OK)</span>
+<span class="lineNum">     148 </span>                :            :     {
+<span class="lineNum">     149 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;atiny_init_rpt fail,ret=%d&quot;, result);</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     151 </span>                :            :     }
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>[<span class="branchCov" title="Branch 0 was taken 32 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 32 times"> + </span>]:<span class="lineCov">         33 :     if (NULL == atiny_params || NULL == phandle)</span>
+<span class="lineNum">     154 </span>                :            :     {
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Invalid args&quot;);</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 29 times"> + </span>]:<span class="lineCov">         32 :     if(ATINY_OK != atiny_check_bootstrap_init_param(atiny_params))</span>
+<span class="lineNum">     160 </span>                :            :     {
+<span class="lineNum">     161 </span>                :            :         LOG(&quot;[bootstrap_tag]: BOOTSTRAP's params are wrong&quot;);
+<span class="lineNum">     162 </span>                :<span class="lineCov">          3 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     163 </span>                :            :     }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     166 </span>                :<span class="lineCov">         29 :     if(ATINY_OK != atiny_check_psk_init_param(atiny_params))</span>
+<span class="lineNum">     167 </span>                :            :     {
+<span class="lineNum">     168 </span>                :            :         LOG(&quot;[bootstrap_tag]: psk params are wrong&quot;);
+<span class="lineNum">     169 </span>                :            :     }
+<span class="lineNum">     170 </span>                :            : #endif
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :<span class="lineCov">         29 :     memset((void *)&amp;g_atiny_handle, 0, sizeof(handle_data_t));</span>
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>                :<span class="lineCov">         29 :     g_atiny_handle.quit_sem = atiny_mutex_create();</span>
+<span class="lineNum">     175 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 29 times"> + </span>]:<span class="lineCov">         29 :     if (NULL == g_atiny_handle.quit_sem)</span>
+<span class="lineNum">     176 </span>                :            :     {
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;atiny_mutex_create fail&quot;);</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         return ATINY_RESOURCE_NOT_ENOUGH;</span>
+<span class="lineNum">     179 </span>                :            :     }
+<span class="lineNum">     180 </span>                :<span class="lineCov">         29 :     atiny_mutex_lock(g_atiny_handle.quit_sem);</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">         29 :     g_atiny_handle.atiny_params = *atiny_params;</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">         29 :     *phandle = &amp;g_atiny_handle;</span>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineCov">         33 :     return atiny_fota_manager_set_storage_device(atiny_fota_manager_get_instance());</span>
+<span class="lineNum">     187 </span>                :            : #else
+<span class="lineNum">     188 </span>                :            :     return ATINY_OK;
+<span class="lineNum">     189 </span>                :            : #endif
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            : }
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :            : /*
+<span class="lineNum">     194 </span>                :            :  * add date:     2018-06-05
+<span class="lineNum">     195 </span>                :            :  * description:  get bootstrap info from atiny_params which from user, set bs_sequence_state and bs_server_uri for lwm2m_context.
+<span class="lineNum">     196 </span>                :            :  *
+<span class="lineNum">     197 </span>                :            :  * return:       none
+<span class="lineNum">     198 </span>                :            :  * param:
+<span class="lineNum">     199 </span>                :            :  *     in:  atiny_params
+<a name="200"><span class="lineNum">     200 </span>                :            :  *     out: lwm2m_context</a>
+<span class="lineNum">     201 </span>                :            :  */
+<span class="lineNum">     202 </span>                :<span class="lineCov">         10 : void atiny_set_bootstrap_sequence_state(atiny_param_t *atiny_params, lwm2m_context_t *lwm2m_context)</span>
+<span class="lineNum">     203 </span>                :            : {
+<span class="lineNum">     204 </span>                :<span class="lineCov">         10 :     (void)lwm2m_initBootStrap(lwm2m_context, atiny_params-&gt;server_params.bootstrap_mode);</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">         10 : }</span>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            : /*
+<span class="lineNum">     210 </span>                :            : * modify info:
+<span class="lineNum">     211 </span>                :            : *     date:    2018-05-30
+<a name="212"><span class="lineNum">     212 </span>                :            : *     reason:  modify for bootstrap mode, origin code only support FACTORY mode.</a>
+<span class="lineNum">     213 </span>                :            : */
+<span class="lineNum">     214 </span>                :<span class="lineCov">         12 : int atiny_init_objects(atiny_param_t *atiny_params, const atiny_device_info_t *device_info, handle_data_t *handle)</span>
+<span class="lineNum">     215 </span>                :            : {
+<span class="lineNum">     216 </span>                :            :     int result;
+<span class="lineNum">     217 </span>                :            :     client_data_t *pdata;
+<span class="lineNum">     218 </span>                :<span class="lineCov">         12 :     lwm2m_context_t *lwm2m_context = NULL;</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">         12 :     uint16_t serverId = SERVER_ID;</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">         12 :     char *epname = (char *)device_info-&gt;endpoint_name;</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">         12 :     pdata = &amp;handle-&gt;client_data;</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">         12 :     memset(pdata, 0, sizeof(client_data_t));</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         12 :     ATINY_LOG(LOG_INFO, &quot;Trying to init objects&quot;);</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineCov">         12 :     lwm2m_context = lwm2m_init(pdata);</span>
+<span class="lineNum">     230 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if (NULL == lwm2m_context)</span>
+<span class="lineNum">     231 </span>                :            :     {
+<span class="lineNum">     232 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;lwm2m_init fail&quot;);</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     234 </span>                :            :     }
+<span class="lineNum">     235 </span>                :<span class="lineCov">         11 :     lwm2m_context-&gt;observe_mutex = atiny_mutex_create();</span>
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (NULL == lwm2m_context-&gt;observe_mutex)</span>
+<span class="lineNum">     237 </span>                :            :     {
+<span class="lineNum">     238 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;atiny_mutex_create fail&quot;);</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          1 :         lwm2m_free(lwm2m_context);</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :         return ATINY_RESOURCE_NOT_ENOUGH;</span>
+<span class="lineNum">     241 </span>                :            :     }
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :<span class="lineCov">         10 :     pdata-&gt;lwm2mH = lwm2m_context;</span>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineCov">         10 :     handle-&gt;lwm2m_context = lwm2m_context;</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :     //even if not in bootstrap sequence mode, still set it NO_BS_SEQUENCE_STATE
+<span class="lineNum">     248 </span>                :<span class="lineCov">         10 :     atiny_set_bootstrap_sequence_state(atiny_params, lwm2m_context);</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :<span class="lineCov">         10 :     handle-&gt;obj_array[OBJ_SECURITY_INDEX] = get_security_object(serverId, atiny_params, lwm2m_context);</span>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if (NULL ==  handle-&gt;obj_array[OBJ_SECURITY_INDEX])</span>
+<span class="lineNum">     253 </span>                :            :     {
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create security object&quot;);</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     256 </span>                :            :     }
+<span class="lineNum">     257 </span>                :<span class="lineCov">          9 :     pdata-&gt;securityObjP = handle-&gt;obj_array[OBJ_SECURITY_INDEX];</span>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineCov">          9 :     handle-&gt;obj_array[OBJ_SERVER_INDEX] = get_server_object(serverId, atiny_params-&gt;server_params.binding,</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          9 :                                           atiny_params-&gt;server_params.life_time, atiny_params-&gt;server_params.storing_cnt != 0);</span>
+<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          9 :     if (NULL == handle-&gt;obj_array[OBJ_SERVER_INDEX])</span>
+<span class="lineNum">     262 </span>                :            :     {
+<span class="lineNum">     263 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create server object&quot;);</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     265 </span>                :            :     }
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :<span class="lineCov">          8 :     handle-&gt;obj_array[OBJ_ACCESS_CONTROL_INDEX] = acc_ctrl_create_object();</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :     if (NULL == handle-&gt;obj_array[OBJ_ACCESS_CONTROL_INDEX])</span>
+<span class="lineNum">     269 </span>                :            :     {
+<span class="lineNum">     270 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create access control object&quot;);</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     272 </span>                :            :     }
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineCov">          8 :     handle-&gt;obj_array[OBJ_DEVICE_INDEX] = get_object_device(atiny_params, device_info-&gt;manufacturer);</span>
+<span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if (NULL == handle-&gt;obj_array[OBJ_DEVICE_INDEX])</span>
+<span class="lineNum">     276 </span>                :            :     {
+<span class="lineNum">     277 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create device object&quot;);</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     279 </span>                :            :     }
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">          7 :     handle-&gt;obj_array[OBJ_CONNECT_INDEX] = get_object_conn_m(atiny_params);</span>
+<span class="lineNum">     282 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (NULL == handle-&gt;obj_array[OBJ_CONNECT_INDEX])</span>
+<span class="lineNum">     283 </span>                :            :     {
+<span class="lineNum">     284 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create connect object&quot;);</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     286 </span>                :            :     }
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :<span class="lineCov">          6 :     handle-&gt;obj_array[OBJ_FIRMWARE_INDEX] = get_object_firmware(atiny_params);</span>
+<span class="lineNum">     289 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == handle-&gt;obj_array[OBJ_FIRMWARE_INDEX])</span>
+<span class="lineNum">     291 </span>                :            :     {
+<span class="lineNum">     292 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create firmware object&quot;);</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     294 </span>                :            :     }
+<span class="lineNum">     295 </span>                :            : #endif
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :<span class="lineCov">          5 :     handle-&gt;obj_array[OBJ_LOCATION_INDEX] = get_object_location();</span>
+<span class="lineNum">     298 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :     if (NULL == handle-&gt;obj_array[OBJ_LOCATION_INDEX])</span>
+<span class="lineNum">     299 </span>                :            :     {
+<span class="lineNum">     300 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create location object&quot;);</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     302 </span>                :            :     }
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineCov">          5 :     handle-&gt;obj_array[OBJ_APP_INDEX] = get_binary_app_data_object(atiny_params);</span>
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (NULL == handle-&gt;obj_array[OBJ_APP_INDEX])</span>
+<span class="lineNum">     306 </span>                :            :     {
+<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Failed to create app object&quot;);</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     309 </span>                :            :     }
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :<span class="lineCov">          4 :     result = lwm2m_configure(lwm2m_context, epname, NULL, NULL, OBJ_MAX_NUM, handle-&gt;obj_array);</span>
+<span class="lineNum">     312 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     if (result != 0)</span>
+<span class="lineNum">     313 </span>                :            :     {
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :         return ATINY_RESOURCE_NOT_FOUND;</span>
+<span class="lineNum">     315 </span>                :            :     }
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">         12 :     return ATINY_OK;</span>
+<a name="318"><span class="lineNum">     318 </span>                :            : }</a>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :<span class="lineCov">          1 : static int lwm2m_poll(handle_data_t *phandle, uint32_t *timeout)</span>
+<span class="lineNum">     321 </span>                :            : {
+<span class="lineNum">     322 </span>                :            :     client_data_t *dataP;
+<span class="lineNum">     323 </span>                :            :     int numBytes;
+<span class="lineNum">     324 </span>                :            :     connection_t *connP;
+<span class="lineNum">     325 </span>                :<span class="lineCov">          1 :     lwm2m_context_t *contextP = phandle-&gt;lwm2m_context;</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          1 :     uint8_t *recv_buffer = phandle-&gt;recv_buffer;</span>
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :<span class="lineCov">          1 :     dataP = (client_data_t *)(contextP-&gt;userData);</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          1 :     connP = dataP-&gt;connList;</span>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     while (connP != NULL)</span>
+<span class="lineNum">     332 </span>                :            :     {
+<span class="lineNum">     333 </span>                :<span class="lineCov">          1 :         numBytes = lwm2m_buffer_recv(connP, recv_buffer, MAX_PACKET_SIZE, *timeout);</span>
+<span class="lineNum">     334 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (numBytes &lt;= 0)</span>
+<span class="lineNum">     335 </span>                :            :         {
+<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_INFO, &quot;no packet arrived!&quot;);</span>
+<span class="lineNum">     337 </span>                :            :         }
+<span class="lineNum">     338 </span>                :            :         else
+<span class="lineNum">     339 </span>                :            :         {
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :             output_buffer(stderr, recv_buffer, numBytes, 0);</span>
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :             lwm2m_handle_packet(contextP, recv_buffer, numBytes, connP);</span>
+<span class="lineNum">     342 </span>                :            :         }
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :         connP = connP-&gt;next;</span>
+<span class="lineNum">     344 </span>                :            :     }
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :     return ATINY_OK;</span>
+<a name="347"><span class="lineNum">     347 </span>                :            : }</a>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineCov">         11 : void atiny_destroy(void *handle)</span>
+<span class="lineNum">     350 </span>                :            : {
+<span class="lineNum">     351 </span>                :<span class="lineCov">         11 :     handle_data_t *handle_data = (handle_data_t *)handle;</span>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (handle_data == NULL)</span>
+<span class="lineNum">     354 </span>                :            :     {
+<span class="lineNum">     355 </span>                :<span class="lineCov">         11 :         return;</span>
+<span class="lineNum">     356 </span>                :            :     }
+<span class="lineNum">     357 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">     358 </span>                :<span class="lineCov">         10 :     atiny_fota_manager_destroy(atiny_fota_manager_get_instance());</span>
+<span class="lineNum">     359 </span>                :            : #endif
+<span class="lineNum">     360 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if(handle_data-&gt;recv_buffer != NULL)</span>
+<span class="lineNum">     361 </span>                :            :     {
+<span class="lineNum">     362 </span>                :<span class="lineCov">          1 :         lwm2m_free(handle_data-&gt;recv_buffer);</span>
+<span class="lineNum">     363 </span>                :            :     }
+<span class="lineNum">     364 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_SECURITY_INDEX] != NULL)</span>
+<span class="lineNum">     365 </span>                :            :     {
+<span class="lineNum">     366 </span>                :<span class="lineCov">          9 :         clean_security_object(handle_data-&gt;obj_array[OBJ_SECURITY_INDEX]);</span>
+<span class="lineNum">     367 </span>                :            :     }
+<span class="lineNum">     368 </span>                :            : 
+<span class="lineNum">     369 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_SERVER_INDEX] != NULL)</span>
+<span class="lineNum">     370 </span>                :            :     {
+<span class="lineNum">     371 </span>                :<span class="lineCov">          8 :         clean_server_object(handle_data-&gt;obj_array[OBJ_SERVER_INDEX]);</span>
+<span class="lineNum">     372 </span>                :            :     }
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_ACCESS_CONTROL_INDEX] != NULL)</span>
+<span class="lineNum">     375 </span>                :            :     {
+<span class="lineNum">     376 </span>                :<span class="lineCov">          8 :         acl_ctrl_free_object(handle_data-&gt;obj_array[OBJ_ACCESS_CONTROL_INDEX]);</span>
+<span class="lineNum">     377 </span>                :            :     }
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_DEVICE_INDEX] != NULL)</span>
+<span class="lineNum">     380 </span>                :            :     {
+<span class="lineNum">     381 </span>                :<span class="lineCov">          7 :         free_object_device(handle_data-&gt;obj_array[OBJ_DEVICE_INDEX]);</span>
+<span class="lineNum">     382 </span>                :            :     }
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_CONNECT_INDEX] != NULL)</span>
+<span class="lineNum">     385 </span>                :            :     {
+<span class="lineNum">     386 </span>                :<span class="lineCov">          6 :         free_object_conn_m(handle_data-&gt;obj_array[OBJ_CONNECT_INDEX]);</span>
+<span class="lineNum">     387 </span>                :            :     }
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_FIRMWARE_INDEX] != NULL)</span>
+<span class="lineNum">     390 </span>                :            :     {
+<span class="lineNum">     391 </span>                :<span class="lineCov">          5 :         free_object_firmware(handle_data-&gt;obj_array[OBJ_FIRMWARE_INDEX]);</span>
+<span class="lineNum">     392 </span>                :            :     }
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_LOCATION_INDEX] != NULL)</span>
+<span class="lineNum">     395 </span>                :            :     {
+<span class="lineNum">     396 </span>                :<span class="lineCov">          5 :         free_object_location(handle_data-&gt;obj_array[OBJ_LOCATION_INDEX]);</span>
+<span class="lineNum">     397 </span>                :            :     }
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;obj_array[OBJ_APP_INDEX] != NULL)</span>
+<span class="lineNum">     400 </span>                :            :     {
+<span class="lineNum">     401 </span>                :<span class="lineCov">          4 :         free_binary_app_data_object(handle_data-&gt;obj_array[OBJ_APP_INDEX]);</span>
+<span class="lineNum">     402 </span>                :            :     }
+<span class="lineNum">     403 </span>                :<span class="lineCov">         10 :     atiny_destroy_rpt();</span>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :     if (handle_data-&gt;lwm2m_context != NULL)</span>
+<span class="lineNum">     406 </span>                :            :     {
+<span class="lineNum">     407 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (handle_data-&gt;lwm2m_context-&gt;observe_mutex != NULL)</span>
+<span class="lineNum">     408 </span>                :            :         {
+<span class="lineNum">     409 </span>                :<span class="lineCov">         10 :             atiny_mutex_destroy(handle_data-&gt;lwm2m_context-&gt;observe_mutex);</span>
+<span class="lineNum">     410 </span>                :            :         }
+<span class="lineNum">     411 </span>                :<span class="lineCov">         10 :         lwm2m_close(handle_data-&gt;lwm2m_context);</span>
+<span class="lineNum">     412 </span>                :            :     }
+<span class="lineNum">     413 </span>                :<span class="lineCov">         10 :     atiny_mutex_unlock(handle_data-&gt;quit_sem);</span>
+<a name="414"><span class="lineNum">     414 </span>                :            : }</a>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :<span class="lineCov">          7 : void atiny_event_handle(module_type_t type, int code, const char *arg, int arg_len)</span>
+<span class="lineNum">     417 </span>                :            : {
+<span class="lineNum">     418 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          7 :     switch (type)</span>
+<span class="lineNum">     419 </span>                :            :     {
+<span class="lineNum">     420 </span>                :            :     case MODULE_LWM2M:
+<span class="lineNum">     421 </span>                :            :     {
+<span class="lineNum">     422 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (code == STATE_REGISTERED)</span>
+<span class="lineNum">     423 </span>                :            :         {
+<span class="lineNum">     424 </span>                :<span class="lineCov">          1 :             atiny_event_notify(ATINY_REG_OK, NULL, 0);</span>
+<span class="lineNum">     425 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">     426 </span>                :<span class="lineCov">          1 :             (void)atiny_fota_manager_repot_result(atiny_fota_manager_get_instance());</span>
+<span class="lineNum">     427 </span>                :            : #endif
+<span class="lineNum">     428 </span>                :            :         }
+<span class="lineNum">     429 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         else if (code == STATE_REG_FAILED)</span>
+<span class="lineNum">     430 </span>                :            :         {
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :             atiny_event_notify(ATINY_REG_FAIL, NULL, 0);</span>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :         }
+<span class="lineNum">     434 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     435 </span>                :            :     }
+<span class="lineNum">     436 </span>                :            :     case MODULE_NET:
+<span class="lineNum">     437 </span>                :            :     {
+<span class="lineNum">     438 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     439 </span>                :            :     }
+<span class="lineNum">     440 </span>                :            :     case MODULE_URI:
+<span class="lineNum">     441 </span>                :            :     {
+<span class="lineNum">     442 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :         if ((arg == NULL) || (arg_len &lt; sizeof(lwm2m_uri_t)))</span>
+<span class="lineNum">     443 </span>                :            :         {
+<span class="lineNum">     444 </span>                :            :             break;
+<span class="lineNum">     445 </span>                :            :         }
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (code == OBSERVE_UNSUBSCRIBE)</span>
+<span class="lineNum">     448 </span>                :            :         {
+<span class="lineNum">     449 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (dm_isUriOpaqueHandle((lwm2m_uri_t *)arg))</span>
+<span class="lineNum">     450 </span>                :            :             {
+<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :                 atiny_report_type_e rpt_type = APP_DATA;</span>
+<span class="lineNum">     452 </span>                :<span class="lineCov">          1 :                 atiny_event_notify(ATINY_DATA_UNSUBSCRIBLE, (char *)&amp;rpt_type, sizeof(rpt_type));</span>
+<span class="lineNum">     453 </span>                :            :             }
+<span class="lineNum">     454 </span>                :<span class="lineCov">          1 :             (void)atiny_clear_rpt_data((lwm2m_uri_t *)arg, SENT_FAIL);</span>
+<span class="lineNum">     455 </span>                :            :         }
+<span class="lineNum">     456 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         else if (code == OBSERVE_SUBSCRIBE)</span>
+<span class="lineNum">     457 </span>                :            :         {
+<span class="lineNum">     458 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (dm_isUriOpaqueHandle((lwm2m_uri_t *)arg))</span>
+<span class="lineNum">     459 </span>                :            :             {
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :                 atiny_report_type_e rpt_type = APP_DATA;</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :                 atiny_event_notify(ATINY_DATA_SUBSCRIBLE, (char *)&amp;rpt_type, sizeof(rpt_type));</span>
+<span class="lineNum">     462 </span>                :            :             }
+<span class="lineNum">     463 </span>                :            :         }
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     466 </span>                :            :     }
+<span class="lineNum">     467 </span>                :            :     default:
+<span class="lineNum">     468 </span>                :            :     {
+<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     470 </span>                :            :     }
+<span class="lineNum">     471 </span>                :            :     }
+<span class="lineNum">     472 </span>                :            : 
+<a name="473"><span class="lineNum">     473 </span>                :<span class="lineCov">          7 : }</span></a>
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :<span class="lineCov">          1 : void reboot_check(void)</span>
+<span class="lineNum">     476 </span>                :            : {
+<span class="lineNum">     477 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if(g_reboot == 1)</span>
+<span class="lineNum">     478 </span>                :            :     {
+<span class="lineNum">     479 </span>                :<span class="lineCov">          1 :         (void)atiny_cmd_ioctl(ATINY_DO_DEV_REBOOT, NULL, 0);</span>
+<span class="lineNum">     480 </span>                :            :     }
+<a name="481"><span class="lineNum">     481 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     482 </span>                :            : 
+<span class="lineNum">     483 </span>                :<span class="lineCov">          2 : static void atiny_connection_err_notify(lwm2m_context_t *context, connection_err_e err_type, bool boostrap_flag)</span>
+<span class="lineNum">     484 </span>                :            : {
+<span class="lineNum">     485 </span>                :<span class="lineCov">          2 :     handle_data_t *handle = NULL;</span>
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if((NULL == context) || (NULL == context-&gt;userData))</span>
+<span class="lineNum">     488 </span>                :            :     {
+<span class="lineNum">     489 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;null point&quot;);</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          2 :         return;</span>
+<span class="lineNum">     491 </span>                :            :     }
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(!boostrap_flag)</span>
+<span class="lineNum">     494 </span>                :            :     {
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :         handle = ATINY_FIELD_TO_STRUCT(context-&gt;userData, handle_data_t, client_data);</span>
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :         (void)atiny_reconnect(handle);</span>
+<span class="lineNum">     497 </span>                :            :     }
+<span class="lineNum">     498 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     ATINY_LOG(LOG_INFO, &quot;connection err type %d bootstrap %d&quot;, err_type, boostrap_flag);</span>
+<span class="lineNum">     499 </span>                :            : }
+<a name="500"><span class="lineNum">     500 </span>                :            : </a>
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :<span class="lineCov">          1 : static void atiny_handle_reconnect(handle_data_t *handle)</span>
+<span class="lineNum">     503 </span>                :            : {
+<span class="lineNum">     504 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if(handle-&gt;reconnect_flag)</span>
+<span class="lineNum">     505 </span>                :            :     {
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         (void)lwm2m_reconnect(handle-&gt;lwm2m_context);</span>
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :         handle-&gt;reconnect_flag = false;</span>
+<span class="lineNum">     508 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_INFO, &quot;lwm2m reconnect&quot;);</span>
+<span class="lineNum">     509 </span>                :            :     }
+<a name="510"><span class="lineNum">     510 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>                :<span class="lineCov">          5 : int atiny_bind(atiny_device_info_t *device_info, void *phandle)</span>
+<span class="lineNum">     513 </span>                :            : {
+<span class="lineNum">     514 </span>                :<span class="lineCov">          5 :     handle_data_t *handle = (handle_data_t *)phandle;</span>
+<span class="lineNum">     515 </span>                :            :     uint32_t timeout;
+<span class="lineNum">     516 </span>                :            :     int ret;
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if ((NULL == device_info) || (NULL == phandle))</span>
+<span class="lineNum">     519 </span>                :            :     {
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Parameter null&quot;);</span>
+<span class="lineNum">     521 </span>                :<span class="lineCov">          1 :         atiny_deinit(phandle);</span>
+<span class="lineNum">     522 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     523 </span>                :            :     }
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (NULL == device_info-&gt;endpoint_name)</span>
+<span class="lineNum">     526 </span>                :            :     {
+<span class="lineNum">     527 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Endpoint name null&quot;);</span>
+<span class="lineNum">     528 </span>                :<span class="lineCov">          1 :         atiny_deinit(phandle);</span>
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     530 </span>                :            :     }
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (NULL == device_info-&gt;manufacturer)</span>
+<span class="lineNum">     533 </span>                :            :     {
+<span class="lineNum">     534 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Manufacturer name null&quot;);</span>
+<span class="lineNum">     535 </span>                :<span class="lineCov">          1 :         atiny_deinit(phandle);</span>
+<span class="lineNum">     536 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     537 </span>                :            :     }
+<span class="lineNum">     538 </span>                :            : 
+<span class="lineNum">     539 </span>                :<span class="lineCov">          2 :     ret = atiny_init_objects(&amp;handle-&gt;atiny_params, device_info, handle);</span>
+<span class="lineNum">     540 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (ret != ATINY_OK)</span>
+<span class="lineNum">     541 </span>                :            :     {
+<span class="lineNum">     542 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;atiny_init_object fail %d&quot;, ret);</span>
+<span class="lineNum">     543 </span>                :<span class="lineNoCov">          0 :         atiny_destroy(handle);</span>
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     545 </span>                :            :     }
+<span class="lineNum">     546 </span>                :            : #ifdef CONFIG_FEATURE_FOTA
+<span class="lineNum">     547 </span>                :<span class="lineCov">          2 :     (void)atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_get_instance(), handle-&gt;lwm2m_context);</span>
+<span class="lineNum">     548 </span>                :            : #endif
+<span class="lineNum">     549 </span>                :<span class="lineCov">          2 :     lwm2m_register_observe_ack_call_back(observe_handle_ack);</span>
+<span class="lineNum">     550 </span>                :<span class="lineCov">          2 :     lwm2m_register_event_handler(atiny_event_handle);</span>
+<span class="lineNum">     551 </span>                :<span class="lineCov">          2 :     lwm2m_register_connection_err_notify(atiny_connection_err_notify);</span>
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :<span class="lineCov">          2 :     handle-&gt;recv_buffer = (uint8_t *)lwm2m_malloc(MAX_PACKET_SIZE);</span>
+<span class="lineNum">     554 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(handle-&gt;recv_buffer == NULL)</span>
+<span class="lineNum">     555 </span>                :            :     {
+<span class="lineNum">     556 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;memory not enough&quot;);</span>
+<span class="lineNum">     557 </span>                :<span class="lineNoCov">          0 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     558 </span>                :            :     }
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     while (!handle-&gt;atiny_quit)</span>
+<span class="lineNum">     561 </span>                :            :     {
+<span class="lineNum">     562 </span>                :<span class="lineCov">          1 :         timeout = BIND_TIMEOUT;</span>
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :<span class="lineCov">          1 :         (void)atiny_step_rpt(handle-&gt;lwm2m_context);</span>
+<span class="lineNum">     565 </span>                :<span class="lineCov">          1 :         atiny_handle_reconnect(handle);</span>
+<span class="lineNum">     566 </span>                :<span class="lineCov">          1 :         (void)lwm2m_step(handle-&gt;lwm2m_context, (time_t *)&amp;timeout);</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">          1 :         reboot_check();</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          1 :         (void)lwm2m_poll(handle, &amp;timeout);</span>
+<span class="lineNum">     569 </span>                :            :     }
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>                :<span class="lineCov">          2 :     atiny_destroy(phandle);</span>
+<span class="lineNum">     572 </span>                :            : 
+<span class="lineNum">     573 </span>                :<span class="lineCov">          5 :     return ATINY_OK;</span>
+<a name="574"><span class="lineNum">     574 </span>                :            : }</a>
+<span class="lineNum">     575 </span>                :            : 
+<span class="lineNum">     576 </span>                :<span class="lineCov">         18 : void atiny_deinit(void *phandle)</span>
+<span class="lineNum">     577 </span>                :            : {
+<span class="lineNum">     578 </span>                :            :     handle_data_t *handle;
+<span class="lineNum">     579 </span>                :<span class="lineCov">         18 :     void *sem = NULL;</span>
+<span class="lineNum">     580 </span>                :            : 
+<span class="lineNum">     581 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         18 :     if (phandle == NULL)</span>
+<span class="lineNum">     582 </span>                :            :     {
+<span class="lineNum">     583 </span>                :<span class="lineCov">         18 :         return;</span>
+<span class="lineNum">     584 </span>                :            :     }
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :<span class="lineCov">         16 :     handle = (handle_data_t *)phandle;</span>
+<span class="lineNum">     587 </span>                :<span class="lineCov">         16 :     handle-&gt;atiny_quit = 1;</span>
+<span class="lineNum">     588 </span>                :<span class="lineCov">         16 :     sem = handle-&gt;quit_sem;</span>
+<span class="lineNum">     589 </span>                :<span class="lineCov">         16 :     atiny_mutex_lock(sem);</span>
+<span class="lineNum">     590 </span>                :<span class="lineCov">         16 :     atiny_mutex_destroy(sem);</span>
+<a name="591"><span class="lineNum">     591 </span>                :            : }</a>
+<span class="lineNum">     592 </span>                :            : 
+<span class="lineNum">     593 </span>                :<span class="lineCov">          5 : int atiny_data_report(void *phandle, data_report_t *report_data)</span>
+<span class="lineNum">     594 </span>                :            : {
+<span class="lineNum">     595 </span>                :            :     lwm2m_uri_t uri;
+<span class="lineNum">     596 </span>                :            :     int ret;
+<span class="lineNum">     597 </span>                :            :     data_report_t data;
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :            : 
+<span class="lineNum">     600 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :     if (NULL == phandle || NULL == report_data || report_data-&gt;len &lt;= 0</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     601 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          4 :             || report_data-&gt;len &gt; MAX_REPORT_DATA_LEN || NULL == report_data-&gt;buf)</span>
+<span class="lineNum">     602 </span>                :            :     {
+<span class="lineNum">     603 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;invalid args&quot;);</span>
+<span class="lineNum">     604 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     605 </span>                :            :     }
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :<span class="lineCov">          4 :     memset((void *)&amp;uri, 0, sizeof(uri));</span>
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>     [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          4 :     switch (report_data-&gt;type)</span>
+<span class="lineNum">     610 </span>                :            :     {
+<span class="lineNum">     611 </span>                :            :     case FIRMWARE_UPDATE_STATE:
+<span class="lineNum">     612 </span>                :<span class="lineCov">          1 :         (void)lwm2m_stringToUri(&quot;/5/0/3&quot;, 6, &amp;uri);</span>
+<span class="lineNum">     613 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     614 </span>                :            :     case APP_DATA:
+<span class="lineNum">     615 </span>                :<span class="lineCov">          2 :         get_resource_uri(BINARY_APP_DATA_OBJECT_ID, 0, BINARY_APP_DATA_RES_ID, &amp;uri);</span>
+<span class="lineNum">     616 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     617 </span>                :            :     default:
+<span class="lineNum">     618 </span>                :<span class="lineCov">          1 :         return ATINY_RESOURCE_NOT_FOUND;</span>
+<span class="lineNum">     619 </span>                :            :     }
+<span class="lineNum">     620 </span>                :            : 
+<span class="lineNum">     621 </span>                :<span class="lineCov">          3 :     memcpy(&amp;data, report_data, sizeof(data));</span>
+<span class="lineNum">     622 </span>                :<span class="lineCov">          3 :     data.buf = lwm2m_malloc(report_data-&gt;len);</span>
+<span class="lineNum">     623 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (NULL == data.buf)</span>
+<span class="lineNum">     624 </span>                :            :     {
+<span class="lineNum">     625 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;lwm2m_malloc fail,len %d&quot;, data.len);</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;;</span>
+<span class="lineNum">     627 </span>                :            :     }
+<span class="lineNum">     628 </span>                :<span class="lineCov">          2 :     memcpy(data.buf, report_data-&gt;buf, report_data-&gt;len);</span>
+<span class="lineNum">     629 </span>                :            : 
+<span class="lineNum">     630 </span>                :<span class="lineCov">          2 :     ret = atiny_queue_rpt_data(&amp;uri, &amp;data);</span>
+<span class="lineNum">     631 </span>                :            : 
+<span class="lineNum">     632 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (ATINY_OK != ret)</span>
+<span class="lineNum">     633 </span>                :            :     {
+<span class="lineNum">     634 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (data.buf != NULL)</span>
+<span class="lineNum">     635 </span>                :            :         {
+<span class="lineNum">     636 </span>                :<span class="lineCov">          2 :             lwm2m_free(data.buf);</span>
+<span class="lineNum">     637 </span>                :            :         }
+<span class="lineNum">     638 </span>                :            :     }
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :<span class="lineCov">          5 :     return ret;</span>
+<a name="641"><span class="lineNum">     641 </span>                :            : }</a>
+<span class="lineNum">     642 </span>                :            : 
+<span class="lineNum">     643 </span>                :<span class="lineCov">          3 : int atiny_data_change(void *phandle, const char *data_type)</span>
+<span class="lineNum">     644 </span>                :            : {
+<span class="lineNum">     645 </span>                :            :     lwm2m_uri_t uri;
+<span class="lineNum">     646 </span>                :            :     handle_data_t *handle;
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (NULL == phandle || NULL == data_type)</span>
+<span class="lineNum">     649 </span>                :            :     {
+<span class="lineNum">     650 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;invalid args&quot;);</span>
+<span class="lineNum">     651 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     652 </span>                :            :     }
+<span class="lineNum">     653 </span>                :            : 
+<span class="lineNum">     654 </span>                :<span class="lineCov">          2 :     memset((void *)&amp;uri, 0, sizeof(uri));</span>
+<span class="lineNum">     655 </span>                :<span class="lineCov">          2 :     handle = (handle_data_t *)phandle;</span>
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (handle-&gt;lwm2m_context-&gt;state != STATE_READY)</span>
+<span class="lineNum">     658 </span>                :            :     {
+<span class="lineNum">     659 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;not registered&quot;);</span>
+<span class="lineNum">     660 </span>                :<span class="lineCov">          1 :         return ATINY_CLIENT_UNREGISTERED;</span>
+<span class="lineNum">     661 </span>                :            :     }
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :<span class="lineCov">          1 :     (void)lwm2m_stringToUri(data_type, strlen(data_type), &amp;uri);</span>
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>                :<span class="lineCov">          1 :     atiny_mutex_lock(handle-&gt;lwm2m_context-&gt;observe_mutex);</span>
+<span class="lineNum">     666 </span>                :<span class="lineCov">          1 :     lwm2m_resource_value_changed(handle-&gt;lwm2m_context, &amp;uri);</span>
+<span class="lineNum">     667 </span>                :<span class="lineCov">          1 :     atiny_mutex_unlock(handle-&gt;lwm2m_context-&gt;observe_mutex);</span>
+<span class="lineNum">     668 </span>                :            : 
+<span class="lineNum">     669 </span>                :<span class="lineCov">          3 :     return ATINY_OK;</span>
+<a name="670"><span class="lineNum">     670 </span>                :            : }</a>
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :<span class="lineCov">          3 : void observe_handle_ack(lwm2m_transaction_t *transacP, void *message)</span>
+<span class="lineNum">     673 </span>                :            : {
+<span class="lineNum">     674 </span>                :<span class="lineCov">          3 :     atiny_ack_callback ack_callback = (atiny_ack_callback)transacP-&gt;cfg.callback;</span>
+<span class="lineNum">     675 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (transacP-&gt;ack_received)</span>
+<span class="lineNum">     676 </span>                :            :     {
+<span class="lineNum">     677 </span>                :<span class="lineCov">          1 :         ack_callback((atiny_report_type_e)(transacP-&gt;cfg.type), transacP-&gt;cfg.cookie, SENT_SUCCESS);</span>
+<span class="lineNum">     678 </span>                :            :     }
+<span class="lineNum">     679 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     else if (transacP-&gt;retrans_counter &gt; COAP_MAX_RETRANSMIT)</span>
+<span class="lineNum">     680 </span>                :            :     {
+<span class="lineNum">     681 </span>                :<span class="lineCov">          1 :         ack_callback((atiny_report_type_e)(transacP-&gt;cfg.type), transacP-&gt;cfg.cookie, SENT_TIME_OUT);</span>
+<span class="lineNum">     682 </span>                :            :     }
+<span class="lineNum">     683 </span>                :            :     else
+<span class="lineNum">     684 </span>                :            :     {
+<span class="lineNum">     685 </span>                :<span class="lineCov">          1 :         ack_callback((atiny_report_type_e)(transacP-&gt;cfg.type), transacP-&gt;cfg.cookie, SENT_FAIL);</span>
+<span class="lineNum">     686 </span>                :            :     }
+<a name="687"><span class="lineNum">     687 </span>                :<span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     688 </span>                :            : 
+<span class="lineNum">     689 </span>                :<span class="lineCov">          2 : int atiny_reconnect(void *phandle)</span>
+<span class="lineNum">     690 </span>                :            : {
+<span class="lineNum">     691 </span>                :<span class="lineCov">          2 :     handle_data_t *handle = (handle_data_t *)phandle;</span>
+<span class="lineNum">     692 </span>                :            : 
+<span class="lineNum">     693 </span>                :            : 
+<span class="lineNum">     694 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL == phandle)</span>
+<span class="lineNum">     695 </span>                :            :     {
+<span class="lineNum">     696 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Parameter null&quot;);</span>
+<span class="lineNum">     697 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     698 </span>                :            :     }
+<span class="lineNum">     699 </span>                :<span class="lineCov">          1 :     handle-&gt;reconnect_flag = true;</span>
+<span class="lineNum">     700 </span>                :            : 
+<span class="lineNum">     701 </span>                :<span class="lineCov">          2 :     return ATINY_OK;</span>
+<a name="702"><span class="lineNum">     702 </span>                :            : }</a>
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>                :<span class="lineCov">          1 : void atiny_set_reboot_flag()</span>
+<span class="lineNum">     705 </span>                :            : {
+<span class="lineNum">     706 </span>                :<span class="lineCov">          1 :     g_reboot = true;</span>
+<span class="lineNum">     707 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     708 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

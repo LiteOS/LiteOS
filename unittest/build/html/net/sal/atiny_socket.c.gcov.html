@@ -1,0 +1,640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - net/sal/atiny_socket.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">net/sal</a> - atiny_socket.c<span style="font-size: 80%;"> (source / <a href="atiny_socket.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntry">145</td>
+            <td class="headerCovTableEntryHi">97.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntryMed">83.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;sal/atiny_socket.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;osdepends/atiny_osdep.h&quot;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : #if defined(WITH_LINUX)
+<span class="lineNum">      40 </span>                :            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      41 </span>                :            : #include &lt;sys/socket.h&gt;
+<span class="lineNum">      42 </span>                :            : #include &lt;netinet/in.h&gt;
+<span class="lineNum">      43 </span>                :            : #include &lt;arpa/inet.h&gt;
+<span class="lineNum">      44 </span>                :            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      45 </span>                :            : #include &lt;unistd.h&gt;
+<span class="lineNum">      46 </span>                :            : #include &lt;fcntl.h&gt;
+<span class="lineNum">      47 </span>                :            : #include &lt;netdb.h&gt;
+<span class="lineNum">      48 </span>                :            : #include &lt;errno.h&gt;
+<span class="lineNum">      49 </span>                :            : #elif defined(WITH_LWIP)
+<span class="lineNum">      50 </span>                :            : #include &quot;lwip/sockets.h&quot;
+<span class="lineNum">      51 </span>                :            : #include &quot;lwip/netdb.h&quot;
+<span class="lineNum">      52 </span>                :            : #include &quot;lwip/errno.h&quot;
+<span class="lineNum">      53 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">      54 </span>                :            : #include &quot;at_frame/at_api.h&quot;
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #else
+<span class="lineNum">      57 </span>                :            : // TODO
+<span class="lineNum">      58 </span>                :            : #endif
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : #define SOCKET_DEBUG
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : #if defined(SOCKET_DEBUG)
+<span class="lineNum">      63 </span>                :            : #define SOCKET_LOG(fmt, ...) \
+<span class="lineNum">      64 </span>                :            :     do \
+<span class="lineNum">      65 </span>                :            :     { \
+<span class="lineNum">      66 </span>                :            :         (void)atiny_printf(&quot;[SOCKET][%s:%d] &quot; fmt &quot;\r\n&quot;, \
+<span class="lineNum">      67 </span>                :            :         __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+<span class="lineNum">      68 </span>                :            :     } while(0)
+<span class="lineNum">      69 </span>                :            : #else
+<span class="lineNum">      70 </span>                :            : #define SOCKET_LOG(fmt, ...) ((void)0)
+<span class="lineNum">      71 </span>                :            : #endif
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            : typedef struct
+<span class="lineNum">      75 </span>                :            : {
+<span class="lineNum">      76 </span>                :            :     int fd;
+<a name="77"><span class="lineNum">      77 </span>                :            : } atiny_net_context;</a>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 : void *atiny_net_bind(const char *host, const char *port, int proto)</span>
+<span class="lineNum">      80 </span>                :            : {
+<span class="lineNum">      81 </span>                :            : #if defined (WITH_LWIP) || defined (WITH_LINUX)
+<span class="lineNum">      82 </span>                :            :     (void)host;
+<span class="lineNum">      83 </span>                :            :     (void)port;
+<span class="lineNum">      84 </span>                :            :     (void)proto;
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :     return NULL;</span>
+<span class="lineNum">      86 </span>                :            : /*
+<span class="lineNum">      87 </span>                :            :     struct sockaddr_in sock_addr;
+<span class="lineNum">      88 </span>                :            :     int port_i;
+<span class="lineNum">      89 </span>                :            :     int ret = ATINY_NET_ERR;
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            :     if (NULL == port || (proto != ATINY_PROTO_UDP &amp;&amp; proto != ATINY_PROTO_TCP))
+<span class="lineNum">      92 </span>                :            :         return NULL;
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            :     ctx = atiny_malloc(sizeof(atiny_net_context));
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :     sscanf(port , &quot;%d&quot;, &amp;port_i);
+<span class="lineNum">      97 </span>                :            :     sock_addr.sin_family = AF_INET;
+<span class="lineNum">      98 </span>                :            :     sock_addr.sin_port = lwip_htons(port_i);
+<span class="lineNum">      99 </span>                :            :     sock_addr.sin_addr.s_addr = (host == NULL ? IPADDR_ANY : inet_addr(host));
+<span class="lineNum">     100 </span>                :            :     sock_addr.sin_len = sizeof(struct sockaddr_in);
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :     ctx-&gt;fd = socket(AF_INET,
+<span class="lineNum">     103 </span>                :            :         proto == ATINY_PROTO_TCP ? SOCK_STREAM : SOCK_DGRAM,
+<span class="lineNum">     104 </span>                :            :         proto == ATINY_PROTO_TCP ? IPPROTO_TCP : IPPROTO_UDP);
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :     if (ctx-&gt;fd &lt; 0)
+<span class="lineNum">     107 </span>                :            :     {
+<span class="lineNum">     108 </span>                :            :         ret = ATINY_NET_SOCKET_FAILED;
+<span class="lineNum">     109 </span>                :            :         atiny_free(ctx);
+<span class="lineNum">     110 </span>                :            :         return NULL;
+<span class="lineNum">     111 </span>                :            :     }
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :            :         int n = 1;
+<span class="lineNum">     114 </span>                :            :         if( (ret = setsockopt( ctx-&gt;fd, SOL_SOCKET, SO_REUSEADDR,
+<span class="lineNum">     115 </span>                :            :                                         (const char *) &amp;n, sizeof( n )) ) != 0 )
+<span class="lineNum">     116 </span>                :            :         {
+<span class="lineNum">     117 </span>                :            :                 ret = ATINY_NET_SOCKET_FAILED;
+<span class="lineNum">     118 </span>                :            :                 goto exit_failed;
+<span class="lineNum">     119 </span>                :            :         }
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :     ret = bind(ctx-&gt;fd, (struct sockaddr*)&amp;sock_addr, sizeof(struct sockaddr));
+<span class="lineNum">     122 </span>                :            :     if (ret &lt; 0)
+<span class="lineNum">     123 </span>                :            :     {
+<span class="lineNum">     124 </span>                :            :        ret = ATINY_NET_BIND_FAILED;
+<span class="lineNum">     125 </span>                :            :        goto exit_failed;
+<span class="lineNum">     126 </span>                :            :     }
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :     if (proto == ATINY_PROTO_TCP)
+<span class="lineNum">     129 </span>                :            :     {
+<span class="lineNum">     130 </span>                :            :         ret = listen(ctx-&gt;fd, 20);
+<span class="lineNum">     131 </span>                :            :         if (ret &lt; 0)
+<span class="lineNum">     132 </span>                :            :         {
+<span class="lineNum">     133 </span>                :            :             ret = ATINY_NET_LISTEN_FAILED;
+<span class="lineNum">     134 </span>                :            :             goto exit_failed;
+<span class="lineNum">     135 </span>                :            :         }
+<span class="lineNum">     136 </span>                :            :     }
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            :     return ctx;
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : exit_failed:
+<span class="lineNum">     141 </span>                :            :        close(ctx-&gt;fd);
+<span class="lineNum">     142 </span>                :            :        atiny_free(ctx);
+<span class="lineNum">     143 </span>                :            :        return NULL;
+<span class="lineNum">     144 </span>                :            :        */
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     148 </span>                :            :     atiny_net_context *ctx;
+<span class="lineNum">     149 </span>                :            :     ctx = atiny_malloc(sizeof(atiny_net_context));
+<span class="lineNum">     150 </span>                :            :     if (NULL == ctx)
+<span class="lineNum">     151 </span>                :            :     {
+<span class="lineNum">     152 </span>                :            :         SOCKET_LOG(&quot;malloc failed for socket context&quot;);
+<span class="lineNum">     153 </span>                :            :         return NULL;
+<span class="lineNum">     154 </span>                :            :     }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            :     ctx-&gt;fd = at_api_bind(host, port, proto);
+<span class="lineNum">     157 </span>                :            :     if (ctx-&gt;fd &lt; 0)
+<span class="lineNum">     158 </span>                :            :     {
+<span class="lineNum">     159 </span>                :            :         SOCKET_LOG(&quot;unkown host or port&quot;);
+<span class="lineNum">     160 </span>                :            :         atiny_free(ctx);
+<span class="lineNum">     161 </span>                :            :         ctx = NULL;
+<span class="lineNum">     162 </span>                :            :     }
+<span class="lineNum">     163 </span>                :            :                 return ctx;
+<span class="lineNum">     164 </span>                :            : #endif
+<a name="165"><span class="lineNum">     165 </span>                :            : </a>
+<span class="lineNum">     166 </span>                :            : }
+<span class="lineNum">     167 </span>                :<span class="lineCov">          8 : int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )</span>
+<span class="lineNum">     168 </span>                :            : {
+<span class="lineNum">     169 </span>                :            : #if defined (WITH_LWIP) || defined (WITH_LINUX)
+<span class="lineNum">     170 </span>                :<span class="lineCov">          8 :     int bind_fd = ((atiny_net_context*)bind_ctx)-&gt;fd;</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          8 :     int client_fd = ((atiny_net_context*)client_ctx)-&gt;fd;</span>
+<span class="lineNum">     172 </span>                :            :     int type;
+<span class="lineNum">     173 </span>                :<span class="lineCov">          8 :     int ret = ATINY_NET_ERR;</span>
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :     struct sockaddr_in client_addr;
+<span class="lineNum">     176 </span>                :            :     socklen_t type_len, client_addr_len;
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineCov">          8 :     type_len = sizeof(type);</span>
+<span class="lineNum">     179 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchCov" title="Branch 4 was taken 3 times"> + </span>]:<span class="lineCov">          8 :     if (getsockopt(bind_fd, SOL_SOCKET, SO_TYPE, (void*)&amp;type, &amp;type_len) != 0 ||</span>
+<span class="lineNum">     180 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :         (type != SOCK_STREAM &amp;&amp; type != SOCK_DGRAM))</span>
+<span class="lineNum">     181 </span>                :            :     {
+<span class="lineNum">     182 </span>                :<span class="lineCov">          2 :         return ATINY_NET_ACCEPT_FAILED;</span>
+<span class="lineNum">     183 </span>                :            :     }
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineCov">          6 :     client_addr_len = sizeof(struct sockaddr_in);</span>
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :     if (type == SOCK_STREAM)</span>
+<span class="lineNum">     187 </span>                :            :     {
+<span class="lineNum">     188 </span>                :<span class="lineCov">          3 :         ret = client_fd = accept(bind_fd, (struct sockaddr*)&amp;client_addr, &amp;client_addr_len);</span>
+<span class="lineNum">     189 </span>                :            :     }
+<span class="lineNum">     190 </span>                :            :     else
+<span class="lineNum">     191 </span>                :            :     {
+<span class="lineNum">     192 </span>                :            :         //udp
+<span class="lineNum">     193 </span>                :<span class="lineCov">          3 :         char buf[1] = {0};</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">          3 :         ret = recvfrom(bind_fd, buf, sizeof(buf), MSG_PEEK, (struct sockaddr*)&amp;client_addr, &amp;client_addr_len);</span>
+<span class="lineNum">     195 </span>                :            :     }
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          6 :     if (ret &lt; 0)</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          2 :         return ATINY_NET_ACCEPT_FAILED;</span>
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :     if (type != SOCK_STREAM)</span>
+<span class="lineNum">     200 </span>                :            :     {
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            :         struct sockaddr_in  local_addr;
+<span class="lineNum">     203 </span>                :<span class="lineCov">          2 :         char port_s[6] = {0};</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          2 :         socklen_t n = sizeof(struct sockaddr_in);</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">          2 :         int one = 1; </span>
+<span class="lineNum">     206 </span>                :            :         
+<span class="lineNum">     207 </span>                :<span class="lineCov">          2 :         ((atiny_net_context*)client_ctx)-&gt;fd = client_fd = bind_fd;</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">          2 :         ((atiny_net_context*)bind_ctx)-&gt;fd = bind_fd = -1;</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (connect(client_fd, (struct sockaddr *)&amp;client_addr, client_addr_len) != 0)</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :             return ATINY_NET_ACCEPT_FAILED;</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :         ret = getsockname(client_fd, (struct sockaddr*)&amp;local_addr, &amp;n);</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :         snprintf(port_s, sizeof(port_s), &quot;%d&quot;, ntohs(local_addr.sin_port));</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">          1 :         ((atiny_net_context*)bind_ctx)-&gt;fd = socket(local_addr.sin_family, SOCK_DGRAM, IPPROTO_UDP);</span>
+<span class="lineNum">     217 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if( (ret = setsockopt( ((atiny_net_context*)bind_ctx)-&gt;fd, SOL_SOCKET, SO_REUSEADDR,</span>
+<span class="lineNum">     218 </span>                :            :                                         (const char *) &amp;one, sizeof( one )) ) != 0 )
+<span class="lineNum">     219 </span>                :            :         {
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :                 ret = ATINY_NET_SOCKET_FAILED;</span>
+<span class="lineNum">     221 </span>                :            :         }
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (ret != 0)</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 :             return ret;</span>
+<span class="lineNum">     225 </span>                :            :     }
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (client_ip != NULL)</span>
+<span class="lineNum">     228 </span>                :            :     {
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if( client_addr.sin_family == AF_INET )</span>
+<span class="lineNum">     230 </span>                :            :         {
+<span class="lineNum">     231 </span>                :<span class="lineCov">          2 :             struct sockaddr_in *addr4 = (struct sockaddr_in *) &amp;client_addr;</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          2 :             *ip_len = sizeof( addr4-&gt;sin_addr.s_addr );</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if( buf_size &lt; *ip_len )</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :                 return( ATINY_NET_BUF_SMALL_FAILED );</span>
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineCov">          1 :             memcpy( client_ip, &amp;addr4-&gt;sin_addr.s_addr, *ip_len );</span>
+<span class="lineNum">     238 </span>                :            :         }
+<span class="lineNum">     239 </span>                :            :     }
+<span class="lineNum">     240 </span>                :            : #else
+<span class="lineNum">     241 </span>                :            :     ((atiny_net_context*)client_ctx)-&gt;fd = ((atiny_net_context*)bind_ctx)-&gt;fd;
+<span class="lineNum">     242 </span>                :            : #endif
+<span class="lineNum">     243 </span>                :<span class="lineCov">          8 :     return 0;</span>
+<a name="244"><span class="lineNum">     244 </span>                :            : }</a>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineCov">          7 : void *atiny_net_connect(const char *host, const char *port, int proto)</span>
+<span class="lineNum">     247 </span>                :            : {
+<span class="lineNum">     248 </span>                :<span class="lineCov">          7 :     atiny_net_context *ctx = NULL;</span>
+<span class="lineNum">     249 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     250 </span>                :            :     int flags;
+<span class="lineNum">     251 </span>                :            :     int ret;
+<span class="lineNum">     252 </span>                :            :     struct addrinfo hints;
+<span class="lineNum">     253 </span>                :            :     struct addrinfo *addr_list;
+<span class="lineNum">     254 </span>                :            :     struct addrinfo *cur;
+<span class="lineNum">     255 </span>                :            : #endif
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            :     //if (NULL == host || NULL == port ||
+<span class="lineNum">     258 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          7 :     if (NULL == port ||</span>
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             (proto != ATINY_PROTO_UDP &amp;&amp; proto != ATINY_PROTO_TCP))</span>
+<span class="lineNum">     260 </span>                :            :     {
+<span class="lineNum">     261 </span>                :<span class="lineCov">          2 :         SOCKET_LOG(&quot;ilegal incoming parameters,(%p,%p,%d)&quot;,host,port,proto);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          2 :         return NULL;</span>
+<span class="lineNum">     263 </span>                :            :     }
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            :     /* Do name resolution with both IPv6 and IPv4 */
+<span class="lineNum">     268 </span>                :<span class="lineCov">          5 :     memset(&amp;hints, 0, sizeof(hints));</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">          5 :     hints.ai_family = AF_UNSPEC;</span>
+<span class="lineNum">     270 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     hints.ai_socktype = proto == ATINY_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;</span>
+<span class="lineNum">     271 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     hints.ai_protocol = proto == ATINY_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;</span>
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :<span class="lineCov">          5 :     SOCKET_LOG(&quot;try to do name resolution now...&quot;);</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if ((ret = getaddrinfo(host, port, &amp;hints, &amp;addr_list)) != 0)</span>
+<span class="lineNum">     276 </span>                :            :     {
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;getaddrinfo failed: 0x%x&quot;, ret);</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     279 </span>                :            :     }
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">          4 :     SOCKET_LOG(&quot;do name resolution succeed&quot;);</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :<span class="lineCov">          4 :     ctx = atiny_malloc(sizeof(atiny_net_context));</span>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (NULL == ctx)</span>
+<span class="lineNum">     286 </span>                :            :     {
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;malloc failed for socket context&quot;);</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :         freeaddrinfo(addr_list);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     290 </span>                :            :     }
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :<span class="lineCov">          3 :     ctx-&gt;fd = -1;</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :            :     /* Try the sockaddrs until a connection succeeds */
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :     for (cur = addr_list; cur != NULL; cur = cur-&gt;ai_next)</span>
+<span class="lineNum">     296 </span>                :            :     {
+<span class="lineNum">     297 </span>                :<span class="lineCov">          3 :         ctx-&gt;fd = socket(cur-&gt;ai_family, cur-&gt;ai_socktype, cur-&gt;ai_protocol);</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (ctx-&gt;fd &lt; 0)</span>
+<span class="lineNum">     300 </span>                :            :         {
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     302 </span>                :            :         }
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (proto == ATINY_PROTO_UDP)</span>
+<span class="lineNum">     305 </span>                :            :         {
+<span class="lineNum">     306 </span>                :<span class="lineCov">          2 :             flags = fcntl(ctx-&gt;fd, F_GETFL, 0);</span>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if (flags &lt; 0 || fcntl(ctx-&gt;fd, F_SETFL, flags | O_NONBLOCK) &lt; 0)</span>
+<span class="lineNum">     309 </span>                :            :             {
+<span class="lineNum">     310 </span>                :<span class="lineCov">          1 :                 close(ctx-&gt;fd);</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          1 :                 ctx-&gt;fd = -1;</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          1 :                 continue;</span>
+<span class="lineNum">     313 </span>                :            :             }
+<span class="lineNum">     314 </span>                :            :         }
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (connect(ctx-&gt;fd, cur-&gt;ai_addr, cur-&gt;ai_addrlen) == 0)</span>
+<span class="lineNum">     317 </span>                :            :         {
+<span class="lineNum">     318 </span>                :<span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     319 </span>                :            :         }
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :         close(ctx-&gt;fd);</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :         ctx-&gt;fd = -1;</span>
+<span class="lineNum">     323 </span>                :            :     }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :<span class="lineCov">          3 :     freeaddrinfo(addr_list);</span>
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (ctx-&gt;fd &lt; 0)</span>
+<span class="lineNum">     328 </span>                :            :     {
+<span class="lineNum">     329 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;unkown host or port&quot;);</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          1 :         atiny_free(ctx);</span>
+<span class="lineNum">     331 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     332 </span>                :            :     }
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (proto == ATINY_PROTO_UDP)</span>
+<span class="lineNum">     335 </span>                :            :     {
+<span class="lineNum">     336 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;UDP create socket and bind to server finished&quot;);</span>
+<span class="lineNum">     337 </span>                :            :     }
+<span class="lineNum">     338 </span>                :            :     else /* proto == ATINY_PROTO_TCP */
+<span class="lineNum">     339 </span>                :            :     {
+<span class="lineNum">     340 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;TCP connect to server succeed&quot;);</span>
+<span class="lineNum">     341 </span>                :            :     }
+<span class="lineNum">     342 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     343 </span>                :            :     ctx = atiny_malloc(sizeof(atiny_net_context));
+<span class="lineNum">     344 </span>                :            :     if (NULL == ctx)
+<span class="lineNum">     345 </span>                :            :     {
+<span class="lineNum">     346 </span>                :            :         SOCKET_LOG(&quot;malloc failed for socket context&quot;);
+<span class="lineNum">     347 </span>                :            :         return NULL;
+<span class="lineNum">     348 </span>                :            :     }
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>                :            :     ctx-&gt;fd = at_api_connect(host, port, proto);
+<span class="lineNum">     351 </span>                :            :     if (ctx-&gt;fd &lt; 0)
+<span class="lineNum">     352 </span>                :            :     {
+<span class="lineNum">     353 </span>                :            :         SOCKET_LOG(&quot;unkown host or port&quot;);
+<span class="lineNum">     354 </span>                :            :         atiny_free(ctx);
+<span class="lineNum">     355 </span>                :            :         ctx = NULL;
+<span class="lineNum">     356 </span>                :            :     }
+<span class="lineNum">     357 </span>                :            : #elif defined(WITH_WIZNET)
+<span class="lineNum">     358 </span>                :            :     ctx = atiny_malloc(sizeof(atiny_net_context));
+<span class="lineNum">     359 </span>                :            :     if (NULL == ctx)
+<span class="lineNum">     360 </span>                :            :     {
+<span class="lineNum">     361 </span>                :            :         SOCKET_LOG(&quot;malloc failed for socket context&quot;);
+<span class="lineNum">     362 </span>                :            :         return NULL;
+<span class="lineNum">     363 </span>                :            :     }
+<span class="lineNum">     364 </span>                :            : 
+<span class="lineNum">     365 </span>                :            :     ctx-&gt;fd = wiznet_connect(host, port, proto);
+<span class="lineNum">     366 </span>                :            :     if (ctx-&gt;fd &lt; 0)
+<span class="lineNum">     367 </span>                :            :     {
+<span class="lineNum">     368 </span>                :            :         SOCKET_LOG(&quot;unkown host or port&quot;);
+<span class="lineNum">     369 </span>                :            :         atiny_free(ctx);
+<span class="lineNum">     370 </span>                :            :         ctx = NULL;
+<span class="lineNum">     371 </span>                :            :     }
+<span class="lineNum">     372 </span>                :            : #else
+<span class="lineNum">     373 </span>                :            : #endif
+<span class="lineNum">     374 </span>                :<span class="lineCov">          7 :     return ctx;</span>
+<a name="375"><span class="lineNum">     375 </span>                :            : }</a>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :<span class="lineCov">          5 : int atiny_net_recv(void *ctx, unsigned char *buf, size_t len)</span>
+<span class="lineNum">     378 </span>                :            : {
+<span class="lineNum">     379 </span>                :<span class="lineCov">          5 :     int ret = -1;</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">          5 :     int fd = ((atiny_net_context *)ctx)-&gt;fd;</span>
+<span class="lineNum">     381 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     382 </span>                :<span class="lineCov">          5 :     ret = recv(fd, buf, len, 0);</span>
+<span class="lineNum">     383 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     384 </span>                :            :     ret = at_api_recv(fd, buf, len);
+<span class="lineNum">     385 </span>                :            : #elif defined(WITH_WIZNET)
+<span class="lineNum">     386 </span>                :            :     ret = wiznet_recv(fd, buf, len);
+<span class="lineNum">     387 </span>                :            : #else
+<span class="lineNum">     388 </span>                :            :     (void)fd; //clear unuse warning
+<span class="lineNum">     389 </span>                :            : #endif
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     392 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :     if (ret &lt; 0)</span>
+<span class="lineNum">     393 </span>                :            :     {
+<span class="lineNum">     394 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span>]
+<span class="lineNum">     395 </span>                :            :         {
+<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :             SOCKET_LOG(&quot;no data available for now&quot;);</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :             return 0;</span>
+<span class="lineNum">     398 </span>                :            :         }
+<span class="lineNum">     399 </span>                :            :         else
+<span class="lineNum">     400 </span>                :            :         {
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :             SOCKET_LOG(&quot;error accured when recv: 0x%x&quot;, errno);</span>
+<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :             return -1;</span>
+<span class="lineNum">     403 </span>                :            :         }
+<span class="lineNum">     404 </span>                :            :     }
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     else if (ret == 0)</span>
+<span class="lineNum">     407 </span>                :            :     {
+<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;socket was closed by peer&quot;);</span>
+<span class="lineNum">     409 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     410 </span>                :            :     }
+<span class="lineNum">     411 </span>                :            : #endif
+<span class="lineNum">     412 </span>                :<span class="lineCov">          5 :     return ret;</span>
+<a name="413"><span class="lineNum">     413 </span>                :            : }</a>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :<span class="lineCov">          4 : int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,</span>
+<span class="lineNum">     416 </span>                :            :                            uint32_t timeout)
+<span class="lineNum">     417 </span>                :            : {
+<span class="lineNum">     418 </span>                :<span class="lineCov">          4 :     int ret = -1;</span>
+<span class="lineNum">     419 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     420 </span>                :            :     struct timeval tv;
+<span class="lineNum">     421 </span>                :            :     fd_set read_fds;
+<span class="lineNum">     422 </span>                :            : #endif
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :<span class="lineCov">          4 :     int fd = ((atiny_net_context *)ctx)-&gt;fd;</span>
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     427 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (fd &lt; 0)</span>
+<span class="lineNum">     428 </span>                :            :     {
+<span class="lineNum">     429 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;ilegal socket(%d)&quot;, fd);</span>
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 :         return ATINY_NET_ERR;</span>
+<span class="lineNum">     431 </span>                :            :     }
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :<span class="lineCov">          3 :     FD_ZERO(&amp;read_fds);</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          3 :     FD_SET(fd, &amp;read_fds);</span>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :<span class="lineCov">          3 :     tv.tv_sec  = timeout / 1000;</span>
+<span class="lineNum">     437 </span>                :<span class="lineCov">          3 :     tv.tv_usec = (timeout % 1000) * 1000;</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :<span class="lineCov">          3 :    ret = select(fd + 1, &amp;read_fds, NULL, NULL, &amp;tv);</span>
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (ret == 0)</span>
+<span class="lineNum">     442 </span>                :            :     {
+<span class="lineNum">     443 </span>                :            :        // SOCKET_LOG(&quot;recv timeout&quot;);
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :         return ATINY_NET_TIMEOUT;</span>
+<span class="lineNum">     445 </span>                :            :     }
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(ret &lt; 0)</span>
+<span class="lineNum">     448 </span>                :            :     {
+<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;select error ret=%d,err 0x%x&quot;, ret, errno);</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :         return ATINY_NET_ERR;</span>
+<span class="lineNum">     451 </span>                :            :     }
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :     ret = atiny_net_recv(ctx, buf, len);</span>
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     456 </span>                :            :     ret = at_api_recv_timeout(fd, buf, len, NULL,NULL,timeout);
+<span class="lineNum">     457 </span>                :            : #elif defined(WITH_WIZNET)
+<span class="lineNum">     458 </span>                :            :     ret = wiznet_recv_timeout(fd, buf, len, timeout);
+<span class="lineNum">     459 </span>                :            : #else
+<span class="lineNum">     460 </span>                :            :     (void)fd; //clear unuse warning
+<span class="lineNum">     461 </span>                :            : #endif
+<span class="lineNum">     462 </span>                :<span class="lineCov">          4 :     return ret;</span>
+<a name="463"><span class="lineNum">     463 </span>                :            : }</a>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineCov">          4 : int atiny_net_send(void *ctx, const unsigned char *buf, size_t len)</span>
+<span class="lineNum">     466 </span>                :            : {
+<span class="lineNum">     467 </span>                :<span class="lineCov">          4 :     int ret = -1;</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">          4 :     int fd = ((atiny_net_context *)ctx)-&gt;fd;</span>
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (fd &lt; 0)</span>
+<span class="lineNum">     471 </span>                :            :     {
+<span class="lineNum">     472 </span>                :<span class="lineCov">          1 :         SOCKET_LOG(&quot;ilegal socket(%d)&quot;, fd);</span>
+<span class="lineNum">     473 </span>                :<span class="lineCov">          1 :         return -1;</span>
+<span class="lineNum">     474 </span>                :            :     }
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     477 </span>                :<span class="lineCov">          3 :     ret = send(fd, buf, len, 0);</span>
+<span class="lineNum">     478 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     479 </span>                :            :     ret = at_api_send(fd, buf, len);
+<span class="lineNum">     480 </span>                :            : #elif defined(WITH_WIZNET)
+<span class="lineNum">     481 </span>                :            :     ret = wiznet_send(fd, buf, len);
+<span class="lineNum">     482 </span>                :            : #else
+<span class="lineNum">     483 </span>                :            : #endif
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     486 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     if (ret &lt; 0)</span>
+<span class="lineNum">     487 </span>                :            :     {
+<span class="lineNum">     488 </span>                :            :         /* no data available for now */
+<span class="lineNum">     489 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span>]
+<span class="lineNum">     490 </span>                :            :         {
+<span class="lineNum">     491 </span>                :<span class="lineCov">          1 :             return 0;</span>
+<span class="lineNum">     492 </span>                :            :         }
+<span class="lineNum">     493 </span>                :            :         else
+<span class="lineNum">     494 </span>                :            :         {
+<span class="lineNum">     495 </span>                :<span class="lineCov">          1 :             SOCKET_LOG(&quot;error accured when send: 0x%x&quot;, errno);</span>
+<span class="lineNum">     496 </span>                :<span class="lineCov">          1 :             return -1;</span>
+<span class="lineNum">     497 </span>                :            :         }
+<span class="lineNum">     498 </span>                :            :     }
+<span class="lineNum">     499 </span>                :            : #endif
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :<span class="lineCov">          4 :     return ret;</span>
+<a name="502"><span class="lineNum">     502 </span>                :            : }</a>
+<span class="lineNum">     503 </span>                :            : 
+<span class="lineNum">     504 </span>                :<span class="lineCov">          3 : void atiny_net_close(void *ctx)</span>
+<span class="lineNum">     505 </span>                :            : {
+<span class="lineNum">     506 </span>                :<span class="lineCov">          3 :     int fd = ((atiny_net_context *)ctx)-&gt;fd;</span>
+<span class="lineNum">     507 </span>                :            : 
+<span class="lineNum">     508 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (fd &gt;= 0)</span>
+<span class="lineNum">     509 </span>                :            :     {
+<span class="lineNum">     510 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     511 </span>                :<span class="lineCov">          3 :         close(fd);</span>
+<span class="lineNum">     512 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     513 </span>                :            :         at_api_close(fd);
+<span class="lineNum">     514 </span>                :            : #elif defined(WITH_WIZNET)
+<span class="lineNum">     515 </span>                :            :         wiznet_close(fd);
+<span class="lineNum">     516 </span>                :            : #endif
+<span class="lineNum">     517 </span>                :            :     }
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :<span class="lineCov">          3 :     atiny_free(ctx);</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">          3 : }</span>
+<a name="521"><span class="lineNum">     521 </span>                :            : </a>
+<span class="lineNum">     522 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     523 </span>                :<span class="lineCov">          1 : static int atiny_net_write_sock(void *ctx, const unsigned char *buffer, int len, uint32_t timeout_ms)</span>
+<span class="lineNum">     524 </span>                :            : {
+<span class="lineNum">     525 </span>                :            :     int fd;
+<span class="lineNum">     526 </span>                :<span class="lineCov">          1 :     struct timeval interval = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};</span>
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :<span class="lineCov">          1 :     fd = ((atiny_net_context *)ctx)-&gt;fd;</span>
+<span class="lineNum">     529 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if (interval.tv_sec &lt; 0 || (interval.tv_sec == 0 &amp;&amp; interval.tv_usec &lt;= 0))</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     530 </span>                :            :     {
+<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :         interval.tv_sec = 0;</span>
+<span class="lineNum">     532 </span>                :<span class="lineCov">          1 :         interval.tv_usec = 100;</span>
+<span class="lineNum">     533 </span>                :            :     }
+<span class="lineNum">     534 </span>                :            : 
+<span class="lineNum">     535 </span>                :<span class="lineCov">          1 :     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&amp;interval, sizeof(struct timeval));</span>
+<span class="lineNum">     536 </span>                :<span class="lineCov">          1 :     return write(fd, buffer, len);</span>
+<span class="lineNum">     537 </span>                :            : }
+<a name="538"><span class="lineNum">     538 </span>                :            : #endif</a>
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :<span class="lineCov">          1 : int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,</span>
+<span class="lineNum">     541 </span>                :            :                           uint32_t timeout)
+<span class="lineNum">     542 </span>                :            : {
+<span class="lineNum">     543 </span>                :            : #if defined(WITH_LINUX) || defined(WITH_LWIP)
+<span class="lineNum">     544 </span>                :<span class="lineCov">          1 :     return atiny_net_write_sock(ctx, buf, len, timeout);</span>
+<span class="lineNum">     545 </span>                :            : #elif defined(WITH_AT_FRAMEWORK)
+<span class="lineNum">     546 </span>                :            :         int fd;
+<span class="lineNum">     547 </span>                :            :         fd = ((atiny_net_context *)ctx)-&gt;fd;
+<span class="lineNum">     548 </span>                :            :         return at_api_send(fd , buf, (uint32_t)len);
+<span class="lineNum">     549 </span>                :            : #endif
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :            : }
+<span class="lineNum">     552 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

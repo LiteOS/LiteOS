@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - ota/flag_operate/upgrade_flag.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">ota/flag_operate</a> - upgrade_flag.c<span style="font-size: 80%;"> (source / <a href="upgrade_flag.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">95.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &lt;stddef.h&gt;
+<span class="lineNum">      36 </span>                :            : #include &quot;upgrade_flag.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;flag_manager.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;ota_crc.h&quot;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : typedef struct
+<span class="lineNum">      41 </span>                :            : {
+<span class="lineNum">      42 </span>                :            :     upgrade_type_e upgrade_type;
+<span class="lineNum">      43 </span>                :            :     upgrade_state_e upgrade_state;
+<span class="lineNum">      44 </span>                :            :     uint32_t image_size;
+<span class="lineNum">      45 </span>                :            :     uint32_t old_image_size;
+<span class="lineNum">      46 </span>                :            :     uint32_t recover_verify;
+<span class="lineNum">      47 </span>                :            :     uint32_t verify_length;
+<span class="lineNum">      48 </span>                :            :     uint32_t crc_flag;
+<span class="lineNum">      49 </span>                :            : } upgrade_flag_s;
+<span class="lineNum">      50 </span>                :            : 
+<a name="51"><span class="lineNum">      51 </span>                :            : static upgrade_flag_s g_flag;</a>
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :<span class="lineCov">          7 : static int save_flag(void)</span>
+<span class="lineNum">      54 </span>                :            : {
+<span class="lineNum">      55 </span>                :<span class="lineCov">          7 :     g_flag.crc_flag = calc_crc32(0, &amp;g_flag, sizeof(upgrade_flag_s) - sizeof(uint32_t));</span>
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :<span class="lineCov">          7 :     return flag_write(FLAG_BOOTLOADER, &amp;g_flag, sizeof(upgrade_flag_s));</span>
+<a name="58"><span class="lineNum">      58 </span>                :            : }</a>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineCov">          2 : int flag_upgrade_init(void)</span>
+<span class="lineNum">      61 </span>                :            : {
+<span class="lineNum">      62 </span>                :            :     int ret;
+<span class="lineNum">      63 </span>                :            :     uint32_t crc;
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :<span class="lineCov">          2 :     ret = flag_read(FLAG_BOOTLOADER, &amp;g_flag, sizeof(upgrade_flag_s));</span>
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (ret != 0) return ret;</span>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :     crc = calc_crc32(0, &amp;g_flag, sizeof(upgrade_flag_s) - sizeof(uint32_t));</span>
+<span class="lineNum">      69 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (crc != g_flag.crc_flag)</span>
+<span class="lineNum">      70 </span>                :            :     {
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         g_flag.upgrade_state = OTA_IDLE;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         g_flag.upgrade_type = UPGRADE_NONE;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :         g_flag.recover_verify = 0;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :         g_flag.image_size = 0;</span>
+<span class="lineNum">      75 </span>                :<span class="lineCov">          1 :         g_flag.old_image_size = 0;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          1 :         return save_flag();</span>
+<span class="lineNum">      77 </span>                :            :     }
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">          2 :     return 0;</span>
+<a name="80"><span class="lineNum">      80 </span>                :            : }</a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 : int flag_set_info(upgrade_type_e upgrade_type, uint32_t image_size)</span>
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :     g_flag.upgrade_type = upgrade_type;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :     g_flag.image_size = image_size;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :     g_flag.upgrade_state = OTA_NEED_UPGRADE;</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :<span class="lineCov">          1 :     return save_flag();</span>
+<a name="89"><span class="lineNum">      89 </span>                :            : }</a>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :<span class="lineCov">          2 : void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size,</span>
+<span class="lineNum">      92 </span>                :            :                    uint32_t *old_image_size, upgrade_state_e *upgrade_state)
+<span class="lineNum">      93 </span>                :            : {
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != upgrade_type)</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :         *upgrade_type = g_flag.upgrade_type;</span>
+<span class="lineNum">      96 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != image_size)</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :         *image_size = g_flag.image_size;</span>
+<span class="lineNum">      98 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != old_image_size)</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :         *old_image_size = g_flag.old_image_size;</span>
+<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != upgrade_state)</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :         *upgrade_state = g_flag.upgrade_state;</span>
+<a name="102"><span class="lineNum">     102 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 : int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size)</span>
+<span class="lineNum">     105 </span>                :            : {
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :     g_flag.upgrade_state = state;</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          1 :     g_flag.image_size = image_size;</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :     return save_flag();</span>
+<a name="110"><span class="lineNum">     110 </span>                :            : }</a>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineCov">          2 : int flag_upgrade_get_result(upgrade_state_e *state)</span>
+<span class="lineNum">     113 </span>                :            : {
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != state)</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :         *state = g_flag.upgrade_state;</span>
+<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (g_flag.upgrade_state == OTA_SUCCEED)</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :         g_flag.old_image_size = g_flag.image_size;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">          2 :     g_flag.upgrade_state = OTA_IDLE;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          2 :     g_flag.upgrade_type = UPGRADE_NONE;</span>
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineCov">          2 :     return save_flag();</span>
+<a name="122"><span class="lineNum">     122 </span>                :            : }</a>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 : int flag_set_recover_verify(uint32_t recover_verify, uint32_t verify_length)</span>
+<span class="lineNum">     125 </span>                :            : {
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :     g_flag.recover_verify = recover_verify;</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :     g_flag.verify_length = verify_length;</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :     return save_flag();</span>
+<a name="130"><span class="lineNum">     130 </span>                :            : }</a>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineCov">          2 : void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)</span>
+<span class="lineNum">     133 </span>                :            : {
+<span class="lineNum">     134 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != recover_verify)</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          1 :         *recover_verify = g_flag.recover_verify;</span>
+<span class="lineNum">     136 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != verify_length)</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :         *verify_length = g_flag.verify_length;</span>
+<a name="138"><span class="lineNum">     138 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 : int recover_set_update_fail(void)</span>
+<span class="lineNum">     141 </span>                :            : {
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :     g_flag.upgrade_state = OTA_FAILED;</span>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :<span class="lineCov">          1 :     return save_flag();</span>
+<span class="lineNum">     145 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_mqtt/hmac.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_mqtt</a> - hmac.c<span style="font-size: 80%;"> (source / <a href="hmac.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">72.2 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : #include &quot;hmac.h&quot;
+<span class="lineNum">      35 </span>                :            : #include &quot;mbedtls/ssl.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;mbedtls/entropy.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;mbedtls/ctr_drbg.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;mbedtls/platform.h&quot;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : #include &quot;mbedtls/md_internal.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;osdepends/atiny_osdep.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;dtls_interface.h&quot;
+<span class="lineNum">      43 </span>                :            : 
+<a name="44"><span class="lineNum">      44 </span>                :            : </a>
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :<span class="lineCov">        253 : int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)</span>
+<span class="lineNum">      47 </span>                :            : {
+<span class="lineNum">      48 </span>                :            :     int ret;
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            :     mbedtls_md_context_t mbedtls_md_ctx;
+<span class="lineNum">      51 </span>                :            :     const mbedtls_md_info_t *md_info;
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>[<span class="branchCov" title="Branch 0 was taken 252 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 252 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        253 :     if (hmac_info == NULL || hmac_info-&gt;secret == NULL || hmac_info-&gt;input == NULL</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 252 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 132 times"> + </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 132 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        252 :         || hmac_info-&gt;secret_len &lt;= 0 || hmac_info-&gt;input_len &lt;= 0 || hmac_info-&gt;digest_len &lt;= 0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 132 times"> + </span>]
+<span class="lineNum">      55 </span>                :            :     {
+<span class="lineNum">      56 </span>                :<span class="lineCov">        121 :         return MBEDTLS_ERR_MD_BAD_INPUT_DATA;</span>
+<span class="lineNum">      57 </span>                :            :     }
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineCov">        132 :     md_info = mbedtls_md_info_from_type(hmac_info-&gt;hmac_type);</span>
+<span class="lineNum">      60 </span>[<span class="branchCov" title="Branch 0 was taken 132 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 131 times"> + </span>]:<span class="lineCov">        132 :     if (md_info == NULL || md_info-&gt;size &gt; hmac_info-&gt;digest_len)</span>
+<span class="lineNum">      61 </span>                :            :     {
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :         return MBEDTLS_ERR_MD_BAD_INPUT_DATA;</span>
+<span class="lineNum">      63 </span>                :            :     }
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :<span class="lineCov">        131 :     mbedtls_md_init(&amp;mbedtls_md_ctx);</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        131 :     memset(hmac_info-&gt;digest, 0x00, hmac_info-&gt;digest_len);</span>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">        131 :     ret = mbedtls_md_setup(&amp;mbedtls_md_ctx, md_info, 1);</span>
+<span class="lineNum">      69 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 130 times"> + </span>]:<span class="lineCov">        131 :     if (ret != 0)</span>
+<span class="lineNum">      70 </span>                :            :     {
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         printf(&quot;mbedtls_md_setup() returned -0x%04x\n&quot;, -ret);</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         goto exit;</span>
+<span class="lineNum">      73 </span>                :            :     }
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :<span class="lineCov">        130 :     (void)mbedtls_md_hmac_starts(&amp;mbedtls_md_ctx, hmac_info-&gt;secret, hmac_info-&gt;secret_len);</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">        130 :     (void)mbedtls_md_hmac_update(&amp;mbedtls_md_ctx, hmac_info-&gt;input, hmac_info-&gt;input_len);</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">        130 :     (void)mbedtls_md_hmac_finish(&amp;mbedtls_md_ctx, hmac_info-&gt;digest);</span>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            :     exit:
+<span class="lineNum">      80 </span>                :<span class="lineCov">        131 :     mbedtls_md_free(&amp;mbedtls_md_ctx);</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineCov">        253 :     return ret;</span>
+<span class="lineNum">      83 </span>                :            : }
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

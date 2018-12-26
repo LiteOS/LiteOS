@@ -1,0 +1,820 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/object_security.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - object_security.c<span style="font-size: 80%;"> (source / <a href="object_security.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">268</td>
+            <td class="headerCovTableEntry">285</td>
+            <td class="headerCovTableEntryHi">94.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntry">158</td>
+            <td class="headerCovTableEntryLo">72.8 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /*******************************************************************************
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * Copyright (c) 2013, 2014 Intel Corporation and others.
+<span class="lineNum">      38 </span>                :            :  * All rights reserved. This program and the accompanying materials
+<span class="lineNum">      39 </span>                :            :  * are made available under the terms of the Eclipse Public License v1.0
+<span class="lineNum">      40 </span>                :            :  * and Eclipse Distribution License v1.0 which accompany this distribution.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * The Eclipse Public License is available at
+<span class="lineNum">      43 </span>                :            :  *    http://www.eclipse.org/legal/epl-v10.html
+<span class="lineNum">      44 </span>                :            :  * The Eclipse Distribution License is available at
+<span class="lineNum">      45 </span>                :            :  *    http://www.eclipse.org/org/documents/edl-v10.php.
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Contributors:
+<span class="lineNum">      48 </span>                :            :  *    David Navarro, Intel Corporation - initial API and implementation
+<span class="lineNum">      49 </span>                :            :  *    Bosch Software Innovations GmbH - Please refer to git log
+<span class="lineNum">      50 </span>                :            :  *    Pascal Rieux - Please refer to git log
+<span class="lineNum">      51 </span>                :            :  *    Ville Skytt? - Please refer to git log
+<span class="lineNum">      52 </span>                :            :  *
+<span class="lineNum">      53 </span>                :            :  *******************************************************************************/
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /*
+<span class="lineNum">      56 </span>                :            :  *  Resources:
+<span class="lineNum">      57 </span>                :            :  *
+<span class="lineNum">      58 </span>                :            :  *          Name            | ID | Operations | Instances | Mandatory |  Type   |  Range  | Units |
+<span class="lineNum">      59 </span>                :            :  *  Server URI              |  0 |            |  Single   |    Yes    | String  |         |       |
+<span class="lineNum">      60 </span>                :            :  *  Bootstrap Server        |  1 |            |  Single   |    Yes    | Boolean |         |       |
+<span class="lineNum">      61 </span>                :            :  *  Security Mode           |  2 |            |  Single   |    Yes    | Integer |   0-3   |       |
+<span class="lineNum">      62 </span>                :            :  *  Public Key or ID        |  3 |            |  Single   |    Yes    | Opaque  |         |       |
+<span class="lineNum">      63 </span>                :            :  *  Server Public Key or ID |  4 |            |  Single   |    Yes    | Opaque  |         |       |
+<span class="lineNum">      64 </span>                :            :  *  Secret Key              |  5 |            |  Single   |    Yes    | Opaque  |         |       |
+<span class="lineNum">      65 </span>                :            :  *  SMS Security Mode       |  6 |            |  Single   |    No     | Integer |  0-255  |       |
+<span class="lineNum">      66 </span>                :            :  *  SMS Binding Key Param.  |  7 |            |  Single   |    No     | Opaque  |   6 B   |       |
+<span class="lineNum">      67 </span>                :            :  *  SMS Binding Secret Keys |  8 |            |  Single   |    No     | Opaque  | 32-48 B |       |
+<span class="lineNum">      68 </span>                :            :  *  Server SMS Number       |  9 |            |  Single   |    No     | String  |         |       |
+<span class="lineNum">      69 </span>                :            :  *  Short Server ID         | 10 |            |  Single   |    No     | Integer | 1-65535 |       |
+<span class="lineNum">      70 </span>                :            :  *  Client Hold Off Time    | 11 |            |  Single   |    No     | Integer |         |   s   |
+<span class="lineNum">      71 </span>                :            :  *  BS Account Timeout      | 12 |            |  Single   |    No     | Integer |         |   s   |
+<span class="lineNum">      72 </span>                :            :  *
+<span class="lineNum">      73 </span>                :            :  */
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : /*
+<span class="lineNum">      76 </span>                :            :  * Here we implement a very basic LWM2M Security Object which only knows NoSec security mode.
+<span class="lineNum">      77 </span>                :            :  */
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            : #include &quot;internals.h&quot;
+<a name="80"><span class="lineNum">      80 </span>                :            : #include &quot;object_comm.h&quot;</a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineCov">         13 : static uint8_t prv_get_value(lwm2m_data_t *dataP,</span>
+<span class="lineNum">      83 </span>                :            :                              security_instance_t *targetP)
+<span class="lineNum">      84 </span>                :            : {
+<span class="lineNum">      85 </span>  [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span> :<span class="lineCov">         13 :     switch (dataP-&gt;id)</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 9 was taken 1 time"> + </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">      86 </span>                :            :     {
+<span class="lineNum">      87 </span>                :            :     case LWM2M_SECURITY_URI_ID:
+<span class="lineNum">      88 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_string(targetP-&gt;uri, dataP);</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            :     case LWM2M_SECURITY_BOOTSTRAP_ID:
+<span class="lineNum">      92 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_bool(targetP-&gt;isBootstrap, dataP);</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :     case LWM2M_SECURITY_SECURITY_ID:
+<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(targetP-&gt;securityMode, dataP);</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :     case LWM2M_SECURITY_PUBLIC_KEY_ID:
+<span class="lineNum">     100 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_opaque((uint8_t *)targetP-&gt;publicIdentity, targetP-&gt;publicIdLen, dataP);</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :     case LWM2M_SECURITY_SERVER_PUBLIC_KEY_ID:
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_opaque((uint8_t *)targetP-&gt;serverPublicKey, targetP-&gt;serverPublicKeyLen, dataP);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :     case LWM2M_SECURITY_SECRET_KEY_ID:
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_opaque((uint8_t *)targetP-&gt;secretKey, targetP-&gt;secretKeyLen, dataP);</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            :     case LWM2M_SECURITY_SMS_SECURITY_ID:
+<span class="lineNum">     112 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(targetP-&gt;smsSecurityMode, dataP);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     case LWM2M_SECURITY_SMS_KEY_PARAM_ID:
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_opaque((uint8_t *)targetP-&gt;smsParams, targetP-&gt;smsParamsLen, dataP);</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :     case LWM2M_SECURITY_SMS_SECRET_KEY_ID:
+<span class="lineNum">     120 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_opaque((uint8_t *)targetP-&gt;smsSecret, targetP-&gt;smsSecretLen, dataP);</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :     case LWM2M_SECURITY_SMS_SERVER_NUMBER_ID:
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(0, dataP);</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            :     case LWM2M_SECURITY_SHORT_SERVER_ID:
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(targetP-&gt;shortID, dataP);</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            :     case LWM2M_SECURITY_HOLD_OFF_ID:
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(targetP-&gt;clientHoldOffTime, dataP);</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            :     case LWM2M_SECURITY_BOOTSTRAP_TIMEOUT_ID:
+<span class="lineNum">     136 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(targetP-&gt;bootstrapServerAccountTimeout, dataP);</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :     default:
+<span class="lineNum">     140 </span>                :<span class="lineCov">         13 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     141 </span>                :            :     }
+<a name="142"><span class="lineNum">     142 </span>                :            : }</a>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :<span class="lineCov">          1 : static uint8_t prv_security_read(uint16_t instanceId,</span>
+<span class="lineNum">     145 </span>                :            :                                  int *numDataP,
+<span class="lineNum">     146 </span>                :            :                                  lwm2m_data_t **dataArrayP,
+<span class="lineNum">     147 </span>                :            :                                  lwm2m_data_cfg_t *dataCfg,
+<span class="lineNum">     148 </span>                :            :                                  lwm2m_object_t *objectP)
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     151 </span>                :            :     uint8_t result;
+<span class="lineNum">     152 </span>                :            :     int i;
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineCov">          1 :     targetP = (security_instance_t *)lwm2m_list_find(objectP-&gt;instanceList, instanceId);</span>
+<span class="lineNum">     155 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (NULL == targetP) return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :            :     // is the server asking for the full instance ?
+<span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (*numDataP == 0)</span>
+<span class="lineNum">     159 </span>                :            :     {
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 :         uint16_t resList[] = {LWM2M_SECURITY_URI_ID,</span>
+<span class="lineNum">     161 </span>                :            :                               LWM2M_SECURITY_BOOTSTRAP_ID,
+<span class="lineNum">     162 </span>                :            :                               LWM2M_SECURITY_SECURITY_ID,
+<span class="lineNum">     163 </span>                :            :                               LWM2M_SECURITY_PUBLIC_KEY_ID,
+<span class="lineNum">     164 </span>                :            :                               LWM2M_SECURITY_SERVER_PUBLIC_KEY_ID,
+<span class="lineNum">     165 </span>                :            :                               LWM2M_SECURITY_SECRET_KEY_ID,
+<span class="lineNum">     166 </span>                :            :                               LWM2M_SECURITY_SMS_SECURITY_ID,
+<span class="lineNum">     167 </span>                :            :                               LWM2M_SECURITY_SMS_KEY_PARAM_ID,
+<span class="lineNum">     168 </span>                :            :                               LWM2M_SECURITY_SMS_SECRET_KEY_ID,
+<span class="lineNum">     169 </span>                :            :                               LWM2M_SECURITY_SMS_SERVER_NUMBER_ID,
+<span class="lineNum">     170 </span>                :            :                               LWM2M_SECURITY_SHORT_SERVER_ID,
+<span class="lineNum">     171 </span>                :            :                               LWM2M_SECURITY_HOLD_OFF_ID,
+<span class="lineNum">     172 </span>                :            :                               LWM2M_SECURITY_BOOTSTRAP_TIMEOUT_ID
+<span class="lineNum">     173 </span>                :            :                              };
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :         int nbRes = sizeof(resList) / sizeof(uint16_t);</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineCov">          1 :         *dataArrayP = lwm2m_data_new(nbRes);</span>
+<span class="lineNum">     177 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (*dataArrayP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">          1 :         *numDataP = nbRes;</span>
+<span class="lineNum">     179 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         14 :         for (i = 0 ; i &lt; nbRes ; i++)</span>
+<span class="lineNum">     180 </span>                :            :         {
+<span class="lineNum">     181 </span>                :<span class="lineCov">         13 :             (*dataArrayP)[i].id = resList[i];</span>
+<span class="lineNum">     182 </span>                :            :         }
+<span class="lineNum">     183 </span>                :            :     }
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineCov">          1 :     i = 0;</span>
+<span class="lineNum">     186 </span>                :            :     do
+<span class="lineNum">     187 </span>                :            :     {
+<span class="lineNum">     188 </span>                :<span class="lineCov">         13 :         result = prv_get_value((*dataArrayP) + i, targetP);</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">         13 :         i++;</span>
+<span class="lineNum">     190 </span>                :            :     }
+<span class="lineNum">     191 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         13 :     while (i &lt; *numDataP &amp;&amp; result == COAP_205_CONTENT);</span>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineCov">          1 :     return result;</span>
+<span class="lineNum">     194 </span>                :            : }
+<span class="lineNum">     195 </span>                :            : 
+<a name="196"><span class="lineNum">     196 </span>                :            : #ifdef LWM2M_BOOTSTRAP</a>
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :<span class="lineCov">         14 : static uint8_t prv_security_write(uint16_t instanceId,</span>
+<span class="lineNum">     199 </span>                :            :                                   int numData,
+<span class="lineNum">     200 </span>                :            :                                   lwm2m_data_t *dataArray,
+<span class="lineNum">     201 </span>                :            :                                   lwm2m_object_t *objectP)
+<span class="lineNum">     202 </span>                :            : {
+<span class="lineNum">     203 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     204 </span>                :            :     int i;
+<span class="lineNum">     205 </span>                :<span class="lineCov">         14 :     uint8_t result = COAP_204_CHANGED;</span>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineCov">         14 :     targetP = (security_instance_t *)lwm2m_list_find(objectP-&gt;instanceList, instanceId);</span>
+<span class="lineNum">     208 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">         14 :     if (NULL == targetP)</span>
+<span class="lineNum">     209 </span>                :            :     {
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     211 </span>                :            :     }
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineCov">         14 :     i = 0;</span>
+<span class="lineNum">     214 </span>                :            :     do
+<span class="lineNum">     215 </span>                :            :     {
+<span class="lineNum">     216 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span> :<span class="lineCov">         14 :         switch (dataArray[i].id)</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 9 was taken 1 time"> + </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span> 
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">     217 </span>                :            :         {
+<span class="lineNum">     218 </span>                :            :         case LWM2M_SECURITY_URI_ID:
+<span class="lineNum">     219 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :             if (targetP-&gt;uri != NULL) lwm2m_free(targetP-&gt;uri);</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          2 :             targetP-&gt;uri = (char *)lwm2m_malloc(dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :             if (targetP-&gt;uri != NULL)</span>
+<span class="lineNum">     222 </span>                :            :             {
+<span class="lineNum">     223 </span>                :<span class="lineCov">          2 :                 memset(targetP-&gt;uri, 0, dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          2 :                 strncpy(targetP-&gt;uri, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          2 :                 result = COAP_204_CHANGED;</span>
+<span class="lineNum">     226 </span>                :            :             }
+<span class="lineNum">     227 </span>                :            :             else
+<span class="lineNum">     228 </span>                :            :             {
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :                 result = COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     230 </span>                :            :             }
+<span class="lineNum">     231 </span>                :<span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :         case LWM2M_SECURITY_BOOTSTRAP_ID:
+<span class="lineNum">     234 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (1 == lwm2m_data_decode_bool(dataArray + i, &amp;(targetP-&gt;isBootstrap)))</span>
+<span class="lineNum">     235 </span>                :            :             {
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :                 result = COAP_204_CHANGED;</span>
+<span class="lineNum">     237 </span>                :            :             }
+<span class="lineNum">     238 </span>                :            :             else
+<span class="lineNum">     239 </span>                :            :             {
+<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     241 </span>                :            :             }
+<span class="lineNum">     242 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            :         case LWM2M_SECURITY_SECURITY_ID:
+<span class="lineNum">     245 </span>                :            :         {
+<span class="lineNum">     246 </span>                :            :             int64_t value;
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (1 == lwm2m_data_decode_int(dataArray + i, &amp;value))</span>
+<span class="lineNum">     249 </span>                :            :             {
+<span class="lineNum">     250 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (value &gt;= 0 &amp;&amp; value &lt;= 3)</span>
+<span class="lineNum">     251 </span>                :            :                 {
+<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :                     targetP-&gt;securityMode = value;</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     254 </span>                :            :                 }
+<span class="lineNum">     255 </span>                :            :                 else
+<span class="lineNum">     256 </span>                :            :                 {
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     258 </span>                :            :                 }
+<span class="lineNum">     259 </span>                :            :             }
+<span class="lineNum">     260 </span>                :            :             else
+<span class="lineNum">     261 </span>                :            :             {
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     263 </span>                :            :             }
+<span class="lineNum">     264 </span>                :            :         }
+<span class="lineNum">     265 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     266 </span>                :            :         case LWM2M_SECURITY_PUBLIC_KEY_ID:
+<span class="lineNum">     267 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (targetP-&gt;publicIdentity != NULL) lwm2m_free(targetP-&gt;publicIdentity);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :             targetP-&gt;publicIdentity = (char *)lwm2m_malloc(dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     269 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if (targetP-&gt;publicIdentity != NULL)</span>
+<span class="lineNum">     270 </span>                :            :             {
+<span class="lineNum">     271 </span>                :<span class="lineCov">          1 :                 memset(targetP-&gt;publicIdentity, 0, dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :                 memcpy(targetP-&gt;publicIdentity, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :                 targetP-&gt;publicIdLen = dataArray[i].value.asBuffer.length;</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">          1 :                 result = COAP_204_CHANGED;</span>
+<span class="lineNum">     275 </span>                :            :             }
+<span class="lineNum">     276 </span>                :            :             else
+<span class="lineNum">     277 </span>                :            :             {
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :                 result = COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     279 </span>                :            :             }
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :            :         case LWM2M_SECURITY_SERVER_PUBLIC_KEY_ID:
+<span class="lineNum">     283 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (targetP-&gt;serverPublicKey != NULL) lwm2m_free(targetP-&gt;serverPublicKey);</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :             targetP-&gt;serverPublicKey = (char *)lwm2m_malloc(dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if (targetP-&gt;serverPublicKey != NULL)</span>
+<span class="lineNum">     286 </span>                :            :             {
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :                 memset(targetP-&gt;serverPublicKey, 0, dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :                 memcpy(targetP-&gt;serverPublicKey, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :                 targetP-&gt;serverPublicKeyLen = dataArray[i].value.asBuffer.length;</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          1 :                 result = COAP_204_CHANGED;</span>
+<span class="lineNum">     291 </span>                :            :             }
+<span class="lineNum">     292 </span>                :            :             else
+<span class="lineNum">     293 </span>                :            :             {
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                 result = COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     295 </span>                :            :             }
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :            :         case LWM2M_SECURITY_SECRET_KEY_ID:
+<span class="lineNum">     299 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (targetP-&gt;secretKey != NULL) lwm2m_free(targetP-&gt;secretKey);</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          1 :             targetP-&gt;secretKey = (char *)lwm2m_malloc(dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if (targetP-&gt;secretKey != NULL)</span>
+<span class="lineNum">     302 </span>                :            :             {
+<span class="lineNum">     303 </span>                :<span class="lineCov">          1 :                 memset(targetP-&gt;secretKey, 0, dataArray[i].value.asBuffer.length + 1);</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :                 memcpy(targetP-&gt;secretKey, (char *)dataArray[i].value.asBuffer.buffer, dataArray[i].value.asBuffer.length);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          1 :                 targetP-&gt;secretKeyLen = dataArray[i].value.asBuffer.length;</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">          1 :                 result = COAP_204_CHANGED;</span>
+<span class="lineNum">     307 </span>                :            :             }
+<span class="lineNum">     308 </span>                :            :             else
+<span class="lineNum">     309 </span>                :            :             {
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 result = COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     311 </span>                :            :             }
+<span class="lineNum">     312 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>                :            :         case LWM2M_SECURITY_SMS_SECURITY_ID:
+<span class="lineNum">     315 </span>                :            :             // Let just ignore this
+<span class="lineNum">     316 </span>                :<span class="lineCov">          1 :             result = COAP_204_CHANGED;</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :            :         case LWM2M_SECURITY_SMS_KEY_PARAM_ID:
+<span class="lineNum">     320 </span>                :            :             // Let just ignore this
+<span class="lineNum">     321 </span>                :<span class="lineCov">          1 :             result = COAP_204_CHANGED;</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :            :         case LWM2M_SECURITY_SMS_SECRET_KEY_ID:
+<span class="lineNum">     325 </span>                :            :             // Let just ignore this
+<span class="lineNum">     326 </span>                :<span class="lineCov">          1 :             result = COAP_204_CHANGED;</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            :         case LWM2M_SECURITY_SMS_SERVER_NUMBER_ID:
+<span class="lineNum">     330 </span>                :            :             // Let just ignore this
+<span class="lineNum">     331 </span>                :<span class="lineCov">          1 :             result = COAP_204_CHANGED;</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :            :         case LWM2M_SECURITY_SHORT_SERVER_ID:
+<span class="lineNum">     335 </span>                :            :         {
+<span class="lineNum">     336 </span>                :            :             int64_t value;
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (1 == lwm2m_data_decode_int(dataArray + i, &amp;value))</span>
+<span class="lineNum">     339 </span>                :            :             {
+<span class="lineNum">     340 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (value &gt;= 0 &amp;&amp; value &lt;= 0xFFFF)</span>
+<span class="lineNum">     341 </span>                :            :                 {
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 :                     targetP-&gt;shortID = value;</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     344 </span>                :            :                 }
+<span class="lineNum">     345 </span>                :            :                 else
+<span class="lineNum">     346 </span>                :            :                 {
+<span class="lineNum">     347 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     348 </span>                :            :                 }
+<span class="lineNum">     349 </span>                :            :             }
+<span class="lineNum">     350 </span>                :            :             else
+<span class="lineNum">     351 </span>                :            :             {
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     353 </span>                :            :             }
+<span class="lineNum">     354 </span>                :            :         }
+<span class="lineNum">     355 </span>                :<span class="lineCov">          1 :         break;</span>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :            :         case LWM2M_SECURITY_HOLD_OFF_ID:
+<span class="lineNum">     358 </span>                :            :         {
+<span class="lineNum">     359 </span>                :            :             int64_t value;
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (1 == lwm2m_data_decode_int(dataArray + i, &amp;value))</span>
+<span class="lineNum">     362 </span>                :            :             {
+<span class="lineNum">     363 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (value &gt;= 0 &amp;&amp; value &lt;= UINT32_MAX)</span>
+<span class="lineNum">     364 </span>                :            :                 {
+<span class="lineNum">     365 </span>                :<span class="lineCov">          1 :                     targetP-&gt;clientHoldOffTime = value;</span>
+<span class="lineNum">     366 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     367 </span>                :            :                 }
+<span class="lineNum">     368 </span>                :            :                 else
+<span class="lineNum">     369 </span>                :            :                 {
+<span class="lineNum">     370 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     371 </span>                :            :                 }
+<span class="lineNum">     372 </span>                :            :             }
+<span class="lineNum">     373 </span>                :            :             else
+<span class="lineNum">     374 </span>                :            :             {
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     376 </span>                :            :             }
+<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     378 </span>                :            :         }
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :         case LWM2M_SECURITY_BOOTSTRAP_TIMEOUT_ID:
+<span class="lineNum">     381 </span>                :            :         {
+<span class="lineNum">     382 </span>                :            :             int64_t value;
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (1 == lwm2m_data_decode_int(dataArray + i, &amp;value))</span>
+<span class="lineNum">     385 </span>                :            :             {
+<span class="lineNum">     386 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (value &gt;= 0 &amp;&amp; value &lt;= UINT32_MAX)</span>
+<span class="lineNum">     387 </span>                :            :                 {
+<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :                     targetP-&gt;bootstrapServerAccountTimeout = value;</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     390 </span>                :            :                 }
+<span class="lineNum">     391 </span>                :            :                 else
+<span class="lineNum">     392 </span>                :            :                 {
+<span class="lineNum">     393 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     394 </span>                :            :                 }
+<span class="lineNum">     395 </span>                :            :             }
+<span class="lineNum">     396 </span>                :            :             else
+<span class="lineNum">     397 </span>                :            :             {
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     399 </span>                :            :             }
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     401 </span>                :            :         }
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :            :         default:
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :             return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     405 </span>                :            :         }
+<span class="lineNum">     406 </span>                :<span class="lineCov">         14 :         i++;</span>
+<span class="lineNum">     407 </span>                :            :     }
+<span class="lineNum">     408 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         14 :     while (i &lt; numData &amp;&amp; result == COAP_204_CHANGED);</span>
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>                :<span class="lineCov">         14 :     return result;</span>
+<a name="411"><span class="lineNum">     411 </span>                :            : }</a>
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineCov">          2 : static uint8_t prv_security_delete(uint16_t id,</span>
+<span class="lineNum">     414 </span>                :            :                                    lwm2m_object_t *objectP)
+<span class="lineNum">     415 </span>                :            : {
+<span class="lineNum">     416 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :<span class="lineCov">          2 :     objectP-&gt;instanceList = lwm2m_list_remove(objectP-&gt;instanceList, id, (lwm2m_list_t **)&amp;targetP);</span>
+<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (NULL == targetP) return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     420 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (NULL != targetP-&gt;uri)</span>
+<span class="lineNum">     421 </span>                :            :     {
+<span class="lineNum">     422 </span>                :<span class="lineCov">          2 :         lwm2m_free(targetP-&gt;uri);</span>
+<span class="lineNum">     423 </span>                :            :     }
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :<span class="lineCov">          2 :     lwm2m_free(targetP);</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineCov">          2 :     return COAP_202_DELETED;</span>
+<a name="428"><span class="lineNum">     428 </span>                :            : }</a>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineCov">         13 : static uint8_t prv_security_create(uint16_t instanceId,</span>
+<span class="lineNum">     431 </span>                :            :                                    int numData,
+<span class="lineNum">     432 </span>                :            :                                    lwm2m_data_t *dataArray,
+<span class="lineNum">     433 </span>                :            :                                    lwm2m_object_t *objectP)
+<span class="lineNum">     434 </span>                :            : {
+<span class="lineNum">     435 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     436 </span>                :            :     uint8_t result;
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :<span class="lineCov">         13 :     targetP = (security_instance_t *)lwm2m_malloc(sizeof(security_instance_t));</span>
+<span class="lineNum">     439 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 13 times"> + </span>]:<span class="lineCov">         13 :     if (NULL == targetP) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     440 </span>                :<span class="lineCov">         13 :     memset(targetP, 0, sizeof(security_instance_t));</span>
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :<span class="lineCov">         13 :     targetP-&gt;instanceId = instanceId;</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">         13 :     objectP-&gt;instanceList = LWM2M_LIST_ADD(objectP-&gt;instanceList, targetP);</span>
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>                :<span class="lineCov">         13 :     result = prv_security_write(instanceId, numData, dataArray, objectP);</span>
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         13 :     if (result != COAP_204_CHANGED)</span>
+<span class="lineNum">     448 </span>                :            :     {
+<span class="lineNum">     449 </span>                :<span class="lineCov">          1 :         (void)prv_security_delete(instanceId, objectP);</span>
+<span class="lineNum">     450 </span>                :            :     }
+<span class="lineNum">     451 </span>                :            :     else
+<span class="lineNum">     452 </span>                :            :     {
+<span class="lineNum">     453 </span>                :<span class="lineCov">         12 :         result = COAP_201_CREATED;</span>
+<span class="lineNum">     454 </span>                :            :     }
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :<span class="lineCov">         13 :     return result;</span>
+<span class="lineNum">     457 </span>                :            : }
+<a name="458"><span class="lineNum">     458 </span>                :            : #endif</a>
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :<span class="lineCov">          4 : void copy_security_object(lwm2m_object_t *objectDest, lwm2m_object_t *objectSrc)</span>
+<span class="lineNum">     461 </span>                :            : {
+<span class="lineNum">     462 </span>                :            :     security_instance_t *instanceSrc;
+<span class="lineNum">     463 </span>                :<span class="lineCov">          4 :     security_instance_t *previousInstanceDest = NULL;</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          4 :     memcpy(objectDest, objectSrc, sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          4 :     objectDest-&gt;instanceList = NULL;</span>
+<span class="lineNum">     466 </span>                :<span class="lineCov">          4 :     objectDest-&gt;userData = NULL;</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :<span class="lineCov">          4 :     instanceSrc = (security_instance_t *)objectSrc-&gt;instanceList;</span>
+<span class="lineNum">     469 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :     while (instanceSrc != NULL)</span>
+<span class="lineNum">     470 </span>                :            :     {
+<span class="lineNum">     471 </span>                :<span class="lineCov">          4 :         security_instance_t *instanceDest = (security_instance_t *)lwm2m_malloc(sizeof(security_instance_t));</span>
+<span class="lineNum">     472 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :         if (NULL == instanceDest)</span>
+<span class="lineNum">     473 </span>                :            :         {
+<span class="lineNum">     474 </span>                :<span class="lineCov">          1 :             return;</span>
+<span class="lineNum">     475 </span>                :            :         }
+<span class="lineNum">     476 </span>                :<span class="lineCov">          3 :         memcpy(instanceDest, instanceSrc, sizeof(security_instance_t));</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">          3 :         instanceDest-&gt;uri = (char *)lwm2m_malloc(strlen(instanceSrc-&gt;uri) + 1);</span>
+<span class="lineNum">     478 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (instanceDest-&gt;uri == NULL)</span>
+<span class="lineNum">     479 </span>                :            :         {
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 :             lwm2m_free(instanceDest);</span>
+<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :             return;</span>
+<span class="lineNum">     482 </span>                :            :         }
+<span class="lineNum">     483 </span>                :<span class="lineCov">          2 :         strncpy(instanceDest-&gt;uri, instanceSrc-&gt;uri, strlen(instanceSrc-&gt;uri) + 1);</span>
+<span class="lineNum">     484 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (instanceSrc-&gt;securityMode == LWM2M_SECURITY_MODE_PRE_SHARED_KEY)</span>
+<span class="lineNum">     485 </span>                :            :         {
+<span class="lineNum">     486 </span>                :<span class="lineCov">          1 :             instanceDest-&gt;publicIdentity = lwm2m_strdup(instanceSrc-&gt;publicIdentity);</span>
+<span class="lineNum">     487 </span>                :<span class="lineCov">          1 :             instanceDest-&gt;secretKey = lwm2m_strdup(instanceSrc-&gt;secretKey);</span>
+<span class="lineNum">     488 </span>                :            :         }
+<span class="lineNum">     489 </span>                :<span class="lineCov">          2 :         instanceSrc = (security_instance_t *)instanceSrc-&gt;next;</span>
+<span class="lineNum">     490 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (previousInstanceDest == NULL)</span>
+<span class="lineNum">     491 </span>                :            :         {
+<span class="lineNum">     492 </span>                :<span class="lineCov">          2 :             objectDest-&gt;instanceList = (lwm2m_list_t *)instanceDest;</span>
+<span class="lineNum">     493 </span>                :            :         }
+<span class="lineNum">     494 </span>                :            :         else
+<span class="lineNum">     495 </span>                :            :         {
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :             previousInstanceDest-&gt;next = instanceDest;</span>
+<span class="lineNum">     497 </span>                :            :         }
+<span class="lineNum">     498 </span>                :<span class="lineCov">          2 :         previousInstanceDest = instanceDest;</span>
+<span class="lineNum">     499 </span>                :            :     }
+<a name="500"><span class="lineNum">     500 </span>                :            : }</a>
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :<span class="lineCov">          1 : void display_security_object(lwm2m_object_t *object)</span>
+<span class="lineNum">     503 </span>                :            : {
+<span class="lineNum">     504 </span>                :            : #ifdef WITH_LOGS
+<span class="lineNum">     505 </span>                :<span class="lineCov">          1 :     fprintf(stdout, &quot;  /%u: Security object, instances:\r\n&quot;, object-&gt;objID);</span>
+<span class="lineNum">     506 </span>                :<span class="lineCov">          1 :     security_instance_t *instance = (security_instance_t *)object-&gt;instanceList;</span>
+<span class="lineNum">     507 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     while (instance != NULL)</span>
+<span class="lineNum">     508 </span>                :            :     {
+<span class="lineNum">     509 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         fprintf(stdout, &quot;    /%u/%u: instanceId: %u, uri: %s, isBootstrap: %s, shortId: %u, clientHoldOffTime: %u\r\n&quot;,</span>
+<span class="lineNum">     510 </span>                :<span class="lineCov">          2 :                 object-&gt;objID, instance-&gt;instanceId,</span>
+<span class="lineNum">     511 </span>                :<span class="lineCov">          2 :                 instance-&gt;instanceId, instance-&gt;uri, instance-&gt;isBootstrap ? &quot;true&quot; : &quot;false&quot;,</span>
+<span class="lineNum">     512 </span>                :<span class="lineCov">          1 :                 instance-&gt;shortID, instance-&gt;clientHoldOffTime);</span>
+<span class="lineNum">     513 </span>                :<span class="lineCov">          1 :         instance = (security_instance_t *)instance-&gt;next;</span>
+<span class="lineNum">     514 </span>                :            :     }
+<span class="lineNum">     515 </span>                :            : #endif
+<a name="516"><span class="lineNum">     516 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :<span class="lineCov">         28 : void clean_security_object(lwm2m_object_t *objectP)</span>
+<span class="lineNum">     519 </span>                :            : {
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">         28 :     if(NULL == objectP)</span>
+<span class="lineNum">     521 </span>                :            :     {
+<span class="lineNum">     522 </span>                :<span class="lineCov">         28 :         return;</span>
+<span class="lineNum">     523 </span>                :            :     }
+<span class="lineNum">     524 </span>        [<span class="branchCov" title="Branch 0 was taken 37 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">         64 :     while (objectP-&gt;instanceList != NULL)</span>
+<span class="lineNum">     525 </span>                :            :     {
+<span class="lineNum">     526 </span>                :<span class="lineCov">         37 :         security_instance_t *securityInstance = (security_instance_t *)objectP-&gt;instanceList;</span>
+<span class="lineNum">     527 </span>                :<span class="lineCov">         37 :         objectP-&gt;instanceList = objectP-&gt;instanceList-&gt;next;</span>
+<span class="lineNum">     528 </span>        [<span class="branchCov" title="Branch 0 was taken 21 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         37 :         if (NULL != securityInstance-&gt;uri)</span>
+<span class="lineNum">     529 </span>                :            :         {
+<span class="lineNum">     530 </span>                :<span class="lineCov">         21 :             lwm2m_free(securityInstance-&gt;uri);</span>
+<span class="lineNum">     531 </span>                :            :         }
+<span class="lineNum">     532 </span>        [<span class="branchCov" title="Branch 0 was taken 19 times"> + </span><span class="branchCov" title="Branch 1 was taken 18 times"> + </span>]:<span class="lineCov">         37 :         if (securityInstance-&gt;securityMode == LWM2M_SECURITY_MODE_PRE_SHARED_KEY)</span>
+<span class="lineNum">     533 </span>                :            :         {
+<span class="lineNum">     534 </span>                :<span class="lineCov">         19 :             lwm2m_free(securityInstance-&gt;publicIdentity);</span>
+<span class="lineNum">     535 </span>                :<span class="lineCov">         19 :             lwm2m_free(securityInstance-&gt;secretKey);</span>
+<span class="lineNum">     536 </span>                :            :         }
+<span class="lineNum">     537 </span>                :<span class="lineCov">         37 :         lwm2m_free(securityInstance);</span>
+<span class="lineNum">     538 </span>                :            :     }
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :<span class="lineCov">         27 :     lwm2m_free(objectP);</span>
+<span class="lineNum">     541 </span>                :            : }
+<span class="lineNum">     542 </span>                :            : /*
+<span class="lineNum">     543 </span>                :            :  * modify date:  2018-06-25
+<span class="lineNum">     544 </span>                :            :  * description:  add one or two instance for security object. id 0 for iot server(uri,psk), id 1 for bs server.
+<span class="lineNum">     545 </span>                :            :  * return:       a object: lwm2m_object_t
+<a name="546"><span class="lineNum">     546 </span>                :            :  * pay attention:</a>
+<span class="lineNum">     547 </span>                :            :  */
+<span class="lineNum">     548 </span>                :<span class="lineCov">         32 : lwm2m_object_t *get_security_object(uint16_t serverId, atiny_param_t *atiny_params, lwm2m_context_t *lwm2m_context)</span>
+<span class="lineNum">     549 </span>                :            : {
+<span class="lineNum">     550 </span>                :            :     //const int URI_MAX_LEN = 64;
+<span class="lineNum">     551 </span>                :            : #define URI_MAX_LEN 64
+<span class="lineNum">     552 </span>                :<span class="lineCov">         32 :     lwm2m_object_t *securityObj = NULL;</span>
+<span class="lineNum">     553 </span>                :            :     char serverUri[URI_MAX_LEN];
+<span class="lineNum">     554 </span>                :<span class="lineCov">         32 :     security_instance_t *targetP = NULL;</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">         32 :     int i = 0;</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">         32 :     char *bsPskId = NULL;</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">         32 :     char *psk = NULL;</span>
+<span class="lineNum">     558 </span>                :<span class="lineCov">         32 :     uint16_t pskLen = 0;</span>
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineCov">         32 :     const uint8_t INS_IOT_SERVER_FLAG = 0x01;</span>
+<span class="lineNum">     561 </span>                :<span class="lineCov">         32 :     const uint8_t INS_BS_SERVER_FLAG = 0x02;</span>
+<span class="lineNum">     562 </span>                :<span class="lineCov">         32 :     uint8_t  ins_flag = 0x00;</span>
+<span class="lineNum">     563 </span>                :<span class="lineCov">         32 :     uint8_t total_ins = 1;</span>
+<span class="lineNum">     564 </span>                :<span class="lineCov">         32 :     uint8_t security_params_index = 0;</span>
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :            : 
+<span class="lineNum">     567 </span>  [<span class="branchCov" title="Branch 0 was taken 26 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">         32 :     switch(atiny_params-&gt;server_params.bootstrap_mode)</span>
+<span class="lineNum">     568 </span>                :            :     {
+<span class="lineNum">     569 </span>                :            :     case BOOTSTRAP_FACTORY:
+<span class="lineNum">     570 </span>                :<span class="lineCov">         26 :         ins_flag |= INS_IOT_SERVER_FLAG;</span>
+<span class="lineNum">     571 </span>                :<span class="lineCov">         26 :         total_ins = 1;</span>
+<span class="lineNum">     572 </span>                :<span class="lineCov">         26 :         break;</span>
+<span class="lineNum">     573 </span>                :            :     case BOOTSTRAP_SEQUENCE:
+<span class="lineNum">     574 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :         if ((atiny_params-&gt;security_params[0].server_ip != NULL) &amp;&amp; (atiny_params-&gt;security_params[0].server_port != NULL))</span>
+<span class="lineNum">     575 </span>                :            :         {
+<span class="lineNum">     576 </span>                :<span class="lineCov">          3 :             ins_flag |= INS_IOT_SERVER_FLAG;</span>
+<span class="lineNum">     577 </span>                :<span class="lineCov">          3 :             ins_flag |= INS_BS_SERVER_FLAG;</span>
+<span class="lineNum">     578 </span>                :            : 
+<span class="lineNum">     579 </span>                :<span class="lineCov">          3 :             total_ins = 2;</span>
+<span class="lineNum">     580 </span>                :            :         }
+<span class="lineNum">     581 </span>                :            :         else
+<span class="lineNum">     582 </span>                :            :         {
+<span class="lineNum">     583 </span>                :<span class="lineNoCov">          0 :             ins_flag |= INS_BS_SERVER_FLAG;</span>
+<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :             total_ins = 1;</span>
+<span class="lineNum">     585 </span>                :            :         }
+<span class="lineNum">     586 </span>                :<span class="lineCov">          3 :         break;</span>
+<span class="lineNum">     587 </span>                :            :     case BOOTSTRAP_CLIENT_INITIATED:
+<span class="lineNum">     588 </span>                :<span class="lineCov">          2 :         ins_flag |= INS_BS_SERVER_FLAG;</span>
+<span class="lineNum">     589 </span>                :<span class="lineCov">          2 :         total_ins = 1;</span>
+<span class="lineNum">     590 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     591 </span>                :            :     default:
+<span class="lineNum">     592 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     593 </span>                :            :         //break;
+<span class="lineNum">     594 </span>                :            :     }
+<span class="lineNum">     595 </span>                :            : 
+<span class="lineNum">     596 </span>                :<span class="lineCov">         31 :     securityObj = (lwm2m_object_t *)lwm2m_malloc(sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     597 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 26 times"> + </span>]:<span class="lineCov">         31 :     if (NULL == securityObj)</span>
+<span class="lineNum">     598 </span>                :            :     {
+<span class="lineNum">     599 </span>                :<span class="lineCov">          5 :         return NULL;</span>
+<span class="lineNum">     600 </span>                :            :     }
+<span class="lineNum">     601 </span>                :            : 
+<span class="lineNum">     602 </span>                :<span class="lineCov">         26 :     memset(securityObj, 0, sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     603 </span>                :<span class="lineCov">         26 :     securityObj-&gt;objID = LWM2M_SECURITY_OBJECT_ID;</span>
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :            :     //at most, have two instance. in fact
+<span class="lineNum">     607 </span>        [<span class="branchCov" title="Branch 0 was taken 26 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         47 :     for(i = 0; i &lt; total_ins; i++)</span>
+<span class="lineNum">     608 </span>                :            :     {
+<span class="lineNum">     609 </span>                :            :         //Manually create an hardcoded instance
+<span class="lineNum">     610 </span>                :<span class="lineCov">         26 :         targetP = (security_instance_t *)lwm2m_malloc(sizeof(security_instance_t));</span>
+<span class="lineNum">     611 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         26 :         if (NULL == targetP)</span>
+<span class="lineNum">     612 </span>                :            :         {
+<span class="lineNum">     613 </span>                :            :             //lwm2m_free(securityObj);
+<span class="lineNum">     614 </span>                :<span class="lineCov">          1 :             clean_security_object(securityObj);</span>
+<span class="lineNum">     615 </span>                :<span class="lineCov">          1 :             return NULL;</span>
+<span class="lineNum">     616 </span>                :            :         }
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>                :<span class="lineCov">         25 :         memset(targetP, 0, sizeof(security_instance_t));</span>
+<span class="lineNum">     619 </span>[<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 23 times"> + </span>]:<span class="lineCov">         25 :         if((ins_flag &amp; INS_IOT_SERVER_FLAG) &amp;&amp; (ins_flag &amp; INS_BS_SERVER_FLAG))</span>
+<span class="lineNum">     620 </span>                :            :         {
+<span class="lineNum">     621 </span>                :<span class="lineCov">          1 :             targetP-&gt;instanceId = i;   //i=0 for iot_server, i=1 for bs_server</span>
+<span class="lineNum">     622 </span>                :<span class="lineCov">          1 :             targetP-&gt;isBootstrap = ((i == 0) ? (false) : (true));</span>
+<span class="lineNum">     623 </span>                :<span class="lineCov">          1 :             security_params_index = i;</span>
+<span class="lineNum">     624 </span>                :            :         }
+<span class="lineNum">     625 </span>                :            :         else
+<span class="lineNum">     626 </span>                :            :         {
+<span class="lineNum">     627 </span>        [<span class="branchCov" title="Branch 0 was taken 23 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         24 :             if(ins_flag &amp; INS_IOT_SERVER_FLAG)</span>
+<span class="lineNum">     628 </span>                :            :             {
+<span class="lineNum">     629 </span>                :<span class="lineCov">         23 :                 targetP-&gt;instanceId = 0;</span>
+<span class="lineNum">     630 </span>                :<span class="lineCov">         23 :                 targetP-&gt;isBootstrap = false;</span>
+<span class="lineNum">     631 </span>                :<span class="lineCov">         23 :                 security_params_index = 0;</span>
+<span class="lineNum">     632 </span>                :            :             }
+<span class="lineNum">     633 </span>                :            :             else  //if(ins_flag &amp; INS_BS_SERVER_FLAG)  //even if not set INS_BS_SERVER_FLAG, still run in a certain process.
+<span class="lineNum">     634 </span>                :            :             {
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :                 targetP-&gt;instanceId = 1;</span>
+<span class="lineNum">     636 </span>                :<span class="lineCov">          1 :                 targetP-&gt;isBootstrap = true;</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 :                 security_params_index = 1;</span>
+<span class="lineNum">     638 </span>                :            :             }
+<span class="lineNum">     639 </span>                :            :         }
+<span class="lineNum">     640 </span>                :            :         // After instance id is initialized
+<span class="lineNum">     641 </span>                :<span class="lineCov">         25 :         securityObj-&gt;instanceList = LWM2M_LIST_ADD(securityObj-&gt;instanceList, targetP);</span>
+<span class="lineNum">     642 </span>                :            : 
+<span class="lineNum">     643 </span>                :<span class="lineCov">         25 :         bsPskId = atiny_params-&gt;security_params[security_params_index].psk_Id;</span>
+<span class="lineNum">     644 </span>                :<span class="lineCov">         25 :         psk = atiny_params-&gt;security_params[security_params_index].psk;</span>
+<span class="lineNum">     645 </span>                :<span class="lineCov">         25 :         pskLen = atiny_params-&gt;security_params[security_params_index].psk_len;</span>
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>[<span class="branchCov" title="Branch 0 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         25 :         if (atiny_params-&gt;security_params[security_params_index].server_ip &amp;&amp; atiny_params-&gt;security_params[security_params_index].server_port)</span>
+<span class="lineNum">     649 </span>                :            :         {
+<span class="lineNum">     650 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 23 times"> + </span>]:<span class="lineCov">         50 :             if (psk != NULL)</span>
+<span class="lineNum">     651 </span>                :            :             {
+<span class="lineNum">     652 </span>                :<span class="lineCov">          2 :                 (void)atiny_snprintf(serverUri, URI_MAX_LEN, &quot;coaps://%s:%s&quot;, atiny_params-&gt;security_params[security_params_index].server_ip,</span>
+<span class="lineNum">     653 </span>                :            :                                      atiny_params-&gt;security_params[security_params_index].server_port);
+<span class="lineNum">     654 </span>                :            :             }
+<span class="lineNum">     655 </span>                :            :             else
+<span class="lineNum">     656 </span>                :            :             {
+<span class="lineNum">     657 </span>                :<span class="lineCov">         23 :                 (void)atiny_snprintf(serverUri, URI_MAX_LEN, &quot;coap://%s:%s&quot;, atiny_params-&gt;security_params[security_params_index].server_ip,</span>
+<span class="lineNum">     658 </span>                :            :                                      atiny_params-&gt;security_params[security_params_index].server_port);
+<span class="lineNum">     659 </span>                :            :             }
+<span class="lineNum">     660 </span>                :            :         }
+<span class="lineNum">     661 </span>                :            :         else
+<span class="lineNum">     662 </span>                :            :         {
+<span class="lineNum">     663 </span>                :<span class="lineNoCov">          0 :             serverUri[0] = '\0';</span>
+<span class="lineNum">     664 </span>                :            :         }
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :<span class="lineCov">         25 :         targetP-&gt;uri = (char *)lwm2m_strdup(serverUri);</span>
+<span class="lineNum">     667 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 22 times"> + </span>]:<span class="lineCov">         25 :         if (NULL == targetP-&gt;uri)</span>
+<span class="lineNum">     668 </span>                :            :         {
+<span class="lineNum">     669 </span>                :            :             //lwm2m_free(securityObj);
+<span class="lineNum">     670 </span>                :            :             //lwm2m_free(targetP);
+<span class="lineNum">     671 </span>                :<span class="lineCov">          3 :             clean_security_object(securityObj);</span>
+<span class="lineNum">     672 </span>                :<span class="lineCov">          3 :             return NULL;</span>
+<span class="lineNum">     673 </span>                :            :         }
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :<span class="lineCov">         22 :         targetP-&gt;securityMode = LWM2M_SECURITY_MODE_NONE;</span>
+<span class="lineNum">     676 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         22 :         if (bsPskId != NULL &amp;&amp; psk != NULL)</span>
+<span class="lineNum">     677 </span>                :            :         {
+<span class="lineNum">     678 </span>                :<span class="lineCov">          2 :             targetP-&gt;securityMode = LWM2M_SECURITY_MODE_PRE_SHARED_KEY;</span>
+<span class="lineNum">     679 </span>                :<span class="lineCov">          2 :             targetP-&gt;publicIdentity = (char *)lwm2m_strdup(bsPskId);</span>
+<span class="lineNum">     680 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :             if(targetP-&gt;publicIdentity == NULL)</span>
+<span class="lineNum">     681 </span>                :            :             {
+<span class="lineNum">     682 </span>                :<span class="lineNoCov">          0 :                 clean_security_object(securityObj);</span>
+<span class="lineNum">     683 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     684 </span>                :            :             }
+<span class="lineNum">     685 </span>                :<span class="lineCov">          2 :             targetP-&gt;publicIdLen = strlen(bsPskId);</span>
+<span class="lineNum">     686 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :             if (pskLen &gt; 0)</span>
+<span class="lineNum">     687 </span>                :            :             {
+<span class="lineNum">     688 </span>                :<span class="lineCov">          2 :                 targetP-&gt;secretKey = (char *)lwm2m_malloc(pskLen);</span>
+<span class="lineNum">     689 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if (targetP-&gt;secretKey == NULL)</span>
+<span class="lineNum">     690 </span>                :            :                 {
+<span class="lineNum">     691 </span>                :<span class="lineCov">          1 :                     clean_security_object(securityObj);</span>
+<span class="lineNum">     692 </span>                :<span class="lineCov">          1 :                     return NULL;</span>
+<span class="lineNum">     693 </span>                :            :                 }
+<span class="lineNum">     694 </span>                :<span class="lineCov">          1 :                 memcpy(targetP-&gt;secretKey, psk, pskLen);</span>
+<span class="lineNum">     695 </span>                :<span class="lineCov">          1 :                 targetP-&gt;secretKeyLen = pskLen;</span>
+<span class="lineNum">     696 </span>                :            :             }
+<span class="lineNum">     697 </span>                :            :         }
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>                :<span class="lineCov">         21 :         targetP-&gt;shortID = serverId;</span>
+<span class="lineNum">     700 </span>                :            :         //10? is suitable? it could be changed by the bs server. for lwm2m_server_t member lifetime.
+<span class="lineNum">     701 </span>                :<span class="lineCov">         21 :         targetP-&gt;clientHoldOffTime = atiny_params-&gt;server_params.hold_off_time;</span>
+<span class="lineNum">     702 </span>                :            :     } //end for loop
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>                :            : 
+<span class="lineNum">     705 </span>                :<span class="lineCov">         21 :     securityObj-&gt;readFunc = prv_security_read;</span>
+<span class="lineNum">     706 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     707 </span>                :<span class="lineCov">         21 :     securityObj-&gt;writeFunc = prv_security_write;</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">         21 :     securityObj-&gt;createFunc = prv_security_create;</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">         21 :     securityObj-&gt;deleteFunc = prv_security_delete;</span>
+<span class="lineNum">     710 </span>                :            : #endif
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>                :<span class="lineCov">         32 :     return securityObj;</span>
+<span class="lineNum">     713 </span>                :            : }
+<span class="lineNum">     714 </span>                :            : 
+<span class="lineNum">     715 </span>                :            : 
+<span class="lineNum">     716 </span>                :            : 
+<a name="717"><span class="lineNum">     717 </span>                :            : /********************* Security Obj Helpers **********************/</a>
+<span class="lineNum">     718 </span>                :            : 
+<span class="lineNum">     719 </span>                :<span class="lineCov">          2 : char *security_get_uri(lwm2m_object_t *objectP, uint16_t secObjInstID)</span>
+<span class="lineNum">     720 </span>                :            : {
+<span class="lineNum">     721 </span>                :<span class="lineCov">          2 :     security_instance_t *targetP = (security_instance_t *)LWM2M_LIST_FIND(objectP-&gt;instanceList, secObjInstID);</span>
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (NULL != targetP)</span>
+<span class="lineNum">     724 </span>                :            :     {
+<span class="lineNum">     725 </span>                :<span class="lineCov">          1 :         return lwm2m_strdup(targetP-&gt;uri);</span>
+<span class="lineNum">     726 </span>                :            :     }
+<span class="lineNum">     727 </span>                :            : 
+<span class="lineNum">     728 </span>                :<span class="lineCov">          2 :     return NULL;</span>
+<span class="lineNum">     729 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
