@@ -36,9 +36,7 @@
 #include "stm32f1xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "at_frame/at_main.h"
-extern at_config at_user_conf;
-extern UART_HandleTypeDef at_usart;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -197,18 +195,12 @@ void SysTick_Handler(void)
 /* USER CODE BEGIN 1 */
 void USART2_IRQHandler(void)
 {
-  /* USER CODE BEGIN USART3_IRQn 0 */
-
-  /* USER CODE END USART3_IRQn 0 */
-  if(2!= at_user_conf.usart_port){
-  HAL_UART_IRQHandler(&at_usart);
-  }
-  /* USER CODE BEGIN USART3_IRQn 1 */
-  else{
+  /* USER CODE BEGIN USART2_IRQn 0 */
   extern void at_irq_handler(void);
   at_irq_handler();
-  }
-  /* USER CODE END USART3_IRQn 1 */
+  /* USER CODE END USART2_IRQn 0 */
+
+ 
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

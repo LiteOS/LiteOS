@@ -440,7 +440,7 @@ int32_t esp8266_init()
     static int8_t mac[32];
     esp8266_get_localip(ip, gw, NULL);
     esp8266_get_localmac(mac);
-    AT_LOG("get ip:%s, gw:%s mac:%s", ip, gw, mac);
+    AT_LOG_DEBUG("get ip:%s, gw:%s mac:%s", ip, gw, mac);
     return AT_OK;
 }
 

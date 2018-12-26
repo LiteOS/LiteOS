@@ -701,7 +701,7 @@ int32_t nb_recv_cb(int32_t id)
     return AT_FAILED;
 }
 
-static int32_t nb_int(void)
+static int32_t nb_init(void)
 {
     at_config at_user_conf = {
         .name = AT_MODU_NAME,
@@ -738,7 +738,7 @@ int32_t nb_deinit(void)
 
 at_adaptor_api bc95_interface =
 {
-    .init = nb_int,
+    .init = nb_init,
 
     .bind = nb_bind,
 

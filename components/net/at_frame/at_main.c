@@ -134,11 +134,9 @@ void at_listner_list_del(at_listener *p)
 void at_listner_list_destroy(at_task *at_tsk)
 {
     at_listener *head;
-
-    head = at_tsk->head;
-
-    while(head != NULL)
+    while(at_tsk->head != NULL)
     {
+        head = at_tsk->head;
         at_tsk->head = head->next;
         if (head->handle_data != NULL)
         {
@@ -817,7 +815,7 @@ void at_init(at_config *config)
     
     memcpy(&at_user_conf,config,sizeof(at_config));
     
-    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
+    AT_LOG_DEBUG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
     //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))

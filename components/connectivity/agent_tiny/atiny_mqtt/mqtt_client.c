@@ -819,6 +819,7 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     cJSON_InitHooks(NULL);
     if (params == NULL || phandle == NULL
+        || params->info.security_type != MQTT_SECURITY_TYPE_CA
         || mqtt_check_param(params) != ATINY_OK)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
@@ -858,7 +859,13 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
     Timer timer;
     int result = ATINY_ERR;
 
-    if((NULL == handle) || (device_info == NULL)
+    if (NULL == handle)
+    {
+        ATINY_LOG(LOG_FATAL, "handle null");
+        return ATINY_ARG_INVALID;
+    }
+
+    if((device_info == NULL)
         || (mqtt_check_device_info(device_info) != ATINY_OK))
     {
         ATINY_LOG(LOG_FATAL, "parameter invalid");
