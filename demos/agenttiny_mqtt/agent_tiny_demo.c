@@ -641,7 +641,7 @@ void agent_tiny_entry(void)
         return;
     }
 
-    device_info.codec_mode = MQTT_CODEC_MODE_JASON;
+    device_info.codec_mode = MQTT_CODEC_MODE_JSON;
     device_info.sign_type = MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME;
     device_info.password = AGENT_TINY_DEMO_PASSWORD;
 #ifndef MQTT_DEMO_CONNECT_DYNAMIC

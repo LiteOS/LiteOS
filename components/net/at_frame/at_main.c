@@ -134,11 +134,9 @@ void at_listner_list_del(at_listener *p)
 void at_listner_list_destroy(at_task *at_tsk)
 {
     at_listener *head;
-
-    head = at_tsk->head;
-
-    while(head != NULL)
+    while(at_tsk->head != NULL)
     {
+        head = at_tsk->head;
         at_tsk->head = head->next;
         if (head->handle_data != NULL)
         {

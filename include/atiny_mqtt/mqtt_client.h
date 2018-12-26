@@ -242,7 +242,7 @@ typedef enum
 typedef enum
 {
     MQTT_CODEC_MODE_BINARY,
-    MQTT_CODEC_MODE_JASON,
+    MQTT_CODEC_MODE_JSON,
     MQTT_MAX_CODEC_MODE
 }mqtt_codec_mode_e;
 

@@ -249,6 +249,12 @@ int32_t sim900a_data_handler(void *arg, int8_t *buf, int32_t len)
         }
         p2++; //over ':'
 
+        if (data_len > len)
+        {
+            AT_LOG("error !! receive data not complete data_len:%ld len:%ld",data_len,len);
+            goto END;
+        }
+
         qbuf.addr = at_malloc(data_len);
         if (NULL == qbuf.addr)
         {
