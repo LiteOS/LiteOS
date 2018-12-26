@@ -232,30 +232,17 @@ FS_FATFS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/*.c} \
         ${wildcard $(TOP_DIR)/components/fs/fatfs/ff13b/source/*.c}
 
-FS_JFFS2_SRC = \
-        $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/jffs2_hal.c \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/src/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/port/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/compress/*.c} \
-        ${wildcard $(TOP_DIR)/components/fs/jffs2/cyg/crc/crc32.c}
-
 ifeq ($(IS_COMPILE_ALLFS), ALL)
         C_SOURCES += $(FS_SPIFFS_SRC)
         C_SOURCES += $(FS_FATFS_SRC)
-        C_SOURCES += $(FS_JFFS2_SRC)
 		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
 		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
-		C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
 else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
         C_SOURCES += $(FS_SPIFFS_SRC)
 		C_SOURCES += $(TOP_DIR)/demos/fs/spiffs_demo.c
 else ifeq ($(FILESYSTEM_TYPE), FATFS)
         C_SOURCES += $(FS_FATFS_SRC)
 		C_SOURCES += $(TOP_DIR)/demos/fs/fatfs_demo.c
-else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_SOURCES += $(FS_JFFS2_SRC)
-	C_SOURCES += $(TOP_DIR)/demos/fs/jffs_demo.c
 endif
 ifeq ($(WITH_CMOCKERY_TEST), yes)
 CMOCKERY_TEST_FS_SRC = \
@@ -599,21 +586,13 @@ FS_FATFS_INC = \
         -I $(TOP_DIR)/components/fs/fatfs/ff13b/source \
         -I $(TOP_DIR)/components/fs/fatfs/ff13b/source/default
 
-FS_JFFS2_INC = \
-        -I $(TOP_DIR)/components/fs/jffs2 \
-        -I $(TOP_DIR)/components/fs/jffs2/src \
-        -I $(TOP_DIR)/components/fs/jffs2/port
-
 ifeq ($(IS_COMPILE_ALLFS), ALL)
         C_INCLUDES += $(FS_SPIFFS_INC)
         C_INCLUDES += $(FS_FATFS_INC)
-        C_INCLUDES += $(FS_JFFS2_INC)
 else ifeq ($(FILESYSTEM_TYPE), SPIFFS)
         C_INCLUDES += $(FS_SPIFFS_INC)
 else ifeq ($(FILESYSTEM_TYPE), FATFS)
         C_INCLUDES += $(FS_FATFS_INC)
-else ifeq ($(FILESYSTEM_TYPE), JFFS2)
-        C_INCLUDES += $(FS_JFFS2_INC)
 endif
 endif
 

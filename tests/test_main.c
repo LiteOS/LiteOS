@@ -105,7 +105,7 @@ UINT32 creat_agenttiny_test_task(void)
 int demo_cmockery_test(void)
 {
     UINT32 uwRet = LOS_OK;
-#if (defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2))
+#if (defined(FS_SPIFFS) || defined(FS_FATFS))
 
     uwRet = creat_fs_test_task();
     if (uwRet != LOS_OK)
