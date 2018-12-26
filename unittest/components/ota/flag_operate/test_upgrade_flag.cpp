@@ -59,23 +59,31 @@ int flag_upgrade_init(void)
 }
 */
 #include "flag_manager.h"
+#include "ota/recover_image.h"
+
 int stub_flag_read(flag_type_e flag_type, void *buf, int32_t len)
 {
   return -1;
+}
+int stub_flag_write(flag_type_e flag_type, const void *buf, int32_t len)
+{
+    return 0;
 }
 
 void TestUpgradeFlag::test_flag_upgrade_init()
 {
 	
+    int ret; 
+
+    ret = flag_upgrade_init();
+    TEST_ASSERT(0 == ret);
 	
 
-	flag_upgrade_init();
-	
-
-   stubInfo stub_sem;
-   setStub((void *)flag_read,(void *)stub_flag_read,&stub_sem); 
-   flag_upgrade_init();
-   cleanStub(&stub_sem);//---------------------------------------------------------
+    stubInfo stub_sem;
+    setStub((void *)flag_read,(void *)stub_flag_read,&stub_sem); 
+    ret = flag_upgrade_init();
+    TEST_ASSERT(-1 == ret);
+    cleanStub(&stub_sem);//---------------------------------------------------------
    
   
 }
@@ -83,55 +91,67 @@ void TestUpgradeFlag::test_flag_upgrade_init()
 
 void TestUpgradeFlag::test_flag_set_info()
 {
-	upgrade_type_e upgrade_type;
-	uint32_t image_size;
-	flag_set_info(upgrade_type, image_size);
+    upgrade_type_e upgrade_type;
+    uint32_t image_size;
+    int ret;
+	
+    ret = flag_set_info(upgrade_type, image_size);
+    TEST_ASSERT(0 == ret);
 }
 
 
 void TestUpgradeFlag::test_flag_get_info()
 {
-	upgrade_type_e 	upgrade_type;
-	uint32_t 		image_size;
-	uint32_t 		old_image_size; 
-	upgrade_state_e upgrade_state;
-	flag_get_info(&upgrade_type,&image_size,&old_image_size,&upgrade_state);
+    upgrade_type_e 	upgrade_type;
+    uint32_t 		image_size;
+    uint32_t 		old_image_size; 
+    upgrade_state_e upgrade_state;
+    flag_get_info(&upgrade_type,&image_size,&old_image_size,&upgrade_state);
 
-	upgrade_type_e  *upgrade_type1=NULL;
-	uint32_t 		*image_size1=NULL;
-	uint32_t 		*old_image_size1=NULL; 
-	upgrade_state_e *upgrade_state1=NULL;
-	flag_get_info(upgrade_type1,image_size1,old_image_size1,upgrade_state1);
+    upgrade_type_e  *upgrade_type1=NULL;
+    uint32_t 		*image_size1=NULL;
+    uint32_t 		*old_image_size1=NULL; 
+    upgrade_state_e *upgrade_state1=NULL;
+    flag_get_info(upgrade_type1,image_size1,old_image_size1,upgrade_state1);
 	
 }
 
 
 void TestUpgradeFlag::test_flag_upgrade_set_result()
 {
-	upgrade_state_e state=OTA_SUCCEED;
-	flag_upgrade_set_result(state,1);
+    int ret;
+    upgrade_state_e state=OTA_SUCCEED;
+    ret = flag_upgrade_set_result(state,1);
+    TEST_ASSERT(0 == ret);
 }
 
 void TestUpgradeFlag::test_flag_upgrade_get_result()
 {
-	upgrade_state_e state=OTA_SUCCEED;
-	flag_upgrade_get_result(NULL);
-	flag_upgrade_get_result(&state);
+    int ret;
+    upgrade_state_e state=OTA_SUCCEED;
+
+    ret = flag_upgrade_get_result(NULL);
+    TEST_ASSERT(0 == ret);
+    ret = flag_upgrade_get_result(&state);
+    TEST_ASSERT(0 == ret);
 }
 
 void TestUpgradeFlag::test_flag_set_recover_verify()
 {
-	uint32_t recover_verify;
-	uint32_t verify_length;
-	flag_set_recover_verify(recover_verify, verify_length);
+    uint32_t recover_verify;
+    uint32_t verify_length;
+    int ret;
+    ret = flag_set_recover_verify(recover_verify, verify_length);
+    TEST_ASSERT(0 == ret);
 }
 
 void TestUpgradeFlag::test_flag_get_recover_verify()
 {
-	uint32_t recover_verify;
-	uint32_t verify_length;
-	flag_get_recover_verify(NULL,NULL);
-	flag_get_recover_verify(&recover_verify, &verify_length);
+    uint32_t recover_verify;
+    uint32_t verify_length;
+	
+    flag_get_recover_verify(NULL,NULL);
+    flag_get_recover_verify(&recover_verify, &verify_length);
 	
 }
 
@@ -141,17 +161,29 @@ void TestUpgradeFlag::test_flag_enable_hwpatch()
 	
 }
 
+void TestUpgradeFlag::test_recover_set_update_fail()
+{
+    int ret;
+    stubInfo stu_write;
+    setStub((void *)flag_write,(void *)stub_flag_write,&stu_write);
+    ret = recover_set_update_fail();
+    TEST_ASSERT(0 == ret);
+    cleanStub(&stu_write);
+}
+
 TestUpgradeFlag::TestUpgradeFlag()
 {
 	
     TEST_ADD(TestUpgradeFlag::test_flag_upgrade_init);
-	TEST_ADD(TestUpgradeFlag::test_flag_set_info);
-	TEST_ADD(TestUpgradeFlag::test_flag_get_info);
-	TEST_ADD(TestUpgradeFlag::test_flag_upgrade_set_result);
-	TEST_ADD(TestUpgradeFlag::test_flag_upgrade_get_result);
-	TEST_ADD(TestUpgradeFlag::test_flag_set_recover_verify);
-	TEST_ADD(TestUpgradeFlag::test_flag_get_recover_verify);
-	TEST_ADD(TestUpgradeFlag::test_flag_enable_hwpatch);
+    TEST_ADD(TestUpgradeFlag::test_flag_set_info);
+    TEST_ADD(TestUpgradeFlag::test_flag_get_info);
+    TEST_ADD(TestUpgradeFlag::test_flag_upgrade_set_result);
+    TEST_ADD(TestUpgradeFlag::test_flag_upgrade_get_result);
+    TEST_ADD(TestUpgradeFlag::test_flag_set_recover_verify);
+    TEST_ADD(TestUpgradeFlag::test_flag_get_recover_verify);
+    TEST_ADD(TestUpgradeFlag::test_flag_enable_hwpatch);
+    TEST_ADD(TestUpgradeFlag::test_recover_set_update_fail);
+	
 
 
 }

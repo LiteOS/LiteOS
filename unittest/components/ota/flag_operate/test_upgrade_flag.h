@@ -43,13 +43,14 @@ class TestUpgradeFlag:public Test::Suite
 {
 public:
     void test_flag_upgrade_init();
-	void test_flag_set_info();
-	void test_flag_get_info();
-	void test_flag_upgrade_set_result();
-	void test_flag_upgrade_get_result();
-	void test_flag_set_recover_verify();
-	void test_flag_get_recover_verify();
-	void test_flag_enable_hwpatch();
+    void test_flag_set_info();
+    void test_flag_get_info();
+    void test_flag_upgrade_set_result();
+    void test_flag_upgrade_get_result();
+    void test_flag_set_recover_verify();
+    void test_flag_get_recover_verify();
+    void test_flag_enable_hwpatch();
+    void test_recover_set_update_fail(void);
 	
     TestUpgradeFlag();
     ~TestUpgradeFlag();
