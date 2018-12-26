@@ -32,27 +32,13 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 #include "stdio.h"
-#include "test_flag_manager.h"	//本类的头文件
-#include "flag_manager.h"//待测源文件的头文件
-#include "string.h"//标准库
-
+#include "test_flag_manager.h" 
+#include "flag_manager.h" 
+#include "string.h" 
 
 #define FLASH_UNIT_SIZE (256)
 #define FLASH_FLAG_SIZE (512)
-/*
-int flag_init(flag_op_s *flag)
-{
-    if (NULL == flag
-        || NULL == flag->func_flag_read
-        || NULL == flag->func_flag_write)
-    return -1;
-
-    g_flag_op.func_flag_read = flag->func_flag_read;
-    g_flag_op.func_flag_write = flag->func_flag_write;
-
-    return 0;
-}
-*/
+ 
 int print1(void *buf, int32_t len)
 {
 	printf("call print1 buf:%s len:%d\n",buf,len);
@@ -68,161 +54,132 @@ int print3(void *buf, int32_t len)
 	printf("call print3 buf:%s len:%d\n",buf,len);
 	return 0;
 }
+
+int print4(const void *buf, int32_t len)
+{
+	printf("call print4 buf:%s len:%d\n",buf,len);
+	return 0;
+}
+
+
 void TestFlagManager::test_flag_init()
 {
 	int ret=0;
-	//参数
+	 
 	flag_op_s test_flag={NULL,NULL};
-	//参数判空测试
+	 
 	ret = flag_init(NULL);
+	TEST_ASSERT(-1 == ret);
+	
 	test_flag.func_flag_read=print1;
 	test_flag.func_flag_write=NULL;
+	
 	ret = flag_init(&test_flag);
+	TEST_ASSERT(-1 == ret);
 	test_flag.func_flag_read=NULL;
 	test_flag.func_flag_write=print2;
 	ret = flag_init(&test_flag);
-	//主代码测试（赋值冗余，但是为了看的更直接，所以重复赋值）
+	TEST_ASSERT(-1 == ret);
+	 
 	test_flag.func_flag_read=print1;
 	test_flag.func_flag_write=print2;
 	ret = flag_init(&test_flag);
+	TEST_ASSERT(0 == ret);
 }
-/*
-int flag_read(flag_type_e flag_type, void *buf, int32_t len)
-{
-    uint8_t flag_buf[FLASH_FLAG_SIZE];
 
-    if (NULL == buf
-        || len < 0
-        || len > FLASH_UNIT_SIZE
-        || g_flag_op.func_flag_read(flag_buf, FLASH_FLAG_SIZE) != 0)
-        return -1;
-
-    switch (flag_type)
-    {
-    case FLAG_BOOTLOADER:
-        memcpy(buf, flag_buf, len);
-        break;
-    case FLAG_APP:
-        memcpy(buf, flag_buf + FLASH_UNIT_SIZE, len);
-        break;
-    default:
-        break;
-    }
-
-    return 0;
-}
-*/
 int ttt[FLASH_FLAG_SIZE]={0};
 void TestFlagManager::test_flag_read()
 {
-	//局部优先
-	//flag_op_s g_flag_op={print1,print2};//无传参入口，影响不到待调函数的内部
-	//返回值
+	 
 	int ret =0;
-	//参数
 	flag_type_e test_flag_type = FLAG_BOOTLOADER;
 	void *test_buf=NULL;
 	int32_t len = 100;
 	flag_op_s test_flag={print1,print2};
-	//参数判空测试
+ 
 	test_buf=NULL;
 	ret=flag_read(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
 	
 	test_buf=ttt;
 	len=-1;
 	ret=flag_read(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
 	
 	len=FLASH_UNIT_SIZE+1;
 	ret=flag_read(test_flag_type, test_buf,len);
+	TEST_ASSERT(-1 == ret);
 	
 	len=FLASH_UNIT_SIZE;
-	ret = flag_init(&test_flag);//影响func_flag_read
+	ret = flag_init(&test_flag); 
 	ret=flag_read(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
+
 	test_flag.func_flag_read=print3;
-	ret = flag_init(&test_flag);//影响func_flag_read
+	test_flag.func_flag_write=print4;
+	ret = flag_init(&test_flag); 
 	ret=flag_read(test_flag_type, test_buf,len);
-	//主代码
-	//1
+	TEST_ASSERT(0 == ret);
+	 
 	test_flag_type = FLAG_BOOTLOADER;
 	ret=flag_read(test_flag_type, test_buf,len);
-	//2
+	TEST_ASSERT(0 == ret);
+	
 	test_flag_type = FLAG_APP;
 	ret=flag_read(test_flag_type, test_buf,len);
-	//3
+    TEST_ASSERT(0 == ret);
+	
 	test_flag_type =(flag_type_e)2;
 	ret=flag_read(test_flag_type, test_buf,len);
-	
-}
-/*
-int flag_write(flag_type_e flag_type, const void *buf, int32_t len)
-{
-    uint8_t flag_buf[FLASH_FLAG_SIZE];
+	TEST_ASSERT(0 == ret);
 
-    if (NULL == buf
-        || len < 0
-        || len > FLASH_UNIT_SIZE
-        || g_flag_op.func_flag_read(flag_buf, FLASH_FLAG_SIZE) != 0)
-        return -1;
-
-    switch (flag_type)
-    {
-    case FLAG_BOOTLOADER:
-        memcpy(flag_buf, buf, len);
-        break;
-    case FLAG_APP:
-        memcpy(flag_buf + FLASH_UNIT_SIZE, buf, len);
-        break;
-    default:
-        break;
-    }
-    return g_flag_op.func_flag_write(flag_buf, FLASH_FLAG_SIZE);
 }
-*/
+ 
 void TestFlagManager::test_flag_write()
 {
-	//局部优先
-	//flag_op_s g_flag_op={print1,print2};//无传参入口，影响不到待调函数的内部
-	//返回值
+	 
 	int ret =0;
-	//参数
+
+	printf("come into test_flag_write *********************************\n");
+ 
 	flag_type_e test_flag_type = FLAG_BOOTLOADER;
 	void *test_buf=NULL;
 	int32_t len = 100;
 	flag_op_s test_flag={print1,print2};
-	//参数判空测试
+	 
 	test_buf=NULL;
 	ret=flag_write(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
+
+	printf("over come into test_flag_write *********************************\n");
 	
 	test_buf=ttt;
 	len=-1;
 	ret=flag_write(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
 	
 	len=FLASH_UNIT_SIZE+1;
 	ret=flag_write(test_flag_type, test_buf,len);
+	TEST_ASSERT(-1 == ret);
 	
 	len=FLASH_UNIT_SIZE;
-	ret = flag_init(&test_flag);//影响func_flag_read
+	ret = flag_init(&test_flag); 
 	ret=flag_write(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(-1 == ret);
+ 
 	test_flag.func_flag_read=print3;
-	ret = flag_init(&test_flag);//影响func_flag_read
+	test_flag.func_flag_write=print4;
+	ret = flag_init(&test_flag); 
 	ret=flag_write(test_flag_type, test_buf,len);
-	//主代码
-	//1
-	test_flag_type = FLAG_BOOTLOADER;
-	ret=flag_write(test_flag_type, test_buf,len);
-	//2
-	test_flag_type = FLAG_APP;
-	ret=flag_write(test_flag_type, test_buf,len);
-	//3
-	test_flag_type =(flag_type_e)2;
-	ret=flag_write(test_flag_type, test_buf,len);
-	
+	TEST_ASSERT(0 == ret);
+ 
+	ret=flag_write(FLAG_BOOTLOADER, test_buf,len);
+	TEST_ASSERT(0 == ret);
+	ret=flag_write(FLAG_APP, test_buf,len);
+	TEST_ASSERT(0 == ret);
+	ret=flag_write(FLAG_INVALID, test_buf,len);
+	TEST_ASSERT(0 == ret);
+ 
 }
 
 

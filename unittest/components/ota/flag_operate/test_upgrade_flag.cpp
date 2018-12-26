@@ -61,6 +61,10 @@ int flag_upgrade_init(void)
 #include "flag_manager.h"
 #include "ota/recover_image.h"
 
+flag_op_s g_flag_ops;
+
+
+
 int stub_flag_read(flag_type_e flag_type, void *buf, int32_t len)
 {
   return -1;
@@ -70,22 +74,32 @@ int stub_flag_write(flag_type_e flag_type, const void *buf, int32_t len)
     return 0;
 }
 
+static int test_func_flag_read(void *buf, int32_t len)
+{
+    return 0;
+}
+static int test_func_flag_write(const void *buf, int32_t len)
+{
+    return 0;
+}
+
+
 void TestUpgradeFlag::test_flag_upgrade_init()
 {
 	
     int ret; 
-
+	
+	
     ret = flag_upgrade_init();
     TEST_ASSERT(0 == ret);
 	
-
     stubInfo stub_sem;
     setStub((void *)flag_read,(void *)stub_flag_read,&stub_sem); 
     ret = flag_upgrade_init();
     TEST_ASSERT(-1 == ret);
-    cleanStub(&stub_sem);//---------------------------------------------------------
-   
-  
+    cleanStub(&stub_sem);
+	
+
 }
 
 
@@ -173,6 +187,10 @@ void TestUpgradeFlag::test_recover_set_update_fail()
 
 TestUpgradeFlag::TestUpgradeFlag()
 {
+	g_flag_ops.func_flag_read = test_func_flag_read;
+	g_flag_ops.func_flag_write = test_func_flag_write;
+	flag_init(&g_flag_ops);
+	
 	
     TEST_ADD(TestUpgradeFlag::test_flag_upgrade_init);
     TEST_ADD(TestUpgradeFlag::test_flag_set_info);
@@ -183,13 +201,14 @@ TestUpgradeFlag::TestUpgradeFlag()
     TEST_ADD(TestUpgradeFlag::test_flag_get_recover_verify);
     TEST_ADD(TestUpgradeFlag::test_flag_enable_hwpatch);
     TEST_ADD(TestUpgradeFlag::test_recover_set_update_fail);
-	
 
+	
 
 }
 
 TestUpgradeFlag::~TestUpgradeFlag()
 {
+   
 }
 
 void TestUpgradeFlag::TestUpgradeFlag::setup()
