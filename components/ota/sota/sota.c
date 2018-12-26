@@ -126,7 +126,7 @@ typedef struct sota_update_info
     uint8_t  state;
 } sota_update_info_t;
 
-sota_opt_t                         g_flash_op;
+sota_arg_s                         g_flash_op;
 static sota_update_info_t          g_at_update_record;
 static pack_storage_device_api_s * g_storage_device;
 
@@ -262,7 +262,7 @@ static void sota_send_request_block(char *ver)
      char sbuf[64] = {0};
  
      if (g_flash_op.firmware_download_stage == BOOTLOADER
-        && g_flash_op.current_run_stage == APPICATION)
+        && g_flash_op.current_run_stage == APPLICATION)
      {
         return;
      }
@@ -561,21 +561,21 @@ static int func_flag_write(const void *buf, int32_t len)
     return g_flash_op.ota_info.write_flash(OTA_UPDATE_INFO,buf, len, 0);
 }
 
-int32_t sota_init(const sota_opt_t* flash_opt)
+int32_t sota_init(const sota_arg_s* sota_arg)
 {
     int  ret;
     flag_op_s flag_op;
     pack_params_s pack_param;
 
-    if (flash_opt == NULL || flash_opt->sota_malloc == NULL || flash_opt->sota_free == NULL)
+    if (sota_arg == NULL || sota_arg->sota_malloc == NULL || sota_arg->sota_free == NULL)
     {
         return SOTA_FAILED;
     }
 
-    memcpy(&pack_param.ota_opt, &flash_opt->ota_info, sizeof(pack_param.ota_opt));
-    pack_param.malloc = flash_opt->sota_malloc;
-    pack_param.free = flash_opt->sota_free;
-    pack_param.printf = flash_opt->sota_printf;
+    memcpy(&pack_param.ota_opt, &sota_arg->ota_info, sizeof(pack_param.ota_opt));
+    pack_param.malloc = sota_arg->sota_malloc;
+    pack_param.free = sota_arg->sota_free;
+    pack_param.printf = sota_arg->sota_printf;
     ret = pack_init_device(&pack_param);
     if (ret != SOTA_OK)
     {
@@ -584,7 +584,7 @@ int32_t sota_init(const sota_opt_t* flash_opt)
 
     g_storage_device = pack_get_device();
 
-    memcpy(&g_flash_op, flash_opt, sizeof(sota_opt_t));
+    memcpy(&g_flash_op, sota_arg, sizeof(sota_arg_s));
 
     flag_op.func_flag_read = func_flag_read;
     flag_op.func_flag_write = func_flag_write;
