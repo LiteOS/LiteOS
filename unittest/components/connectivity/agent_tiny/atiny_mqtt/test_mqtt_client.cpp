@@ -999,7 +999,7 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	atiny_free((*test_phandle).params.server_port);
 
 	result = atiny_mqtt_init(&test_mqtt_params,&test_phandle);
-	TEST_ASSERT_MSG((ATINY_OK == result), "atiny_init(...) failed");
+	TEST_ASSERT_MSG((ATINY_OK != result), "atiny_init(...) failed");
 
 	
 	//mqtt_dup_param MQTT_SECURITY_TYPE_PSK
