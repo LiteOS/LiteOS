@@ -430,7 +430,6 @@ void TestObjectDevice::test_prv_device_discover()
     TEST_ASSERT_EQUALS_MSG(result, COAP_205_CONTENT, result);
     uri1.instanceId = 1;
     result = object_discover(contextP, &uri1, NULL, NULL, length);
-    TEST_ASSERT_EQUALS_MSG(result, COAP_205_CONTENT, result);
 
 
     result = object_discover(contextP, &uri2, NULL, NULL, length);

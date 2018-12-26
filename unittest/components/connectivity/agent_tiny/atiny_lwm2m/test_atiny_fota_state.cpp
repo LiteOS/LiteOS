@@ -413,7 +413,7 @@ void TestAtinyFotaState::test_atiny_fota_idle_state_int_report_result()
     stubInfo si_flag_read;
 	setStub((void*)flag_read,(void*)stub_flag_read,&si_flag_read);
     result = atiny_fota_idle_state_int_report_result(&thi);
-    TEST_ASSERT(result != ATINY_OK);
+    TEST_ASSERT(result == ATINY_OK);
 	setStub((void*)flag_read,(void*)stub_flag_readFalse,&si_flag_read);
     result = atiny_fota_idle_state_int_report_result(&thi);
     TEST_ASSERT(result != ATINY_OK);

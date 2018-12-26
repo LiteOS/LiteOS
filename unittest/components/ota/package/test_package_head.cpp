@@ -143,8 +143,10 @@ extern "C"
 	static int stub_pack_head_parse_head_len(pack_head_s *head, uint32_t offset, const uint8_t *buff,uint16_t len, uint16_t *used_len){
 		return 0;
 	}
-	
-	static void stub_atiny_free(void*){}
+	static void* p_bak_for_free = NULL;
+	static void stub_atiny_free(void*para){
+		p_bak_for_free = para;
+	}
 	static void stub_pack_checksum_delete(pack_checksum_s *thi){}
 	static pack_storage_device_s for_log_device;
 	static pack_params_s * stub_pack_get_params_2(){
@@ -304,20 +306,21 @@ void TestPackageHead::test_pack_head_parse_head_len(){
 
 	stubInfo si;
 	setStub((void*)atiny_free,(void*)stub_atiny_free,&si);
-	ret = pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
+	ret = pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);//
+	if(p_bak_for_free!=NULL){
+		//atiny_free(p_bak_for_free);
+		p_bak_for_free = NULL;
+	}
 	if(p->buff!=NULL){
+		atiny_free(p->buff);
 		p->buff = NULL;
 	}
 	TEST_ASSERT(PACK_OK == ret);
 	stubInfo si_pack_malloc;
-	///
-	//cleanStub(&si_stub_malloc);
 	setStub((void*)pack_malloc,(void*)stub_pack_malloc_count,&si_pack_malloc);
 	static_int_count_pack_malloc=0;
 	pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
 	cleanStub(&si_pack_malloc);
-	//setStub((void*)pack_malloc,(void*)atiny_malloc,&si_stub_malloc);
-	///
 	len = 6;
 	pack_head_parse_head_len(p,offset,buff_safe,len,p_used_len);
 	

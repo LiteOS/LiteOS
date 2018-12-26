@@ -100,7 +100,6 @@ void TestObjectAccessControl::test_prv_read()
 	lwm2m_data_cfg_t * test_dataCfg = NULL;
 	ret = test_object->readFunc(test_instanceId,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
 	TEST_ASSERT_MSG((ret == COAP_404_NOT_FOUND),"test_prv_delete() failed");
-
 	acc_ctrl_obj_add_inst(test_object,0,0,0,0);
 	ret = test_object->readFunc(test_instanceId,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
 	TEST_ASSERT_MSG((ret == COAP_205_CONTENT),"test_prv_delete() failed");
@@ -110,6 +109,7 @@ void TestObjectAccessControl::test_prv_read()
 //	acc_ctrl_oi_add_ac_val(test_object,0,0,0);
 //	acc_ctrl_oi_add_ac_val(test_object,0,1,1);
 	acc_ctrl_oi_s * test_instance = (acc_ctrl_oi_s*)lwm2m_malloc(sizeof(acc_ctrl_oi_s));
+	//acc_ctrl_oi_s * p_bak_1 = test_instance;
 	if(NULL != test_instance)
 	{
 		memset(test_instance,0,sizeof(acc_ctrl_oi_s));
@@ -117,7 +117,6 @@ void TestObjectAccessControl::test_prv_read()
 	test_instance->objectId = 0;
 	test_instance->objectInstId = 0;
 	test_instance->objInstId = 1;
-#if 1
 	test_instance->accCtrlValList = (acc_ctrl_ri_t*)lwm2m_malloc(sizeof(acc_ctrl_ri_t));
 	if(NULL != test_instance->accCtrlValList)
 	{
@@ -125,18 +124,6 @@ void TestObjectAccessControl::test_prv_read()
 	}
 	test_instance->accCtrlValList->accCtrlValue = 0;
 	test_instance->accCtrlValList->resInstId = 0;
-#else	
-	acc_ctrl_ri_s* test_accCtrlValList = NULL;
-	test_accCtrlValList = (acc_ctrl_ri_t*)lwm2m_malloc(sizeof(acc_ctrl_ri_t));
-	if(NULL != test_accCtrlValList)
-		{
-			memset(test_accCtrlValList,0,sizeof(acc_ctrl_ri_t));
-		}
-	test_accCtrlValList->accCtrlValue = 0;
-	test_accCtrlValList->resInstId = 0;
-	test_instance->accCtrlValList = test_accCtrlValList;
-#endif	
-    printf("--------------------------------------------------------------------------------------\n");
     LWM2M_LIST_ADD(test_object->instanceList, test_instance);
     acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)
                                 lwm2m_list_find(test_object->instanceList, test_instanceId);
@@ -155,29 +142,12 @@ void TestObjectAccessControl::test_prv_read()
 	//test_object->instanceList->next = (lwm2m_list_t*)test_instance;
 	ret = test_object->readFunc(1,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
 	lwm2m_free(test_dataArrayP);
-
-
-    #if 0
-	test_instance->next = NULL;
-	test_object->instanceList->next = (lwm2m_list_t*)test_instance;
-	test_dataArrayP = (lwm2m_data_t*)lwm2m_malloc(sizeof(lwm2m_data_t));
-	if(NULL != test_dataArrayP)
-	{
-		memset(test_dataArrayP,0,sizeof(lwm2m_data_t));
-	}
-	test_numDataP = 1;
-	test_dataArrayP->id = 2;
-	ret = test_object->readFunc(test_instanceId,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
-
-	//lwm2m_free(test_accCtrlValList);
-	//lwm2m_free(test_instance->accCtrlValList);
-	//lwm2m_free(test_instance);
-	lwm2m_free(test_dataArrayP);
-    #endif
+	//atiny_free(test_dataCfg);
 
 
     
 	acl_ctrl_free_object(test_object);
+	//lwm2m_free(p_bak_1);
 }
 
 int test_lwm2m_data_decode_int(const lwm2m_data_t * dataP,int64_t * valueP)
