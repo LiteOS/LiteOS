@@ -236,9 +236,15 @@ void TestObjectBinaryAppDataContainer::test_prv_read(void)
 
     
     setStub((void *)lwm2m_malloc, (void *)stub_lwm2m_malloc, &stub_info);
-    ret = pAppDataObject->readFunc(0, &num, &pData, NULL, pAppDataObject);
-  
+    ret = pAppDataObject->readFunc(0, &num, &pData, NULL, pAppDataObject);  
     cleanStub(&stub_info);
+
+    // free pData
+    if(pData != NULL)
+    {
+        lwm2m_data_free(1, pData);
+        pData = NULL;
+    }
 
     num = 0;
     setStub((void *)lwm2m_data_new, (void *)stub_lwm2m_data_new, &stub_info);
@@ -259,7 +265,7 @@ void TestObjectBinaryAppDataContainer::test_prv_read(void)
     // free pData
     if(pData != NULL)
     {
-        lwm2m_data_free(num, pData);
+        lwm2m_data_free(1, pData);
         pData = NULL;
     }
 
