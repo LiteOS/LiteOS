@@ -285,6 +285,17 @@ static int stub_pack_storage_active_software(pack_storage_device_api_s *thi)
 	return -1;
 }
 
+static int stub_read_flash(ota_flash_type_e type, void *buf, int32_t len, uint32_t location)
+{
+    printf("www++++++++++++++++++++++++++++++++++++++++++++++come into stub_read_flash\n");
+    return 0;
+}
+
+static int stub_write_flash(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location)
+{
+    return 0;
+}
+
 
 
 TestSota::TestSota()
@@ -301,16 +312,18 @@ TestSota::~TestSota()
 
 void TestSota::test_sota_init()
 {
-	printf("start test_sota_init,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n");
+    printf("start test_sota_init,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n");
     int ret = 0;
-	sota_opt_t flash_op;
-	flash_op.get_ver = read_ver;
+    sota_opt_t flash_op;
+    flash_op.get_ver = read_ver;
     flash_op.sota_send = nb_send_str;
-	flash_op.sota_malloc = at_malloc;
+    flash_op.sota_malloc = at_malloc;
     flash_op.sota_printf = sota_log;
-	flash_op.sota_free = at_free;
-	flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
-	flash_op.ota_info.key.rsa_E = "10001";
+    flash_op.sota_free = at_free;
+    flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
+    flash_op.ota_info.key.rsa_E = "10001";
+    flash_op.ota_info.read_flash  = stub_read_flash;
+    flash_op.ota_info.write_flash = stub_write_flash;
 	ret = sota_init(NULL);
     TEST_ASSERT_MSG((SOTA_FAILED == ret), "sota_init(...) failed");
 	
@@ -331,8 +344,7 @@ void TestSota::test_sota_init()
 	TEST_ASSERT_MSG((SOTA_FAILED == ret), "sota_init(...) failed");
 
 	
-	stubInfo si_flag_read2;
-	setStub((void *)flag_read, (void *)stub_flag_read2, &si_flag_read2);
+
 	stubInfo si_flag_write;
 	setStub((void *)flag_write, (void *)stub_flag_write, &si_flag_write);
 
@@ -344,18 +356,29 @@ void TestSota::test_sota_init()
 	cleanStub(&si_flag_read3);
 	TEST_ASSERT_MSG((SOTA_DOWNLOADING == ret), "sota_init(...) success");
   
-    stubInfo si_flag_upgrade_get_result;
+        stubInfo si_flag_upgrade_get_result;
 	setStub((void *)flag_upgrade_get_result, (void *)stub_flag_upgrade_get_result, &si_flag_upgrade_get_result);
 	flash_op.firmware_download_stage = APPICATION;
 	flash_op.current_run_stage = APPICATION;
 	ret = sota_init(&flash_op);
-	cleanStub(&si_flag_upgrade_get_result);
 	TEST_ASSERT_MSG((SOTA_OK == ret), "sota_init(...) success");
+	cleanStub(&si_flag_upgrade_get_result);
+	
 	
 	sota_init(&flash_op);
+	unsigned char bufff[10];
+	printf("++++++++++++++++++++++++++++++++++++++++\n");
+	printf("----------------------------------------\n");
+	
+        ret = flag_read(FLAG_APP,bufff,10);
+	printf("++++++++++++++++++++++++++++++++++++++++\n");
+	printf("----------------------------------------\n");
+	TEST_ASSERT_MSG((0 == ret), "sota_init(...) success");
+
+	ret = flag_write(FLAG_APP,bufff,10);
 
 	cleanStub(&si_flag_write);
-	cleanStub(&si_flag_read2);
+	
 	cleanStub(&si_pack_init_device);
 
 	TEST_ASSERT_MSG((SOTA_OK == ret), "sota_init(...) success");
@@ -498,9 +521,9 @@ void TestSota::test_sota_process()
 	sota_process(arg,out_buf,out_len);
 	sota_opt_t flash_op;
 	flash_op.get_ver = read_ver1;
-    flash_op.sota_send = nb_send_str;
+        flash_op.sota_send = nb_send_str;
 	flash_op.sota_malloc = at_malloc;
-    flash_op.sota_printf = sota_log;
+        flash_op.sota_printf = sota_log;
 	flash_op.sota_free = at_free;
 	flash_op.ota_info.key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
 	flash_op.ota_info.key.rsa_E = "10001";
