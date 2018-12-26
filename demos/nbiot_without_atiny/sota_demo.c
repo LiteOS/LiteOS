@@ -56,15 +56,6 @@ int read_ver(char* buf, uint32_t len)
     return 0;
 }
 
-int notify_new_ver(char* buf, uint32_t len)
-{
-    return 0;
-}
-
-int set_ver(const char* buf, uint32_t len)
-{
-    return 0;
-}
 
 int32_t sota_cmd_match(const char *buf, char* featurestr,int len)
 {
@@ -130,7 +121,7 @@ int sota_log(const char *fmt, ...)
 
 void nb_sota_demo(void)
 {
-    sota_opt_t flash_op =
+	sota_arg_s flash_op =
     {
        .get_ver = read_ver,
        .sota_send = nb_send_str,

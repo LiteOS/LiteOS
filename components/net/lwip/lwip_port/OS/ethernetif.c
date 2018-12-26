@@ -84,6 +84,7 @@
 #include "netif/etharp.h"
 #include "ethernetif.h"
 #include <string.h>
+#include "lwip/tcpip.h"
 
 
 /* Define those to better describe your network interface. */
@@ -199,8 +200,7 @@ void ethernetif_input( void *pvParameters )
             return;
         }
 
-        err = s_pxNetIf->input(p, s_pxNetIf);
-
+        err = tcpip_input(p, s_pxNetIf);
         if (err != ERR_OK)
         {
             LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));

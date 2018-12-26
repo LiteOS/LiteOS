@@ -81,7 +81,7 @@ int32_t sim900a_connect(const int8_t *host, const int8_t *port, int32_t proto)
     at.cmd((int8_t *)cmd4, strlen(cmd4), "OK", NULL,NULL);
     char cmd5[64] = {0};
 
-    AT_LOG("host:%s, port:%s", host, port);
+    AT_LOG_DEBUG("host:%s, port:%s", host, port);
 
     if (AT_MUXMODE_SINGLE == at.mux_mode)
     {

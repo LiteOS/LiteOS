@@ -815,7 +815,7 @@ void at_init(at_config *config)
     
     memcpy(&at_user_conf,config,sizeof(at_config));
     
-    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
+    AT_LOG_DEBUG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
     //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))
