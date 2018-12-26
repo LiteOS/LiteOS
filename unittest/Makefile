@@ -6,18 +6,19 @@ SUB_DIR := \
 	$(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt \
 	$(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
     $(TOP_DIR)/components/connectivity/nb_iot \
-    $(TOP_DIR)/components/ota/sota \
-    $(TOP_DIR)/components/ota/utility \
-    $(TOP_DIR)/osdepends/liteos \
-	$(TOP_DIR)/components/net/at_frame \
+	$(TOP_DIR)/components/fs \
+	$(TOP_DIR)/components/log \
     $(TOP_DIR)/components/net/at_device/gprs_sim900a \
     $(TOP_DIR)/components/net/at_device/nb_bc95 \
     $(TOP_DIR)/components/net/at_device/emtc_bg36 \
     $(TOP_DIR)/components/net/at_device/wifi_esp8266 \
+	$(TOP_DIR)/components/net/at_frame \
     $(TOP_DIR)/components/net/sal \
-    $(TOP_DIR)/components/ota/flag_operate \
-    $(TOP_DIR)/components/log \
-    $(TOP_DIR)/components/fs
+	$(TOP_DIR)/components/ota/flag_operate \
+	$(TOP_DIR)/components/ota/package \
+    $(TOP_DIR)/components/ota/sota \
+    $(TOP_DIR)/components/ota/utility \
+    $(TOP_DIR)/osdepends/liteos
 
 
 GCOV_INFO_SUFFIX := /gcov/gcov.info 
