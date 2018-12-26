@@ -5,7 +5,15 @@
 #include "test_object_access_control.h"
 
 #define MAX_DATA_VAL 65535
+extern "C"
+{
+    void stub_lwm2m_data_encode_instances(lwm2m_data_t* subDataP, size_t count, lwm2m_data_t* dataP)
+    {
+        lwm2m_data_free(1,subDataP);
 
+    }
+
+}
 typedef struct acc_ctrl_ri_s
 {   // linked list:
     struct acc_ctrl_ri_s*   next;       // matches lwm2m_list_t::next
@@ -98,13 +106,17 @@ void TestObjectAccessControl::test_prv_read()
 	int test_numDataP = 0;
 	lwm2m_data_t * test_dataArrayP = NULL;
 	lwm2m_data_cfg_t * test_dataCfg = NULL;
+    #if 1
 	ret = test_object->readFunc(test_instanceId,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
 	TEST_ASSERT_MSG((ret == COAP_404_NOT_FOUND),"test_prv_delete() failed");
+    #endif
 	acc_ctrl_obj_add_inst(test_object,0,0,0,0);
+    #if 1
 	ret = test_object->readFunc(test_instanceId,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
 	TEST_ASSERT_MSG((ret == COAP_205_CONTENT),"test_prv_delete() failed");
 
     lwm2m_data_free(4,test_dataArrayP);
+    #endif
 
 //	acc_ctrl_oi_add_ac_val(test_object,0,0,0);
 //	acc_ctrl_oi_add_ac_val(test_object,0,1,1);
@@ -140,7 +152,11 @@ void TestObjectAccessControl::test_prv_read()
 	test_dataArrayP->id = 2;
     //test_instance->next = NULL;
 	//test_object->instanceList->next = (lwm2m_list_t*)test_instance;
+	stubInfo si_instances;
+    setStub((void *)lwm2m_data_encode_instances, (void *)stub_lwm2m_data_encode_instances, &si_instances);   
+    
 	ret = test_object->readFunc(1,&test_numDataP,&test_dataArrayP,test_dataCfg,test_object);
+    cleanStub(&si_instances);
 	lwm2m_free(test_dataArrayP);
 	//atiny_free(test_dataCfg);
 
