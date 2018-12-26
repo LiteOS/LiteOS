@@ -567,7 +567,7 @@ int32_t sota_init(const sota_opt_t* flash_opt)
     flag_op_s flag_op;
     pack_params_s pack_param;
 
-    if (flash_opt == NULL)
+    if (flash_opt == NULL || flash_opt->sota_malloc == NULL || flash_opt->sota_free == NULL)
     {
         return SOTA_FAILED;
     }
