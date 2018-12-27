@@ -211,8 +211,6 @@ int32_t esp8266_data_handler(void *arg, int8_t *buf, int32_t len)
     char *p1, *p2;
     QUEUE_BUFF qbuf;
     p1 = (char *)buf;
-    
-    (void)ret; // For keil unused warning
 
 LOOP:
     if (0 == memcmp(p1, AT_DATAF_PREFIX, strlen(AT_DATAF_PREFIX)))

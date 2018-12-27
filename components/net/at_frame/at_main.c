@@ -277,8 +277,6 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
     int ret;
     int print_len;
 
-    (void)print_len; // For gcc unused warning
-
     if ((cmd_info == NULL)
         || (cmd == NULL))
     {

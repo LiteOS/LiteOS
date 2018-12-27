@@ -47,7 +47,8 @@
 #ifdef AT_INTO
 #define AT_LOG(fmt, arg...)  printf("[%lu][%s:%d][I]"fmt"\n", at_get_time(), __func__, __LINE__, ##arg)
 #else
-#define AT_LOG(fmt, arg...)
+static inline void __do_nothing(const char *fmt, ...) { (void)fmt; }
+#define AT_LOG(fmt, arg...)  __do_nothing(fmt, ##arg)
 #endif
 
 #ifdef AT_DEBUG
