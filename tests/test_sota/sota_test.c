@@ -37,7 +37,7 @@ static void It_Los_sota_init_001(void **state)       //flash_op = NULL
 static void It_Los_sota_init_002(void **state)     //data_len = normal
 {
     int ret;
-	sota_opt_t flash_op =
+	sota_arg_s flash_op =
     {
        .get_ver = read_ver,
        .sota_send = nb_send_str,

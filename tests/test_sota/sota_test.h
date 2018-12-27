@@ -31,7 +31,7 @@
 #define DEVICE_VER "V0.0"
 
 
-static sota_opt_t * g_flash_op_t;
+static sota_arg_s * g_flash_op_t;
 
 
 
