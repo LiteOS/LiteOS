@@ -277,6 +277,8 @@ int32_t at_cmd_multi_suffix(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info
     int ret;
     int print_len;
 
+    (void)print_len; // For gcc unused warning
+
     if ((cmd_info == NULL)
         || (cmd == NULL))
     {
@@ -808,9 +810,9 @@ void at_init(at_config *config)
         AT_LOG("Config is NULL, failed!!\n");
         return;
     }
-    
+
     memcpy(&at_user_conf,config,sizeof(at_config));
-    
+
     AT_LOG_DEBUG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
     //LOS_TaskDelay(200);

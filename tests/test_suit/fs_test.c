@@ -93,7 +93,7 @@ static void print_dir(const char *name, int level)
             && strcmp(dirent->name, ".")
             && strcmp(dirent->name, ".."))
         {
-            char tmp_path[128];
+            char tmp_path[LOS_MAX_DIR_NAME_LEN+2];
             printf("|%*s%s/\n", level*4, "--->", dirent->name);
             snprintf(tmp_path, sizeof(tmp_path), "%s/%s", name, dirent->name);
             print_dir(tmp_path, level+1);
