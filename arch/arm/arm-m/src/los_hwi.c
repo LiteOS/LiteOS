@@ -175,7 +175,7 @@ LITE_OS_SEC_TEXT_INIT VOID osHwiInit()
     }
 
     /* Interrupt vector table location */
-    SCB->VTOR = (UINT32)m_pstHwiForm;
+    *(volatile UINT32 *)OS_NVIC_VTOR = (UINT32)m_pstHwiForm;
 #if (__CORTEX_M >= 0x03U)  /* only for Cortex-M3 and above */
     NVIC_SetPriorityGrouping(OS_NVIC_AIRCR_PRIGROUP);
 #endif
