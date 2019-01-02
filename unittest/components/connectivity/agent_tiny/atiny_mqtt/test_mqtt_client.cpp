@@ -87,37 +87,23 @@ extern "C"
 	}demo_param_s;
 
 	static demo_param_s g_demo_param;
-	
 	static int g_random = 0;
-
 	static int g_malloc_random = 0;
-
 	static int i = 0;
-	
 	static int j = 0;
-	
-
 	static int funcno = 0;
-
+	static char *cstring=NULL;
 	static mqtt_client_s *test_phandle = NULL;
-
 	static mqtt_client_s *test_gphandle = NULL;
-
 	static unsigned char *test_readbuf=NULL;
-
 	static cJSON *jsp1=NULL;
 	static cJSON *jsp2=NULL;
 	static cJSON *jsp3=NULL;
-	
-	
 	static cJSON js;
 	stubInfo si_atiny_malloc;
-
 	stubInfo si_atiny_strdup;
-
 	stubInfo si_flash_manager_write;
 
-	
 	typedef enum
 	{
     	MQTT_CONNECT_WITH_PRODUCT_ID,
@@ -134,8 +120,6 @@ extern "C"
 	    uint8_t reserve[2];
 	}mqtt_dynamic_info_s;
 
-
-
 	struct mqtt_client_tag_s
 	{
 	    mqtt_device_info_s device_info;
@@ -143,8 +127,6 @@ extern "C"
 	    mqtt_param_s params;
 	    mqtt_dynamic_info_s dynamic_info;
 	    char *sub_topic;
-	    //uint8_t atiny_quit;
-	  //  uint8_t bind_quit;
 		uint8_t init_flag;
 	    uint8_t reserve[3];
 	};
@@ -158,36 +140,24 @@ extern "C"
 	};
 
 	extern int atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle);
-	//extern void atiny_deinit(void *phandle);
 	extern void atiny_mqtt_deinit(mqtt_client_s *handle);
 	extern void atiny_free(void* ptr);
 	extern int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle);
 	extern int atiny_mqtt_isconnected(mqtt_client_s* phandle);
 	extern int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_len, mqtt_qos_e qos);
-
-
-
 	extern int flash_adaptor_write_mqtt_info(const void *buffer, uint32_t len);
 	extern int flash_adaptor_read_mqtt_info(void *buffer, uint32_t len);
 	extern int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
-
-
 	extern void hieth_hw_init(void);
 	extern void net_init(void);
-
-
 	extern void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len));
-	
 	extern int flash_manager_write(const flash_info_s *flash_info);
-
 	extern void flash_adaptor_init(void);
-
 	extern int MQTTConnect(MQTTClient *c, MQTTPacket_connectData *options);
 	extern int MQTTSubscribe(MQTTClient *c, const char *topicFilter, enum QoS qos,
                   messageHandler messageHandler);
 	extern int MQTTYield(MQTTClient *c, int timeout_ms);
 	extern int stub_MQTTPublishWithoutMutex(MQTTClient *c, const char *topicName, MQTTMessage *message);
-
 	extern void NetworkDisconnect(Network *n);
 	extern int MQTTSetMessageHandler(MQTTClient* c, const char* topicFilter, messageHandler messageHandler);
 	
@@ -236,9 +206,6 @@ extern "C"
 	    return ATINY_OK;
 	}
 
-
-
-	
 	static int test_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)
 	{
     	int result = ATINY_ERR;
@@ -280,19 +247,7 @@ extern "C"
         }
     return result;
 	}
-#if 0
-	void mqtt_free_dynamic_info(mqtt_client_s* handle)
-{
-    if (handle->sub_topic)
-    {
-        (void)MQTTSetMessageHandler(&handle->client, handle->sub_topic, NULL);
-        atiny_free(handle->sub_topic);
-        handle->sub_topic = NULL;
-    }
-    TRY_FREE_MEM(handle->dynamic_info.save_info.deviceid);
-    TRY_FREE_MEM(handle->dynamic_info.got_passward);
-}
-#endif
+
 	void agent_tiny_demo_init(const demo_param_s *param)
 	{
     	g_demo_param = *param;
@@ -304,101 +259,54 @@ extern "C"
 	    net_init();
 	    flash_adaptor_init();
 	}
-
+	
 
 	void * pthread_mqtt_test(void *para)
 	{
 	  struct atiny_mqtt_bind_t *bind_para;
 	  bind_para=(struct atiny_mqtt_bind_t *)para;
-	  printf("+++++++++++++++++++++into pthread_mqtt_test1129++++++++++++++++++++++++\n");
-	  atiny_mqtt_bind(bind_para->device_info,bind_para->handle);
-	  
-	}
-
-	void * pthread_mqtt_test1(void *para)
-	{
-	  struct atiny_mqtt_bind_t *bind_para;
-	  bind_para=(struct atiny_mqtt_bind_t *)para;
 	  
 	  atiny_mqtt_bind(bind_para->device_info,bind_para->handle);
 	}
 
 
-	void * pthread_mqtt_test3(void *para)
-	{
-	  struct atiny_mqtt_bind_t *bind_para;
-	  bind_para=(struct atiny_mqtt_bind_t *)para;
-		  
-	  atiny_mqtt_bind(bind_para->device_info,bind_para->handle);
-	}
-
+	
 }
 /* Global variables ---------------------------------------------------------*/
 /* Private function prototypes ----------------------------------------------*/
 /* Public functions ---------------------------------------------------------*/
 TestMQTT_Client::TestMQTT_Client()
 {
-	
-    TEST_ADD(TestMQTT_Client::test_atiny_mqtt_init);
-	
-	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_subscribe_topic);
-	
-	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_json_fail);
-	
-	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_json_fail2);
-	
-	TEST_ADD(TestMQTT_Client::test_mqtt_dup_devinfo_fail);
-	
-	TEST_ADD(TestMQTT_Client::test_mqtt_dup_info_fail);
-	
-
-	TEST_ADD(TestMQTT_Client::test_mqtt_dup_devin_fail);
-	
-	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_isconnected);
-	
-	TEST_ADD(TestMQTT_Client::test_atiny_mqttconnect);
-	
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_recv_cmd_topic);
-	
+	TEST_ADD(TestMQTT_Client::test_atiny_mqttconnect);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_init);
 	TEST_ADD(TestMQTT_Client::test_atiny_cjsparse);
-	
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_subscribe_topic);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_subscribe_topic_fail);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_json_fail);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_json_fail2);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_json_fail3);
+	TEST_ADD(TestMQTT_Client::test_mqtt_dup_devinfo_fail);
+	TEST_ADD(TestMQTT_Client::test_mqtt_dup_info_fail);
+	TEST_ADD(TestMQTT_Client::test_mqtt_dup_devin_fail);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_isconnected);
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_dup_devi_info);
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info);
-	
-	
-	//TEST_ADD(TestMQTT_Client::test_atiny_mqtt_bind);
-	
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info1);
+	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info2);
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_data_send);
-	
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_dup_dev_info);
-	
-	//TEST_ADD(TestMQTT_Client::test_atiny_mqtt_get_send_pw);
-	
 	TEST_ADD(TestMQTT_Client::test_mqtt_proc_connect_nack);
-	
 	TEST_ADD(TestMQTT_Client::test_mqtt_proc_connect_nack1);
-	
-
 	TEST_ADD(TestMQTT_Client::test_mqtt_clientInit_fail);
-	
 	TEST_ADD(TestMQTT_Client::test_mqtt_networkconnect_fail);
-	
 	TEST_ADD(TestMQTT_Client::test_atiny_mqtt_read_flash);
-
-	
-	//TEST_ADD(TestMQTT_Client::test_mqtt_cmd_ioctrlfail);
-	
-	
-	//TEST_ADD(TestMQTT_Client::test_atiny_mqtt_bind_add);
-	
 }
 
 TestMQTT_Client::~TestMQTT_Client()
 {
 
 }
-
-
 
 char *stub_atiny_strdup_fail_time(const char *ch)
 {
@@ -495,14 +403,32 @@ CJSON_PUBLIC(cJSON *) stub_cJSON_GetObjectItem_fail2(cJSON * const object, char 
 	
 }
 
+CJSON_PUBLIC(cJSON *) stub_cJSON_GetObjectItem_fail3(cJSON * const object, char * string)
+{
+	if(!strcmp(string,"msgType"))
+	{  jsp1=(cJSON *)atiny_malloc(sizeof(cJSON));
+	   jsp1->valuestring="cloudSendSecret";
+	   return jsp1;
+	}
+
+	if(!strcmp(string,"deviceid"))
+	{  jsp2=(cJSON *)atiny_malloc(sizeof(cJSON));
+	   jsp2->valuestring="cloudSendSecret";
+	   return jsp2;
+	}
+
+	if(!strcmp(string,"secret"))
+	{  
+	   return NULL;
+	}
+	
+}
 
 
 CJSON_PUBLIC(void) stub_cJSON_Delete(cJSON *c)
 {
 	atiny_free(c);
 }
-
-
 
 int stub_mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
 {
@@ -513,10 +439,6 @@ int stub_mbedtls_hmac_calc_fail(mbedtls_hmac_t *hmac_info)
 {
 	return 1;
 }
-
-
-
-
 
 void *stub_atiny_malloc_fail_time(size_t size)
 {
@@ -535,7 +457,6 @@ void *stub_atiny_malloc_fail_time(size_t size)
     
 	return NULL;
 }
-
 
 char *stub_atiny_strdup(const char *ch)
 {
@@ -600,7 +521,6 @@ int stub_flash_manager_read2(flash_info_s *flash_info)
 	
 }
 
-
 int stub_MQTTPublish(MQTTClient *c, const char *topicName, MQTTMessage *message)
 {
 	return 0;
@@ -649,10 +569,6 @@ void stub_NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(voi
 
     return;
 }
-
-
-
-
 
 int stub_NetworkConnect(Network *n, char *addr, int port)
 {
@@ -716,12 +632,25 @@ int stub_MQTTConnect(MQTTClient *c, MQTTPacket_connectData *options)
 {	
 	c->isconnected=1;
 	
+	if(options->clientID.cstring)
+	{
+	 atiny_free(options->clientID.cstring);
+	 options->clientID.cstring=NULL;
+	}
+
+	cstring=options->clientID.cstring;
+	
 	return 0;
 }
 
 
 int stub_MQTTConnect_fail(MQTTClient *c, MQTTPacket_connectData *options)
 {	
+	if(options->clientID.cstring)
+	{
+	 atiny_free(options->clientID.cstring);
+	 options->clientID.cstring=NULL;
+	}
 		return 1;
 }
 
@@ -741,6 +670,37 @@ int stub_MQTTSubscribe(MQTTClient *c, const char *topicFilter, enum QoS qos,
 	mqmn.payloadlen=3;
 	mdn.message=&mqmn;
 	messageHandler(&mdn);
+	messageHandler(&md);
+
+	return 0;
+}
+
+ int stub_MQTTSubscribefaildir(MQTTClient *c, const char *topicFilter, enum QoS qos,
+                  messageHandler messageHandler)
+{	
+	memcpy(test_readbuf,"abc",3);
+	
+	MessageData mdn;
+	MQTTMessage mqmn;
+	mqmn.payload=NULL;
+	mqmn.payloadlen=3;
+	mdn.message=&mqmn;
+	messageHandler(&mdn);
+	
+	return 0;
+}
+				  
+int stub_MQTTSubscribeok(MQTTClient *c, const char *topicFilter, enum QoS qos,
+                  messageHandler messageHandler)
+{	
+	memcpy(test_readbuf,"abc",3);
+	MessageData md;
+	MQTTMessage mqm;
+	
+	mqm.payload=test_readbuf;
+	mqm.payloadlen=3;
+	md.message=&mqm;
+	
 	messageHandler(&md);
 
 	return 0;
@@ -832,7 +792,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin0\n");
 	
-
 	demo_param_s demo_param;
 	demo_param.init=init_mqtt;
 	demo_param.write_flash_info=flash_adaptor_write_mqtt_info;
@@ -893,8 +852,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	TEST_ASSERT_MSG((ATINY_MALLOC_FAILED == result), "atiny_init(...) failed");
 	cleanStub(&si_atiny_strdup);
 	
-
-	
 	//mqtt_dup_param server_port=NULL
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin6/n");
 	i =  0;
@@ -903,9 +860,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	result = atiny_mqtt_init(&test_mqtt_params,&test_phandle);
 	TEST_ASSERT_MSG((ATINY_MALLOC_FAILED == result), "atiny_init(...) failed");
 	cleanStub(&si_atiny_strdup);
-
-
-	
 
 	//mqtt_dup_param MQTT_SECURITY_TYPE_PSK
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin7/n");
@@ -917,7 +871,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	TEST_ASSERT_MSG((ATINY_MALLOC_FAILED == result), "atiny_init(...) failed");
 	cleanStub(&si_atiny_malloc);
 
-	
 
 	//mqtt_dup_param MQTT_SECURITY_TYPE_PSK
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin8/n");
@@ -933,7 +886,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	cleanStub(&si_atiny_strdup);
 	cleanStub(&si_atiny_malloc);
 
-	
 
 	//mqtt_dup_param MQTT_SECURITY_TYPE_CA
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin9/n");
@@ -979,8 +931,6 @@ void TestMQTT_Client::test_atiny_mqtt_init(void)
 	TEST_ASSERT_MSG((0 != result), "atiny_init(...) failed");
 	cleanStub(&si_atiny_strdup);
 	cleanStub(&si_atiny_malloc);
-
-
 
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++begin10/n");
 	//mqtt_dup_param MQTT_SECURITY_TYPE_NONE
@@ -1201,7 +1151,7 @@ void TestMQTT_Client::test_atiny_mqtt_dup_devi_info()
 	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netwcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe_dir, &stub_mqttsub);
 	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
 
 	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
@@ -1217,22 +1167,32 @@ void TestMQTT_Client::test_atiny_mqtt_dup_devi_info()
    	cleanStub(&stub_info_netwcon);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info2);
-		
+
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
+	
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
-	atiny_free(device_info.u.d_info.nodeid);	
+	atiny_free(device_info.u.d_info.nodeid);
+
 }
 
 
 void TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info()
 {
 	int ret;
-	mqtt_device_info_s device_info; 
+    mqtt_device_info_s device_info; 
     mqtt_client_s handle;
-	   
-	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
+		   
+    device_info.codec_mode=MQTT_CODEC_MODE_JASON;
 	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
-    device_info.connection_type=MQTT_MAX_CONNECTION_TYPE;
+	device_info.connection_type=MQTT_MAX_CONNECTION_TYPE;
 	device_info.password=(char *)atiny_malloc(8);
 	strcpy(device_info.password,"abc");
 	device_info.u.s_info.deviceid="hdell";
@@ -1240,114 +1200,185 @@ void TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info()
 	strcpy(device_info.u.d_info.productid,"lgko");
 	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
 	strcpy(device_info.u.d_info.nodeid,"nodeid");
- 
-	   handle.sub_topic=NULL;
-	   handle.dynamic_info.save_info.deviceid=(char *)atiny_malloc(8);
-	   strcpy(handle.dynamic_info.save_info.deviceid,"devid");
-	   handle.dynamic_info.got_passward=(char *)atiny_malloc(8);
-	   strcpy(handle.dynamic_info.got_passward,"abc");
-		   
-	   handle.params.server_ip=(char *)atiny_malloc(16);
-	   strcpy(handle.params.server_ip,"192.168.1.102");
-	   handle.params.server_port=(char *)atiny_malloc(8);
-	   strcpy(handle.params.server_port,"5683");
-	   g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-	   
-	
-	   handle.dynamic_info.connection_update_flag=1;
-
-
-	   stubInfo stub_mulock;
-	   stubInfo stub_muunlock;
-		   
-	   setStub((void *)atiny_task_mutex_lock, (void *)stub_atiny_task_mutex_lock, &stub_mulock);
-	   setStub((void *)atiny_task_mutex_unlock, (void *)stub_atiny_task_mutex_unlock, &stub_muunlock);
-	   
-	   atiny_mqtt_bind(&device_info, &handle);
-
-	   device_info.connection_type=MQTT_STATIC_CONNECT;
-	   device_info.u.s_info.deviceid=NULL;
-
-	   atiny_mqtt_bind(&device_info, &handle);
-
-	   device_info.connection_type=MQTT_DYNAMIC_CONNECT;
-	   device_info.u.d_info.productid=NULL;
-
-	   atiny_mqtt_bind(&device_info, &handle);
-
-	   cleanStub(&stub_muunlock);
-	   cleanStub(&stub_mulock);
-
-}
-
-
-void TestMQTT_Client::test_atiny_mqtt_get_send_pw()
-{
-    int ret;
-	mqtt_device_info_s device_info; 
-	mqtt_client_s handle;
-	
-	device_info.connection_type=MQTT_STATIC_CONNECT;
-	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
-	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
-	device_info.password=(char *)atiny_malloc(8);
-	strcpy(device_info.password,"abc");
-	device_info.u.s_info.deviceid="hdell";
-	device_info.connection_type=MQTT_DYNAMIC_CONNECT;
-	device_info.u.d_info.productid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.productid,"lgko");
-	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.nodeid,"nodeid");
+	 
 	handle.sub_topic=NULL;
+	handle.dynamic_info.save_info.deviceid=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.save_info.deviceid,"devid");
+	handle.dynamic_info.got_passward=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.got_passward,"abc");
+			   
 	handle.params.server_ip=(char *)atiny_malloc(16);
 	strcpy(handle.params.server_ip,"192.168.1.102");
 	handle.params.server_port=(char *)atiny_malloc(8);
 	strcpy(handle.params.server_port,"5683");
 	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-	
-	handle.sub_topic=(char *)atiny_malloc(8);
-	strcpy(handle.sub_topic,"abc");
+		   
+		
 	handle.dynamic_info.connection_update_flag=1;
-
-	pthread_t first_thread;
-	struct atiny_mqtt_bind_t mqtt_bind_para;
-	mqtt_bind_para.device_info=&device_info;
-	mqtt_bind_para.handle=&handle;
-
-	stubInfo stub_hcf;
-	stubInfo stub_info2;
-	stubInfo stub_info1;
-	stubInfo stub_info_netwcon;
-	stubInfo stub_mqttcon;
-	stubInfo stub_mqttsub;
-	stubInfo stub_mqttyie;
+	handle.device_info.password=(char *)atiny_malloc(8);
+	strcpy(handle.device_info.password,"abc");
+	handle.device_info.u.d_info.productid=(char *)atiny_malloc(8);
+	strcpy(handle.device_info.u.d_info.productid,"lgko");
+	handle.device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(handle.device_info.u.d_info.productid,"node");
 	
-    setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc_fail, &stub_hcf);
-	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info2);
-	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
-	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netwcon);
-	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
-	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
-
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
-	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
-	usleep(10000);
-	usleep(10000);
-	pthread_cancel(first_thread);
-	pthread_join(first_thread, NULL); 
+	stubInfo stub_mulock;
+	stubInfo stub_muunlock;
+			   
+	setStub((void *)atiny_task_mutex_lock, (void *)stub_atiny_task_mutex_lock, &stub_mulock);
+	setStub((void *)atiny_task_mutex_unlock, (void *)stub_atiny_task_mutex_unlock, &stub_muunlock);
+		   
+	atiny_mqtt_bind(&device_info, &handle);
+		 
+	cleanStub(&stub_muunlock);
+	cleanStub(&stub_mulock);
+		   
 	
-	cleanStub(&stub_hcf);
-	cleanStub(&stub_mqttyie);
-   	cleanStub(&stub_mqttsub);
-    cleanStub(&stub_mqttcon);
-   	cleanStub(&stub_info_netwcon);
-	cleanStub(&stub_info1);
-	cleanStub(&stub_info2);
-
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
+	
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
 	atiny_free(device_info.u.d_info.nodeid);
+	
+}
+
+void TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info1()
+{
+	int ret;
+	mqtt_device_info_s device_info; 
+	mqtt_client_s handle;
+		   
+	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
+	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
+	device_info.connection_type=MQTT_MAX_CONNECTION_TYPE;
+	device_info.password=(char *)atiny_malloc(8);
+	strcpy(device_info.password,"abc");
+	device_info.u.s_info.deviceid="hdell";
+	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.nodeid,"nodeid");
+	 
+	handle.sub_topic=NULL;
+	handle.dynamic_info.save_info.deviceid=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.save_info.deviceid,"devid");
+	handle.dynamic_info.got_passward=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.got_passward,"abc");
+			   
+    handle.params.server_ip=(char *)atiny_malloc(16);
+    strcpy(handle.params.server_ip,"192.168.1.102");
+    handle.params.server_port=(char *)atiny_malloc(8);
+    strcpy(handle.params.server_port,"5683");
+    g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+		   
+		
+    handle.dynamic_info.connection_update_flag=1;
+	handle.device_info.password=(char *)atiny_malloc(8);
+    strcpy(handle.device_info.password,"abc");
+	handle.device_info.u.d_info.productid=(char *)atiny_malloc(8);
+    strcpy(handle.device_info.u.d_info.productid,"lgko");
+	handle.device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(handle.device_info.u.d_info.productid,"node");
+	
+	stubInfo stub_mulock;
+    stubInfo stub_muunlock;
+			   
+	setStub((void *)atiny_task_mutex_lock, (void *)stub_atiny_task_mutex_lock, &stub_mulock);
+	setStub((void *)atiny_task_mutex_unlock, (void *)stub_atiny_task_mutex_unlock, &stub_muunlock);
+		   
+		   
+		   
+	device_info.connection_type=MQTT_STATIC_CONNECT;
+    device_info.u.s_info.deviceid=NULL;
+	
+	atiny_mqtt_bind(&device_info, &handle);
+	
+		  
+	cleanStub(&stub_muunlock);
+	cleanStub(&stub_mulock);
+		   
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
+	
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.nodeid);
+	
+}
+
+void TestMQTT_Client::test_atiny_mqtt_dup_dev_check_info2()
+{
+    int ret;
+    mqtt_device_info_s device_info; 
+	mqtt_client_s handle;
+		   
+	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
+	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
+	device_info.connection_type=MQTT_MAX_CONNECTION_TYPE;
+	device_info.password=(char *)atiny_malloc(8);
+	strcpy(device_info.password,"abc");
+	device_info.u.s_info.deviceid="hdell";
+	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.nodeid,"nodeid");
+	 
+	handle.sub_topic=NULL;
+	handle.dynamic_info.save_info.deviceid=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.save_info.deviceid,"devid");
+    handle.dynamic_info.got_passward=(char *)atiny_malloc(8);
+	strcpy(handle.dynamic_info.got_passward,"abc");
+			   
+	handle.params.server_ip=(char *)atiny_malloc(16);
+    strcpy(handle.params.server_ip,"192.168.1.102");
+	handle.params.server_port=(char *)atiny_malloc(8);
+	strcpy(handle.params.server_port,"5683");
+    g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+		   
+		
+    handle.dynamic_info.connection_update_flag=1;
+    handle.device_info.password=(char *)atiny_malloc(8);
+    strcpy(handle.device_info.password,"abc");
+    handle.device_info.u.d_info.productid=(char *)atiny_malloc(8);
+    strcpy(handle.device_info.u.d_info.productid,"lgko");
+    handle.device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+    strcpy(handle.device_info.u.d_info.productid,"node");
+	
+    stubInfo stub_mulock;
+    stubInfo stub_muunlock;
+			   
+    setStub((void *)atiny_task_mutex_lock, (void *)stub_atiny_task_mutex_lock, &stub_mulock);
+    setStub((void *)atiny_task_mutex_unlock, (void *)stub_atiny_task_mutex_unlock, &stub_muunlock);
+		   
+		  
+    device_info.connection_type=MQTT_DYNAMIC_CONNECT;
+    device_info.u.d_info.productid=NULL;
+	
+    atiny_mqtt_bind(&device_info, &handle);
+		 
+    cleanStub(&stub_muunlock);
+    cleanStub(&stub_mulock);
+		   
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
+	
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.nodeid);
+	
 }
 
 void TestMQTT_Client::test_atiny_mqttconnect()
@@ -1411,24 +1442,43 @@ void TestMQTT_Client::test_atiny_mqttconnect()
 	cleanStub(&stub_info2);
 
 	atiny_free(handle.params.server_ip);
-	atiny_free(handle.sub_topic);
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
 	atiny_free(handle.params.server_port);
+	atiny_free(handle.device_info.u.s_info.deviceid);
 	atiny_free(handle.device_info.u.d_info.nodeid);
-	atiny_free(handle.device_info.u.d_info.productid);
 	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
 	
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
 	atiny_free(device_info.u.d_info.nodeid);
 }
 
-
 void TestMQTT_Client::test_atiny_cjsparse()
-{
-	int ret;
+{  
+    int ret;
 	mqtt_device_info_s device_info; 
 	mqtt_client_s handle;
+	mqtt_client_s *phandle=&handle;
 
+	pthread_t first_thread;
+	handle.params.server_ip=(char *)atiny_malloc(16);
+	strcpy(handle.params.server_ip,"192.168.1.102");
+	handle.params.server_port=(char *)atiny_malloc(8);
+	strcpy(handle.params.server_port,"5683");
+	handle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.params.cmd_ioctl=cmd_ioctl_exam;
+	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.sub_topic=(char *)atiny_malloc(8);
+	strcpy(handle.sub_topic,"abc");
+	handle.dynamic_info.connection_update_flag=1;
+	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
+
+	(*test_phandle).init_flag=0;
+	stubInfo stub_flashwr;
+	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
+	atiny_mqtt_init(&(handle.params),&test_phandle);
 	device_info.connection_type=MQTT_STATIC_CONNECT;
 	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
 	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
@@ -1438,55 +1488,63 @@ void TestMQTT_Client::test_atiny_cjsparse()
 	device_info.connection_type=MQTT_DYNAMIC_CONNECT;
 	device_info.u.d_info.productid=(char *)atiny_malloc(8);
 	strcpy(device_info.u.d_info.productid,"lgko");
-	
-	pthread_t first_thread;
 	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
 	strcpy(device_info.u.d_info.nodeid,"nodeid");
-	handle.params.server_ip=(char *)atiny_malloc(16);
-	strcpy(handle.params.server_ip,"192.168.1.102");
-	handle.params.server_port=(char *)atiny_malloc(8);
-	strcpy(handle.params.server_port,"5683");
-	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-	
 	struct atiny_mqtt_bind_t mqtt_bind_para;
 	mqtt_bind_para.device_info=&device_info;
-	mqtt_bind_para.handle=&handle;
-	handle.sub_topic=(char *)atiny_malloc(8);
-	strcpy(handle.sub_topic,"abc");
-	handle.dynamic_info.connection_update_flag=1;
-	
-	stubInfo stub_info;
+	mqtt_bind_para.handle=test_phandle;
+
+	stubInfo stub_hmac;
+    stubInfo stub_info;
 	stubInfo stub_info1;
 	stubInfo stub_info_netcon;
 	stubInfo stub_mqttcon;
 	stubInfo stub_mqttsub;
 	stubInfo stub_mqttyie;
-	
+		
+	setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc, &stub_hmac);
 	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
 	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
 	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe_fail, &stub_mqttsub);
 	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
-
-
+	
 	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
 	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
 	usleep(10000);
+	cleanStub(&stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe_dir, &stub_mqttsub);
 	usleep(10000);
-    pthread_cancel(first_thread);
-    pthread_join(first_thread, NULL);
+	pthread_cancel(first_thread);
+	pthread_join(first_thread, NULL);
+
+	atiny_free(test_phandle->sub_topic);
 	
-    cleanStub(&stub_mqttyie);
+	cleanStub(&stub_mqttyie);
     cleanStub(&stub_mqttsub);
     cleanStub(&stub_mqttcon);
     cleanStub(&stub_info_netcon);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
+	cleanStub(&stub_hmac);
 	
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
 	atiny_free(device_info.u.d_info.nodeid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.sub_topic);
+	atiny_free(handle.params.server_ip);
+		
+	atiny_free(test_phandle->params.server_ip);
+	atiny_free(test_phandle->params.server_port);
+	atiny_free(test_phandle->dynamic_info.got_passward);
+	atiny_free(test_phandle->dynamic_info.save_info.deviceid);
+    atiny_free(test_phandle->device_info.u.d_info.nodeid);
+	atiny_free(test_phandle->device_info.u.d_info.productid);
+	
+	atiny_free(test_phandle->device_info.password);
+	
 }
 
 void TestMQTT_Client::test_atiny_mqtt_recv_cmd_topic()
@@ -1550,12 +1608,15 @@ void TestMQTT_Client::test_atiny_mqtt_recv_cmd_topic()
 	cleanStub(&stub_info_netcon);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
-
+	
+	atiny_free(handle.sub_topic);
+	handle.sub_topic=NULL;
 	atiny_free(handle.params.server_ip);
 	atiny_free(handle.dynamic_info.got_passward);
 	atiny_free(handle.dynamic_info.save_info.deviceid);
 	atiny_free(handle.params.server_port);
-
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.password);
 
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
@@ -1581,6 +1642,7 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	strcpy(handle.sub_topic,"abc");
 	handle.dynamic_info.connection_update_flag=1;
 	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
+	
 	(*test_phandle).init_flag=0;
 	stubInfo stub_flashwr;
 	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
@@ -1619,7 +1681,7 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribeok, &stub_mqttsub);
 	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
 	setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
 	setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem, &stub_jsonitm);
@@ -1628,14 +1690,15 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
 	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
 	
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test1, (void *)&mqtt_bind_para);
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
 	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
 	usleep(10000);
-	//mqtt_bind_para.device_info=NULL;
-	//usleep(10000);
+	
 	pthread_cancel(first_thread);
 	pthread_join(first_thread, NULL); 
-//    mqtt_free_dynamic_info(test_phandle);
+
+	atiny_free(test_phandle->sub_topic);
+	
 	cleanStub(&stub_netdis);
    	cleanStub(&stub_mpwm);
     cleanStub(&stub_mbhc);
@@ -1658,9 +1721,6 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	atiny_free(handle.sub_topic);
 	atiny_free(handle.params.server_ip);
 	
-	atiny_free(test_phandle->sub_topic);
-	
-	#if 0
 	atiny_free(test_phandle->params.server_ip);
 	atiny_free(test_phandle->params.server_port);
 	atiny_free(test_phandle->dynamic_info.got_passward);
@@ -1669,13 +1729,13 @@ void TestMQTT_Client::test_atiny_mqtt_subscribe_topic()
 	atiny_free(test_phandle->device_info.u.d_info.productid);
 	
 	atiny_free(test_phandle->device_info.password);
-	#endif
+	
 	atiny_free(jsp1);
 	atiny_free(jsp2);
 	atiny_free(jsp3);
 }
 
-void TestMQTT_Client::test_atiny_mqtt_json_fail()
+void TestMQTT_Client::test_atiny_mqtt_subscribe_topic_fail()
 {
     int ret;
 	mqtt_device_info_s device_info; 
@@ -1696,6 +1756,119 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail()
 	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
 	
 	(*test_phandle).init_flag=0;
+	stubInfo stub_flashwr;
+	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
+	atiny_mqtt_init(&(handle.params),&test_phandle);
+	device_info.connection_type=MQTT_STATIC_CONNECT;
+	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
+	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
+	device_info.password=(char *)atiny_malloc(8);
+	strcpy(device_info.password,"abc");
+    device_info.u.s_info.deviceid="hdell";
+	device_info.connection_type=MQTT_DYNAMIC_CONNECT;
+	device_info.u.d_info.productid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.productid,"lgko");
+	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
+	strcpy(device_info.u.d_info.nodeid,"nodeid");
+	struct atiny_mqtt_bind_t mqtt_bind_para;
+	mqtt_bind_para.device_info=&device_info;
+	mqtt_bind_para.handle=test_phandle;
+
+	stubInfo stub_info;
+	stubInfo stub_info1;
+	stubInfo stub_mci;
+	stubInfo stub_info_netcon;
+	stubInfo stub_mqttcon;
+	stubInfo stub_mqttsub;
+	stubInfo stub_mqttyie;
+	stubInfo stub_jsonp;
+	stubInfo stub_jsonitm;
+	stubInfo stub_jsondel;
+	stubInfo stub_mbhc;
+	stubInfo stub_mpwm;
+	stubInfo stub_netdis;
+	
+	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
+	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
+	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
+	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
+	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribefaildir, &stub_mqttsub);
+	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
+	setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
+	setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem, &stub_jsonitm);
+	setStub((void *)cJSON_Delete, (void *)stub_cJSON_Delete, &stub_jsondel);
+	setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc, &stub_mbhc);
+	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
+	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
+	
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
+	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
+	usleep(10000);
+	cleanStub(&stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribeok, &stub_mqttsub);
+	
+	usleep(10000);
+	pthread_cancel(first_thread);
+	pthread_join(first_thread, NULL); 
+
+	atiny_free(test_phandle->sub_topic);
+	
+	cleanStub(&stub_netdis);
+   	cleanStub(&stub_mpwm);
+    cleanStub(&stub_mbhc);
+    cleanStub(&stub_flashwr);
+    cleanStub(&stub_jsondel);
+    cleanStub(&stub_jsonitm);
+    cleanStub(&stub_jsonp);
+    cleanStub(&stub_mqttyie);
+    cleanStub(&stub_mqttsub);
+    cleanStub(&stub_mqttcon);
+    cleanStub(&stub_info_netcon);
+	cleanStub(&stub_mci);
+	cleanStub(&stub_info1);
+	cleanStub(&stub_info);
+
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.productid);
+	atiny_free(device_info.u.d_info.nodeid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.sub_topic);
+	atiny_free(handle.params.server_ip);
+	
+	atiny_free(test_phandle->params.server_ip);
+	atiny_free(test_phandle->params.server_port);
+	atiny_free(test_phandle->dynamic_info.got_passward);
+	atiny_free(test_phandle->dynamic_info.save_info.deviceid);
+    atiny_free(test_phandle->device_info.u.d_info.nodeid);
+	atiny_free(test_phandle->device_info.u.d_info.productid);
+	
+	atiny_free(test_phandle->device_info.password);
+	
+}
+
+
+void TestMQTT_Client::test_atiny_mqtt_json_fail()
+{
+    int ret;
+	mqtt_device_info_s device_info; 
+	mqtt_client_s handle;
+	mqtt_client_s *phandle=&handle;
+
+	pthread_t first_thread;
+	handle.params.server_ip=(char *)atiny_malloc(16);
+	strcpy(handle.params.server_ip,"192.168.1.102");
+	handle.params.server_port=(char *)atiny_malloc(8);
+	strcpy(handle.params.server_port,"5683");
+	handle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.params.cmd_ioctl=cmd_ioctl_exam;
+	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
+	handle.sub_topic=(char *)atiny_malloc(8);
+	strcpy(handle.sub_topic,"abc");
+	handle.dynamic_info.connection_update_flag=1;
+	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
+
+	(*test_phandle).init_flag=0;
 	
 	stubInfo stub_flashwr;
 	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
@@ -1734,7 +1907,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail()
 	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribeok, &stub_mqttsub);
 	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
 	setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
 	setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem_fail, &stub_jsonitm);
@@ -1743,7 +1916,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail()
 	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
 	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
 	
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test1, (void *)&mqtt_bind_para);
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
 	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
 	usleep(10000);
 	usleep(10000);
@@ -1764,14 +1937,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail()
 	cleanStub(&stub_mci);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
-
-	atiny_free(device_info.password);
-	atiny_free(device_info.u.d_info.productid);
-	atiny_free(device_info.u.d_info.nodeid);
-	atiny_free(handle.params.server_port);
-	atiny_free(handle.sub_topic);
-	atiny_free(handle.params.server_ip);
-	#if 0
+	
 	atiny_free(test_phandle->sub_topic);
 	atiny_free(test_phandle->params.server_ip);
 	atiny_free(test_phandle->params.server_port);
@@ -1781,10 +1947,14 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail()
 	atiny_free(test_phandle->device_info.u.d_info.productid);
 	
 	atiny_free(test_phandle->device_info.password);
-	#endif
-	//atiny_free(jsp1);
-	//atiny_free(jsp2);
-	//atiny_free(jsp3);
+	
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.productid);
+	atiny_free(device_info.u.d_info.nodeid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.sub_topic);
+	atiny_free(handle.params.server_ip);
+	
 }
 
 void TestMQTT_Client::test_atiny_mqtt_json_fail2()
@@ -1806,7 +1976,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail2()
 	strcpy(handle.sub_topic,"abc");
 	handle.dynamic_info.connection_update_flag=1;
 	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
-	
+
 	(*test_phandle).init_flag=0;
 	
 	stubInfo stub_flashwr;
@@ -1846,7 +2016,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail2()
 	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribeok, &stub_mqttsub);
 	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
 	setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
 	setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem_fail2, &stub_jsonitm);
@@ -1855,7 +2025,7 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail2()
 	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
 	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
 	
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test1, (void *)&mqtt_bind_para);
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
 	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
 	usleep(10000);
 	usleep(10000);
@@ -1885,7 +2055,6 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail2()
 	atiny_free(handle.params.server_ip);
 	
 	atiny_free(test_phandle->sub_topic);
-	#if 0
 	atiny_free(test_phandle->params.server_ip);
 	atiny_free(test_phandle->params.server_port);
 	atiny_free(test_phandle->dynamic_info.got_passward);
@@ -1894,24 +2063,19 @@ void TestMQTT_Client::test_atiny_mqtt_json_fail2()
 	atiny_free(test_phandle->device_info.u.d_info.productid);
 	
 	atiny_free(test_phandle->device_info.password);
-	#endif
+
 	atiny_free(jsp1);
-	//atiny_free(jsp2);
-	//atiny_free(jsp3);
 }
 
-
-
-
-void TestMQTT_Client::test_atiny_mqtt_bind_add()
+void TestMQTT_Client::test_atiny_mqtt_json_fail3()
 {
+
     int ret;
 	mqtt_device_info_s device_info; 
 	mqtt_client_s handle;
 	mqtt_client_s *phandle=&handle;
 
 	pthread_t first_thread;
-
 	handle.params.server_ip=(char *)atiny_malloc(16);
 	strcpy(handle.params.server_ip,"192.168.1.102");
 	handle.params.server_port=(char *)atiny_malloc(8);
@@ -1923,13 +2087,12 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	strcpy(handle.sub_topic,"abc");
 	handle.dynamic_info.connection_update_flag=1;
 	handle.dynamic_info.state=MQTT_CONNECT_WITH_PRODUCT_ID;
-	
-	
 
+	(*test_phandle).init_flag=0;
 	
-	//stubInfo stub_flashwr;
-	//setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
-	//atiny_mqtt_init(&(handle.params),&test_phandle);
+	stubInfo stub_flashwr;
+	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
+	atiny_mqtt_init(&(handle.params),&test_phandle);
 	device_info.connection_type=MQTT_STATIC_CONNECT;
 	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
 	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
@@ -1941,10 +2104,9 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	strcpy(device_info.u.d_info.productid,"lgko");
 	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
 	strcpy(device_info.u.d_info.nodeid,"nodeid");
-
 	struct atiny_mqtt_bind_t mqtt_bind_para;
 	mqtt_bind_para.device_info=&device_info;
-	mqtt_bind_para.handle=&handle;
+	mqtt_bind_para.handle=test_phandle;
 
 	stubInfo stub_info;
 	stubInfo stub_info1;
@@ -1953,12 +2115,11 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	stubInfo stub_mqttcon;
 	stubInfo stub_mqttsub;
 	stubInfo stub_mqttyie;
-	//stubInfo stub_jsonp;
-	//stubInfo stub_jsonitm;
-	//stubInfo stub_jsondel;
+	stubInfo stub_jsonp;
+	stubInfo stub_jsonitm;
+	stubInfo stub_jsondel;
 	stubInfo stub_mbhc;
 	stubInfo stub_mpwm;
-	stubInfo stub_time;
 	stubInfo stub_netdis;
 	
 	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
@@ -1966,32 +2127,29 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
 	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
 	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe_dir, &stub_mqttsub);
-	setStub((void *)MQTTYield, (void *)stub_MQTTYield2, &stub_mqttyie);
-	//setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
-	//setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem, &stub_jsonitm);
-	//setStub((void *)cJSON_Delete, (void *)stub_cJSON_Delete, &stub_jsondel);
+	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribeok, &stub_mqttsub);
+	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
+	setStub((void *)cJSON_Parse, (void *)stub_cJSON_Parse, &stub_jsonp);
+	setStub((void *)cJSON_GetObjectItem, (void *)stub_cJSON_GetObjectItem_fail3, &stub_jsonitm);
+	setStub((void *)cJSON_Delete, (void *)stub_cJSON_Delete, &stub_jsondel);
 	setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc, &stub_mbhc);
 	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
-	setStub((void *)TimerIsExpired, (void *)stub_TimerIsExpired, &stub_time);
-	//char TimerIsExpired(Timer *timer)
 	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
 	
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test3, (void *)&mqtt_bind_para);
+	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
 	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
 	usleep(10000);
-	//usleep(10000);
+	usleep(10000);
 	pthread_cancel(first_thread);
 	pthread_join(first_thread, NULL); 
 	
 	cleanStub(&stub_netdis);
-	cleanStub(&stub_time);
    	cleanStub(&stub_mpwm);
     cleanStub(&stub_mbhc);
-   // cleanStub(&stub_flashwr);
-   // cleanStub(&stub_jsondel);
-    //cleanStub(&stub_jsonitm);
-   // cleanStub(&stub_jsonp);
+    cleanStub(&stub_flashwr);
+    cleanStub(&stub_jsondel);
+    cleanStub(&stub_jsonitm);
+    cleanStub(&stub_jsonp);
     cleanStub(&stub_mqttyie);
     cleanStub(&stub_mqttsub);
     cleanStub(&stub_mqttcon);
@@ -2006,7 +2164,7 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	atiny_free(handle.params.server_port);
 	atiny_free(handle.sub_topic);
 	atiny_free(handle.params.server_ip);
-	#if 0
+	
 	atiny_free(test_phandle->sub_topic);
 	atiny_free(test_phandle->params.server_ip);
 	atiny_free(test_phandle->params.server_port);
@@ -2014,16 +2172,15 @@ void TestMQTT_Client::test_atiny_mqtt_bind_add()
 	atiny_free(test_phandle->dynamic_info.save_info.deviceid);
     atiny_free(test_phandle->device_info.u.d_info.nodeid);
 	atiny_free(test_phandle->device_info.u.d_info.productid);
+	
 	atiny_free(test_phandle->device_info.password);
-	#endif
-	//atiny_free(jsp1);
-	//atiny_free(jsp2);
-	//atiny_free(jsp3);
+	
+	atiny_free(jsp1);
+	atiny_free(jsp2);
 }
 
 void TestMQTT_Client::test_mqtt_proc_connect_nack()
 {
-
     int ret;
 	mqtt_device_info_s device_info; 
 	mqtt_client_s handle;
@@ -2083,16 +2240,23 @@ void TestMQTT_Client::test_mqtt_proc_connect_nack()
     cleanStub(&stub_info_netcon);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
-	
+
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
+
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
 	atiny_free(device_info.u.d_info.nodeid);
 }
 
-
 void TestMQTT_Client::test_mqtt_proc_connect_nack1()
 {
-
     int ret;
 	mqtt_device_info_s device_info; 
 	mqtt_client_s handle;
@@ -2156,6 +2320,15 @@ void TestMQTT_Client::test_mqtt_proc_connect_nack1()
 	cleanStub(&stub_mci);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
+
+	atiny_free(handle.params.server_ip);
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
 	
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
@@ -2292,112 +2465,21 @@ void TestMQTT_Client::test_mqtt_networkconnect_fail()
 	cleanStub(&stub_info_netcon);
 	cleanStub(&stub_info1);
 	cleanStub(&stub_info);
-	
-	atiny_free(device_info.password);
-	atiny_free(device_info.u.d_info.productid);
-	atiny_free(device_info.u.d_info.nodeid);
-}
 
-void TestMQTT_Client::test_mqtt_cmd_ioctrlfail()
-{
-    int ret;
-	mqtt_device_info_s device_info; 
-	mqtt_client_s handle;
-	mqtt_client_s *phandle=&handle;
-	
-	pthread_t first_thread;
-	handle.params.server_ip=(char *)atiny_malloc(16);
-	strcpy(handle.params.server_ip,"192.168.1.102");
-	handle.params.server_port=(char *)atiny_malloc(8);
-	strcpy(handle.params.server_port,"5683");
-	handle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-	handle.params.cmd_ioctl=cmd_ioctl_exam;
-	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-	
-	handle.sub_topic=(char *)atiny_malloc(8);
-	strcpy(handle.sub_topic,"abc");
-	handle.dynamic_info.connection_update_flag=1;
-	handle.dynamic_info.state=MQTT_CONNECT_WITH_DEVICE_ID;
-	handle.device_info.connection_type=MQTT_STATIC_CONNECT;
-	
-	stubInfo stub_flashwr;
-	stubInfo stub_info;
-	stubInfo stub_info1;
-	stubInfo stub_mci;
-	stubInfo stub_info_netcon;
-	stubInfo stub_mqttcon;
-	stubInfo stub_mqttsub;
-	stubInfo stub_mqttyie;
-	stubInfo stub_mbhc;
-	stubInfo stub_mpwm;
-	stubInfo stub_netdis;
-	
-	setStub((void *)flash_manager_write, (void *)stub_flash_manager_write, &stub_flashwr);
-
-	atiny_mqtt_init(&(handle.params),&test_gphandle);
-	
-	device_info.connection_type=MQTT_STATIC_CONNECT;
-	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
-	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
-	device_info.password=(char *)atiny_malloc(8);
-	strcpy(device_info.password,"abc");
-    device_info.u.s_info.deviceid="hdell";
-	device_info.connection_type=MQTT_STATIC_CONNECT;
-	device_info.u.d_info.productid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.productid,"lgko");
-	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.nodeid,"nodeid");
-
-	struct atiny_mqtt_bind_t mqtt_bind_para;
-	mqtt_bind_para.device_info=&device_info;
-	mqtt_bind_para.handle=test_gphandle;
-
-	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
-	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
-	setStub((void *)MQTTClientInit, (void *)stub_MQTTClientInit, &stub_mci);
-	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
-	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe2, &stub_mqttsub);
-	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
-	setStub((void *)mbedtls_hmac_calc, (void *)stub_mbedtls_hmac_calc, &stub_mbhc);
-	setStub((void *)MQTTPublish, (void *)stub_MQTTPublish, &stub_mpwm);
-	setStub((void *)NetworkDisconnect,(void *)stub_NetworkDisconnect, &stub_netdis);
-
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test3, (void *)&mqtt_bind_para);
-	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
-	usleep(10000);
-	usleep(10000);
-	pthread_cancel(first_thread);
-	pthread_join(first_thread, NULL); 
-
-	cleanStub(&stub_netdis);
-   	cleanStub(&stub_mpwm);
-    cleanStub(&stub_mbhc);
-    cleanStub(&stub_mqttyie);
-    cleanStub(&stub_mqttsub);
-    cleanStub(&stub_mqttcon);
-    cleanStub(&stub_info_netcon);
-	cleanStub(&stub_mci);
-	cleanStub(&stub_info1);
-	cleanStub(&stub_info);
-	cleanStub(&stub_flashwr);
-
-	atiny_free(device_info.password);
-	atiny_free(device_info.u.d_info.productid);
-	atiny_free(device_info.u.d_info.nodeid);
-	atiny_free(handle.params.server_port);
-	atiny_free(handle.sub_topic);
 	atiny_free(handle.params.server_ip);
+	atiny_free(handle.dynamic_info.got_passward);
+	atiny_free(handle.dynamic_info.save_info.deviceid);
+	atiny_free(handle.params.server_port);
+	atiny_free(handle.device_info.u.s_info.deviceid);
+	atiny_free(handle.device_info.u.d_info.nodeid);
+	atiny_free(handle.device_info.password);
+	atiny_free(handle.sub_topic);
 	
-	atiny_free(test_gphandle->sub_topic);
-	atiny_free(test_gphandle->params.server_ip);
-	atiny_free(test_gphandle->params.server_port);
-	atiny_free(test_gphandle->dynamic_info.got_passward);
-	atiny_free(test_gphandle->dynamic_info.save_info.deviceid);
-	atiny_free(test_gphandle->device_info.u.d_info.nodeid);
-	atiny_free(test_gphandle->device_info.u.d_info.productid);
-	atiny_free(test_gphandle->device_info.password);
+	atiny_free(device_info.password);
+	atiny_free(device_info.u.d_info.productid);
+	atiny_free(device_info.u.d_info.nodeid);
 }
+
 
 void TestMQTT_Client::test_mqtt_dup_devinfo_fail()
 {
@@ -2542,88 +2624,6 @@ void TestMQTT_Client::test_mqtt_dup_devin_fail()
 	cleanStub(&stub_msmh);
 	cleanStub(&si_atiny_strdup);
 	   
-	atiny_free(device_info.password);
-	atiny_free(device_info.u.d_info.productid);
-	atiny_free(device_info.u.d_info.nodeid);
-}
-
-void TestMQTT_Client::test_atiny_mqtt_bind()
-{
-    int ret;
-	mqtt_device_info_s device_info; 
-	mqtt_client_s handle;
-
-	handle.sub_topic=(char *)atiny_malloc(8);
-	strcpy(handle.sub_topic,"abc");
-	stubInfo stub_msmh;
-	setStub((void *)MQTTSetMessageHandler, (void *)stub_MQTTSetMessageHandler, &stub_msmh);
-
-	ret=atiny_mqtt_bind(NULL,&handle);
-	TEST_ASSERT_MSG((ret == ATINY_ARG_INVALID), "atiny_mqtt_bind(...) failed");
-	cleanStub(&stub_msmh);
-
-	device_info.connection_type=MQTT_STATIC_CONNECT;
-	device_info.codec_mode=MQTT_CODEC_MODE_JASON;
-	device_info.sign_type=MQTT_SIGN_TYPE_HMACSHA256_CHECK_TIME;
-	device_info.password=NULL;
-	atiny_mqtt_bind(&device_info,&handle);
-
-	device_info.password=(char *)atiny_malloc(8);
-	strcpy(device_info.password,"abc");
-	device_info.u.s_info.deviceid=NULL;
-	atiny_mqtt_bind(&device_info,&handle);
-	
-    device_info.u.s_info.deviceid="hdell";
-	device_info.connection_type=MQTT_DYNAMIC_CONNECT;
-	device_info.u.d_info.productid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.productid,"lgko");
-	device_info.u.d_info.nodeid=NULL;
-	atiny_mqtt_bind(&device_info,&handle);
-
-	pthread_t first_thread;
-
-	device_info.u.d_info.nodeid=(char *)atiny_malloc(8);
-	strcpy(device_info.u.d_info.nodeid,"nodeid");
-	handle.params.server_ip=(char *)atiny_malloc(16);
-	strcpy(handle.params.server_ip,"192.168.1.102");
-	handle.params.server_port=(char *)atiny_malloc(8);
-	strcpy(handle.params.server_port,"5683");
-	g_mqtthandle.params.info.security_type=MQTT_SECURITY_TYPE_NONE;
-
-    struct atiny_mqtt_bind_t mqtt_bind_para;
-	mqtt_bind_para.device_info=&device_info;
-	mqtt_bind_para.handle=&handle;
-	
-	handle.dynamic_info.connection_update_flag=1;
-	
-	stubInfo stub_info;
-	stubInfo stub_info1;
-	stubInfo stub_info_netcon;
-	stubInfo stub_mqttcon;
-	stubInfo stub_mqttsub;
-	stubInfo stub_mqttyie;
-	
-	setStub((void *)flash_manager_read, (void *)stub_flash_manager_read, &stub_info);
-	setStub((void *)NetworkInit, (void *)stub_NetworkInit, &stub_info1);
-	setStub((void *)NetworkConnect, (void *)stub_NetworkConnect, &stub_info_netcon);
-	setStub((void *)MQTTConnect, (void *)stub_MQTTConnect, &stub_mqttcon);
-	setStub((void *)MQTTSubscribe, (void *)stub_MQTTSubscribe, &stub_mqttsub);
-	setStub((void *)MQTTYield, (void *)stub_MQTTYield, &stub_mqttyie);
-
-	ret = pthread_create(&first_thread, NULL, pthread_mqtt_test, (void *)&mqtt_bind_para);
-	TEST_ASSERT_MSG((0 == ret), "atiny_bind(...) failed");
-	usleep(10000);
-	usleep(10000);
-    pthread_cancel(first_thread);
-    pthread_join(first_thread, NULL); 
-	
-    cleanStub(&stub_mqttyie);
-    cleanStub(&stub_mqttsub);
-    cleanStub(&stub_mqttcon);
-    cleanStub(&stub_info_netcon);
-	cleanStub(&stub_info1);
-	cleanStub(&stub_info);
-
 	atiny_free(device_info.password);
 	atiny_free(device_info.u.d_info.productid);
 	atiny_free(device_info.u.d_info.nodeid);
