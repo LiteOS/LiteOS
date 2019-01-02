@@ -38,19 +38,23 @@
 #include "at_frame/at_api.h"
 #endif
 
-#define DEFAULT_SERVER_IPV4 "180.101.147.115" /*dianxin*/
+//#define DEFAULT_SERVER_IP "180.101.147.115" /*dianxin*/
+//#define DEFAULT_SERVER_IP "fe80::70d7:3d63:ca2d:ee52" /*local ipv6*/
+#define DEFAULT_SERVER_IP "192.168.1.104" /*local ipv4*/
+
 
 #define LWM2M_LIFE_TIME     50000
 
 char *g_endpoint_name = "44440003";
 #ifdef WITH_DTLS
 
-char *g_endpoint_name_s = "99990009";
-char *g_endpoint_name_iots = "99990009";
-char *g_endpoint_name_bs = "99990009";
-unsigned char g_psk_iot_value[] = {0x58,0xea,0xfd,0xab,0x2f,0x38,0x4d,0x39,0x80,0x69,0x4d,0x1c,0xda,0x69,0xb0,0x43}; //0x33 -> 0x32
-unsigned char g_psk_bs_value[] = {0x58,0xea,0xfd,0xab,0x2f,0x38,0x4d,0x39,0x80,0x69,0x4d,0x1c,0xda,0x69,0xb0,0x43};
+char *g_endpoint_name_s = "20181214";
+char *g_endpoint_name_iots = "20181214";
+char *g_endpoint_name_bs = "20181214";
+unsigned char g_psk_iot_value[] = {0x68,0xda,0x7a,0xea,0xf6,0x12,0xfd,0x95,0xbb,0xe0,0x91,0x5a,0x67,0xca,0x56,0xb3}; //0x33 -> 0x32
+unsigned char g_psk_bs_value[] = {0x68,0xda,0x7a,0xea,0xf6,0x12,0xfd,0x95,0xbb,0xe0,0x91,0x5a,0x67,0xca,0x56,0xb3};
 //unsigned char g_psk_value[16] = {0x58,0xea,0xfd,0xab,0x2f,0x38,0x4d,0x39,0x80,0x69,0x4d,0x1c,0xda,0x69,0xb0,0x43};
+
 
 #endif
 
@@ -145,8 +149,9 @@ void agent_tiny_entry(void)
     bs_security_param = &(atiny_params->security_params[1]);
 
 
-    iot_security_param->server_ip = DEFAULT_SERVER_IPV4;
-    bs_security_param->server_ip = DEFAULT_SERVER_IPV4;
+    iot_security_param->server_ip = DEFAULT_SERVER_IP;
+    bs_security_param->server_ip  = DEFAULT_SERVER_IP;
+
 
 #ifdef WITH_DTLS
     iot_security_param->server_port = "5684";
