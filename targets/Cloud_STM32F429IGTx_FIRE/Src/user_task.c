@@ -36,6 +36,7 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "ota_port.h"
 #endif
+#include "nb_iot/los_nb_api.h"
 #include "at_frame/at_api.h"
 #include "at_device/bc95.h"
 #ifdef WITH_MQTT
