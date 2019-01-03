@@ -42,8 +42,7 @@ int32_t at_usart_init(void);
 void at_usart_deinit(void);
 int read_resp(uint8_t *buf, recv_buff* recv_buf);
 void write_at_task_msg(at_msg_type_e type);
-//declear in device drivers
-extern at_config at_user_conf;
+
 
 #endif
 

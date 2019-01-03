@@ -78,7 +78,7 @@ void demo_nbiot_only(void)
         los_nb_report("22", 2);
         LOS_TaskDelay(60000);
     }
-    los_nb_report("23", 1);
+    //los_nb_report("23", 1);
 
 #else
     printf("Please checkout if open WITH_AT_FRAMEWORK and USE_NB_NEUL95_NO_ATINY\n");

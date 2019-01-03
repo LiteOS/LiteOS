@@ -25,12 +25,13 @@
 #include "../../components/ota/sota/sota_hal.h"
 #include "ota/package.h"
 #include "../../include/at_frame/at_main.h"
+#include "los_swtmr.h"
 
 #define VER_LEN  16
 #define DEVICE_VER "V0.0"
 
 
-static sota_opt_t * g_flash_op_t;
+static sota_arg_s * g_flash_op_t;
 
 
 
@@ -38,15 +39,17 @@ static sota_opt_t * g_flash_op_t;
 #define PCP_HEAD 0xFFFE
 #define BLOCK_HEAD 3
 
+
 extern int nb_send_str(const char* buf, int len);
 
 void * arg = NULL;
 
 extern int read_ver(char* buf, uint32_t len);
 extern int set_ver(const char* buf, uint32_t len);
+extern int sota_log(const char *fmt, ...);
 
 int sota_test_main(void);
 
-typedef void* (*t_sota_malloc)(uint32_t size);
+
 
 #endif

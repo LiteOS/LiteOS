@@ -42,7 +42,7 @@
 
 typedef enum
 {
-    APPICATION = 0,
+    APPLICATION = 0,
     BOOTLOADER = 1,
 } sota_run_mode_e;
 
@@ -69,15 +69,10 @@ typedef struct
     sota_run_mode_e  firmware_download_stage;
     sota_run_mode_e  current_run_stage;
     ota_opt_s ota_info;
-} sota_opt_t;
+} sota_arg_s;
 
-typedef struct
-{
-    int (*read_flash)(ota_flash_type_e type, void *buf, int32_t len, uint32_t location);
-    int (*write_flash)(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location);
-}sota_flag_opt_s;
 
-int32_t sota_init(const sota_opt_t* flash_op);
+int32_t sota_init(const sota_arg_s* sota_arg);
 int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int32_t out_len);
 int32_t sota_process(void *arg, const int8_t *buf, int32_t buf_len);
 void    sota_timeout_handler(void);

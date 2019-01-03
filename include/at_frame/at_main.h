@@ -49,14 +49,13 @@ extern "C" {
 
 
 /* MACRO DEFINE */
-#define AT_INTO
 #ifdef AT_INTO
 #define AT_LOG(fmt, arg...)  printf("[%lu][%s:%d][I]"fmt"\n", at_get_time(), __func__, __LINE__, ##arg)
 #else
-#define AT_LOG(fmt, arg...)
+static inline void __do_nothing(const char *fmt, ...) { (void)fmt; }
+#define AT_LOG(fmt, arg...)  __do_nothing(fmt, ##arg)
 #endif
 
-#define AT_DEBUG
 #ifdef AT_DEBUG
 #define AT_LOG_DEBUG(fmt, arg...)  printf("[%lu][%s:%d][D]"fmt"\n", at_get_time(), __func__, __LINE__, ##arg)
 #else
