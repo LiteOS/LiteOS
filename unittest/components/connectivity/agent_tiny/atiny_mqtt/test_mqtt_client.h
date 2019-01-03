@@ -56,7 +56,6 @@ public:
     TestMQTT_Client();
     ~TestMQTT_Client();
 
-
 	void test_atiny_mqtt_init(void);
 	void test_atiny_mqtt_deinit(void);
 	void test_atiny_mqtt_isconnected(void);
@@ -64,9 +63,12 @@ public:
 	void test_atiny_mqtt_data_send(void);
 	void test_atiny_mqtt_dup_dev_info(void);
 	void test_atiny_mqtt_subscribe_topic(void);
+	void test_atiny_mqtt_subscribe_topic_fail(void);
 	void test_atiny_mqtt_bind_add(void);
 	void test_atiny_mqtt_dup_devi_info(void);
 	void test_atiny_mqtt_dup_dev_check_info(void);
+	void test_atiny_mqtt_dup_dev_check_info1(void);
+	void test_atiny_mqtt_dup_dev_check_info2(void);
 	void test_atiny_mqtt_get_send_pw(void);
 	void test_atiny_mqttconnect(void);
 	void test_atiny_cjsparse(void);
@@ -82,6 +84,8 @@ public:
 	void test_atiny_mqtt_read_flash(void);
 	void test_atiny_mqtt_json_fail(void);
 	void test_atiny_mqtt_json_fail2(void);
+	void test_atiny_mqtt_json_fail3(void);
+	
 	
 	
 protected:

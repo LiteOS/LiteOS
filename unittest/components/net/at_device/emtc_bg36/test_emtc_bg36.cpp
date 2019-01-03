@@ -52,11 +52,8 @@ extern "C"
 	
 	extern at_adaptor_api emtc_bg36_interface;
 	extern at_oob_t at_oob;
-	//extern at_task at;//at_main.h
-    // in at adapter.c
     extern int32_t at_cmd(int8_t * cmd, int32_t len, const char * suffix, char * rep_buf);
     extern int32_t at_write(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
-    //extern int32_t at_get_unuse_linkid();
 	extern void at_init(at_config *config);
 	extern void at_deinit();
 	extern int32_t at_struct_init(at_task *at);
@@ -78,20 +75,7 @@ void stub_at_init(at_config *config)
 	//printf("from at_init to stub_at_init\n");
 	return;
 }
-/*
-//int sscanf (const char *str,const char * format,........);     
-//Specify return value and modify CREG value
-int stub_sscanf(const char * inbuf,const char * BBB,int* creg,char* )
-{
-	static int s=-1;
-	//if(s++==-1)return -1;
-	*creg=s;
-	printf("stub_sscanf creg==%d\n",s);
-	//while(1);
-	return s++;
-}*/
 
-//(void)bg36_cmd(QUERYCFATT, strlen(QUERYCFATT), "+CGATT", inbuf,&rbuflen);
 //change inbuf
 int stub_bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
 {
@@ -102,9 +86,7 @@ int stub_bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, in
 			//1 single order
 			//2 single order
 			//3 single order
-	
 			//4 Rough Walk Through the Cycle
-				
 	if(a==5)//5 error instruction // Want to enter ret=-1 branch
 	{
 		char test[]="\r\n+CGATT: 0\r\nKshine";
@@ -118,7 +100,6 @@ int stub_bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, in
 		//printf("stub_bg36_cmd:%d change inbuf\n",a);
 		//a=100;
 		sockinfo[0].buf=(char*)at_malloc(10*sizeof(char));//in close ,enter a branch to free space 
-	
 	}
 	
 	if(a==33) //5+28
@@ -131,8 +112,6 @@ int stub_bg36_cmd(char *cmd, int32_t len, const char *suffix, char *resp_buf, in
 	{
 		return AT_FAILED;//Enter a branch
 	}
-
-	
 	return 0;
 }
 
@@ -182,7 +161,6 @@ int stub_bg36_cmd_qq(char *cmd, int32_t len, const char *suffix, char *resp_buf,
 		return AT_OK;
 	}
 	
-	
 	if(qq==9)
 	{
 		//"AT+QIOPEN=1,id,\"TCP\",\"host\",port,0,1\r+QIOPEN: 0,0,tmpbuf"
@@ -190,14 +168,17 @@ int stub_bg36_cmd_qq(char *cmd, int32_t len, const char *suffix, char *resp_buf,
 		return AT_OK;
 	}
 	
-	
-	
-	
 	return AT_OK;
-	
-	
 }
 
+//used to pass bind and get socket id
+int stub_bg36_cmd_conid3(char *cmd, int32_t len, const char *suffix, char *resp_buf, int* resp_len)
+{
+	//conid = 3
+	//err   = 0 
+	memset(resp_buf,0,64);strcpy(resp_buf,"0,1\r+QIOPEN: 3,0,tmpbuf");
+	return AT_OK;
+}
 
 //LOS_QueueReadCopy(at.linkid[id].qid, &qbuf, &qlen, 0);
 LITE_OS_SEC_TEXT UINT32 stub_LOS_QueueReadCopy(UINT32  uwQueueID,
@@ -205,23 +186,7 @@ LITE_OS_SEC_TEXT UINT32 stub_LOS_QueueReadCopy(UINT32  uwQueueID,
                     UINT32 * puwBufferSize,
                     UINT32  uwTimeOut)
 {
-	//qbuf.addr != NULL ,QUEUE_BUFF  qbuf = {0};
-	/*
-	typedef struct {
-    uint32_t len;
-    uint8_t *addr;
-    char ipaddr[MAXIPLEN];
-    int port;
-	}QUEUE_BUFF;
-	
-
-int *p;
-p = (int*)malloc(sizeof(int) * 128);
-	*/
-	
 	static int ll=0;
-
-	
 	if(ll==0)
 	{
 		ll++;
@@ -235,8 +200,6 @@ p = (int*)malloc(sizeof(int) * 128);
 		//stpcpy(ADDR,"192.168.111.111");
 		qbuf->addr=ADDR;
 	}
-	
-		
 		return LOS_OK;
 	}
 	else
@@ -278,8 +241,11 @@ UINT32 stub_LOS_QueueDelete(UINT32 uwQueueID)
 
 int32_t stub_at_get_11(void)
 {
-	
 	return 11;
+}
+int32_t stub_at_getid3(void)
+{
+	return 3;
 }
 
 LITE_OS_SEC_TEXT_INIT UINT32 stub_LOS_QueueCreate(CHAR *pcQueueName,
@@ -305,21 +271,16 @@ UINT32 stub_LOS_QueueWriteCopy( UINT32 uwQueueID,VOID * pBufferAddr,
 
 
 /* Public functions ---------------------------------------------------------*/
-
-// Because there is a conditional dead loop (jump-out conditions are hard to give), stop the thread after passing the thread test and delaying for a moment (to cover the branch)
-	void * pthread_bg36_init(void *para)
+void * pthread_bg36_init(void *para)
 	{
 		stubInfo stub_info;
 		setStub((void *)at_init, (void *)stub_at_init, &stub_info);
 		emtc_bg36_interface.init();
 		cleanStub(&stub_info);
 	}
-
-
+	
 Test_EMTC_BG36::Test_EMTC_BG36()
 {
-
-	
 	TEST_ADD(Test_EMTC_BG36::test_bg36_init);
 	TEST_ADD(Test_EMTC_BG36::test_bg36_bind);
 	TEST_ADD(Test_EMTC_BG36::test_bg36_connect);
@@ -327,177 +288,191 @@ Test_EMTC_BG36::Test_EMTC_BG36()
 	TEST_ADD(Test_EMTC_BG36::test_bg36_recv);
 	TEST_ADD(Test_EMTC_BG36::test_bg36_data_handler);
 	TEST_ADD(Test_EMTC_BG36::test_bg36_cmd_match);
-	
-	
 }
 
 Test_EMTC_BG36::~Test_EMTC_BG36()
 {
 	//at_struct_deinit(&at);
 }
-
-
 void Test_EMTC_BG36::test_bg36_init()
 {
 	at_struct_init(&at);
-#if 0
-//There is a conditional dead loop, using thread testing
-	int ret;
-	pthread_t first_thread;
-	ret = pthread_create(&first_thread, NULL, pthread_bg36_init, NULL);
-	TEST_ASSERT_MSG((0 == ret), "bg36_init(...) failed");
-	usleep(6000);//Let the function run for a while
-    pthread_cancel(first_thread);//Stop thread
-    pthread_join(first_thread, NULL);//Waiting for the end of a thread
-#else
-	//printf("test_bg36_init start\n");
+
+	int ret=0;
 	stubInfo stub_info;
 	stubInfo stub_qrc;
 	stubInfo stub_cmd;
 	stubInfo stub_qd;
+	
 	setStub((void *)at_init, (void *)stub_at_init, &stub_info);
-	//setStub((void *)sscanf, (void *)stub_sscanf, &stub_scan);
 	setStub((void *)bg36_cmd, (void *)stub_bg36_cmd, &stub_cmd);
 	setStub((void *)LOS_QueueReadCopy, (void *)stub_LOS_QueueReadCopy, &stub_qrc);//return LOS_OK
 	setStub((void *)LOS_QueueDelete, (void *)stub_LOS_QueueDelete,&stub_qd);
 	//1
-
-	emtc_bg36_interface.init();
+	ret=emtc_bg36_interface.init();
+	TEST_ASSERT_MSG((ret==AT_OK), "emtc_bg36_interface.init() failed");
 	
 	cleanStub(&stub_info);
 	cleanStub(&stub_qrc);
 	cleanStub(&stub_cmd);
 	cleanStub(&stub_qd);
-	
-	printf("[success]test_bg36_init is ok\n\n");
-	//usleep(6000);
-	
-#endif
-	
+
 }
 
 void Test_EMTC_BG36::test_bg36_bind()
 {
-	//printf("test_bg36_bind start\n");
+	int ret=0;
 	const char ipaddr[]="192.168.1.1";
 	const char port[]="8181";
-	emtc_bg36_interface.bind((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	printf("[success]test_bg36_bind is ok\n\n");
+	
+	
+	//1.at.mux_mode = AT_MUXMODE_SINGLE
+	at.mux_mode = AT_MUXMODE_SINGLE;
+	ret=emtc_bg36_interface.bind((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.bind() failed");
+	//2.at.mux_mode = AT_MUXMODE_MULTI;
+	at.mux_mode = AT_MUXMODE_MULTI;
+	ret=emtc_bg36_interface.bind((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.bind() failed");
+	//3.at.mux_mode = AT_MUXMODE_MULTI;
+	stubInfo stub_id;
+	stubInfo stub_cmd;
+	setStub((void *)at_get_unuse_linkid, (void *)stub_at_getid3, &stub_id);	//at.get_id return 3
+	setStub((void *)bg36_cmd, (void *)stub_bg36_cmd_conid3, &stub_cmd);		//con id 3
+	ret=emtc_bg36_interface.bind((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==3), "emtc_bg36_interface.bind() failed");			//here it should return id=3 
+	cleanStub(&stub_id);
+	cleanStub(&stub_cmd);
 }
 
 
 void Test_EMTC_BG36::test_bg36_connect()
 {
-	//int32_t bg36_connect(const int8_t * host, const int8_t *port, int32_t proto)
 	const char ipaddr[]="192.168.1.1";
 	const char port[]="8282";
-	//1
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	//2
+	int ret=0;
 	at.mux_mode = AT_MUXMODE_MULTI;
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	//3 at.get_id()
+	
+	//1 --------------------------------------------------------------------------------
 	stubInfo stub_id;
-	setStub((void *)at_get_unuse_linkid, (void *)stub_at_get_11, &stub_id);
-	at.mux_mode = AT_MUXMODE_MULTI;
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	setStub((void *)at_get_unuse_linkid, (void *)stub_at_get_11, &stub_id);//return id 11  to enter a branch
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.connect() failed");//11 is not a vaild id ,so return failed
 	cleanStub(&stub_id);
-	//4
+	
+	//2 --------------------------------------------------------------------------------
 	stubInfo stub_cmd;
-	setStub((void *)bg36_cmd, (void *)stub_bg36_cmd_qq, &stub_cmd);//change inbuf
+	setStub((void *)bg36_cmd, (void *)stub_bg36_cmd_qq, &stub_cmd);//change inbuf and enter into different branches
 	at.mux_mode = AT_MUXMODE_MULTI;//id=0
 	
+	//at.getid() 0; cmd id =0 ;//id == conid //err=0//true  ++
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==0), "emtc_bg36_interface.connect() failed");	
 	
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	//at.getid() 0; cmd id =1 ;//id != conid//err=0 //false -+
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.connect() failed");
+	
+	//id == conid,but err =1  //false +-
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.connect() failed");
+	
+	//id != conid,but err =1  //false --
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.connect() failed");
+	
+	//id == conid //err=0//true  ++   and  LOS_QueueCreate return LOS_NOK
 	stubInfo stub_lqc;
 	setStub((void *)LOS_QueueCreate, (void *)stub_LOS_QueueCreate, &stub_lqc);
-	emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	ret=emtc_bg36_interface.connect((const int8_t *)ipaddr, (const int8_t *)port, 1);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.connect() failed");
 	cleanStub(&stub_lqc);
+	
 	cleanStub(&stub_cmd);
-	printf("[success]test_bg36_connect is ok\n\n");
 }
 
 void Test_EMTC_BG36::test_bg36_send()
 {
-	//int32_t bg36_send(int32_t id , const uint8_t *buf, uint32_t len)
+	int ret=0;
 	char buf[]="test_bg36_send test";
-	//1
-	emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
+	//1 pass
+	ret=emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==strlen(buf)), "emtc_bg36_interface.send() failed 1");
+	//2 id < 0 
+	ret=emtc_bg36_interface.send(-1,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.send() failed 2");
+	//3 id >= MAX_BG36_SOCK_NUM
+	ret=emtc_bg36_interface.send(11,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.send() failed 3");
+	//4  len >= MAX_SEND_DATA_LEN
+	ret=emtc_bg36_interface.send(1,(uint8_t*)buf,1401);
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.send() failed 4");
 	
-	//2
-	emtc_bg36_interface.send(-1,(uint8_t*)buf,strlen(buf));
-	//3
-	emtc_bg36_interface.send(11,(uint8_t*)buf,strlen(buf));
-	//4
-	emtc_bg36_interface.send(1,(uint8_t*)buf,1401);
 	//5 stub_bg36_cmd_return_1
 	stubInfo stub_cmd;
 	setStub((void *)bg36_cmd, (void *)stub_bg36_cmd_return_1, &stub_cmd);
-	emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
-	emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
+	//bg36_cmd return 1 when call it (1) then exit from here
+	ret=emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.send() failed 5");
+	//bg36_cmd return 1 when call it (1+2=3) then exit from here
+	ret=emtc_bg36_interface.send(1,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.send() failed 6");
+
 	cleanStub(&stub_cmd);
-	
-	
-	
-	
-	
-	printf("[success]test_bg36_send is ok\n\n");
 }
 
 void Test_EMTC_BG36::test_bg36_recv()
 {
-	//First, sockinfo has been defined
-	/*
-	typedef struct emtc_socket_info_t
-	{
-		int len;
-		int offset;
-		char *buf;
-		bool used_flag;
-	}emtc_socket_info;
-	emtc_socket_info sockinfo[11];//here define it
-	*/
+
 	char buf[]="test_bg36_recv test";
 	sockinfo[1].len=strlen(buf);
 	sockinfo[1].offset=0;
-	//1 if (id  >= MAX_BG36_SOCK_NUM) not in
-	printf("[1]");emtc_bg36_interface.recv(1,(uint8_t*)buf,strlen(buf));
+	int ret=0;
+	//1 if (id  >= MAX_BG36_SOCK_NUM) not in 
+	//if(sockinfo[id].len - sockinfo[id].offset > len)  in   return len
+	ret=emtc_bg36_interface.recv(1,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==19), "emtc_bg36_interface.recv() failed 1");//len ==19
+	
 	//2 if (id  >= MAX_BG36_SOCK_NUM) in
-	printf("[2]");emtc_bg36_interface.recv(11,(uint8_t*)buf,strlen(buf));
+	ret=emtc_bg36_interface.recv(11,(uint8_t*)buf,strlen(buf));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "emtc_bg36_interface.recv() failed 2");
+
 	//3 if (sockinfo[id].buf == NULL) not in  and  if (ret != LOS_OK) in
 	stubInfo stub_qrc;
 	setStub((void *)LOS_QueueReadCopy, (void *)stub_LOS_QueueReadCopy_return_False, &stub_qrc);//return LOS_NOK
 	//if (sockinfo[1].buf != NULL)at_free(sockinfo[1].buf);
-	 sockinfo[1].buf=NULL;
-	printf("[3]");emtc_bg36_interface.recv(1,(uint8_t*)buf,strlen(buf));
+	sockinfo[1].buf=NULL;
+	ret=emtc_bg36_interface.recv(1,(uint8_t*)buf,strlen(buf));//return timeout
+	TEST_ASSERT_MSG((ret==AT_TIMEOUT), "emtc_bg36_interface.recv() failed 3");
 	cleanStub(&stub_qrc);
-	//4 -------------------------------------------------
+	
+	//4 else in and while in and LOS_OK and len-rlen < qbuf.len
+	//return 19
 	char buf2[64]="test_bg36_recv test";
 	sockinfo[1].buf = (char*)at_malloc(strlen(buf2)*sizeof(char));
 	memset(sockinfo[1].buf,0,strlen(buf2));
 	memcpy(sockinfo[1].buf,buf2,strlen(buf2));
 	sockinfo[1].len=strlen(buf2);//strlen(sockinfo[1].buf);//
 	sockinfo[1].offset=1;
-	printf("[4]");emtc_bg36_interface.recv(1,(uint8_t*)buf2,strlen(buf2));
+	ret=emtc_bg36_interface.recv(1,(uint8_t*)buf2,strlen(buf2));
+	TEST_ASSERT_MSG((ret==19), "emtc_bg36_interface.recv() failed 4");
 	
-	
-	//5------------------------------------------------
-	//if(sockinfo[1].buf==NULL)
+	//5 else in and while in and LOS_NOK
+	//return rlen = copylen = sockinfo[id].len - sockinfo[id].offset;
 	sockinfo[1].buf = (char*)at_malloc(strlen(buf2)*sizeof(char));
 	memset(sockinfo[1].buf,0,strlen(buf2));
 	memcpy(sockinfo[1].buf,buf2,strlen(buf2));
 	sockinfo[1].len=strlen(buf2);//strlen(sockinfo[1].buf);//
 	sockinfo[1].offset=1;
 	setStub((void *)LOS_QueueReadCopy, (void *)stub_LOS_QueueReadCopy_return_False, &stub_qrc);//return LOS_NOK
-	printf("[5]");emtc_bg36_interface.recv(1,(uint8_t*)buf2,strlen(buf2));
+	ret=emtc_bg36_interface.recv(1,(uint8_t*)buf2,strlen(buf2));
+	TEST_ASSERT_MSG((ret==18), "emtc_bg36_interface.recv() failed 5");
 	cleanStub(&stub_qrc);
 	
-	//6-------------------------------------------------
-	//if(sockinfo[1].buf==NULL)
-	char buf3[64]="test is good !";
+	//6 else in and while in and LOS_OK and else in
+	//rlen += qbuf.len; 
+	//rlen = sockinfo[id].len - sockinfo[id].offset + qbuf.len = 14 -2 + 2 =14
+	char buf3[64]="test is good !";//14
 	sockinfo[1].buf = (char*)at_malloc(strlen(buf3)*sizeof(char));
 	memset(sockinfo[1].buf,0,strlen(buf3));
 	memcpy(sockinfo[1].buf,buf3,strlen(buf3));
@@ -505,70 +480,77 @@ void Test_EMTC_BG36::test_bg36_recv()
 	sockinfo[1].offset=2;
 	
 	setStub((void *)LOS_QueueReadCopy, (void *)stub_LOS_QueueReadCopy_return_OK, &stub_qrc);
-	printf("[6]");emtc_bg36_interface.recv(1,(uint8_t*)buf3,strlen(buf3));
+	ret=emtc_bg36_interface.recv(1,(uint8_t*)buf3,strlen(buf3));
+	TEST_ASSERT_MSG((ret==14), "emtc_bg36_interface.recv() failed 6");
 	cleanStub(&stub_qrc);
-	printf("buf3 = %s",buf3);
-	printf("[success]test_bg36_recv is ok\n\n");
+	printf("buf3 = %s",buf3);//"st is good !AB"
+
 }
 
 
 void Test_EMTC_BG36::test_bg36_data_handler()
 {
-	//int32_t bg36_data_handler(void *arg, int8_t *buf, int32_t len)
-	/*
-	arg unused
-	*/
-
 	char sss[64]="";
-	
+	int ret =0;
+	//1 
 	memset(sss,0,64);stpcpy(sss,"");		//while(offset < len) not in
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_OK), "bg36_data_handler() failed 1");
 	
 	memset(sss,0,64);stpcpy(sss,"ABCD");	// while(offset < len) in
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
-	
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_OK), "bg36_data_handler() failed 2");
 	//if(sockid >= MAX_BG36_SOCK_NUM || sockinfo[sockid].used_flag == false)
 
 	//++
 	memset(sss,0,64);stpcpy(sss,"recv01234567");	// while(offset < len ) in,pass “recv”,
 	sockinfo[1].used_flag = false;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 3");
 	//+-
 	memset(sss,0,64);stpcpy(sss,"recv01234567");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 4");
 	//-+
 	memset(sss,0,64);stpcpy(sss,"recv0121");
 	sockinfo[1].used_flag = false;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 5");
 	//--
 	memset(sss,0,64);stpcpy(sss,"recv0121");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 6");
 	
 	// 0< data_len <= AT_DATA_LEN*2  //have \r\n
 	memset(sss,0,64);stpcpy(sss,"recv0121,14\r\n");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_OK), "bg36_data_handler() failed 7");
 	// data_len > AT_DATA_LEN*2
 	memset(sss,0,64);stpcpy(sss,"recv0121,2400");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 8");
 	//  data_len <=0
 	memset(sss,0,64);stpcpy(sss,"recv0121,0");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 9");
 	//do not have \r\n 
 	memset(sss,0,64);stpcpy(sss,"recv0121,14");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_FAILED), "bg36_data_handler() failed 10");
 	
 	//qbuf.addr == NULL
 	stubInfo stub_malloc;
 	setStub((void*)at_malloc,(void*)stub_at_malloc_return_NULL,&stub_malloc);
 	memset(sss,0,64);stpcpy(sss,"recv0121,14");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_OK), "bg36_data_handler() failed 11");
 	cleanStub(&stub_malloc);
 	
 	//stub_LOS_QueueWriteCopy
@@ -576,7 +558,8 @@ void Test_EMTC_BG36::test_bg36_data_handler()
 	setStub((void*)LOS_QueueWriteCopy,(void*)stub_LOS_QueueWriteCopy,&stub_lqwc);
 	memset(sss,0,64);stpcpy(sss,"recv0121,14\r\n");
 	sockinfo[1].used_flag = true;
-	bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	ret=bg36_data_handler((void*)NULL,(int8_t*)sss,(int32_t)strlen(sss));
+	TEST_ASSERT_MSG((ret==AT_OK), "bg36_data_handler() failed 1");
 	cleanStub(&stub_lqwc);
 }
 	
@@ -584,8 +567,12 @@ void Test_EMTC_BG36::test_bg36_data_handler()
 void Test_EMTC_BG36::test_bg36_cmd_match()
 {
 	char featurestr[]="bcd";
-	bg36_cmd_match("abcdefg",featurestr,0);
-	bg36_cmd_match("1234567",featurestr,0);	
+	int ret=0;
+	ret=bg36_cmd_match("abcdefg",featurestr,0);
+	TEST_ASSERT_MSG((ret==0), "bg36_data_handler() failed 1");
+	
+	ret=bg36_cmd_match("1234567",featurestr,0);	
+	TEST_ASSERT_MSG((ret==-1), "bg36_data_handler() failed 1");
 }
 	
 /* Private functions --------------------------------------------------------*/
