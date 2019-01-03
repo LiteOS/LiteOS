@@ -81,7 +81,7 @@ int32_t sim900a_connect(const int8_t *host, const int8_t *port, int32_t proto)
     at.cmd((int8_t *)cmd4, strlen(cmd4), "OK", NULL,NULL);
     char cmd5[64] = {0};
 
-    AT_LOG("host:%s, port:%s", host, port);
+    AT_LOG_DEBUG("host:%s, port:%s", host, port);
 
     if (AT_MUXMODE_SINGLE == at.mux_mode)
     {
@@ -248,6 +248,12 @@ int32_t sim900a_data_handler(void *arg, int8_t *buf, int32_t len)
             data_len = (data_len * 10 + (*p2 - '0'));
         }
         p2++; //over ':'
+
+        if (data_len > len)
+        {
+            AT_LOG("error !! receive data not complete data_len:%ld len:%ld",data_len,len);
+            goto END;
+        }
 
         qbuf.addr = at_malloc(data_len);
         if (NULL == qbuf.addr)

@@ -81,9 +81,15 @@
 #include "lwip/def.h"
 #include "lwip/mem.h"
 #include "lwip/timeouts.h"
+#if LWIP_IPV4 && LWIP_IPV6
+#elif LWIP_IPV6
+#include "lwip/ethip6.h"
+#else
 #include "netif/etharp.h"
+#endif
 #include "ethernetif.h"
 #include <string.h>
+#include "lwip/tcpip.h"
 
 
 /* Define those to better describe your network interface. */
@@ -95,8 +101,11 @@ static struct netif *s_pxNetIf = NULL;
 static struct ethernet_api s_eth_api;
 
 //void ethernetif_input( void * pvParameters );
+#if LWIP_IPV4 && LWIP_IPV6
+#elif LWIP_IPV6
+#else
 static void arp_timer(void *arg);
-
+#endif
 int8_t ethernetif_api_register(struct ethernet_api *api)
 {
     if(api == NULL)
@@ -198,9 +207,11 @@ void ethernetif_input( void *pvParameters )
         {
             return;
         }
-
-        err = s_pxNetIf->input(p, s_pxNetIf);
-
+        /*netif_add func now use tcpip_input, sys_init.c
+        netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);
+        */
+        /*err = s_pxNetIf->input(p, s_pxNetIf);*/
+        err = tcpip_input(p, s_pxNetIf);
         if (err != ERR_OK)
         {
             LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
@@ -234,24 +245,35 @@ err_t ethernetif_init(struct netif *netif)
 
     netif->name[0] = IFNAME0;
     netif->name[1] = IFNAME1;
-
+#if LWIP_IPV4 && LWIP_IPV6
+#elif LWIP_IPV6
+    netif->output_ip6 = ethip6_output;
+#else
     netif->output = etharp_output;
+#endif
+
     netif->linkoutput = low_level_output;
 
 
     /* initialize the hardware */
     low_level_init(netif);
-
+#if LWIP_IPV4 && LWIP_IPV6
+#elif LWIP_IPV6
+#else
     etharp_init();
     sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
+#endif
 
     return ERR_OK;
 }
 
-
+#if LWIP_IPV4 && LWIP_IPV6
+#elif LWIP_IPV6
+#else
 static void arp_timer(void *arg)
 {
     etharp_tmr();
     sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
 }
+#endif
 

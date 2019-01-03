@@ -285,13 +285,11 @@
 /  included somewhere in the scope of ff.h. */
 
 
-#define FF_PHYS_ADDR    0x080D0000
-//#define FF_PHYS_ADDR 0x08080000
+#define FF_PHYS_ADDR    0
 /* Physical offset(in bytes) in spi flash used for FatFs
 /  Must be on 4k boundary */
 
-#define FF_PHYS_SIZE    0x20000
-//#define FF_PHYS_SIZE 0x40000
+#define FF_PHYS_SIZE    0x100000
 /* Physical size(in bytes) of the spi flash used for FatFs
 /  Must be on 4k boundary */
 

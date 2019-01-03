@@ -134,7 +134,6 @@ void at_listner_list_del(at_listener *p)
 void at_listner_list_destroy(at_task *at_tsk)
 {
     at_listener *head;
-
     while(at_tsk->head != NULL)
     {
         head = at_tsk->head;
@@ -533,16 +532,13 @@ void at_recv_task()
         memset(tmp, 0, at_user_conf.user_buf_len);
         recv_len = read_resp(tmp, &recv_buf);
 
-        
-
-        //int32_t data_len = 0;
-        AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
-
         if (recv_len <= 0)
         {
             AT_LOG("err, recv_len = %ld", recv_len);
             continue;
         }
+
+        AT_LOG_DEBUG("recv len = %lu buf = %s ", recv_len, tmp);
 
         ret = cloud_cmd_matching((int8_t *)tmp, recv_len);
         if(ret > 0)
@@ -815,7 +811,7 @@ int32_t at_init(at_config *config)
     
     memcpy(&at_user_conf,config,sizeof(at_config));
     
-    AT_LOG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
+    AT_LOG_DEBUG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
     //LOS_TaskDelay(200);
     if (AT_OK != at_struct_init(&at))

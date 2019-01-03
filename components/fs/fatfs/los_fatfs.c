@@ -328,6 +328,9 @@ static ssize_t fatfs_op_read (struct file *file, char *buff, size_t bytes)
     FRESULT res;
     FIL     *fp = (FIL *)file->f_data;
 
+    if (buff == NULL || bytes == 0)
+        return -EINVAL;
+
     POINTER_ASSERT(fp);
     res = f_read (fp, buff, bytes, (UINT *)&size);
     if(res != FR_OK)
@@ -343,6 +346,9 @@ static ssize_t fatfs_op_write (struct file *file, const char *buff, size_t bytes
     ssize_t  size = 0;
     FRESULT  res;
     FIL     *fp = (FIL *)file->f_data;
+
+    if (buff == NULL || bytes == 0)
+        return -EINVAL;
 
     POINTER_ASSERT(fp);
     res = f_write (fp, buff, bytes, (UINT *)&size);

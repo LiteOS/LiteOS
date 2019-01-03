@@ -61,7 +61,7 @@ int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk)
     at.init(&at_user_conf);
 
     nb_reboot();
-    LOS_TaskDelay(2000);
+    //LOS_TaskDelay(2000);
     if(psk != NULL)//encryption v1.9
     {
         if(psk->setpsk)

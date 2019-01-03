@@ -35,14 +35,21 @@
 #include "sys_init.h"
 
 #ifdef WITH_LWIP
-
 struct netif gnetif;
-ip4_addr_t ipaddr;
-ip4_addr_t netmask;
-ip4_addr_t gw;
 uint8_t IP_ADDRESS[4];
 uint8_t NETMASK_ADDRESS[4];
 uint8_t GATEWAY_ADDRESS[4];
+
+#if LWIP_IPV4 && LWIP_IPV6
+ip_addr_t  ipaddr;
+ip_addr_t  netmask;
+ip_addr_t  gw;
+#elif LWIP_IPV6
+#else
+ip4_addr_t ipaddr;
+ip4_addr_t netmask;
+ip4_addr_t gw;
+#endif
 
 static void lwip_impl_register(void)
 {
@@ -56,7 +63,7 @@ void net_init(void)
     /* IP addresses initialization */
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
-    IP_ADDRESS[2] = 0;
+    IP_ADDRESS[2] = 1;
     IP_ADDRESS[3] = 115;
     NETMASK_ADDRESS[0] = 255;
     NETMASK_ADDRESS[1] = 255;
@@ -64,22 +71,47 @@ void net_init(void)
     NETMASK_ADDRESS[3] = 0;
     GATEWAY_ADDRESS[0] = 192;
     GATEWAY_ADDRESS[1] = 168;
-    GATEWAY_ADDRESS[2] = 0;
+    GATEWAY_ADDRESS[2] = 1;
     GATEWAY_ADDRESS[3] = 1;
+
+#if LWIP_IPV4 && LWIP_IPV6
+    IP_ADDR4(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
+    IP_ADDR4(&netmask,NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
+    IP_ADDR4(&gw,     GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+#elif LWIP_IPV6
+    //IP_ADDR6(&ipaddr,);
+#else 
+    /* IP addresses initialization without DHCP (IPv4) */
+    IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
+    IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
+    IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+#endif
 
     lwip_impl_register();
 
     /* Initilialize the LwIP stack without RTOS */
     tcpip_init(NULL, NULL);
     printf("lwip test init ok.\n");
-    /* IP addresses initialization without DHCP (IPv4) */
-    IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
-    IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
-    IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
+    
 
     (void)ethernetif_api_register(&g_eth_api);/*×¢²áÌØ¶¨Íø¿¨µÄAPI*/
     /* add the network interface (IPv4/IPv6) without RTOS */
-    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);//lint !e546
+#if LWIP_IPV4 && LWIP_IPV6
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
+#elif LWIP_IPV6
+    ip6_addr_t ip6;
+    if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee62", &ip6) <= 0)
+    {
+        printf("set source ip6 failed \n");
+    }
+    printf("after set source ip6 \n");
+    
+    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);//lint !e546
+    netif_ip6_addr_set(&gnetif, 0, &ip6);
+    netif_ip6_addr_set_state(&gnetif, 0, IP6_ADDR_PREFERRED);
+#else
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
+#endif
 
     /* Registers the default network interface */
     netif_set_default(&gnetif);
