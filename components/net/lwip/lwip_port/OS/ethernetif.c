@@ -207,7 +207,10 @@ void ethernetif_input( void *pvParameters )
         {
             return;
         }
-
+        /*netif_add func now use tcpip_input, sys_init.c
+        netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);
+        */
+        /*err = s_pxNetIf->input(p, s_pxNetIf);*/
         err = tcpip_input(p, s_pxNetIf);
         if (err != ERR_OK)
         {

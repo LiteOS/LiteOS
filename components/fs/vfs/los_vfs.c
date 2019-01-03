@@ -1172,6 +1172,8 @@ int los_vfs_init (void)
 }
 
 
+#ifndef WITH_LINUX
+
 #define MAP_TO_POSIX_RET(ret)   ( (ret) < 0 ? -1 : (ret) )
 
 int open (const char *path, int flags,...)
@@ -1250,4 +1252,5 @@ int mkdir (const char *path, int mode)
     return MAP_TO_POSIX_RET(ret);
 }
 
+#endif
 #endif

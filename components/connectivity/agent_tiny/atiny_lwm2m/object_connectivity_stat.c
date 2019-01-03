@@ -276,6 +276,7 @@ lwm2m_object_t *get_object_conn_s(void)
         }
         else
         {
+            lwm2m_free(connObj->instanceList);
             lwm2m_free(connObj);
             connObj = NULL;
         }

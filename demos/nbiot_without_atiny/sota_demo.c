@@ -121,7 +121,7 @@ int sota_log(const char *fmt, ...)
 
 void nb_sota_demo(void)
 {
-	sota_arg_s flash_op =
+    sota_arg_s flash_op =
     {
        .get_ver = read_ver,
        .sota_send = nb_send_str,

@@ -52,6 +52,9 @@
  *
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
+#ifndef DTLS_INTERFACE_H
+#define DTLS_INTERFACE_H
+
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "los_mbedtls_config.h"
@@ -72,6 +75,11 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #ifndef TLS_SHAKEHAND_TIMEOUT
 #define TLS_SHAKEHAND_TIMEOUT 1000
@@ -142,4 +150,8 @@ int dtls_accept( mbedtls_net_context *bind_ctx,
                             mbedtls_net_context *client_ctx,
                             void *client_ip, size_t buf_size, size_t *ip_len );
 
+#ifdef __cplusplus
+}
+#endif
 
+#endif
