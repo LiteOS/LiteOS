@@ -82,12 +82,24 @@ extern "C" {
 /*=============================================================================
                                         Hardware interrupt module configuration
 =============================================================================*/
-
+/* default LiteOS ram size level
+    RAM_SIZE_LEVEL_0 means kernel ram < 8k  ,
+    RAM_SIZE_LEVEL_1 means kernel ram < 16k,
+    RAM_SIZE_LEVEL_2 means means kernel ram>=32k
+*/
 /**
  * @ingroup los_config
  * Configuration item for hardware interrupt tailoring
  */
-#define LOSCFG_PLATFORM_HWI                                 YES
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_PLATFORM_HWI                             YES
+#elif defined(RAM_SIZE_LEVEL_1)
+#define LOSCFG_PLATFORM_HWI                             YES
+#elif defined(RAM_SIZE_LEVEL_2)
+#define LOSCFG_PLATFORM_HWI                             YES
+#else
+#define LOSCFG_PLATFORM_HWI                             YES
+#endif
 
 /**
  * @ingroup los_config
@@ -110,25 +122,49 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of tasks except the idle task rather than the number of usable tasks
  */
-#define LOSCFG_BASE_CORE_TSK_LIMIT                          15              // max num task
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      4              // max num task
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      7              // max num task
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      15              // max num task
+#else
+#define LOSCFG_BASE_CORE_TSK_LIMIT                      15              // max num task
+#endif
 
 /**
  * @ingroup los_config
  * Size of the idle task stack
  */
-#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE                (0x500U)        // IDLE task stack
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x2D0)     // IDLE task stack
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x300)     // IDLE task stack
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x500)     // IDLE task stack
+#else
+#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE            SIZE(0x500)     // IDLE task stack
+#endif
 
 /**
  * @ingroup los_config
  * Default task stack size
  */
-#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x2D0U)        // default stack
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x200)     // default stack
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
+#else
+#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE         SIZE(0x2D0)     // default stack
+#endif
 
 /**
  * @ingroup los_config
  * Minimum stack size.
  */
-#define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x130U)
+#define LOS_TASK_MIN_STACK_SIZE                         (ALIGN(0x130, 16))
 
 /**
  * @ingroup los_config
@@ -146,7 +182,7 @@ extern "C" {
  * @ingroup los_config
  * Configuration item for task (stack) monitoring module tailoring
  */
-#define LOSCFG_BASE_CORE_TSK_MONITOR                        YES
+#define LOSCFG_BASE_CORE_TSK_MONITOR                        NO
 
 /**
  * @ingroup los_config
@@ -187,7 +223,11 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of semaphores
  */
-#define LOSCFG_BASE_IPC_SEM_LIMIT                           20              // the max sem-numb
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_SEM_LIMIT                       5              // the max sem-numb
+#else
+#define LOSCFG_BASE_IPC_SEM_LIMIT                       10              // the max sem-numb
+#endif
 
 
 /*=============================================================================
@@ -204,7 +244,11 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of mutexes
  */
-#define LOSCFG_BASE_IPC_MUX_LIMIT                           15              // the max mutex-num
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_MUX_LIMIT                       5              // the max mutex-num
+#else
+#define LOSCFG_BASE_IPC_MUX_LIMIT                       15              // the max mutex-num
+#endif
 
 
 /*=============================================================================
@@ -221,7 +265,15 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of queues rather than the number of usable queues
  */
-#define LOSCFG_BASE_IPC_QUEUE_LIMIT                         10              //the max queue-numb
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     5              //the max queue-numb
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     7              //the max queue-numb
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     10              //the max queue-numb
+#else
+#define LOSCFG_BASE_IPC_QUEUE_LIMIT                     10              //the max queue-numb
+#endif
 
 
 /*=============================================================================
@@ -248,7 +300,15 @@ extern "C" {
  * @ingroup los_config
  * Maximum supported number of software timers rather than the number of usable software timers
  */
-#define LOSCFG_BASE_CORE_SWTMR_LIMIT                        16             // the max SWTMR numb
+#if defined (RAM_SIZE_LEVEL_0)
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    4                   // the max SWTMR numb
+#elif defined (RAM_SIZE_LEVEL_1)
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    7                   // the max SWTMR numb
+#elif defined (RAM_SIZE_LEVEL_2)
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16                  // the max SWTMR numb
+#else
+#define LOSCFG_BASE_CORE_SWTMR_LIMIT                    16                  // the max SWTMR numb
+#endif
 
 /**
  * @ingroup los_config
@@ -295,6 +355,15 @@ extern UINT32 g_sys_mem_addr_end;
  * Memory size
  */
 #define OS_SYS_MEM_SIZE                                     ((UINT32)(__LOS_HEAP_ADDR_END__ - __LOS_HEAP_ADDR_START__ + 1))
+//#if defined (RAM_SIZE_LEVEL_0)
+//#define OS_SYS_MEM_SIZE                                     0x00002650          // 1A00
+//#elif defined (RAM_SIZE_LEVEL_1)
+//#define OS_SYS_MEM_SIZE                                     0x00002800          // size
+//#elif defined (RAM_SIZE_LEVEL_2)
+//#define OS_SYS_MEM_SIZE                                     0x00007400          // size
+//#else
+//#define OS_SYS_MEM_SIZE                                     0x00008000          // size
+//#endif
 
 /**
  * @ingroup los_config

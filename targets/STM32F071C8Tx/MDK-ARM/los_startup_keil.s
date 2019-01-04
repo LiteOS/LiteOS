@@ -56,6 +56,7 @@ __LOS_HEAP_ADDR_END__
 
                 IMPORT  ||Image$$ARM_LIB_STACKHEAP$$ZI$$Limit||
                 IMPORT  osPendSV
+				IMPORT  osTickHandler;SysTick_Handler
 
                 EXPORT  _BootVectors
                 EXPORT  Reset_Handler
@@ -63,6 +64,20 @@ __LOS_HEAP_ADDR_END__
 _BootVectors
                 DCD     ||Image$$ARM_LIB_STACKHEAP$$ZI$$Limit||
                 DCD     Reset_Handler
+				DCD     0               ; NMI Handler
+				DCD     0               ; Hard Fault Handler
+				DCD     0               ; MPU Fault Handler
+				DCD     0               ; Bus Fault Handler
+				DCD     0               ; Usage Fault Handler
+				DCD     0               ; Reserved
+				DCD     0               ; Reserved
+				DCD     0               ; Reserved
+				DCD     0               ; Reserved
+				DCD     0               ; SVCall Handler
+				DCD     0               ; Debug Monitor Handler
+				DCD     0               ; Reserved
+				DCD     osPendSV  ; PendSV Handler
+				DCD     osTickHandler ; SysTick_Handler
 
 
 Reset_Handler

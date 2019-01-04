@@ -95,7 +95,7 @@ typedef UINT32 HWI_HANDLE_T;
  * @ingroup los_hwi
  * Define the type of a hardware interrupt priority.
  */
-typedef UINT16 HWI_PRIOR_T;
+typedef INT16 HWI_PRIOR_T;
 
 /**
  * @ingroup los_hwi

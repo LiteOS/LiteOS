@@ -187,7 +187,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -335,9 +335,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>LOS_KERNEL_DEBUG_OUT,STM32F071xB</Define>
+              <Define>LOS_KERNEL_DEBUG_OUT,STM32F071xB,RAM_SIZE_LEVEL_0</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\kernel\base\include;..\..\..\kernel\include;..\OS_CONFIG;..\Inc;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\extended\include;..\..\..\examples\include;C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\Include</IncludePath>
+              <IncludePath>..\..\..\kernel\base\include;..\..\..\kernel\include;..\OS_CONFIG;..\Inc;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\extended\include;..\..\..\examples\include;C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.3.0\CMSIS\Include;..\Drivers\StdPeriph_Driver\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -604,9 +604,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers</GroupName>
-        </Group>
-        <Group>
           <GroupName>Src</GroupName>
           <Files>
             <File>
@@ -618,6 +615,16 @@
               <FileName>system_stm32f0xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\system_stm32f0xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_printf_entry.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\los_printf_entry.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -648,6 +655,26 @@
               <FileName>los_hwi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\arch\arm\arm-m\src\los_hwi.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers\StdPeriph_Driver\Src</GroupName>
+          <Files>
+            <File>
+              <FileName>stm32f0xx_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\StdPeriph_Driver\Src\stm32f0xx_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\StdPeriph_Driver\Src\stm32f0xx_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f0xx_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\StdPeriph_Driver\Src\stm32f0xx_usart.c</FilePath>
             </File>
           </Files>
         </Group>
