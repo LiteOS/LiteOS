@@ -97,3 +97,9 @@ int lwm2m_rand(void *output, size_t len)
 {
     return atiny_random(output, len);
 }
+
+void lwm2m_delay(uint32_t second)
+{
+    atiny_delay(second);
+}
+

@@ -39,7 +39,7 @@
 #endif
 
 //#define DEFAULT_SERVER_IP "180.101.147.115" /*dianxin*/
-//#define DEFAULT_SERVER_IP "fe80::70d7:3d63:ca2d:ee52" /*local ipv6*/
+//#define DEFAULT_SERVER_IP "2000::1"
 #define DEFAULT_SERVER_IP "192.168.1.104" /*local ipv4*/
 
 

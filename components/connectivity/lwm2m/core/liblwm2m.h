@@ -147,6 +147,9 @@ time_t lwm2m_gettime(void);
 //get len of random bytes in output.
 int lwm2m_rand(void *output, size_t len);
 
+//delay sometime
+void lwm2m_delay(uint32_t second);
+
 //#define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
@@ -712,8 +715,7 @@ typedef enum
     STATE_REGISTER_REQUIRED,
     STATE_REGISTERING,
     STATE_READY,
-    STATE_DELAY, // use to delay the retry  register and bootstrap
-    STATE_NON = STATE_DELAY
+    STATE_NON = STATE_READY
 } lwm2m_client_state_t;
 
 typedef enum

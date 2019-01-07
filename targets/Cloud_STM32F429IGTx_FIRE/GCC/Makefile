@@ -477,6 +477,17 @@ ifeq ($(WITH_MQTT), yes)
 C_DEFS += -DWITH_MQTT
 endif
 
+ifeq ($(WITH_IPV4), no)
+C_DEFS += -DLWIP_IPV4=0
+else
+C_DEFS += -DLWIP_IPV4=1
+endif
+
+ifeq ($(WITH_IPV6), yes)
+C_DEFS += -DLWIP_IPV6=1
+else
+C_DEFS += -DLWIP_IPV6=0
+endif
 
 # AS includes
 AS_INCLUDES =
