@@ -676,9 +676,9 @@ int32_t at_struct_init(at_task *at)
 
     //        atiny_free(at->linkid);
 malloc_linkid_failed:
-    at_free(at->userdata);
-malloc_saveddata_buf:
     at_free(at->saveddata);
+malloc_saveddata_buf:
+    at_free(at->userdata);
 malloc_userdata_buf:
     at_free(at->cmdresp);
 malloc_resp_buf:

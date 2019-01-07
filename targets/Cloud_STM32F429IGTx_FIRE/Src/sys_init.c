@@ -97,7 +97,7 @@ void net_init(void)
     (void)ethernetif_api_register(&g_eth_api);/*×¢²áÌØ¶¨Íø¿¨µÄAPI*/
     /* add the network interface (IPv4/IPv6) without RTOS */
 #if LWIP_IPV4 && LWIP_IPV6
-    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);//lint !e546
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #elif LWIP_IPV6
     ip6_addr_t ip6;
     if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee62", &ip6) <= 0)
@@ -106,11 +106,11 @@ void net_init(void)
     }
     printf("after set source ip6 \n");
     
-    (void)netif_add(&gnetif, NULL, &ethernetif_init, &ethernet_input);//lint !e546
+    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);//lint !e546
     netif_ip6_addr_set(&gnetif, 0, &ip6);
     netif_ip6_addr_set_state(&gnetif, 0, IP6_ADDR_PREFERRED);
 #else
-    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);//lint !e546
+    (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #endif
 
     /* Registers the default network interface */

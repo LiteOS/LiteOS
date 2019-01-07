@@ -45,6 +45,7 @@ typedef enum
 {
     FLAG_BOOTLOADER = 0,
     FLAG_APP,
+    FLAG_INVALID,
 } flag_type_e;
 
 typedef struct
