@@ -83,12 +83,11 @@ static inline void inc_connection_stat(connection_t *connection, connection_err_
 }
 
 
-int connection_parse_host_ip(security_instance_t *targetP, char **parsed_host, char **parsed_port)
+int connection_parse_host_ip(char *uri, char **parsed_host, char **parsed_port)
 {
     char *host;
     char *port;
     char *defaultport;
-    char *uri = targetP->uri;
     if (uri == NULL)
     {
         ATINY_LOG(LOG_INFO, "uri is NULL!!!");
@@ -233,20 +232,29 @@ connection_t *connection_create(connection_t *connList,
     char *host;
     char *port;
     security_instance_t *targetP;
+    char *uri = NULL;
+    connection_t * ret = NULL;
 
     ATINY_LOG(LOG_INFO, "now come into connection_create!!!");
 
     targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj->instanceList, instanceId);
-    if (NULL == targetP)
+    if (NULL == targetP || targetP->uri == NULL)
     {
         return NULL;
     }
 
+
     if (LWM2M_IS_CLIENT == client_or_server)
     {
-        if (connection_parse_host_ip(targetP, &host, &port) != COAP_NO_ERROR)
+        uri = atiny_strdup(targetP->uri);
+        if (uri == NULL)
         {
-            return NULL;
+            ATINY_LOG(LOG_INFO, "atiny_strdup null!!!");
+            goto fail;
+        }
+        if (connection_parse_host_ip(uri, &host, &port) != COAP_NO_ERROR)
+        {
+            goto fail;
         }
     }
     else
@@ -259,7 +267,7 @@ connection_t *connection_create(connection_t *connList,
     if (connP == NULL)
     {
         ATINY_LOG(LOG_INFO, "connP is NULL!!!");
-        return NULL;
+         goto fail;
     }
 
     memset(connP, 0, sizeof(connection_t));
@@ -309,12 +317,18 @@ connection_t *connection_create(connection_t *connList,
     connP->lwm2mH = lwm2mH;
     connP->bootstrap_flag = targetP->isBootstrap;
 
-    return connP;
-
+    ret = connP;
 fail:
-    lwm2m_free(connP);
-    return NULL;
+    if (uri)
+    {
+        lwm2m_free(uri);
+    }
+    if (ret == NULL && connP)
+    {
+        lwm2m_free(connP);
+    }
 
+    return ret;
 }
 
 void connection_free(connection_t *connP)

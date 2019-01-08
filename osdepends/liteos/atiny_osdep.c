@@ -133,6 +133,11 @@ char *atiny_strdup(const char *ch)
     return copy;
 }
 
+void atiny_delay(uint32_t second)
+{
+    (void)LOS_TaskDelay(second * LOSCFG_BASE_CORE_TICK_PER_SECOND);
+}
+
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
 void *atiny_mutex_create(void)
