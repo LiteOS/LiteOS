@@ -267,6 +267,22 @@ void atiny_mutex_unlock(void* mutex);
  */
 void atiny_reboot(void);
 
+/**
+ *@ingroup atiny_adapter
+ *@brief task delay.
+ *
+ *@par Description:
+ *This API is used to delay some seconds.
+ *@attention none.
+ *
+ *@param second          [IN] the specified second.
+ *
+ *@retval none.
+ *@par Dependency: none.
+ *@see none.
+ */
+void atiny_delay(uint32_t second);
+
 #if (LOSCFG_BASE_IPC_MUX == YES)
 typedef struct atiny_task_mutex_tag_s
 {

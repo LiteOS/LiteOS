@@ -99,16 +99,27 @@ void net_init(void)
 #if LWIP_IPV4 && LWIP_IPV6
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #elif LWIP_IPV6
-    ip6_addr_t ip6;
-    if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee62", &ip6) <= 0)
+
+    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);
+    netif_create_ip6_linklocal_address(&gnetif, 1);
     {
-        printf("set source ip6 failed \n");
+        ip6_addr_t ip6;
+        err_t ret;
+        s8_t idx;
+        
+        if (inet_pton(AF_INET6, "2000::2", &ip6) <= 0)
+        {
+            printf("set source ip6 failed \n");
+        }
+        printf("after set source ip6 \n");
+        netif_ip6_addr_set(&gnetif, 0, &ip6);
+
+        ret = netif_add_ip6_address(&gnetif, &ip6, &idx);
+        if (ret != 0)
+        {
+            printf("netif_add_ip6_address failed,ret %d\n", ret);
+        }
     }
-    printf("after set source ip6 \n");
-    
-    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);//lint !e546
-    netif_ip6_addr_set(&gnetif, 0, &ip6);
-    netif_ip6_addr_set_state(&gnetif, 0, IP6_ADDR_PREFERRED);
 #else
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #endif

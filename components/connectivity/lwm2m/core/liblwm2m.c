@@ -294,7 +294,7 @@ void lwm2m_initBsCtrlStat(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bs_t
 {
     memset(&contextP->bsCtrl, 0, sizeof(contextP->bsCtrl));
     contextP->bsCtrl.bsType = bs_type;
-    contextP->bsCtrl.state = STATE_NON;
+    contextP->bsCtrl.state = STATE_INITIAL;
 }
 
 static void lwm2m_setBsCtrlStatWithoutCheck(lwm2m_context_t *contextP, lwm2m_client_state_t state)
@@ -382,58 +382,38 @@ END:
 
 }
 
-lwm2m_client_state_t lwm2m_getBsCtrlStat(const lwm2m_context_t *contextP)
+static void lwm2m_delayBsRetry(lwm2m_context_t *contextP)
 {
-    return contextP->bsCtrl.state;
-}
-
-bool lwm2m_delayBs(lwm2m_context_t *contextP, time_t *timeoutP)
-{
-    time_t current = lwm2m_gettime();
     uint32_t delayBase;
     uint32_t delayInterval;
-    uint32_t cnt;
+    uint32_t cnt = contextP->bsCtrl.cnt;
+    uint32_t expireTime;
 
-    if (!contextP->bsCtrl.startFlag)
+    if (contextP->bsCtrl.state == STATE_REGISTER_REQUIRED)
     {
-        contextP->bsCtrl.startFlag = true;
-
-        cnt = contextP->bsCtrl.cnt;
-
-        if (contextP->bsCtrl.state == STATE_REGISTER_REQUIRED)
-        {
-            delayBase = FACTORY_BS_DELAY_BASE;
-            delayInterval = FACTORY_BS_DELAY_INTERVAL;
-        }
-        else
-        {
-            delayBase = CLIENT_INITIATED_BS_DELAY_BASE;
-            delayInterval = CLIENT_INITIATED_BS_DELAY_INTERVAL;
-            if ((contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (cnt > 0))
-            {
-                cnt--;
-            }
-        }
-
-        contextP->bsCtrl.expireTime = current + delayBase + delayInterval * cnt;
-
-    }
-
-    if(current >= contextP->bsCtrl.expireTime)
-    {
-        contextP->bsCtrl.startFlag = false;
+        delayBase = FACTORY_BS_DELAY_BASE;
+        delayInterval = FACTORY_BS_DELAY_INTERVAL;
     }
     else
     {
-
-        time_t timeout = contextP->bsCtrl.expireTime - current;
-        if (timeout <= *timeoutP)
+        delayBase = CLIENT_INITIATED_BS_DELAY_BASE;
+        delayInterval = CLIENT_INITIATED_BS_DELAY_INTERVAL;
+        if ((contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (cnt > 0))
         {
-            *timeoutP = timeout;
+            cnt--;
         }
     }
 
-    return !contextP->bsCtrl.startFlag;
+    expireTime = delayBase + delayInterval * cnt;
+    if (expireTime > 0)
+    {
+        lwm2m_delay(expireTime);
+    }
+}
+
+lwm2m_client_state_t lwm2m_getBsCtrlStat(const lwm2m_context_t *contextP)
+{
+    return contextP->bsCtrl.state;
 }
 
 
@@ -643,18 +623,9 @@ int lwm2m_initBootStrap(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bsType
 #define SET_BS_LATER(contextP, newState) \
 do{\
     lwm2m_setBsCtrlStat(contextP, newState);\
-    contextP->state = STATE_DELAY;\
+    contextP->state = lwm2m_getBsCtrlStat(contextP);\
+    lwm2m_delayBsRetry(contextP);\
 }while(0)
-
-#define DELAY_BS(contextP, timeoutP)\
-   {\
-       if (!lwm2m_delayBs(contextP, timeoutP))\
-       {\
-            break;\
-       }\
-       contextP->state = lwm2m_getBsCtrlStat(contextP);\
-       goto next_step;\
-   }
 
 int lwm2m_step(lwm2m_context_t *contextP,
                time_t *timeoutP)
@@ -715,7 +686,7 @@ next_step:
         {
         case STATE_BS_FINISHED:
             contextP->state = STATE_INITIAL;
-            lwm2m_setBsCtrlStat(contextP, STATE_NON);
+            lwm2m_setBsCtrlStat(contextP, STATE_INITIAL);
             goto next_step;
             break;
 
@@ -750,7 +721,7 @@ next_step:
         case STATE_REGISTERED:
             contextP->state = STATE_READY;
             lwm2m_notify_even(MODULE_LWM2M, STATE_REGISTERED, NULL, 0);
-            lwm2m_setBsCtrlStat(contextP, STATE_NON);
+            lwm2m_setBsCtrlStat(contextP, STATE_INITIAL);
             break;
 
         case STATE_REG_FAILED:
@@ -781,9 +752,6 @@ next_step:
             //            break;
         }
         break;
-
-   case STATE_DELAY:
-        DELAY_BS(contextP, timeoutP);
 
     default:
         // do nothing
