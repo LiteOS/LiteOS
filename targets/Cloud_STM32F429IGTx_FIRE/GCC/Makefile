@@ -525,6 +525,10 @@ CMSIS_INC = \
 		-I $(TOP_DIR)/arch/arm/arm-m/include \
         -I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(CMSIS_INC)
+
+LITEOS_CMSIS = \
+        -I $(TOP_DIR)/osdepends/liteos/cmsis
+        C_INCLUDES += $(LITEOS_CMSIS)
 		
 ifeq ($(USE_BOOTLOADER), no)	
 OS_CONFIG_INC = \

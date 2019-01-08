@@ -31,7 +31,7 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-#include "osdepends/liteos/cmsis_os.h"
+#include "cmsis_os.h"
 #include "los_typedef.h"
 #include "los_printf.h"
 

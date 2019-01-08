@@ -35,7 +35,7 @@
 #include "los_config.h"
 
 #if (CMSIS_OS_VER == 1)
-#include "osdepends/liteos/cmsis_os1.h"
+#include "1.0/cmsis_os1.h"
 #elif (CMSIS_OS_VER == 2)
-#include "osdepends/liteos/cmsis_os2.h"
+#include "2.0/cmsis_os2.h"
 #endif
