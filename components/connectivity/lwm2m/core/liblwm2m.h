@@ -714,8 +714,7 @@ typedef enum
     STATE_BOOTSTRAPPING,
     STATE_REGISTER_REQUIRED,
     STATE_REGISTERING,
-    STATE_READY,
-    STATE_NON = STATE_READY
+    STATE_READY
 } lwm2m_client_state_t;
 
 typedef enum

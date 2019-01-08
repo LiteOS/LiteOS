@@ -294,7 +294,7 @@ void lwm2m_initBsCtrlStat(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bs_t
 {
     memset(&contextP->bsCtrl, 0, sizeof(contextP->bsCtrl));
     contextP->bsCtrl.bsType = bs_type;
-    contextP->bsCtrl.state = STATE_NON;
+    contextP->bsCtrl.state = STATE_INITIAL;
 }
 
 static void lwm2m_setBsCtrlStatWithoutCheck(lwm2m_context_t *contextP, lwm2m_client_state_t state)
@@ -686,7 +686,7 @@ next_step:
         {
         case STATE_BS_FINISHED:
             contextP->state = STATE_INITIAL;
-            lwm2m_setBsCtrlStat(contextP, STATE_NON);
+            lwm2m_setBsCtrlStat(contextP, STATE_INITIAL);
             goto next_step;
             break;
 
@@ -721,7 +721,7 @@ next_step:
         case STATE_REGISTERED:
             contextP->state = STATE_READY;
             lwm2m_notify_even(MODULE_LWM2M, STATE_REGISTERED, NULL, 0);
-            lwm2m_setBsCtrlStat(contextP, STATE_NON);
+            lwm2m_setBsCtrlStat(contextP, STATE_INITIAL);
             break;
 
         case STATE_REG_FAILED:
