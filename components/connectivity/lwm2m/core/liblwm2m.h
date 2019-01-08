@@ -753,8 +753,6 @@ typedef struct
     lwm2m_bootstrap_type_e bsType;
     lwm2m_client_state_t state;
     uint32_t cnt;
-    uint32_t expireTime;
-    bool startFlag;
 }lwm2m_bs_control_t;
 #endif
 
