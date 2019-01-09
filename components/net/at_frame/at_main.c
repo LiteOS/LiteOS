@@ -808,9 +808,9 @@ int32_t at_init(at_config *config)
         AT_LOG("Config is NULL, failed!!\n");
         return AT_FAILED;
     }
-    
+
     memcpy(&at_user_conf,config,sizeof(at_config));
-    
+
     AT_LOG_DEBUG("Config %s(buffer total is %lu)......\n", at_user_conf.name, at_user_conf.user_buf_len);
 
     //LOS_TaskDelay(200);

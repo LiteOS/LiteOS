@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,74 +32,10 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-/*******************************************************************************
- *
- * Copyright (c) 2013, 2014, 2015 Intel Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- * The Eclipse Distribution License is available at
- *    http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    David Navarro, Intel Corporation - initial API and implementation
- *******************************************************************************/
+#include "los_config.h"
 
-#include <stdarg.h>
-
-#include "internals.h"
-#include "osdepends/atiny_osdep.h"
-
-#ifndef LWM2M_MEMORY_TRACE
-
-void *lwm2m_malloc(size_t s)
-{
-    void *mem = NULL;
-    mem = atiny_malloc(s);
-    return mem;
-}
-
-void lwm2m_free(void *p)
-{
-    if(NULL != p)
-        atiny_free(p);
-}
-
-
-char *lwm2m_strdup(const char *str)
-{
-    int len = strlen(str) + 1;
-    void *new = lwm2m_malloc(len);
-    if (new == NULL)
-        return NULL;
-    return (char *)memcpy(new, str, len);
-
-}
-
+#if (CMSIS_OS_VER == 1)
+#include "1.0/cmsis_os1.h"
+#elif (CMSIS_OS_VER == 2)
+#include "2.0/cmsis_os2.h"
 #endif
-
-int lwm2m_strncmp(const char *s1,
-                  const char *s2,
-                  size_t n)
-{
-    return strncmp(s1, s2, n);
-}
-
-time_t lwm2m_gettime(void)
-{
-    return (uint32_t)(atiny_gettime_ms() / 1000);
-}
-
-int lwm2m_rand(void *output, size_t len)
-{
-    return atiny_random(output, len);
-}
-
-void lwm2m_delay(uint32_t second)
-{
-    atiny_delay(second);
-}
-

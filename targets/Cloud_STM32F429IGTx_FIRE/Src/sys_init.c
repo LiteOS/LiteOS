@@ -35,10 +35,21 @@
 #include "sys_init.h"
 
 #ifdef WITH_LWIP
-struct netif gnetif;
-uint8_t IP_ADDRESS[4];
-uint8_t NETMASK_ADDRESS[4];
-uint8_t GATEWAY_ADDRESS[4];
+struct     netif gnetif;
+uint8_t    IP_ADDRESS[4];
+uint8_t    NETMASK_ADDRESS[4];
+uint8_t    GATEWAY_ADDRESS[4];
+
+#if LWIP_IPV4 && LWIP_IPV6
+ip_addr_t  ipaddr;
+ip_addr_t  netmask;
+ip_addr_t  gw;
+#elif LWIP_IPV6
+#else
+ip4_addr_t ipaddr;
+ip4_addr_t netmask;
+ip4_addr_t gw;
+#endif
 
 #if LWIP_IPV4 && LWIP_IPV6
 ip_addr_t  ipaddr;
@@ -94,21 +105,31 @@ void net_init(void)
     printf("lwip test init ok.\n");
     
 
-    (void)ethernetif_api_register(&g_eth_api);/*×¢²áÌØ¶¨Íø¿¨µÄAPI*/
+    (void)ethernetif_api_register(&g_eth_api);/*Ã—Â¢Â²Ã¡ÃŒÃ˜Â¶Â¨ÃÃ¸Â¿Â¨ÂµÃ„API*/
     /* add the network interface (IPv4/IPv6) without RTOS */
 #if LWIP_IPV4 && LWIP_IPV6
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #elif LWIP_IPV6
-    ip6_addr_t ip6;
-    if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee62", &ip6) <= 0)
+    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);
+    netif_create_ip6_linklocal_address(&gnetif, 1);
     {
-        printf("set source ip6 failed \n");
+        ip6_addr_t ip6;
+        err_t ret;
+        s8_t idx;
+        
+        if (inet_pton(AF_INET6, "2000::2", &ip6) <= 0)
+        {
+            printf("set source ip6 failed \n");
+        }
+        printf("after set source ip6 \n");
+        netif_ip6_addr_set(&gnetif, 0, &ip6);
+
+        ret = netif_add_ip6_address(&gnetif, &ip6, &idx);
+        if (ret != 0)
+        {
+            printf("netif_add_ip6_address failed,ret %d\n", ret);
+        }
     }
-    printf("after set source ip6 \n");
-    
-    (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);//lint !e546
-    netif_ip6_addr_set(&gnetif, 0, &ip6);
-    netif_ip6_addr_set_state(&gnetif, 0, IP6_ADDR_PREFERRED);
 #else
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #endif

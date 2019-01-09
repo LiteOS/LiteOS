@@ -36,6 +36,7 @@
 #ifdef CONFIG_FEATURE_FOTA
 #include "ota_port.h"
 #endif
+#include "nb_iot/los_nb_api.h"
 #include "at_frame/at_api.h"
 #include "at_device/bc95.h"
 #ifdef WITH_MQTT
@@ -61,7 +62,7 @@ void atiny_task_entry(void)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK)
-    
+
 
     #if defined(USE_ESP8266)
     extern at_adaptor_api esp8266_interface;
@@ -188,14 +189,14 @@ uint32_t create_dtls_server_task()
 UINT32 create_work_tasks(VOID)
 {
     UINT32 uwRet = LOS_OK;
-    
+
     uwRet = creat_agenttiny_task();
     if (uwRet != LOS_OK)
     {
     	return LOS_NOK;
     }
-    
-#if defined(FS_SPIFFS) || defined(FS_FATFS) || defined(FS_JFFS2)
+
+#if defined(FS_SPIFFS) || defined(FS_FATFS)
     uwRet = creat_fs_task();
     if (uwRet != LOS_OK)
     {

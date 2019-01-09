@@ -87,7 +87,7 @@ ATINY_DEBUG := yes
 #######################################
 WITH_FILESYSTEM := yes
 ifeq ($(WITH_FILESYSTEM), yes)
-#SPIFFS   #FATFS   #JFFS2
+#SPIFFS   #FATFS
 	FILESYSTEM_TYPE := FATFS
 #ONLYONE  #ALL
 	IS_COMPILE_ALLFS := ALL
