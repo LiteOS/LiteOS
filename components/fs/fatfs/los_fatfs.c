@@ -379,12 +379,12 @@ static off_t fatfs_op_lseek (struct file *file, off_t off, int whence)
     	ret_to_errno(FR_INVALID_PARAMETER);
         return -1;
     }
-    
+
     if (off < 0)
     {
         return ret_to_errno(FR_INVALID_PARAMETER);
     }
-    
+
     FRESULT res = f_lseek(fp, off);
     if (res == FR_OK)
     {
@@ -631,7 +631,7 @@ int fatfs_mount(const char *path, struct diskio_drv *drv, uint8_t *drive)
         if(work_buff == NULL)
             goto err_free;
         memset(work_buff, 0, FF_MAX_SS);
-        res = f_mkfs((const TCHAR *)dpath, FM_ANY, 0, work_buff, FF_MAX_SS);
+        res = f_mkfs((const TCHAR *)dpath, FM_ANY | FM_SFD, 0, work_buff, FF_MAX_SS);
         if(res == FR_OK)
         {
             res = f_mount(NULL, (const TCHAR *)dpath, 1);

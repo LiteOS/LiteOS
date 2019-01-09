@@ -1,0 +1,834 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/object_access_control.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - object_access_control.c<span style="font-size: 80%;"> (source / <a href="object_access_control.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">254</td>
+            <td class="headerCovTableEntry">267</td>
+            <td class="headerCovTableEntryHi">95.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">95.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryMed">81.9 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /*******************************************************************************
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * Copyright (c) 2015 Bosch Software Innovations GmbH Germany.
+<span class="lineNum">      38 </span>                :            :  * All rights reserved. This program and the accompanying materials
+<span class="lineNum">      39 </span>                :            :  * are made available under the terms of the Eclipse Public License v1.0
+<span class="lineNum">      40 </span>                :            :  * and Eclipse Distribution License v1.0 which accompany this distribution.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * The Eclipse Public License is available at
+<span class="lineNum">      43 </span>                :            :  *    http://www.eclipse.org/legal/epl-v10.html
+<span class="lineNum">      44 </span>                :            :  * The Eclipse Distribution License is available at
+<span class="lineNum">      45 </span>                :            :  *    http://www.eclipse.org/org/documents/edl-v10.php.
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Contributors:
+<span class="lineNum">      48 </span>                :            :  *    Bosch Software Innovations GmbH - Please refer to git log
+<span class="lineNum">      49 </span>                :            :  *    Pascal Rieux - please refer to git log
+<span class="lineNum">      50 </span>                :            :  *
+<span class="lineNum">      51 </span>                :            :  ******************************************************************************/
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : /*
+<span class="lineNum">      54 </span>                :            :  * This &quot;Access Control&quot; object is optional and multiple instantiated
+<span class="lineNum">      55 </span>                :            :  *
+<span class="lineNum">      56 </span>                :            :  *  Resources:
+<span class="lineNum">      57 </span>                :            :  *
+<span class="lineNum">      58 </span>                :            :  *          Name         | ID | Oper. | Inst. | Mand.|  Type   | Range | Units |
+<span class="lineNum">      59 </span>                :            :  *  ---------------------+----+-------+-------+------+---------+-------+-------+
+<span class="lineNum">      60 </span>                :            :  *  Object ID            |  0 |   R   | Single|  Yes | Integer |1-65534|       |
+<span class="lineNum">      61 </span>                :            :  *  Object instance ID   |  1 |   R   | Single|  Yes | Integer |0-65535|       |
+<span class="lineNum">      62 </span>                :            :  *  ACL                  |  2 |   RW  | Multi.|  No  | Integer | 16bit |       |
+<span class="lineNum">      63 </span>                :            :  *  Access Control Owner |  3 |   RW  | Single|  Yes | Integer |0-65535|       |
+<span class="lineNum">      64 </span>                :            :  */
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : #include &quot;internals.h&quot;
+<span class="lineNum">      67 </span>                :            : #include &quot;object_comm.h&quot;
+<span class="lineNum">      68 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            : // Resource Id's:
+<span class="lineNum">      71 </span>                :            : #define RES_M_OBJECT_ID             0
+<span class="lineNum">      72 </span>                :            : #define RES_M_OBJECT_INSTANCE_ID    1
+<span class="lineNum">      73 </span>                :            : #define RES_O_ACL                   2
+<span class="lineNum">      74 </span>                :            : #define RES_M_ACCESS_CONTROL_OWNER  3
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : #define MAX_DATA_VAL 65535
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : typedef struct acc_ctrl_ri_s
+<span class="lineNum">      79 </span>                :            : {
+<span class="lineNum">      80 </span>                :            :     // linked list:
+<span class="lineNum">      81 </span>                :            :     struct acc_ctrl_ri_s   *next;       // matches lwm2m_list_t::next
+<span class="lineNum">      82 </span>                :            :     uint16_t                resInstId;  // matches lwm2m_list_t::id, ..serverID
+<span class="lineNum">      83 </span>                :            :     // resource data:
+<span class="lineNum">      84 </span>                :            :     uint16_t                accCtrlValue;
+<span class="lineNum">      85 </span>                :            : } acc_ctrl_ri_t;
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : typedef struct acc_ctrl_oi_s
+<span class="lineNum">      88 </span>                :            : {
+<span class="lineNum">      89 </span>                :            :     //linked list:
+<span class="lineNum">      90 </span>                :            :     struct acc_ctrl_oi_s   *next;       // matches lwm2m_list_t::next
+<span class="lineNum">      91 </span>                :            :     uint16_t                objInstId;  // matches lwm2m_list_t::id
+<span class="lineNum">      92 </span>                :            :     // resources
+<span class="lineNum">      93 </span>                :            :     uint16_t                objectId;
+<span class="lineNum">      94 </span>                :            :     uint16_t                objectInstId;
+<span class="lineNum">      95 </span>                :            :     uint16_t                accCtrlOwner;
+<span class="lineNum">      96 </span>                :            :     acc_ctrl_ri_t          *accCtrlValList;
+<span class="lineNum">      97 </span>                :            : } acc_ctrl_oi_t;
+<a name="98"><span class="lineNum">      98 </span>                :            : </a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineCov">          5 : static uint8_t prv_set_tlv(lwm2m_data_t *dataP, acc_ctrl_oi_t *accCtrlOiP)</span>
+<span class="lineNum">     101 </span>                :            : {
+<span class="lineNum">     102 </span>  [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span> :<span class="lineCov">          5 :     switch (dataP-&gt;id)</span>
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
+<span class="lineNum">     103 </span>                :            :     {
+<span class="lineNum">     104 </span>                :            :     case RES_M_OBJECT_ID:
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(accCtrlOiP-&gt;objectId, dataP);</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     107 </span>                :            :     case RES_M_OBJECT_INSTANCE_ID:
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(accCtrlOiP-&gt;objectInstId, dataP);</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     110 </span>                :            :     case RES_O_ACL:
+<span class="lineNum">     111 </span>                :            :     {
+<span class="lineNum">     112 </span>                :            :         int ri;
+<span class="lineNum">     113 </span>                :            :         acc_ctrl_ri_t *accCtrlRiP;
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         for (accCtrlRiP = accCtrlOiP-&gt;accCtrlValList, ri = 0;</span>
+<span class="lineNum">     115 </span>                :            :                 accCtrlRiP != NULL;
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 :                 accCtrlRiP = accCtrlRiP-&gt;next, ri++);</span>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (ri == 0) // no values!</span>
+<span class="lineNum">     119 </span>                :            :         {
+<span class="lineNum">     120 </span>                :<span class="lineCov">          1 :             return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     121 </span>                :            :         }
+<span class="lineNum">     122 </span>                :            :         else
+<span class="lineNum">     123 </span>                :            :         {
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :             lwm2m_data_t *subTlvP = lwm2m_data_new(ri);</span>
+<span class="lineNum">     125 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (subTlvP == NULL) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             for (accCtrlRiP = accCtrlOiP-&gt;accCtrlValList, ri = 0;</span>
+<span class="lineNum">     127 </span>                :            :                     accCtrlRiP != NULL;
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :                     accCtrlRiP = accCtrlRiP-&gt;next, ri++)</span>
+<span class="lineNum">     129 </span>                :            :             {
+<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :                 subTlvP[ri].id = accCtrlRiP-&gt;resInstId;</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :                 lwm2m_data_encode_int(accCtrlRiP-&gt;accCtrlValue, &amp;subTlvP[ri]);</span>
+<span class="lineNum">     132 </span>                :            :             }
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :             lwm2m_data_encode_instances(subTlvP, ri, dataP);</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :             return COAP_205_CONTENT;</span>
+<span class="lineNum">     135 </span>                :            :         }
+<span class="lineNum">     136 </span>                :            :     }
+<span class="lineNum">     137 </span>                :            :     case RES_M_ACCESS_CONTROL_OWNER:
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(accCtrlOiP-&gt;accCtrlOwner, dataP);</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     140 </span>                :            :     default:
+<span class="lineNum">     141 </span>                :<span class="lineCov">          5 :         return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     142 </span>                :            :     }
+<a name="143"><span class="lineNum">     143 </span>                :            : }</a>
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineCov">          3 : static uint8_t prv_read(uint16_t instanceId, int *numDataP,</span>
+<span class="lineNum">     146 </span>                :            :                         lwm2m_data_t **dataArrayP, lwm2m_data_cfg_t *dataCfg, lwm2m_object_t *objectP)
+<span class="lineNum">     147 </span>                :            : {
+<span class="lineNum">     148 </span>                :            :     uint8_t result;
+<span class="lineNum">     149 </span>                :            :     int     ri, ni;
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :            :     // multi-instance object: search instance
+<span class="lineNum">     152 </span>                :<span class="lineCov">          3 :     acc_ctrl_oi_t *accCtrlOiP =</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          3 :         (acc_ctrl_oi_t *)lwm2m_list_find(objectP-&gt;instanceList, instanceId);</span>
+<span class="lineNum">     154 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (accCtrlOiP == NULL)</span>
+<span class="lineNum">     155 </span>                :            :     {
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            :     // is the server asking for the full object ?
+<span class="lineNum">     160 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (*numDataP == 0)</span>
+<span class="lineNum">     161 </span>                :            :     {
+<span class="lineNum">     162 </span>                :<span class="lineCov">          1 :         uint16_t resList[] =</span>
+<span class="lineNum">     163 </span>                :            :         {
+<span class="lineNum">     164 </span>                :            :             RES_M_OBJECT_ID,
+<span class="lineNum">     165 </span>                :            :             RES_M_OBJECT_INSTANCE_ID,
+<span class="lineNum">     166 </span>                :            :             RES_O_ACL,  // prv_set_tlv will return COAP_404_NOT_FOUND w/o values!
+<span class="lineNum">     167 </span>                :            :             RES_M_ACCESS_CONTROL_OWNER
+<span class="lineNum">     168 </span>                :            :         };
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 :         int nbRes = sizeof(resList) / sizeof(uint16_t);</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :         *dataArrayP = lwm2m_data_new(nbRes);</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (*dataArrayP == NULL)</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :             return COAP_500_INTERNAL_SERVER_ERROR ;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :         *numDataP = nbRes;</span>
+<span class="lineNum">     175 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         for (ri = 0; ri &lt; nbRes; ri++)</span>
+<span class="lineNum">     176 </span>                :            :         {
+<span class="lineNum">     177 </span>                :<span class="lineCov">          4 :             (*dataArrayP)[ri].id = resList[ri];</span>
+<span class="lineNum">     178 </span>                :            :         }
+<span class="lineNum">     179 </span>                :            :     }
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :<span class="lineCov">          2 :     ni = ri = 0;</span>
+<span class="lineNum">     182 </span>                :            :     do
+<span class="lineNum">     183 </span>                :            :     {
+<span class="lineNum">     184 </span>                :<span class="lineCov">          5 :         result = prv_set_tlv((*dataArrayP) + ni, accCtrlOiP);</span>
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :         if (result == COAP_404_NOT_FOUND)</span>
+<span class="lineNum">     186 </span>                :            :         {
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :             ri++;</span>
+<span class="lineNum">     188 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :             if (*numDataP &gt; 1) result = COAP_205_CONTENT;</span>
+<span class="lineNum">     189 </span>                :            :         }
+<span class="lineNum">     190 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :         else if (ri &gt; 0)    // copy new one by ri skipped ones in front</span>
+<span class="lineNum">     191 </span>                :            :         {
+<span class="lineNum">     192 </span>                :<span class="lineCov">          1 :             (*dataArrayP)[ni - ri] = (*dataArrayP)[ni];</span>
+<span class="lineNum">     193 </span>                :            :         }
+<span class="lineNum">     194 </span>                :<span class="lineCov">          5 :         ni++;</span>
+<span class="lineNum">     195 </span>                :            :     }
+<span class="lineNum">     196 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :     while (ni &lt; *numDataP &amp;&amp; result == COAP_205_CONTENT);</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          2 :     *numDataP = ni - ri;</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineCov">          3 :     return result;</span>
+<a name="200"><span class="lineNum">     200 </span>                :            : }</a>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineCov">          3 : static bool prv_add_ac_val(acc_ctrl_oi_t *accCtrlOiP,</span>
+<span class="lineNum">     203 </span>                :            :                            uint16_t acResId, uint16_t acValue)
+<span class="lineNum">     204 </span>                :            : {
+<span class="lineNum">     205 </span>                :<span class="lineCov">          3 :     bool ret = false;</span>
+<span class="lineNum">     206 </span>                :            :     acc_ctrl_ri_t *accCtrlRiP;
+<span class="lineNum">     207 </span>                :<span class="lineCov">          3 :     accCtrlRiP = (acc_ctrl_ri_t *)lwm2m_malloc(sizeof(acc_ctrl_ri_t));</span>
+<span class="lineNum">     208 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :     if (accCtrlRiP == NULL)</span>
+<span class="lineNum">     209 </span>                :            :     {
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     211 </span>                :            :     }
+<span class="lineNum">     212 </span>                :            :     else
+<span class="lineNum">     213 </span>                :            :     {
+<span class="lineNum">     214 </span>                :<span class="lineCov">          3 :         memset(accCtrlRiP, 0, sizeof(acc_ctrl_ri_t));</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">          3 :         accCtrlRiP-&gt;resInstId      = acResId;</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">          3 :         accCtrlRiP-&gt;accCtrlValue   = acValue;</span>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :<span class="lineCov">          3 :         accCtrlOiP-&gt;accCtrlValList = (acc_ctrl_ri_t *)</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          3 :                                      LWM2M_LIST_ADD(accCtrlOiP-&gt;accCtrlValList, accCtrlRiP);</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          3 :         ret = true;</span>
+<span class="lineNum">     221 </span>                :            :     }
+<span class="lineNum">     222 </span>                :<span class="lineCov">          3 :     return ret;</span>
+<a name="223"><span class="lineNum">     223 </span>                :            : }</a>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineCov">         17 : static uint8_t prv_write_resources(uint16_t instanceId, int numData,</span>
+<span class="lineNum">     226 </span>                :            :                                    lwm2m_data_t *tlvArray, lwm2m_object_t *objectP, bool doCreate)
+<span class="lineNum">     227 </span>                :            : {
+<span class="lineNum">     228 </span>                :            :     int i;
+<span class="lineNum">     229 </span>                :<span class="lineCov">         17 :     uint8_t result = COAP_NO_ERROR;</span>
+<span class="lineNum">     230 </span>                :            :     int64_t value;
+<span class="lineNum">     231 </span>                :            :     lwm2m_data_t *subTlvArray;
+<span class="lineNum">     232 </span>                :            :     int ri;
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">         17 :     acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">         17 :                                 lwm2m_list_find(objectP-&gt;instanceList, instanceId);</span>
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :     if (NULL == accCtrlOiP)</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineCov">         16 :     i = 0;</span>
+<span class="lineNum">     240 </span>                :            :     do
+<span class="lineNum">     241 </span>                :            :     {
+<span class="lineNum">     242 </span>  [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchCov" title="Branch 3 was taken 3 times"> + </span> :<span class="lineCov">         16 :         switch (tlvArray[i].id)</span>
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
+<span class="lineNum">     243 </span>                :            :         {
+<span class="lineNum">     244 </span>                :            :         case RES_M_OBJECT_ID:
+<span class="lineNum">     245 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :             if (doCreate == false)</span>
+<span class="lineNum">     246 </span>                :            :             {
+<span class="lineNum">     247 </span>                :<span class="lineCov">          1 :                 result = COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     248 </span>                :            :             }
+<span class="lineNum">     249 </span>                :            :             else
+<span class="lineNum">     250 </span>                :            :             {
+<span class="lineNum">     251 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :                 if (1 != lwm2m_data_decode_int(&amp;tlvArray[i], &amp;value))</span>
+<span class="lineNum">     252 </span>                :            :                 {
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :                     result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     254 </span>                :            :                 }
+<span class="lineNum">     255 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 else if (value &lt; 1 || value &gt; 65534)</span>
+<span class="lineNum">     256 </span>                :            :                 {
+<span class="lineNum">     257 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     258 </span>                :            :                 }
+<span class="lineNum">     259 </span>                :            :                 else
+<span class="lineNum">     260 </span>                :            :                 {
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :                     accCtrlOiP-&gt;objectId = value;</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     263 </span>                :            :                 }
+<span class="lineNum">     264 </span>                :            :             }
+<span class="lineNum">     265 </span>                :<span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     266 </span>                :            :         case RES_M_OBJECT_INSTANCE_ID:
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :             if (doCreate == false)</span>
+<span class="lineNum">     268 </span>                :            :             {
+<span class="lineNum">     269 </span>                :<span class="lineCov">          1 :                 result = COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     270 </span>                :            :             }
+<span class="lineNum">     271 </span>                :            :             else
+<span class="lineNum">     272 </span>                :            :             {
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :                 if (1 != lwm2m_data_decode_int(&amp;tlvArray[i], &amp;value))</span>
+<span class="lineNum">     274 </span>                :            :                 {
+<span class="lineNum">     275 </span>                :<span class="lineCov">          1 :                     result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     276 </span>                :            :                 }
+<span class="lineNum">     277 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 else if (value &lt; 0 || value &gt; MAX_DATA_VAL)</span>
+<span class="lineNum">     278 </span>                :            :                 {
+<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     280 </span>                :            :                 }
+<span class="lineNum">     281 </span>                :            :                 else
+<span class="lineNum">     282 </span>                :            :                 {
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :                     accCtrlOiP-&gt;objectInstId = value;</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     285 </span>                :            :                 }
+<span class="lineNum">     286 </span>                :            :             }
+<span class="lineNum">     287 </span>                :<span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     288 </span>                :            :         case RES_O_ACL:
+<span class="lineNum">     289 </span>                :            :         {
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :             if (tlvArray[i].type != LWM2M_TYPE_MULTIPLE_RESOURCE)</span>
+<span class="lineNum">     291 </span>                :            :             {
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     293 </span>                :            :             }
+<span class="lineNum">     294 </span>                :            :             else
+<span class="lineNum">     295 </span>                :            :             {
+<span class="lineNum">     296 </span>                :            :                 // MR-Write: Replace-implementation variant only
+<span class="lineNum">     297 </span>                :            :                 // see LWM2M-TS:5.4.3 (wakaama has no part-update switch)
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            :                 // 1st: save accValueList!
+<span class="lineNum">     300 </span>                :<span class="lineCov">          4 :                 acc_ctrl_ri_t *acValListSave = accCtrlOiP-&gt;accCtrlValList;</span>
+<span class="lineNum">     301 </span>                :<span class="lineCov">          4 :                 accCtrlOiP-&gt;accCtrlValList = NULL;</span>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineCov">          4 :                 subTlvArray = tlvArray[i].value.asChildren.array;</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :                 if (tlvArray[i].value.asChildren.count == 0)</span>
+<span class="lineNum">     306 </span>                :            :                 {
+<span class="lineNum">     307 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     308 </span>                :            :                 }
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :                 else if (subTlvArray == NULL)</span>
+<span class="lineNum">     310 </span>                :            :                 {
+<span class="lineNum">     311 </span>                :<span class="lineCov">          1 :                     result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     312 </span>                :            :                 }
+<span class="lineNum">     313 </span>                :            :                 else
+<span class="lineNum">     314 </span>                :            :                 {
+<span class="lineNum">     315 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :                     for (ri = 0; ri &lt; tlvArray[i].value.asChildren.count; ri++)</span>
+<span class="lineNum">     316 </span>                :            :                     {
+<span class="lineNum">     317 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                         if (1 != lwm2m_data_decode_int(&amp;subTlvArray[ri], &amp;value))</span>
+<span class="lineNum">     318 </span>                :            :                         {
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                             result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                             break;</span>
+<span class="lineNum">     321 </span>                :            :                         }
+<span class="lineNum">     322 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                         else if (value &lt; 0 || value &gt; 0xFFFF)</span>
+<span class="lineNum">     323 </span>                :            :                         {
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :                             result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">          1 :                             break;</span>
+<span class="lineNum">     326 </span>                :            :                         }
+<span class="lineNum">     327 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                         else if (!prv_add_ac_val(accCtrlOiP, subTlvArray[ri].id,</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          1 :                                                  (uint16_t)value))</span>
+<span class="lineNum">     329 </span>                :            :                         {
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                             result = COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :                             break;</span>
+<span class="lineNum">     332 </span>                :            :                         }
+<span class="lineNum">     333 </span>                :            :                         else
+<span class="lineNum">     334 </span>                :            :                         {
+<span class="lineNum">     335 </span>                :<span class="lineCov">          1 :                             result = COAP_204_CHANGED;</span>
+<span class="lineNum">     336 </span>                :            :                         }
+<span class="lineNum">     337 </span>                :            :                     }
+<span class="lineNum">     338 </span>                :            :                 }
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 if (result != COAP_204_CHANGED)</span>
+<span class="lineNum">     341 </span>                :            :                 {
+<span class="lineNum">     342 </span>                :            :                     // free pot. partial created new ones
+<span class="lineNum">     343 </span>                :<span class="lineCov">          2 :                     LWM2M_LIST_FREE(accCtrlOiP-&gt;accCtrlValList);</span>
+<span class="lineNum">     344 </span>                :            :                     // restore old values:
+<span class="lineNum">     345 </span>                :<span class="lineCov">          2 :                     accCtrlOiP-&gt;accCtrlValList = acValListSave;</span>
+<span class="lineNum">     346 </span>                :            :                 }
+<span class="lineNum">     347 </span>                :            :                 else
+<span class="lineNum">     348 </span>                :            :                 {
+<span class="lineNum">     349 </span>                :            :                     // final free saved value list
+<span class="lineNum">     350 </span>                :<span class="lineCov">          2 :                     LWM2M_LIST_FREE(acValListSave);</span>
+<span class="lineNum">     351 </span>                :            :                 }
+<span class="lineNum">     352 </span>                :            :             }
+<span class="lineNum">     353 </span>                :            :         }
+<span class="lineNum">     354 </span>                :<span class="lineCov">          5 :         break;</span>
+<span class="lineNum">     355 </span>                :            :         case RES_M_ACCESS_CONTROL_OWNER:
+<span class="lineNum">     356 </span>                :            :         {
+<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          3 :             if (1 == lwm2m_data_decode_int(tlvArray + i, &amp;value))</span>
+<span class="lineNum">     358 </span>                :            :             {
+<span class="lineNum">     359 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (value &gt;= 0 &amp;&amp; value &lt;= MAX_DATA_VAL)</span>
+<span class="lineNum">     360 </span>                :            :                 {
+<span class="lineNum">     361 </span>                :<span class="lineCov">          1 :                     accCtrlOiP-&gt;accCtrlOwner = value;</span>
+<span class="lineNum">     362 </span>                :<span class="lineCov">          1 :                     result = COAP_204_CHANGED;</span>
+<span class="lineNum">     363 </span>                :            :                 }
+<span class="lineNum">     364 </span>                :            :                 else
+<span class="lineNum">     365 </span>                :            :                 {
+<span class="lineNum">     366 </span>                :<span class="lineCov">          2 :                     result = COAP_406_NOT_ACCEPTABLE;</span>
+<span class="lineNum">     367 </span>                :            :                 }
+<span class="lineNum">     368 </span>                :            :             }
+<span class="lineNum">     369 </span>                :            :             else
+<span class="lineNum">     370 </span>                :            :             {
+<span class="lineNum">     371 </span>                :<span class="lineCov">          1 :                 result = COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     372 </span>                :            :             }
+<span class="lineNum">     373 </span>                :            :         }
+<span class="lineNum">     374 </span>                :<span class="lineCov">          3 :         break;</span>
+<span class="lineNum">     375 </span>                :            :         default:
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :             return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     377 </span>                :            :         }
+<span class="lineNum">     378 </span>                :<span class="lineCov">         16 :         i++;</span>
+<span class="lineNum">     379 </span>                :            :     }
+<span class="lineNum">     380 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         16 :     while (i &lt; numData &amp;&amp; result == COAP_204_CHANGED );</span>
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineCov">         17 :     return result;</span>
+<a name="383"><span class="lineNum">     383 </span>                :            : }</a>
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :<span class="lineCov">         11 : static uint8_t prv_write(uint16_t instanceId, int numData,</span>
+<span class="lineNum">     386 </span>                :            :                          lwm2m_data_t *tlvArray, lwm2m_object_t *objectP)
+<span class="lineNum">     387 </span>                :            : {
+<span class="lineNum">     388 </span>                :<span class="lineCov">         11 :     return prv_write_resources(instanceId, numData, tlvArray, objectP, false);</span>
+<a name="389"><span class="lineNum">     389 </span>                :            : }</a>
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :<span class="lineCov">          6 : static uint8_t prv_delete(uint16_t id, lwm2m_object_t *objectP)</span>
+<span class="lineNum">     392 </span>                :            : {
+<span class="lineNum">     393 </span>                :            :     acc_ctrl_oi_t *targetP;
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :<span class="lineCov">          6 :     objectP-&gt;instanceList = lwm2m_list_remove(objectP-&gt;instanceList, id,</span>
+<span class="lineNum">     396 </span>                :            :                             (lwm2m_list_t **)&amp;targetP);
+<span class="lineNum">     397 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == targetP) return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineCov">          6 :     LWM2M_LIST_FREE(targetP-&gt;accCtrlValList);</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">          6 :     lwm2m_free(targetP);</span>
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>                :<span class="lineCov">          6 :     return COAP_202_DELETED;</span>
+<a name="403"><span class="lineNum">     403 </span>                :            : }</a>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :<span class="lineCov">          6 : static uint8_t prv_create(uint16_t objInstId, int numData,</span>
+<span class="lineNum">     406 </span>                :            :                           lwm2m_data_t *tlvArray, lwm2m_object_t *objectP)
+<span class="lineNum">     407 </span>                :            : {
+<span class="lineNum">     408 </span>                :            :     acc_ctrl_oi_t *targetP;
+<span class="lineNum">     409 </span>                :            :     uint8_t result;
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">          6 :     targetP = (acc_ctrl_oi_t *)lwm2m_malloc(sizeof(acc_ctrl_oi_t));</span>
+<span class="lineNum">     412 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == targetP) return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     413 </span>                :<span class="lineCov">          6 :     memset(targetP, 0, sizeof(acc_ctrl_oi_t));</span>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :<span class="lineCov">          6 :     targetP-&gt;objInstId    = objInstId;</span>
+<span class="lineNum">     416 </span>                :<span class="lineCov">          6 :     objectP-&gt;instanceList = LWM2M_LIST_ADD(objectP-&gt;instanceList, targetP);</span>
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :<span class="lineCov">          6 :     result = prv_write_resources(objInstId, numData, tlvArray, objectP, true);</span>
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          6 :     if (result != COAP_204_CHANGED)</span>
+<span class="lineNum">     421 </span>                :            :     {
+<span class="lineNum">     422 </span>                :<span class="lineCov">          4 :         (void)prv_delete(objInstId, objectP);</span>
+<span class="lineNum">     423 </span>                :            :     }
+<span class="lineNum">     424 </span>                :            :     else
+<span class="lineNum">     425 </span>                :            :     {
+<span class="lineNum">     426 </span>                :<span class="lineCov">          2 :         result = COAP_201_CREATED;</span>
+<span class="lineNum">     427 </span>                :            :     }
+<span class="lineNum">     428 </span>                :<span class="lineCov">          6 :     return result;</span>
+<span class="lineNum">     429 </span>                :            : }
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :            : /*
+<a name="432"><span class="lineNum">     432 </span>                :            :  * Create an empty multiple instance LWM2M Object: Access Control</a>
+<span class="lineNum">     433 </span>                :            :  */
+<span class="lineNum">     434 </span>                :<span class="lineCov">         16 : lwm2m_object_t *acc_ctrl_create_object(void)</span>
+<span class="lineNum">     435 </span>                :            : {
+<span class="lineNum">     436 </span>                :            :     /*
+<span class="lineNum">     437 </span>                :            :      * The acc_ctrl_create_object() function creates an empty object
+<span class="lineNum">     438 </span>                :            :      * and returns a pointer to the structure that represents it.
+<span class="lineNum">     439 </span>                :            :      */
+<span class="lineNum">     440 </span>                :<span class="lineCov">         16 :     lwm2m_object_t *accCtrlObj = NULL;</span>
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :<span class="lineCov">         16 :     accCtrlObj = (lwm2m_object_t *) lwm2m_malloc(sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :     if (NULL != accCtrlObj)</span>
+<span class="lineNum">     445 </span>                :            :     {
+<span class="lineNum">     446 </span>                :<span class="lineCov">         16 :         memset(accCtrlObj, 0, sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     447 </span>                :            :         /*
+<span class="lineNum">     448 </span>                :            :          * It assign his unique object ID
+<span class="lineNum">     449 </span>                :            :          * The 2 is the standard ID for the optional object &quot;Access Control&quot;.
+<span class="lineNum">     450 </span>                :            :          */
+<span class="lineNum">     451 </span>                :<span class="lineCov">         16 :         accCtrlObj-&gt;objID = LWM2M_ACL_OBJECT_ID;</span>
+<span class="lineNum">     452 </span>                :            :         // Init callbacks, empty instanceList!
+<span class="lineNum">     453 </span>                :<span class="lineCov">         16 :         accCtrlObj-&gt;readFunc    = prv_read;</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">         16 :         accCtrlObj-&gt;writeFunc   = prv_write;</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">         16 :         accCtrlObj-&gt;createFunc  = prv_create;</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">         16 :         accCtrlObj-&gt;deleteFunc  = prv_delete;</span>
+<span class="lineNum">     457 </span>                :            :     }
+<span class="lineNum">     458 </span>                :<span class="lineCov">         16 :     return accCtrlObj;</span>
+<a name="459"><span class="lineNum">     459 </span>                :            : }</a>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>                :<span class="lineCov">         16 : void acl_ctrl_free_object(lwm2m_object_t *objectP)</span>
+<span class="lineNum">     462 </span>                :            : {
+<span class="lineNum">     463 </span>                :            :     acc_ctrl_oi_t *accCtrlOiT;
+<span class="lineNum">     464 </span>                :<span class="lineCov">         16 :     acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)objectP-&gt;instanceList;</span>
+<span class="lineNum">     465 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         23 :     while (accCtrlOiP != NULL)</span>
+<span class="lineNum">     466 </span>                :            :     {
+<span class="lineNum">     467 </span>                :            :         // first free acl (multiple resource!):
+<span class="lineNum">     468 </span>                :<span class="lineCov">          7 :         LWM2M_LIST_FREE(accCtrlOiP-&gt;accCtrlValList);</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          7 :         accCtrlOiT = accCtrlOiP;</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">          7 :         accCtrlOiP = accCtrlOiP-&gt;next;</span>
+<span class="lineNum">     471 </span>                :<span class="lineCov">          7 :         lwm2m_free(accCtrlOiT);</span>
+<span class="lineNum">     472 </span>                :            :     }
+<span class="lineNum">     473 </span>                :<span class="lineCov">         16 :     lwm2m_free(objectP);</span>
+<a name="474"><span class="lineNum">     474 </span>                :<span class="lineCov">         16 : }</span></a>
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :<span class="lineCov">          5 : bool  acc_ctrl_obj_add_inst (lwm2m_object_t *accCtrlObjP, uint16_t instId,</span>
+<span class="lineNum">     477 </span>                :            :                              uint16_t acObjectId, uint16_t acObjInstId, uint16_t acOwner)
+<span class="lineNum">     478 </span>                :            : {
+<span class="lineNum">     479 </span>                :<span class="lineCov">          5 :     bool ret = false;</span>
+<span class="lineNum">     480 </span>                :            : 
+<span class="lineNum">     481 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (NULL == accCtrlObjP)</span>
+<span class="lineNum">     482 </span>                :            :     {
+<span class="lineNum">     483 </span>                :<span class="lineCov">          1 :         return ret;</span>
+<span class="lineNum">     484 </span>                :            :     }
+<span class="lineNum">     485 </span>                :            :     else
+<span class="lineNum">     486 </span>                :            :     {
+<span class="lineNum">     487 </span>                :            :         // create an access control object instance
+<span class="lineNum">     488 </span>                :            :         acc_ctrl_oi_t *accCtrlOiP;
+<span class="lineNum">     489 </span>                :<span class="lineCov">          4 :         accCtrlOiP = (acc_ctrl_oi_t *)lwm2m_malloc(sizeof(acc_ctrl_oi_t));</span>
+<span class="lineNum">     490 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (NULL == accCtrlOiP)</span>
+<span class="lineNum">     491 </span>                :            :         {
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :             return ret;</span>
+<span class="lineNum">     493 </span>                :            :         }
+<span class="lineNum">     494 </span>                :            :         else
+<span class="lineNum">     495 </span>                :            :         {
+<span class="lineNum">     496 </span>                :<span class="lineCov">          4 :             memset(accCtrlOiP, 0, sizeof(acc_ctrl_oi_t));</span>
+<span class="lineNum">     497 </span>                :            :             // list: key
+<span class="lineNum">     498 </span>                :<span class="lineCov">          4 :             accCtrlOiP-&gt;objInstId    = instId;</span>
+<span class="lineNum">     499 </span>                :            :             // object instance data:
+<span class="lineNum">     500 </span>                :<span class="lineCov">          4 :             accCtrlOiP-&gt;objectId     = acObjectId;</span>
+<span class="lineNum">     501 </span>                :<span class="lineCov">          4 :             accCtrlOiP-&gt;objectInstId = acObjInstId;</span>
+<span class="lineNum">     502 </span>                :<span class="lineCov">          4 :             accCtrlOiP-&gt;accCtrlOwner = acOwner;</span>
+<span class="lineNum">     503 </span>                :            : 
+<span class="lineNum">     504 </span>                :<span class="lineCov">          4 :             accCtrlObjP-&gt;instanceList =</span>
+<span class="lineNum">     505 </span>                :<span class="lineCov">          4 :                 LWM2M_LIST_ADD(accCtrlObjP-&gt;instanceList, accCtrlOiP);</span>
+<span class="lineNum">     506 </span>                :<span class="lineCov">          4 :             ret = true;</span>
+<span class="lineNum">     507 </span>                :            :         }
+<span class="lineNum">     508 </span>                :            :     }
+<span class="lineNum">     509 </span>                :<span class="lineCov">          5 :     return ret;</span>
+<a name="510"><span class="lineNum">     510 </span>                :            : }</a>
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>                :<span class="lineCov">          2 : bool acc_ctrl_oi_add_ac_val (lwm2m_object_t *accCtrlObjP, uint16_t instId,</span>
+<span class="lineNum">     513 </span>                :            :                              uint16_t acResId, uint16_t acValue)
+<span class="lineNum">     514 </span>                :            : {
+<span class="lineNum">     515 </span>                :<span class="lineCov">          2 :     bool ret = false;</span>
+<span class="lineNum">     516 </span>                :            : 
+<span class="lineNum">     517 </span>                :<span class="lineCov">          2 :     acc_ctrl_oi_t *accCtrlOiP = (acc_ctrl_oi_t *)</span>
+<span class="lineNum">     518 </span>                :<span class="lineCov">          2 :                                 lwm2m_list_find(accCtrlObjP-&gt;instanceList, instId);</span>
+<span class="lineNum">     519 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (NULL == accCtrlOiP)</span>
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>                :<span class="lineCov">          2 :     return prv_add_ac_val (accCtrlOiP, acResId, acValue);</span>
+<a name="523"><span class="lineNum">     523 </span>                :            : }</a>
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>                :<span class="lineCov">          4 : static acc_ctrl_oi_t *prv_get_acc_instance(acc_ctrl_oi_t *accCtrlOiP, uint16_t objId, uint16_t instId)</span>
+<span class="lineNum">     526 </span>                :            : {
+<span class="lineNum">     527 </span>                :<span class="lineCov">          4 :     acc_ctrl_oi_t *itor = accCtrlOiP;</span>
+<span class="lineNum">     528 </span>                :            : 
+<span class="lineNum">     529 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          6 :     while (itor)</span>
+<span class="lineNum">     530 </span>                :            :     {
+<span class="lineNum">     531 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          4 :         if (itor-&gt;objectId == objId &amp;&amp; itor-&gt;objectInstId == instId)</span>
+<span class="lineNum">     532 </span>                :            :         {
+<span class="lineNum">     533 </span>                :<span class="lineCov">          2 :             return itor;</span>
+<span class="lineNum">     534 </span>                :            :         }
+<span class="lineNum">     535 </span>                :<span class="lineCov">          2 :         itor = itor-&gt;next;</span>
+<span class="lineNum">     536 </span>                :            :     }
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :<span class="lineCov">          4 :     return NULL;</span>
+<a name="539"><span class="lineNum">     539 </span>                :            : }</a>
+<span class="lineNum">     540 </span>                :            : 
+<span class="lineNum">     541 </span>                :<span class="lineCov">          2 : static acc_ctrl_ri_t *prv_get_acl_instance(acc_ctrl_ri_t *accCtrlRiP, uint16_t serverId)</span>
+<span class="lineNum">     542 </span>                :            : {
+<span class="lineNum">     543 </span>                :            :     acc_ctrl_ri_t *targetP;
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>                :<span class="lineCov">          2 :     targetP = (acc_ctrl_ri_t *)LWM2M_LIST_FIND(accCtrlRiP, serverId);</span>
+<span class="lineNum">     546 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (NULL == targetP)</span>
+<span class="lineNum">     547 </span>                :            :     {
+<span class="lineNum">     548 </span>                :<span class="lineCov">          2 :         targetP = (acc_ctrl_ri_t *)LWM2M_LIST_FIND(accCtrlRiP, 0);</span>
+<span class="lineNum">     549 </span>                :            :     }
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :<span class="lineCov">          2 :     return targetP;</span>
+<a name="552"><span class="lineNum">     552 </span>                :            : }</a>
+<span class="lineNum">     553 </span>                :            : 
+<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 : static inline bool prv_auth_match(OBJ_ACC_OPERATE op, uint16_t auth_op)</span>
+<span class="lineNum">     555 </span>                :            : {
+<span class="lineNum">     556 </span>                :<span class="lineNoCov">          0 :     return auth_op &amp; (0x01 &lt;&lt; op);</span>
+<a name="557"><span class="lineNum">     557 </span>                :            : }</a>
+<span class="lineNum">     558 </span>                :            : 
+<span class="lineNum">     559 </span>                :<span class="lineCov">          4 : static bool prv_check_instance_auth(acc_ctrl_oi_t *accCtrlOiP, uint16_t objId, uint16_t instId,</span>
+<span class="lineNum">     560 </span>                :            :                                     uint16_t serverId, OBJ_ACC_OPERATE op)
+<span class="lineNum">     561 </span>                :            : {
+<span class="lineNum">     562 </span>                :            :     acc_ctrl_oi_t *targetP;
+<span class="lineNum">     563 </span>                :            :     acc_ctrl_ri_t *accCtrlRiP;
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>                :<span class="lineCov">          4 :     targetP = prv_get_acc_instance(accCtrlOiP, objId, instId);</span>
+<span class="lineNum">     566 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :     if (NULL == targetP)</span>
+<span class="lineNum">     567 </span>                :            :     {
+<span class="lineNum">     568 </span>                :<span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     569 </span>                :            :     }
+<span class="lineNum">     570 </span>                :<span class="lineCov">          2 :     accCtrlRiP = prv_get_acl_instance(targetP-&gt;accCtrlValList, serverId);</span>
+<span class="lineNum">     571 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (NULL == accCtrlRiP)</span>
+<span class="lineNum">     572 </span>                :            :     {
+<span class="lineNum">     573 </span>                :<span class="lineCov">          2 :         return targetP-&gt;accCtrlOwner == serverId;</span>
+<span class="lineNum">     574 </span>                :            :     }
+<span class="lineNum">     575 </span>                :<span class="lineCov">          4 :     return prv_auth_match(op, accCtrlRiP-&gt;accCtrlValue);</span>
+<a name="576"><span class="lineNum">     576 </span>                :            : }</a>
+<span class="lineNum">     577 </span>                :            : 
+<span class="lineNum">     578 </span>                :<span class="lineCov">          4 : static uint8_t prv_acc_self_auth_check(acc_ctrl_oi_t *accCtrlOiP, lwm2m_uri_t *uri,</span>
+<span class="lineNum">     579 </span>                :            :                                        OBJ_ACC_OPERATE op, uint16_t serverId)
+<span class="lineNum">     580 </span>                :            : {
+<span class="lineNum">     581 </span>                :            :     acc_ctrl_oi_t *targetP;
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :     if (LWM2M_URI_IS_SET_INSTANCE(uri))</span>
+<span class="lineNum">     584 </span>                :            :     {
+<span class="lineNum">     585 </span>                :<span class="lineCov">          3 :         targetP = (acc_ctrl_oi_t *)LWM2M_LIST_FIND(accCtrlOiP, uri-&gt;instanceId);</span>
+<span class="lineNum">     586 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :         if (NULL != targetP &amp;&amp; targetP-&gt;accCtrlOwner == serverId)</span>
+<span class="lineNum">     587 </span>                :            :         {
+<span class="lineNum">     588 </span>                :<span class="lineCov">          2 :             return COAP_NO_ERROR;</span>
+<span class="lineNum">     589 </span>                :            :         }
+<span class="lineNum">     590 </span>                :            :         else
+<span class="lineNum">     591 </span>                :            :         {
+<span class="lineNum">     592 </span>                :<span class="lineCov">          1 :             return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     593 </span>                :            :         }
+<span class="lineNum">     594 </span>                :            :     }
+<span class="lineNum">     595 </span>                :            :     else
+<span class="lineNum">     596 </span>                :            :     {
+<span class="lineNum">     597 </span>                :<span class="lineCov">          1 :         targetP = accCtrlOiP;</span>
+<span class="lineNum">     598 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         while (targetP)</span>
+<span class="lineNum">     599 </span>                :            :         {
+<span class="lineNum">     600 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (targetP-&gt;accCtrlOwner != serverId)</span>
+<span class="lineNum">     601 </span>                :            :             {
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :                 return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     603 </span>                :            :             }
+<span class="lineNum">     604 </span>                :<span class="lineCov">          1 :             targetP = targetP-&gt;next;</span>
+<span class="lineNum">     605 </span>                :            :         }
+<span class="lineNum">     606 </span>                :<span class="lineCov">          4 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     607 </span>                :            :     }
+<a name="608"><span class="lineNum">     608 </span>                :            : }</a>
+<span class="lineNum">     609 </span>                :            : 
+<span class="lineNum">     610 </span>                :<span class="lineCov">         10 : static uint8_t prv_pre_auth_check(acc_ctrl_oi_t *accCtrlOiP, lwm2m_uri_t *uri,</span>
+<span class="lineNum">     611 </span>                :            :                                   OBJ_ACC_OPERATE op, uint16_t serverId)
+<span class="lineNum">     612 </span>                :            : {
+<span class="lineNum">     613 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         10 :     if (OBJ_ACC_CREATE == op)</span>
+<span class="lineNum">     614 </span>                :            :     {
+<span class="lineNum">     615 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (!prv_check_instance_auth(accCtrlOiP, uri-&gt;objectId, MAX_DATA_VAL, serverId, op))</span>
+<span class="lineNum">     616 </span>                :            :         {
+<span class="lineNum">     617 </span>                :<span class="lineCov">          2 :             return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     618 </span>                :            :         }
+<span class="lineNum">     619 </span>                :            : 
+<span class="lineNum">     620 </span>                :<span class="lineCov">          1 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     621 </span>                :            :     }
+<span class="lineNum">     622 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          7 :     else if (OBJ_ACC_DISCOVER == op)</span>
+<span class="lineNum">     623 </span>                :            :     {
+<span class="lineNum">     624 </span>                :<span class="lineCov">          2 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     625 </span>                :            :     }
+<span class="lineNum">     626 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :     else if (uri-&gt;objectId == LWM2M_ACL_OBJECT_ID)</span>
+<span class="lineNum">     627 </span>                :            :     {
+<span class="lineNum">     628 </span>                :<span class="lineCov">          4 :         return prv_acc_self_auth_check(accCtrlOiP, uri, op, serverId);</span>
+<span class="lineNum">     629 </span>                :            :     }
+<span class="lineNum">     630 </span>                :            :     else
+<span class="lineNum">     631 </span>                :            :     {
+<span class="lineNum">     632 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (LWM2M_URI_IS_SET_INSTANCE(uri))</span>
+<span class="lineNum">     633 </span>                :            :         {
+<span class="lineNum">     634 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             if (!prv_check_instance_auth(accCtrlOiP, uri-&gt;objectId, uri-&gt;instanceId, serverId, op))</span>
+<span class="lineNum">     635 </span>                :            :             {
+<span class="lineNum">     636 </span>                :<span class="lineCov">          1 :                 return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     637 </span>                :            :             }
+<span class="lineNum">     638 </span>                :            :         }
+<span class="lineNum">     639 </span>                :            :     }
+<span class="lineNum">     640 </span>                :            : 
+<span class="lineNum">     641 </span>                :<span class="lineCov">         10 :     return COAP_NO_ERROR;</span>
+<a name="642"><span class="lineNum">     642 </span>                :            : }</a>
+<span class="lineNum">     643 </span>                :            : 
+<span class="lineNum">     644 </span>                :<span class="lineCov">          6 : static uint8_t prv_post_action_check(lwm2m_uri_t *uri, OBJ_ACC_OPERATE op)</span>
+<span class="lineNum">     645 </span>                :            : {
+<span class="lineNum">     646 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if (LWM2M_URI_IS_SET_RESOURCE(uri))</span>
+<span class="lineNum">     647 </span>                :            :     {
+<span class="lineNum">     648 </span>                :<span class="lineCov">          1 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     649 </span>                :            :     }
+<span class="lineNum">     650 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :     else if (LWM2M_URI_IS_SET_INSTANCE(uri))</span>
+<span class="lineNum">     651 </span>                :            :     {
+<span class="lineNum">     652 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (OBJ_ACC_EXCUTE == op)</span>
+<span class="lineNum">     653 </span>                :            :         {
+<span class="lineNum">     654 </span>                :<span class="lineCov">          1 :             return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     655 </span>                :            :         }
+<span class="lineNum">     656 </span>                :            :         else
+<span class="lineNum">     657 </span>                :            :         {
+<span class="lineNum">     658 </span>                :            :             /*
+<span class="lineNum">     659 </span>                :            :              * For the write operation, check whether the resources
+<span class="lineNum">     660 </span>                :            :              * can be written or not, is in the write operation of
+<span class="lineNum">     661 </span>                :            :              * the specific object.
+<span class="lineNum">     662 </span>                :            :              */
+<span class="lineNum">     663 </span>                :<span class="lineCov">          1 :             return COAP_NO_ERROR;</span>
+<span class="lineNum">     664 </span>                :            :         }
+<span class="lineNum">     665 </span>                :            :     }
+<span class="lineNum">     666 </span>                :            :     else
+<span class="lineNum">     667 </span>                :            :     {
+<span class="lineNum">     668 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (OBJ_ACC_WRITE_ATTR == op || OBJ_ACC_CREATE == op)</span>
+<span class="lineNum">     669 </span>                :            :         {
+<span class="lineNum">     670 </span>                :<span class="lineCov">          2 :             return COAP_NO_ERROR;</span>
+<span class="lineNum">     671 </span>                :            :         }
+<span class="lineNum">     672 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         else if (OBJ_ACC_NOTIFY == op</span>
+<span class="lineNum">     673 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                  || OBJ_ACC_READ == op || OBJ_ACC_OBSERVE == op)</span>
+<span class="lineNum">     674 </span>                :            :         {
+<span class="lineNum">     675 </span>                :            :             /*
+<span class="lineNum">     676 </span>                :            :              * We should do the auth check in object_read interface
+<span class="lineNum">     677 </span>                :            :              * and just ignore here.
+<span class="lineNum">     678 </span>                :            :              */
+<span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 :             return COAP_NO_ERROR;</span>
+<span class="lineNum">     680 </span>                :            :         }
+<span class="lineNum">     681 </span>                :            :         else
+<span class="lineNum">     682 </span>                :            :         {
+<span class="lineNum">     683 </span>                :<span class="lineCov">          6 :             return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     684 </span>                :            :         }
+<span class="lineNum">     685 </span>                :            :     }
+<a name="686"><span class="lineNum">     686 </span>                :            : }</a>
+<span class="lineNum">     687 </span>                :            : 
+<span class="lineNum">     688 </span>                :<span class="lineCov">         15 : static int prv_get_srv_cnt(lwm2m_server_t *serverP)</span>
+<span class="lineNum">     689 </span>                :            : {
+<span class="lineNum">     690 </span>                :<span class="lineCov">         15 :     lwm2m_server_t *itor = serverP;</span>
+<span class="lineNum">     691 </span>                :<span class="lineCov">         15 :     int cnt = 0;</span>
+<span class="lineNum">     692 </span>                :            : 
+<span class="lineNum">     693 </span>        [<span class="branchCov" title="Branch 0 was taken 28 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         43 :     while (itor)</span>
+<span class="lineNum">     694 </span>                :            :     {
+<span class="lineNum">     695 </span>        [<span class="branchCov" title="Branch 0 was taken 27 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         28 :         if (!itor-&gt;dirty)</span>
+<span class="lineNum">     696 </span>                :            :         {
+<span class="lineNum">     697 </span>                :<span class="lineCov">         27 :             ++cnt;</span>
+<span class="lineNum">     698 </span>                :            :         }
+<span class="lineNum">     699 </span>                :<span class="lineCov">         28 :         itor = itor-&gt;next;</span>
+<span class="lineNum">     700 </span>                :            :     }
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>                :<span class="lineCov">         15 :     return cnt;</span>
+<a name="703"><span class="lineNum">     703 </span>                :            : }</a>
+<span class="lineNum">     704 </span>                :            : 
+<span class="lineNum">     705 </span>                :<span class="lineCov">         15 : uint8_t acc_auth_operate(lwm2m_context_t *contextP, lwm2m_uri_t *uri,</span>
+<span class="lineNum">     706 </span>                :            :                          OBJ_ACC_OPERATE op, uint16_t serverId)
+<span class="lineNum">     707 </span>                :            : {
+<span class="lineNum">     708 </span>                :            :     uint8_t ret;
+<span class="lineNum">     709 </span>                :            :     lwm2m_object_t *accCtrlObjP;
+<span class="lineNum">     710 </span>                :            :     acc_ctrl_oi_t *accCtrlOiP;
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 13 times"> + </span>]:<span class="lineCov">         15 :     if (prv_get_srv_cnt(contextP-&gt;serverList) &lt;= 1)</span>
+<span class="lineNum">     713 </span>                :            :     {
+<span class="lineNum">     714 </span>                :<span class="lineCov">          2 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     715 </span>                :            :     }
+<span class="lineNum">     716 </span>                :            : 
+<span class="lineNum">     717 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         13 :     if (0 == serverId)</span>
+<span class="lineNum">     718 </span>                :            :     {
+<span class="lineNum">     719 </span>                :<span class="lineCov">          1 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     720 </span>                :            :     }
+<span class="lineNum">     721 </span>                :            : 
+<span class="lineNum">     722 </span>                :<span class="lineCov">         12 :     accCtrlObjP = (lwm2m_object_t *)LWM2M_LIST_FIND(contextP-&gt;objectList, LWM2M_ACL_OBJECT_ID);</span>
+<span class="lineNum">     723 </span>                :            : 
+<span class="lineNum">     724 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if (NULL == accCtrlObjP)</span>
+<span class="lineNum">     725 </span>                :            :     {
+<span class="lineNum">     726 </span>                :<span class="lineCov">          1 :         return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     727 </span>                :            :     }
+<span class="lineNum">     728 </span>                :            : 
+<span class="lineNum">     729 </span>                :<span class="lineCov">         11 :     accCtrlOiP = (acc_ctrl_oi_t *)(accCtrlObjP-&gt;instanceList);</span>
+<span class="lineNum">     730 </span>                :            : 
+<span class="lineNum">     731 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (NULL == accCtrlOiP)</span>
+<span class="lineNum">     732 </span>                :            :     {
+<span class="lineNum">     733 </span>                :<span class="lineCov">          1 :         return COAP_401_UNAUTHORIZED;</span>
+<span class="lineNum">     734 </span>                :            :     }
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         10 :     if ((ret = prv_pre_auth_check(accCtrlOiP, uri, op, serverId)) != COAP_NO_ERROR)</span>
+<span class="lineNum">     737 </span>                :            :     {
+<span class="lineNum">     738 </span>                :<span class="lineCov">          4 :         return ret;</span>
+<span class="lineNum">     739 </span>                :            :     }
+<span class="lineNum">     740 </span>                :            : 
+<span class="lineNum">     741 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          6 :     if ((ret = prv_post_action_check(uri, op)) != COAP_NO_ERROR)</span>
+<span class="lineNum">     742 </span>                :            :     {
+<span class="lineNum">     743 </span>                :<span class="lineCov">          2 :         return ret;</span>
+<span class="lineNum">     744 </span>                :            :     }
+<span class="lineNum">     745 </span>                :            : 
+<span class="lineNum">     746 </span>                :<span class="lineCov">         15 :     return COAP_NO_ERROR;</span>
+<span class="lineNum">     747 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

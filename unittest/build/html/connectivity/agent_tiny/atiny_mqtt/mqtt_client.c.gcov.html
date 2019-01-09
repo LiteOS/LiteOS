@@ -1,0 +1,1122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_mqtt/mqtt_client.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_mqtt</a> - mqtt_client.c<span style="font-size: 80%;"> (source / <a href="mqtt_client.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">474</td>
+            <td class="headerCovTableEntry">498</td>
+            <td class="headerCovTableEntryHi">95.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">273</td>
+            <td class="headerCovTableEntry">406</td>
+            <td class="headerCovTableEntryLo">67.2 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;atiny_mqtt/mqtt_client.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;los_base.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;los_task.ph&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;los_typedef.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;los_sys.h&quot;
+<span class="lineNum">      40 </span>                :            : #include &quot;log/atiny_log.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;MQTTClient.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;flash_manager.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;dtls_interface.h&quot;
+<span class="lineNum">      44 </span>                :            : #include &quot;cJSON.h&quot;
+<span class="lineNum">      45 </span>                :            : #include &quot;hmac.h&quot;
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : #define MQTT_VERSION_3_1 (3)
+<span class="lineNum">      48 </span>                :            : #define MQTT_VERSION_3_1_1 (4)
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : #define VARIABLE_SIZE (4 + 1)
+<span class="lineNum">      51 </span>                :            : #define CMD_TOPIC_FMT &quot;/huawei/v1/devices/%s/command/%s&quot;
+<span class="lineNum">      52 </span>                :            : #define DATA_TOPIC_FMT &quot;/huawei/v1/devices/%s/data/%s&quot;
+<span class="lineNum">      53 </span>                :            : #define SECRET_NOTIFY_TOPIC_FMT &quot;/huawei/v1/products/%s/sn/%s/secretNotify&quot;
+<span class="lineNum">      54 </span>                :            : #define SECRET_ACK_TOPIC_FMT &quot;/huawei/v1/products/%s/sn/%s/secretACK&quot;
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #define MQTT_TIME_BUF_LEN 11
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : #define IS_VALID_NAME_LEN(name) (strnlen((name), STRING_MAX_LEN + 1) &lt;= STRING_MAX_LEN)
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : typedef enum
+<span class="lineNum">      61 </span>                :            : {
+<span class="lineNum">      62 </span>                :            :     MQTT_CONNECT_WITH_PRODUCT_ID,
+<span class="lineNum">      63 </span>                :            :     MQTT_CONNECT_WITH_DEVICE_ID
+<span class="lineNum">      64 </span>                :            : }MQTT_DYNAMIC_CONNECT_STATE;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : typedef struct
+<span class="lineNum">      67 </span>                :            : {
+<span class="lineNum">      68 </span>                :            :     mqtt_static_connection_info_s save_info;
+<span class="lineNum">      69 </span>                :            :     char *  got_passward;
+<span class="lineNum">      70 </span>                :            :     MQTT_DYNAMIC_CONNECT_STATE state;
+<span class="lineNum">      71 </span>                :            :     uint8_t connection_update_flag;
+<span class="lineNum">      72 </span>                :            :     uint8_t has_device_id; //
+<span class="lineNum">      73 </span>                :            :     uint8_t reserve[2];
+<span class="lineNum">      74 </span>                :            : }mqtt_dynamic_info_s;
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : struct mqtt_client_tag_s
+<span class="lineNum">      77 </span>                :            : {
+<span class="lineNum">      78 </span>                :            :     mqtt_device_info_s device_info;
+<span class="lineNum">      79 </span>                :            :     MQTTClient client;
+<span class="lineNum">      80 </span>                :            :     mqtt_param_s params;
+<span class="lineNum">      81 </span>                :            :     mqtt_dynamic_info_s dynamic_info;
+<span class="lineNum">      82 </span>                :            :     char *sub_topic;
+<span class="lineNum">      83 </span>                :            :     uint8_t init_flag;
+<span class="lineNum">      84 </span>                :            :     uint8_t reserve[3];
+<span class="lineNum">      85 </span>                :            : };
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : static uint8_t g_mqtt_sendbuf[MQTT_SENDBUF_SIZE];
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            : /* reserve 1 byte for string end 0 for jason */
+<span class="lineNum">      90 </span>                :            : static uint8_t g_mqtt_readbuf[MQTT_READBUF_SIZE + 1];
+<span class="lineNum">      91 </span>                :            : 
+<a name="92"><span class="lineNum">      92 </span>                :            : static mqtt_client_s g_mqtt_client;</a>
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :<span class="lineCov">        803 : static int mqtt_cmd_ioctl(mqtt_cmd_e cmd, void *arg, int32_t len)</span>
+<span class="lineNum">      95 </span>                :            : {
+<span class="lineNum">      96 </span>                :<span class="lineCov">        803 :     mqtt_client_s* handle = &amp;g_mqtt_client;</span>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>        [<span class="branchCov" title="Branch 0 was taken 803 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        803 :     if (handle-&gt;params.cmd_ioctl != NULL)</span>
+<span class="lineNum">      99 </span>                :            :     {
+<span class="lineNum">     100 </span>                :<span class="lineCov">        803 :         return handle-&gt;params.cmd_ioctl(cmd, arg, len);</span>
+<span class="lineNum">     101 </span>                :            :     }
+<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     ATINY_LOG(LOG_FATAL, &quot;cmd_ioctl null&quot;);</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">        803 :     return ATINY_ERR;</span>
+<a name="104"><span class="lineNum">     104 </span>                :            : }</a>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineCov">         13 : static void mqtt_free_params(mqtt_param_s *param)</span>
+<span class="lineNum">     107 </span>                :            : {
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         13 :     TRY_FREE_MEM(param-&gt;server_ip);</span>
+<span class="lineNum">     110 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         13 :     TRY_FREE_MEM(param-&gt;server_port);</span>
+<span class="lineNum">     111 </span>     [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 9 times"> + </span>]:<span class="lineCov">         13 :     switch(param-&gt;info.security_type)</span>
+<span class="lineNum">     112 </span>                :            :     {
+<span class="lineNum">     113 </span>                :            :     case MQTT_SECURITY_TYPE_PSK:
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         TRY_FREE_MEM(param-&gt;info.u.psk.psk_id);</span>
+<span class="lineNum">     115 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         TRY_FREE_MEM(param-&gt;info.u.psk.psk);</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     117 </span>                :            :     case MQTT_SECURITY_TYPE_CA:
+<span class="lineNum">     118 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         TRY_FREE_MEM(param-&gt;info.u.ca.ca_crt);</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          2 :         break;</span>
+<span class="lineNum">     120 </span>                :            :     default:
+<span class="lineNum">     121 </span>                :<span class="lineCov">          9 :         break;</span>
+<span class="lineNum">     122 </span>                :            :     }
+<a name="123"><span class="lineNum">     123 </span>                :<span class="lineCov">         13 : }</span></a>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">         15 : static int mqtt_check_param(const mqtt_param_s *param)</span>
+<span class="lineNum">     126 </span>                :            : {
+<span class="lineNum">     127 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         15 :     if ((param-&gt;server_ip == NULL)</span>
+<span class="lineNum">     128 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         14 :         || (param-&gt;server_port == NULL)</span>
+<span class="lineNum">     129 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         14 :         || (param-&gt;info.security_type &gt;= MQTT_SECURITY_TYPE_MAX)</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">         14 :         || (param-&gt;cmd_ioctl == NULL))</span>
+<span class="lineNum">     131 </span>                :            :     {
+<span class="lineNum">     132 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;invalid param, sec type %d&quot;, param-&gt;info.security_type);</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     134 </span>                :            :     }
+<span class="lineNum">     135 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         14 :     if (param-&gt;info.security_type == MQTT_SECURITY_TYPE_PSK)</span>
+<span class="lineNum">     136 </span>                :            :     {
+<span class="lineNum">     137 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :         if ((param-&gt;info.u.psk.psk == NULL)</span>
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :             || (param-&gt;info.u.psk.psk_len &lt;= 0)</span>
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :             || (param-&gt;info.u.psk.psk_id == NULL)</span>
+<span class="lineNum">     140 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :             || (param-&gt;info.u.psk.psk_id_len &lt;= 0))</span>
+<span class="lineNum">     141 </span>                :            :         {
+<span class="lineNum">     142 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;invalid psk&quot;);</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :             return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     144 </span>                :            :         }
+<span class="lineNum">     145 </span>                :            :     }
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         13 :     if (param-&gt;info.security_type == MQTT_SECURITY_TYPE_CA)</span>
+<span class="lineNum">     148 </span>                :            :     {
+<span class="lineNum">     149 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :         if (param-&gt;info.u.ca.ca_crt == NULL)</span>
+<span class="lineNum">     150 </span>                :            :         {
+<span class="lineNum">     151 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;invalid ca&quot;);</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          1 :             return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     153 </span>                :            :         }
+<span class="lineNum">     154 </span>                :            :     }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineCov">         15 :     return ATINY_OK;</span>
+<a name="157"><span class="lineNum">     157 </span>                :            : }</a>
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :<span class="lineCov">         11 : static int mqtt_dup_param(mqtt_param_s *dest, const mqtt_param_s *src)</span>
+<span class="lineNum">     160 </span>                :            : {
+<span class="lineNum">     161 </span>                :<span class="lineCov">         11 :     memset(dest, 0, sizeof(*dest));</span>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">         11 :     dest-&gt;info.security_type = src-&gt;info.security_type;</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">         11 :     dest-&gt;cmd_ioctl = src-&gt;cmd_ioctl;</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :<span class="lineCov">         11 :     dest-&gt;server_ip = atiny_strdup(src-&gt;server_ip);</span>
+<span class="lineNum">     167 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if(NULL == dest-&gt;server_ip)</span>
+<span class="lineNum">     168 </span>                :            :     {
+<span class="lineNum">     169 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;atiny_strdup NULL&quot;);</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     171 </span>                :            :     }
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">         10 :     dest-&gt;server_port = atiny_strdup(src-&gt;server_port);</span>
+<span class="lineNum">     174 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         10 :     if(NULL == dest-&gt;server_port)</span>
+<span class="lineNum">     175 </span>                :            :     {
+<span class="lineNum">     176 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;atiny_strdup NULL&quot;);</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">          1 :         goto mqtt_param_dup_failed;</span>
+<span class="lineNum">     178 </span>                :            :     }
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>     [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          9 :     switch(src-&gt;info.security_type)</span>
+<span class="lineNum">     181 </span>                :            :     {
+<span class="lineNum">     182 </span>                :            :         case MQTT_SECURITY_TYPE_PSK:
+<span class="lineNum">     183 </span>                :<span class="lineCov">          3 :             dest-&gt;info.u.psk.psk_id = (uint8_t *)atiny_malloc(src-&gt;info.u.psk.psk_id_len);</span>
+<span class="lineNum">     184 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :             if(NULL == dest-&gt;info.u.psk.psk_id)</span>
+<span class="lineNum">     185 </span>                :            :             {
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :                 ATINY_LOG(LOG_FATAL, &quot;atiny_strdup NULL&quot;);</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :                 goto mqtt_param_dup_failed;</span>
+<span class="lineNum">     188 </span>                :            :             }
+<span class="lineNum">     189 </span>                :<span class="lineCov">          2 :             memcpy(dest-&gt;info.u.psk.psk_id, src-&gt;info.u.psk.psk_id, src-&gt;info.u.psk.psk_id_len);</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          2 :             dest-&gt;info.u.psk.psk_id_len = src-&gt;info.u.psk.psk_id_len;</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :<span class="lineCov">          2 :             dest-&gt;info.u.psk.psk = (unsigned char *)atiny_malloc(src-&gt;info.u.psk.psk_len);</span>
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if(NULL == dest-&gt;info.u.psk.psk)</span>
+<span class="lineNum">     194 </span>                :            :             {
+<span class="lineNum">     195 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :                 ATINY_LOG(LOG_FATAL, &quot;atiny_strdup NULL&quot;);</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :                 goto mqtt_param_dup_failed;</span>
+<span class="lineNum">     197 </span>                :            :             }
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :             memcpy(dest-&gt;info.u.psk.psk, src-&gt;info.u.psk.psk, src-&gt;info.u.psk.psk_len);</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :             dest-&gt;info.u.psk.psk_len = src-&gt;info.u.psk.psk_len;</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            :         case MQTT_SECURITY_TYPE_CA:
+<span class="lineNum">     203 </span>                :<span class="lineCov">          2 :             dest-&gt;info.u.ca.ca_crt = (char *)atiny_malloc(src-&gt;info.u.ca.ca_len);</span>
+<span class="lineNum">     204 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if(NULL == dest-&gt;info.u.ca.ca_crt)</span>
+<span class="lineNum">     205 </span>                :            :             {
+<span class="lineNum">     206 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :                 ATINY_LOG(LOG_FATAL, &quot;atiny_strdup NULL&quot;);</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :                 goto mqtt_param_dup_failed;</span>
+<span class="lineNum">     208 </span>                :            :             }
+<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :             memcpy(dest-&gt;info.u.ca.ca_crt, src-&gt;info.u.ca.ca_crt, src-&gt;info.u.ca.ca_len);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :             dest-&gt;info.u.ca.ca_len = src-&gt;info.u.ca.ca_len;</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     212 </span>                :            :         default:
+<span class="lineNum">     213 </span>                :<span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     214 </span>                :            :     }
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineCov">          6 :     return ATINY_OK;</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            : mqtt_param_dup_failed:
+<span class="lineNum">     220 </span>                :<span class="lineCov">          4 :     mqtt_free_params(dest);</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">         11 :     return ATINY_MALLOC_FAILED;</span>
+<a name="222"><span class="lineNum">     222 </span>                :            : }</a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">         12 : static void mqtt_free_device_info(mqtt_device_info_s *info)</span>
+<span class="lineNum">     225 </span>                :            : {
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         12 :     TRY_FREE_MEM(info-&gt;password);</span>
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         12 :     if(MQTT_STATIC_CONNECT == info-&gt;connection_type)</span>
+<span class="lineNum">     229 </span>                :            :     {
+<span class="lineNum">     230 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         TRY_FREE_MEM(info-&gt;u.s_info.deviceid);</span>
+<span class="lineNum">     231 </span>                :            :     }
+<span class="lineNum">     232 </span>                :            :     else
+<span class="lineNum">     233 </span>                :            :     {
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          7 :         TRY_FREE_MEM(info-&gt;u.d_info.productid);</span>
+<span class="lineNum">     235 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          7 :         TRY_FREE_MEM(info-&gt;u.d_info.nodeid);</span>
+<span class="lineNum">     236 </span>                :            :     }
+<a name="237"><span class="lineNum">     237 </span>                :<span class="lineCov">         12 : }</span></a>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineCov">          9 : static void mqtt_free_dynamic_info(mqtt_client_s* handle)</span>
+<span class="lineNum">     240 </span>                :            : {
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          9 :     if (handle-&gt;sub_topic)</span>
+<span class="lineNum">     242 </span>                :            :     {
+<span class="lineNum">     243 </span>                :<span class="lineCov">          2 :         (void)MQTTSetMessageHandler(&amp;handle-&gt;client, handle-&gt;sub_topic, NULL);</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">          2 :         atiny_free(handle-&gt;sub_topic);</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">          2 :         handle-&gt;sub_topic = NULL;</span>
+<span class="lineNum">     246 </span>                :            :     }
+<span class="lineNum">     247 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          9 :     TRY_FREE_MEM(handle-&gt;dynamic_info.save_info.deviceid);</span>
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          9 :     TRY_FREE_MEM(handle-&gt;dynamic_info.got_passward);</span>
+<a name="249"><span class="lineNum">     249 </span>                :<span class="lineCov">          9 : }</span></a>
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :<span class="lineCov">         19 : static int mqtt_check_device_info(const mqtt_device_info_s *info)</span>
+<span class="lineNum">     252 </span>                :            : {
+<span class="lineNum">     253 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         19 :     if((info-&gt;connection_type &gt;= MQTT_MAX_CONNECTION_TYPE)</span>
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         || (info-&gt;codec_mode &gt;= MQTT_MAX_CODEC_MODE)</span>
+<span class="lineNum">     255 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         || (info-&gt;sign_type &gt;= MQTT_MAX_SIGN_TYPE)</span>
+<span class="lineNum">     256 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         || (NULL == info-&gt;password)</span>
+<span class="lineNum">     257 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 18 times"> + </span>]:<span class="lineCov">         18 :         || (!IS_VALID_NAME_LEN(info-&gt;password)))</span>
+<span class="lineNum">     258 </span>                :            :     {
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;invalid device info con_type %d codec_mode %d signe type %d&quot;,</span>
+<span class="lineNum">     260 </span>                :            :             info-&gt;connection_type, info-&gt;codec_mode, info-&gt;sign_type);
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     262 </span>                :            :     }
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">         18 :     if ((info-&gt;connection_type == MQTT_STATIC_CONNECT)</span>
+<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :         &amp;&amp; ((NULL == info-&gt;u.s_info.deviceid)</span>
+<span class="lineNum">     266 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         || (!IS_VALID_NAME_LEN(info-&gt;u.s_info.deviceid))))</span>
+<span class="lineNum">     267 </span>                :            :     {
+<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;invalid static device info con_type %d codec_mode %d signe type %d&quot;,</span>
+<span class="lineNum">     269 </span>                :            :             info-&gt;connection_type, info-&gt;codec_mode, info-&gt;sign_type);
+<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     271 </span>                :            :     }
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         17 :     if ((info-&gt;connection_type == MQTT_DYNAMIC_CONNECT)</span>
+<span class="lineNum">     274 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         14 :         &amp;&amp;((NULL == info-&gt;u.d_info.productid)</span>
+<span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 1 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         13 :         || (!IS_VALID_NAME_LEN(info-&gt;u.d_info.productid))</span>
+<span class="lineNum">     276 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         13 :         || (NULL == info-&gt;u.d_info.nodeid)</span>
+<span class="lineNum">     277 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 13 times"> + </span>]:<span class="lineCov">         13 :         || !(IS_VALID_NAME_LEN(info-&gt;u.d_info.nodeid))))</span>
+<span class="lineNum">     278 </span>                :            :     {
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;invalid dynamic device info con_type %d codec_mode %d signe type %d&quot;,</span>
+<span class="lineNum">     280 </span>                :            :             info-&gt;connection_type, info-&gt;codec_mode, info-&gt;sign_type);
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     282 </span>                :            :     }
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :<span class="lineCov">         19 :     return ATINY_OK;</span>
+<span class="lineNum">     285 </span>                :            : 
+<a name="286"><span class="lineNum">     286 </span>                :            : }</a>
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :<span class="lineCov">         16 : static int mqtt_dup_device_info(mqtt_device_info_s *dest, const mqtt_device_info_s *src)</span>
+<span class="lineNum">     289 </span>                :            : {
+<span class="lineNum">     290 </span>                :<span class="lineCov">         16 :     memset(dest, 0, sizeof(*dest));</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">         16 :     dest-&gt;connection_type = src-&gt;connection_type;</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">         16 :     dest-&gt;sign_type = src-&gt;sign_type;</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">         16 :     dest-&gt;codec_mode = src-&gt;codec_mode;</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">         16 :     dest-&gt;password = atiny_strdup(src-&gt;password);</span>
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (NULL == dest-&gt;password)</span>
+<span class="lineNum">     296 </span>                :            :     {
+<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;atiny_strdup fail&quot;);</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     299 </span>                :            :     }
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         15 :     if(MQTT_STATIC_CONNECT == src-&gt;connection_type)</span>
+<span class="lineNum">     302 </span>                :            :     {
+<span class="lineNum">     303 </span>                :<span class="lineCov">          3 :         dest-&gt;u.s_info.deviceid = atiny_strdup(src-&gt;u.s_info.deviceid);</span>
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (NULL == dest-&gt;u.s_info.deviceid)</span>
+<span class="lineNum">     305 </span>                :            :         {
+<span class="lineNum">     306 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;atiny_strdup fail&quot;);</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          1 :             goto MALLOC_FAIL;</span>
+<span class="lineNum">     308 </span>                :            :         }
+<span class="lineNum">     309 </span>                :            :     }
+<span class="lineNum">     310 </span>                :            :     else
+<span class="lineNum">     311 </span>                :            :     {
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :<span class="lineCov">         12 :         dest-&gt;u.d_info.productid = atiny_strdup(src-&gt;u.d_info.productid);</span>
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :         if (NULL == dest-&gt;u.d_info.productid)</span>
+<span class="lineNum">     315 </span>                :            :         {
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;atiny_strdup fail&quot;);</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :             goto MALLOC_FAIL;</span>
+<span class="lineNum">     318 </span>                :            :         }
+<span class="lineNum">     319 </span>                :<span class="lineCov">         11 :         dest-&gt;u.d_info.nodeid = atiny_strdup(src-&gt;u.d_info.nodeid);</span>
+<span class="lineNum">     320 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :         if (NULL == dest-&gt;u.d_info.nodeid)</span>
+<span class="lineNum">     321 </span>                :            :         {
+<span class="lineNum">     322 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;atiny_strdup fail&quot;);</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          1 :             goto MALLOC_FAIL;</span>
+<span class="lineNum">     324 </span>                :            :         }
+<span class="lineNum">     325 </span>                :            :     }
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :<span class="lineCov">         12 :     return ATINY_OK;</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            : MALLOC_FAIL:
+<span class="lineNum">     330 </span>                :<span class="lineCov">          3 :     mqtt_free_device_info(dest);</span>
+<span class="lineNum">     331 </span>                :<span class="lineCov">         16 :     return ATINY_MALLOC_FAILED;</span>
+<a name="332"><span class="lineNum">     332 </span>                :            : }</a>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineCov">       1829 : static bool mqtt_is_connectting_with_deviceid(const mqtt_client_s* handle)</span>
+<span class="lineNum">     335 </span>                :            : {
+<span class="lineNum">     336 </span>                :<span class="lineCov">       1829 :     return (MQTT_STATIC_CONNECT == handle-&gt;device_info.connection_type)</span>
+<span class="lineNum">     337 </span>[<span class="branchCov" title="Branch 0 was taken 1321 times"> + </span><span class="branchCov" title="Branch 1 was taken 508 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1013 times"> + </span><span class="branchCov" title="Branch 3 was taken 308 times"> + </span>]:<span class="lineCov">       1829 :            || (handle-&gt;dynamic_info.state == MQTT_CONNECT_WITH_DEVICE_ID);</span>
+<a name="338"><span class="lineNum">     338 </span>                :            : }</a>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :<span class="lineCov">        596 : static char *mqtt_add_strings(const char* strs[], uint32_t tmp_len[], uint32_t str_num)</span>
+<span class="lineNum">     341 </span>                :            : {
+<span class="lineNum">     342 </span>                :            :     uint32_t i;
+<span class="lineNum">     343 </span>                :<span class="lineCov">        596 :     const char hyphen = '_';</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">        596 :     uint32_t len = 0;</span>
+<span class="lineNum">     345 </span>                :            :     char *result;
+<span class="lineNum">     346 </span>                :            :     char *cur;
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>        [<span class="branchCov" title="Branch 0 was taken 2535 times"> + </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">       3131 :     for (i = 0; i &lt; str_num; i++)</span>
+<span class="lineNum">     349 </span>                :            :     {
+<span class="lineNum">     350 </span>                :<span class="lineCov">       2535 :         tmp_len[i] = strnlen(strs[i], STRING_MAX_LEN);</span>
+<span class="lineNum">     351 </span>                :<span class="lineCov">       2535 :         len += (tmp_len[i] + 1);</span>
+<span class="lineNum">     352 </span>                :            :     }
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :<span class="lineCov">        596 :     result = atiny_malloc(len);</span>
+<span class="lineNum">     355 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">        596 :     if (result == NULL)</span>
+<span class="lineNum">     356 </span>                :            :     {
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;mqtt_cmd_ioctl fail&quot;);</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     359 </span>                :            :     }
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :<span class="lineCov">        596 :     cur = result;</span>
+<span class="lineNum">     362 </span>        [<span class="branchCov" title="Branch 0 was taken 2535 times"> + </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">       3131 :     for (i = 0; i &lt; str_num; i++)</span>
+<span class="lineNum">     363 </span>                :            :     {
+<span class="lineNum">     364 </span>                :<span class="lineCov">       2535 :         memcpy(cur, strs[i], tmp_len[i]);</span>
+<span class="lineNum">     365 </span>                :<span class="lineCov">       2535 :         cur += tmp_len[i];</span>
+<span class="lineNum">     366 </span>        [<span class="branchCov" title="Branch 0 was taken 1939 times"> + </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">       2535 :         if (i != str_num - 1)</span>
+<span class="lineNum">     367 </span>                :            :         {
+<span class="lineNum">     368 </span>                :<span class="lineCov">       1939 :             *cur = hyphen;</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">       1939 :             cur++;</span>
+<span class="lineNum">     370 </span>                :            :         }
+<span class="lineNum">     371 </span>                :            :     }
+<span class="lineNum">     372 </span>                :<span class="lineCov">        596 :     *cur = '\0';</span>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineCov">        596 :     return result;</span>
+<a name="375"><span class="lineNum">     375 </span>                :            : }</a>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :<span class="lineCov">        596 : static const char *mqtt_connection_type_to_str(mqtt_connection_type_e type)</span>
+<span class="lineNum">     378 </span>                :            : {
+<span class="lineNum">     379 </span>        [<span class="branchCov" title="Branch 0 was taken 445 times"> + </span><span class="branchCov" title="Branch 1 was taken 151 times"> + </span>]:<span class="lineCov">        596 :     return MQTT_STATIC_CONNECT == type ? &quot;0&quot; : &quot;1&quot;;</span>
+<a name="380"><span class="lineNum">     380 </span>                :            : }</a>
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineCov">        596 : static const char *mqtt_sign_type_to_str(mqtt_password_sign_type_e type)</span>
+<span class="lineNum">     383 </span>                :            : {
+<span class="lineNum">     384 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">        596 :     return MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME == type ? &quot;0&quot; : &quot;1&quot;;</span>
+<a name="385"><span class="lineNum">     385 </span>                :            : }</a>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :<span class="lineCov">        476 : static void mqtt_bin_to_str(const uint8_t *bin_buf, char *str_buf, uint32_t bin_len)</span>
+<span class="lineNum">     388 </span>                :            : {
+<span class="lineNum">     389 </span>                :            :     uint32_t i;
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>        [<span class="branchCov" title="Branch 0 was taken 15232 times"> + </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>]:<span class="lineCov">      15708 :     for(i = 0; i &lt; bin_len; i++)</span>
+<span class="lineNum">     392 </span>                :            :     {
+<span class="lineNum">     393 </span>                :<span class="lineCov">      15232 :         (void)snprintf(str_buf + i * 2, 3, &quot;%02x&quot;, bin_buf[i]);</span>
+<a name="394"><span class="lineNum">     394 </span>                :            :     }</a>
+<span class="lineNum">     395 </span>                :<span class="lineCov">        476 : }</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">        596 : static char *mqtt_get_send_password(char *password, char *time)</span>
+<span class="lineNum">     397 </span>                :            : {
+<span class="lineNum">     398 </span>                :            :     uint8_t hmac[32];
+<span class="lineNum">     399 </span>                :<span class="lineCov">        596 :     const uint32_t len = sizeof(hmac) * 2 + 1;</span>
+<span class="lineNum">     400 </span>                :            :     char *result;
+<span class="lineNum">     401 </span>                :            :     int ret;
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :            :     mbedtls_hmac_t hmac_info;
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :<span class="lineCov">        596 :     hmac_info.secret = (uint8_t *)time;</span>
+<span class="lineNum">     406 </span>                :<span class="lineCov">        596 :     hmac_info.secret_len = strnlen(time, MQTT_TIME_BUF_LEN);</span>
+<span class="lineNum">     407 </span>                :<span class="lineCov">        596 :     hmac_info.input = (uint8_t *)password;</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">        596 :     hmac_info.input_len = strnlen(password, STRING_MAX_LEN);</span>
+<span class="lineNum">     409 </span>                :<span class="lineCov">        596 :     hmac_info.digest = hmac;</span>
+<span class="lineNum">     410 </span>                :<span class="lineCov">        596 :     hmac_info.digest_len = sizeof(hmac);</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">        596 :     hmac_info.hmac_type = MBEDTLS_MD_SHA256;</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">        596 :     ret = mbedtls_hmac_calc(&amp;hmac_info);</span>
+<span class="lineNum">     413 </span>        [<span class="branchCov" title="Branch 0 was taken 120 times"> + </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>]:<span class="lineCov">        596 :     if (ret != ATINY_OK)</span>
+<span class="lineNum">     414 </span>                :            :     {
+<span class="lineNum">     415 </span>        [<span class="branchCov" title="Branch 1 was taken 120 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        120 :         ATINY_LOG(LOG_FATAL, &quot;mbedtls_hmac_calc fail,ret %d&quot;, ret);</span>
+<span class="lineNum">     416 </span>                :<span class="lineCov">        119 :         return NULL;</span>
+<span class="lineNum">     417 </span>                :            :     }
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>                :<span class="lineCov">        476 :     result = atiny_malloc(len);</span>
+<span class="lineNum">     420 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>]:<span class="lineCov">        476 :     if (result == NULL)</span>
+<span class="lineNum">     421 </span>                :            :     {
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;atiny_malloc fail&quot;);</span>
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     424 </span>                :            :     }
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>                :<span class="lineCov">        476 :     mqtt_bin_to_str(hmac, result, sizeof(hmac));</span>
+<span class="lineNum">     427 </span>                :<span class="lineCov">        595 :     return result;</span>
+<a name="428"><span class="lineNum">     428 </span>                :            : }</a>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineCov">        595 : static void mqtt_destroy_data_connection_info(MQTTPacket_connectData *data)</span>
+<span class="lineNum">     431 </span>                :            : {
+<span class="lineNum">     432 </span>        [<span class="branchCov" title="Branch 0 was taken 595 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        595 :     TRY_FREE_MEM(data-&gt;clientID.cstring);</span>
+<span class="lineNum">     433 </span>        [<span class="branchCov" title="Branch 0 was taken 476 times"> + </span><span class="branchCov" title="Branch 1 was taken 119 times"> + </span>]:<span class="lineCov">        595 :     TRY_FREE_MEM(data-&gt;password.cstring);</span>
+<a name="434"><span class="lineNum">     434 </span>                :<span class="lineCov">        595 : }</span></a>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :<span class="lineCov">        596 : static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectData *data)</span>
+<span class="lineNum">     437 </span>                :            : {
+<span class="lineNum">     438 </span>                :            :     char *strs[5];
+<span class="lineNum">     439 </span>                :            :     uint32_t tmp[array_size(strs)];
+<span class="lineNum">     440 </span>                :<span class="lineCov">        596 :     uint32_t str_num = 0;</span>
+<span class="lineNum">     441 </span>                :            :     char time[MQTT_TIME_BUF_LEN];
+<span class="lineNum">     442 </span>                :            :     char *password;
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 1 was taken 445 times"> + </span><span class="branchCov" title="Branch 2 was taken 151 times"> + </span>]:<span class="lineCov">        596 :     if (mqtt_is_connectting_with_deviceid(handle))</span>
+<span class="lineNum">     445 </span>                :            :     {
+<span class="lineNum">     446 </span>        [<span class="branchCov" title="Branch 0 was taken 127 times"> + </span><span class="branchCov" title="Branch 1 was taken 318 times"> + </span>]:<span class="lineCov">        445 :         if (handle-&gt;device_info.connection_type == MQTT_STATIC_CONNECT)</span>
+<span class="lineNum">     447 </span>                :            :         {
+<span class="lineNum">     448 </span>                :<span class="lineCov">        127 :             strs[0] = handle-&gt;device_info.u.s_info.deviceid;</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">        127 :             password = handle-&gt;device_info.password;</span>
+<span class="lineNum">     450 </span>                :            :         }
+<span class="lineNum">     451 </span>                :            :         else
+<span class="lineNum">     452 </span>                :            :         {
+<span class="lineNum">     453 </span>                :<span class="lineCov">        318 :             strs[0] = handle-&gt;dynamic_info.save_info.deviceid;</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">        318 :             password = handle-&gt;dynamic_info.got_passward;</span>
+<span class="lineNum">     455 </span>                :            :         }
+<span class="lineNum">     456 </span>                :<span class="lineCov">        445 :         str_num = 1;</span>
+<span class="lineNum">     457 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 445 times"> + </span>]:<span class="lineCov">        445 :         ATINY_LOG(LOG_INFO, &quot;try static connect&quot;);</span>
+<span class="lineNum">     458 </span>                :            :     }
+<span class="lineNum">     459 </span>                :            :     else
+<span class="lineNum">     460 </span>                :            :     {
+<span class="lineNum">     461 </span>                :<span class="lineCov">        151 :         strs[0] = handle-&gt;device_info.u.d_info.productid;</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">        151 :         strs[1] = handle-&gt;device_info.u.d_info.nodeid;</span>
+<span class="lineNum">     463 </span>                :<span class="lineCov">        151 :         str_num = 2;</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">        151 :         password = handle-&gt;device_info.password;</span>
+<span class="lineNum">     465 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 151 times"> + </span>]:<span class="lineCov">        151 :         ATINY_LOG(LOG_INFO, &quot;try dynamic connect&quot;);</span>
+<span class="lineNum">     466 </span>                :            :     }
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>        [<span class="branchCov" title="Branch 0 was taken 445 times"> + </span><span class="branchCov" title="Branch 1 was taken 151 times"> + </span>]:<span class="lineCov">        596 :     strs[str_num++] = (char *)mqtt_connection_type_to_str(</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">        596 :             mqtt_is_connectting_with_deviceid(handle) ? MQTT_STATIC_CONNECT : MQTT_DYNAMIC_CONNECT);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">        596 :     strs[str_num++] = (char *)mqtt_sign_type_to_str(handle-&gt;device_info.sign_type);</span>
+<span class="lineNum">     471 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 596 times"> + </span>]:<span class="lineCov">        596 :     if (mqtt_cmd_ioctl(MQTT_GET_TIME, time, sizeof(time)) != ATINY_OK)</span>
+<span class="lineNum">     472 </span>                :            :     {
+<span class="lineNum">     473 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;mqtt_cmd_ioctl fail&quot;);</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :         return ATINY_ERR;</span>
+<span class="lineNum">     475 </span>                :            :     }
+<span class="lineNum">     476 </span>                :<span class="lineCov">        596 :     time[sizeof(time) - 1] = '\0';</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">        596 :     strs[str_num++] = time;</span>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :<span class="lineCov">        596 :     data-&gt;clientID.cstring = mqtt_add_strings((const char **)strs, tmp, str_num);</span>
+<span class="lineNum">     480 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">        596 :     if (data-&gt;clientID.cstring == NULL)</span>
+<span class="lineNum">     481 </span>                :            :     {
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     483 </span>                :            :     }
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>                :<span class="lineCov">        596 :     data-&gt;username.cstring = strs[0]; //deviceid or pruoductid</span>
+<span class="lineNum">     486 </span>                :<span class="lineCov">        596 :     data-&gt;password.cstring = mqtt_get_send_password(password, time);</span>
+<span class="lineNum">     487 </span>                :            : 
+<span class="lineNum">     488 </span>        [<span class="branchCov" title="Branch 0 was taken 119 times"> + </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>]:<span class="lineCov">        595 :     if (data-&gt;password.cstring == NULL)</span>
+<span class="lineNum">     489 </span>                :            :     {
+<span class="lineNum">     490 </span>                :<span class="lineCov">        119 :         return ATINY_ERR;</span>
+<span class="lineNum">     491 </span>                :            :     }
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 476 times"> + </span>]:<span class="lineCov">        476 :     ATINY_LOG(LOG_DEBUG, &quot;send user %s client %s pwd %s&quot;, data-&gt;username.cstring,</span>
+<span class="lineNum">     494 </span>                :            :                 data-&gt;clientID.cstring, data-&gt;password.cstring);
+<span class="lineNum">     495 </span>                :            : 
+<span class="lineNum">     496 </span>                :<span class="lineCov">        595 :     return ATINY_OK;</span>
+<a name="497"><span class="lineNum">     497 </span>                :            : }</a>
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :<span class="lineCov">        322 : static char *mqtt_get_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size,</span>
+<span class="lineNum">     500 </span>                :            :             const char *deviceid_or_productid, const char *sn_or_codec_mode)
+<span class="lineNum">     501 </span>                :            : {
+<span class="lineNum">     502 </span>                :            :     uint32_t len;
+<span class="lineNum">     503 </span>                :            :     char *topic;
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :<span class="lineCov">        322 :     len = fixed_size + strnlen(deviceid_or_productid, STRING_MAX_LEN) + strnlen(sn_or_codec_mode, STRING_MAX_LEN) + 1;</span>
+<span class="lineNum">     506 </span>                :<span class="lineCov">        322 :     topic = atiny_malloc(len);</span>
+<span class="lineNum">     507 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 321 times"> + </span>]:<span class="lineCov">        322 :     if (topic == NULL)</span>
+<span class="lineNum">     508 </span>                :            :     {
+<span class="lineNum">     509 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;atiny_malloc fail, len %d&quot;, len);</span>
+<span class="lineNum">     510 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     511 </span>                :            :     }
+<span class="lineNum">     512 </span>                :            : 
+<span class="lineNum">     513 </span>                :<span class="lineCov">        321 :     (void)snprintf(topic, len, fmt, deviceid_or_productid, sn_or_codec_mode);</span>
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineCov">        322 :     return topic;</span>
+<span class="lineNum">     516 </span>                :            : }
+<a name="517"><span class="lineNum">     517 </span>                :            : </a>
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :<span class="lineCov">        318 : static char *mqtt_get_device_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size)</span>
+<span class="lineNum">     520 </span>                :            : {
+<span class="lineNum">     521 </span>                :            :     char *deviceid;
+<span class="lineNum">     522 </span>                :<span class="lineCov">        318 :     const char *codec_mode[MQTT_MAX_CODEC_MODE] = {&quot;binary&quot;, &quot;json&quot;};</span>
+<span class="lineNum">     523 </span>                :            : 
+<span class="lineNum">     524 </span>                :<span class="lineCov">        636 :     deviceid = ((handle-&gt;device_info.connection_type == MQTT_STATIC_CONNECT) ?</span>
+<span class="lineNum">     525 </span>        [<span class="branchCov" title="Branch 0 was taken 127 times"> + </span><span class="branchCov" title="Branch 1 was taken 191 times"> + </span>]:<span class="lineCov">        318 :                 handle-&gt;device_info.u.s_info.deviceid : handle-&gt;dynamic_info.save_info.deviceid);</span>
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>                :<span class="lineCov">        318 :     return mqtt_get_topic(handle, fmt, fixed_size, deviceid, codec_mode[handle-&gt;device_info.codec_mode]);</span>
+<span class="lineNum">     528 </span>                :            : 
+<a name="529"><span class="lineNum">     529 </span>                :            : }</a>
+<span class="lineNum">     530 </span>                :            : 
+<span class="lineNum">     531 </span>                :<span class="lineCov">          4 : static char *mqtt_get_secret_topic(const mqtt_client_s* handle, const char *fmt, uint32_t fixed_size)</span>
+<span class="lineNum">     532 </span>                :            : {
+<span class="lineNum">     533 </span>                :<span class="lineCov">          4 :     return mqtt_get_topic(handle, fmt, fixed_size,</span>
+<span class="lineNum">     534 </span>                :<span class="lineCov">          4 :             handle-&gt;device_info.u.d_info.productid, handle-&gt;device_info.u.d_info.nodeid);</span>
+<a name="535"><span class="lineNum">     535 </span>                :            : }</a>
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :<span class="lineCov">          3 : static int mqtt_parse_secret_topic(mqtt_client_s* handle, const char *payload, uint32_t len)</span>
+<span class="lineNum">     538 </span>                :            : {
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :            :     //TODO:parse json, log
+<span class="lineNum">     541 </span>                :            :     cJSON *msg_type;
+<span class="lineNum">     542 </span>                :            :     cJSON *deviceid;
+<span class="lineNum">     543 </span>                :            :     cJSON *secret;
+<span class="lineNum">     544 </span>                :<span class="lineCov">          3 :     cJSON * root = NULL;</span>
+<span class="lineNum">     545 </span>                :<span class="lineCov">          3 :     int ret = ATINY_ERR;</span>
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :            : 
+<span class="lineNum">     548 </span>                :<span class="lineCov">          3 :     root = cJSON_Parse(payload);</span>
+<span class="lineNum">     549 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :     if (root == NULL)</span>
+<span class="lineNum">     550 </span>                :            :     {
+<span class="lineNum">     551 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;err secret notify, len %d, msg %s&quot;, len, payload);</span>
+<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :          goto EXIT;</span>
+<span class="lineNum">     553 </span>                :            :     }
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :<span class="lineCov">          3 :     msg_type = cJSON_GetObjectItem(root, MQTT_MSG_TYPE);</span>
+<span class="lineNum">     556 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :     if ((msg_type == NULL) || (msg_type-&gt;valuestring == NULL)</span>
+<span class="lineNum">     557 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         || (strncmp(msg_type-&gt;valuestring, &quot;cloudSendSecret&quot;, STRING_MAX_LEN + 1) != 0))</span>
+<span class="lineNum">     558 </span>                :            :     {
+<span class="lineNum">     559 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;msg_type not right&quot;);</span>
+<span class="lineNum">     560 </span>                :<span class="lineCov">          1 :         goto EXIT;</span>
+<span class="lineNum">     561 </span>                :            :     }
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>                :<span class="lineCov">          2 :     deviceid = cJSON_GetObjectItem(root, &quot;deviceid&quot;);</span>
+<span class="lineNum">     564 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :     if ((deviceid == NULL) || (deviceid-&gt;valuestring == NULL)</span>
+<span class="lineNum">     565 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         || (!IS_VALID_NAME_LEN(deviceid-&gt;valuestring)))</span>
+<span class="lineNum">     566 </span>                :            :     {
+<span class="lineNum">     567 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;deviceid not right&quot;);</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          1 :         goto EXIT;</span>
+<span class="lineNum">     569 </span>                :            :     }
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>                :<span class="lineCov">          1 :     secret = cJSON_GetObjectItem(root, &quot;secret&quot;);</span>
+<span class="lineNum">     572 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if ((secret == NULL) || (secret-&gt;valuestring == NULL)</span>
+<span class="lineNum">     573 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         || (!IS_VALID_NAME_LEN(secret-&gt;valuestring)))</span>
+<span class="lineNum">     574 </span>                :            :     {
+<span class="lineNum">     575 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_ERR, &quot;secret not right&quot;);</span>
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 :         goto EXIT;</span>
+<span class="lineNum">     577 </span>                :            :     }
+<span class="lineNum">     578 </span>                :            : 
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :     handle-&gt;dynamic_info.has_device_id = false;</span>
+<span class="lineNum">     580 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     TRY_FREE_MEM(handle-&gt;dynamic_info.save_info.deviceid);</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">          1 :     handle-&gt;dynamic_info.save_info.deviceid = atiny_strdup(deviceid-&gt;valuestring);</span>
+<span class="lineNum">     582 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (handle-&gt;dynamic_info.save_info.deviceid == NULL)</span>
+<span class="lineNum">     583 </span>                :            :     {
+<span class="lineNum">     584 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_INFO, &quot;atiny_strdup null&quot;);</span>
+<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :         goto EXIT;</span>
+<span class="lineNum">     586 </span>                :            :     }
+<span class="lineNum">     587 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     TRY_FREE_MEM(handle-&gt;dynamic_info.got_passward);</span>
+<span class="lineNum">     588 </span>                :<span class="lineCov">          1 :     handle-&gt;dynamic_info.got_passward = atiny_strdup(secret-&gt;valuestring);</span>
+<span class="lineNum">     589 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (handle-&gt;dynamic_info.got_passward == NULL)</span>
+<span class="lineNum">     590 </span>                :            :     {
+<span class="lineNum">     591 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_INFO, &quot;atiny_strdup null&quot;);</span>
+<span class="lineNum">     592 </span>                :<span class="lineNoCov">          0 :         goto EXIT;</span>
+<span class="lineNum">     593 </span>                :            :     }
+<span class="lineNum">     594 </span>                :<span class="lineCov">          1 :     handle-&gt;dynamic_info.has_device_id = true;</span>
+<span class="lineNum">     595 </span>                :<span class="lineCov">          1 :     handle-&gt;dynamic_info.connection_update_flag = true;</span>
+<span class="lineNum">     596 </span>                :<span class="lineCov">          1 :     ret = ATINY_OK;</span>
+<span class="lineNum">     597 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     ATINY_LOG(LOG_INFO, &quot;get secret info right&quot;);</span>
+<span class="lineNum">     598 </span>                :            : EXIT:
+<span class="lineNum">     599 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (root)</span>
+<span class="lineNum">     600 </span>                :            :     {
+<span class="lineNum">     601 </span>                :<span class="lineCov">          3 :         cJSON_Delete(root);</span>
+<span class="lineNum">     602 </span>                :            :     }
+<span class="lineNum">     603 </span>                :<span class="lineCov">          3 :     return ret;</span>
+<a name="604"><span class="lineNum">     604 </span>                :            : }</a>
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 : static void mqtt_send_secret_ack(mqtt_client_s* handle)</span>
+<span class="lineNum">     607 </span>                :            : {
+<span class="lineNum">     608 </span>                :            :     MQTTMessage message;
+<span class="lineNum">     609 </span>                :            :     int rc;
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineCov">          1 :     char* topic = mqtt_get_secret_topic(handle, SECRET_ACK_TOPIC_FMT, sizeof(SECRET_ACK_TOPIC_FMT) - VARIABLE_SIZE);</span>
+<span class="lineNum">     612 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (topic == NULL)</span>
+<span class="lineNum">     613 </span>                :            :     {
+<span class="lineNum">     614 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     615 </span>                :            :     }
+<span class="lineNum">     616 </span>                :<span class="lineCov">          1 :     memset(&amp;message, 0, sizeof(message));</span>
+<span class="lineNum">     617 </span>                :<span class="lineCov">          1 :     message.qos = QOS1;</span>
+<span class="lineNum">     618 </span>                :<span class="lineCov">          1 :     rc = MQTTPublish(&amp;handle-&gt;client, topic, &amp;message);</span>
+<span class="lineNum">     619 </span>                :<span class="lineCov">          1 :     atiny_free(topic);</span>
+<span class="lineNum">     620 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (rc != MQTT_SUCCESS)</span>
+<span class="lineNum">     621 </span>                :            :     {
+<span class="lineNum">     622 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_FATAL, &quot;MQTTPublish fail,rc %d&quot;, rc);</span>
+<span class="lineNum">     623 </span>                :            :     }
+<span class="lineNum">     624 </span>                :            : }
+<a name="625"><span class="lineNum">     625 </span>                :            : </a>
+<span class="lineNum">     626 </span>                :            : /*lint -e529*/
+<span class="lineNum">     627 </span>                :<span class="lineCov">        420 : static int mqtt_modify_payload(MessageData *md)</span>
+<span class="lineNum">     628 </span>                :            : {
+<span class="lineNum">     629 </span>                :<span class="lineCov">        420 :     char *end = ((char *)md-&gt;message-&gt;payload) + md-&gt;message-&gt;payloadlen;</span>
+<span class="lineNum">     630 </span>                :            :     static uint32_t callback_err;
+<span class="lineNum">     631 </span>                :            : 
+<span class="lineNum">     632 </span>                :            :     /* add for jason parse,then not need to copy in callback */
+<span class="lineNum">     633 </span>[<span class="branchCov" title="Branch 0 was taken 210 times"> + </span><span class="branchCov" title="Branch 1 was taken 210 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 210 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        420 :     if ((end &gt;= (char *)g_mqtt_readbuf) &amp;&amp; (end &lt; (char *)(g_mqtt_readbuf + sizeof(g_mqtt_readbuf))))</span>
+<span class="lineNum">     634 </span>                :            :     {
+<span class="lineNum">     635 </span>                :<span class="lineCov">        210 :          *end = '\0';</span>
+<span class="lineNum">     636 </span>                :            :          // ATINY_LOG(LOG_DEBUG, &quot;not expect msg callback err, pl %p, len %ld, err num %ld&quot;, md-&gt;message-&gt;payload, md-&gt;message-&gt;payloadlen, callback_err);
+<span class="lineNum">     637 </span>                :<span class="lineCov">        210 :          return ATINY_OK;</span>
+<span class="lineNum">     638 </span>                :            :     }
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :            :     /*  should not happen */
+<span class="lineNum">     641 </span>        [<span class="branchCov" title="Branch 1 was taken 210 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        210 :     ATINY_LOG(LOG_ERR, &quot;not expect msg callback err, pl %p, len %ld, err num %ld&quot;, md-&gt;message-&gt;payload, md-&gt;message-&gt;payloadlen, ++callback_err);</span>
+<span class="lineNum">     642 </span>                :            : 
+<span class="lineNum">     643 </span>                :<span class="lineCov">        418 :     return ATINY_ERR;</span>
+<span class="lineNum">     644 </span>                :            : }
+<a name="645"><span class="lineNum">     645 </span>                :            : /*lint +e529*/</a>
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :<span class="lineCov">          6 : static void mqtt_recv_secret_topic(MessageData *md)</span>
+<span class="lineNum">     648 </span>                :            : {
+<span class="lineNum">     649 </span>                :<span class="lineCov">          6 :     mqtt_client_s* handle = &amp;g_mqtt_client;</span>
+<span class="lineNum">     650 </span>                :            : 
+<span class="lineNum">     651 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     if ((md == NULL) || (md-&gt;message == NULL)</span>
+<span class="lineNum">     652 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :         || (md-&gt;message-&gt;payload == NULL)</span>
+<span class="lineNum">     653 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         || (md-&gt;message-&gt;payloadlen == 0)</span>
+<span class="lineNum">     654 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         || (mqtt_modify_payload(md) != ATINY_OK))</span>
+<span class="lineNum">     655 </span>                :            :     {
+<span class="lineNum">     656 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :         ATINY_LOG(LOG_FATAL, &quot;null point or msg err, len %ld&quot;, md-&gt;message-&gt;payloadlen);</span>
+<span class="lineNum">     657 </span>                :<span class="lineCov">          3 :         return;</span>
+<span class="lineNum">     658 </span>                :            :     }
+<span class="lineNum">     659 </span>                :            : 
+<span class="lineNum">     660 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (mqtt_parse_secret_topic(handle, md-&gt;message-&gt;payload, md-&gt;message-&gt;payloadlen) == ATINY_OK)</span>
+<span class="lineNum">     661 </span>                :            :     {
+<span class="lineNum">     662 </span>                :            :         flash_info_s flash_info;
+<span class="lineNum">     663 </span>                :<span class="lineCov">          1 :         flash_info.items[PRODUCT_IDX] = handle-&gt;device_info.u.d_info.productid;</span>
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 :         flash_info.items[NODEID_IDX] = handle-&gt;device_info.u.d_info.nodeid;</span>
+<span class="lineNum">     665 </span>                :<span class="lineCov">          1 :         flash_info.items[DEVICEID_IDX] = handle-&gt;dynamic_info.save_info.deviceid;</span>
+<span class="lineNum">     666 </span>                :<span class="lineCov">          1 :         flash_info.items[PASSWORD_IDX] = handle-&gt;dynamic_info.got_passward;</span>
+<span class="lineNum">     667 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (flash_manager_write(&amp;flash_info) != ATINY_OK)</span>
+<span class="lineNum">     668 </span>                :            :         {
+<span class="lineNum">     669 </span>                :<span class="lineNoCov">          0 :             return;</span>
+<span class="lineNum">     670 </span>                :            :         }
+<span class="lineNum">     671 </span>                :<span class="lineCov">          6 :         mqtt_send_secret_ack(handle);</span>
+<span class="lineNum">     672 </span>                :            :     }
+<a name="673"><span class="lineNum">     673 </span>                :            : }</a>
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :<span class="lineCov">        521 : static void mqtt_recv_cmd_topic(MessageData *md)</span>
+<span class="lineNum">     676 </span>                :            : {
+<span class="lineNum">     677 </span>[<span class="branchCov" title="Branch 0 was taken 417 times"> + </span><span class="branchCov" title="Branch 1 was taken 104 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 417 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        521 :     if ((md == NULL) || (md-&gt;message == NULL)</span>
+<span class="lineNum">     678 </span>        [<span class="branchCov" title="Branch 1 was taken 208 times"> + </span><span class="branchCov" title="Branch 2 was taken 207 times"> + </span>]:<span class="lineCov">        417 :         || (mqtt_modify_payload(md) != ATINY_OK))</span>
+<span class="lineNum">     679 </span>                :            :     {
+<span class="lineNum">     680 </span>        [<span class="branchCov" title="Branch 1 was taken 312 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        312 :         ATINY_LOG(LOG_FATAL, &quot;null point&quot;);</span>
+<span class="lineNum">     681 </span>                :<span class="lineCov">        518 :         return;</span>
+<span class="lineNum">     682 </span>                :            :     }
+<span class="lineNum">     683 </span>                :<span class="lineCov">        207 :     (void)mqtt_cmd_ioctl(MQTT_RCV_MSG, md-&gt;message-&gt;payload, md-&gt;message-&gt;payloadlen);</span>
+<a name="684"><span class="lineNum">     684 </span>                :            : }</a>
+<span class="lineNum">     685 </span>                :            : 
+<span class="lineNum">     686 </span>                :<span class="lineCov">        318 : static int mqtt_subscribe_topic(mqtt_client_s* handle)</span>
+<span class="lineNum">     687 </span>                :            : {
+<span class="lineNum">     688 </span>                :            :     char *topic;
+<span class="lineNum">     689 </span>                :            :     void (*topi_callback)(MessageData *md);
+<span class="lineNum">     690 </span>                :            :     int rc;
+<span class="lineNum">     691 </span>                :            : 
+<span class="lineNum">     692 </span>        [<span class="branchCov" title="Branch 0 was taken 315 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">        318 :     if (handle-&gt;sub_topic)</span>
+<span class="lineNum">     693 </span>                :            :     {
+<span class="lineNum">     694 </span>                :<span class="lineCov">        315 :         (void)MQTTSetMessageHandler(&amp;handle-&gt;client, handle-&gt;sub_topic, NULL);</span>
+<span class="lineNum">     695 </span>                :<span class="lineCov">        315 :         atiny_free(handle-&gt;sub_topic);</span>
+<span class="lineNum">     696 </span>                :<span class="lineCov">        315 :         handle-&gt;sub_topic = NULL;</span>
+<span class="lineNum">     697 </span>                :            :     }
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>        [<span class="branchCov" title="Branch 1 was taken 315 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">        318 :     if (mqtt_is_connectting_with_deviceid(handle))</span>
+<span class="lineNum">     700 </span>                :            :     {
+<span class="lineNum">     701 </span>                :<span class="lineCov">        315 :         topic = mqtt_get_device_topic(handle, CMD_TOPIC_FMT, sizeof(CMD_TOPIC_FMT) - VARIABLE_SIZE);</span>
+<span class="lineNum">     702 </span>                :<span class="lineCov">        315 :         topi_callback = mqtt_recv_cmd_topic;</span>
+<span class="lineNum">     703 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 315 times"> + </span>]:<span class="lineCov">        315 :         ATINY_LOG(LOG_INFO, &quot;try subcribe static topic&quot;);</span>
+<span class="lineNum">     704 </span>                :            :     }
+<span class="lineNum">     705 </span>                :            :     else
+<span class="lineNum">     706 </span>                :            :     {
+<span class="lineNum">     707 </span>                :<span class="lineCov">          3 :         topic = mqtt_get_secret_topic(handle, SECRET_NOTIFY_TOPIC_FMT, sizeof(SECRET_NOTIFY_TOPIC_FMT) - VARIABLE_SIZE);;</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">          3 :         topi_callback = mqtt_recv_secret_topic;</span>
+<span class="lineNum">     709 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :          ATINY_LOG(LOG_INFO, &quot;try subcribe dynamic topic&quot;);</span>
+<span class="lineNum">     710 </span>                :            :     }
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 318 times"> + </span>]:<span class="lineCov">        318 :     if (topic == NULL)</span>
+<span class="lineNum">     713 </span>                :            :     {
+<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :         return ATINY_ERR;</span>
+<span class="lineNum">     715 </span>                :            :     }
+<span class="lineNum">     716 </span>                :            : 
+<span class="lineNum">     717 </span>                :            : 
+<span class="lineNum">     718 </span>                :<span class="lineCov">        318 :     rc = MQTTSubscribe(&amp;handle-&gt;client, topic, QOS1, topi_callback);</span>
+<span class="lineNum">     719 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 314 times"> + </span>]:<span class="lineCov">        315 :     if (rc != MQTT_SUCCESS)</span>
+<span class="lineNum">     720 </span>                :            :     {
+<span class="lineNum">     721 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :          ATINY_LOG(LOG_FATAL, &quot;MQTTSubscribe fail,rc=%d, topic=%s&quot;, rc, topic);</span>
+<span class="lineNum">     722 </span>                :<span class="lineCov">          1 :          atiny_free(topic);</span>
+<span class="lineNum">     723 </span>                :            :     }
+<span class="lineNum">     724 </span>                :            :     else
+<span class="lineNum">     725 </span>                :            :     {
+<span class="lineNum">     726 </span>                :<span class="lineCov">        314 :         handle-&gt;sub_topic = topic;</span>
+<span class="lineNum">     727 </span>                :            :     }
+<span class="lineNum">     728 </span>                :            : 
+<span class="lineNum">     729 </span>                :<span class="lineCov">        315 :     return rc;</span>
+<a name="730"><span class="lineNum">     730 </span>                :            : }</a>
+<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     732 </span>                :<span class="lineCov">        591 : static void mqtt_disconnect( MQTTClient *client, Network *n)</span>
+<span class="lineNum">     733 </span>                :            : {
+<span class="lineNum">     734 </span>        [<span class="branchCov" title="Branch 1 was taken 315 times"> + </span><span class="branchCov" title="Branch 2 was taken 276 times"> + </span>]:<span class="lineCov">        591 :     if (MQTTIsConnected(client))</span>
+<span class="lineNum">     735 </span>                :            :     {
+<span class="lineNum">     736 </span>                :<span class="lineCov">        315 :         (void)MQTTDisconnect(client);</span>
+<span class="lineNum">     737 </span>                :            :     }
+<span class="lineNum">     738 </span>                :<span class="lineCov">        591 :     NetworkDisconnect(n);</span>
+<span class="lineNum">     739 </span>                :            : 
+<span class="lineNum">     740 </span>        [<span class="branchCov" title="Branch 1 was taken 588 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        588 :     ATINY_LOG(LOG_ERR, &quot;mqtt_disconnect&quot;);</span>
+<a name="741"><span class="lineNum">     741 </span>                :<span class="lineCov">        587 : }</span></a>
+<span class="lineNum">     742 </span>                :            : 
+<span class="lineNum">     743 </span>                :<span class="lineCov">        371 : static inline void mqtt_inc_fail_cnt(int32_t *conn_failed_cnt)</span>
+<span class="lineNum">     744 </span>                :            : {
+<span class="lineNum">     745 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 341 times"> + </span>]:<span class="lineCov">        371 :     if(*conn_failed_cnt &lt; MQTT_CONN_FAILED_MAX_TIMES)</span>
+<span class="lineNum">     746 </span>                :            :     {
+<span class="lineNum">     747 </span>                :<span class="lineCov">         30 :         (*conn_failed_cnt)++;</span>
+<span class="lineNum">     748 </span>                :            :     }
+<a name="749"><span class="lineNum">     749 </span>                :<span class="lineCov">        371 : }</span></a>
+<span class="lineNum">     750 </span>                :            : 
+<span class="lineNum">     751 </span>                :<span class="lineCov">        277 : static void mqtt_proc_connect_err( MQTTClient *client, Network *n, int32_t *conn_failed_cnt)</span>
+<span class="lineNum">     752 </span>                :            : {
+<span class="lineNum">     753 </span>                :<span class="lineCov">        277 :     mqtt_inc_fail_cnt(conn_failed_cnt);</span>
+<span class="lineNum">     754 </span>                :<span class="lineCov">        277 :     mqtt_disconnect(client, n);</span>
+<a name="755"><span class="lineNum">     755 </span>                :<span class="lineCov">        275 : }</span></a>
+<span class="lineNum">     756 </span>                :            : 
+<span class="lineNum">     757 </span>                :<span class="lineCov">        158 : static void mqtt_proc_connect_nack(mqtt_client_s* handle)</span>
+<span class="lineNum">     758 </span>                :            : {
+<span class="lineNum">     759 </span>        [<span class="branchCov" title="Branch 0 was taken 158 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        158 :     if (handle-&gt;device_info.connection_type == MQTT_DYNAMIC_CONNECT)</span>
+<span class="lineNum">     760 </span>                :            :     {
+<span class="lineNum">     761 </span>        [<span class="branchCov" title="Branch 0 was taken 79 times"> + </span><span class="branchCov" title="Branch 1 was taken 79 times"> + </span>]:<span class="lineCov">        158 :         if (handle-&gt;dynamic_info.state == MQTT_CONNECT_WITH_DEVICE_ID)</span>
+<span class="lineNum">     762 </span>                :            :         {
+<span class="lineNum">     763 </span>                :<span class="lineCov">         79 :             handle-&gt;dynamic_info.state = MQTT_CONNECT_WITH_PRODUCT_ID;</span>
+<span class="lineNum">     764 </span>                :            :         }
+<span class="lineNum">     765 </span>                :            :         else
+<span class="lineNum">     766 </span>                :            :         {
+<span class="lineNum">     767 </span>        [<span class="branchCov" title="Branch 0 was taken 79 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         79 :             if (handle-&gt;dynamic_info.has_device_id)</span>
+<span class="lineNum">     768 </span>                :            :             {
+<span class="lineNum">     769 </span>                :<span class="lineCov">         79 :                 handle-&gt;dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;</span>
+<span class="lineNum">     770 </span>                :            :             }
+<span class="lineNum">     771 </span>                :            :         }
+<span class="lineNum">     772 </span>                :            :     }
+<a name="773"><span class="lineNum">     773 </span>                :<span class="lineCov">        158 : }</span></a>
+<span class="lineNum">     774 </span>                :            : 
+<span class="lineNum">     775 </span>                :<span class="lineCov">         12 : static mqtt_security_info_s *mqtt_get_security_info(void)</span>
+<span class="lineNum">     776 </span>                :            : {
+<span class="lineNum">     777 </span>                :<span class="lineCov">         12 :     mqtt_client_s* handle = &amp;g_mqtt_client;</span>
+<span class="lineNum">     778 </span>                :<span class="lineCov">         12 :     return &amp;handle-&gt;params.info;</span>
+<a name="779"><span class="lineNum">     779 </span>                :            : }</a>
+<span class="lineNum">     780 </span>                :            : 
+<span class="lineNum">     781 </span>                :<span class="lineCov">         12 : static void mqtt_read_flash_info(mqtt_client_s* handle)</span>
+<span class="lineNum">     782 </span>                :            : {
+<span class="lineNum">     783 </span>                :            :     flash_info_s flash_info;
+<span class="lineNum">     784 </span>                :            : 
+<span class="lineNum">     785 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         12 :     if (handle-&gt;device_info.connection_type == MQTT_STATIC_CONNECT)</span>
+<span class="lineNum">     786 </span>                :            :     {
+<span class="lineNum">     787 </span>                :<span class="lineCov">          2 :         return;</span>
+<span class="lineNum">     788 </span>                :            :     }
+<span class="lineNum">     789 </span>                :            : 
+<span class="lineNum">     790 </span>                :<span class="lineCov">         10 :     memset(&amp;handle-&gt;dynamic_info, 0, sizeof(handle-&gt;dynamic_info));</span>
+<span class="lineNum">     791 </span>                :<span class="lineCov">         10 :     memset(&amp;flash_info, 0, sizeof(flash_info));</span>
+<span class="lineNum">     792 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         10 :     if (flash_manager_read(&amp;flash_info) != ATINY_OK)</span>
+<span class="lineNum">     793 </span>                :            :     {
+<span class="lineNum">     794 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     795 </span>                :            :     }
+<span class="lineNum">     796 </span>                :            : 
+<span class="lineNum">     797 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         10 :     if ((strcmp(flash_info.items[PRODUCT_IDX], handle-&gt;device_info.u.d_info.productid) != 0)</span>
+<span class="lineNum">     798 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">          9 :         || (strcmp(flash_info.items[NODEID_IDX], handle-&gt;device_info.u.d_info.nodeid) != 0))</span>
+<span class="lineNum">     799 </span>                :            :     {
+<span class="lineNum">     800 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;flash info for the nodeid and not use&quot;);</span>
+<span class="lineNum">     801 </span>                :<span class="lineCov">          1 :         flash_manager_destroy_flash_info(&amp;flash_info);</span>
+<span class="lineNum">     802 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     803 </span>                :            :     }
+<span class="lineNum">     804 </span>                :            : 
+<span class="lineNum">     805 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 9 times"> + </span>]:<span class="lineCov">          9 :     ATINY_LOG(LOG_DEBUG, &quot;mqtt read info deviceid %s,pwd %s,procid %s,nodid %s&quot;,</span>
+<span class="lineNum">     806 </span>                :            :             flash_info.items[DEVICEID_IDX], flash_info.items[PASSWORD_IDX],
+<span class="lineNum">     807 </span>                :            :             flash_info.items[PRODUCT_IDX], flash_info.items[NODEID_IDX]);
+<span class="lineNum">     808 </span>                :            : 
+<span class="lineNum">     809 </span>                :<span class="lineCov">          9 :     handle-&gt;dynamic_info.save_info.deviceid = flash_info.items[DEVICEID_IDX];</span>
+<span class="lineNum">     810 </span>                :<span class="lineCov">          9 :     flash_info.items[DEVICEID_IDX] = NULL;</span>
+<span class="lineNum">     811 </span>                :<span class="lineCov">          9 :     handle-&gt;dynamic_info.got_passward =  flash_info.items[PASSWORD_IDX];</span>
+<span class="lineNum">     812 </span>                :<span class="lineCov">          9 :     flash_info.items[PASSWORD_IDX] = NULL;</span>
+<span class="lineNum">     813 </span>                :<span class="lineCov">          9 :     handle-&gt;dynamic_info.has_device_id = true;</span>
+<span class="lineNum">     814 </span>                :<span class="lineCov">          9 :     handle-&gt;dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;</span>
+<span class="lineNum">     815 </span>                :<span class="lineCov">         12 :     flash_manager_destroy_flash_info(&amp;flash_info);</span>
+<a name="816"><span class="lineNum">     816 </span>                :            : }</a>
+<span class="lineNum">     817 </span>                :            : 
+<span class="lineNum">     818 </span>                :<span class="lineCov">         16 : int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)</span>
+<span class="lineNum">     819 </span>                :            : {
+<span class="lineNum">     820 </span>                :<span class="lineCov">         16 :     cJSON_InitHooks(NULL);</span>
+<span class="lineNum">     821 </span>[<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         16 :     if (params == NULL || phandle == NULL</span>
+<span class="lineNum">     822 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         15 :         || mqtt_check_param(params) != ATINY_OK)</span>
+<span class="lineNum">     823 </span>                :            :     {
+<span class="lineNum">     824 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :         ATINY_LOG(LOG_FATAL, &quot;Invalid args&quot;);</span>
+<span class="lineNum">     825 </span>                :<span class="lineCov">          4 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">     826 </span>                :            :     }
+<span class="lineNum">     827 </span>                :            : 
+<span class="lineNum">     828 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         12 :     if (g_mqtt_client.init_flag)</span>
+<span class="lineNum">     829 </span>                :            :     {
+<span class="lineNum">     830 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;mqtt reinit&quot;);</span>
+<span class="lineNum">     831 </span>                :<span class="lineCov">          1 :         return ATINY_ERR;</span>
+<span class="lineNum">     832 </span>                :            :     }
+<span class="lineNum">     833 </span>                :            : 
+<span class="lineNum">     834 </span>                :<span class="lineCov">         11 :     memset(&amp;g_mqtt_client, 0, sizeof(g_mqtt_client));</span>
+<span class="lineNum">     835 </span>                :            : 
+<span class="lineNum">     836 </span>        [<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         11 :     if (ATINY_OK != mqtt_dup_param(&amp;(g_mqtt_client.params), params))</span>
+<span class="lineNum">     837 </span>                :            :     {
+<span class="lineNum">     838 </span>                :<span class="lineCov">          5 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     839 </span>                :            :     }
+<span class="lineNum">     840 </span>                :            : 
+<span class="lineNum">     841 </span>                :<span class="lineCov">          6 :     flash_manager_init(mqtt_cmd_ioctl);</span>
+<span class="lineNum">     842 </span>                :            : 
+<span class="lineNum">     843 </span>                :<span class="lineCov">          6 :     *phandle = &amp;g_mqtt_client;</span>
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>                :<span class="lineCov">          6 :     g_mqtt_client.init_flag = true;</span>
+<span class="lineNum">     846 </span>                :            : 
+<span class="lineNum">     847 </span>                :<span class="lineCov">         16 :     return ATINY_OK;</span>
+<a name="848"><span class="lineNum">     848 </span>                :            : }</a>
+<span class="lineNum">     849 </span>                :            : 
+<span class="lineNum">     850 </span>                :<span class="lineCov">         19 : int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle)</span>
+<span class="lineNum">     851 </span>                :            : {
+<span class="lineNum">     852 </span>                :            :     Network n;
+<span class="lineNum">     853 </span>                :<span class="lineCov">         19 :     MQTTClient *client = NULL;</span>
+<span class="lineNum">     854 </span>                :            :     mqtt_param_s *params;
+<span class="lineNum">     855 </span>                :            :     int rc;
+<span class="lineNum">     856 </span>                :<span class="lineCov">         19 :     int32_t conn_failed_cnt = 0;</span>
+<span class="lineNum">     857 </span>                :<span class="lineCov">         19 :     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;</span>
+<span class="lineNum">     858 </span>                :            :     Timer timer;
+<span class="lineNum">     859 </span>                :<span class="lineCov">         19 :     int result = ATINY_ERR;</span>
+<span class="lineNum">     860 </span>                :            : 
+<span class="lineNum">     861 </span>[<span class="branchCov" title="Branch 0 was taken 19 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 19 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         19 :     if((NULL == handle) || (device_info == NULL)</span>
+<span class="lineNum">     862 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 16 times"> + </span>]:<span class="lineCov">         19 :         || (mqtt_check_device_info(device_info) != ATINY_OK))</span>
+<span class="lineNum">     863 </span>                :            :     {
+<span class="lineNum">     864 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :         ATINY_LOG(LOG_FATAL, &quot;parameter invalid&quot;);</span>
+<span class="lineNum">     865 </span>                :<span class="lineCov">          3 :         result = ATINY_ARG_INVALID;</span>
+<span class="lineNum">     866 </span>                :<span class="lineCov">          3 :         goto  atiny_bind_quit;</span>
+<span class="lineNum">     867 </span>                :            :     }
+<span class="lineNum">     868 </span>                :            : 
+<span class="lineNum">     869 </span>                :<span class="lineCov">         16 :     dtls_init();</span>
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineCov">         16 :     client = &amp;(handle-&gt;client);</span>
+<span class="lineNum">     872 </span>                :<span class="lineCov">         16 :     params = &amp;(handle-&gt;params);</span>
+<span class="lineNum">     873 </span>                :            : 
+<span class="lineNum">     874 </span>                :<span class="lineCov">         16 :     rc = mqtt_dup_device_info(&amp;(handle-&gt;device_info), device_info);</span>
+<span class="lineNum">     875 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         16 :     if (rc != ATINY_OK)</span>
+<span class="lineNum">     876 </span>                :            :     {
+<span class="lineNum">     877 </span>                :<span class="lineCov">          4 :         goto  atiny_bind_quit;</span>
+<span class="lineNum">     878 </span>                :            :     }
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :<span class="lineCov">         12 :     mqtt_read_flash_info(handle);</span>
+<span class="lineNum">     881 </span>                :            : 
+<span class="lineNum">     882 </span>                :<span class="lineCov">         12 :     NetworkInit(&amp;n, mqtt_get_security_info);</span>
+<span class="lineNum">     883 </span>                :            : 
+<span class="lineNum">     884 </span>                :<span class="lineCov">         12 :     memset(client, 0x0, sizeof(MQTTClient));</span>
+<span class="lineNum">     885 </span>                :<span class="lineCov">         12 :     rc = MQTTClientInit(client, &amp;n, MQTT_COMMAND_TIMEOUT_MS, g_mqtt_sendbuf, MQTT_SENDBUF_SIZE, g_mqtt_readbuf, MQTT_READBUF_SIZE);</span>
+<span class="lineNum">     886 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         12 :     if (rc != MQTT_SUCCESS)</span>
+<span class="lineNum">     887 </span>                :            :     {
+<span class="lineNum">     888 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         ATINY_LOG(LOG_FATAL, &quot;MQTTClientInit fail,rc %d&quot;, rc);</span>
+<span class="lineNum">     889 </span>                :<span class="lineCov">          2 :         goto  atiny_bind_quit;</span>
+<span class="lineNum">     890 </span>                :            :     }
+<span class="lineNum">     891 </span>                :            : 
+<span class="lineNum">     892 </span>                :<span class="lineCov">         10 :     data.willFlag = 0;</span>
+<span class="lineNum">     893 </span>                :<span class="lineCov">         10 :     data.MQTTVersion = MQTT_VERSION_3_1_1;</span>
+<span class="lineNum">     894 </span>                :<span class="lineCov">         10 :     data.keepAliveInterval = MQTT_KEEPALIVE_INTERVAL_S;</span>
+<span class="lineNum">     895 </span>                :<span class="lineCov">         10 :     data.cleansession = true;</span>
+<span class="lineNum">     896 </span>                :            : 
+<span class="lineNum">     897 </span>                :            :     while(true)
+<span class="lineNum">     898 </span>                :            :     {
+<span class="lineNum">     899 </span>        [<span class="branchCov" title="Branch 0 was taken 369 times"> + </span><span class="branchCov" title="Branch 1 was taken 322 times"> + </span>]:<span class="lineCov">        691 :         if(conn_failed_cnt &gt; 0)</span>
+<span class="lineNum">     900 </span>                :            :         {
+<span class="lineNum">     901 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 369 times"> + </span>]:<span class="lineCov">        369 :             ATINY_LOG(LOG_INFO, &quot;reconnect delay : %d&quot;, conn_failed_cnt);</span>
+<span class="lineNum">     902 </span>                :<span class="lineCov">        369 :             (void)LOS_TaskDelay(MQTT_CONN_FAILED_BASE_DELAY &lt;&lt; conn_failed_cnt);</span>
+<span class="lineNum">     903 </span>                :            :         }
+<span class="lineNum">     904 </span>                :            : 
+<span class="lineNum">     905 </span>                :<span class="lineCov">        691 :         rc = NetworkConnect(&amp;n, params-&gt;server_ip, atoi(params-&gt;server_port));</span>
+<span class="lineNum">     906 </span>        [<span class="branchCov" title="Branch 0 was taken 95 times"> + </span><span class="branchCov" title="Branch 1 was taken 596 times"> + </span>]:<span class="lineCov">        691 :         if(rc != 0)</span>
+<span class="lineNum">     907 </span>                :            :         {
+<span class="lineNum">     908 </span>        [<span class="branchCov" title="Branch 1 was taken 95 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         95 :             ATINY_LOG(LOG_ERR, &quot;NetworkConnect fail: %d&quot;, rc);</span>
+<span class="lineNum">     909 </span>                :<span class="lineCov">         94 :             mqtt_inc_fail_cnt(&amp;conn_failed_cnt);</span>
+<span class="lineNum">     910 </span>                :<span class="lineCov">         94 :             continue;</span>
+<span class="lineNum">     911 </span>                :            :         }
+<span class="lineNum">     912 </span>                :            : 
+<span class="lineNum">     913 </span>        [<span class="branchCov" title="Branch 1 was taken 119 times"> + </span><span class="branchCov" title="Branch 2 was taken 476 times"> + </span>]:<span class="lineCov">        596 :         if(mqtt_get_connection_info(handle, &amp;data) != ATINY_OK)</span>
+<span class="lineNum">     914 </span>                :            :         {
+<span class="lineNum">     915 </span>                :<span class="lineCov">        119 :             mqtt_destroy_data_connection_info(&amp;data);</span>
+<span class="lineNum">     916 </span>                :<span class="lineCov">        119 :             mqtt_proc_connect_err(client, &amp;n, &amp;conn_failed_cnt);</span>
+<span class="lineNum">     917 </span>                :<span class="lineCov">        118 :             continue;</span>
+<span class="lineNum">     918 </span>                :            :         }
+<span class="lineNum">     919 </span>                :            : 
+<span class="lineNum">     920 </span>                :<span class="lineCov">        476 :         rc = MQTTConnect(client, &amp;data);</span>
+<span class="lineNum">     921 </span>                :<span class="lineCov">        476 :         mqtt_destroy_data_connection_info(&amp;data);</span>
+<span class="lineNum">     922 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 476 times"> + </span>]:<span class="lineCov">        476 :         ATINY_LOG(LOG_DEBUG, &quot;CONNACK : %d&quot;, rc);</span>
+<span class="lineNum">     923 </span>        [<span class="branchCov" title="Branch 0 was taken 158 times"> + </span><span class="branchCov" title="Branch 1 was taken 318 times"> + </span>]:<span class="lineCov">        476 :         if(MQTT_SUCCESS != rc)</span>
+<span class="lineNum">     924 </span>                :            :         {
+<span class="lineNum">     925 </span>                :            :             // receive connection nack value
+<span class="lineNum">     926 </span>        [<span class="branchCov" title="Branch 0 was taken 158 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        158 :             if (rc != MQTT_SUCCESS)</span>
+<span class="lineNum">     927 </span>                :            :             {
+<span class="lineNum">     928 </span>                :<span class="lineCov">        158 :                 mqtt_proc_connect_nack(handle);</span>
+<span class="lineNum">     929 </span>                :            :             }
+<span class="lineNum">     930 </span>        [<span class="branchCov" title="Branch 1 was taken 158 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        158 :             ATINY_LOG(LOG_ERR, &quot;MQTTConnect failed %d&quot;, rc);</span>
+<span class="lineNum">     931 </span>                :<span class="lineCov">        157 :             mqtt_proc_connect_err(client, &amp;n, &amp;conn_failed_cnt);</span>
+<span class="lineNum">     932 </span>                :<span class="lineCov">        156 :             continue;</span>
+<span class="lineNum">     933 </span>                :            :         }
+<span class="lineNum">     934 </span>                :            : 
+<span class="lineNum">     935 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 314 times"> + </span>]:<span class="lineCov">        318 :         if(ATINY_OK != mqtt_subscribe_topic(handle))</span>
+<span class="lineNum">     936 </span>                :            :         {
+<span class="lineNum">     937 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_ERR, &quot;mqtt_subscribe_topic failed&quot;);</span>
+<span class="lineNum">     938 </span>                :<span class="lineCov">          1 :             mqtt_proc_connect_err(client, &amp;n, &amp;conn_failed_cnt);</span>
+<span class="lineNum">     939 </span>                :<span class="lineCov">          1 :             continue;</span>
+<span class="lineNum">     940 </span>                :            :         }
+<span class="lineNum">     941 </span>                :            : 
+<span class="lineNum">     942 </span>                :<span class="lineCov">        314 :         conn_failed_cnt = 0;</span>
+<span class="lineNum">     943 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 311 times"> + </span>]:<span class="lineCov">        314 :         if (!mqtt_is_connectting_with_deviceid(handle))</span>
+<span class="lineNum">     944 </span>                :            :         {
+<span class="lineNum">     945 </span>                :<span class="lineCov">          3 :             TimerInit(&amp;timer);</span>
+<span class="lineNum">     946 </span>                :<span class="lineCov">          3 :             TimerCountdownMS(&amp;timer, MQTT_WRITE_FOR_SECRET_TIMEOUT);</span>
+<span class="lineNum">     947 </span>                :            :         }
+<span class="lineNum">     948 </span>[<span class="branchCov" title="Branch 0 was taken 314 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 314 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        314 :         while (rc &gt;= 0 &amp;&amp; MQTTIsConnected(client))</span>
+<span class="lineNum">     949 </span>                :            :         {
+<span class="lineNum">     950 </span>                :<span class="lineCov">        314 :             rc = MQTTYield(client, MQTT_EVENTS_HANDLE_PERIOD_MS);</span>
+<span class="lineNum">     951 </span>                :            : 
+<span class="lineNum">     952 </span>                :            :             // receive secret info
+<span class="lineNum">     953 </span>        [<span class="branchCov" title="Branch 0 was taken 314 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        314 :             if (handle-&gt;dynamic_info.connection_update_flag)</span>
+<span class="lineNum">     954 </span>                :            :             {
+<span class="lineNum">     955 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 314 times"> + </span>]:<span class="lineCov">        314 :                 ATINY_LOG(LOG_INFO, &quot;recv secret info&quot;);</span>
+<span class="lineNum">     956 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 314 times"> + </span>]:<span class="lineCov">        314 :                 ATINY_LOG(LOG_DEBUG, &quot;secret info deviceid %s, %s&quot;, handle-&gt;dynamic_info.save_info.deviceid,</span>
+<span class="lineNum">     957 </span>                :            :                         handle-&gt;dynamic_info.got_passward);
+<span class="lineNum">     958 </span>                :<span class="lineCov">        314 :                 handle-&gt;dynamic_info.connection_update_flag = false;</span>
+<span class="lineNum">     959 </span>                :<span class="lineCov">        314 :                 handle-&gt;dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;</span>
+<span class="lineNum">     960 </span>                :<span class="lineCov">        314 :                 break;</span>
+<span class="lineNum">     961 </span>                :            :             }
+<span class="lineNum">     962 </span>                :            : 
+<span class="lineNum">     963 </span>                :            :             // wait secret info timeout.
+<span class="lineNum">     964 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (!mqtt_is_connectting_with_deviceid(handle) &amp;&amp; (TimerIsExpired(&amp;timer)))</span>
+<span class="lineNum">     965 </span>                :            :             {
+<span class="lineNum">     966 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (handle-&gt;dynamic_info.has_device_id)</span>
+<span class="lineNum">     967 </span>                :            :                 {
+<span class="lineNum">     968 </span>                :<span class="lineNoCov">          0 :                     handle-&gt;dynamic_info.state = MQTT_CONNECT_WITH_DEVICE_ID;</span>
+<span class="lineNum">     969 </span>                :            :                 }
+<span class="lineNum">     970 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     971 </span>                :            :             }
+<span class="lineNum">     972 </span>                :            :         }
+<span class="lineNum">     973 </span>                :            : 
+<span class="lineNum">     974 </span>                :<span class="lineCov">        314 :         mqtt_disconnect(client, &amp;n);</span>
+<span class="lineNum">     975 </span>                :<span class="lineCov">        681 :     }</span>
+<span class="lineNum">     976 </span>                :            : 
+<span class="lineNum">     977 </span>                :            :     result = ATINY_OK;
+<span class="lineNum">     978 </span>                :            : atiny_bind_quit:
+<span class="lineNum">     979 </span>                :<span class="lineCov">          9 :     mqtt_free_dynamic_info(handle);</span>
+<span class="lineNum">     980 </span>                :<span class="lineCov">          9 :     mqtt_free_params(&amp;(handle-&gt;params));</span>
+<span class="lineNum">     981 </span>                :<span class="lineCov">          9 :     (void)atiny_task_mutex_lock(&amp;client-&gt;mutex);</span>
+<span class="lineNum">     982 </span>                :<span class="lineCov">          9 :     mqtt_free_device_info(&amp;(handle-&gt;device_info));</span>
+<span class="lineNum">     983 </span>                :<span class="lineCov">          9 :     (void)atiny_task_mutex_unlock(&amp;client-&gt;mutex);</span>
+<span class="lineNum">     984 </span>                :<span class="lineCov">          9 :     MQTTClientDeInit(client);</span>
+<span class="lineNum">     985 </span>                :<span class="lineCov">          9 :     handle-&gt;init_flag = false;</span>
+<span class="lineNum">     986 </span>                :<span class="lineCov">          9 :     return result;</span>
+<a name="987"><span class="lineNum">     987 </span>                :            : }</a>
+<span class="lineNum">     988 </span>                :            : 
+<span class="lineNum">     989 </span>                :<span class="lineCov">          5 : int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_len, mqtt_qos_e qos)</span>
+<span class="lineNum">     990 </span>                :            : {
+<span class="lineNum">     991 </span>                :            :     MQTTMessage message;
+<span class="lineNum">     992 </span>                :            :     int rc;
+<span class="lineNum">     993 </span>                :            :     char* topic;
+<span class="lineNum">     994 </span>                :            : 
+<span class="lineNum">     995 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :     if ((phandle == NULL) || (msg == NULL) || (msg_len &lt;= 0)</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     996 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         || (qos &gt;= MQTT_QOS_MAX))</span>
+<span class="lineNum">     997 </span>                :            :     {
+<span class="lineNum">     998 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;Parameter invalid&quot;);</span>
+<span class="lineNum">     999 </span>                :<span class="lineCov">          1 :         return ATINY_ARG_INVALID;</span>
+<span class="lineNum">    1000 </span>                :            :     }
+<span class="lineNum">    1001 </span>                :            : 
+<span class="lineNum">    1002 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (!atiny_mqtt_isconnected(phandle))</span>
+<span class="lineNum">    1003 </span>                :            :     {
+<span class="lineNum">    1004 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;not connected&quot;);</span>
+<span class="lineNum">    1005 </span>                :<span class="lineCov">          1 :         return ATINY_ERR;</span>
+<span class="lineNum">    1006 </span>                :            :     }
+<span class="lineNum">    1007 </span>                :            : 
+<span class="lineNum">    1008 </span>                :<span class="lineCov">          3 :     topic = mqtt_get_device_topic(phandle, DATA_TOPIC_FMT, sizeof(DATA_TOPIC_FMT) - VARIABLE_SIZE);</span>
+<span class="lineNum">    1009 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (topic == NULL)</span>
+<span class="lineNum">    1010 </span>                :            :     {
+<span class="lineNum">    1011 </span>                :<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">    1012 </span>                :            :     }
+<span class="lineNum">    1013 </span>                :<span class="lineCov">          2 :     memset(&amp;message, 0, sizeof(message));</span>
+<span class="lineNum">    1014 </span>                :<span class="lineCov">          2 :     message.qos = (enum QoS)qos;</span>
+<span class="lineNum">    1015 </span>                :<span class="lineCov">          2 :     message.payload = (void *)msg;</span>
+<span class="lineNum">    1016 </span>                :<span class="lineCov">          2 :     message.payloadlen = strnlen(msg, msg_len);</span>
+<span class="lineNum">    1017 </span>                :<span class="lineCov">          2 :     rc = MQTTPublish(&amp;phandle-&gt;client, topic, &amp;message);</span>
+<span class="lineNum">    1018 </span>                :<span class="lineCov">          2 :     atiny_free(topic);</span>
+<span class="lineNum">    1019 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (rc != MQTT_SUCCESS)</span>
+<span class="lineNum">    1020 </span>                :            :     {
+<span class="lineNum">    1021 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_FATAL, &quot;MQTTPublishWithoutMutex fail,rc %d&quot;, rc);</span>
+<span class="lineNum">    1022 </span>                :<span class="lineCov">          1 :         return ATINY_ERR;</span>
+<span class="lineNum">    1023 </span>                :            :     }
+<span class="lineNum">    1024 </span>                :<span class="lineCov">          5 :     return ATINY_OK;</span>
+<a name="1025"><span class="lineNum">    1025 </span>                :            : }</a>
+<span class="lineNum">    1026 </span>                :            : 
+<span class="lineNum">    1027 </span>                :<span class="lineCov">          6 : int atiny_mqtt_isconnected(mqtt_client_s* phandle)</span>
+<span class="lineNum">    1028 </span>                :            : {
+<span class="lineNum">    1029 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :     if (NULL == phandle)</span>
+<span class="lineNum">    1030 </span>                :            :     {
+<span class="lineNum">    1031 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_ERR, &quot;invalid args&quot;);</span>
+<span class="lineNum">    1032 </span>                :<span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">    1033 </span>                :            :     }
+<span class="lineNum">    1034 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     return mqtt_is_connectting_with_deviceid(phandle) &amp;&amp; MQTTIsConnected(&amp;(phandle-&gt;client));</span>
+<span class="lineNum">    1035 </span>                :            : }
+<span class="lineNum">    1036 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

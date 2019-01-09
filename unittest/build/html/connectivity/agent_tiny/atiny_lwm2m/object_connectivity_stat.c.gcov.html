@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/object_connectivity_stat.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - object_connectivity_stat.c<span style="font-size: 80%;"> (source / <a href="object_connectivity_stat.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntry">98</td>
+            <td class="headerCovTableEntryHi">99.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntryLo">74.4 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /*******************************************************************************
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * Copyright (c) 2015 Bosch Software Innovations GmbH Germany.
+<span class="lineNum">      38 </span>                :            :  * All rights reserved. This program and the accompanying materials
+<span class="lineNum">      39 </span>                :            :  * are made available under the terms of the Eclipse Public License v1.0
+<span class="lineNum">      40 </span>                :            :  * and Eclipse Distribution License v1.0 which accompany this distribution.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * The Eclipse Public License is available at
+<span class="lineNum">      43 </span>                :            :  *    http://www.eclipse.org/legal/epl-v10.html
+<span class="lineNum">      44 </span>                :            :  * The Eclipse Distribution License is available at
+<span class="lineNum">      45 </span>                :            :  *    http://www.eclipse.org/org/documents/edl-v10.php.
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Contributors:
+<span class="lineNum">      48 </span>                :            :  *    Bosch Software Innovations GmbH - Please refer to git log
+<span class="lineNum">      49 </span>                :            :  *
+<span class="lineNum">      50 </span>                :            :  *******************************************************************************/
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : /*
+<span class="lineNum">      53 </span>                :            :  * This connectivity statistics object is optional and single instance only
+<span class="lineNum">      54 </span>                :            :  *
+<span class="lineNum">      55 </span>                :            :  *  Resources:
+<span class="lineNum">      56 </span>                :            :  *
+<span class="lineNum">      57 </span>                :            :  *          Name         | ID | Oper. | Inst. | Mand.|  Type   | Range | Units | Description |
+<span class="lineNum">      58 </span>                :            :  *  SMS Tx Counter       |  0 |   R   | Single|  No  | Integer |       |       |             |
+<span class="lineNum">      59 </span>                :            :  *  SMS Rx Counter       |  1 |   R   | Single|  No  | Integer |       |       |             |
+<span class="lineNum">      60 </span>                :            :  *  Tx Data              |  2 |   R   | Single|  No  | Integer |       | kByte |             |
+<span class="lineNum">      61 </span>                :            :  *  Rx Data              |  3 |   R   | Single|  No  | Integer |       | kByte |             |
+<span class="lineNum">      62 </span>                :            :  *  Max Message Size     |  4 |   R   | Single|  No  | Integer |       | Byte  |             |
+<span class="lineNum">      63 </span>                :            :  *  Average Message Size |  5 |   R   | Single|  No  | Integer |       | Byte  |             |
+<span class="lineNum">      64 </span>                :            :  *  StartOrReset         |  6 |   E   | Single|  Yes | Integer |       |       |             |
+<span class="lineNum">      65 </span>                :            :  */
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            : #include &quot;internals.h&quot;
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : // Resource Id's:
+<span class="lineNum">      70 </span>                :            : #define RES_O_SMS_TX_COUNTER            0
+<span class="lineNum">      71 </span>                :            : #define RES_O_SMS_RX_COUNTER            1
+<span class="lineNum">      72 </span>                :            : #define RES_O_TX_DATA                   2
+<span class="lineNum">      73 </span>                :            : #define RES_O_RX_DATA                   3
+<span class="lineNum">      74 </span>                :            : #define RES_O_MAX_MESSAGE_SIZE          4
+<span class="lineNum">      75 </span>                :            : #define RES_O_AVERAGE_MESSAGE_SIZE      5
+<span class="lineNum">      76 </span>                :            : #define RES_M_START_OR_RESET            6
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : typedef struct
+<span class="lineNum">      79 </span>                :            : {
+<span class="lineNum">      80 </span>                :            :     int64_t   smsTxCounter;
+<span class="lineNum">      81 </span>                :            :     int64_t   smsRxCounter;
+<span class="lineNum">      82 </span>                :            :     int64_t   txDataByte;             // report in kByte!
+<span class="lineNum">      83 </span>                :            :     int64_t   rxDataByte;             // report in kByte!
+<span class="lineNum">      84 </span>                :            :     int64_t   maxMessageSize;
+<span class="lineNum">      85 </span>                :            :     int64_t   avrMessageSize;
+<span class="lineNum">      86 </span>                :            :     int64_t   messageCount;           // private for incremental average calc.
+<span class="lineNum">      87 </span>                :            :     bool      collectDataStarted;
+<a name="88"><span class="lineNum">      88 </span>                :            : } conn_s_data_t;</a>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineCov">          6 : static uint8_t prv_set_tlv(lwm2m_data_t *dataP, conn_s_data_t *connStDataP)</span>
+<span class="lineNum">      91 </span>                :            : {
+<span class="lineNum">      92 </span>  [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span> :<span class="lineCov">          6 :     switch (dataP-&gt;id)</span>
+<span class="lineNum">         </span>      <span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]
+<span class="lineNum">      93 </span>                :            :     {
+<span class="lineNum">      94 </span>                :            :     case RES_O_SMS_TX_COUNTER:
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;smsTxCounter, dataP);</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">      97 </span>                :            :     case RES_O_SMS_RX_COUNTER:
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;smsRxCounter, dataP);</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     100 </span>                :            :     case RES_O_TX_DATA:
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;txDataByte / 1024, dataP);</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     103 </span>                :            :     case RES_O_RX_DATA:
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;rxDataByte / 1024, dataP);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     106 </span>                :            :     case RES_O_MAX_MESSAGE_SIZE:
+<span class="lineNum">     107 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;maxMessageSize, dataP);</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     109 </span>                :            :     case RES_O_AVERAGE_MESSAGE_SIZE:
+<span class="lineNum">     110 </span>                :<span class="lineCov">          1 :         lwm2m_data_encode_int(connStDataP-&gt;avrMessageSize, dataP);</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :         return COAP_205_CONTENT;</span>
+<span class="lineNum">     112 </span>                :            :     default:
+<span class="lineNum">     113 </span>                :<span class="lineCov">          6 :         return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     114 </span>                :            :     }
+<a name="115"><span class="lineNum">     115 </span>                :            : }</a>
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :<span class="lineCov">          2 : static uint8_t prv_read(uint16_t instanceId, int *numDataP, lwm2m_data_t **dataArrayP, lwm2m_data_cfg_t *dataCfg, lwm2m_object_t *objectP)</span>
+<span class="lineNum">     118 </span>                :            : {
+<span class="lineNum">     119 </span>                :            :     uint8_t result;
+<span class="lineNum">     120 </span>                :            :     int i;
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :     // this is a single instance object
+<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (instanceId != 0)</span>
+<span class="lineNum">     124 </span>                :            :     {
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND ;</span>
+<span class="lineNum">     126 </span>                :            :     }
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :     // is the server asking for the full object ?
+<span class="lineNum">     129 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (*numDataP == 0)</span>
+<span class="lineNum">     130 </span>                :            :     {
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :         uint16_t resList[] =</span>
+<span class="lineNum">     132 </span>                :            :         {
+<span class="lineNum">     133 </span>                :            :             RES_O_SMS_TX_COUNTER,
+<span class="lineNum">     134 </span>                :            :             RES_O_SMS_RX_COUNTER,
+<span class="lineNum">     135 </span>                :            :             RES_O_TX_DATA,
+<span class="lineNum">     136 </span>                :            :             RES_O_RX_DATA,
+<span class="lineNum">     137 </span>                :            :             RES_O_MAX_MESSAGE_SIZE,
+<span class="lineNum">     138 </span>                :            :             RES_O_AVERAGE_MESSAGE_SIZE
+<span class="lineNum">     139 </span>                :            :         };
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 :         int nbRes = sizeof(resList) / sizeof(uint16_t);</span>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :         *dataArrayP = lwm2m_data_new(nbRes);</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (*dataArrayP == NULL)</span>
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :             return COAP_500_INTERNAL_SERVER_ERROR ;</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :         *numDataP = nbRes;</span>
+<span class="lineNum">     146 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          7 :         for (i = 0; i &lt; nbRes; i++)</span>
+<span class="lineNum">     147 </span>                :            :         {
+<span class="lineNum">     148 </span>                :<span class="lineCov">          6 :             (*dataArrayP)[i].id = resList[i];</span>
+<span class="lineNum">     149 </span>                :            :         }
+<span class="lineNum">     150 </span>                :            :     }
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :<span class="lineCov">          1 :     i = 0;</span>
+<span class="lineNum">     153 </span>                :            :     do
+<span class="lineNum">     154 </span>                :            :     {
+<span class="lineNum">     155 </span>                :<span class="lineCov">          6 :         result = prv_set_tlv((*dataArrayP) + i, (conn_s_data_t *) (objectP-&gt;userData));</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          6 :         i++;</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     while (i &lt; *numDataP &amp;&amp; result == COAP_205_CONTENT );</span>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineCov">          2 :     return result;</span>
+<a name="161"><span class="lineNum">     161 </span>                :            : }</a>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">          5 : static void prv_resetCounter(lwm2m_object_t *objectP, bool start)</span>
+<span class="lineNum">     164 </span>                :            : {
+<span class="lineNum">     165 </span>                :<span class="lineCov">          5 :     conn_s_data_t *myData = (conn_s_data_t *) objectP-&gt;userData;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          5 :     myData-&gt;smsTxCounter        = 0;</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">          5 :     myData-&gt;smsRxCounter        = 0;</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          5 :     myData-&gt;txDataByte          = 0;</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          5 :     myData-&gt;rxDataByte          = 0;</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          5 :     myData-&gt;maxMessageSize      = 0;</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          5 :     myData-&gt;avrMessageSize      = 0;</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          5 :     myData-&gt;messageCount        = 0;</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          5 :     myData-&gt;collectDataStarted  = start;</span>
+<a name="174"><span class="lineNum">     174 </span>                :<span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineCov">          4 : static uint8_t prv_exec(uint16_t instanceId, uint16_t resourceId,</span>
+<span class="lineNum">     177 </span>                :            :                         uint8_t *buffer, int length, lwm2m_object_t *objectP)
+<span class="lineNum">     178 </span>                :            : {
+<span class="lineNum">     179 </span>                :            :     // this is a single instance object
+<span class="lineNum">     180 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if (instanceId != 0)</span>
+<span class="lineNum">     181 </span>                :            :     {
+<span class="lineNum">     182 </span>                :<span class="lineCov">          1 :         return COAP_404_NOT_FOUND;</span>
+<span class="lineNum">     183 </span>                :            :     }
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (length != 0) return COAP_400_BAD_REQUEST;</span>
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     switch (resourceId)</span>
+<span class="lineNum">     188 </span>                :            :     {
+<span class="lineNum">     189 </span>                :            :     case RES_M_START_OR_RESET:
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :         prv_resetCounter(objectP, true);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :         return COAP_204_CHANGED;</span>
+<span class="lineNum">     192 </span>                :            :     default:
+<span class="lineNum">     193 </span>                :<span class="lineCov">          4 :         return COAP_405_METHOD_NOT_ALLOWED;</span>
+<span class="lineNum">     194 </span>                :            :     }
+<a name="195"><span class="lineNum">     195 </span>                :            : }</a>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 : void conn_s_updateTxStatistic(lwm2m_object_t *objectP, uint16_t txDataByte, bool smsBased)</span>
+<span class="lineNum">     198 </span>                :            : {
+<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :     conn_s_data_t *myData = (conn_s_data_t *) (objectP-&gt;userData);</span>
+<span class="lineNum">     200 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (myData-&gt;collectDataStarted)</span>
+<span class="lineNum">     201 </span>                :            :     {
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :         myData-&gt;txDataByte += txDataByte;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :         myData-&gt;messageCount++;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          2 :         myData-&gt;avrMessageSize = (myData-&gt;txDataByte + myData-&gt;rxDataByte) /</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">          1 :                                  myData-&gt;messageCount;</span>
+<span class="lineNum">     206 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (txDataByte &gt; myData-&gt;maxMessageSize)</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :             myData-&gt;maxMessageSize = txDataByte;</span>
+<span class="lineNum">     208 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (smsBased) myData-&gt;smsTxCounter++;</span>
+<span class="lineNum">     209 </span>                :            :     }
+<a name="210"><span class="lineNum">     210 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 : void conn_s_updateRxStatistic(lwm2m_object_t *objectP, uint16_t rxDataByte, bool smsBased)</span>
+<span class="lineNum">     213 </span>                :            : {
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :     conn_s_data_t *myData = (conn_s_data_t *) (objectP-&gt;userData);</span>
+<span class="lineNum">     215 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (myData-&gt;collectDataStarted)</span>
+<span class="lineNum">     216 </span>                :            :     {
+<span class="lineNum">     217 </span>                :<span class="lineCov">          1 :         myData-&gt;rxDataByte += rxDataByte;</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :         myData-&gt;messageCount++;</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          2 :         myData-&gt;avrMessageSize = (myData-&gt;txDataByte + myData-&gt;rxDataByte) /</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :                                  myData-&gt;messageCount;</span>
+<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rxDataByte &gt; myData-&gt;maxMessageSize)</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :             myData-&gt;maxMessageSize = rxDataByte;</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :         myData-&gt;txDataByte += rxDataByte;</span>
+<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (smsBased) myData-&gt;smsRxCounter++;</span>
+<span class="lineNum">     225 </span>                :            :     }
+<span class="lineNum">     226 </span>                :<span class="lineCov">          1 : }</span>
+<a name="227"><span class="lineNum">     227 </span>                :            : </a>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineCov">          6 : lwm2m_object_t *get_object_conn_s(void)</span>
+<span class="lineNum">     230 </span>                :            : {
+<span class="lineNum">     231 </span>                :            :     /*
+<span class="lineNum">     232 </span>                :            :      * The get_object_conn_s() function create the object itself and return
+<span class="lineNum">     233 </span>                :            :      * a pointer to the structure that represent it.
+<span class="lineNum">     234 </span>                :            :      */
+<span class="lineNum">     235 </span>                :            :     lwm2m_object_t *connObj;
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineCov">          6 :     connObj = (lwm2m_object_t *) lwm2m_malloc(sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :     if (NULL != connObj)</span>
+<span class="lineNum">     240 </span>                :            :     {
+<span class="lineNum">     241 </span>                :<span class="lineCov">          6 :         memset(connObj, 0, sizeof(lwm2m_object_t));</span>
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :         /*
+<span class="lineNum">     244 </span>                :            :          * It assign his unique ID
+<span class="lineNum">     245 </span>                :            :          * The 7 is the standard ID for the optional object &quot;Connectivity Statistics&quot;.
+<span class="lineNum">     246 </span>                :            :          */
+<span class="lineNum">     247 </span>                :<span class="lineCov">          6 :         connObj-&gt;objID = LWM2M_CONN_STATS_OBJECT_ID;</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">          6 :         connObj-&gt;instanceList = lwm2m_malloc(sizeof(lwm2m_list_t));</span>
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :         if (NULL != connObj-&gt;instanceList)</span>
+<span class="lineNum">     250 </span>                :            :         {
+<span class="lineNum">     251 </span>                :<span class="lineCov">          5 :             memset(connObj-&gt;instanceList, 0, sizeof(lwm2m_list_t));</span>
+<span class="lineNum">     252 </span>                :            :         }
+<span class="lineNum">     253 </span>                :            :         else
+<span class="lineNum">     254 </span>                :            :         {
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :             lwm2m_free(connObj);</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :             return NULL;</span>
+<span class="lineNum">     257 </span>                :            :         }
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :            :         /*
+<span class="lineNum">     260 </span>                :            :          * And the private function that will access the object.
+<span class="lineNum">     261 </span>                :            :          * Those function will be called when a read/execute/close
+<span class="lineNum">     262 </span>                :            :          * query is made by the server or core. In fact the library don't need
+<span class="lineNum">     263 </span>                :            :          * to know the resources of the object, only the server does.
+<span class="lineNum">     264 </span>                :            :          */
+<span class="lineNum">     265 </span>                :<span class="lineCov">          5 :         connObj-&gt;readFunc     = prv_read;</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">          5 :         connObj-&gt;executeFunc  = prv_exec;</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">          5 :         connObj-&gt;userData     = lwm2m_malloc(sizeof(conn_s_data_t));</span>
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            :         /*
+<span class="lineNum">     270 </span>                :            :          * Also some user data can be stored in the object with a private
+<span class="lineNum">     271 </span>                :            :          * structure containing the needed variables.
+<span class="lineNum">     272 </span>                :            :          */
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         if (NULL != connObj-&gt;userData)</span>
+<span class="lineNum">     274 </span>                :            :         {
+<span class="lineNum">     275 </span>                :<span class="lineCov">          4 :             prv_resetCounter(connObj, false);</span>
+<span class="lineNum">     276 </span>                :            :         }
+<span class="lineNum">     277 </span>                :            :         else
+<span class="lineNum">     278 </span>                :            :         {
+<span class="lineNum">     279 </span>                :<span class="lineCov">          1 :             lwm2m_free(connObj-&gt;instanceList);</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          1 :             lwm2m_free(connObj);</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          1 :             connObj = NULL;</span>
+<span class="lineNum">     282 </span>                :            :         }
+<span class="lineNum">     283 </span>                :            :     }
+<span class="lineNum">     284 </span>                :<span class="lineCov">          6 :     return connObj;</span>
+<a name="285"><span class="lineNum">     285 </span>                :            : }</a>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :<span class="lineCov">          4 : void free_object_conn_s(lwm2m_object_t *objectP)</span>
+<span class="lineNum">     288 </span>                :            : {
+<span class="lineNum">     289 </span>                :<span class="lineCov">          4 :     lwm2m_free(objectP-&gt;userData);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          4 :     lwm2m_list_free(objectP-&gt;instanceList);</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          4 :     lwm2m_free(objectP);</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">          4 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

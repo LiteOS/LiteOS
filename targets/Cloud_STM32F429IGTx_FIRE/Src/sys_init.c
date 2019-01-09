@@ -51,6 +51,17 @@ ip4_addr_t netmask;
 ip4_addr_t gw;
 #endif
 
+#if LWIP_IPV4 && LWIP_IPV6
+ip_addr_t  ipaddr;
+ip_addr_t  netmask;
+ip_addr_t  gw;
+#elif LWIP_IPV6
+#else
+ip4_addr_t ipaddr;
+ip4_addr_t netmask;
+ip4_addr_t gw;
+#endif
+
 static void lwip_impl_register(void)
 {
     STlwIPFuncSsp stlwIPSspCbk = {0};
@@ -94,12 +105,11 @@ void net_init(void)
     printf("lwip test init ok.\n");
     
 
-    (void)ethernetif_api_register(&g_eth_api);/*×¢²áÌØ¶¨Íø¿¨µÄAPI*/
+    (void)ethernetif_api_register(&g_eth_api);/*Ã—Â¢Â²Ã¡ÃŒÃ˜Â¶Â¨ÃÃ¸Â¿Â¨ÂµÃ„API*/
     /* add the network interface (IPv4/IPv6) without RTOS */
 #if LWIP_IPV4 && LWIP_IPV6
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546
 #elif LWIP_IPV6
-
     (void)netif_add(&gnetif, NULL, ethernetif_init, tcpip_input);
     netif_create_ip6_linklocal_address(&gnetif, 1);
     {

@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_lwm2m/connection.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_lwm2m</a> - connection.c<span style="font-size: 80%;"> (source / <a href="connection.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntryHi">94.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntryLo">68.6 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : /*******************************************************************************
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * Copyright (c) 2015 Intel Corporation and others.
+<span class="lineNum">      38 </span>                :            :  * All rights reserved. This program and the accompanying materials
+<span class="lineNum">      39 </span>                :            :  * are made available under the terms of the Eclipse Public License v1.0
+<span class="lineNum">      40 </span>                :            :  * and Eclipse Distribution License v1.0 which accompany this distribution.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * The Eclipse Public License is available at
+<span class="lineNum">      43 </span>                :            :  *    http://www.eclipse.org/legal/epl-v10.html
+<span class="lineNum">      44 </span>                :            :  * The Eclipse Distribution License is available at
+<span class="lineNum">      45 </span>                :            :  *    http://www.eclipse.org/org/documents/edl-v10.php.
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Contributors:
+<span class="lineNum">      48 </span>                :            :  *    David Navarro, Intel Corporation - initial API and implementation
+<span class="lineNum">      49 </span>                :            :  *    Christian Renz - Please refer to git log
+<span class="lineNum">      50 </span>                :            :  *
+<span class="lineNum">      51 </span>                :            :  *******************************************************************************/
+<span class="lineNum">      52 </span>                :            : #include &lt;ctype.h&gt;
+<span class="lineNum">      53 </span>                :            : #include &quot;connection.h&quot;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #if defined (WITH_DTLS)
+<span class="lineNum">      57 </span>                :            : #include &quot;dtls_interface.h&quot;
+<span class="lineNum">      58 </span>                :            : #endif
+<span class="lineNum">      59 </span>                :            : #include &quot;sal/atiny_socket.h&quot;
+<span class="lineNum">      60 </span>                :            : #include &quot;log/atiny_log.h&quot;
+<span class="lineNum">      61 </span>                :            : #include &quot;object_comm.h&quot;
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            : #define COAP_PORT &quot;5683&quot;
+<span class="lineNum">      64 </span>                :            : #define COAPS_PORT &quot;5684&quot;
+<span class="lineNum">      65 </span>                :            : 
+<a name="66"><span class="lineNum">      66 </span>                :            : static lwm2m_connection_err_notify_t g_connection_err_notify = NULL;</a>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">         14 : static inline void inc_connection_stat(connection_t *connection, connection_err_e type)</span>
+<span class="lineNum">      69 </span>                :            : {
+<span class="lineNum">      70 </span>                :            :     static const uint16_t max_num[CONNECTION_ERR_MAX] = {MAX_SEND_ERR_NUM,
+<span class="lineNum">      71 </span>                :            :                                                          MAX_RECV_ERR_NUM
+<span class="lineNum">      72 </span>                :            :                                                         };
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">         14 :     connection-&gt;errs[type]++;</span>
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         14 :     if(connection-&gt;errs[type] &gt;= max_num[type])</span>
+<span class="lineNum">      76 </span>                :            :     {
+<span class="lineNum">      77 </span>                :<span class="lineCov">          2 :         connection-&gt;errs[type] = 0;</span>
+<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if(g_connection_err_notify)</span>
+<span class="lineNum">      79 </span>                :            :         {
+<span class="lineNum">      80 </span>                :<span class="lineCov">          2 :             g_connection_err_notify(connection-&gt;lwm2mH, type, connection-&gt;bootstrap_flag);</span>
+<span class="lineNum">      81 </span>                :            :         }
+<span class="lineNum">      82 </span>                :            :     }
+<span class="lineNum">      83 </span>                :<span class="lineCov">         14 : }</span>
+<a name="84"><span class="lineNum">      84 </span>                :            : </a>
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :<span class="lineCov">          8 : int connection_parse_host_ip(security_instance_t *targetP, char **parsed_host, char **parsed_port)</span>
+<span class="lineNum">      87 </span>                :            : {
+<span class="lineNum">      88 </span>                :            :     char *host;
+<span class="lineNum">      89 </span>                :            :     char *port;
+<span class="lineNum">      90 </span>                :            :     char *defaultport;
+<span class="lineNum">      91 </span>                :<span class="lineCov">          8 :     char *uri = targetP-&gt;uri;</span>
+<span class="lineNum">      92 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if (uri == NULL)</span>
+<span class="lineNum">      93 </span>                :            :     {
+<span class="lineNum">      94 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;uri is NULL!!!&quot;);</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :         return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">      96 </span>                :            :     }
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            :     //ATINY_LOG(LOG_INFO, &quot;uri is %s\n&quot;, uri);
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :     // parse uri in the form &quot;coaps://[host]:[port]&quot;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     if (0 == strncmp(uri, &quot;coaps://&quot;, strlen(&quot;coaps://&quot;)))</span>
+<span class="lineNum">     103 </span>                :            :     {
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :         host = uri + strlen(&quot;coaps://&quot;);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :         defaultport = COAPS_PORT;</span>
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     else if (0 == strncmp(uri, &quot;coap://&quot;, strlen(&quot;coap://&quot;)))</span>
+<span class="lineNum">     108 </span>                :            :     {
+<span class="lineNum">     109 </span>                :<span class="lineCov">          5 :         host = uri + strlen(&quot;coap://&quot;);</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          5 :         defaultport = COAP_PORT;</span>
+<span class="lineNum">     111 </span>                :            :     }
+<span class="lineNum">     112 </span>                :            :     else
+<span class="lineNum">     113 </span>                :            :     {
+<span class="lineNum">     114 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;come here1!!!&quot;);</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :         return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     116 </span>                :            :     }
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineCov">          6 :     port = strrchr(host, ':');</span>
+<span class="lineNum">     119 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :     if (port == NULL)</span>
+<span class="lineNum">     120 </span>                :            :     {
+<span class="lineNum">     121 </span>                :<span class="lineCov">          3 :         port = defaultport;</span>
+<span class="lineNum">     122 </span>                :            :     }
+<span class="lineNum">     123 </span>                :            :     else
+<span class="lineNum">     124 </span>                :            :     {
+<span class="lineNum">     125 </span>                :            :         // remove brackets
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (host[0] == '[')</span>
+<span class="lineNum">     127 </span>                :            :         {
+<span class="lineNum">     128 </span>                :<span class="lineCov">          2 :             host++;</span>
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :             if (*(port - 1) == ']')</span>
+<span class="lineNum">     131 </span>                :            :             {
+<span class="lineNum">     132 </span>                :<span class="lineCov">          2 :                 *(port - 1) = 0;</span>
+<span class="lineNum">     133 </span>                :            :             }
+<span class="lineNum">     134 </span>                :            :             else
+<span class="lineNum">     135 </span>                :            :             {
+<span class="lineNum">     136 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ATINY_LOG(LOG_INFO, &quot;come here2!!!&quot;);</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :                 return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     138 </span>                :            :             }
+<span class="lineNum">     139 </span>                :            :         }
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            :         // split strings
+<span class="lineNum">     142 </span>                :<span class="lineCov">          3 :         *port = 0;</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          3 :         port++;</span>
+<span class="lineNum">     144 </span>                :            :     }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineCov">          6 :     *parsed_host = host;</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">          6 :     *parsed_port = port;</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineCov">          8 :     return COAP_NO_ERROR;</span>
+<span class="lineNum">     150 </span>                :            : }
+<a name="151"><span class="lineNum">     151 </span>                :            : </a>
+<span class="lineNum">     152 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     153 </span>                :<span class="lineCov">          2 : void connection_striger_server_initiated_bs(connection_t * sessionH)</span>
+<span class="lineNum">     154 </span>                :            : {
+<span class="lineNum">     155 </span>                :            :     (void)sessionH;
+<span class="lineNum">     156 </span>                :<span class="lineCov">          2 :     (void)atiny_cmd_ioctl(ATINY_TRIGER_SERVER_INITIATED_BS, NULL, 0);</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     158 </span>                :            : #endif
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            : #ifdef WITH_DTLS
+<span class="lineNum">     161 </span>                :            : int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, const char *host, const char *port, int client_or_server)
+<span class="lineNum">     162 </span>                :            : {
+<span class="lineNum">     163 </span>                :            :     int ret;
+<span class="lineNum">     164 </span>                :            :     dtls_shakehand_info_s info;
+<span class="lineNum">     165 </span>                :            :     dtls_establish_info_s establish_info;
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :            :     establish_info.psk_or_cert = VERIFY_WITH_PSK;
+<span class="lineNum">     168 </span>                :            :     establish_info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
+<span class="lineNum">     169 </span>                :            :     establish_info.v.p.psk = (const unsigned char *)targetP-&gt;secretKey;
+<span class="lineNum">     170 </span>                :            :     establish_info.v.p.psk_len = targetP-&gt;secretKeyLen;
+<span class="lineNum">     171 </span>                :            :     establish_info.v.p.psk_identity = (const unsigned char *)targetP-&gt;publicIdentity;
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            :     connP-&gt;net_context = (void *)dtls_ssl_new(&amp;establish_info, client_or_server);
+<span class="lineNum">     174 </span>                :            :     if (NULL == connP-&gt;net_context)
+<span class="lineNum">     175 </span>                :            :     {
+<span class="lineNum">     176 </span>                :            :         ATINY_LOG(LOG_INFO, &quot;connP-&gt;ssl is NULL in connection_create&quot;);
+<span class="lineNum">     177 </span>                :            :         return COAP_500_INTERNAL_SERVER_ERROR;
+<span class="lineNum">     178 </span>                :            :     }
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :            :     memset(&amp;info, 0, sizeof(info));
+<span class="lineNum">     182 </span>                :            :     info.client_or_server = client_or_server;
+<span class="lineNum">     183 </span>                :            :     info.finish_notify = NULL;
+<span class="lineNum">     184 </span>                :            :     info.step_notify   = NULL;
+<span class="lineNum">     185 </span>                :            :     info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
+<span class="lineNum">     186 </span>                :            :     info.psk_or_cert = VERIFY_WITH_PSK;
+<span class="lineNum">     187 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     188 </span>                :            :     info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
+<span class="lineNum">     189 </span>                :            :     info.param = (void(*)(void *))connP;
+<span class="lineNum">     190 </span>                :            : #endif
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            :     if (MBEDTLS_SSL_IS_CLIENT == client_or_server)
+<span class="lineNum">     193 </span>                :            :     {
+<span class="lineNum">     194 </span>                :            :         info.u.c.host = host;
+<span class="lineNum">     195 </span>                :            :         info.u.c.port = port;
+<span class="lineNum">     196 </span>                :            :     }
+<span class="lineNum">     197 </span>                :            :     else
+<span class="lineNum">     198 </span>                :            :     {
+<span class="lineNum">     199 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     200 </span>                :            :         info.u.s.timeout = targetP-&gt;clientHoldOffTime;
+<span class="lineNum">     201 </span>                :            :         info.u.s.local_port = port;
+<span class="lineNum">     202 </span>                :            :         timer_init(&amp;connP-&gt;server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
+<span class="lineNum">     203 </span>                :            :         timer_start(&amp;connP-&gt;server_triger_timer);
+<span class="lineNum">     204 </span>                :            : #endif
+<span class="lineNum">     205 </span>                :            :     }
+<span class="lineNum">     206 </span>                :            :     ret = dtls_shakehand(connP-&gt;net_context, &amp;info);
+<span class="lineNum">     207 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     208 </span>                :            :     timer_stop(&amp;connP-&gt;server_triger_timer);
+<span class="lineNum">     209 </span>                :            : #endif
+<span class="lineNum">     210 </span>                :            :     if (ret != 0)
+<span class="lineNum">     211 </span>                :            :     {
+<span class="lineNum">     212 </span>                :            :         ATINY_LOG(LOG_INFO, &quot;ret is %d in connection_create&quot;, ret);
+<span class="lineNum">     213 </span>                :            :         dtls_ssl_destroy((mbedtls_ssl_context *)connP-&gt;net_context);
+<span class="lineNum">     214 </span>                :            :         connP-&gt;net_context = NULL;
+<span class="lineNum">     215 </span>                :            :         return COAP_500_INTERNAL_SERVER_ERROR;
+<span class="lineNum">     216 </span>                :            :     }
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            :     connP-&gt;dtls_flag = true;
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            :     return COAP_NO_ERROR;
+<span class="lineNum">     221 </span>                :            : }
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : #endif
+<a name="224"><span class="lineNum">     224 </span>                :            : </a>
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :<span class="lineCov">         11 : connection_t *connection_create(connection_t *connList,</span>
+<span class="lineNum">     227 </span>                :            :                                 lwm2m_object_t *securityObj,
+<span class="lineNum">     228 </span>                :            :                                 int instanceId,
+<span class="lineNum">     229 </span>                :            :                                 lwm2m_context_t *lwm2mH,
+<span class="lineNum">     230 </span>                :            :                                 int client_or_server)
+<span class="lineNum">     231 </span>                :            : {
+<span class="lineNum">     232 </span>                :<span class="lineCov">         11 :     connection_t *connP = NULL;</span>
+<span class="lineNum">     233 </span>                :            :     char *host;
+<span class="lineNum">     234 </span>                :            :     char *port;
+<span class="lineNum">     235 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 11 times"> + </span>]:<span class="lineCov">         11 :     ATINY_LOG(LOG_INFO, &quot;now come into connection_create!!!&quot;);</span>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineCov">         11 :     targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj-&gt;instanceList, instanceId);</span>
+<span class="lineNum">     240 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         11 :     if (NULL == targetP)</span>
+<span class="lineNum">     241 </span>                :            :     {
+<span class="lineNum">     242 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     243 </span>                :            :     }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         10 :     if (LWM2M_IS_CLIENT == client_or_server)</span>
+<span class="lineNum">     246 </span>                :            :     {
+<span class="lineNum">     247 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (connection_parse_host_ip(targetP, &amp;host, &amp;port) != COAP_NO_ERROR)</span>
+<span class="lineNum">     248 </span>                :            :         {
+<span class="lineNum">     249 </span>                :<span class="lineCov">          2 :             return NULL;</span>
+<span class="lineNum">     250 </span>                :            :         }
+<span class="lineNum">     251 </span>                :            :     }
+<span class="lineNum">     252 </span>                :            :     else
+<span class="lineNum">     253 </span>                :            :     {
+<span class="lineNum">     254 </span>                :<span class="lineCov">          2 :         host = NULL;</span>
+<span class="lineNum">     255 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         port = (char *)((targetP-&gt;securityMode != LWM2M_SECURITY_MODE_NONE) ? COAPS_PORT : COAP_PORT);</span>
+<span class="lineNum">     256 </span>                :            :     }
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :<span class="lineCov">          8 :     connP = (connection_t *)lwm2m_malloc(sizeof(connection_t));</span>
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :     if (connP == NULL)</span>
+<span class="lineNum">     260 </span>                :            :     {
+<span class="lineNum">     261 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;connP is NULL!!!&quot;);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :         return NULL;</span>
+<span class="lineNum">     263 </span>                :            :     }
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :<span class="lineCov">          7 :     memset(connP, 0, sizeof(connection_t));</span>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            : #ifdef WITH_DTLS
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            :     if (targetP-&gt;securityMode != LWM2M_SECURITY_MODE_NONE)
+<span class="lineNum">     270 </span>                :            :     {
+<span class="lineNum">     271 </span>                :            :         if (connection_connect_dtls(connP, targetP, host, port, client_or_server) != COAP_NO_ERROR)
+<span class="lineNum">     272 </span>                :            :         {
+<span class="lineNum">     273 </span>                :            :             goto fail;
+<span class="lineNum">     274 </span>                :            :         }
+<span class="lineNum">     275 </span>                :            :     }
+<span class="lineNum">     276 </span>                :            :     else
+<span class="lineNum">     277 </span>                :            : #endif
+<span class="lineNum">     278 </span>                :            :     {
+<span class="lineNum">     279 </span>                :            :         // no dtls session
+<span class="lineNum">     280 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :         if (LWM2M_IS_CLIENT == client_or_server)</span>
+<span class="lineNum">     281 </span>                :            :         {
+<span class="lineNum">     282 </span>                :<span class="lineCov">          5 :             connP-&gt;net_context = atiny_net_connect(host, port, ATINY_PROTO_UDP);</span>
+<span class="lineNum">     283 </span>                :            :         }
+<span class="lineNum">     284 </span>                :            :         else
+<span class="lineNum">     285 </span>                :            :         {
+<span class="lineNum">     286 </span>                :<span class="lineCov">          2 :             connP-&gt;net_context = atiny_net_bind(host, port, ATINY_PROTO_UDP);</span>
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :            :             #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     289 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :             if (connP-&gt;net_context)</span>
+<span class="lineNum">     290 </span>                :            :             {
+<span class="lineNum">     291 </span>                :<span class="lineCov">          1 :                 connection_striger_server_initiated_bs(connP);</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :                 timer_init(&amp;connP-&gt;server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :                 timer_start(&amp;connP-&gt;server_triger_timer);</span>
+<span class="lineNum">     294 </span>                :            :             }
+<span class="lineNum">     295 </span>                :            :             #endif
+<span class="lineNum">     296 </span>                :            :         }
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :         if (NULL == connP-&gt;net_context)</span>
+<span class="lineNum">     299 </span>                :            :         {
+<span class="lineNum">     300 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :             ATINY_LOG(LOG_INFO, &quot;net_context is NULL in connection_create&quot;);</span>
+<span class="lineNum">     301 </span>                :<span class="lineCov">          5 :             goto fail;</span>
+<span class="lineNum">     302 </span>                :            :         }
+<span class="lineNum">     303 </span>                :<span class="lineCov">          2 :         connP-&gt;dtls_flag = false;</span>
+<span class="lineNum">     304 </span>                :            :     }
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :<span class="lineCov">          2 :     connP-&gt;next = connList;</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          2 :     connP-&gt;securityObj = securityObj;</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">          2 :     connP-&gt;securityInstId = instanceId;</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">          2 :     connP-&gt;lwm2mH = lwm2mH;</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">          2 :     connP-&gt;bootstrap_flag = targetP-&gt;isBootstrap;</span>
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">          2 :     return connP;</span>
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>                :            : fail:
+<span class="lineNum">     315 </span>                :<span class="lineCov">          5 :     lwm2m_free(connP);</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">         11 :     return NULL;</span>
+<span class="lineNum">     317 </span>                :            : 
+<a name="318"><span class="lineNum">     318 </span>                :            : }</a>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :<span class="lineCov">          4 : void connection_free(connection_t *connP)</span>
+<span class="lineNum">     321 </span>                :            : {
+<span class="lineNum">     322 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     if(connP == NULL)</span>
+<span class="lineNum">     323 </span>                :            :     {
+<span class="lineNum">     324 </span>                :<span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     325 </span>                :            :     }
+<span class="lineNum">     326 </span>                :            : #ifdef WITH_DTLS
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            :     if (connP-&gt;dtls_flag == true)
+<span class="lineNum">     329 </span>                :            :     {
+<span class="lineNum">     330 </span>                :            :         dtls_ssl_destroy(connP-&gt;net_context);
+<span class="lineNum">     331 </span>                :            :     }
+<span class="lineNum">     332 </span>                :            :     else
+<span class="lineNum">     333 </span>                :            : #endif
+<span class="lineNum">     334 </span>                :            :     {
+<span class="lineNum">     335 </span>                :<span class="lineCov">          3 :         atiny_net_close(connP-&gt;net_context);</span>
+<span class="lineNum">     336 </span>                :            :     }
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :<span class="lineCov">          4 :     return;</span>
+<span class="lineNum">     339 </span>                :            : }
+<a name="340"><span class="lineNum">     340 </span>                :            : </a>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 : void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer)</span>
+<span class="lineNum">     343 </span>                :            : {
+<span class="lineNum">     344 </span>                :            :     client_data_t *dataP;
+<span class="lineNum">     345 </span>                :            :     lwm2m_list_t *instance;
+<span class="lineNum">     346 </span>                :<span class="lineCov">          1 :     connection_t *newConnP = NULL;</span>
+<span class="lineNum">     347 </span>                :            :     lwm2m_object_t   *securityObj;
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineCov">          1 :     dataP = (client_data_t *)userData;</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">          1 :     securityObj = dataP-&gt;securityObjP;</span>
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     ATINY_LOG(LOG_INFO, &quot;Now come into Connection creation in lwm2m_connect_server %d.\n&quot;, isServer);</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :<span class="lineCov">          1 :     instance = LWM2M_LIST_FIND(dataP-&gt;securityObjP-&gt;instanceList, secObjInstID);</span>
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (instance == NULL)</span>
+<span class="lineNum">     357 </span>                :            :     {
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     359 </span>                :            :     }
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :<span class="lineCov">          1 :     newConnP = connection_create(dataP-&gt;connList, securityObj, instance-&gt;id, dataP-&gt;lwm2mH,</span>
+<span class="lineNum">     362 </span>                :            :                                 isServer ? LWM2M_IS_SERVER : LWM2M_IS_CLIENT);
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (newConnP == NULL)</span>
+<span class="lineNum">     365 </span>                :            :     {
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ATINY_LOG(LOG_INFO, &quot;Connection creation failed.\n&quot;);</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     368 </span>                :            :     }
+<span class="lineNum">     369 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     ATINY_LOG(LOG_INFO, &quot;Connection creation successfully in lwm2m_connect_server.\n&quot;);</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">          1 :     dataP-&gt;connList = newConnP;</span>
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineCov">          1 :     return (void *)newConnP;</span>
+<a name="373"><span class="lineNum">     373 </span>                :            : }</a>
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :<span class="lineCov">          2 : void lwm2m_close_connection(void *sessionH, void *userData)</span>
+<span class="lineNum">     376 </span>                :            : {
+<span class="lineNum">     377 </span>                :            :     client_data_t *app_data;
+<span class="lineNum">     378 </span>                :            :     connection_t *targetP;
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :<span class="lineCov">          2 :     app_data = (client_data_t *)userData;</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          2 :     targetP = (connection_t *)sessionH;</span>
+<span class="lineNum">     382 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     383 </span>                :<span class="lineCov">          2 :     timer_stop(&amp;targetP-&gt;server_triger_timer);</span>
+<span class="lineNum">     384 </span>                :            : #endif
+<span class="lineNum">     385 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (targetP == app_data-&gt;connList)</span>
+<span class="lineNum">     386 </span>                :            :     {
+<span class="lineNum">     387 </span>                :<span class="lineCov">          1 :         app_data-&gt;connList = targetP-&gt;next;</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :         connection_free(targetP);</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :         lwm2m_free(targetP);</span>
+<span class="lineNum">     390 </span>                :            :     }
+<span class="lineNum">     391 </span>                :            :     else
+<span class="lineNum">     392 </span>                :            :     {
+<span class="lineNum">     393 </span>                :            :         connection_t *parentP;
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :         parentP = app_data-&gt;connList;</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         while (parentP != NULL &amp;&amp; parentP-&gt;next != targetP)</span>
+<span class="lineNum">     398 </span>                :            :         {
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :             parentP = parentP-&gt;next;</span>
+<span class="lineNum">     400 </span>                :            :         }
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (parentP != NULL)</span>
+<span class="lineNum">     403 </span>                :            :         {
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :             parentP-&gt;next = targetP-&gt;next;</span>
+<span class="lineNum">     405 </span>                :<span class="lineCov">          1 :             connection_free(targetP);</span>
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :             lwm2m_free(targetP);</span>
+<span class="lineNum">     407 </span>                :            :         }
+<span class="lineNum">     408 </span>                :            :     }
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>                :<span class="lineCov">          2 :     return;</span>
+<span class="lineNum">     411 </span>                :            : }
+<a name="412"><span class="lineNum">     412 </span>                :            : </a>
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :<span class="lineCov">         13 : int lwm2m_buffer_recv(void *sessionH, uint8_t *buffer, size_t length, uint32_t timeout)</span>
+<span class="lineNum">     415 </span>                :            : {
+<span class="lineNum">     416 </span>                :<span class="lineCov">         13 :     connection_t *connP = (connection_t *) sessionH;</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">         13 :     int ret = -1;</span>
+<span class="lineNum">     418 </span>                :<span class="lineCov">         13 :     const int TIME_OUT = -2;</span>
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :<span class="lineCov">         13 :     timeout *= 1000;</span>
+<span class="lineNum">     421 </span>                :            : #ifdef WITH_DTLS
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :            :     if (connP-&gt;dtls_flag == true)
+<span class="lineNum">     424 </span>                :            :     {
+<span class="lineNum">     425 </span>                :            :         // security
+<span class="lineNum">     426 </span>                :            :         ret = dtls_read(connP-&gt;net_context, buffer, length, timeout);
+<span class="lineNum">     427 </span>                :            :     }
+<span class="lineNum">     428 </span>                :            :     else
+<span class="lineNum">     429 </span>                :            : #endif
+<span class="lineNum">     430 </span>                :            :     {
+<span class="lineNum">     431 </span>                :<span class="lineCov">         13 :         ret = atiny_net_recv_timeout(connP-&gt;net_context, buffer, length, timeout);</span>
+<span class="lineNum">     432 </span>                :            :     }
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>[<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         13 :     if((ret &lt; 0) &amp;&amp; (ret != TIME_OUT))</span>
+<span class="lineNum">     435 </span>                :            :     {
+<span class="lineNum">     436 </span>                :<span class="lineCov">         13 :         inc_connection_stat(connP, CONNECTION_RECV_ERR);</span>
+<span class="lineNum">     437 </span>                :            :     }
+<span class="lineNum">     438 </span>                :            :     else
+<span class="lineNum">     439 </span>                :            :     {
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :         connP-&gt;errs[CONNECTION_RECV_ERR] = 0;</span>
+<span class="lineNum">     441 </span>                :            :     }
+<span class="lineNum">     442 </span>                :<span class="lineCov">         13 :     return ret;</span>
+<a name="443"><span class="lineNum">     443 </span>                :            : }</a>
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>                :<span class="lineCov">          3 : uint8_t lwm2m_buffer_send(void *sessionH,</span>
+<span class="lineNum">     446 </span>                :            :                           uint8_t *buffer,
+<span class="lineNum">     447 </span>                :            :                           size_t length,
+<span class="lineNum">     448 </span>                :            :                           void *userdata)
+<span class="lineNum">     449 </span>                :            : {
+<span class="lineNum">     450 </span>                :<span class="lineCov">          3 :     connection_t *connP = (connection_t *) sessionH;</span>
+<span class="lineNum">     451 </span>                :            :     int ret;
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     if (connP == NULL)</span>
+<span class="lineNum">     454 </span>                :            :     {
+<span class="lineNum">     455 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         ATINY_LOG(LOG_INFO, &quot;#&gt; failed sending %lu bytes, missing connection\r\n&quot;, (unsigned long)length);</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 :         return COAP_500_INTERNAL_SERVER_ERROR ;</span>
+<span class="lineNum">     457 </span>                :            :     }
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     ATINY_LOG(LOG_INFO, &quot;call connection_send in lwm2m_buffer_send, length is %d\n&quot;, length);</span>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>                :            : #ifdef WITH_DTLS
+<span class="lineNum">     462 </span>                :            : 
+<span class="lineNum">     463 </span>                :            :     if (connP-&gt;dtls_flag == true)
+<span class="lineNum">     464 </span>                :            :     {
+<span class="lineNum">     465 </span>                :            :         // security
+<span class="lineNum">     466 </span>                :            :         ret = dtls_write(connP-&gt;net_context, buffer, length);
+<span class="lineNum">     467 </span>                :            :     }
+<span class="lineNum">     468 </span>                :            :     else
+<span class="lineNum">     469 </span>                :            : #endif
+<span class="lineNum">     470 </span>                :            :     {
+<span class="lineNum">     471 </span>                :<span class="lineCov">          2 :         ret = atiny_net_send(connP-&gt;net_context, buffer, length);</span>
+<span class="lineNum">     472 </span>                :            :     }
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if(ret &gt;= 0)</span>
+<span class="lineNum">     475 </span>                :            :     {
+<span class="lineNum">     476 </span>                :<span class="lineCov">          1 :         connP-&gt;errs[CONNECTION_SEND_ERR] = 0;</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">          1 :         return COAP_NO_ERROR;</span>
+<span class="lineNum">     478 </span>                :            :     }
+<span class="lineNum">     479 </span>                :            :     else
+<span class="lineNum">     480 </span>                :            :     {
+<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :         inc_connection_stat(connP, CONNECTION_SEND_ERR);</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">          3 :         return COAP_500_INTERNAL_SERVER_ERROR;</span>
+<span class="lineNum">     483 </span>                :            :     }
+<a name="484"><span class="lineNum">     484 </span>                :            : }</a>
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :<span class="lineCov">          3 : bool lwm2m_session_is_equal(void *session1, void *session2, void *userData)</span>
+<span class="lineNum">     487 </span>                :            : {
+<span class="lineNum">     488 </span>                :<span class="lineCov">          3 :     return (session1 == session2);</span>
+<a name="489"><span class="lineNum">     489 </span>                :            : }</a>
+<span class="lineNum">     490 </span>                :            : 
+<span class="lineNum">     491 </span>                :<span class="lineCov">          2 : void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy)</span>
+<span class="lineNum">     492 </span>                :            : {
+<span class="lineNum">     493 </span>                :<span class="lineCov">          2 :     g_connection_err_notify = nofiy;</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">          2 : }</span>
+<a name="495"><span class="lineNum">     495 </span>                :            : </a>
+<span class="lineNum">     496 </span>                :            : #ifdef LWM2M_BOOTSTRAP
+<span class="lineNum">     497 </span>                :<span class="lineCov">          2 : void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH)</span>
+<span class="lineNum">     498 </span>                :            : {
+<span class="lineNum">     499 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (sessionH == NULL)</span>
+<span class="lineNum">     500 </span>                :            :     {
+<span class="lineNum">     501 </span>                :<span class="lineCov">          2 :         return;</span>
+<span class="lineNum">     502 </span>                :            :     }
+<a name="503"><span class="lineNum">     503 </span>                :<span class="lineCov">          1 :     timer_step(&amp;sessionH-&gt;server_triger_timer);</span></a>
+<span class="lineNum">     504 </span>                :            : }
+<span class="lineNum">     505 </span>                :<span class="lineCov">          2 : void lwm2m_stop_striger_server_initiated_bs(connection_t * sessionH)</span>
+<span class="lineNum">     506 </span>                :            : {
+<span class="lineNum">     507 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (sessionH == NULL)</span>
+<span class="lineNum">     508 </span>                :            :     {
+<span class="lineNum">     509 </span>                :<span class="lineCov">          2 :         return;</span>
+<span class="lineNum">     510 </span>                :            :     }
+<span class="lineNum">     511 </span>                :<span class="lineCov">          1 :     timer_stop(&amp;sessionH-&gt;server_triger_timer);</span>
+<span class="lineNum">     512 </span>                :            : }
+<a name="513"><span class="lineNum">     513 </span>                :            : </a>
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineCov">          1 : bool lwm2m_is_sec_obj_uri_valid(uint16_t secObjInstID, void *userData)</span>
+<span class="lineNum">     516 </span>                :            : {
+<span class="lineNum">     517 </span>                :            :     client_data_t *dataP;
+<span class="lineNum">     518 </span>                :            :     lwm2m_object_t   *securityObj;
+<span class="lineNum">     519 </span>                :<span class="lineCov">          1 :     dataP = (client_data_t *)userData;</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">          1 :     securityObj = dataP-&gt;securityObjP;</span>
+<span class="lineNum">     521 </span>                :            :     security_instance_t *targetP;
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>                :<span class="lineCov">          1 :     targetP = (security_instance_t *)LWM2M_LIST_FIND(securityObj-&gt;instanceList, secObjInstID);</span>
+<span class="lineNum">     524 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :     return !(((NULL == targetP)</span>
+<span class="lineNum">     525 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             || (targetP-&gt;uri == NULL)</span>
+<span class="lineNum">     526 </span>                :<span class="lineNoCov">          0 :             || (targetP-&gt;uri[0] == '\0')));</span>
+<span class="lineNum">     527 </span>                :            : }
+<span class="lineNum">     528 </span>                :            : #endif
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

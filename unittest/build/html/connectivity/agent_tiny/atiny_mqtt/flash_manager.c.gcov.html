@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - connectivity/agent_tiny/atiny_mqtt/flash_manager.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">connectivity/agent_tiny/atiny_mqtt</a> - flash_manager.c<span style="font-size: 80%;"> (source / <a href="flash_manager.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryHi">94.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2018-12-26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) &lt;2016-2018&gt;, &lt;Huawei Technologies Co., Ltd&gt;
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * Redistribution and use in source and binary forms, with or without modification,
+<span class="lineNum">       5 </span>                :            :  * are permitted provided that the following conditions are met:
+<span class="lineNum">       6 </span>                :            :  * 1. Redistributions of source code must retain the above copyright notice, this list of
+<span class="lineNum">       7 </span>                :            :  * conditions and the following disclaimer.
+<span class="lineNum">       8 </span>                :            :  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+<span class="lineNum">       9 </span>                :            :  * of conditions and the following disclaimer in the documentation and/or other materials
+<span class="lineNum">      10 </span>                :            :  * provided with the distribution.
+<span class="lineNum">      11 </span>                :            :  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+<span class="lineNum">      12 </span>                :            :  * to endorse or promote products derived from this software without specific prior written
+<span class="lineNum">      13 </span>                :            :  * permission.
+<span class="lineNum">      14 </span>                :            :  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<span class="lineNum">      15 </span>                :            :  * &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      16 </span>                :            :  * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+<span class="lineNum">      17 </span>                :            :  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+<span class="lineNum">      18 </span>                :            :  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+<span class="lineNum">      19 </span>                :            :  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+<span class="lineNum">      20 </span>                :            :  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+<span class="lineNum">      21 </span>                :            :  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+<span class="lineNum">      22 </span>                :            :  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      23 </span>                :            :  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+<span class="lineNum">      24 </span>                :            :  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      25 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /*----------------------------------------------------------------------------
+<span class="lineNum">      27 </span>                :            :  * Notice of Export Control Law
+<span class="lineNum">      28 </span>                :            :  * ===============================================
+<span class="lineNum">      29 </span>                :            :  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+<span class="lineNum">      30 </span>                :            :  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+<span class="lineNum">      31 </span>                :            :  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+<span class="lineNum">      32 </span>                :            :  * applicable export control laws and regulations.
+<span class="lineNum">      33 </span>                :            :  *---------------------------------------------------------------------------*/
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;flash_manager.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;log/atiny_log.h&quot;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #define FLASH_MAGIC_NUM 0x57381232
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : #define MAGIC_NUM_POS 0
+<span class="lineNum">      41 </span>                :            : #define TOTAL_LEN_POS 4
+<span class="lineNum">      42 </span>                :            : #define DATA_POS 8
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : #define MAX_FLASH_INFO ((STRING_MAX_LEN + 1) * (MAX_DATA_ITEM) + DATA_POS)
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : 
+<a name="47"><span class="lineNum">      47 </span>                :            : static int (*g_cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len);</a>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineCov">          2 : static int flash_manager_parse(const char *buf, uint32_t len, flash_info_s *flash_info)</span>
+<span class="lineNum">      50 </span>                :            : {
+<span class="lineNum">      51 </span>                :            :     uint32_t i;
+<span class="lineNum">      52 </span>                :            :     uint32_t tmp_len;
+<span class="lineNum">      53 </span>                :            :     int ret;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     for (i = 0; i &lt; MAX_DATA_ITEM; i++)</span>
+<span class="lineNum">      56 </span>                :            :     {
+<span class="lineNum">      57 </span>                :<span class="lineCov">          5 :         tmp_len = strnlen(buf, len);</span>
+<span class="lineNum">      58 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if ((tmp_len &gt;= len) || (tmp_len &gt; STRING_MAX_LEN))</span>
+<span class="lineNum">      59 </span>                :            :         {
+<span class="lineNum">      60 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :            ATINY_LOG(LOG_FATAL, &quot;string len err tmp_len %ld,len %ld&quot;, tmp_len, len);</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :            break;</span>
+<span class="lineNum">      62 </span>                :            :         }
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineCov">          5 :         flash_info-&gt;items[i] = atiny_strdup(buf);</span>
+<span class="lineNum">      65 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          5 :         if (flash_info-&gt;items[i] == NULL)</span>
+<span class="lineNum">      66 </span>                :            :         {
+<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             ATINY_LOG(LOG_FATAL, &quot;atiny_strdup fail&quot;);</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :             ret = ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 :             goto EXIT_ERR;</span>
+<span class="lineNum">      70 </span>                :            :         }
+<span class="lineNum">      71 </span>                :<span class="lineCov">          4 :         buf += (tmp_len + 1);</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          4 :         len -= (tmp_len + 1);</span>
+<span class="lineNum">      73 </span>                :            :     }
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :     if ((i != MAX_DATA_ITEM) || (len != 0))</span>
+<span class="lineNum">      76 </span>                :            :     {
+<span class="lineNum">      77 </span>                :            :         ATINY_LOG(LOG_FATAL, &quot;data info err item num %ld,left len %ld&quot;, i, len);
+<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         ret = ATINY_ERR;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :         goto EXIT_ERR;</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">      81 </span>                :            :     ATINY_LOG(LOG_INFO, &quot;deviceid and password exist&quot;);
+<span class="lineNum">      82 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     return ATINY_OK;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 : </span>
+<span class="lineNum">      84 </span>                :            : EXIT_ERR:
+<span class="lineNum">      85 </span>                :            :     flash_manager_destroy_flash_info(flash_info);
+<span class="lineNum">      86 </span>                :<span class="lineCov">          2 :     return ret;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          2 : </span>
+<span class="lineNum">      88 </span>                :            : }
+<a name="89"><span class="lineNum">      89 </span>                :            : </a>
+<span class="lineNum">      90 </span>                :            : static int flash_manager_get_need_len(const flash_info_s *flash_info, uint32_t *len)
+<span class="lineNum">      91 </span>                :<span class="lineCov">          4 : {</span>
+<span class="lineNum">      92 </span>                :            :    uint32_t i;
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            :    *len  = DATA_POS;
+<span class="lineNum">      95 </span>                :<span class="lineCov">          4 :    for (i = 0; i &lt; MAX_DATA_ITEM; i++)</span>
+<span class="lineNum">      96 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         16 :    {</span>
+<span class="lineNum">      97 </span>                :            :        uint32_t tmp_len = strnlen(flash_info-&gt;items[i], MAX_FLASH_INFO);
+<span class="lineNum">      98 </span>                :<span class="lineCov">         13 :        *len += (tmp_len + 1);</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">         13 :        if (*len &gt; MAX_FLASH_INFO)</span>
+<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         13 :        {</span>
+<span class="lineNum">     101 </span>                :            :            ATINY_LOG(LOG_ERR, &quot;write info exceed max&quot;);
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :            return ATINY_ERR;</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :        }</span>
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            :    }
+<span class="lineNum">     106 </span>                :            :    return ATINY_OK;
+<span class="lineNum">     107 </span>                :<span class="lineCov">          4 : }</span>
+<a name="108"><span class="lineNum">     108 </span>                :            : </a>
+<span class="lineNum">     109 </span>                :            : static void flash_manager_write_buffer(const flash_info_s *flash_info, char *buf, uint32_t len)
+<span class="lineNum">     110 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     111 </span>                :            :    uint32_t i;
+<span class="lineNum">     112 </span>                :            :    *((uint32_t *)buf) = FLASH_MAGIC_NUM;
+<span class="lineNum">     113 </span>                :<span class="lineCov">          2 :    *((uint32_t *)&amp;buf[TOTAL_LEN_POS]) = len;</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          2 : </span>
+<span class="lineNum">     115 </span>                :            :    buf += DATA_POS;
+<span class="lineNum">     116 </span>                :<span class="lineCov">          2 :    len -= DATA_POS;</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          2 :    for (i = 0; i &lt; MAX_DATA_ITEM; i++)</span>
+<span class="lineNum">     118 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         10 :    {</span>
+<span class="lineNum">     119 </span>                :            :      int32_t tmp_len;
+<span class="lineNum">     120 </span>                :            :      tmp_len = snprintf(buf, len, &quot;%s&quot;, flash_info-&gt;items[i]);
+<span class="lineNum">     121 </span>                :<span class="lineCov">          8 :      if ((tmp_len &gt;= len) || (tmp_len &lt; 0))</span>
+<span class="lineNum">     122 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 8 times"> + </span>]:<span class="lineCov">          8 :      {</span>
+<span class="lineNum">     123 </span>                :            :         ATINY_LOG(LOG_FATAL, &quot;snprintf err,tmp_len %ld, len %d&quot;, tmp_len, len);
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">          2 :      }</span>
+<span class="lineNum">     126 </span>                :            :      buf += (tmp_len + 1);
+<span class="lineNum">     127 </span>                :<span class="lineCov">          8 :      len -= (tmp_len + 1);</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">          8 :    }</span>
+<span class="lineNum">     129 </span>                :            : }
+<a name="130"><span class="lineNum">     130 </span>                :            : </a>
+<span class="lineNum">     131 </span>                :            : void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len))
+<span class="lineNum">     132 </span>                :<span class="lineCov">         15 : {</span>
+<span class="lineNum">     133 </span>                :            :     g_cmd_ioctl = cmd_ioctl;
+<span class="lineNum">     134 </span>                :<span class="lineCov">         15 : }</span>
+<a name="135"><span class="lineNum">     135 </span>                :<span class="lineCov">         15 : </span></a>
+<span class="lineNum">     136 </span>                :            : int flash_manager_read(flash_info_s *flash_info)
+<span class="lineNum">     137 </span>                :<span class="lineCov">          7 : {</span>
+<span class="lineNum">     138 </span>                :            :     int ret;
+<span class="lineNum">     139 </span>                :            :     uint32_t len;
+<span class="lineNum">     140 </span>                :            :     uint32_t magic_num;
+<span class="lineNum">     141 </span>                :            :     uint8_t *buf;
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            :     memset(flash_info, 0, sizeof(*flash_info));
+<span class="lineNum">     144 </span>                :<span class="lineCov">          7 :     buf = atiny_malloc(MAX_FLASH_INFO);</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          7 :     if (buf == NULL)</span>
+<span class="lineNum">     146 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          7 :     {</span>
+<span class="lineNum">     147 </span>                :            :         ATINY_LOG(LOG_ERR, &quot;atiny_malloc fail len %d&quot;, MAX_FLASH_INFO);
+<span class="lineNum">     148 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :            :     ret = g_cmd_ioctl(MQTT_READ_SECRET_INFO, buf, MAX_FLASH_INFO);
+<span class="lineNum">     152 </span>                :<span class="lineCov">          6 :     if (ret != ATINY_OK)</span>
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          6 :     {</span>
+<span class="lineNum">     154 </span>                :            :         ATINY_LOG(LOG_FATAL, &quot;g_cmd_ioctl MQTT_READ_SECRET_INFO fail ret %ld&quot;, ret);
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :          goto EXIT;</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          2 :     }</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :     magic_num = *((uint32_t*)buf);
+<span class="lineNum">     159 </span>                :<span class="lineCov">          4 :     if (magic_num != FLASH_MAGIC_NUM)</span>
+<span class="lineNum">     160 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     {</span>
+<span class="lineNum">     161 </span>                :            :         ATINY_LOG(LOG_INFO, &quot;mqtt flash info not valid&quot;);
+<span class="lineNum">     162 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :          goto EXIT;</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :            :     len = *((uint32_t*)&amp;buf[TOTAL_LEN_POS]);
+<span class="lineNum">     167 </span>                :<span class="lineCov">          3 :     if ((len &gt; MAX_FLASH_INFO) || (len &lt;= DATA_POS))</span>
+<span class="lineNum">     168 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     {</span>
+<span class="lineNum">     169 </span>                :            :         ATINY_LOG(LOG_ERR, &quot;mqtt flash info len %d invalid&quot;, len);
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :          goto EXIT;</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            :     ret = flash_manager_parse((char *)(buf + DATA_POS), len - DATA_POS, flash_info);
+<span class="lineNum">     174 </span>                :<span class="lineCov">          2 : </span>
+<span class="lineNum">     175 </span>                :            : EXIT:
+<span class="lineNum">     176 </span>                :            :     atiny_free(buf);
+<span class="lineNum">     177 </span>                :<span class="lineCov">          6 :     return ret;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">          7 : }</span>
+<a name="179"><span class="lineNum">     179 </span>                :            : </a>
+<span class="lineNum">     180 </span>                :            : int flash_manager_write(const flash_info_s *flash_info)
+<span class="lineNum">     181 </span>                :<span class="lineCov">          4 : {</span>
+<span class="lineNum">     182 </span>                :            :     uint32_t len;
+<span class="lineNum">     183 </span>                :            :     int ret;
+<span class="lineNum">     184 </span>                :            :     uint8_t *buf;
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :     ret = flash_manager_get_need_len(flash_info, &amp;len);
+<span class="lineNum">     187 </span>                :<span class="lineCov">          4 :     if (ret != ATINY_OK)</span>
+<span class="lineNum">     188 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :     {</span>
+<span class="lineNum">     189 </span>                :            :         return ret;
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            :     buf = atiny_malloc(MAX_FLASH_INFO);
+<span class="lineNum">     193 </span>                :<span class="lineCov">          3 :     if (buf == NULL)</span>
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :     {</span>
+<span class="lineNum">     195 </span>                :            :         ATINY_LOG(LOG_ERR, &quot;atiny_malloc fail len %d&quot;, len);
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         return ATINY_MALLOC_FAILED;</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :     }</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :     flash_manager_write_buffer(flash_info, (char *)buf, len);
+<span class="lineNum">     200 </span>                :<span class="lineCov">          2 :     ret = g_cmd_ioctl(MQTT_SAVE_SECRET_INFO, buf, MAX_FLASH_INFO);</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          2 :     atiny_free(buf);</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">          2 :     if (ret != ATINY_OK)</span>
+<span class="lineNum">     203 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     {</span>
+<span class="lineNum">     204 </span>                :            :         ATINY_LOG(LOG_FATAL, &quot;g_cmd_ioctl MQTT_SAVE_SECRET_INFO fail ret %d, len ld&quot;, ret, len);
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 : </span>
+<span class="lineNum">     206 </span>                :            :     }
+<span class="lineNum">     207 </span>                :            :     return ret;
+<a name="208"><span class="lineNum">     208 </span>                :<span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     209 </span>                :            : void flash_manager_destroy_flash_info(flash_info_s *flash_info)
+<span class="lineNum">     210 </span>                :<span class="lineCov">         12 : {</span>
+<span class="lineNum">     211 </span>                :            :    uint32_t i;
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            :    for (i = 0; i &lt; MAX_DATA_ITEM; i++)
+<span class="lineNum">     214 </span>        [<span class="branchCov" title="Branch 0 was taken 48 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         60 :    {</span>
+<span class="lineNum">     215 </span>                :            :        TRY_FREE_MEM(flash_info-&gt;items[i]);
+<span class="lineNum">     216 </span>        [<span class="branchCov" title="Branch 0 was taken 26 times"> + </span><span class="branchCov" title="Branch 1 was taken 22 times"> + </span>]:<span class="lineCov">         48 :    }</span>
+<span class="lineNum">     217 </span>                :            : }
+<span class="lineNum">     218 </span>                :<span class="lineCov">         12 : </span>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

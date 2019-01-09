@@ -1,0 +1,68 @@
+/*----------------------------------------------------------------------------
+ * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *---------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ *---------------------------------------------------------------------------*/
+
+#ifndef _TEST_CONNECTION_H_
+#define _TEST_CONNECTION_H_
+
+#include <cpptest.h>
+#include "atiny_lwm2m/agenttiny.h"
+class TestConnection: public Test::Suite {
+
+ public:
+  atiny_device_info_t prv_dev_info;
+  atiny_param_t prv_atiny_params;
+  void * prv_handle;
+ protected:
+  void setup();
+  void tear_down();
+
+ public:
+  void test_connection_create();
+  void test_lwm2m_buffer_send();
+  void test_lwm2m_session_is_equal();
+  void test_lwm2m_connect_server();
+  void test_lwm2m_close_connection();
+  void test_lwm2m_buffer_recv();
+  void test_connection_free();
+  void test_connection_striger_server_initiated_bs();
+  void test_lwm2m_register_connection_err_notify();
+  void test_lwm2m_step_striger_server_initiated_bs();
+  void test_lwm2m_stop_striger_server_initiated_bs();
+  void test_lwm2m_is_sec_obj_uri_valid();
+  TestConnection();
+  
+};
+#endif
+
+

@@ -1,0 +1,130 @@
+	
+CC=c99
+CPP=g++
+LD=ld
+AR=ar
+
+BUILD_DIR=build
+
+FILE_PATTERN = "*sota*.c"
+
+FOR32 := true
+BIN:= bin
+LIB:= $(BUILD_DIR)/libliteos.a
+	
+HW_LITEOSDIR:=../../../..
+ifeq ($(FOR32), true)
+CFLAGS := -m32  -march=i386 -mtune=i386
+else
+CFLAGS := 
+endif
+
+
+CFLAGS += -w -DSTM32F429xx -DUSE_HAL_DRIVER -DUSE_MBED_TLS -DMBEDTLS_CONFIG_FILE="<los_mbedtls_config.h>" -DWITH_AT_FRAMEWORK -DUSE_NB_NEUL95 -DWITH_LINUX -DLWM2M_LITTLE_ENDIAN -DLWM2M_CLIENT_MODE -DNDEBUG
+CFLAGS += -DWITH_SOTA -DATINY_DEBUG
+CFLAGS += -DWITH_LOGS
+CFLAGS += -DLWIP_TIMEVAL_PRIVATE=0 -DBYTE_ORDER -DLWIP_COMPAT_SOCKETS=0
+CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -DUSE_BOOTLOADER
+GCOV_FLAGS := #--rc lcov_branch_coverage=1 --rc  genhtml_branch_coverage=1
+
+#compile dynamic library of liteos module	
+SRC:= $(wildcard $(HW_LITEOSDIR)/components/ota/sota/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/package/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/utility/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/ota/flag_operate/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/ota_port.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/net/at_device/nb_bc95/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/net/at_frame/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/library/*.c) 
+#SRC+= $(wildcard $(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/*.c) 
+
+SRC+= $(wildcard $(HW_LITEOSDIR)/osdepends/liteos/*.c)
+SRC+= $(wildcard $(HW_LITEOSDIR)/unittest/stub/*.c)
+
+LIB_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(SRC))))
+vpath %.c $(sort $(dir $(SRC)))
+	
+INCLUDES:= \
+    -I$(HW_LITEOSDIR)/include/ \
+    -I$(HW_LITEOSDIR)/components/connectivity/agent_tiny/atiny_lwm2m/ \
+	-I$(HW_LITEOSDIR)/arch/arm/common/cmsis/ \
+	-I$(HW_LITEOSDIR)/arch/arm/arm-m/include/ \
+	-I$(HW_LITEOSDIR)/arch/arm/arm-m/cortex-m4/ \
+	-I$(HW_LITEOSDIR)/osdepends/liteos/cmsis/ \
+    -I$(HW_LITEOSDIR)/components/net/at_frame/ \
+	-I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/ \
+    -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/core/er-coap-13 \
+    -I$(HW_LITEOSDIR)/components/connectivity/lwm2m/examples/shared \
+    -I$(HW_LITEOSDIR)/components/ota/flag_operate/ \
+    -I$(HW_LITEOSDIR)/components/ota/package/ \
+    -I$(HW_LITEOSDIR)/components/ota/utility/ \
+	-I$(HW_LITEOSDIR)/components/ota/sota/ \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip-2.0.3/src/include/ \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip_port/ \
+	-I$(HW_LITEOSDIR)/components/net/lwip/lwip_port/OS \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/ \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls-2.6.0/include/mbedtls/ \
+	-I$(HW_LITEOSDIR)/components/security/mbedtls/mbedtls_port/ \
+	-I$(HW_LITEOSDIR)/kernel/base/include/ \
+	-I$(HW_LITEOSDIR)/kernel/include/ \
+	-I$(HW_LITEOSDIR)/kernel/extended/include/ \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/OS_CONFIG/ \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Inc/ \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Hardware/Inc \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/ \
+	-I$(HW_LITEOSDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/ \
+	-I$(HW_LITEOSDIR)/unittest/stub/ \
+	
+
+CPP_SRC := $(wildcard *.cpp)
+CPP_OBJ = $(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.cpp, %.o, $(CPP_SRC))))
+
+C_SRC   := $(wildcard *.c)
+C_OBJ:=$(addprefix $(BUILD_DIR)/, $(notdir $(patsubst %.c, %.o, $(C_SRC))))
+
+all:$(BUILD_DIR) lib $(BIN) 
+	@echo "ota OK"
+lib:$(LIB)
+TEST_GCDA:=$(patsubst %.o, %.gcda, $(CPP_OBJ))
+TEST_GCDA+=$(patsubst %.o, %.gcda, $(C_OBJ))
+TEST_GCDA+=$(patsubst %.o, %.gcda, $(LIB_OBJ))
+	
+TEST_GCNO:=$(patsubst %.o, %.gcno, $(CPP_OBJ))
+TEST_GCNO+=$(patsubst %.o, %.gcno, $(C_OBJ))
+TEST_GCNO+=$(patsubst %.o, %.gcno, $(LIB_OBJ))
+	
+$(BIN):$(C_OBJ) $(CPP_OBJ)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -o $@ $^ -lliteos -L$(BUILD_DIR) -lcpptest -lpthread
+
+$(CPP_OBJ):$(BUILD_DIR)/%.o:%.cpp
+	@$(CPP) -c $< $(INCLUDES) $(CFLAGS) -o $@
+
+$(C_OBJ):$(BUILD_DIR)/%.o:%.c
+	@$(CC) -c $< $(INCLUDES) $(CFLAGS) -o $@
+
+$(LIB):$(LIB_OBJ)
+#	$(CPP) -shared -o $@ $^
+	@$(AR) -r $@ $^
+
+$(LIB_OBJ):$(BUILD_DIR)/%.o:%.c
+	@$(CC) $(CFLAGS)	$(INCLUDES) -c $< -o $@
+
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+    
+clean:
+	rm -rf $(BUILD_DIR) bin gcov *.htm *.log
+
+run:
+	./$(BIN)
+
+cov:
+	mkdir -p gcov
+	./$(BIN)
+	lcov -c -o gcov/gcov.info -d . -b . #--rc lcov_branch_coverage=1
+	lcov -e gcov/gcov.info $(FILE_PATTERN) -o gcov/gcov.info #--rc lcov_branch_coverage=1
+	genhtml -o gcov/html gcov/gcov.info #--rc genhtml_branch_coverage=1
+
+memcheck:
+	valgrind --tool=memcheck --leak-check=full --show-reachable=yes --trace-children=yes  --smc-check=all ./$(BIN) 2>&1 | tee memcheck.log

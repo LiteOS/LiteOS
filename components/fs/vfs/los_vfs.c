@@ -839,7 +839,7 @@ int los_closedir (struct dir *dir)
         mp->m_refs--;
     }
     else
-    {    
+    {
         VFS_ERRNO_SET (EBADF);
     }
 
