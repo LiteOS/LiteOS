@@ -111,9 +111,7 @@ void net_init(void)
         {
             printf("set source ip6 failed \n");
         }
-        printf("after set source ip6 \n");
-        netif_ip6_addr_set(&gnetif, 0, &ip6);
-
+        printf("after set source ip6\n");
         ret = netif_add_ip6_address(&gnetif, &ip6, &idx);
         if (ret != 0)
         {
