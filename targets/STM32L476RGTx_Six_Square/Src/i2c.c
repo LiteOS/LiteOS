@@ -1,6 +1,7 @@
 
 #include "uds/uds_i2c.h"
 #include "uds/uds.h"
+#include "uds/uds_dev.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_i2c.h"
 #include "string.h"

@@ -1,5 +1,6 @@
 #include "stm32l4xx_hal.h"
 #include "uds/uds.h"
+#include "uds/uds_dev.h"
 #include "uds/uds_gpio.h"
 #include "stdio.h"
 

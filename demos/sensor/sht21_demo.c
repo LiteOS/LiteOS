@@ -51,7 +51,7 @@ void demo_sht21_iic(void)
     i2c1.freq_khz = DAL_FRE_100KHZ;//10khz		
     i2c1.s_add_size = DAL_I2C_7BIT_ADD;
     
-    uds_driv_t device;
+    uds_dev_t device;
     uds_driv_init();
     uds_i2c_dev_install("I2C1", (void *)&i2c1);
     
@@ -65,36 +65,36 @@ void demo_sht21_iic(void)
 
 
     iotype = I2C_IO_MASTER_ORIGIN;
-    los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
+    uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
 
 
     slave_add = SHT20_WRITE_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
+    uds_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
 
     slave_add = SHT20_READ_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+    uds_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
 
     fre = DAL_FRE_400KHZ;//
-    los_dev_ioctl(device,I2C_SET_FREQUENCY,(void *)&fre,sizeof(uint16_t)); //set master read/write mode.
+    uds_dev_ioctl(device,I2C_SET_FREQUENCY,(void *)&fre,sizeof(uint16_t)); //set master read/write mode.
 
     iotype = I2C_IO_MASTER_ORIGIN;
-    los_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
+    uds_dev_ioctl(device,I2C_SET_IOTYPE,(void *)&iotype,sizeof(uint16_t)); //set master read/write mode.
 
 
     slave_add = SHT20_WRITE_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
+    uds_dev_ioctl(device,I2C_SET_SLAVE_WRITE_ADD,(void *)&slave_add,sizeof(uint16_t));//set write address 
 
     slave_add = SHT20_READ_ADDR;
-    los_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
+    uds_dev_ioctl(device,I2C_SET_SLAVE_READ_ADD,(void *)&slave_add,sizeof(uint16_t));
 
     while (1)
     {
         
         cmd = SHT20_MEASURE_TEMP_CMD;
-        ret = los_dev_write(device,0,&cmd,1,10000);//write cmd to register.
+        ret = uds_dev_write(device,0,&cmd,1,10000);//write cmd to register.
         if(ret == -1)
             while(1);       
-        ret = los_dev_read(device,0,pDATA,3,10000);
+        ret = uds_dev_read(device,0,pDATA,3,10000);
         data_raw_temp = pDATA[0];
         data_raw_temp <<= 8;
         data_raw_temp += (pDATA[1] & 0xfc);

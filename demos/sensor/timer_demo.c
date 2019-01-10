@@ -2,7 +2,7 @@
 #include "uds/uds.h"
 #include "stdio.h"
 
-uds_driv_t device_timer1;
+uds_dev_t device_timer1;
 u32_t cmd;
 uint8_t i;
 void user_update_callback(uds_time_x_type timx)
@@ -15,7 +15,7 @@ void user_update_callback(uds_time_x_type timx)
         if(i == 10)
         {
           cmd = TIMER_IT_STOP;
-          los_dev_ioctl(device_timer1,cmd,NULL,0);
+          uds_dev_ioctl(device_timer1,cmd,NULL,0);
           printf("demo_timer stop.");
         }
     }
@@ -38,13 +38,13 @@ void demo_timer (void)
     if(!device_timer1)
         while(1);
 	
-	cmd = TIMER_SET_UPDATE_CALLBACK;
-    los_dev_ioctl(device_timer1,cmd,user_update_callback,0);
+    cmd = TIMER_SET_UPDATE_CALLBACK;
+    uds_dev_ioctl(device_timer1,cmd,user_update_callback,0);
 	
 	
     printf("demo_timer start.\r\n");
     cmd = TIMER_IT_START;
-    los_dev_ioctl(device_timer1,cmd,NULL,0);
+    uds_dev_ioctl(device_timer1,cmd,NULL,0);
     while(1)
     {
         

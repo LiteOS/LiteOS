@@ -34,7 +34,12 @@
 //this file implement the device driver 
 #include <stdio.h>
 #include <stdlib.h>
+#include "uds/uds.h"
 #include "uds/uds_dev.h"
+#include "los_config.h"
+#include "osdepends/osport.h"
+
+
 
 #if LOSCFG_ENABLE_DRIVER
 
@@ -60,9 +65,9 @@ struct driv_cb
     void                  *pri;              //bsp developed para
     const char            *name;             //the device name
     s32_t                  flagmask;         //copy from the register             
-    const los_driv_op_t   *op;               //operation method
+    const uds_driv_op_t   *op;               //operation method
     u32_t                  drivstatus;       //show the state here like init or something like this
-    los_dev_t              devlst;           //the open list,support the multi open
+    uds_dev_t             devlst;           //the open list,support the multi open
     //following member used for the debug
     u32_t            total_write;        //how many data has been sent
     u32_t            total_read;        //how many data has received
@@ -100,7 +105,7 @@ function     :bsp developer use this function to add a device to the system
 parameters   :
 instruction  :NULL if failed else return the device handle
 *******************************************************************************/
-los_driv_t los_driv_register(const char *name, const los_driv_op_t *op,\
+uds_driv_t uds_driv_register(const char *name, const uds_driv_op_t *op,\
                              void *pri,u32_t flagmask)
 {
     struct driv_cb  *driv = NULL;
@@ -158,7 +163,7 @@ function     :bsp developer use this function to remove a device from the system
 parameters   :
 instruction  :if the device has been refered,then will fail here
 *******************************************************************************/
-s32_t los_driv_unregister(const char *name) 
+s32_t uds_driv_unregister(const char *name) 
 {
     struct driv_cb *tmp = NULL;
     struct driv_cb *pre = NULL;
@@ -210,7 +215,7 @@ function     :bsp developer use this function to notify the application any even
 parameters   :
 instruction  :not implement yet,we will do it as the asynchronize call
 *******************************************************************************/
-s32_t los_driv_event(los_driv_t driv,u32_t event,void *para)
+s32_t uds_driv_event(uds_driv_t driv,u32_t event,void *para)
 {
     return -UDS_ERROR;
 }
@@ -241,7 +246,7 @@ static void osdriv_load_static(void){
 #endif    
     for(i =0;i<num;i++)
     {
-        los_driv_register(para->name,para->op,para->pri,para->flag);
+        uds_driv_register(para->name,para->op,para->pri,para->flag);
         para++;
     }
 
@@ -254,7 +259,7 @@ parameters   :
 instruction  :call this function to initialize the device module here
               load the static init from section os_device
 *******************************************************************************/
-s32_t  los_driv_init(void)
+s32_t  uds_driv_init(void)
 {
     bool_t ret = false;
 
@@ -286,7 +291,7 @@ function     :open the device with the specified name
 parameters   :
 instruction  :if first open the device,then will call the init function if exsited
 *******************************************************************************/
-los_dev_t  los_dev_open  (const char *name,u32_t flag)
+uds_dev_t  uds_dev_open  (const char *name,u32_t flag)
 {
     bool_t opret = true;           //operate result
     struct driv_cb *driv = NULL;   //the driver attached
@@ -371,7 +376,7 @@ function     :close the device of opened
 parameters   :handle returned by open
 instruction  :
 *******************************************************************************/
-s32_t  los_dev_close  (los_dev_t dev)
+s32_t  uds_dev_close  (uds_dev_t dev)
 {
     s32_t ret = -UDS_ERROR;
     struct dev_cb *devcb = NULL;
@@ -452,7 +457,7 @@ parameters   :dev,returned by the los_dev_open function
               timeout:the waittime if no data current
 instruction  :how many data has been read to the buf
 *******************************************************************************/
-s32_t   los_dev_read(los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
+s32_t   uds_dev_read(uds_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
 {
     s32_t ret = 0;
     struct dev_cb  *devcb;
@@ -487,7 +492,7 @@ parameters   :dev,returned by the los_dev_open function
               timeout:the waittime if no data current
 instruction  :how many data has been written to the device
 *******************************************************************************/
-s32_t los_dev_write (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
+s32_t uds_dev_write (uds_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
 {
     s32_t ret = 0;
     struct dev_cb  *devcb;
@@ -515,12 +520,12 @@ s32_t los_dev_write (los_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeou
 
 /*******************************************************************************
 function     :use this function to control the device
-parameters   :dev,returned by the los_dev_open function
+parameters   :dev,returned by the uds_dev_open function
               cmd, must compatible with bsp develop
               para,used with cmd, its length and format depend on the bsp develop
 instruction  :ctrol true or false
 *******************************************************************************/
-s32_t los_dev_ioctl (los_dev_t dev,u32_t cmd,void *para,s32_t paralen)
+s32_t uds_dev_ioctl (uds_dev_t dev,u32_t cmd,void *para,s32_t paralen)
 {
     s32_t ret = -UDS_ERROR;
     

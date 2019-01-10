@@ -41,6 +41,7 @@
 #include "los_queue.h"
 #include "los_sem.h"
 #include "uds/uds.h"
+#include "uds/uds_dev.h"
 #include "uds/uds_usart.h"
 #include "dal_usart.h"
 
@@ -825,7 +826,7 @@ void demo_usart(void)
         .over_sampling = UART_OVERSAMPLING_16,
     };
 
-    uds_driv_t dev;
+    uds_dev_t dev;
     uds_driv_init();
     uds_usart_dev_install("USART1", (void *)&cfg);
 

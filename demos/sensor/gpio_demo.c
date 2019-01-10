@@ -7,8 +7,8 @@
 
 uds_gpio_init_t wakeup;
 uds_gpio_init_t led;
-uds_driv_t device_wakeup;
-uds_driv_t device_led;
+uds_dev_t device_wakeup;
+uds_dev_t device_led;
 
 void user_exit_callback(uint16_t GPIO_PIN)
 {
@@ -16,7 +16,7 @@ void user_exit_callback(uint16_t GPIO_PIN)
     {
         uint8_t ret = 0,data;
         printf("enter PIN0 IT.\r\n");
-        ret = los_dev_read(device_wakeup,0,&data,1,0);
+        ret = uds_dev_read(device_wakeup,0,&data,1,0);
         if(ret)
             printf("wakeup level is %d \r\n",data);
     }
@@ -52,19 +52,19 @@ void demo_gpio (void)
     if(!device_led)
         while(1);
     cmd = GPIO_SET_EXITCALLBACK;
-    los_dev_ioctl(device_wakeup,cmd,user_exit_callback,0);
+    uds_dev_ioctl(device_wakeup,cmd,user_exit_callback,0);
      
     cmd = GPIO_CLEAR_PIN;
-    los_dev_ioctl(device_led,cmd,NULL,0);
-    ret = los_dev_read(device_led,0,&data,1,0);
+    uds_dev_ioctl(device_led,cmd,NULL,0);
+    ret = uds_dev_read(device_led,0,&data,1,0);
     if(ret)
         printf("led level is %d \r\n",data);
 
     osDelay(1000);
 
     cmd = GPIO_SET_PIN;
-    los_dev_ioctl(device_led,cmd,NULL,0);
-    ret = los_dev_read(device_led,0,&data,1,0);
+    uds_dev_ioctl(device_led,cmd,NULL,0);
+    ret = uds_dev_read(device_led,0,&data,1,0);
     if(ret)
         printf("led level is %d \r\n",data);
 
@@ -72,12 +72,12 @@ void demo_gpio (void)
     while (1)
     {
         cmd = GPIO_TOGGLE_PIN;
-        los_dev_ioctl(device_led,cmd,NULL,0);
+        uds_dev_ioctl(device_led,cmd,NULL,0);
         osDelay(1000);
-        ret = los_dev_read(device_wakeup,0,&data,1,0);
+        ret = uds_dev_read(device_wakeup,0,&data,1,0);
         if(ret)
             printf("wakeup level is %d \r\n",data);
-        ret = los_dev_read(device_led,0,&data,1,0);
+        ret = uds_dev_read(device_led,0,&data,1,0);
         if(ret)
             printf("led level is %d \r\n",data);
      }

@@ -35,25 +35,113 @@
 #ifndef __UDS_H
 #define __UDS_H
 
-#include "uds_dev.h"
-
-#define uds_driv_t           los_driv_t
-#define uds_driv_op_t        los_driv_op_t
-
-#define uds_driv_init        los_driv_init
-#define uds_driv_register    los_driv_register
-#define uds_driv_unregister  los_driv_unregister
-#define uds_driv_event       los_driv_event
-
-#define uds_dev_open         los_dev_open
-#define uds_dev_read         los_dev_read
-#define uds_dev_write        los_dev_write
-#define uds_dev_close        los_dev_close
-#define uds_dev_ioctl        los_dev_ioctl
+#include <stdio.h>
+#include <fcntl.h>
 
 
-#endif  //end for the file
+#define  LOSCFG_ENABLE_DRIVER 1
+
+enum uds_err_code
+{
+    UDS_OK,
+    UDS_ERROR,
+    UDS_NAME_INVALID,
+    UDS_NOT_FOUND,
+    UDS_TIMEOUT,
+};
 
 
 
+#ifndef u8_t
+#define u8_t   unsigned char    
+#endif
+#ifndef u16_t
+#define u16_t  unsigned short    
+#endif
+#ifndef u32_t
+#define u32_t  unsigned  int   
+#endif
+#ifndef s8_t
+#define s8_t   signed char    
+#endif
+#ifndef s16_t
+#define s16_t  signed short    
+#endif
+#ifndef s32_t
+#define s32_t  signed int   
+#endif
+
+
+typedef void* uds_dev_t;
+typedef void* uds_driv_t ;//returned by the driver register
+
+
+#if LOSCFG_ENABLE_DRIVER
+
+
+typedef s32_t  (*fn_open)  (void *pri,s32_t flag);                                              
+typedef s32_t  (*fn_read)  (void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+typedef s32_t  (*fn_write) (void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+typedef void   (*fn_close) (void *pri); 
+typedef s32_t  (*fn_ioctl) (void *pri,u32_t cmd, void *para,s32_t len);
+typedef s32_t  (*fn_init)  (void *pri);
+typedef void   (*fn_deinit)(void *pri);
+//all the member function of pri is inherited by the register function
+typedef struct
+{
+    fn_open    open;   //triggered by the application
+    fn_read    read;   //triggered by the application
+    fn_write   write;  //triggered by the application
+    fn_close   close;  //triggered by the application
+    fn_ioctl   ioctl;  //triggered by the application
+    fn_init    init;   //if first open,then will be called
+    fn_deinit  deinit; //if the last close, then will be called
+}uds_driv_op_t;
+
+s32_t       uds_driv_init(void);
+uds_driv_t  uds_driv_register(const char *name, const uds_driv_op_t *op, void *pri, u32_t flagmask);
+s32_t       uds_driv_unregister(const char *name);
+s32_t       uds_driv_event(uds_driv_t driv,u32_t event,void *para);
+uds_dev_t   uds_dev_open  (const char *name,u32_t flag);
+s32_t       uds_dev_read (uds_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+s32_t       uds_dev_write (uds_dev_t dev,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
+s32_t       uds_dev_close (uds_dev_t dev);
+s32_t       uds_dev_ioctl (uds_dev_t dev,u32_t cmd,void *para,s32_t paralen);
+
+typedef struct 
+{
+    const char            *name;      //device driver name 
+    uds_driv_op_t         *op;        //device operate functions
+    void                  *pri;       //private data,will be passed to op functions
+    u32_t                  flag;      //flags, like O_RDONLY O_WRONLY O_RDWR
+}os_driv_para_t;
+
+#define OSDRIV_EXPORT(varname,drivname,operate,pridata,flagmask)      \
+    static const os_driv_para_t varname __attribute__((used,section("osdriv")))= \
+    {                           \
+        .name   = drivname,    \
+        .op     = operate,      \
+        .pri    = pridata,  \
+        .flag   = flagmask,    \
+    }
+
+   
+
+
+#else   
+  
+#define   uds_driv_init()                              
+#define   uds_driv_register(name,op,pri,flagmask)      
+#define   uds_driv_unregister(name)                    
+#define   uds_driv_event(drive,event,para)             
+#define   uds_dev_open(name,flag)                      
+#define   uds_dev_read (dev,offset,buf,len,timeout)    
+#define   uds_dev_write(dev,offset,buf,len,timeout)    
+#define   uds_dev_ioctl (dev,cmd,para,paralen)         
+#define   uds_dev_close (dev)                          
+   
+#define   OSDRIV_EXPORT(varname,drivname,operate,pridata,flagmask)
+#endif
+
+#endif
 
