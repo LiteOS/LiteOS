@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L476xx,WITH_AT_FRAMEWORK,USE_NB_NEUL95_NO_ATINY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\kernel\include;..\OS_CONFIG;..\..\..\include;..\..\..\demos;..\Hardware\Inc;..\..\..\components\fs\include;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\tests\cmockery\src\google</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32L4xx_HAL_Driver/Inc;../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32L4xx/Include;../Drivers/CMSIS/Include;..\..\..\arch\arm\arm-m\include;..\..\..\kernel\base\include;..\..\..\kernel\extended\include;..\..\..\kernel\include;..\OS_CONFIG;..\..\..\include;..\..\..\demos;..\Hardware\Inc;..\..\..\components\fs\include;..\..\..\components\fs\fatfs\ff13b\source;..\..\..\components\fs\fatfs\ff13b\source\default;..\..\..\tests\cmockery\src\google;..\..\..\osdepends\liteos\cmsis</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -890,11 +890,6 @@
               <FileName>cmockery.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\tests\cmockery\src\cmockery.c</FilePath>
-            </File>
-            <File>
-              <FileName>fs_test.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\tests\test_suit\fs_test.c</FilePath>
             </File>
           </Files>
         </Group>
