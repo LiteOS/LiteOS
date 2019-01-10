@@ -242,6 +242,15 @@ static int8_t eth_init(struct netif *netif)
         netif->flags |= NETIF_FLAG_LINK_UP;
     }
 
+#if LWIP_IPV6_MLD
+    {
+        /* add 33:33:xx:xx:xx:xx for ipv6 multicast */
+        uint8_t ipv6_multicast_mac[6] = {0x33, 0x33, 0, 0, 0, 0};
+        const uint32_t enable_bitmap = 0x30;
+        (void)HAL_ETH_EnableMulticastMacAddr(&heth, ETH_MAC_ADDRESS1, ipv6_multicast_mac, enable_bitmap);
+     }
+#endif
+
     /* Initialize Tx Descriptors list: Chain Mode */
     (void)HAL_ETH_DMATxDescListInit(&heth, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
 
@@ -271,6 +280,10 @@ static int8_t eth_init(struct netif *netif)
 #else
     netif->flags |= NETIF_FLAG_BROADCAST;
 #endif /* LWIP_ARP */
+
+#if LWIP_IPV6_MLD
+    netif->flags |= NETIF_FLAG_MLD6;
+#endif
 
     if (ERR_OK != sys_sem_new(&s_xSemaphore, 1))
     {
