@@ -40,9 +40,12 @@
 #include "log/atiny_log.h"
 #include "MQTTClient.h"
 #include "flash_manager.h"
+#if defined(WITH_DTLS)
 #include "dtls_interface.h"
-#include "cJSON.h"
 #include "hmac.h"
+#endif
+#include "cJSON.h"
+
 
 #define MQTT_VERSION_3_1 (3)
 #define MQTT_VERSION_3_1_1 (4)
@@ -384,6 +387,7 @@ static const char *mqtt_sign_type_to_str(mqtt_password_sign_type_e type)
     return MQTT_SIGN_TYPE_HMACSHA256_NO_CHECK_TIME == type ? "0" : "1";
 }
 
+#if defined(WITH_DTLS)
 static void mqtt_bin_to_str(const uint8_t *bin_buf, char *str_buf, uint32_t bin_len)
 {
     uint32_t i;
@@ -393,6 +397,7 @@ static void mqtt_bin_to_str(const uint8_t *bin_buf, char *str_buf, uint32_t bin_
         (void)snprintf(str_buf + i * 2, 3, "%02x", bin_buf[i]);
     }
 }
+
 static char *mqtt_get_send_password(char *password, char *time)
 {
     uint8_t hmac[32];
@@ -426,6 +431,7 @@ static char *mqtt_get_send_password(char *password, char *time)
     mqtt_bin_to_str(hmac, result, sizeof(hmac));
     return result;
 }
+#endif
 
 static void mqtt_destroy_data_connection_info(MQTTPacket_connectData *data)
 {
@@ -439,19 +445,24 @@ static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectDat
     uint32_t tmp[array_size(strs)];
     uint32_t str_num = 0;
     char time[MQTT_TIME_BUF_LEN];
+#if defined(WITH_DTLS)
     char *password;
-
+#endif
     if (mqtt_is_connectting_with_deviceid(handle))
     {
         if (handle->device_info.connection_type == MQTT_STATIC_CONNECT)
         {
             strs[0] = handle->device_info.u.s_info.deviceid;
+#if defined(WITH_DTLS)
             password = handle->device_info.password;
+#endif
         }
         else
         {
             strs[0] = handle->dynamic_info.save_info.deviceid;
+#if defined(WITH_DTLS)
             password = handle->dynamic_info.got_password;
+#endif
         }
         str_num = 1;
         ATINY_LOG(LOG_INFO, "try static connect");
@@ -461,7 +472,9 @@ static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectDat
         strs[0] = handle->device_info.u.d_info.productid;
         strs[1] = handle->device_info.u.d_info.nodeid;
         str_num = 2;
+#if defined(WITH_DTLS)
         password = handle->device_info.password;
+#endif
         ATINY_LOG(LOG_INFO, "try dynamic connect");
     }
 
@@ -483,13 +496,14 @@ static int mqtt_get_connection_info(mqtt_client_s* handle, MQTTPacket_connectDat
     }
 
     data->username.cstring = strs[0]; //deviceid or pruoductid
+#if defined(WITH_DTLS)
     data->password.cstring = mqtt_get_send_password(password, time);
 
     if (data->password.cstring == NULL)
     {
         return ATINY_ERR;
     }
-
+#endif
     ATINY_LOG(LOG_DEBUG, "send user %s client %s", data->username.cstring,
                 data->clientID.cstring);
 
@@ -817,7 +831,9 @@ int  atiny_mqtt_init(const mqtt_param_s *params, mqtt_client_s **phandle)
 {
     cJSON_InitHooks(NULL);
     if (params == NULL || phandle == NULL
+#if defined(WITH_DTLS)
         || params->info.security_type != MQTT_SECURITY_TYPE_CA
+#endif
         || mqtt_check_param(params) != ATINY_OK)
     {
         ATINY_LOG(LOG_FATAL, "Invalid args");
@@ -870,8 +886,9 @@ int atiny_mqtt_bind(const mqtt_device_info_s* device_info, mqtt_client_s* handle
         result = ATINY_ARG_INVALID;
         goto  atiny_bind_quit;
     }
-
+#if defined(WITH_DTLS)
     dtls_init();
+#endif
 
     client = &(handle->client);
     params = &(handle->params);

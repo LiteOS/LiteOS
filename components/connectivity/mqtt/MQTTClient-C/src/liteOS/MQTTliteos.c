@@ -33,12 +33,14 @@
  *---------------------------------------------------------------------------*/
 #include "MQTTliteos.h"
 
+#if defined(WITH_DTLS)
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
+#endif
 
 #if defined(WITH_LINUX)
 #include <sys/types.h>
@@ -145,7 +147,7 @@ static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_
     }
     return ret;
 }
-
+#if defined(WITH_DTLS)
 static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret;
@@ -166,7 +168,7 @@ static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, in
 
     return ret;
 }
-
+#endif
 
 static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
@@ -186,10 +188,12 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
         case MQTT_SECURITY_TYPE_NONE :
             ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
             break;
+#if defined(WITH_DTLS)
         case MQTT_SECURITY_TYPE_PSK:
         case MQTT_SECURITY_TYPE_CA:
             ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
             break;
+#endif
         default :
             ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
             break;
@@ -217,10 +221,12 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
     case MQTT_SECURITY_TYPE_NONE :
         ret = atiny_net_send_timeout(n->ctx, buffer, len, timeout_ms);
         break;
+#if defined(WITH_DTLS)
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         ret = dtls_write(n->ctx, buffer, len);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
@@ -261,6 +267,7 @@ static int los_mqtt_connect(Network *n, char *addr, int port)
     return ATINY_OK;
 }
 
+#if defined(WITH_DTLS)
 #define PORT_BUF_LEN 16
 static int los_mqtt_tls_connect(Network *n, char *addr, int port)
 {
@@ -324,6 +331,7 @@ exit:
     dtls_ssl_destroy(ssl);
     return -1;
 }
+#endif
 
 int NetworkConnect(Network *n, char *addr, int port)
 {
@@ -342,10 +350,12 @@ int NetworkConnect(Network *n, char *addr, int port)
     case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_connect(n, addr, port);
         break;
+#if defined(WITH_DTLS)
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_connect(n, addr, port);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
@@ -381,10 +391,12 @@ void NetworkDisconnect(Network *n)
     case MQTT_SECURITY_TYPE_NONE :
         los_mqtt_disconnect(n->ctx);
         break;
+#if defined(WITH_DTLS)
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         dtls_ssl_destroy(n->ctx);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
