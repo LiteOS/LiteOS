@@ -208,9 +208,9 @@ ATINY_TINY_MQTT_SRC = \
 ifeq ($(WITH_DTLS), yes)
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
 else
-ATINY_TINY_MQTT_SRC_NO_DTLS = \
+ATINY_TINY_MQTT_SRC_NO_TLS = \
         $(filter-out $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/hmac.c, $(ATINY_TINY_MQTT_SRC))
-        C_SOURCES += $(ATINY_TINY_MQTT_SRC_NO_DTLS)
+        C_SOURCES += $(ATINY_TINY_MQTT_SRC_NO_TLS)
 endif
 
 AGENT_DEMO_MQTT_SRC = \
