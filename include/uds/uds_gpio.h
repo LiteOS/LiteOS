@@ -24,6 +24,7 @@ typedef enum
     UDS_GPIO_F ,
     UDS_GPIO_G ,
     UDS_GPIO_H ,
+    UDS_GPIO_MAX,
 }uds_gpio_port_type;
 
 typedef enum
@@ -44,6 +45,7 @@ typedef enum
     UDS_PIN_13 ,
     UDS_PIN_14 ,
     UDS_PIN_15 ,
+    UDS_PIN_MAX,
 }uds_gpio_pin_type;
 
 
@@ -57,18 +59,34 @@ typedef enum
     UDS_GPIO_IT_RISING ,
     UDS_GPIO_IT_FALLING ,
     UDS_GPIO_IT_RISING_FALLING ,
+    UDS_GPIO_MODE_MAX,
 }uds_gpio_mode_type;
 
-
+typedef enum
+{
+    UDS_GPIO_SPEED_LOW = 0,
+    UDS_GPIO_SPEED_MEDIUM,
+    UDS_GPIO_SPEED_HTGH,
+    UDS_GPIO_SPEED_VERY_HIGH,
+    UDS_GPIO_SPEED_MAX,
+}uds_gpio_speed_type;
 
 typedef enum
 {
     UDS_GPIO_NOPULL = 0,
     UDS_GPIO_PULLUP,
     UDS_GPIO_PULLDOWN,
+    UDS_GPIO_PULL_MAX,
 }uds_gpio_pull_type;
 
-
+typedef enum
+{
+    UDS_GPIO_TOGGLE_PIN = 0,
+    UDS_GPIO_SET_OUTPUT,
+    UDS_GPIO_SET_INPUT,
+    UDS_GPIO_SET_EXITCALLBACK,
+    UDS_GPIO_MAX_CMD,
+}uds_gpio_cmd;
 
 
 
@@ -78,38 +96,11 @@ typedef struct gpio_init_s
     uds_gpio_pin_type gpio_pin_num;
     uds_gpio_mode_type gpio_mode;
     uds_gpio_pull_type gpio_pull;
+    uds_gpio_speed_type gpio_speed;
     uint8_t uds_SubPriority;//if chooses the interrupt mode, set this value.
     uint8_t uds_PreemptionPriority;//if chooses the interrupt mode, set this value.
 }uds_gpio_init_t;
 
-
-
-typedef enum
-{
-    GPIO_TOGGLE_PIN,
-    GPIO_SET_PIN,
-    GPIO_CLEAR_PIN,
-    GPIO_SET_EXITCALLBACK,
-    GPIO_MAX_CMD,
-}uds_gpio_cmd;
-/*
-struct gpio_device_s
-{
-    uds_gpio_port_type gpio_port_num;
-    uds_gpio_pin_type gpio_pin_num;
-    uds_gpio_mode_type gpio_mode;
-    uds_gpio_pull_type gpio_pull;
-    uint8_t uds_SubPriority;//if chooses the interrupt mode, set this value.
-    uint8_t uds_PreemptionPriority;//if chooses the interrupt mode, set this value.
-};
-typedef struct gpio_device_s gpio_device_t;
-*/
-
-//extern bool_t uds_gpio_open(void *device, s32_t flag);
-//extern void uds_gpio_close(void *device);
-//extern bool_t uds_gpio_ioctl(void *pri,u32_t cmd, void *para,s32_t len);
-//extern s32_t uds_gpio_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
-//extern s32_t  uds_gpio_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout);
 
 bool_t uds_gpio_dev_install(const char *name, void *pri);
 
