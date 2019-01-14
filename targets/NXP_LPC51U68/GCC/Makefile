@@ -110,6 +110,7 @@ ifeq ($(WITH_LWIP), yes)
 LWIP_SRC =  \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/api/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/ipv4/*.c} \
+        ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/ipv6/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/core/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/netif/ethernet.c}
         C_SOURCES += $(LWIP_SRC)
@@ -118,12 +119,12 @@ LWIP_PORT_SRC = \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip_port/OS/sys_arch.c}
         C_SOURCES += $(LWIP_PORT_SRC)
 PPP_SRC = \
-		${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/netif/ppp/*.c} \
+        ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/netif/ppp/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/lwip-2.0.3/src/netif/ppp/polarssl/*.c}
         C_SOURCES += $(PPP_SRC)
 		
 PPP_PORT_SRC = \
-		${wildcard $(TOP_DIR)/components/net/lwip/ppp_port/osport/*.c} \
+	${wildcard $(TOP_DIR)/components/net/lwip/ppp_port/osport/*.c} \
         ${wildcard $(TOP_DIR)/components/net/lwip/ppp_port/ppppos/*.c}
         C_SOURCES += $(PPP_PORT_SRC)
 endif
@@ -193,7 +194,7 @@ MQTT_SRC = \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
         C_SOURCES += $(MQTT_SRC)
 ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
+        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
@@ -273,6 +274,17 @@ ifeq ($(WITH_DTLS), yes)
 		C_DEFS += -DWITH_DTLS
 endif
 
+ifeq ($(WITH_LWIP), yes)
+	C_DEFS += \
+		-DWITH_LWIP \
+		-D LWIP_TIMEVAL_PRIVATE=0 
+
+	ifeq ($(USE_LWIP_TCP), no)
+		C_DEFS += -DLWIP_TCP=0
+	else
+		C_DEFS += -DLWIP_TCP=1
+	endif
+endif
 
 
 ifeq ($(USE_FOTA), yes)
@@ -296,6 +308,17 @@ endif
 C_DEFS += -DUSE_PPPOS
 
 
+ifeq ($(WITH_IPV4), no)
+C_DEFS += -DLWIP_IPV4=0
+else
+C_DEFS += -DLWIP_IPV4=1
+endif
+
+ifeq ($(WITH_IPV6), yes)
+C_DEFS += -DLWIP_IPV6=1
+else
+C_DEFS += -DLWIP_IPV6=0
+endif
 
 # AS includes
 AS_INCLUDES =
@@ -320,7 +343,9 @@ ARCH_INC = \
 	-I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(ARCH_INC)
 
-
+LITEOS_CMSIS = \
+        -I $(TOP_DIR)/osdepends/liteos/cmsis
+        C_INCLUDES += $(LITEOS_CMSIS)
 		
 
 LWIP_INC = \
