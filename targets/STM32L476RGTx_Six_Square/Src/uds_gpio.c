@@ -257,6 +257,108 @@ s32_t uds_gpio_read_output_pin(gpio_device_t *device,u8_t *data)
 }
 
 
+s32_t uds_gpio_set_input(gpio_device_t *device)
+{
+    gpio_device_t *device_init = (gpio_device_t *)device;
+    device_init->gpio_init.gpio_mode = UDS_GPIO_INPUT;
+    
+    
+    GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
+    
+    switch (device_init->gpio_init.gpio_port_num)
+    {
+        case UDS_GPIO_A:
+            __HAL_RCC_GPIOA_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_B:
+            __HAL_RCC_GPIOB_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            break;
+      case UDS_GPIO_C:
+            __HAL_RCC_GPIOC_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_D:
+            __HAL_RCC_GPIOD_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_E:
+            __HAL_RCC_GPIOE_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_F:
+            __HAL_RCC_GPIOF_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_G:
+            __HAL_RCC_GPIOG_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_H:
+            __HAL_RCC_GPIOH_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+            break;
+        default:
+            return -UDS_ERROR;
+    }
+
+        return UDS_OK;
+}
+
+s32_t uds_gpio_set_output(gpio_device_t *device)
+{
+    gpio_device_t *device_init = (gpio_device_t *)device;
+    
+    device_init->gpio_init.gpio_mode = UDS_GPIO_OUTPUT_PP;
+    GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
+    GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
+    
+    switch (device_init->gpio_init.gpio_port_num)
+    {
+        case UDS_GPIO_A:
+            __HAL_RCC_GPIOA_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_B:
+            __HAL_RCC_GPIOB_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_C:
+            __HAL_RCC_GPIOC_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_D:
+            __HAL_RCC_GPIOD_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_E:
+            __HAL_RCC_GPIOE_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_F:
+            __HAL_RCC_GPIOF_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_G:
+            __HAL_RCC_GPIOG_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+            break;
+        case UDS_GPIO_H:
+            __HAL_RCC_GPIOH_CLK_ENABLE();
+            HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+            break;
+        default:
+            return -UDS_ERROR;
+    }
+
+        return UDS_OK;
+
+}
 
 static bool_t uds_gpio_open(void *pri, s32_t flag)
 {
@@ -326,7 +428,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
             
             HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
             break;
@@ -336,7 +438,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             break;
@@ -346,7 +448,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
             break;
@@ -356,7 +458,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
             break;
@@ -366,7 +468,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
             break;
@@ -376,7 +478,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
             break;
@@ -386,7 +488,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
             break;
@@ -396,7 +498,7 @@ static bool_t uds_gpio_init(void *pri)
             GPIO_InitStruct.Pin = 1<<(device_init->gpio_init.gpio_pin_num);
             GPIO_InitStruct.Mode = mode;
             GPIO_InitStruct.Pull = device_init->gpio_init.gpio_pull;
-            GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+            GPIO_InitStruct.Speed = device_init->gpio_init.gpio_speed;
     
             HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
             break;
@@ -515,9 +617,20 @@ static s32_t uds_gpio_read(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t time
 
 static s32_t  uds_gpio_write(void *pri,u32_t offset,u8_t *buf,s32_t len,u32_t timeout)
 {
-    
-    return true;
-    
+	bool_t result = UDS_OK;
+    gpio_device_t *device = (gpio_device_t *)pri; 
+    switch(*buf)
+    {
+       
+        case 0:
+            result = uds_gpio_clear_output_pin(device);
+            return UDS_OK; 
+		case 1:
+            result = uds_gpio_set_output_pin(device);
+            return UDS_OK;
+		default:
+			return -UDS_ERROR;
+	}  
 }
 
 typedef void (*gpio_callback_fun)(uint16_t);
@@ -536,16 +649,16 @@ static bool_t uds_gpio_ioctl(void *pri,u32_t cmd, void *para,s32_t len)
     gpio_device_t *device = (gpio_device_t *)pri; 
     switch(cmd)
     {
-        case GPIO_TOGGLE_PIN:
+        case UDS_GPIO_TOGGLE_PIN:
             result = uds_gpio_toggle_output_pin(device);
-            break;
-        case GPIO_SET_PIN:
-            result = uds_gpio_set_output_pin(device);
-            break;
-        case GPIO_CLEAR_PIN:
-            result = uds_gpio_clear_output_pin(device);
-            break;
-        case GPIO_SET_EXITCALLBACK:
+            break;   
+		case UDS_GPIO_SET_OUTPUT:
+            result = uds_gpio_set_output(device);
+            break;   
+		case UDS_GPIO_SET_INPUT:
+            result = uds_gpio_set_input(device);
+            break;   
+        case UDS_GPIO_SET_EXITCALLBACK:
             result = uds_gpio_set_exit_callback(device,(gpio_callback_fun)para);
             break;
         default:
