@@ -61,6 +61,7 @@ extern "C" {
 
 #define OS_EXC_IMPRECISE_ACCESS_ADDR        0xABABABAB
 
+#define LOSCFG_EXC_CALL_STACK_ANALYSIS_MAX_DEPTH 16
 /**
  *@ingroup los_exc
  * the struct of register files
