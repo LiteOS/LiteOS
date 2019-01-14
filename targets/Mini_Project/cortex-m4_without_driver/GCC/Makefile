@@ -323,6 +323,9 @@ ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include
         C_INCLUDES += $(ARCH_INC)
 
+LITEOS_CMSIS = \
+        -I $(TOP_DIR)/osdepends/liteos/cmsis
+        C_INCLUDES += $(LITEOS_CMSIS)
 	
 ifeq ($(WITH_LWIP), yes)
 LWIP_INC = \
