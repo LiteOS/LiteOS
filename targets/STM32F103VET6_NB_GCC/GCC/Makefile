@@ -194,6 +194,10 @@ ARCH_INC = \
 	-I $(TOP_DIR)/arch/arm/common/cmsis
         C_INCLUDES += $(ARCH_INC)
 
+LITEOS_CMSIS = \
+        -I $(TOP_DIR)/osdepends/liteos/cmsis
+        C_INCLUDES += $(LITEOS_CMSIS)
+
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
