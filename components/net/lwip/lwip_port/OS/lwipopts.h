@@ -241,7 +241,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 //#define LWIP_DEBUG                      1
 
-#define TCPIP_THREAD_STACKSIZE 1000
+#define TCPIP_THREAD_STACKSIZE 0x1000
 #define TCPIP_MBOX_SIZE 12
 #define DEFAULT_UDP_RECVMBOX_SIZE 12
 #define DEFAULT_TCP_RECVMBOX_SIZE 6
@@ -254,6 +254,8 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 //for dtls server
 #define SO_REUSE 1
+
+#define LWIP_HOOK_ND6_GET_GW get_lwip_ipv6_default_gw
 
 #endif /* __LWIPOPTS_H__ */
 

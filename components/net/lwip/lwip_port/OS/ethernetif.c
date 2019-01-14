@@ -277,3 +277,23 @@ static void arp_timer(void *arg)
 }
 #endif
 
+#if LWIP_IPV6
+static ip6_addr_t g_lwip_ipv6_gw;
+ip6_addr_t *get_lwip_ipv6_default_gw(const struct netif *netif, const ip6_addr_t *ip6addr)
+{
+    (void)ip6addr;
+    (void)netif;
+    return &g_lwip_ipv6_gw;
+}
+
+void set_lwip_ipv6_default_gw(struct netif *netif, const ip6_addr_t *gw)
+{
+    (void)netif;
+    if (gw == NULL)
+    {
+        return;
+    }
+    memcpy( &g_lwip_ipv6_gw, gw, sizeof(g_lwip_ipv6_gw));
+}
+#endif
+

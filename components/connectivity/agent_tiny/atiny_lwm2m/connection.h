@@ -65,6 +65,11 @@
 #define LWM2M_IS_CLIENT                   0
 #define LWM2M_IS_SERVER                   1
 
+/* timeout for udp client shakehand,the unit is second */
+#ifndef DTLS_UDP_CLIENT_SHAKEHAND_TIMEOUT
+#define DTLS_UDP_CLIENT_SHAKEHAND_TIMEOUT 60
+#endif
+
 typedef enum
 {
     CONNECTION_SEND_ERR,
