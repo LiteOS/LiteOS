@@ -202,9 +202,17 @@ MQTT_SRC = \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c \
         $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
         C_SOURCES += $(MQTT_SRC)
+        
 ATINY_TINY_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
+ifeq ($(WITH_DTLS), yes)
         C_SOURCES += $(ATINY_TINY_MQTT_SRC)
+else
+ATINY_TINY_MQTT_SRC_NO_TLS = \
+        $(filter-out $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/hmac.c, $(ATINY_TINY_MQTT_SRC))
+        C_SOURCES += $(ATINY_TINY_MQTT_SRC_NO_TLS)
+endif
+
 AGENT_DEMO_MQTT_SRC = \
         ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
         C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
