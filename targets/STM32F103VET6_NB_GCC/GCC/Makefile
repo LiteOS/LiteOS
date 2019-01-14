@@ -74,7 +74,8 @@ CMSIS_SRC =  \
         C_SOURCES += $(CMSIS_SRC)
 
 ARCH_SRC =  \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c}
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c} \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m3/*.c}
         C_SOURCES += $(ARCH_SRC)
 HAL_DRIVER_SRC =  \
         $(TOP_DIR)/targets/STM32F103VET6_NB_GCC/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c  \
@@ -191,7 +192,8 @@ HAL_DRIVER_INC = \
 
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
-	-I $(TOP_DIR)/arch/arm/common/cmsis
+	-I $(TOP_DIR)/arch/arm/common/cmsis \
+	-I $(TOP_DIR)/arch/arm/arm-m/cortex-m3
         C_INCLUDES += $(ARCH_INC)
 
 LITEOS_CMSIS = \

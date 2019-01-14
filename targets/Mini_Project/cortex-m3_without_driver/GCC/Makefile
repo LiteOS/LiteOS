@@ -83,7 +83,8 @@ CMSIS_SRC =  \
         C_SOURCES += $(CMSIS_SRC)
 
 ARCH_SRC =  \
-        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c}
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/src/*.c} \
+        ${wildcard $(TOP_DIR)/arch/arm/arm-m/cortex-m3/*.c}
         C_SOURCES += $(ARCH_SRC)
 		
 ifeq ($(WITH_LWIP), yes)
@@ -294,7 +295,8 @@ LWM2M_ATINY_INC = \
 
 ARCH_INC = \
         -I $(TOP_DIR)/arch/arm/arm-m/include \
-	-I $(TOP_DIR)/arch/arm/common/cmsis
+	-I $(TOP_DIR)/arch/arm/common/cmsis \
+	-I $(TOP_DIR)/arch/arm/arm-m/cortex-m3
         C_INCLUDES += $(ARCH_INC)
 
 LITEOS_CMSIS = \
