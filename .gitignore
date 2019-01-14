@@ -1,0 +1,10 @@
+*.DS_Store
+*.uvoptx
+*.uvguix.Administrator
+*JLinkLog.txt
+*JLinkSettings.ini
+*Listings/
+*Objects/
+*RTE/
+*DebugConfig/
+*.swp
