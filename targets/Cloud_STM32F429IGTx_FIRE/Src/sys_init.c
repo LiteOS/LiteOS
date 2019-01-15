@@ -106,17 +106,26 @@ void net_init(void)
         ip6_addr_t ip6;
         err_t ret;
         s8_t idx;
-        
+        ip6_addr_t ipv6_gw;
+
         if (inet_pton(AF_INET6, "2000::2", &ip6) <= 0)
         {
             printf("set source ip6 failed \n");
+            return;
         }
-        printf("after set source ip6\n");
         ret = netif_add_ip6_address(&gnetif, &ip6, &idx);
         if (ret != 0)
         {
             printf("netif_add_ip6_address failed,ret %d\n", ret);
+            return;
         }
+
+        if (inet_pton(AF_INET6, "2000::1", &ipv6_gw) <= 0)
+        {
+            printf("inet_pton failed\n");
+            return;
+        }
+        set_lwip_ipv6_default_gw(&gnetif, &ipv6_gw);
     }
 #else
     (void)netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);//lint !e546

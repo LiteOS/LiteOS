@@ -102,10 +102,10 @@ typedef struct
         }c;
         struct
         {
-            uint32_t timeout;
             const char *local_port;
         }s;
     }u;
+    uint32_t timeout;
     int client_or_server;
     int udp_or_tcp;
     verify_type_e psk_or_cert;

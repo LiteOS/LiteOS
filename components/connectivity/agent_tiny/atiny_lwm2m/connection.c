@@ -192,11 +192,12 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     {
         info.u.c.host = host;
         info.u.c.port = port;
+        info.timeout = DTLS_UDP_CLIENT_SHAKEHAND_TIMEOUT;
     }
     else
     {
 #ifdef LWM2M_BOOTSTRAP
-        info.u.s.timeout = targetP->clientHoldOffTime;
+        info.timeout = targetP->clientHoldOffTime;
         info.u.s.local_port = port;
         timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
         timer_start(&connP->server_triger_timer);
@@ -456,6 +457,28 @@ int lwm2m_buffer_recv(void *sessionH, uint8_t *buffer, size_t length, uint32_t t
     return ret;
 }
 
+static bool connection_is_valid(void *user_data, void *session)
+{
+    client_data_t *data = (client_data_t *)user_data;
+    connection_t *conn;
+    if (data == NULL || data->connList == NULL)
+    {
+        return false;
+    }
+
+    conn = data->connList;
+    while(conn != NULL)
+    {
+        if (conn == session)
+        {
+            return true;
+        }
+        conn = conn->next;
+    }
+
+    return false;
+}
+
 uint8_t lwm2m_buffer_send(void *sessionH,
                           uint8_t *buffer,
                           size_t length,
@@ -463,8 +486,8 @@ uint8_t lwm2m_buffer_send(void *sessionH,
 {
     connection_t *connP = (connection_t *) sessionH;
     int ret;
-
-    if (connP == NULL)
+    /* should check the valid of the connection,because coap tranctions does not update the session */
+    if (connP == NULL || (!connection_is_valid(userdata, sessionH)))
     {
         ATINY_LOG(LOG_INFO, "#> failed sending %lu bytes, missing connection\r\n", (unsigned long)length);
         return COAP_500_INTERNAL_SERVER_ERROR ;

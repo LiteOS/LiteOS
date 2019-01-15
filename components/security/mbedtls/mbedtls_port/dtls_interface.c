@@ -306,15 +306,15 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 
     MBEDTLS_LOG("performing the SSL/TLS handshake");
 
-    max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server) ?
-                (dtls_gettime() + info->u.s.timeout) : (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP ? 50 : 10));
+    max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server || info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) ?
+                (dtls_gettime() + info->timeout) :  50);
 
     do
     {
         ret = mbedtls_ssl_handshake(ssl);
         //MBEDTLS_LOG("mbedtls_ssl_handshake %d %d", change_value, max_value);
         //LOS_TaskDelay(1);
-        if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server)
+        if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server && info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
         {
             change_value++;
         }

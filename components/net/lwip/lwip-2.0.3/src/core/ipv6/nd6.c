@@ -1610,6 +1610,7 @@ nd6_get_next_hop_entry(const ip6_addr_t *ip6addr, struct netif *netif)
 {
 #ifdef LWIP_HOOK_ND6_GET_GW
   const ip6_addr_t *next_hop_addr;
+  ip6_addr_t *LWIP_HOOK_ND6_GET_GW(const struct netif *netif, const ip6_addr_t *ip6addr);
 #endif /* LWIP_HOOK_ND6_GET_GW */
   s8_t i;
 

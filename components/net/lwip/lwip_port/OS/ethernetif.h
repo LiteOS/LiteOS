@@ -52,6 +52,11 @@ int8_t ethernetif_api_register(struct ethernet_api *api);
 err_t ethernetif_init(struct netif *netif);
 void ethernetif_input( void * pvParameters );
 
+#if LWIP_IPV6
+ip6_addr_t *get_lwip_ipv6_default_gw(const struct netif *netif, const ip6_addr_t *ip6addr);
+void set_lwip_ipv6_default_gw(struct netif *netif, const ip6_addr_t *gw);
+#endif
+
 #endif /* __ETHERNETIF_H__ */
 
 
