@@ -42,7 +42,7 @@
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
+#if (LOSCFG_PLATFORM_EXC == YES)
 typedef enum
 {
     OS_EXC_TYPE_CONTEXT     = 0,
@@ -89,7 +89,7 @@ typedef struct tagExcInfoCallBackArray
 #define MAX_EXC_MEM_SIZE ( 4 + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE + 4)
 
 VOID osExcRegister(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID* pArg);
-
+#endif
 #ifdef __cplusplus
 #if __cplusplus
 }
