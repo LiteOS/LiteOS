@@ -43,6 +43,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#if (LOSCFG_PLATFORM_EXC == YES)
+
 typedef enum
 {
     OS_EXC_TYPE_CONTEXT     = 0,
@@ -102,6 +104,8 @@ typedef struct tagExcInfoCallBackArray
 #endif
 
 extern VOID osExcRegister(EXC_INFO_TYPE uwType, EXC_INFO_SAVE_CALLBACK pFunc, VOID *pArg);
+
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

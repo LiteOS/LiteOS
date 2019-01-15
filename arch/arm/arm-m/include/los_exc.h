@@ -48,6 +48,9 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
+#if (LOSCFG_PLATFORM_EXC == YES)
+
+
 #define OS_EXC_IN_INIT                      0
 #define OS_EXC_IN_TASK                      1
 #define OS_EXC_IN_HWI                       2
@@ -371,6 +374,8 @@ VOID osExcInfoDisplay(EXC_INFO_S *pstExc);
 
 extern OS_TASK_SWITCH_INFO g_astTskSwitchInfo;
 extern UINT8 g_uwExcTbl[32];
+
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
