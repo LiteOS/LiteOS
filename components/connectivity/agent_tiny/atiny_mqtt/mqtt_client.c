@@ -995,12 +995,30 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     MQTTMessage message;
     int rc;
     char* topic;
+    size_t payloadlen;
 
-    if ((phandle == NULL) || (msg == NULL) || (msg_len <= 0)
-        || (qos >= MQTT_QOS_MAX))
+    if ((phandle == NULL) || (qos >= MQTT_QOS_MAX))
     {
         ATINY_LOG(LOG_FATAL, "Parameter invalid");
         return ATINY_ARG_INVALID;
+    }
+    if (phandle->device_info.codec_mode == MQTT_CODEC_MODE_JSON)
+    {
+        if (msg == NULL || msg_len <= 0)
+        {
+            ATINY_LOG(LOG_FATAL, "msg invalid");
+            return ATINY_ARG_INVALID;
+        }
+        payloadlen = strnlen(msg, msg_len);
+    }
+    else
+    {
+        if (msg == NULL && msg_len > 0)
+        {
+            ATINY_LOG(LOG_FATAL, "msg invalid");
+            return ATINY_ARG_INVALID;
+        }
+        payloadlen = msg_len;
     }
 
     if (!atiny_mqtt_isconnected(phandle))
@@ -1017,7 +1035,7 @@ int atiny_mqtt_data_send(mqtt_client_s *phandle, const char *msg,  uint32_t msg_
     memset(&message, 0, sizeof(message));
     message.qos = (enum QoS)qos;
     message.payload = (void *)msg;
-    message.payloadlen = strnlen(msg, msg_len);
+    message.payloadlen = payloadlen;
     rc = MQTTPublish(&phandle->client, topic, &message);
     atiny_free(topic);
     if (rc != MQTT_SUCCESS)

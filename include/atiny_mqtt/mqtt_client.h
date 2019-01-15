@@ -80,6 +80,7 @@ extern "C" {
 #endif
 
 /* deviceReq data msg jason format example to server
+the message can be decoded in json or binary.
 {
         "msgType":      "deviceReq",
         "hasMore":      0,
