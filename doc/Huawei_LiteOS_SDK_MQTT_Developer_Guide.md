@@ -32,7 +32,7 @@ MQTT（MQ Telemetry Transport）是一种基于发布和订阅（publish/subscri
 
 **一型一密模式**，即一种产品在平台申请一个密码，产品的设备唯一标识nodeid由设备厂家分配，设备的密码由设备和平台动态协商，流程图如下所示：
 
-![](./figures/mqtt/zh-cn_image_0150525920.png)
+![](./figures/MQTT/zh-cn_image_0150525920.png)
 
 <h2 id="特点.md">特点</h2>
 
