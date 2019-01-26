@@ -42,7 +42,7 @@ MQTT（MQ Telemetry Transport）是一种基于发布和订阅（publish/subscri
 2.  支持数据上报到IoT平台。
 3.  支持接收执行IoT平台命令。
 
-![](./figures/mqtt/zh-cn_image_0150516759.png)
+![](./figures/MQTT/zh-cn_image_0150516759.png)
 
 ## 设备接入IoT平台集成开发流程
 
