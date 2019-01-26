@@ -34,7 +34,6 @@ LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），
   
 
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
-  * [LiteOS接入OneNET](https://github.com/LiteOS/LiteOS/tree/develop/thirdparty/OneNET)
 
 
 ## LiteOS 支持的硬件
