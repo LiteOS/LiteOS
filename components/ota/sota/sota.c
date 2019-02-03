@@ -469,14 +469,8 @@ int32_t sota_process(void *arg, const int8_t *buf, int32_t buflen)
         }  
         case MSG_GET_BLOCK:
         {
-            if (phead->data_len > BLOCK_HEAD)
-            {
-               ret = sota_data_block_process(phead, pbuf);
-            }
-            else
-            {
-                ret = SOTA_INVALID_PACKET;
-            }
+            ret = sota_data_block_process(phead, pbuf);
+
             break;
         }
         case MSG_EXC_UPDATE:
