@@ -469,7 +469,7 @@ int32_t sota_process(void *arg, const int8_t *buf, int32_t buflen)
         }  
         case MSG_GET_BLOCK:
         {
-            if (phead->data_len > BLOCK_HEAD)
+            if (phead->data_len > 0)
             {
                ret = sota_data_block_process(phead, pbuf);
             }
