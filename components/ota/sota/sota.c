@@ -195,7 +195,7 @@ int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int3
     phead->chk_code = 0;
     ret = crc_check((const unsigned char *)out_buf, buflen/2);
     phead->ori_id = htons_ota(phead->ori_id);
-    if (phead->data_len != 0 && phead->msg_code == MSG_GET_BLOCK)
+    if (phead->data_len > BLOCK_HEAD && phead->msg_code == MSG_GET_BLOCK)
     {
         phead->data_len = htons_ota(phead->data_len) - BLOCK_HEAD;
     }
@@ -469,7 +469,7 @@ int32_t sota_process(void *arg, const int8_t *buf, int32_t buflen)
         }  
         case MSG_GET_BLOCK:
         {
-            if (phead->data_len > BLOCK_HEAD)
+            if (phead->data_len > 0)
             {
                ret = sota_data_block_process(phead, pbuf);
             }
