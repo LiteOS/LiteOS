@@ -89,6 +89,8 @@
 #ifndef _LWM2M_CLIENT_H_
 #define _LWM2M_CLIENT_H_
 
+#include "liblwm2m_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -98,8 +100,8 @@ extern "C" {
 #include <stdbool.h>
 #include <time.h>
 
-#include "er-coap-13.h"
-#include "atiny_adapter.h"
+#include "er-coap-13/er-coap-13.h"
+#include "osdepends/atiny_osdep.h"
 
 #ifdef LWM2M_SERVER_MODE
 #ifndef LWM2M_SUPPORT_JSON
@@ -142,7 +144,13 @@ int lwm2m_strncmp(const char* s1, const char* s2, size_t n);
 // Per POSIX specifications, time_t is a signed integer.
 time_t lwm2m_gettime(void);
 
-#define LWM2M_WITH_LOGS
+//get len of random bytes in output.
+int lwm2m_rand(void *output, size_t len);
+
+//delay sometime
+void lwm2m_delay(uint32_t second);
+
+//#define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
 #define lwm2m_printf atiny_printf
@@ -153,18 +161,25 @@ time_t lwm2m_gettime(void);
 // Returns a session handle that MUST uniquely identify a peer.
 // secObjInstID: ID of the Securty Object instance to open a connection to
 // userData: parameter to lwm2m_init()
-void* lwm2m_connect_server(uint16_t secObjInstID, void* userData, bool bootstrap_flag);
+// bootstrap_flag: If BootstrapServer
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer);
+
 // Close a session created by lwm2m_connect_server()
 // sessionH: session handle identifying the peer (opaque to the core)
 // userData: parameter to lwm2m_init()
 void lwm2m_close_connection(void* sessionH, void* userData);
+
 #endif
 // Send data to a peer
 // Returns COAP_NO_ERROR or a COAP_NNN error code
 // sessionH: session handle identifying the peer (opaque to the core)
 // buffer, length: data to send
 // userData: parameter to lwm2m_init()
-uint8_t lwm2m_buffer_send(void* sessionH, uint8_t* buffer, size_t length, void* userData);
+uint8_t lwm2m_buffer_send(void* sessionH,
+                          uint8_t* buffer,
+                          size_t length,
+                          void* userdata);
+
 // Compare two session handles
 // Returns true if the two sessions identify the same peer. false otherwise.
 // userData: parameter to lwm2m_init()
@@ -241,6 +256,17 @@ bool lwm2m_session_is_equal(void* session1, void* session2, void* userData);
 #define LWM2M_SECURITY_MODE_RAW_PUBLIC_KEY  1
 #define LWM2M_SECURITY_MODE_CERTIFICATE     2
 #define LWM2M_SECURITY_MODE_NONE            3
+
+#define LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME 60
+
+
+#define MAX_FACTORY_BS_RETRY_CNT 3
+#define MAX_CLIENT_INITIATED_BS_RETRY_CNT 3
+#define FACTORY_BS_DELAY_BASE 0
+#define CLIENT_INITIATED_BS_DELAY_BASE 0
+#define FACTORY_BS_DELAY_INTERVAL 10
+#define CLIENT_INITIATED_BS_DELAY_INTERVAL 10
+
 
 
 /*
@@ -691,6 +717,16 @@ typedef enum
     STATE_READY
 } lwm2m_client_state_t;
 
+typedef enum
+{
+    BS_SEQUENCE_STATE_INITIAL = 0,
+    BS_SEQUENCE_STATE_FACTORY,
+    BS_SEQUENCE_STATE_SERVER_INITIATED,
+    BS_SEQUENCE_STATE_CLIENT_INITIATED,
+    NO_BS_SEQUENCE_STATE
+} lwm2m_bs_sequence_state_t;
+
+
 #endif
 /*
  * LWM2M Context
@@ -707,10 +743,24 @@ typedef enum
 typedef int (*lwm2m_bootstrap_callback_t) (void* sessionH, uint8_t status, lwm2m_uri_t* uriP, char* name, void* userData);
 #endif
 
+#ifdef LWM2M_CLIENT_MODE
+/* use to control the bootstrap, factory bootstrap, client initiated bootstrap, server initiated bootstrap.
+factory bootstrap is used security object to register.
+*/
 typedef struct
+{
+    lwm2m_bootstrap_type_e bsType;
+    lwm2m_client_state_t state;
+    uint32_t cnt;
+}lwm2m_bs_control_t;
+#endif
+
+typedef struct _lwm2m_context_t
 {
 #ifdef LWM2M_CLIENT_MODE
     lwm2m_client_state_t state;
+    //char*                bs_server_uri;   //    coaps://     coap://malloc memory
+    bool                 regist_first_flag;  //when serverlist and bootstrapServerList are all exist, we use regist or bootstrap.
     char*                endpointName;
     char*                msisdn;
     char*                altPath;
@@ -718,6 +768,8 @@ typedef struct
     lwm2m_server_t*      serverList;
     lwm2m_object_t*      objectList;
     lwm2m_observed_t*    observedList;
+    void*                observe_mutex;
+    lwm2m_bs_control_t    bsCtrl;
 #endif
 #ifdef LWM2M_SERVER_MODE
     lwm2m_client_t*         clientList;
@@ -766,6 +818,21 @@ typedef void(*lwm2m_event_handler_t)(module_type_t type, int code, const char* a
 void lwm2m_register_event_handler(lwm2m_event_handler_t callback);
 void lwm2m_notify_even(module_type_t type, int code, const char* arg, int arg_len);
 int lwm2m_reconnect(lwm2m_context_t * context);
+
+
+typedef struct
+{
+    uint32_t format;
+    uint8_t token[8];
+    uint32_t tokenLen;
+    uint32_t counter;
+}lwm2m_observe_info_t;
+
+uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info);
+uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state, lwm2m_data_cfg_t  *cfg);
+
+int lwm2m_initBootStrap(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bsType);
+
 
 #endif
 

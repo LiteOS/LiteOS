@@ -36,8 +36,13 @@
 #include "los_base.ph"
 #include "los_task.ph"
 #include "los_memory.h"
+#include "los_compiler.h"
+
 
 LITE_OS_SEC_BSS LOS_DL_LIST *g_pstLosPriorityQueueList;
+static LITE_OS_SEC_BSS UINT32 g_uwPriQueueBitmap = 0;
+
+#define PRIQUEUE_PRIOR0_BIT                     (UINT32)0x80000000
 
 LITE_OS_SEC_TEXT VOID osPriqueueInit(VOID)
 {
@@ -59,24 +64,34 @@ LITE_OS_SEC_TEXT VOID osPriqueueInit(VOID)
 
 LITE_OS_SEC_TEXT VOID osPriqueueEnqueue(LOS_DL_LIST *ptrPQItem, UINT32 uwPri)
 {
+    if (LOS_ListEmpty(&g_pstLosPriorityQueueList[uwPri]))
+    {
+        g_uwPriQueueBitmap |= (PRIQUEUE_PRIOR0_BIT >> uwPri);
+    }
+
     LOS_ListTailInsert(&g_pstLosPriorityQueueList[uwPri], ptrPQItem);
 }
 
 LITE_OS_SEC_TEXT VOID osPriqueueDequeue(LOS_DL_LIST *ptrPQItem)
 {
+    LOS_TASK_CB *pstRunTsk;
     LOS_ListDelete(ptrPQItem);
+
+    pstRunTsk = LOS_DL_LIST_ENTRY(ptrPQItem, LOS_TASK_CB, stPendList);  /*lint !e413*/
+    if (LOS_ListEmpty(&g_pstLosPriorityQueueList[pstRunTsk->usPriority]))
+    {
+        g_uwPriQueueBitmap &= (~(PRIQUEUE_PRIOR0_BIT >> pstRunTsk->usPriority));
+    }
 }
 
 LITE_OS_SEC_TEXT LOS_DL_LIST *osPriqueueTop(VOID)
 {
     UINT32 uwPri = 0;
 
-    for (uwPri = 0; uwPri < OS_PRIORITY_QUEUE_PRIORITYNUM; ++uwPri)
+    if (0 != g_uwPriQueueBitmap)
     {
-        if (!LOS_ListEmpty(&g_pstLosPriorityQueueList[uwPri]))
-        {
-            return LOS_DL_LIST_FIRST(&g_pstLosPriorityQueueList[uwPri]);
-        }
+        uwPri = CLZ(g_uwPriQueueBitmap);
+        return LOS_DL_LIST_FIRST(&g_pstLosPriorityQueueList[uwPri]);
     }
 
     return (LOS_DL_LIST *)NULL;

@@ -16,7 +16,7 @@
  *    Toby Jaffey - Please refer to git log
  *    Bosch Software Innovations GmbH - Please refer to git log
  *    Pascal Rieux - Please refer to git log
- *    
+ *
  *******************************************************************************/
 
 /*
@@ -54,9 +54,9 @@
 #include <string.h>
 #include <ctype.h>
 
-static int prv_parseNumber(uint8_t * uriString,
-                            size_t uriLength,
-                            size_t * headP)
+static int prv_parseNumber(uint8_t *uriString,
+                           size_t uriLength,
+                           size_t *headP)
 {
     int result = 0;
 
@@ -84,8 +84,8 @@ static int prv_parseNumber(uint8_t * uriString,
 }
 
 
-int uri_getNumber(uint8_t * uriString,
-                   size_t uriLength)
+int uri_getNumber(uint8_t *uriString,
+                  size_t uriLength)
 {
     size_t index = 0;
 
@@ -93,13 +93,19 @@ int uri_getNumber(uint8_t * uriString,
 }
 
 
-lwm2m_uri_t * uri_decode(char * altPath,
-                         multi_option_t *uriPath)
+lwm2m_uri_t *uri_decode(char *altPath,
+                        multi_option_t *uriPath)
 {
-    lwm2m_uri_t * uriP;
+    lwm2m_uri_t *uriP;
     int readNum;
-
-    LOG_ARG("altPath: \"%s\"", altPath);
+    if(altPath != NULL)
+    {
+        LOG_ARG("altPath: \"%s\"", altPath);
+    }
+    else
+    {
+         LOG("altPath: NULL");
+    }
 
     uriP = (lwm2m_uri_t *)lwm2m_malloc(sizeof(lwm2m_uri_t));
     if (NULL == uriP) return NULL;
@@ -108,16 +114,16 @@ lwm2m_uri_t * uri_decode(char * altPath,
 
     // Read object ID
     if (NULL != uriPath
-     && URI_REGISTRATION_SEGMENT_LEN == uriPath->len
-     && 0 == strncmp(URI_REGISTRATION_SEGMENT, (char *)uriPath->data, uriPath->len))
+            && URI_REGISTRATION_SEGMENT_LEN == uriPath->len
+            && 0 == strncmp(URI_REGISTRATION_SEGMENT, (char *)uriPath->data, uriPath->len))
     {
         uriP->flag |= LWM2M_URI_FLAG_REGISTRATION;
         uriPath = uriPath->next;
         if (uriPath == NULL) return uriP;
     }
     else if (NULL != uriPath
-     && URI_BOOTSTRAP_SEGMENT_LEN == uriPath->len
-     && 0 == strncmp(URI_BOOTSTRAP_SEGMENT, (char *)uriPath->data, uriPath->len))
+             && URI_BOOTSTRAP_SEGMENT_LEN == uriPath->len
+             && 0 == strncmp(URI_BOOTSTRAP_SEGMENT, (char *)uriPath->data, uriPath->len))
     {
         uriP->flag |= LWM2M_URI_FLAG_BOOTSTRAP;
         uriPath = uriPath->next;
@@ -138,7 +144,7 @@ lwm2m_uri_t * uri_decode(char * altPath,
             }
             for (i = 0 ; i < uriPath->len ; i++)
             {
-                if (uriPath->data[i] != altPath[i+1])
+                if (uriPath->data[i] != altPath[i + 1])
                 {
                     lwm2m_free(uriP);
                     return NULL;
@@ -205,9 +211,9 @@ error:
     return NULL;
 }
 
-int lwm2m_stringToUri(const char * buffer,
+int lwm2m_stringToUri(const char *buffer,
                       size_t buffer_len,
-                      lwm2m_uri_t * uriP)
+                      lwm2m_uri_t *uriP)
 {
     size_t head;
     int readNum;
@@ -220,7 +226,7 @@ int lwm2m_stringToUri(const char * buffer,
 
     // Skip any white space
     head = 0;
-    while (head < buffer_len && isspace(buffer[head]&0xFF))
+    while (head < buffer_len && isspace(buffer[head] & 0xFF))
     {
         head++;
     }
@@ -271,10 +277,10 @@ int lwm2m_stringToUri(const char * buffer,
     return head;
 }
 
-int uri_toString(lwm2m_uri_t * uriP,
-                 uint8_t * buffer,
+int uri_toString(lwm2m_uri_t *uriP,
+                 uint8_t *buffer,
                  size_t bufferLen,
-                 uri_depth_t * depthP)
+                 uri_depth_t *depthP)
 {
     size_t head;
     int res;

@@ -45,10 +45,6 @@
 #include "los_memstat.inc"
 #endif
 
-#ifdef CONFIG_DDR_HEAP
-LITE_OS_SEC_BSS_MINOR struct LOS_HEAP_MANAGER g_stDdrHeap;
-#endif
-
 LITE_OS_SEC_DATA_INIT static UINT32 g_uwAllocCount = 0;
 LITE_OS_SEC_DATA_INIT static UINT32 g_uwFreeCount = 0;
 
@@ -96,7 +92,6 @@ LITE_OS_SEC_TEXT_INIT BOOL osHeapInit(VOID *pPool, UINT32 uwSz)
     pstHeapMan->uwSize = uwSz;
 
     pstNode = pstHeapMan->pstHead = (struct LOS_HEAP_NODE*)((UINT8*)pPool + sizeof(struct LOS_HEAP_MANAGER));
-
 
     pstHeapMan->pstTail = pstNode;
 
@@ -160,19 +155,22 @@ LITE_OS_SEC_TEXT VOID* osHeapAlloc(VOID *pPool, UINT32 uwSz)
         pstNode->uwSize = pstBest->uwSize - uwSz- sizeof(struct LOS_HEAP_NODE);
         pstNode->pstPrev = pstBest;
 
-        if (pstBest != pstHeapMan->pstTail)
+        pstT = osHeapPrvGetNext(pstHeapMan, pstBest);
+
+        if (pstT == NULL)
         {
-            if ((pstT = osHeapPrvGetNext(pstHeapMan, pstNode)) != NULL)
-                pstT->pstPrev = pstNode;
+            pstHeapMan->pstTail = pstNode;      /* pstBest is tail */
         }
         else
-            pstHeapMan->pstTail = pstNode;
+        {
+            pstT->pstPrev = pstNode;
+        }
 
         pstBest->uwSize = uwSz;
     }
 
 SIZE_MATCH:
-    pstBest->uwAlignFlag = 0;
+    pstBest->uwAlign = 0;
     pstBest->uwUsed = 1;
     pRet = pstBest->ucData;
 #if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
@@ -187,17 +185,57 @@ SIZE_MATCH:
     }
 #endif
 
+    g_uwAllocCount++;
+
 out:
     if (pstHeapMan->pstTail->uwSize < 1024)
         osAlarmHeapInfo(pstHeapMan);
 
     LOS_IntRestore(uvIntSave);
 
-    if (NULL != pRet)
+    return pRet;
+}
+
+/*****************************************************************************
+ Function : osHeapAllocAlign
+ Description : To alloc memory block from the heap memory poll with
+ Input       : VOID *pPool   --- Pointer to the manager,to distinguish heap
+               UINT32 uwSz   --- size of the heap memory pool
+               UINT32 uwBoundary --- boundary the heap needs align
+ Output      : None
+ Return      : NULL:error    other value:the address of the memory we alloced
+*****************************************************************************/
+LITE_OS_SEC_TEXT VOID* osHeapAllocAlign(VOID *pPool, UINT32 uwSz, UINT32 uwBoundary)
+{
+    VOID *pRet = NULL;
+    UINT32 uwUseSize;
+    UINT32 uwGapSize;
+    VOID *pAlignedPtr;
+
+    if ((NULL == pPool) || (0 == uwSz) || (uwBoundary < sizeof(VOID *)) || !IS_ALIGNED(uwBoundary))
     {
-        g_uwAllocCount++;
+        return NULL;
     }
 
+    /* worst case is that the node happen to be 4 bytes ahead of the boundary */
+    uwUseSize = uwSz + uwBoundary - sizeof(void*);
+    pRet = osHeapAlloc(pPool, uwUseSize);
+
+    if (pRet)
+    {
+        pAlignedPtr = (VOID *)OS_MEM_ALIGN(pRet, uwBoundary);
+        if (pRet == pAlignedPtr)
+        {
+            goto out;
+        }
+
+        uwGapSize = (UINT32)pAlignedPtr - (UINT32)pRet;
+        OS_MEM_SET_ALIGN_FLAG(uwGapSize);
+        *((UINT32 *)((UINT32)pAlignedPtr - 4)) = uwGapSize;
+
+        pRet = pAlignedPtr;
+    }
+out:
     return pRet;
 }
 
@@ -212,7 +250,7 @@ out:
 LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
 {
     struct LOS_HEAP_NODE *pstNode, *pstT;
-    UINT32 uvIntSave;
+    UINT32 uvIntSave, uwGapSize;
     BOOL bRet = TRUE;
 
     struct LOS_HEAP_MANAGER *pstHeapMan = HEAP_CAST(struct LOS_HEAP_MANAGER *, pPool);
@@ -220,6 +258,14 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
     if (!pstHeapMan || !pPtr)
     {
         return LOS_NOK;
+    }
+
+    /* find the real ptr through gap size */
+    uwGapSize = *((UINT32 *)((UINT32)pPtr - 4));
+    if (OS_MEM_GET_ALIGN_FLAG(uwGapSize))
+    {
+        uwGapSize = OS_MEM_GET_ALIGN_GAPSIZE(uwGapSize);
+        pPtr = (VOID *)((UINT32)pPtr - uwGapSize);
     }
 
     if ((UINT32)pPtr < (UINT32)pstHeapMan->pstHead
@@ -241,7 +287,7 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
         )))
     {
         bRet = FALSE;
-        goto OUT;
+        goto out;
     }
 
     /* set to unused status */
@@ -271,13 +317,10 @@ LITE_OS_SEC_TEXT BOOL osHeapFree(VOID *pPool, VOID* pPtr)
     if ((pstT = osHeapPrvGetNext(pstHeapMan, pstNode)) != NULL)
         pstT->pstPrev = pstNode;
 
-OUT:
-    LOS_IntRestore(uvIntSave);
+    g_uwFreeCount++;
 
-    if (TRUE == bRet)
-    {
-        g_uwFreeCount++;
-    }
+out:
+    LOS_IntRestore(uvIntSave);
 
     return bRet;
 }

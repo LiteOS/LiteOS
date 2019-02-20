@@ -35,6 +35,8 @@
 #include "string.h"
 #include "los_typedef.h"
 #include "los_memory.ph"
+#include "los_compiler.h"
+
 #if (LOSCFG_KERNEL_MEM_SLAB == YES)
 #include "los_slab.ph"
 #endif
@@ -59,21 +61,6 @@ LITE_OS_SEC_DATA_INIT static UINT32 g_uwTlsf_FreeCount = 0;
 extern ST_LOS_TASK g_stLosTask;
 
 #define AARCHPTR UINT32
-
-LITE_OS_SEC_TEXT UINT32 __tlst_CLZ(int data)
-{
-    UINT32 count = 0;
-    UINT32 mask = 0x80000000;
-
-    while ((data & mask) == 0)
-    {
-        count += 1u;
-        mask = mask >> 1u;
-    }
-    return (count);
-}
-
-#define CLZ(_value)   (__tlst_CLZ(_value))
 
 LITE_OS_SEC_ALW_INLINE static inline INT32 __log2(UINT32 uwWord)
 {

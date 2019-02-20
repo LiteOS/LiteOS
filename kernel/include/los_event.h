@@ -138,6 +138,26 @@ extern "C" {
 
 /**
  * @ingroup los_event
+ * Event reading error code: no initialized.
+ *
+ * Value: 0x02001c07
+ *
+ * Solution: Check whether the event is initialized.
+ */
+#define LOS_ERRNO_EVENT_NOT_INITIALIZED                     LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x07)
+
+/**
+ * @ingroup los_event
+ * Event reading error code: should not be destory.
+ *
+ * Value: 0x02001c08
+ *
+ * Solution: Check whether the event list is not empty.
+ */
+#define LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY                  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x08)
+
+/**
+ * @ingroup los_event
  * Event control structure
  */
 typedef struct tagEvent

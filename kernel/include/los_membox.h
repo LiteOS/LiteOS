@@ -39,10 +39,11 @@
 #include "los_memcheck.h"
 #endif
 
-#define BOX_ALIGN_8                   0x80000000
-/*----------------------------------------------------------------------------
- *      Global Functions
- *---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /**
  * @ingroup los_membox
@@ -53,20 +54,53 @@
 extern UINT8 g_aucMemMang[];
 #endif
 
-typedef struct tagMemBoxCB
+/**
+ * @ingroup los_membox
+ * Structure of a free node in a memory pool
+ */
+typedef struct tagMEMBOX_NODE
 {
-    UINT32  uwMaxBlk;
-    UINT32  uwBlkCnt;
-    UINT32  uwBlkSize;                  /* Memory block size                       */
-}OS_MEMBOX_S;
+    struct tagMEMBOX_NODE *pstNext;            /* Free node's pointer to the next node in a memory pool */
+} LOS_MEMBOX_NODE;
 
-typedef OS_MEMBOX_S * OS_MEMBOX_S_P;
+/**
+ * @ingroup los_membox
+ * Memory pool information structure
+ */
+typedef struct
+{
+   UINT32           uwBlkSize;                  /* Block size */
+   UINT32           uwBlkNum;                   /* Total number of blocks */
+   UINT32           uwBlkCnt;                   /* The number of allocated blocks */
+   LOS_MEMBOX_NODE  stFreeList;                 /* Free list */
+} LOS_MEMBOX_INFO;
 
-#ifdef LOS_MEMBOX_CHECK
+/**
+ * @ingroup los_membox
+ * Default enabled membox's magic word detection function, this makes each block of membox
+ * need an extra 4 bytes of space. If it is not necessary, please do not change it.
+ * If the magic word of membox disabled, a bug will be generated, that is, when free a block
+ * that has been freed, the membox will be destroyed.
+ */
+#define LOS_MEMBOX_MAGIC_CHECK
+#ifdef LOS_MEMBOX_MAGIC_CHECK
 #define LOS_MEMBOX_MAGIC_SIZE    4
 #else
 #define LOS_MEMBOX_MAGIC_SIZE    0
 #endif
+
+/**
+ * @ingroup los_membox
+ * The memory box is aligned to 4 (memory pool addr or memory box node size)
+ */
+#define LOS_MEMBOX_ALIGNED(align)           (((UINT32)(align) + 3) & 0xfffffffc)
+
+/**
+ * @ingroup los_membox
+ * Memory pool size
+ * Users can use this macro to calculate the total size of membox based on block size and block number
+ */
+#define LOS_MEMBOX_SIZE(uwBlkSize, uwBlkNum)   (sizeof(LOS_MEMBOX_INFO) + LOS_MEMBOX_ALIGNED(uwBlkSize + LOS_MEMBOX_MAGIC_SIZE) * (uwBlkNum))
 
 /**
  *@ingroup los_membox
@@ -94,7 +128,7 @@ typedef OS_MEMBOX_S * OS_MEMBOX_S_P;
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-extern UINT32    LOS_MemboxInit   (VOID *pBoxMem, UINT32 uwBoxSize, UINT32 uwBlkSize);
+extern UINT32 LOS_MemboxInit(VOID *pBoxMem, UINT32 uwBoxSize, UINT32 uwBlkSize);
 
 /**
  *@ingroup los_membox
@@ -120,7 +154,7 @@ extern UINT32    LOS_MemboxInit   (VOID *pBoxMem, UINT32 uwBoxSize, UINT32 uwBlk
  *@see LOS_MemboxFree
  *@since Huawei LiteOS V100R001C00
  */
-extern VOID *LOS_MemboxAlloc  (VOID *pBoxMem);
+extern VOID *LOS_MemboxAlloc(VOID *pBoxMem);
 
 /**
  *@ingroup los_membox
@@ -148,7 +182,7 @@ extern VOID *LOS_MemboxAlloc  (VOID *pBoxMem);
  *@see LOS_MemboxAlloc
  *@since Huawei LiteOS V100R001C00
  */
-extern UINT32   LOS_MemboxFree   (VOID *pBoxMem, VOID *pBox);
+extern UINT32 LOS_MemboxFree(VOID *pBoxMem, VOID *pBox);
 
 /**
  *@ingroup los_membox
@@ -175,7 +209,7 @@ extern UINT32   LOS_MemboxFree   (VOID *pBoxMem, VOID *pBox);
  *@see None.
  *@since Huawei LiteOS V100R001C00
  */
-extern VOID LOS_MemboxClr (VOID *pBoxMem, VOID *pBox);
+extern VOID LOS_MemboxClr(VOID *pBoxMem, VOID *pBox);
 
 
 /**
@@ -204,5 +238,11 @@ extern VOID LOS_MemboxClr (VOID *pBoxMem, VOID *pBox);
  *@since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_MemboxStatisticsGet(VOID *pBoxMem, UINT32 *puwMaxBlk, UINT32 *puwBlkCnt, UINT32 *puwBlkSize);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif
+#endif /* __cplusplus */
 
 #endif

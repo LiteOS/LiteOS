@@ -31,6 +31,11 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），通过LiteOS SDK端云互通组件，简单快速地实现与华为 OceanConnect IoT平台安全可靠连接，可以大大减少开发周期，快速构建IoT产品。
 
+LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），通过LiteOS SDK端云互通组件，简单快速地实现与华为 OceanConnect IoT平台安全可靠连接，可以大大减少开发周期，快速构建IoT产品。
+* [LiteOS SDK端云互通组件Coap开发指南](./doc/Huawei_LiteOS_SDK_Coap_LwM2M_Developer_Guide_zh.md)
+* [LiteOS SDK端云互通组件MQTT开发指南](./doc/Huawei_LiteOS_SDK_MQTT_Developer_Guide.md)
+  
+
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
 
 
