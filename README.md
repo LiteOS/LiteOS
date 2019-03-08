@@ -50,7 +50,7 @@ Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经
 ## 开源协议
 
 * 遵循BSD-3开源许可协议
-* [Huawei LiteOS 知识产权政策](http://developer.huawei.com/ict/cn/site-iot/article/iot-intellectual-property-rights)
+* [Huawei LiteOS 知识产权政策](https://support.huaweicloud.com/productdesc-LiteOS/zh-cn_topic_0145347224.html)
 
 ## LiteOS Git入门必读
 
