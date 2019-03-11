@@ -33,12 +33,16 @@
  *---------------------------------------------------------------------------*/
 #include "MQTTliteos.h"
 
+#ifdef WITH_DTLS
+
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
+
+#endif
 
 #if defined(WITH_LINUX)
 #include <sys/types.h>
@@ -146,6 +150,7 @@ static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_
     return ret;
 }
 
+#ifdef WITH_DTLS
 static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret;
@@ -166,14 +171,14 @@ static int los_mqtt_tls_read(mbedtls_ssl_context *ssl, unsigned char *buffer, in
 
     return ret;
 }
-
+#endif
 
 static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == buffer)
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return -1;
@@ -186,10 +191,12 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
         case MQTT_SECURITY_TYPE_NONE :
             ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
             break;
+#ifdef WITH_DTLS
         case MQTT_SECURITY_TYPE_PSK:
         case MQTT_SECURITY_TYPE_CA:
             ret = los_mqtt_tls_read(n->ctx, buffer, len, timeout_ms);
             break;
+#endif
         default :
             ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
             break;
@@ -204,7 +211,7 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == buffer)
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return -1;
@@ -217,10 +224,12 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
     case MQTT_SECURITY_TYPE_NONE :
         ret = atiny_net_send_timeout(n->ctx, buffer, len, timeout_ms);
         break;
+#ifdef WITH_DTLS
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         ret = dtls_write(n->ctx, buffer, len);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
         break;
@@ -231,8 +240,7 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 
 void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void))
 {
-    if((NULL == n) ||
-       (NULL == get_security_info))
+    if((NULL == n) || (NULL == get_security_info))
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return;
@@ -258,8 +266,10 @@ static int los_mqtt_connect(Network *n, char *addr, int port)
         return ATINY_NET_ERR;
     }
 
-    return ATINY_OK;
+    return ATINY_NET_OK;
 }
+
+#ifdef WITH_DTLS
 
 #define PORT_BUF_LEN 16
 static int los_mqtt_tls_connect(Network *n, char *addr, int port)
@@ -324,13 +334,14 @@ exit:
     dtls_ssl_destroy(ssl);
     return -1;
 }
+#endif
 
 int NetworkConnect(Network *n, char *addr, int port)
 {
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == addr)
+    if((NULL == n) || (NULL == addr )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return -1;
@@ -342,10 +353,12 @@ int NetworkConnect(Network *n, char *addr, int port)
     case MQTT_SECURITY_TYPE_NONE :
         ret = los_mqtt_connect(n, addr, port);
         break;
+#ifdef WITH_DTLS
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         ret = los_mqtt_tls_connect(n, addr, port);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
@@ -369,7 +382,7 @@ static void los_mqtt_disconnect(void *ctx)
 void NetworkDisconnect(Network *n)
 {
     mqtt_security_info_s *info;
-    if(NULL == n)
+    if((NULL == n) || (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return;
@@ -381,10 +394,12 @@ void NetworkDisconnect(Network *n)
     case MQTT_SECURITY_TYPE_NONE :
         los_mqtt_disconnect(n->ctx);
         break;
+#ifdef WITH_DTLS
     case MQTT_SECURITY_TYPE_PSK:
     case MQTT_SECURITY_TYPE_CA:
         dtls_ssl_destroy(n->ctx);
         break;
+#endif
     default :
         ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
         break;
