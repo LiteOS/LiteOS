@@ -33,12 +33,16 @@
  *---------------------------------------------------------------------------*/
 #include "MQTTliteos.h"
 
+#ifdef WITH_DTLS
+
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/platform.h"
 #include "dtls_interface.h"
+
+#endif
 
 #if defined(WITH_LINUX)
 #include <sys/types.h>
@@ -135,6 +139,8 @@ int ThreadStart(Thread *thread, void (*fn)(void *), void *arg)
     return -1;
 }
 
+#ifdef WITH_DTLS
+
 static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_ms)
 {
     int ret = atiny_net_recv_timeout(ctx, buffer, len, timeout_ms);
@@ -173,7 +179,7 @@ static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == buffer)
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return -1;
@@ -204,7 +210,7 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == buffer)
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return -1;
@@ -231,8 +237,7 @@ static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
 
 void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void))
 {
-    if((NULL == n) ||
-       (NULL == get_security_info))
+    if((NULL == n) || (NULL == get_security_info))
     {
         ATINY_LOG(LOG_FATAL, "invalid params.");
         return;
@@ -258,7 +263,7 @@ static int los_mqtt_connect(Network *n, char *addr, int port)
         return ATINY_NET_ERR;
     }
 
-    return ATINY_OK;
+    return ATINY_NET_OK;
 }
 
 #define PORT_BUF_LEN 16
@@ -330,7 +335,7 @@ int NetworkConnect(Network *n, char *addr, int port)
     int ret = -1;
     mqtt_security_info_s *info;
 
-    if(NULL == n || NULL == addr)
+    if((NULL == n) || (NULL == addr )|| (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return -1;
@@ -369,7 +374,7 @@ static void los_mqtt_disconnect(void *ctx)
 void NetworkDisconnect(Network *n)
 {
     mqtt_security_info_s *info;
-    if(NULL == n)
+    if((NULL == n) || (NULL == n->get_security_info) )
     {
         ATINY_LOG(LOG_FATAL, "invalid params.\n");
         return;
@@ -395,3 +400,170 @@ void NetworkDisconnect(Network *n)
     return;
 }
 
+#else
+
+static int los_mqtt_read(void *ctx, unsigned char *buffer, int len, int timeout_ms)
+{
+    int ret = atiny_net_recv_timeout(ctx, buffer, len, timeout_ms);
+    /* 0 is timeout for mqtt for normal select */
+    if (ret == ATINY_NET_TIMEOUT)
+    {
+        ret = 0;
+    }
+    return ret;
+}
+
+
+
+
+static int los_read(Network *n, unsigned char *buffer, int len, int timeout_ms)
+{
+    int ret = -1;
+    mqtt_security_info_s *info;
+
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.");
+        return -1;
+    }
+
+    info = n->get_security_info();
+
+    switch(info->security_type)
+    {
+        case MQTT_SECURITY_TYPE_NONE :
+            ret = los_mqtt_read(n->ctx, buffer, len, timeout_ms);
+            break;
+        default :
+            ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
+            break;
+    }
+
+    return ret;
+}
+
+
+static int los_write(Network *n, unsigned char *buffer, int len, int timeout_ms)
+{
+    int ret = -1;
+    mqtt_security_info_s *info;
+
+    if((NULL == n) || (NULL == buffer )|| (NULL == n->get_security_info) )
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.");
+        return -1;
+    }
+
+    info = n->get_security_info();
+
+    switch(info->security_type)
+    {
+		case MQTT_SECURITY_TYPE_NONE :
+			ret = atiny_net_send_timeout(n->ctx, buffer, len, timeout_ms);
+			break;
+		default :
+			ATINY_LOG(LOG_WARNING, "unknow proto : %d", info->security_type);
+			break;
+    }
+
+    return ret;
+}
+
+void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void))
+{
+    if((NULL == n) || (NULL == get_security_info))
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.");
+        return;
+    }
+    memset(n, 0x0, sizeof(Network));
+    n->mqttread = los_read;
+    n->mqttwrite = los_write;
+    n->get_security_info = get_security_info;
+
+    return;
+}
+
+static int los_mqtt_connect(Network *n, char *addr, int port)
+{
+    char port_str[16];
+
+    (void)snprintf(port_str, sizeof(port_str), "%u", port);
+    port_str[sizeof(port_str) - 1] = '\0';
+    n->ctx = atiny_net_connect(addr, port_str, ATINY_PROTO_TCP);
+    if (n->ctx == NULL)
+    {
+        ATINY_LOG(LOG_FATAL, "atiny_net_connect fail");
+        return ATINY_NET_ERR;
+    }
+
+    return ATINY_NET_OK;
+}
+
+
+int NetworkConnect(Network *n, char *addr, int port)
+{
+    int ret = -1;
+    mqtt_security_info_s *info;
+
+    if((NULL == n) || (NULL == addr )|| (NULL == n->get_security_info) )
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.\n");
+        return -1;
+    }
+
+    info = n->get_security_info();
+    switch(info->security_type)
+    {
+		case MQTT_SECURITY_TYPE_NONE :
+			ret = los_mqtt_connect(n, addr, port);
+			break;
+
+		default :
+			ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
+			break;
+    }
+
+    return ret;
+}
+
+static void los_mqtt_disconnect(void *ctx)
+{
+    if(NULL == ctx)
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.\n");
+        return;
+    }
+    atiny_net_close(ctx);
+
+    return;
+}
+
+void NetworkDisconnect(Network *n)
+{
+    mqtt_security_info_s *info;
+    if((NULL == n) || (NULL == n->get_security_info) )
+    {
+        ATINY_LOG(LOG_FATAL, "invalid params.\n");
+        return;
+    }
+
+    info = n->get_security_info();
+    switch(info->security_type)
+    {
+		case MQTT_SECURITY_TYPE_NONE :
+			los_mqtt_disconnect(n->ctx);
+			break;
+
+		default :
+			ATINY_LOG(LOG_WARNING, "unknow proto : %d\n", info->security_type);
+			break;
+    }
+
+    n->ctx = NULL;
+
+    return;
+}
+
+
+#endif

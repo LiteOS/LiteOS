@@ -38,6 +38,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "MQTTClient.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -161,39 +163,6 @@ deviceRsp data msg jason format example to server
 
 typedef struct mqtt_client_tag_s mqtt_client_s;
 
-typedef enum
-{
-    MQTT_SECURITY_TYPE_NONE,
-    MQTT_SECURITY_TYPE_PSK,
-    MQTT_SECURITY_TYPE_CA,
-    MQTT_SECURITY_TYPE_MAX
-}mqtt_security_type_e;
-
-
-typedef struct
-{
-    uint8_t *psk_id;
-    uint32_t psk_id_len;
-    uint8_t *psk;
-    uint32_t psk_len;
-}mqtt_security_psk_s;
-
-
-typedef struct
-{
-    char *ca_crt;
-    uint32_t ca_len;
-}mqtt_security_ca_s;
-
-typedef struct
-{
-    mqtt_security_type_e security_type;
-    union
-    {
-        mqtt_security_psk_s psk;
-        mqtt_security_ca_s ca;
-    }u;
-}mqtt_security_info_s;
 
 typedef enum
 {
