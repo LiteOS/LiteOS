@@ -51,10 +51,6 @@
 static UINT32 g_atiny_tskHandle;
 static UINT32 g_fs_tskHandle;
 
-
-
-
-
 void atiny_task_entry(void)
 {
     extern void agent_tiny_entry();
@@ -94,6 +90,12 @@ void atiny_task_entry(void)
 #else
 #endif
 
+
+#if !defined(USE_NB_NEUL95_NO_ATINY)
+#ifdef CONFIG_FEATURE_FOTA
+    hal_init_ota();
+#endif
+
 #ifdef WITH_MQTT
     flash_adaptor_init();
     {
@@ -103,13 +105,10 @@ void atiny_task_entry(void)
                                    .read_flash_info = flash_adaptor_read_mqtt_info};
         agent_tiny_demo_init(&demo_param);
     }
+    extern  int mqtt_lib_load();
+    mqtt_lib_load();
 #endif
 
-
-#if !defined(USE_NB_NEUL95_NO_ATINY)
-#ifdef CONFIG_FEATURE_FOTA
-    hal_init_ota();
-#endif
     agent_tiny_entry();
 #endif
 }

@@ -63,6 +63,30 @@ PERIFLIB_PATH =
 BUILD_DIR = build
 
 ######################################
+#common variables for other module or components
+C_SOURCES =
+C_DEFS =
+C_INCLUDES =
+LDFLAGS =
+
+######################################
+
+###############LOAD MQTT###############
+#load the mqtt if enabled
+ifeq ($(WITH_MQTT), yes)
+
+#LOAD THE MQTT LIB
+include $(TOP_DIR)/components/mqtt/mqtt.mk
+#LOAD THE ATINY_MQTT
+include $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/atiny_mqtt.mk
+#LOAD THE ATINY_MQTT_DEMO
+include $(TOP_DIR)/demos/agenttiny_mqtt/atiny_mqtt_demo.mk
+
+endif
+
+######################################
+
+######################################
 # source
 ######################################
 # C sources
@@ -159,19 +183,6 @@ ATINY_LOG = \
         C_SOURCES += $(ATINY_LOG)
 
 
-ifeq ($(WITH_MQTT), yes)
-MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src/*.c} \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
-        C_SOURCES += $(MQTT_SRC)
-ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/mqtt_client/*.c}
-        C_SOURCES += $(ATINY_TINY_MQTT_SRC)
-AGENT_DEMO_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
-        C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
-endif
 
 ifeq ($(USE_FOTA), yes)
 OTA_SRC = \
@@ -188,9 +199,7 @@ USER_SRC =  \
 		$(TARGET_DIR)/Src/__hal_simulate.c  
    
         C_SOURCES += $(USER_SRC)
-
-
-
+        
 # ASM sources
 ASM_SOURCES_s =  \
         ${wildcard $(PROJECTBASE)/los_startup_gcc.s}
@@ -222,7 +231,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS =
 
 # C defines
-C_DEFS =  \
+C_DEFS +=  \
         -D LWM2M_LITTLE_ENDIAN \
         -D LWM2M_CLIENT_MODE
 
@@ -338,13 +347,6 @@ OTA_INC = \
         C_INCLUDES += $(OTA_INC)
 endif
 
-ifeq ($(WITH_MQTT), yes)	
-MQTT_INC = \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
-		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src
-        C_INCLUDES += $(MQTT_INC)
-endif
 
 DEMO_INC = \
         -I $(TOP_DIR)/demos

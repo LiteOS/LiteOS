@@ -41,21 +41,31 @@
 #include "log/atiny_log.h"
 #include "cJSON.h"
 
+
+/* brief : the oceanconnect platform only support the ca_crt up tills now*/
+
 //#define MQTT_DEMO_CONNECT_DYNAMIC
 #define MQTT_DEMO_USE_PSK 0
 #define MQTT_DEMO_USE_CERT 1
 
-#define DEFAULT_SERVER_IPV4 "202.105.205.54"
-#ifdef WITH_DTLS
-#if (MQTT_DEMO_USE_PSK == 1)
-#define DEFAULT_SERVER_PORT "8883"
-#define AGENT_TINY_DEMO_PSK_ID "testID"
-#define AGENT_TINY_DEMO_PSK_LEN (3)
-unsigned char g_demo_psk[AGENT_TINY_DEMO_PSK_LEN] = {0xab, 0xcd, 0xef};
-#elif (MQTT_DEMO_USE_CERT == 1)
-#define DEFAULT_SERVER_PORT "8883"
+#define DEFAULT_SERVER_IPV4 "49.4.93.24"  ///<  server ip address
+#define DEFAULT_SERVER_PORT "8883"           ///<  server mqtt service port
 
-static char g_mqtt_ca_crt[] =
+#ifdef MQTT_DEMO_CONNECT_DYNAMIC
+	#define AGENT_TINY_DEMO_PRODUCTID "8ab780ed11330c2ce2acdf23dbab4d06"
+	#define AGENT_TINY_DEMO_NODEID    "11223344"
+	#define AGENT_TINY_DEMO_PASSWORD  "c6f16270c5bbf00063ab"
+#else
+	#define AGENT_TINY_DEMO_DEVICEID "653a8a63-7ec4-4b2b-99f9-911f5a665ce6"
+	#define AGENT_TINY_DEMO_PASSWORD "92d0f1a1f268acaedb0a"
+#endif
+
+#define MAX_LEN  2048
+
+#ifndef array_size
+#define array_size(a) (sizeof(a)/sizeof(*(a)))
+#endif
+static char s_mqtt_ca_crt[] =
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIEwTCCAqmgAwIBAgIRdi8oqJITu4uSWV2C/dUS1swwDQYJKoZIhvcNAQELBQAw\r\n"
 "PDELMAkGA1UEBhMCQ04xDzANBgNVBAoTBkh1YXdlaTEcMBoGA1UEAxMTSHVhd2Vp\r\n"
@@ -86,34 +96,6 @@ static char g_mqtt_ca_crt[] =
 "-----END CERTIFICATE-----\r\n";
 
 
-#endif /* MQTT_DEMO_USE_PSK */
-#endif /* WITH_DTLS */
-
-#ifndef DEFAULT_SERVER_PORT
-#define DEFAULT_SERVER_PORT "1883"
-#endif
-
-
-#ifndef MQTT_DEMO_CONNECT_DYNAMIC
-#define AGENT_TINY_DEMO_PASSWORD "ed9317ebf381bbaf0000"
-#else
-#define AGENT_TINY_DEMO_PASSWORD "c6f16270c5bbf00063ab"
-#endif
-
-#define AGENT_TINY_DEMO_DEVICEID "54a6ba67-c023-4d26-9a1c-41adef662550"
-
-#define AGENT_TINY_DEMO_PRODUCTID "8ab780ed11330c2ce2acdf23dbab4d06"
-
-#define AGENT_TINY_DEMO_NODEID "11223344"
-
-#define MAX_LEN  2048
-
-#ifndef array_size
-#define array_size(a) (sizeof(a)/sizeof(*(a)))
-#endif
-
-
-
 static mqtt_client_s *g_phandle = NULL;
 static demo_param_s g_demo_param;
 
@@ -134,17 +116,6 @@ static int create_profile_data(cJSON *profile_data[], int value)
         ATINY_LOG(LOG_ERR, "cJSON_CreateObject null");
         return ATINY_ERR;
     }
-/*
-
-    tmp = cJSON_CreateString(define_data_value_0);
-    if (tmp == NULL)
-    {
-        ATINY_LOG(LOG_ERR, "cJSON_CreateString null");
-        goto EXIT;
-    }
-
-    cJSON_AddItemToObject(item, define_data_name_0, tmp);
-*/
 
     tmp = cJSON_CreateNumber(define_data_value_1);
     if (tmp == NULL)
@@ -311,8 +282,6 @@ void app_data_report(void)
                 if(msg)
                 {
                     int ret = 0;
-
-
                     ret = atiny_mqtt_data_send(g_phandle, msg, strnlen(msg, MAX_LEN), MQTT_QOS_LEAST_ONCE);
                     ATINY_LOG(LOG_INFO, "report ret:%d, cnt %d", ret, cnt);
                     if (ret == ATINY_OK)
@@ -510,7 +479,7 @@ static int handle_rcv_msg(cJSON *msg)
           return ATINY_ERR;
     }
 
-    ret = proc_rcv_msg(items[SERVERID_IDX]->string, items[CMD_IDX]->string,
+    ret = proc_rcv_msg(items[SERVERID_IDX]->string, items[CMD_IDX]->string,\
                 items[PARAS_IDX], items[HAS_MORE_IDX]->valueint, items[MID_IDX]->valueint);
     body = get_resp_body();
     if (body == NULL)
@@ -610,23 +579,12 @@ void agent_tiny_entry(void)
 
     atiny_params.server_ip = DEFAULT_SERVER_IPV4;
     atiny_params.server_port = DEFAULT_SERVER_PORT;
-#ifdef WITH_DTLS
-#if (MQTT_DEMO_USE_PSK == 1)
-    atiny_params.info.security_type = MQTT_SECURITY_TYPE_PSK;
-    atiny_params.info.u.psk.psk_id = (unsigned char *)AGENT_TINY_DEMO_PSK_ID;
-    atiny_params.info.u.psk.psk_id_len = strlen(AGENT_TINY_DEMO_PSK_ID);
-    atiny_params.info.u.psk.psk = g_demo_psk;
-    atiny_params.info.u.psk.psk_len = AGENT_TINY_DEMO_PSK_LEN;
-#elif (MQTT_DEMO_USE_CERT == 1)
-    atiny_params.info.security_type = MQTT_SECURITY_TYPE_CA;
-    atiny_params.info.u.ca.ca_crt = g_mqtt_ca_crt;
-    atiny_params.info.u.ca.ca_len = sizeof(g_mqtt_ca_crt);
-#else
-    atiny_params.info.security_type = MQTT_SECURITY_TYPE_NONE;
-#endif /* MQTT_DEMO_USE_PSK */
-#else
-    atiny_params.info.security_type = MQTT_SECURITY_TYPE_NONE;
-#endif /* WITH_DTLS */
+
+
+    atiny_params.info.type = en_mqtt_al_security_cas;
+    atiny_params.info.u.cas.ca_crt.data = s_mqtt_ca_crt;
+    atiny_params.info.u.cas.ca_crt.len = sizeof(s_mqtt_ca_crt);
+
 
     atiny_params.cmd_ioctl = demo_cmd_ioctl;
 

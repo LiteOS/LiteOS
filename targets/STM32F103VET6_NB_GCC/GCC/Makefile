@@ -55,6 +55,32 @@ PERIFLIB_PATH =
 BUILD_DIR = build
 
 ######################################
+#common variables for other module or components
+C_SOURCES =
+C_DEFS =
+C_INCLUDES =
+LDFLAGS =
+
+######################################
+
+###############LOAD MQTT###############
+#load the mqtt if enabled
+ifeq ($(WITH_MQTT), yes)
+
+#LOAD THE MQTT LIB
+include $(TOP_DIR)/components/mqtt/mqtt.mk
+#LOAD THE ATINY_MQTT
+include $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/atiny_mqtt.mk
+#LOAD THE ATINY_MQTT_DEMO
+include $(TOP_DIR)/demos/agenttiny_mqtt/atiny_mqtt_demo.mk
+#FLASH FOR THE ATINY MQTT DYNATIC MODE
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+
+endif
+
+######################################
+
+######################################
 # source
 ######################################
 # C sources
@@ -154,7 +180,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS = 
 
 # C defines
-C_DEFS =  \
+C_DEFS +=  \
 -DUSE_HAL_DRIVER \
 -DSTM32F103xE\
 -DWITH_AT_FRAMEWORK\
