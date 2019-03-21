@@ -32,6 +32,10 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 #include "hmac.h"
+
+#ifdef WITH_DTLS
+
+#include "mbedtls/md.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
@@ -41,7 +45,16 @@
 #include "osdepends/atiny_osdep.h"
 #include "dtls_interface.h"
 
-
+typedef struct _mbedtls_hmac_t
+{
+    const unsigned char *secret;
+    const unsigned char *input;
+    unsigned char *digest;
+    size_t secret_len;
+    size_t input_len;
+    size_t digest_len;
+    mbedtls_md_type_t hmac_type;
+}mbedtls_hmac_t;
 
 int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
 {
@@ -81,5 +94,32 @@ int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info)
 
     return ret;
 }
+
+int hmac_generate_passwd(char *content, int contentlen,char *key,int keylen,char *buf,int buflen)
+{
+	int ret = -1;
+	mbedtls_hmac_t hmac;
+	hmac.secret = (uint8_t *)key;
+	hmac.secret_len = keylen;
+	hmac.input = (unsigned char *)content;
+	hmac.input_len = contentlen;
+	hmac.digest =(unsigned char *) buf;
+	hmac.digest_len = buflen;
+	hmac.hmac_type = MBEDTLS_MD_SHA256;
+
+    ret = mbedtls_hmac_calc(&hmac);
+
+    return ret;
+}
+
+#else
+
+int hmac_generate_passwd(char *content, int contentlen,char *key,int keylen,char *buf,int buflen)
+{
+	return -1;
+}
+
+
+#endif
 
 

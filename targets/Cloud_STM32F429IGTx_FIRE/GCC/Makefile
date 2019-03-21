@@ -17,7 +17,7 @@ TARGET = Huawei_LiteOS
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -O0 -g
 
 
 USE_OTA := no
@@ -63,6 +63,33 @@ PERIFLIB_PATH =
 
 # Build path
 BUILD_DIR = build
+
+
+######################################
+#common variables for other module or components
+C_SOURCES =
+C_DEFS =
+C_INCLUDES =
+LDFLAGS =
+
+######################################
+
+###############LOAD MQTT###############
+#load the mqtt if enabled
+ifeq ($(WITH_MQTT), yes)
+
+#LOAD THE MQTT LIB
+include $(TOP_DIR)/components/mqtt/mqtt.mk
+#LOAD THE ATINY_MQTT
+include $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/atiny_mqtt.mk
+#LOAD THE ATINY_MQTT_DEMO
+include $(TOP_DIR)/demos/agenttiny_mqtt/atiny_mqtt_demo.mk
+#FLASH FOR THE ATINY MQTT DYNATIC MODE
+C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+
+endif
+
+######################################
 
 ######################################
 # source
@@ -196,25 +223,6 @@ ATINY_LOG = \
         ${wildcard $(TOP_DIR)/components/log/*.c}
         C_SOURCES += $(ATINY_LOG)
 
-
-ifeq ($(WITH_MQTT), yes)
-MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src/*.c} \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/MQTTClient.c \
-        $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS/MQTTliteos.c
-        C_SOURCES += $(MQTT_SRC)
-ATINY_TINY_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/*.c}
-        C_SOURCES += $(ATINY_TINY_MQTT_SRC)
-AGENT_DEMO_MQTT_SRC = \
-        ${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c}
-        C_SOURCES += $(AGENT_DEMO_MQTT_SRC)
-CJSON_SRC = \
-        ${wildcard $(TOP_DIR)/components/lib/cJSON/cJSON.c}
-        C_SOURCES += $(CJSON_SRC)
-        C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
-endif
-
 ifeq ($(WITH_FILESYSTEM), yes)
 FS_SRC = \
         ${wildcard $(TOP_DIR)/components/fs/vfs/*.c}
@@ -282,10 +290,7 @@ USER_SRC =  \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/sys_init.c \
         $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/user_task.c
         C_SOURCES += $(USER_SRC)
-
-
-
-
+        
 ifeq ($(WITH_AT_FRAMEWORK), yes)
 AT_FRAME_SRC = \
     ${wildcard $(TOP_DIR)/components/net/at_frame/*.c} \
@@ -388,7 +393,7 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS =
 
 # C defines
-C_DEFS =  \
+C_DEFS +=  \
         -D USE_HAL_DRIVER \
         -D STM32F429xx \
         -D NDEBUG
@@ -473,10 +478,6 @@ ifeq ($(WITH_FILESYSTEM), yes)
 		C_DEFS += -DFS_$(FILESYSTEM_TYPE)
 endif
 
-
-ifeq ($(WITH_MQTT), yes)
-C_DEFS += -DWITH_MQTT
-endif
 
 ifeq ($(WITH_IPV4), no)
 C_DEFS += -DLWIP_IPV4=0
@@ -579,21 +580,9 @@ LWM2M_INC = \
 endif
 
 
-
-ifeq ($(WITH_MQTT), yes)	
-MQTT_INC = \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
-		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src \
-		-I $(TOP_DIR)/components/lib/cJSON
-        C_INCLUDES += $(MQTT_INC)
-endif
-
 DEMO_INC = \
         -I $(TOP_DIR)/demos
         C_INCLUDES += $(DEMO_INC)
-
-
 
 ifeq ($(WITH_FILESYSTEM), yes)
 FS_SPIFFS_INC = \
@@ -664,7 +653,7 @@ ifeq ($(USE_OTA), yes)
 LIBS += -lhwpatch
 endif
 LIBDIR = -L$(PROJECTBASE)/../Lib
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS += $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 ifeq ($(WITH_MQTT), yes)
 LDFLAGS += -u _printf_float

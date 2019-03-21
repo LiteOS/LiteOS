@@ -34,7 +34,6 @@
 
 #ifndef _HMAC_H_
 #define _HMAC_H_
-#include "mbedtls/md.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -42,18 +41,15 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-typedef struct _mbedtls_hmac_t
-{
-    const unsigned char *secret;
-    const unsigned char *input;
-    unsigned char *digest;
-    size_t secret_len;
-    size_t input_len;
-    size_t digest_len;
-    mbedtls_md_type_t hmac_type;
-}mbedtls_hmac_t;
 
-int mbedtls_hmac_calc(mbedtls_hmac_t *hmac_info);
+/**
+ * @brief :use this function to gernerate the password for the cloud platform
+ *        :and now it depends on the mbedtls,please define the WITH_DTLS
+ * @return:0 success while -1 failed
+ *
+ */
+int hmac_generate_passwd(char *content, int contentlen,char *key,int keylen,char *buf,int buflen);
+
 
 
 #ifdef __cplusplus

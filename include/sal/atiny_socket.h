@@ -45,14 +45,14 @@
 #define ATINY_PROTO_TCP 0 /* < The TCP transport protocol */
 #define ATINY_PROTO_UDP 1 /* < The UDP transport protocol */
 
-#define ATINY_NET_OK               0
-#define ATINY_NET_ERR             -1
-#define ATINY_NET_TIMEOUT         -2
-#define ATINY_NET_BIND_FAILED     -3
-#define ATINY_NET_LISTEN_FAILED   -4
-#define ATINY_NET_ACCEPT_FAILED   -5
-#define ATINY_NET_BUF_SMALL_FAILED -6
-#define ATINY_NET_SOCKET_FAILED    -7
+#define ATINY_NET_OK                 0
+#define ATINY_NET_ERR             	-1
+#define ATINY_NET_TIMEOUT         	-2
+#define ATINY_NET_BIND_FAILED     	-3
+#define ATINY_NET_LISTEN_FAILED   	-4
+#define ATINY_NET_ACCEPT_FAILED   	-5
+#define ATINY_NET_BUF_SMALL_FAILED 	-6
+#define ATINY_NET_SOCKET_FAILED    	-7
 
 
 #ifdef __cplusplus

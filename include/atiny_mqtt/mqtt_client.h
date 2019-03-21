@@ -38,31 +38,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "MQTTClient.h"
-
+#include <mqtt_al.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef MQTT_COMMAND_TIMEOUT_MS
-#define MQTT_COMMAND_TIMEOUT_MS (10 * 1000)
-#endif
-
-#ifndef MQTT_EVENTS_HANDLE_PERIOD_MS
-#define MQTT_EVENTS_HANDLE_PERIOD_MS (1*1000)
-#endif
 
 #ifndef MQTT_KEEPALIVE_INTERVAL_S
 #define MQTT_KEEPALIVE_INTERVAL_S (100)
-#endif
-
-#ifndef MQTT_SENDBUF_SIZE
-#define MQTT_SENDBUF_SIZE (1024 * 2)
-#endif
-
-#ifndef MQTT_READBUF_SIZE
-#define MQTT_READBUF_SIZE (1024 * 2)
 #endif
 
 /* the unit is milisecond */
@@ -117,8 +101,6 @@ deviceRsp data msg jason format example to server
 		"bodyParaName":	"bodyParaValue"
 	}
 }
-
-
 */
 
 /* msg type, json name, its value is string*/
@@ -149,9 +131,9 @@ deviceRsp data msg jason format example to server
 /* service data, json name, its value is string, format yyyyMMddTHHmmssZ such as 20161219T114920Z */
 #define MQTT_EVENT_TIME "eventTime"
 
-#define MQTT_CMD "cmd"
-#define MQTT_PARAS "paras"
-#define MQTT_MID "mid"
+#define MQTT_CMD       "cmd"
+#define MQTT_PARAS     "paras"
+#define MQTT_MID       "mid"
 
 #define MQTT_ERR_CODE "errcode"
 #define MQTT_ERR_CODE_OK 0
@@ -166,8 +148,8 @@ typedef struct mqtt_client_tag_s mqtt_client_s;
 
 typedef enum
 {
-    MQTT_GET_TIME, // get the system time, the format is YYYYMMDDHH
-    MQTT_RCV_MSG, // notify user a message received.
+    MQTT_GET_TIME,          // get the system time, the format is YYYYMMDDHH
+    MQTT_RCV_MSG,           // notify user a message received.
     MQTT_SAVE_SECRET_INFO, // write the connection secret info for dynamic connection, the info length is fixed, may be encrypted.
     MQTT_READ_SECRET_INFO, // read the connection secret info for dynamic connection, the info length is fixed.
 }mqtt_cmd_e;
@@ -177,8 +159,9 @@ typedef struct
 {
     char *server_ip;
     char *server_port;
-    mqtt_security_info_s info;
-    int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len); //command io control
+    mqtt_al_security_para_t  info;
+ //   mqtt_security_info_s info;
+    int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len);    //command io control
 }mqtt_param_s;
 
 typedef enum
@@ -226,8 +209,8 @@ typedef enum
 
 typedef struct
 {
-    mqtt_connection_type_e connection_type;
-    mqtt_codec_mode_e codec_mode;
+    mqtt_connection_type_e    connection_type;
+    mqtt_codec_mode_e         codec_mode;
     mqtt_password_sign_type_e sign_type;
     char *password;
     union

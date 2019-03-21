@@ -35,28 +35,18 @@
 #ifndef FLASH_MANAGER_H
 #define FLASH_MANAGER_H
 
-#include "atiny_mqtt/mqtt_client.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define STRING_MAX_LEN 256
+#include <atiny_mqtt/mqtt_client.h>
 
+#define STRING_MAX_LEN 256
 
 #ifndef array_size
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
 #endif
-
-#define TRY_FREE_MEM(mem) \
-do\
-{\
-    if(NULL != (mem))\
-    {\
-       atiny_free(mem);\
-       (mem) = NULL;\
-    }\
-}while(0)
 
 
 enum
@@ -77,6 +67,7 @@ typedef struct
 
 /*flash_info info is malloc, should destroy if not used*/
 void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len));
+
 int flash_manager_read(flash_info_s *flash_info);
 int flash_manager_write(const flash_info_s *flash_info);
 void flash_manager_destroy_flash_info(flash_info_s *flash_info);

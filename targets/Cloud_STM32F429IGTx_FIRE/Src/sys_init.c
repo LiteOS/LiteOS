@@ -63,7 +63,7 @@ void net_init(void)
     /* IP addresses initialization */
     IP_ADDRESS[0] = 192;
     IP_ADDRESS[1] = 168;
-    IP_ADDRESS[2] = 1;
+    IP_ADDRESS[2] = 0;
     IP_ADDRESS[3] = 115;
     NETMASK_ADDRESS[0] = 255;
     NETMASK_ADDRESS[1] = 255;
@@ -71,7 +71,7 @@ void net_init(void)
     NETMASK_ADDRESS[3] = 0;
     GATEWAY_ADDRESS[0] = 192;
     GATEWAY_ADDRESS[1] = 168;
-    GATEWAY_ADDRESS[2] = 1;
+    GATEWAY_ADDRESS[2] = 0;
     GATEWAY_ADDRESS[3] = 1;
 
 #if LWIP_IPV4 && LWIP_IPV6

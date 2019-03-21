@@ -63,6 +63,30 @@ PERIFLIB_PATH =
 BUILD_DIR = build
 
 ######################################
+#common variables for other module or components
+C_SOURCES =
+C_DEFS =
+C_INCLUDES =
+LDFLAGS =
+
+######################################
+
+###############LOAD MQTT###############
+#load the mqtt if enabled
+ifeq ($(WITH_MQTT), yes)
+
+#LOAD THE MQTT LIB
+include $(TOP_DIR)/components/mqtt/mqtt.mk
+#LOAD THE ATINY_MQTT
+include $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/atiny_mqtt.mk
+#LOAD THE ATINY_MQTT_DEMO
+include $(TOP_DIR)/demos/agenttiny_mqtt/atiny_mqtt_demo.mk
+
+endif
+
+######################################
+
+######################################
 # source
 ######################################
 # ASM
@@ -362,14 +386,6 @@ LWM2M_INC = \
 endif
 
 
-
-ifeq ($(WITH_MQTT), yes)	
-MQTT_INC = \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src \
-        -I $(TOP_DIR)/components/connectivity/mqtt/MQTTClient-C/src/liteOS \
-		-I $(TOP_DIR)/components/connectivity/mqtt/MQTTPacket/src
-        C_INCLUDES += $(MQTT_INC)
-endif
 
 DEMO_INC = \
         -I $(TOP_DIR)/demos

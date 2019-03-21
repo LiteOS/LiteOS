@@ -44,6 +44,13 @@
 #define MAX_FLASH_INFO ((STRING_MAX_LEN + 1) * (MAX_DATA_ITEM) + DATA_POS)
 
 
+/**
+ *@brief : storage format: magic_number total_length  string1 string2 string...
+ *@brief : this is only for mqtt and dynamic mode, and the code is a little bad i think
+ *log by zhangqianfu
+ *
+ */
+
 static int (*g_cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len);
 
 static int flash_manager_parse(const char *buf, uint32_t len, flash_info_s *flash_info)
@@ -72,7 +79,7 @@ static int flash_manager_parse(const char *buf, uint32_t len, flash_info_s *flas
         len -= (tmp_len + 1);
     }
 
-    if ((i != MAX_DATA_ITEM) || (len != 0))
+    if ((i != MAX_DATA_ITEM) || (len != 0))
     {
         ATINY_LOG(LOG_FATAL, "data info err item num %ld,left len %ld", i, len);
         ret = ATINY_ERR;
@@ -212,7 +219,7 @@ void flash_manager_destroy_flash_info(flash_info_s *flash_info)
 
    for (i = 0; i < MAX_DATA_ITEM; i++)
    {
-       TRY_FREE_MEM(flash_info->items[i]);
+       atiny_free(flash_info->items[i]);
    }
 }
 
