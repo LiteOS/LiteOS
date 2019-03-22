@@ -1,5 +1,5 @@
 ################################################################################
-# this is used for compile the atiny_mqtt
+# this is used for compile the atiny_mqtt_demo
 ################################################################################
 ATINY_MQTT_DEMO_SRC  = \
 		${wildcard $(TOP_DIR)/demos/agenttiny_mqtt/*.c} 

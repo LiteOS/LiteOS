@@ -73,8 +73,7 @@ include $(TOP_DIR)/components/mqtt/mqtt.mk
 include $(TOP_DIR)/components/connectivity/agent_tiny/atiny_mqtt/atiny_mqtt.mk
 #LOAD THE ATINY_MQTT_DEMO
 include $(TOP_DIR)/demos/agenttiny_mqtt/atiny_mqtt_demo.mk
-#FLASH FOR THE ATINY MQTT DYNATIC MODE
-C_SOURCES += $(TOP_DIR)/targets/Cloud_STM32F429IGTx_FIRE/Src/flash_adaptor.c
+
 
 endif
 

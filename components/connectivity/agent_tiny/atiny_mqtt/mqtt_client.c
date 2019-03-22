@@ -360,7 +360,7 @@ static  char *generate_client_id(char *deviceid,char *productid,char *noteid,cha
 	{
 		if(IS_VALID_NAME_LEN(time) && IS_VALID_NAME_LEN(deviceid))
 		{
-			buflen = strlen(deviceid) + strlen(time) + \
+			buflen = strlen(deviceid)  + strlen(time) + \
 					strlen(cn_client_id_fmt_static) + 1;
 			buf = atiny_malloc(buflen);
 			if (NULL != buf)

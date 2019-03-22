@@ -627,8 +627,6 @@ static int __subscribe(void *handle,mqtt_al_subpara_t *para)
 	cb = handle;
 	c = &cb->client;
 
-
-
 	if(PAHO_SUCCESS == MQTTSubscribeWithResultsArgs(c,para->topic.data,para->qos,\
 			general_dealer,&ack,para->dealer))
 	{
