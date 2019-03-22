@@ -204,7 +204,7 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     }
 #endif
 
-    mbedtls_ssl_conf_authmode(conf, MBEDTLS_SSL_VERIFY_NONE);  //TODO--test for no check the ca_rt--only for the debug
+    //mbedtls_ssl_conf_authmode(conf, MBEDTLS_SSL_VERIFY_NONE);  //TODO--test for no check the ca_rt--only for the debug
 
 
 #ifndef WITH_MQTT

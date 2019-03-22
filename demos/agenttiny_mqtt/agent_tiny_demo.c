@@ -43,12 +43,10 @@
 
 
 /* brief : the oceanconnect platform only support the ca_crt up tills now*/
+/** the address product_id device_id password crt is only for the test  */
 
 //#define MQTT_DEMO_CONNECT_DYNAMIC
-#define MQTT_DEMO_USE_PSK 0
-#define MQTT_DEMO_USE_CERT 1
-
-#define DEFAULT_SERVER_IPV4 "49.4.93.24"  ///<  server ip address
+#define DEFAULT_SERVER_IPV4 "192.168.0.179"  ///<  server ip address
 #define DEFAULT_SERVER_PORT "8883"           ///<  server mqtt service port
 
 #ifdef MQTT_DEMO_CONNECT_DYNAMIC

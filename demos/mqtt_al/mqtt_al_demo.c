@@ -35,8 +35,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define WITH_MQTT_AL    1
-
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -121,8 +119,8 @@ static unsigned int mqtt_al_demo_main(void *arg)
 
 	conpara.cleansession =1;
 
-	conpara.cliendid.data = cn_demo_clientid;
-	conpara.cliendid.len = strlen(cn_demo_clientid);
+	conpara.clientid.data = cn_demo_clientid;
+	conpara.clientid.len = strlen(cn_demo_clientid);
 
 	conpara.conret  = 0;
 
