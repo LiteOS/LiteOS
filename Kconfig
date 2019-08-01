@@ -1,0 +1,223 @@
+mainmenu "Huawei IoT Stack Configuration"
+	
+	menu "OC Integration Demo"
+		choice OC_LWM2M_DEMO
+			optional
+			prompt "OC LWM2M Demo"
+			config OC_LWM2M_DEMO_DTLS
+				bool "OC LWM2M DEMO DTLS"
+				select OC_LWM2M
+				select OC_LWM2M_IMP
+				select DTLS
+				select SHELL_ENABLE
+			config OC_LWM2M_DEMO_NODTLS
+				bool "OC LWM2M DEMO NODTLS"
+				select OC_LWM2M
+				select OC_LWM2M_IMP
+				select SHELL_ENABLE
+		endchoice
+		choice OC_MQTT_DEMO
+			optional
+			prompt "OC MQTT Demo"
+			config OC_MQTT_DEMO_STATIC
+				bool "OC MQTT DEMO STATIC"
+				select OC_MQTT
+				select MQTT
+				select CJSON_ENABLE
+				select DTLS
+				select SHELL_ENABLE
+		endchoice
+	endmenu
+	
+	source "targets/Kconfig"
+	
+	menu "OC Cloud"
+		config OC_MQTT
+			bool "OC MQTT"
+			if OC_MQTT
+			choice OC_MQTT_IMP
+				optional
+				prompt "OC MQTT Integration Process Implement"
+				config ATINY_MQTT
+					bool "agent tiny mqtt"
+					select MQTT
+					select CJSON_ENABLE
+					select DTLS
+				config EC20
+					bool "ec20"
+					select MQTT
+					select AT_ENABLE
+					select CJSON_ENABLE
+			endchoice
+			endif
+			
+		config OC_LWM2M
+			bool "OC LWM2M"
+			if OC_LWM2M
+			choice OC_LWM2M_IMP
+				optional
+				prompt "OC LWM2M Integration Process Implement"
+				config BOUDICA150
+					bool "boudica150"
+					select AT_ENABLE
+				config ATINY_LWM2M
+					bool "agent tiny lwm2m"
+					select LWM2M
+			endchoice
+			endif
+	endmenu
+	
+	menu "Network"
+	choice TCPIP_IMP
+		optional
+		prompt "TCPIP"
+		config TCP_LWIP
+			bool "lwip"
+		config TCP_LINUX
+			bool "linux_socket"
+		config TCP_MACOS
+			bool "macos_socket"
+	endchoice
+	
+	config LWM2M
+		bool "LWM2M"
+		if LWM2M
+		choice LWM2M_IMP
+			prompt "Standard LWM2M Implement"
+			config LWM2M_IMP_WAKA
+				bool "wakaama"
+		endchoice
+		endif
+		
+	config MQTT
+		bool "MQTT"
+		if MQTT
+		choice MQTT_IMP
+			prompt "Standard MQTT Implement"
+			config MQTT_IMP_PAHO
+				bool "paho"
+		endchoice
+		endif
+		
+	config DTLS
+		bool "DTLS"
+		if DTLS
+		choice DTLS_IMP
+			optional
+			prompt "DTLS Implement"
+			config MBEDTLS
+				bool "mbedtls"
+				if MBEDTLS
+				choice MBEDTLS_MODE
+					optional
+					prompt "MBEDTLS Mode"
+					config CRT
+						bool "crt"
+					config PSK
+						bool "psk"
+				endchoice
+				endif
+		endchoice
+		endif
+	endmenu
+	
+	menu "Middleware"
+	config DRIVER_ENABLE
+		bool "driver"
+	config AT_ENABLE
+		bool "AT"
+		select DRIVER_ENABLE
+	config SHELL_ENABLE
+		bool "shell"
+	config LIBC_ENABLE
+		bool "libc"
+	config CJSON_ENABLE
+		bool "cJSON"
+    config STIMER_ENABLE
+        bool "stimer"   
+	endmenu
+	
+	choice OS
+		optional
+		prompt "OS"
+		config OS_LiteOS
+			bool "liteos"
+			select LIBC_ENABLE
+		config OS_Linux
+			bool "linux"
+			select LIBC_ENABLE
+		config OS_MacOS
+			bool "macos"
+			select LIBC_ENABLE
+	endchoice
+	
+	choice CPU_ARCH
+		optional
+		prompt "CPU Architecture"
+		config ARMV7_M
+			bool "armv7-m"
+		config RISCV32
+			bool "riscv32"
+	endchoice
+	
+	config OS_TYPE
+		string
+		default "liteos" if OS_LiteOS
+		default "linux" if OS_Linux
+		default "macos" if OS_MacOS
+		
+	config ARCH_CPU_TYPE
+		string
+		default "armv7-m" if ARMV7_M
+		default "riscv32" if RISCV32
+		
+	config TCPIP_TYPE
+		string
+		default "lwip" if TCP_LWIP
+		default "linux_socket" if TCP_LINUX
+		default "macos_socket" if TCP_MACOS
+		default "none"
+	
+	config DTLS_TYPE
+		string
+		default "mbedtls" if MBEDTLS
+		default "none"
+		
+	config EMBEDTLS_MODE
+		string
+		default "crt" if CRT
+		default "psk" if PSK
+		default "none"
+		
+	config LWM2M_TYPE
+		string
+		default "wakaama" if LWM2M_IMP_WAKA
+		default "none"
+		
+	config MQTT_TYPE
+		string
+		default "paho" if MQTT_IMP_PAHO
+		default "none"
+		
+	config OC_LWM2M_TYPE
+		string
+		default "soft" if ATINY_LWM2M
+		default "boudica150" if BOUDICA150
+		default "none"
+		
+	config OC_MQTT_TYPE
+		string
+		default "soft" if ATINY_MQTT
+		default "ec20" if EC20
+		default "none"
+		
+	config OC_LWM2M_DEMO_TYPE
+		string
+		default "oc_lwm2m_demo_dtls" if OC_LWM2M_DEMO_DTLS
+		default "oc_lwm2m_demo_nodtls" if OC_LWM2M_DEMO_NODTLS
+		default "none"
+		
+	config OC_MQTT_DEMO_TYPE
+		string
+		default "oc_mqtt_demo_static" if OC_MQTT_DEMO_STATIC
+		default "none"

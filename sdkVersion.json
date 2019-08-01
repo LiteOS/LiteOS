@@ -1,0 +1,9 @@
+{
+    "name": "IoT_LINK_1.0.0",
+	"ID": "V1",
+	"version": "1.0.0",
+	"versionCode": 1,
+	"description": "IoT LINK 1.0",
+	"url": "https://github.com/LiteOS/LiteOS_Lab/tree/iot_link",
+	"urlLog": "https://github.com/LiteOS/LiteOS_Lab/releases/tag/v1.0.0"
+}

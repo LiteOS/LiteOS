@@ -1,0 +1,14 @@
+choice Demo
+	optional
+	prompt "User Defined Demo"
+	config Demo_None
+		bool "none"
+	config Demo_Helloworld
+		bool "Hello World"
+		select SHELL_ENABLE
+endchoice
+
+config USER_DEMO
+	string
+	default "hello_world_demo" if Demo_Helloworld
+	default "none"

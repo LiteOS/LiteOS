@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/LiteOS/LiteOS.svg?branch=develop)](https://travis-ci.org/LiteOS/LiteOS)
+[![Build Status](https://travis-ci.org/LiteOS/LiteOS_Lab.svg?branch=master)](https://travis-ci.org/LiteOS/LiteOS_Lab)
 
 ## Huawei LiteOS简介
 
@@ -6,7 +6,23 @@ Huawei LiteOS是华为面向物联网领域开发的一个基于实时内核的�
 
 同时提供端云协同能力，集成了LwM2M、CoAP、mbedtls、LwIP全套IoT互联协议栈，且在LwM2M的基础上，提供了AgentTiny模块，用户只需关注自身的应用，而不必关注LwM2M实现细节，直接使用AgentTiny封装的接口即可简单快速实现与云平台安全可靠的连接。
 
-Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术、生态、解决方案、商用支持等多维度使能合作伙伴，构建开源的物联网生态,目前已经聚合了30+ MCU和解决方案合作伙伴，共同推出一批开源开发套件和行业解决方案，帮助众多行业客户快速的推出物联网终端和服务，客户涵盖抄表、停车、路灯、环保、共享单车、物流等众多行业，为开发者提供 “一站式” 完整软件平台，有效降低开发门槛、缩短开发周期。
+Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术、生态、解决方案、商用支持等多维度使能合作伙伴，构建开源的物联网生态，推出一批开源开发套件和行业解决方案，帮助众多行业客户快速的推出物联网终端和服务，客户涵盖抄表、停车、路灯、环保、共享单车、物流等众多行业，为开发者提供 “一站式” 完整软件平台，有效降低开发门槛、缩短开发周期。
+
+## LiteOS_Lab仓库与LiteOS仓库的关系
+
+LiteOS_Lab的Lab是实验室英文单词的简写，用于一些新的特性快速开发，概念验证，第三方代码合入。
+
+### LiteOS_Lab roadmap
+
+1. 读写锁（初步完成，原定时间点2018.12.31）
+2. 驱动框架（初步完成，原定时间点2018.12.31）
+3. MPU支持（初步完成，原定时间点2018.12.31）
+4. 静态创建任务（初步完成，原定时间点2018.12.31）
+5. 内存管理改进（初步完成，部分target依然使用旧版本，原定时间点2019.1.31）
+6. SVC调用（初步完成，IAR未支持）
+7. cortex-m arch代码去冗余，M3，M4，M7公用代码（初步完成）
+8. shell框架以及一组简单命令（初步完成）
+9. AT命令解析框架（规划中）
 
 ## LiteOS 代码导读
 
@@ -34,7 +50,6 @@ LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），
 LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），通过LiteOS SDK端云互通组件，简单快速地实现与华为 OceanConnect IoT平台安全可靠连接，可以大大减少开发周期，快速构建IoT产品。
 * [LiteOS SDK端云互通组件Coap开发指南](./doc/Huawei_LiteOS_SDK_Coap_LwM2M_Developer_Guide_zh.md)
 * [LiteOS SDK端云互通组件MQTT开发指南](./doc/Huawei_LiteOS_SDK_MQTT_Developer_Guide.md)
-  
 
 * [LiteOS接入3rd云平台](https://github.com/LiteOS/LiteOS_Connect_to_3rd_Cloud)
 
@@ -44,13 +59,13 @@ LiteOS SDK是Huawei LiteOS软件开发工具包（Software Development Kit），
 * LiteOS开源项目目前支持ARM Cortex-M0，Cortex-M3，Cortex-M4，Cortex-M7等芯片架构
 
 * [LiteOS支持的开发板列表](./doc/LiteOS_Supported_board_list.md)
-Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经适配了30+ 通用 MCU开发套件，5套NB-IoT集成开发套件
+Huawei LiteOS 联合业界主流MCU厂家，通过开发者活动，目前已经适配了30+ 通用 MCU开发套件，5套NB-IoT集成开发套件，部分bsp适配未上传
 
 
 ## 开源协议
 
 * 遵循BSD-3开源许可协议
-* [Huawei LiteOS 知识产权政策](https://support.huaweicloud.com/productdesc-LiteOS/zh-cn_topic_0145347224.html)
+* [Huawei LiteOS 知识产权政策](http://developer.huawei.com/ict/cn/site-iot/article/iot-intellectual-property-rights)
 
 ## LiteOS Git入门必读
 

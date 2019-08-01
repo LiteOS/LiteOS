@@ -1,0 +1,26 @@
+choice Demo
+	optional
+	prompt "User Defined Demo"
+	config Demo_None
+		bool "none"
+	config Demo_Helloworld
+		bool "Hello World"
+		select SHELL_ENABLE
+	config Demo_Develop
+		bool "OC develop"
+		select OC_MQTT
+                select CJSON
+		select EC20
+	config Demo_Oceanlink
+		bool "OC Oceanlink"
+		select OC_MQTT
+                select CJSON
+		select EC20
+endchoice
+
+config USER_DEMO
+	string
+	default "hello_world_demo" if Demo_Helloworld
+	default "oc_develop_template" if Demo_Develop
+	default "oc_oceanlink_template" if Demo_Oceanlink
+	default "none"
