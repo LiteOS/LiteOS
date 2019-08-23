@@ -283,6 +283,9 @@ void SysTick_Handler(void)
     {
         g_ullTickCount++;
     }
+#ifdef USE_HAL_DRIVER
+    HAL_IncTick();
+#endif /*USE_HAL_DRIVER*/
 }
 
 #endif /*(LOSCFG_PLATFORM_HWI == YES)*/
