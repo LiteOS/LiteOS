@@ -91,7 +91,7 @@ static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)
     else
     {
         //it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
-        LOG("[bootstrap_tag]: BOOTSTRAP only have three mode, should been :0,1,2");
+        LOG("[bootstrap_tag]: BOOTSTRAP only has three modes--0,1,2");
         return ATINY_ARG_INVALID;
     }
 
