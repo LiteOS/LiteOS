@@ -43,8 +43,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 LITE_OS_SEC_BSS UINT8* m_aucSysMem0;
 
@@ -247,5 +247,5 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
