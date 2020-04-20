@@ -24,32 +24,22 @@
  *    Removed: osSignalGet
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 2013 ARM LIMITED
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *  - Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  - Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
- *    specific prior written permission.
+ * Copyright (c) 2013-2017 ARM LIMITED
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *---------------------------------------------------------------------------*/
-
 /**
 \page cmsis_os_h Header File Template: cmsis_os.h
 
@@ -127,8 +117,8 @@ used throughout the whole project.
 
 */
 
-#ifndef _CMSIS_OS_H
-#define _CMSIS_OS_H
+#ifndef _CMSIS_OS1_H
+#define _CMSIS_OS1_H
 
 /// \note MUST REMAIN UNCHANGED: \b osCMSIS identifies the CMSIS-RTOS API version.
 #define osCMSIS           0x10002      ///< API version (main [31:16] .sub [15:0])
@@ -204,7 +194,7 @@ typedef enum  {
 typedef enum  {
   osTimerOnce             =     0,       ///< one-shot timer once
   osTimerPeriodic         =     1,       ///< repeating timer
-  osTimerDelay            =     2,       ///< one-shot timer each time
+  osTimerDelay            =     2        ///< one-shot timer each time
 } os_timer_type;
 
 typedef enum  {
@@ -229,7 +219,7 @@ typedef void (*os_ptimer) (void const *argument);
 
 /// Thread ID identifies the thread (pointer to a thread control block).
 /// \note CAN BE CHANGED: \b os_thread_cb is implementation specific in every CMSIS-RTOS.
-typedef struct LOS_TASK_CB *osThreadId;
+typedef struct LosTaskCB *osThreadId;
 
 /// Timer ID identifies the timer (pointer to a timer control block).
 /// \note CAN BE CHANGED: \b os_timer_cb is implementation specific in every CMSIS-RTOS.
@@ -237,11 +227,11 @@ typedef struct tagSwTmrCtrl *osTimerId;
 
 /// Mutex ID identifies the mutex (pointer to a mutex control block).
 /// \note CAN BE CHANGED: \b os_mutex_cb is implementation specific in every CMSIS-RTOS.
-typedef struct MUX_CB_S *osMutexId;
+typedef struct LosMuxCB *osMutexId;
 
 /// Semaphore ID identifies the semaphore (pointer to a semaphore control block).
 /// \note CAN BE CHANGED: \b os_semaphore_cb is implementation specific in every CMSIS-RTOS.
-typedef struct SEM_CB_S *osSemaphoreId;
+typedef struct LosSemCB *osSemaphoreId;
 
 /// Pool ID identifies the memory pool (pointer to a memory pool control block).
 /// \note CAN BE CHANGED: \b os_pool_cb is implementation specific in every CMSIS-RTOS.
@@ -255,57 +245,56 @@ typedef struct os_messageQ_cb *osMessageQId;
 /// \note CAN BE CHANGED: \b os_mailQ_cb is implementation specific in every CMSIS-RTOS.
 typedef struct os_mailQ_cb *osMailQId;
 
-
 /// Thread Definition structure contains startup information of a thread.
 /// \note CAN BE CHANGED: \b os_thread_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_thread_def  {
-  char *name;
+  char                       *name;
   os_pthread               pthread;    ///< start address of thread function
   osPriority             tpriority;    ///< initial thread priority
-  UINT32               instances;    ///< maximum number of instances of that thread function
-  UINT32               stacksize;    ///< stack size requirements in bytes; 0 is default stack size
+  UINT32                 instances;    ///< maximum number of instances of that thread function
+  UINT32                 stacksize;    ///< stack size requirements in bytes; 0 is default stack size
 } osThreadDef_t;
 
 /// Timer Definition structure contains timer parameters.
 /// \note CAN BE CHANGED: \b os_timer_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_timer_def  {
   os_ptimer                 ptimer;    ///< start address of a timer function
-  UINT32                  default_interval;  ///< time delay value of the timer. ms
+  UINT32          default_interval;   ///< time delay value of the timer. ms
 } osTimerDef_t;
 
 /// Mutex Definition structure contains setup information for a mutex.
 /// \note CAN BE CHANGED: \b os_mutex_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_mutex_def  {
-  void *puwMuxHandle;                    //
+  void               *puwMuxHandle;
 } osMutexDef_t;
 
 /// Semaphore Definition structure contains setup information for a semaphore.
 /// \note CAN BE CHANGED: \b os_semaphore_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_semaphore_def  {
-  void* puwSemHandle;
+  void               *puwSemHandle;
 } osSemaphoreDef_t;
 
 /// Definition structure for memory block allocation.
 /// \note CAN BE CHANGED: \b os_pool_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_pool_def  {
-  UINT32                 pool_sz;    ///< number of items (elements) in the pool
-  UINT32                 item_sz;    ///< size of an item
+  UINT32                   pool_sz;    ///< number of items (elements) in the pool
+  UINT32                   item_sz;    ///< size of an item
   void                       *pool;    ///< pointer to memory for pool
 } osPoolDef_t;
 
 /// Definition structure for message queue.
 /// \note CAN BE CHANGED: \b os_messageQ_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_messageQ_def  {
-  UINT32                queue_sz;    ///< number of elements in the queue
-  UINT32                 item_sz;    ///< size of an item
+  UINT32                  queue_sz;    ///< number of elements in the queue
+  UINT32                   item_sz;    ///< size of an item
   void                       *pool;    ///< memory array for messages
 } osMessageQDef_t;
 
 /// Definition structure for mail queue.
 /// \note CAN BE CHANGED: \b os_mailQ_def is implementation specific in every CMSIS-RTOS.
 typedef struct os_mailQ_def  {
-  UINT32                queue_sz;    ///< number of elements in the queue
-  UINT32                 item_sz;    ///< size of an item
+  UINT32                  queue_sz;    ///< number of elements in the queue
+  UINT32                   item_sz;    ///< size of an item
   void                       *pool;    ///< memory array for mail
 } osMailQDef_t;
 
@@ -315,9 +304,9 @@ typedef struct os_mailQ_def  {
 typedef struct  {
   osStatus                 status;     ///< status code: event or error information
   union  {
-    UINT32                    v;     ///< message as 32-bit value
+    UINT32                      v;     ///< message as 32-bit value
     void                       *p;     ///< message or mail as void pointer
-    INT32               signals;     ///< signal flags
+    INT32                 signals;     ///< signal flags
   } value;                             ///< event value
   union  {
     osMailQId             mail_id;     ///< mail id obtained by \ref osMailCreate
@@ -357,7 +346,7 @@ UINT32 osKernelSysTick (void);
 /// Convert a microseconds value to a RTOS kernel system timer value.
 /// \param         microsec     time value in microseconds.
 /// \return time value normalized to the \ref osKernelSysTickFrequency
-#define osKernelSysTickMicroSec(microsec) (((uint64_t)microsec * (osKernelSysTickFrequency)) / 1000000)
+#define osKernelSysTickMicroSec(microsec) (((uint64_t)(microsec) * (osKernelSysTickFrequency)) / 1000000)
 
 #endif    // System Timer available
 
@@ -376,7 +365,7 @@ extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
 #define osThreadDef(name, priority, instances, stacksz)  \
 const osThreadDef_t os_thread_def_##name = \
-{ #name,(name), (priority), (instances), (stacksz)  }
+{ #name, (name), (priority), (instances), (stacksz)  }
 #endif
 
 /// Access a Thread definition.
@@ -498,9 +487,7 @@ osStatus osTimerRestart (osTimerId timer_id, UINT32 millisec, UINT8 strict);
 /// \return status code that indicates the execution status of the function.
 /// \note MUST REMAIN UNCHANGED: \b osTimerDelete shall be consistent in every CMSIS-RTOS.
 osStatus osTimerDelete (osTimerId timer_id);
-
 osTimerId osTimerExtCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument, os_timer_rouses_type ucRouses, os_timer_align_type ucSensitive);
-
 
 //  ==== Signal Management ====
 
@@ -537,7 +524,7 @@ osEvent osSignalWait (INT32 signals, UINT32 millisec);
 extern const osMutexDef_t os_mutex_def_##name
 #else                            // define the object
 #define osMutexDef(name)  \
-UINT32 puwMuxHandle_##name;    \
+UINT32 puwMuxHandle_##name;  \
 const osMutexDef_t os_mutex_def_##name = { &puwMuxHandle_##name }
 #endif
 
@@ -587,7 +574,7 @@ osStatus osMutexDelete (osMutexId mutex_id);
 extern const osSemaphoreDef_t os_semaphore_def_##name
 #else                            // define the object
 #define osSemaphoreDef(name)  \
-UINT32 puwSemHandle_##name;    \
+UINT32 puwSemHandle_##name;  \
 const osSemaphoreDef_t os_semaphore_def_##name = { &puwSemHandle_##name }
 #endif
 
@@ -643,7 +630,7 @@ osStatus osSemaphoreDelete (osSemaphoreId semaphore_id);
 extern const osPoolDef_t os_pool_def_##name
 #else                            // define the object
 #define osPoolDef(name, no, type)   \
-UINT32 os_pool_m_##name[3]; \
+UINT32 os_pool_m_##name[LOS_MEMBOX_SIZE(sizeof(type), (queue_sz)) / 4]; \
 const osPoolDef_t os_pool_def_##name = \
 { (no), sizeof(type), (os_pool_m_##name) }
 #endif
@@ -749,8 +736,8 @@ osEvent osMessageGet (osMessageQId queue_id, UINT32 millisec);
 extern const osMailQDef_t os_mailQ_def_##name
 #else                            // define the object
 #define osMailQDef(name, queue_sz, type) \
-UINT32 os_mailQ_m_##name[3]; \
-UINT32 os_mailQ_p_##name[2] = {(0), (UINT32)(os_mailQ_m_##name)}; \
+UINT32 os_mailQ_m_##name[LOS_MEMBOX_SIZE(sizeof(type), (queue_sz)) / 4]; \
+UINT32 os_mailQ_p_##name[2] = { (0), (UINT32)(os_mailQ_m_##name) }; \
 osMailQDef_t os_mailQ_def_##name =  \
 { (queue_sz), sizeof(type), (os_mailQ_p_##name) }
 #endif
@@ -806,56 +793,55 @@ osStatus osMailFree (osMailQId queue_id, void *mail);
 
 #endif  // Mail Queues available
 
-typedef struct fw_event_def
-{
-    UINT8 tag;
-    UINT8 cmd;
-    UINT16 option; /* Bits 0-5 indicate the message processing progress; bits 6-15 indicate the timeout period for processing this command. */
-}fw_event_t;
+typedef struct fw_event_def  {
+  UINT8     tag;
+  UINT8     cmd;
+  UINT16 option; /// Bits 0-5 indicate the message processing progress; bits 6-15 indicate the timeout period for processing this command.
+} fw_event_t;
 
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
 
-typedef struct fw_MailQ_def{
-    UINT32    event_begin_time;   /* Last time when the queue was successfully read. */
-    UINT32    timeout_cnt;        /* Number of times the processing of messages in the queue times out. */
-    fw_event_t    last_event;         /* null indicates that no event is being processed or the previous event has been processed. */
-    struct fw_MailQ_def *next;
-    osMailQDef_t *queue_id;
-}fwMailQDef_t;
+typedef struct fw_MailQ_def  {
+  UINT32    event_begin_time;   /// Last time when the queue was successfully read.
+  UINT32         timeout_cnt;   /// Number of times the processing of messages in the queue times out.
+  fw_event_t      last_event;   /// null indicates that no event is being processed or the previous event has been processed.
+  struct fw_MailQ_def  *next;
+  osMailQDef_t     *queue_id;
+} fwMailQDef_t;
 
 typedef struct fwMailQDef_t *fwMailQId;
 extern fwMailQId g_fwMailQList;
 
-extern UINT32    g_maxEventTime; /* Default maximum time for processing a single event. */
+extern UINT32 g_maxEventTime;   /// Default maximum time for processing a single event.
 
 #define fwMailQDef(name, queue_sz, type)  \
-    osMailQDef(name, queue_sz, type);    \
-    fwMailQDef_t fw_mailQ_def_##name = \
-    {0, 0, {0, 0, 0}, NULL, osMailQ(name)}
+osMailQDef(name, queue_sz, type);    \
+fwMailQDef_t fw_mailQ_def_##name = \
+{ 0, 0, { 0, 0, 0 }, NULL, osMailQ(name) }
 
 #define fwMailQ(name)  \
-    &fw_mailQ_def_##name
-
+&fw_mailQ_def_##name
 
 #define SET_EVENT_PHASE(mailQ, phase) \
-    (((fwMailQDef_t *)(mailQ))->last_event.option = (0xFFFFFFC0 & (((fwMailQDef_t *)(mailQ))->last_event.option)) | (0x3F & (phase)))
+(((fwMailQDef_t *)(mailQ))->last_event.option = \
+(0xFFFFFFC0 & (((fwMailQDef_t *)(mailQ))->last_event.option)) | (0x3F & (phase)))
 
-#define GET_EVENT_PHASE(mailQ)        \
-    ((((fwMailQDef_t *)(mailQ))->last_event.option) & 0x3F)
+#define GET_EVENT_PHASE(mailQ)  \
+((((fwMailQDef_t *)(mailQ))->last_event.option) & 0x3FU)
 
-#define SET_EVENT_MAXTIME(mailQ, time)   \
-    ((((fwMailQDef_t *)(mailQ))->last_event.option) |= ((time) << 0x6))
+#define SET_EVENT_MAXTIME(mailQ, time)  \
+((((fwMailQDef_t *)(mailQ))->last_event.option) |= ((time) << 0x6))
 
-#define GET_EVENT_MAXTIME(mailQ)    \
-    ((((fwMailQDef_t *)(mailQ))->last_event.option) >> 0x6)
+#define GET_EVENT_MAXTIME(mailQ)  \
+((((fwMailQDef_t *)(mailQ))->last_event.option) >> 0x6)
 
 #else
 
 #define fwMailQDef(name, queue_sz, type)  \
-    osMailQDef(name, queue_sz, type)
+osMailQDef(name, queue_sz, type)
 
 #define fwMailQ(name)  \
-    osMailQ(name)
+osMailQ(name)
 
 #define fwMailQId osMailQId
 #define fwMailQDef_t osMailQDef_t
@@ -866,7 +852,7 @@ extern UINT32    g_maxEventTime; /* Default maximum time for processing a single
 #define GET_EVENT_MAXTIME(event)
 #endif
 
-#define MESSAGEQID_TO_QUEUEID(_messageqid)  (((QUEUE_CB_S *)(_messageqid))->usQueueID)
+#define MESSAGEQID_TO_QUEUEID(_messageqid)  (((LosQueueCB *)(_messageqid))->queueID)
 
 fwMailQId fwMailCreate (fwMailQDef_t *queue_def, osThreadId thread_id);
 void *fwMailAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd);
@@ -874,7 +860,7 @@ void *fwMailCAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd);
 osStatus fwMailPut (fwMailQId queue_id, void *mail);
 osEvent fwMailGet (fwMailQId queue_id, UINT32 millisec);
 osStatus fwMailFree (fwMailQId queue_id, void *mail);
-UINT32 fwMailQGetStatus(void);
+UINT32 fwMailQGetStatus (void);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -882,4 +868,4 @@ UINT32 fwMailQGetStatus(void);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif  // _CMSIS_OS_H
+#endif  // _CMSIS_OS1_H

@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Tick
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,23 +22,22 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_tick.inc"
-#include "los_base.ph"
-#include "los_swtmr.ph"
-#include "los_task.ph"
-#include "los_timeslice.ph"
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-#include "los_tickless.ph"
+#include "los_tick_pri.h"
+#include "los_swtmr_pri.h"
+#include "los_task_pri.h"
+#include "los_timeslice_pri.h"
+#ifdef LOSCFG_KERNEL_TICKLESS
+#include "los_tickless_pri.h"
 #endif
 
 #ifdef __cplusplus
@@ -47,89 +46,42 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+LITE_OS_SEC_BSS volatile UINT64 g_tickCount[LOSCFG_KERNEL_CORE_NUM] = {0};
+LITE_OS_SEC_DATA_INIT UINT32 g_sysClock;
+LITE_OS_SEC_DATA_INIT UINT32 g_tickPerSecond;
+LITE_OS_SEC_BSS DOUBLE g_cycle2NsScale;
 
-LITE_OS_SEC_BSS UINT64      g_ullTickCount;
-LITE_OS_SEC_BSS UINT32      g_uwTicksPerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclePerSec;
-LITE_OS_SEC_BSS UINT32      g_uwCyclesPerTick;
-LITE_OS_SEC_BSS UINT32      g_uwSysClock;
-LITE_OS_SEC_DATA_INIT BOOL  g_bSysTickStart = FALSE;
+/* spinlock for task module */
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_tickSpin);
 
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-/*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandlerLoop(UINT32 uwElapseTicks)
+/*
+ * Description : Tick interruption handler
+ */
+LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 {
-    UINT32 uwIndex;
+    UINT32 intSave;
 
-    for (uwIndex = 0; uwIndex < uwElapseTicks; uwIndex++)
-    {
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-        platform_tick_handler();
-#endif
+    TICK_LOCK(intSave);
+    g_tickCount[ArchCurrCpuid()]++;
+    TICK_UNLOCK(intSave);
 
-        g_ullTickCount ++;
-
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-        osTimesliceCheck();
-#endif
-        osTaskScan();   //task timeout scan
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-        (VOID)osSwtmrScan();
-#endif
-    }
-}
-
-#endif
-
-/*****************************************************************************
- Description : Tick interruption handler
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTickHandler(VOID)
-{
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-    if (g_bReloadSysTickFlag)
-    {
-        LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
-        g_bReloadSysTickFlag = 0;
-    }
-    g_bTickIrqFlag = g_bTicklessFlag;
-
-    #if (LOSCFG_PLATFORM_HWI == NO)
-    if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_WAIT)
-    {
-        g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_SET;
-    }
-    #endif
+#ifdef LOSCFG_KERNEL_TICKLESS
+    OsTickIrqFlagSet(OsTicklessFlagGet());
 #endif
 
 #if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-    platform_tick_handler();
+    HalClockIrqClear(); /* diff from every platform */
 #endif
 
-    g_ullTickCount ++;
-
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-    osTimesliceCheck();
+#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+    OsTimesliceCheck();
 #endif
 
-    osTaskScan();   //task timeout scan
+    OsTaskScan(); /* task timeout scan */
 
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    (VOID)osSwtmrScan();
+    OsSwtmrScan();
 #endif
-}
-
-LITE_OS_SEC_TEXT UINT32 LOS_SysClockGet(void)
-{
-    return g_uwSysClock;
 }
 
 #ifdef __cplusplus

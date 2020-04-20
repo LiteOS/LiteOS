@@ -32,44 +32,37 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 #include "cmsis_os.h"
+#include "los_config.h"
+#include "string.h"
+#include "securec.h"
 #include "los_typedef.h"
 #include "los_printf.h"
-
 #include "los_event.h"
 #include "los_membox.h"
 #include "los_hwi.h"
 
-#include "los_mux.ph"
-#include "los_queue.ph"
-#include "los_sem.ph"
-#include "los_memory.ph"
-#include "los_swtmr.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_tick.ph"
-//#include "los_sleep.h"
-
-//#include "hal_clocks.h"
-#include "string.h"
+#include "los_mux_pri.h"
+#include "los_queue_pri.h"
+#include "los_sem_pri.h"
+#include "los_swtmr_pri.h"
+#include "los_sys_pri.h"
+#include "los_task_pri.h"
+#include "los_tick_pri.h"
+#include "los_sched_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-#if (CMSIS_OS_VER == 2)
+#if (LOSCFG_CMSIS_VERSION == 2)
 
 /* Kernel initialization state */
-static osKernelState_t KernelState;
+static osKernelState_t g_kernelState;
 
-extern BOOL g_bTaskScheduled;
-
-#ifdef LOS_RUNSTOP
-cb_uart_is_need_awake_fn uart_is_need_awake_callback = NULL;
-#endif
 #define LOS_PRIORITY_WIN 8
 
-const osVersion_t g_stLosVersion = {001, 001};
+static const osVersion_t g_losVersion = {001, 001};
 
 #define LITEOS_VERSION_MAJOR    1
 #define LITEOS_VERSION_MINOR    0
@@ -81,59 +74,58 @@ const osVersion_t g_stLosVersion = {001, 001};
                                    ((UINT32)LITEOS_VERSION_BUILD *        1UL))
 
 #define KERNEL_ID   "HUAWEI-LiteOS"
+#define UNUSED(var) do { \
+    (void)var;           \
+} while (0)
 
-#ifndef UNUSED
-#define UNUSED(var) do { (void)var; } while(0)
-#endif
-//  ==== Kernel Management Functions ====
-uint32_t osTaskStackWaterMarkGet(UINT32 uwTaskID);
+#define TASK_UNLOCK 0
+#define TASK_LOCK 1
 
-extern VOID LOS_GetSystickCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
+/* Kernel Management Functions */
+uint32_t osTaskStackWaterMarkGet(uint32_t taskID);
+
 
 osStatus_t osKernelInitialize (void)
 {
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (KernelState != osKernelInactive)
-    {
+    if (g_kernelState != osKernelInactive) {
         return osError;
     }
 
-    if(LOS_OK == LOS_KernelInit())
-    {
-        KernelState = osKernelReady;
+    if (LOS_OK == OsMain()) {
+        g_kernelState = osKernelReady;
         return osOK;
-    }
-    else
-    {
+    } else {
         return osError;
     }
 }
 
 
-osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size)
+osStatus_t osKernelGetInfo(osVersion_t *version, char *idBuf, uint32_t idSize)
 {
-    if (OS_INT_ACTIVE)
-    {
+    uint32_t ret;
+
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (version != NULL)
-    {
-        version->api = g_stLosVersion.api;
-        version->kernel = g_stLosVersion.kernel;
+    if (version != NULL) {
+        version->api = g_losVersion.api;
+        version->kernel = g_losVersion.kernel;
     }
 
-    if ((id_buf != NULL) && (id_size != 0U))
-    {
-        if (id_size > sizeof(KERNEL_ID))
-        {
-            id_size = sizeof(KERNEL_ID);
+    if ((idBuf != NULL) && (idSize != 0U)) {
+        if (idSize > (strlen(KERNEL_ID) + 1)) {
+            idSize = strlen(KERNEL_ID) + 1;
         }
-        memcpy(id_buf, KERNEL_ID, id_size);
+        ret = memcpy_s(idBuf, idSize, KERNEL_ID, idSize);
+        if (ret != EOK) {
+            PRINT_ERR("%s[%d] memcpy failed, error type = %u\n", __FUNCTION__, __LINE__, ret);
+            return osError;
+        }
     }
 
     return osOK;
@@ -142,79 +134,61 @@ osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size
 
 osKernelState_t osKernelGetState (void)
 {
-    if (OS_INT_ACTIVE)
-    {
+    uint32_t losTaskLock = OsPercpuGet()->taskLockCnt;;
+
+    if (OS_INT_ACTIVE) {
         return osKernelError;
     }
 
-    if(!g_bTaskScheduled)
-    {
-        if (KernelState == osKernelReady)
-        {
+    if (!g_taskScheduled) {
+        if (g_kernelState == osKernelReady) {
             return osKernelReady;
-        }
-        else
-        {
+        } else {
             return osKernelInactive;
         }
-    }
-    else if(g_usLosTaskLock > 0)
-    {
+    } else if (losTaskLock > 0) {
         return osKernelLocked;
-    }
-    else
-    {
+    } else {
         return osKernelRunning;
     }
 }
 
-
 osStatus_t osKernelStart (void)
 {
-    if(OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if(KernelState == osKernelReady)
-    {
-        if(LOS_OK == LOS_Start())
-        {
-            KernelState = osKernelRunning;
+    if (g_kernelState == osKernelReady) {
+        if (LOS_Start() == LOS_OK) {
+            g_kernelState = osKernelRunning;
             return osOK;
-        }
-        else
-        {
+        } else {
             return osError;
         }
-    }
-    else
-    {
+    } else {
         return osError;
     }
 }
 
 
-int32_t osKernelLock (void)
+int32_t osKernelLock(void)
 {
     int32_t lock;
+    uint32_t losTaskLock = OsPercpuGet()->taskLockCnt;;
+    uint32_t cpuID = ArchCurrCpuid();
 
-    if(OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return (int32_t)osErrorISR;
     }
 
-    if(!g_bTaskScheduled)
-    {
+    if (!(g_taskScheduled & (1 << cpuID))) {
         return (int32_t)osError;
     }
 
-    if(g_usLosTaskLock > 0)
-    {
+    if (losTaskLock > 0) {
         lock = 1;
-    }
-    else
-    {
+    } else {
         LOS_TaskLock();
         lock = 0;
     }
@@ -223,31 +197,27 @@ int32_t osKernelLock (void)
 }
 
 
-int32_t osKernelUnlock (void)
+int32_t osKernelUnlock(void)
 {
     int32_t lock;
+    uint32_t losTaskLock = OsPercpuGet()->taskLockCnt;
+    uint32_t cpuID = ArchCurrCpuid();
 
-    if(OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return (int32_t)osErrorISR;
     }
 
-    if(!g_bTaskScheduled)
-    {
+    if (!(g_taskScheduled & (1 << cpuID))) {
         return (int32_t)osError;
     }
 
-    if(g_usLosTaskLock > 0)
-    {
+    if (losTaskLock > 0) {
         LOS_TaskUnlock();
-        if (g_usLosTaskLock != 0)
-        {
+        if (losTaskLock != 0) {
             return (int32_t)osError;
         }
         lock = 1;
-    }
-    else
-    {
+    } else {
         lock = 0;
     }
 
@@ -255,363 +225,316 @@ int32_t osKernelUnlock (void)
 }
 
 
-int32_t osKernelRestoreLock (int32_t lock)
+int32_t osKernelRestoreLock(int32_t lock)
 {
-    if(OS_INT_ACTIVE)
-    {
+    uint32_t losTaskLock = OsPercpuGet()->taskLockCnt;
+    uint32_t cpuID = ArchCurrCpuid();
+
+    if (OS_INT_ACTIVE) {
         return (int32_t)osErrorISR;
     }
-
-    if(!g_bTaskScheduled)
-    {
+    if (!(g_taskScheduled & (1 << cpuID))) {
         return (int32_t)osError;
     }
 
-    switch (lock)
-    {
-    case 0:
-        LOS_TaskUnlock();
-        if (g_usLosTaskLock != 0)
-        {
+    switch (lock) {
+        case TASK_UNLOCK:
+            LOS_TaskUnlock();
+            if (losTaskLock != 0) {
+                break;
+            }
+            return 0;
+        case TASK_LOCK:
+            LOS_TaskLock();
+            return 1;
+        default:
             break;
-        }
-        return 0;
-    case 1:
-        LOS_TaskLock();
-        return 1;
-    default:
-        break;
     }
 
     return (int32_t)osError;
-
 }
 
 
-uint64_t osKernelGetTickCount (void)
+UINT64 osKernelGetTickCount(void)
 {
-    uint64_t ticks;
-    UINTPTR uvIntSave;
+    UINT64 ticks;
+    UINTPTR intSave;
 
-    if(OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         ticks = 0U;
-    }
-    else
-    {
-        uvIntSave = LOS_IntLock();
-        ticks = g_ullTickCount;
-        LOS_IntRestore(uvIntSave);
+    } else {
+        intSave = LOS_IntLock();
+        ticks = g_tickCount[0];
+        LOS_IntRestore(intSave);
     }
 
     return ticks;
 }
 
 
-uint64_t osKernelGetTick2ms(void)
+UINT64 osKernelGetTick2ms(void)
 {
     return osKernelGetTickCount() * (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND);
 }
 
 
-uint64_t osMs2Tick(uint64_t ms)
+UINT64 osMs2Tick(UINT64 ms)
 {
-
     return ms * (LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_MS_PER_SECOND);
 }
 
 
-uint32_t osKernelGetTickFreq (void)
+uint32_t osKernelGetTickFreq(void)
 {
     uint32_t freq;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         freq = 0U;
-    }
-    else
-    {
+    } else {
         freq = LOSCFG_BASE_CORE_TICK_PER_SECOND;
     }
 
     return (freq);
 }
 
-
+LITE_OS_SEC_TEXT_MINOR VOID LOS_GetSystickCycle(uint32_t *highCnt, uint32_t *lowCnt);
 uint32_t osKernelGetSysTimerCount (void)
 {
-    uint32_t count_high = 0;
-    uint32_t count_low = 0;
-    if (OS_INT_ACTIVE)
-    {
-        count_low = 0U;
+    uint32_t countHigh = 0;
+    uint32_t countLow = 0;
+
+    if (OS_INT_ACTIVE) {
+        countLow = 0U;
+    } else {
+        LOS_GetSystickCycle((uint32_t *)&countHigh, (uint32_t *)&countLow);
     }
-    else
-    {
-        LOS_GetSystickCycle((UINT32 *)&count_high, (UINT32 *)&count_low);
-    }
-    return count_low;
+    return countLow;
 }
 
 
-uint32_t osKernelGetSysTimerFreq (void)
+uint32_t osKernelGetSysTimerFreq(void)
 {
     return OS_SYS_CLOCK;
 }
 
-
-//  ==== Thread Management Functions ====
-
-osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr)
+/* Thread Management Functions */
+osThreadId_t osThreadNew(osThreadFunc_t func, void *argument, const osThreadAttr_t *attr)
 {
     UNUSED(argument);
 
-    UINT32 uwTid;
-    UINT32 uwRet;
-    LOS_TASK_CB *pstTaskCB = NULL;
-    TSK_INIT_PARAM_S stTskInitParam;
+    uint32_t tid;
+    uint32_t ret;
+    LosTaskCB *taskCB = NULL;
+    TSK_INIT_PARAM_S tskInitParam;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return NULL;
     }
 
-    if ((attr == NULL) ||
-            (func == NULL) ||
-            (attr->priority < osPriorityLow1) ||
-            (attr->priority > osPriorityAboveNormal6))
-    {
+    if ((attr == NULL) || (func == NULL)) {
+        return (osThreadId_t)NULL;
+    }
+    if ((attr->priority < osPriorityLow1) || (attr->priority > osPriorityAboveNormal6)) {
         return (osThreadId_t)NULL;
     }
 
-    memset(&stTskInitParam, 0, sizeof(TSK_INIT_PARAM_S));
-    stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
-    stTskInitParam.uwStackSize  = attr->stack_size * 4;
-    stTskInitParam.pcName       = (CHAR *)attr->name;
-    stTskInitParam.usTaskPrio   = OS_TASK_PRIORITY_LOWEST - ((UINT16)(attr->priority) - LOS_PRIORITY_WIN); /*0~31*/
+    /* Ignore the return code when matching CSEC rule 6.6(4). */
+    (void)memset_s(&tskInitParam, sizeof(tskInitParam), 0, sizeof(tskInitParam));
+    tskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
+    tskInitParam.uwStackSize = attr->stack_size * sizeof(uint32_t);
+    tskInitParam.pcName = (CHAR *)attr->name;
+    /* task priority: 0~31 */
+    tskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST - ((UINT16)(attr->priority) - LOS_PRIORITY_WIN);
 
-    uwRet = LOS_TaskCreate(&uwTid, &stTskInitParam);
-
-    if (LOS_OK != uwRet)
-    {
+    ret = LOS_TaskCreate(&tid, &tskInitParam);
+    if (ret != LOS_OK) {
         return (osThreadId_t)NULL;
     }
+    taskCB = OS_TCB_FROM_TID(tid);
 
-    pstTaskCB = OS_TCB_FROM_TID(uwTid);
-
-    return (osThreadId_t)pstTaskCB;
+    return (osThreadId_t)taskCB;
 }
 
-
-const char *osThreadGetName (osThreadId_t thread_id)
+const char *osThreadGetName(osThreadId_t threadID)
 {
-    LOS_TASK_CB *pstTaskCB = NULL;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE || thread_id == NULL)
-    {
+    if (OS_INT_ACTIVE || (threadID == NULL)) {
         return NULL;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
+    taskCB = (LosTaskCB *)threadID;
 
-    return pstTaskCB->pcTaskName;
+    return taskCB->taskName;
 }
 
 
 osThreadId_t osThreadGetId (void)
 {
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return NULL;
     }
 
-    return (osThreadId_t)(g_stLosTask.pstRunTask);
+    return (osThreadId_t)(g_runTask);
 }
 
 
-osThreadState_t osThreadGetState (osThreadId_t thread_id)
+osThreadState_t osThreadGetState(osThreadId_t threadID)
 {
-    UINT16 usTaskStatus;
-    osThreadState_t stState;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    UINT16 taskStatus;
+    osThreadState_t state;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE || thread_id == NULL)
-    {
+    if (OS_INT_ACTIVE || (threadID == NULL)) {
         return osThreadError;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
-    usTaskStatus = pstTaskCB->usTaskStatus;
-
-    if (usTaskStatus & OS_TASK_STATUS_RUNNING)
-    {
-        stState = osThreadRunning;
-    }
-    else if (usTaskStatus & OS_TASK_STATUS_READY)
-    {
-        stState = osThreadReady;
-    }
-    else if (usTaskStatus &
-             (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND |
-              OS_TASK_STATUS_SUSPEND | OS_TASK_STATUS_PEND_QUEUE))
-    {
-        stState = osThreadBlocked;
-    }
-    else if (usTaskStatus & OS_TASK_STATUS_UNUSED)
-    {
-        stState = osThreadInactive;
-    }
-    else
-    {
-        stState = osThreadError;
+    taskCB = (LosTaskCB *)threadID;
+    taskStatus = taskCB->taskStatus;
+    if (taskStatus & OS_TASK_STATUS_RUNNING) {
+        state = osThreadRunning;
+    } else if (taskStatus & OS_TASK_STATUS_READY) {
+        state = osThreadReady;
+    } else if (taskStatus &
+        (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND |
+         OS_TASK_STATUS_SUSPEND)) {
+        state = osThreadBlocked;
+    } else if (taskStatus & OS_TASK_STATUS_UNUSED) {
+        state = osThreadInactive;
+    } else {
+        state = osThreadError;
     }
 
-    return stState;
+    return state;
 }
 
 
-uint32_t osThreadGetStackSize (osThreadId_t thread_id)
+uint32_t osThreadGetStackSize(osThreadId_t threadID)
 {
-    LOS_TASK_CB *pstTaskCB = NULL;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE || thread_id == NULL)
-    {
+    if (OS_INT_ACTIVE || (threadID == NULL)) {
         return 0U;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
+    taskCB = (LosTaskCB *)threadID;
 
-    return pstTaskCB->uwStackSize;
+    return taskCB->stackSize;
 }
 
 
-uint32_t osTaskStackWaterMarkGet(UINT32 uwTaskID)
+uint32_t osTaskStackWaterMarkGet(uint32_t taskID)
 {
-    UINT32 uwCount = 0;
-    UINT32 *puwTopOfStack;
-    UINTPTR uvIntSave;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    uint32_t count = 0;
+    uint32_t *topOfStack = NULL;
+    UINTPTR intSave;
+    LosTaskCB *taskCB = NULL;
 
-    if (uwTaskID > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
+    if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
         return 0;
     }
 
-    uvIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
 
-    pstTaskCB = OS_TCB_FROM_TID(uwTaskID);
-    if (OS_TASK_STATUS_UNUSED & (pstTaskCB->usTaskStatus))
-    {
-        (VOID)LOS_IntRestore(uvIntSave);
+    taskCB = OS_TCB_FROM_TID(taskID);
+    if ((taskCB->taskStatus) & OS_TASK_STATUS_UNUSED) {
+        LOS_IntRestore(intSave);
         return 0;
     }
 
-    // first 4 bytes is OS_TASK_MAGIC_WORD, skip
-    puwTopOfStack = (UINT32 *)pstTaskCB->uwTopOfStack + 1;
-
-    while (*puwTopOfStack == (UINT32)OS_TASK_STACK_INIT)
-    {
-        ++puwTopOfStack;
-        ++uwCount;
+    /* first 4 bytes is OS_TASK_MAGIC_WORD, skip */
+    topOfStack = (uint32_t *)(UINTPTR)taskCB->topOfStack + 1;
+    while (*topOfStack == (uint32_t)OS_STACK_INIT) {
+        ++topOfStack;
+        ++count;
     }
 
-    uwCount *= sizeof(UINT32);
+    count *= sizeof(uint32_t);
+    LOS_IntRestore(intSave);
 
-    (VOID)LOS_IntRestore(uvIntSave);
-    return uwCount;
+    return count;
 }
 
 
-uint32_t osThreadGetStackSpace (osThreadId_t thread_id)
+uint32_t osThreadGetStackSpace(osThreadId_t threadID)
 {
-    LOS_TASK_CB *pstTaskCB = NULL;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE || thread_id == NULL)
-    {
+    if (OS_INT_ACTIVE || (threadID == NULL)) {
         return 0U;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
+    taskCB = (LosTaskCB *)threadID;
 
-    return osTaskStackWaterMarkGet(pstTaskCB->uwTaskID);
+    return osTaskStackWaterMarkGet(taskCB->taskID);
 }
 
 
-osStatus_t osThreadSetPriority (osThreadId_t thread_id, osPriority_t priority)
+osStatus_t osThreadSetPriority(osThreadId_t threadID, osPriority_t priority)
 {
-    UINT32  uwRet;
-    UINT16  usPriority;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    uint32_t ret;
+    UINT16 priorityTemp;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (thread_id == NULL)
-    {
+    if (threadID == NULL) {
         return osErrorParameter;
     }
 
-    if (priority < osPriorityLow1 || priority > osPriorityAboveNormal6)
-    {
+    if ((priority < osPriorityLow1) || (priority > osPriorityAboveNormal6)) {
         return osErrorParameter;
     }
 
-    pstTaskCB   = (LOS_TASK_CB *)thread_id;
-    usPriority  = OS_TASK_PRIORITY_LOWEST - ((UINT16)priority - LOS_PRIORITY_WIN);
-    uwRet       = LOS_TaskPriSet(pstTaskCB->uwTaskID, usPriority);
-    switch (uwRet)
-    {
-    case LOS_ERRNO_TSK_PRIOR_ERROR:
-    case LOS_ERRNO_TSK_OPERATE_IDLE:
-    case LOS_ERRNO_TSK_ID_INVALID:
-        return osErrorParameter;
-
-    case LOS_ERRNO_TSK_NOT_CREATED:
-        return osErrorResource;
-
-    default:
-        return osOK;
+    taskCB = (LosTaskCB *)threadID;
+    priorityTemp = OS_TASK_PRIORITY_LOWEST - ((UINT16)priority - LOS_PRIORITY_WIN);
+    ret = LOS_TaskPriSet(taskCB->taskID, priorityTemp);
+    switch (ret) {
+        case LOS_ERRNO_TSK_PRIOR_ERROR:
+            /* fall-through */
+        case LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK:
+            /* fall-through */
+        case LOS_ERRNO_TSK_ID_INVALID:
+            return osErrorParameter;
+        case LOS_ERRNO_TSK_NOT_CREATED:
+            return osErrorResource;
+        default:
+            return osOK;
     }
 }
 
 
-osPriority_t osThreadGetPriority (osThreadId_t thread_id)
+osPriority_t osThreadGetPriority(osThreadId_t threadID)
 {
-    UINT16 usRet;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    UINT16 ret;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE || thread_id == NULL)
-    {
+    if (OS_INT_ACTIVE || (threadID == NULL)) {
         return osPriorityError;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
-    usRet = LOS_TaskPriGet(pstTaskCB->uwTaskID);
-
-    if (usRet == (UINT16)OS_INVALID)
-    {
+    taskCB = (LosTaskCB *)threadID;
+    ret = LOS_TaskPriGet(taskCB->taskID);
+    if (ret == (UINT16)OS_INVALID) {
         return osPriorityError;
     }
 
-    return (osPriority_t)(OS_TASK_PRIORITY_LOWEST - (usRet - LOS_PRIORITY_WIN));
+    return (osPriority_t)(OS_TASK_PRIORITY_LOWEST - (ret - LOS_PRIORITY_WIN));
 }
 
 
 osStatus_t osThreadYield (void)
 {
-    UINT32 uwRet;
+    uint32_t ret;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    uwRet = LOS_TaskYield();
-
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_TaskYield();
+    if (ret == LOS_OK) {
         return osOK;
     }
 
@@ -619,315 +542,293 @@ osStatus_t osThreadYield (void)
 }
 
 
-osStatus_t osThreadSuspend (osThreadId_t thread_id)
+osStatus_t osThreadSuspend(osThreadId_t threadID)
 {
-    UINT32 uwRet;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    uint32_t ret;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (thread_id == NULL)
-    {
+    if (threadID == NULL) {
         return osErrorParameter;
     }
 
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
-    uwRet = LOS_TaskSuspend(pstTaskCB->uwTaskID);
-    switch (uwRet)
-    {
-    case LOS_ERRNO_TSK_OPERATE_IDLE:
-    case LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED:
-    case LOS_ERRNO_TSK_ID_INVALID:
+    taskCB = (LosTaskCB *)threadID;
+    ret = LOS_TaskSuspend(taskCB->taskID);
+    switch (ret) {
+        case LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK:
+            /* fall-through */
+        case LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED:
+            /* fall-through */
+        case LOS_ERRNO_TSK_ID_INVALID:
+            return osErrorParameter;
+
+        case LOS_ERRNO_TSK_NOT_CREATED:
+            /* fall-through */
+        case LOS_ERRNO_TSK_ALREADY_SUSPENDED:
+            /* fall-through */
+        case LOS_ERRNO_TSK_SUSPEND_LOCKED:
+            return osErrorResource;
+        default:
+            return osOK;
+    }
+}
+
+osStatus_t osThreadResume(osThreadId_t threadID)
+{
+    uint32_t ret;
+    LosTaskCB *taskCB = NULL;
+
+    if (OS_INT_ACTIVE) {
+        return osErrorISR;
+    }
+
+    if (threadID == NULL) {
         return osErrorParameter;
+    }
 
-    case LOS_ERRNO_TSK_NOT_CREATED:
-    case LOS_ERRNO_TSK_ALREADY_SUSPENDED:
-    case LOS_ERRNO_TSK_SUSPEND_LOCKED:
-        return osErrorResource;
+    taskCB = (LosTaskCB *)threadID;
+    ret = LOS_TaskResume(taskCB->taskID);
+    switch (ret) {
+        case LOS_ERRNO_TSK_ID_INVALID:
+            return osErrorParameter;
+        case LOS_ERRNO_TSK_NOT_CREATED:
+            /* fall-through */
+        case LOS_ERRNO_TSK_NOT_SUSPENDED:
+            return osErrorResource;
+        default:
+            return osOK;
+    }
+}
 
-    default:
-        return osOK;
+osStatus_t osThreadTerminate(osThreadId_t threadID)
+{
+    uint32_t ret;
+    LosTaskCB *taskCB = NULL;
+
+    if (OS_INT_ACTIVE) {
+        return osErrorISR;
+    }
+
+    if (threadID == NULL) {
+        return osErrorParameter;
+    }
+
+    taskCB = (LosTaskCB *)threadID;
+    ret = LOS_TaskDelete(taskCB->taskID);
+    switch (ret) {
+        case LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK:
+            /* fall-through */
+        case LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED:
+            /* fall-through */
+        case LOS_ERRNO_TSK_ID_INVALID:
+            return osErrorParameter;
+        case LOS_ERRNO_TSK_NOT_CREATED:
+            return osErrorResource;
+        default:
+            return osOK;
     }
 }
 
 
-osStatus_t osThreadResume (osThreadId_t thread_id)
+uint32_t osThreadGetCount(void)
 {
-    UINT32 uwRet;
-    LOS_TASK_CB *pstTaskCB = NULL;
+    uint32_t count = 0;
+    int index;
 
-    if (OS_INT_ACTIVE)
-    {
-        return osErrorISR;
-    }
-
-    if (thread_id == NULL)
-    {
-        return osErrorParameter;
-    }
-
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
-    uwRet = LOS_TaskResume(pstTaskCB->uwTaskID);
-
-    switch (uwRet)
-    {
-    case LOS_ERRNO_TSK_ID_INVALID:
-        return osErrorParameter;
-
-    case LOS_ERRNO_TSK_NOT_CREATED:
-    case LOS_ERRNO_TSK_NOT_SUSPENDED:
-        return osErrorResource;
-
-    default:
-        return osOK;
-    }
-
-}
-
-
-osStatus_t osThreadTerminate (osThreadId_t thread_id)
-{
-    UINT32 uwRet;
-    LOS_TASK_CB *pstTaskCB = NULL;
-
-    if (OS_INT_ACTIVE)
-    {
-        return osErrorISR;
-    }
-
-    if (thread_id == NULL)
-    {
-        return osErrorParameter;
-    }
-
-    pstTaskCB = (LOS_TASK_CB *)thread_id;
-    uwRet = LOS_TaskDelete(pstTaskCB->uwTaskID);
-
-    switch (uwRet)
-    {
-    case LOS_ERRNO_TSK_OPERATE_IDLE:
-    case LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED:
-    case LOS_ERRNO_TSK_ID_INVALID:
-        return osErrorParameter;
-
-    case LOS_ERRNO_TSK_NOT_CREATED:
-        return osErrorResource;
-
-    default:
-        return osOK;
-    }
-}
-
-
-uint32_t osThreadGetCount (void)
-{
-    uint32_t uwCount = 0;
-    int index = 0;
-
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return 0U;
     }
 
-    for(; index <= LOSCFG_BASE_CORE_TSK_LIMIT; index++)
-    {
-        if (!((g_pstTaskCBArray + index)->usTaskStatus & OS_TASK_STATUS_UNUSED))
-        {
-            uwCount++;
+    for (index = 0; index <= LOSCFG_BASE_CORE_TSK_LIMIT; index++) {
+        if (!((g_taskCBArray + index)->taskStatus & OS_TASK_STATUS_UNUSED)) {
+            count++;
         }
     }
 
-    return uwCount;
+    return count;
 }
 
-
-//  ==== Generic Wait Functions ====
-
-osStatus_t osDelay (uint32_t ticks)
+/* Generic Wait Functions */
+osStatus_t osDelay(uint32_t ticks)
 {
-    UINT32 uwRet = 0;
+    uint32_t ret;
 
-    uwRet = LOS_TaskDelay(ticks);
-    if(uwRet == LOS_OK)
-    {
+    ret = LOS_TaskDelay(ticks);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else
-    {
+    } else {
         return osError;
     }
 }
 
-
-osStatus_t osDelayUntil (uint64_t ticks)
+osStatus_t osDelayUntil(UINT64 ticks)
 {
-    UINT32 uwRet;
-    UINT32 uwTicks;
+    uint32_t ret;
+    uint32_t ticksTemp;
     UINT64 tickCount = osKernelGetTickCount();
-
-    if(ticks < tickCount)
-    {
+    if (ticks < tickCount) {
         return osError;
     }
 
-    uwTicks = (UINT32)(ticks - tickCount);
-
-    uwRet = LOS_TaskDelay(uwTicks);
-    if(uwRet == LOS_OK)
-    {
+    ticksTemp = (uint32_t)(ticks - tickCount);
+    ret = LOS_TaskDelay(ticksTemp);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else
-    {
+    } else {
         return osError;
     }
 }
 
-//  ==== Timer Management Functions ====
+/* Timer Management Functions */
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+osTimerId_t osTimerExtNew(osTimerFunc_t func,
+                          osTimerType_t type,
+                          void *argument,
+                          const osTimerAttr_t *attr,
+                          os_timer_rouses_type rouses,
+                          os_timer_align_type sensitive)
 {
     UNUSED(attr);
-    UINT16 usSwTmrID;
+    UINT16 swtmrID;
     UINT8 mode;
 
-    if ((OS_INT_ACTIVE) || (NULL == func) ||
-            ((osTimerOnce != type) && (osTimerPeriodic != type)))
-    {
+    if (OS_INT_ACTIVE || (func == NULL) ||
+        ((type != osTimerOnce) && (type != osTimerPeriodic))) {
         return (osTimerId_t)NULL;
     }
 
-    if(osTimerOnce == type)
-    {
+    if (type == osTimerOnce) {
         mode = LOS_SWTMR_MODE_NO_SELFDELETE;
+    } else {
+        mode = LOS_SWTMR_MODE_PERIOD;
     }
-    else
-    {
+    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func,
+                        &swtmrID, (uint32_t)(UINTPTR)argument,
+                        rouses, sensitive) != LOS_OK) {
+        return (osTimerId_t)NULL;
+    }
+
+    return (osTimerId_t)OS_SWT_FROM_SID(swtmrID);
+}
+#endif
+osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)
+{
+    UNUSED(attr);
+    UINT16 swtmrID;
+    UINT8 mode;
+
+    if (OS_INT_ACTIVE || (func == NULL) ||
+        ((type != osTimerOnce) && (type != osTimerPeriodic))) {
+        return (osTimerId_t)NULL;
+    }
+
+    if (type == osTimerOnce) {
+        mode = LOS_SWTMR_MODE_NO_SELFDELETE;
+    } else {
         mode = LOS_SWTMR_MODE_PERIOD;
     }
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID, (UINT32)argument, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE))
-    {
+    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func,
+                        &swtmrID, (uint32_t)(UINTPTR)argument,
+                        OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE) != LOS_OK) {
         return (osTimerId_t)NULL;
     }
 #else
-    if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID, (UINT32)argument))
-    {
+    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func,
+                        &swtmrID, (uint32_t)(UINTPTR)argument) != LOS_OK) {
         return (osTimerId_t)NULL;
     }
 #endif
 
-    return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
+    return (osTimerId_t)OS_SWT_FROM_SID(swtmrID);
 }
 
 
-osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks)
+osStatus_t osTimerStart(osTimerId_t timerID, uint32_t ticks)
 {
-    UINT32 uwRet;
-    SWTMR_CTRL_S *pstSwtmr;
+    uint32_t ret;
+    SWTMR_CTRL_S *swtmr = NULL;
 
-    if ((0 == ticks) || (NULL == timer_id))
-    {
+    if ((ticks == 0) || (timerID == NULL)) {
         return osErrorParameter;
     }
 
-    pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-    pstSwtmr->uwInterval = LOS_Tick2MS(ticks);
-    //pstSwtmr->uwExpiry = LOS_Tick2MS(ticks);
-    uwRet = LOS_SwtmrStart(pstSwtmr->usTimerID);
-    if (LOS_OK == uwRet)
-    {
+    swtmr = (SWTMR_CTRL_S *)timerID;
+    swtmr->uwInterval = LOS_Tick2MS(ticks);
+    ret = LOS_SwtmrStart(swtmr->usTimerID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (LOS_ERRNO_SWTMR_ID_INVALID == uwRet)
-    {
+    } else if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
 
-const char *osTimerGetName(osTimerId_t timer_id)
+const char *osTimerGetName(osTimerId_t timerID)
 {
-    UNUSED(timer_id);
+    UNUSED(timerID);
     return (const char *)NULL;
 }
 
 
-osStatus_t osTimerStop (osTimerId_t timer_id)
+osStatus_t osTimerStop(osTimerId_t timerID)
 {
-    UINT32 uwRet;
-    SWTMR_CTRL_S *pstSwtmr = (SWTMR_CTRL_S *)timer_id;
+    uint32_t ret;
+    SWTMR_CTRL_S *swtmr = (SWTMR_CTRL_S *)timerID;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (NULL == pstSwtmr)
-    {
+    if (swtmr == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_SwtmrStop(pstSwtmr->usTimerID);
-    if (LOS_OK == uwRet)
-    {
+    ret = LOS_SwtmrStop(swtmr->usTimerID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (LOS_ERRNO_SWTMR_ID_INVALID == uwRet)
-    {
+    } else if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
 
-uint32_t osTimerIsRunning (osTimerId_t timer_id)
+uint32_t osTimerIsRunning(osTimerId_t timerID)
 {
-    if ((OS_INT_ACTIVE) || (NULL == timer_id))
-    {
+    if (OS_INT_ACTIVE || (timerID == NULL)) {
         return 0;
     }
 
-    return (OS_SWTMR_STATUS_TICKING == ((SWTMR_CTRL_S *)timer_id)->ucState);
+    return (((SWTMR_CTRL_S *)timerID)->ucState == OS_SWTMR_STATUS_TICKING);
 }
 
-
-osStatus_t osTimerDelete (osTimerId_t timer_id)
+osStatus_t osTimerDelete(osTimerId_t timerID)
 {
-    UINT32 uwRet;
-    SWTMR_CTRL_S  *pstSwtmr = (SWTMR_CTRL_S *)timer_id;
+    uint32_t ret;
+    SWTMR_CTRL_S *swtmr = (SWTMR_CTRL_S *)timerID;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (NULL == pstSwtmr)
-    {
+    if (swtmr == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_SwtmrDelete(pstSwtmr->usTimerID);
-    if (LOS_OK == uwRet)
-    {
+    ret = LOS_SwtmrDelete(swtmr->usTimerID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (LOS_ERRNO_SWTMR_ID_INVALID == uwRet)
-    {
+    } else if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
@@ -935,40 +836,34 @@ osStatus_t osTimerDelete (osTimerId_t timer_id)
 
 osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr)
 {
-    PEVENT_CB_S pstEventCB = NULL;
-    UINT32 uwRet;
+    PEVENT_CB_S eventCB;
+    uint32_t ret;
 
     UNUSED(attr);
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return (osEventFlagsId_t)NULL;
     }
 
-    pstEventCB = (PEVENT_CB_S)LOS_MemAlloc(m_aucSysMem0, sizeof(EVENT_CB_S));
-    if(pstEventCB == NULL )
-    {
+    eventCB = (PEVENT_CB_S)LOS_MemAlloc(m_aucSysMem0, sizeof(EVENT_CB_S));
+    if (eventCB == NULL) {
         return (osEventFlagsId_t)NULL;
     }
 
-    uwRet = LOS_EventInit(pstEventCB);
-    if (uwRet == LOS_ERRNO_EVENT_PTR_NULL)
-    {
+    ret = LOS_EventInit(eventCB);
+    if (ret == LOS_ERRNO_EVENT_PTR_NULL) {
         return (osEventFlagsId_t)NULL;
-    }
-    else
-    {
-        return (osEventFlagsId_t)pstEventCB;
+    } else {
+        return (osEventFlagsId_t)eventCB;
     }
 }
 
 
-const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
+const char *osEventFlagsGetName(osEventFlagsId_t efID)
 {
-    UNUSED(ef_id);
+    UNUSED(efID);
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return (const char *)NULL;
     }
 
@@ -976,668 +871,505 @@ const char *osEventFlagsGetName (osEventFlagsId_t ef_id)
 }
 
 
-uint32_t osEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags)
+uint32_t osEventFlagsSet(osEventFlagsId_t efID, uint32_t flags)
 {
-    PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINT32 uwRet;
+    PEVENT_CB_S eventCB = (PEVENT_CB_S)efID;
+    uint32_t ret;
     uint32_t rflags;
 
-    uwRet = LOS_EventWrite(pstEventCB, (UINT32)flags);
-    if (uwRet != LOS_OK)
-    {
+    ret = LOS_EventWrite(eventCB, (uint32_t)flags);
+    if (ret != LOS_OK) {
         return (uint32_t)osFlagsErrorParameter;
-    }
-    else
-    {
-        rflags = pstEventCB->uwEventID;
+    } else {
+        rflags = eventCB->uwEventID;
         return rflags;
     }
 }
 
 
-uint32_t osEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags)
+uint32_t osEventFlagsClear(osEventFlagsId_t efID, uint32_t flags)
 {
-    PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
+    PEVENT_CB_S eventCB = (PEVENT_CB_S)efID;
+    UINTPTR intSave;
     uint32_t rflags;
-    UINT32 uwRet;
+    uint32_t ret;
 
-    if (pstEventCB == NULL)
-    {
+    if (eventCB == NULL) {
         return (uint32_t)osFlagsErrorParameter;
     }
 
-    uwIntSave = LOS_IntLock();
-    rflags = pstEventCB->uwEventID;
+    intSave = LOS_IntLock();
+    rflags = eventCB->uwEventID;
 
-    uwRet = LOS_EventClear(pstEventCB, ~flags);
-    LOS_IntRestore(uwIntSave);
-    if (uwRet !=  LOS_OK)
-    {
+    ret = LOS_EventClear(eventCB, ~flags);
+    LOS_IntRestore(intSave);
+    if (ret != LOS_OK) {
         return (uint32_t)osFlagsErrorParameter;
-    }
-    else
-    {
+    } else {
         return rflags;
     }
 }
 
-
-uint32_t osEventFlagsGet (osEventFlagsId_t ef_id)
+uint32_t osEventFlagsGet(osEventFlagsId_t efID)
 {
-    PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
+    PEVENT_CB_S eventCB = (PEVENT_CB_S)efID;
+    UINTPTR intSave;
     uint32_t rflags;
 
-    if (pstEventCB == NULL)
-    {
+    if (eventCB == NULL) {
         return (uint32_t)osFlagsErrorParameter;
     }
 
-    uwIntSave = LOS_IntLock();
-    rflags = pstEventCB->uwEventID;
-    LOS_IntRestore(uwIntSave);
+    intSave = LOS_IntLock();
+    rflags = eventCB->uwEventID;
+    LOS_IntRestore(intSave);
 
     return rflags;
 }
 
-uint32_t osEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout)
+uint32_t osEventFlagsWait(osEventFlagsId_t efID, uint32_t flags, uint32_t options, uint32_t timeout)
 {
-    PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINT32 uwMode = 0;
-    UINT32 uwRet;
-    uint32_t rflags = 0;
+    PEVENT_CB_S eventCB = (PEVENT_CB_S)efID;
+    uint32_t mode = 0;
+    uint32_t ret;
+    uint32_t rflags;
 
-    if (options > (osFlagsWaitAny | osFlagsWaitAll | osFlagsNoClear))
-    {
+    if (options > (osFlagsWaitAny | osFlagsWaitAll | osFlagsNoClear)) {
         return (uint32_t)osFlagsErrorParameter;
     }
 
-    if ((options & osFlagsWaitAll) == osFlagsWaitAll)
-    {
-        uwMode |= LOS_WAITMODE_AND;
-    }
-    else
-    {
-        uwMode |= LOS_WAITMODE_OR;
+    if ((options & osFlagsWaitAll) == osFlagsWaitAll) {
+        mode |= LOS_WAITMODE_AND;
+    } else {
+        mode |= LOS_WAITMODE_OR;
     }
 
-    if ((options & osFlagsNoClear)  == osFlagsNoClear)
-    {
-        uwMode &= ~LOS_WAITMODE_CLR;
-    }
-    else
-    {
-        uwMode |= LOS_WAITMODE_CLR;
+    if ((options & osFlagsNoClear)  == osFlagsNoClear) {
+        mode &= ~LOS_WAITMODE_CLR;
+    } else {
+        mode |= LOS_WAITMODE_CLR;
     }
 
-    uwRet = LOS_EventRead(pstEventCB, (UINT32)flags, uwMode, (UINT32)timeout);
-    switch(uwRet)
-    {
-    case LOS_ERRNO_EVENT_PTR_NULL:
-    case LOS_ERRNO_EVENT_EVENTMASK_INVALID:
-    case LOS_ERRNO_EVENT_SETBIT_INVALID:
-        return (uint32_t)osFlagsErrorParameter;
-
-    case LOS_ERRNO_EVENT_READ_IN_INTERRUPT:
-    case LOS_ERRNO_EVENT_FLAGS_INVALID:
-    case LOS_ERRNO_EVENT_READ_IN_LOCK:
-        return (uint32_t)osFlagsErrorResource;
-
-    case LOS_ERRNO_EVENT_READ_TIMEOUT:
-        return (uint32_t)osFlagsErrorTimeout;
-
-    default :
-        rflags = (uint32_t)uwRet;
-        return rflags;
+    ret = LOS_EventRead(eventCB, (uint32_t)flags, mode, (uint32_t)timeout);
+    switch (ret) {
+        case LOS_ERRNO_EVENT_PTR_NULL:
+            /* fall-through */
+        case LOS_ERRNO_EVENT_EVENTMASK_INVALID:
+            /* fall-through */
+        case LOS_ERRNO_EVENT_SETBIT_INVALID:
+            return (uint32_t)osFlagsErrorParameter;
+        case LOS_ERRNO_EVENT_READ_IN_INTERRUPT:
+            /* fall-through */
+        case LOS_ERRNO_EVENT_FLAGS_INVALID:
+            /* fall-through */
+        case LOS_ERRNO_EVENT_READ_IN_LOCK:
+            return (uint32_t)osFlagsErrorResource;
+        case LOS_ERRNO_EVENT_READ_TIMEOUT:
+            return (uint32_t)osFlagsErrorTimeout;
+        default:
+            rflags = (uint32_t)ret;
+            return rflags;
     }
 }
 
-
-osStatus_t osEventFlagsDelete (osEventFlagsId_t ef_id)
+osStatus_t osEventFlagsDelete(osEventFlagsId_t efID)
 {
-    PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
-    osStatus_t uwRet;
+    PEVENT_CB_S eventCB = (PEVENT_CB_S)efID;
+    UINTPTR intSave;
+    osStatus_t ret;
 
-    uwIntSave = LOS_IntLock();
-    if (LOS_EventDestory(pstEventCB) == LOS_OK)
-    {
-        uwRet = osOK;
+    intSave = LOS_IntLock();
+    if (LOS_EventDestroy(eventCB) == LOS_OK) {
+        ret = osOK;
+    } else {
+        ret = osErrorParameter;
     }
-    else
-    {
-        uwRet = osErrorParameter;
-    }
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
 
-    if (LOS_MemFree(m_aucSysMem0, (void *)pstEventCB) == LOS_OK)
-    {
-        uwRet = osOK;
-    }
-    else
-    {
-        uwRet = osErrorParameter;
+    if (LOS_MemFree(m_aucSysMem0, (void *)eventCB) == LOS_OK) {
+        ret = osOK;
+    } else {
+        ret = osErrorParameter;
     }
 
-    return uwRet;
+    return ret;
 }
 
-
-//  ==== Mutex Management Functions ====
+/* Mutex Management Functions */
 #if (LOSCFG_BASE_IPC_MUX == YES)
 osMutexId_t osMutexNew (const osMutexAttr_t *attr)
 {
-    UINT32 uwRet;
-    UINT32 uwMuxId;
+    uint32_t ret;
+    uint32_t muxID;
 
     UNUSED(attr);
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return NULL;
     }
 
-    uwRet = LOS_MuxCreate(&uwMuxId);
-
-    if(uwRet == LOS_OK)
-    {
-        return (osMutexId_t)(GET_MUX(uwMuxId));
-    }
-    else
-    {
+    ret = LOS_MuxCreate(&muxID);
+    if (ret == LOS_OK) {
+        return (osMutexId_t)(GET_MUX(muxID));
+    } else {
         return (osMutexId_t)NULL;
     }
 }
 
-
-osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout)
+osStatus_t osMutexAcquire(osMutexId_t mutexID, uint32_t timeout)
 {
-    UINT32  uwRet;
+    uint32_t ret;
 
-    if (mutex_id == NULL)
-    {
+    if (mutexID == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE && (timeout != LOS_NO_WAIT))
-    {
+    if (OS_INT_ACTIVE && (timeout != LOS_NO_WAIT)) {
         timeout = 0;
     }
 
-    uwRet = LOS_MuxPend(((MUX_CB_S *)mutex_id)->ucMuxID, timeout);
-
-    if(uwRet == LOS_OK)
-    {
+    ret = LOS_MuxPend(((LosMuxCB *)mutexID)->muxID, timeout);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_MUX_TIMEOUT)
-    {
+    } else if (ret == LOS_ERRNO_MUX_TIMEOUT) {
         return osErrorTimeout;
-    }
-    else if (uwRet == LOS_ERRNO_MUX_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_MUX_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-
-osStatus_t osMutexRelease (osMutexId_t mutex_id)
+osStatus_t osMutexRelease(osMutexId_t mutexID)
 {
-    UINT32  uwRet;
+    uint32_t ret;
 
-    if (mutex_id == NULL)
-    {
+    if (mutexID == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_MuxPost(((MUX_CB_S *)mutex_id)->ucMuxID);
-
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_MuxPost(((LosMuxCB *)mutexID)->muxID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-
-osThreadId_t osMutexGetOwner (osMutexId_t mutex_id)
+osThreadId_t osMutexGetOwner(osMutexId_t mutexID)
 {
-    UINT32 uwIntSave;
-    LOS_TASK_CB *pstTaskCB;
+    uint32_t intSave;
+    LosTaskCB *taskCB = NULL;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return NULL;
     }
 
-    if (mutex_id == NULL)
-    {
+    if (mutexID == NULL) {
         return NULL;
     }
 
-    uwIntSave = LOS_IntLock();
-    pstTaskCB = ((MUX_CB_S *)mutex_id)->pstOwner;
-    (VOID)LOS_IntRestore(uwIntSave);
+    intSave = LOS_IntLock();
+    taskCB = ((LosMuxCB *)mutexID)->owner;
+    LOS_IntRestore(intSave);
 
-    return (osThreadId_t)pstTaskCB;
+    return (osThreadId_t)taskCB;
 }
 
-
-osStatus_t osMutexDelete (osMutexId_t mutex_id)
+osStatus_t osMutexDelete(osMutexId_t mutexID)
 {
-    UINT32  uwRet;
+    uint32_t ret;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (mutex_id == NULL)
-    {
+    if (mutexID == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_MuxDelete(((MUX_CB_S *)mutex_id)->ucMuxID);
-
-    if(uwRet == LOS_OK)
-    {
+    ret = LOS_MuxDelete(((LosMuxCB *)mutexID)->muxID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_MUX_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_MUX_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 #endif
 
-//  ==== Semaphore Management Functions ====
+/* Semaphore Management Functions */
 #if (LOSCFG_BASE_IPC_SEM == YES)
 
-osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
+osSemaphoreId_t osSemaphoreNew(uint32_t maxCount, uint32_t initialCount, const osSemaphoreAttr_t *attr)
 {
-    UINT32 uwRet;
-    UINT32 uwSemId;
+    uint32_t ret;
+    uint32_t semID;
 
     UNUSED(attr);
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return (osSemaphoreId_t)NULL;
     }
 
-    if(1 == max_count)
-    {
-        uwRet = LOS_BinarySemCreate((UINT16)initial_count, &uwSemId);
+    if (maxCount == 1) {
+        ret = LOS_BinarySemCreate((UINT16)initialCount, &semID);
+    } else {
+        ret = LOS_SemCreate((UINT16)initialCount, &semID);
     }
-    else
-    {
-        uwRet = LOS_SemCreate((UINT16)initial_count, &uwSemId);
-    }
-
-    if (uwRet == LOS_OK)
-    {
-        return (osSemaphoreId_t)(GET_SEM(uwSemId));
-    }
-    else
-    {
+    if (ret == LOS_OK) {
+        return (osSemaphoreId_t)(GET_SEM(semID));
+    } else {
         return (osSemaphoreId_t)NULL;
     }
 }
 
-
-osStatus_t osSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout)
+osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphoreID, uint32_t timeout)
 {
-    UINT32 uwRet;
+    uint32_t ret;
 
-    if (semaphore_id == NULL)
-    {
+    if (semaphoreID == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE && (timeout != LOS_NO_WAIT))
-    {
+    if (OS_INT_ACTIVE && (timeout != LOS_NO_WAIT)) {
         return osErrorISR;
     }
 
-    uwRet = LOS_SemPend(((SEM_CB_S *)semaphore_id)->usSemID, timeout);
-
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_SemPend(((LosSemCB *)semaphoreID)->semID, timeout);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_TIMEOUT)
-    {
+    } else if (ret == LOS_ERRNO_SEM_TIMEOUT) {
         return osErrorTimeout;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_SEM_INVALID) {
         return osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_PEND_INTERR)
-    {
+    } else if (ret == LOS_ERRNO_SEM_PEND_INTERR) {
         return osErrorISR;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-
-osStatus_t osSemaphoreRelease (osSemaphoreId_t semaphore_id)
+osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphoreID)
 {
-    UINT32  uwRet;
+    uint32_t ret;
 
-    if (semaphore_id == NULL)
-    {
+    if (semaphoreID == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_SemPost(((SEM_CB_S *)semaphore_id)->usSemID);
-
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_SemPost(((LosSemCB *)semaphoreID)->semID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_SEM_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-
-uint32_t osSemaphoreGetCount (osSemaphoreId_t semaphore_id)
+uint32_t osSemaphoreGetCount(osSemaphoreId_t semaphoreID)
 {
-    UINT32 uwIntSave;
-    UINT32 uwCount;
+    uint32_t intSave;
+    uint32_t count;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return 0;
     }
 
-    if (semaphore_id == NULL)
-    {
+    if (semaphoreID == NULL) {
         return 0;
     }
 
-    uwIntSave = LOS_IntLock();
-    uwCount = ((SEM_CB_S *)semaphore_id)->usSemCount;
-    (VOID)LOS_IntRestore(uwIntSave);
+    intSave = LOS_IntLock();
+    count = ((LosSemCB *)semaphoreID)->semCount;
+    LOS_IntRestore(intSave);
 
-    return uwCount;
+    return count;
 }
 
 
-osStatus_t osSemaphoreDelete (osSemaphoreId_t semaphore_id)
+osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphoreID)
 {
-    UINT32  uwRet;
+    uint32_t ret;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (semaphore_id == NULL)
-    {
+    if (semaphoreID == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_SemDelete(((SEM_CB_S *)semaphore_id)->usSemID);
-
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_SemDelete(((LosSemCB *)semaphoreID)->semID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_SEM_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 #endif
 
-
-//  ==== Message Queue Management Functions ====
+/* Message Queue Management Functions */
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr)
+osMessageQueueId_t osMessageQueueNew(uint32_t msgCount, uint32_t msgSize, const osMessageQueueAttr_t *attr)
 {
-    UINT32 uwQueueID;
-    UINT32 uwRet;
+    uint32_t queueID;
+    uint32_t ret;
     UNUSED(attr);
     osMessageQueueId_t handle;
 
-    if(0 == msg_count || 0 == msg_size || OS_INT_ACTIVE)
-    {
+    if ((msgCount == 0) || (msgSize == 0) || OS_INT_ACTIVE) {
         return (osMessageQueueId_t)NULL;
     }
 
-    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)msg_count, &uwQueueID, 0, (UINT16)msg_size);
-    if (uwRet == LOS_OK)
-    {
-        handle = (osMessageQueueId_t)(GET_QUEUE_HANDLE(uwQueueID));
-    }
-    else
-    {
+    ret = LOS_QueueCreate((char *)NULL, (UINT16)msgCount, &queueID, 0, (UINT16)msgSize);
+    if (ret == LOS_OK) {
+        handle = (osMessageQueueId_t)(GET_QUEUE_HANDLE(queueID));
+    } else {
         handle = (osMessageQueueId_t)NULL;
     }
 
     return handle;
 }
 
-
-osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout)
+osStatus_t osMessageQueuePut(osMessageQueueId_t mqID, const void *msgPtr, uint8_t msgPrio, uint32_t timeout)
 {
-    UNUSED(msg_prio);
-    UINT32 uwRet;
-    UINT32 uwBufferSize;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    UNUSED(msgPrio);
+    uint32_t ret;
+    uint32_t bufferSize;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL || msg_ptr == NULL || ((OS_INT_ACTIVE) && (0 != timeout)))
-    {
+    if ((queueCB == NULL) || (msgPtr == NULL) || (OS_INT_ACTIVE && (timeout != 0))) {
         return osErrorParameter;
     }
 
-    uwBufferSize = (UINT32)(pstQueue->usQueueSize - sizeof(UINT32));
-    uwRet = LOS_QueueWriteCopy((UINT32)pstQueue->usQueueID, (void *)msg_ptr, uwBufferSize, timeout);
-    if (uwRet == LOS_OK)
-    {
+    bufferSize = (uint32_t)(queueCB->queueSize - sizeof(uint32_t));
+    ret = LOS_QueueWriteCopy((uint32_t)queueCB->queueID, (void *)msgPtr, bufferSize, timeout);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if(uwRet == LOS_ERRNO_QUEUE_INVALID || uwRet == LOS_ERRNO_QUEUE_NOT_CREATE)
-    {
+    } else if ((ret == LOS_ERRNO_QUEUE_INVALID) || (ret == LOS_ERRNO_QUEUE_NOT_CREATE)) {
         return osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_TIMEOUT)
-    {
+    } else if (ret == LOS_ERRNO_QUEUE_TIMEOUT) {
         return osErrorTimeout;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-
-osStatus_t osMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout)
+osStatus_t osMessageQueueGet(osMessageQueueId_t mqID, void *msgPtr, uint8_t *msgPrio, uint32_t timeout)
 {
-    UNUSED(msg_prio);
-    UINT32 uwRet;
-    UINT32 uwBufferSize;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    UNUSED(msgPrio);
+    uint32_t ret;
+    uint32_t bufferSize;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL || msg_ptr == NULL || ((OS_INT_ACTIVE) && (0 != timeout)))
-    {
+    if ((queueCB == NULL) || (msgPtr == NULL) || (OS_INT_ACTIVE && (timeout != 0))) {
         return osErrorParameter;
     }
 
-    uwBufferSize = (UINT32)(pstQueue->usQueueSize - sizeof(UINT32));
-    uwRet = LOS_QueueReadCopy((UINT32)pstQueue->usQueueID, msg_ptr, &uwBufferSize, timeout);
-    if (uwRet == LOS_OK)
-    {
+    bufferSize = (uint32_t)(queueCB->queueSize - sizeof(uint32_t));
+    ret = LOS_QueueReadCopy((uint32_t)queueCB->queueID, msgPtr, &bufferSize, timeout);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_INVALID || uwRet == LOS_ERRNO_QUEUE_NOT_CREATE)
-    {
+    } else if ((ret == LOS_ERRNO_QUEUE_INVALID) || (ret == LOS_ERRNO_QUEUE_NOT_CREATE)) {
         return osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_TIMEOUT)
-    {
+    } else if (ret == LOS_ERRNO_QUEUE_TIMEOUT) {
         return osErrorTimeout;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
-uint32_t osMessageQueueGetCapacity(osMessageQueueId_t mq_id)
+uint32_t osMessageQueueGetCapacity(osMessageQueueId_t mqID)
 {
     uint32_t capacity;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL)
-    {
+    if (queueCB == NULL) {
         capacity = 0U;
-    }
-    else
-    {
-        capacity = pstQueue->usQueueLen;
+    } else {
+        capacity = queueCB->queueLen;
     }
 
     return (capacity);
 }
 
-uint32_t osMessageQueueGetMsgSize(osMessageQueueId_t mq_id)
+uint32_t osMessageQueueGetMsgSize(osMessageQueueId_t mqID)
 {
     uint32_t size;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL)
-    {
+    if (queueCB == NULL) {
         size = 0U;
-    }
-    else
-    {
-        size = pstQueue->usQueueSize - sizeof(UINT32);
+    } else {
+        size = queueCB->queueSize - sizeof(uint32_t);
     }
 
-    return (size);
+    return size;
 }
 
-
-uint32_t osMessageQueueGetCount (osMessageQueueId_t mq_id)
+uint32_t osMessageQueueGetCount(osMessageQueueId_t mqID)
 {
     uint32_t count;
-    UINTPTR uwIntSave;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    UINTPTR intSave;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL)
-    {
+    if (queueCB == NULL) {
         count = 0U;
-    }
-    else
-    {
-        uwIntSave = LOS_IntLock();
-        count = (uint32_t)(pstQueue->usReadWriteableCnt[OS_QUEUE_READ]);
-        LOS_IntRestore(uwIntSave);
+    } else {
+        intSave = LOS_IntLock();
+        count = (uint32_t)(queueCB->readWriteableCnt[OS_QUEUE_READ]);
+        LOS_IntRestore(intSave);
     }
     return count;
 }
 
 
-uint32_t osMessageQueueGetSpace (osMessageQueueId_t mq_id)
+uint32_t osMessageQueueGetSpace(osMessageQueueId_t mqID)
 {
     uint32_t space;
-    UINTPTR uwIntSave;
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
+    UINTPTR intSave;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
 
-    if (pstQueue == NULL)
-    {
+    if (queueCB == NULL) {
         space = 0U;
-    }
-    else
-    {
-        uwIntSave = LOS_IntLock();
-        space = (uint32_t)pstQueue->usReadWriteableCnt[OS_QUEUE_WRITE];
-        LOS_IntRestore(uwIntSave);
+    } else {
+        intSave = LOS_IntLock();
+        space = (uint32_t)queueCB->readWriteableCnt[OS_QUEUE_WRITE];
+        LOS_IntRestore(intSave);
     }
     return space;
 }
 
-
-osStatus_t osMessageQueueDelete (osMessageQueueId_t mq_id)
+osStatus_t osMessageQueueDelete(osMessageQueueId_t mqID)
 {
-    QUEUE_CB_S *pstQueue = (QUEUE_CB_S *)mq_id;
-    UINT32 uwRet;
+    LosQueueCB *queueCB = (LosQueueCB *)mqID;
+    uint32_t ret;
 
-    if (pstQueue == NULL)
-    {
+    if (queueCB == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    uwRet = LOS_QueueDelete((UINT32)pstQueue->usQueueID);
-    if (uwRet == LOS_OK)
-    {
+    ret = LOS_QueueDelete((uint32_t)queueCB->queueID);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if(uwRet == LOS_ERRNO_QUEUE_NOT_FOUND || uwRet == LOS_ERRNO_QUEUE_NOT_CREATE)
-    {
+    } else if ((ret == LOS_ERRNO_QUEUE_NOT_FOUND) || (ret == LOS_ERRNO_QUEUE_NOT_CREATE)) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 #endif
 
-#ifdef LOS_RUNSTOP
-void osUartVetoCallbackRegister(cb_uart_is_need_awake_fn cb)
-{
-    if (cb != NULL)
-    {
-        uart_is_need_awake_callback = (cb_uart_is_need_awake_fn)cb;
-    }
-    return;
-}
-
-void osAddStopClocksVeto(void)
-{
-    tickless_add_stop_clocks_veto();
-}
-
-void osRemoveStopClocksVeto(void)
-{
-    tickless_remove_stop_clocks_veto();
-}
-#endif
-
-#endif // (CMSIS_OS_VER == 2)
+#endif // (LOSCFG_CMSIS_VERSION == 2)
 #ifdef __cplusplus
 #if __cplusplus
 }

@@ -36,7 +36,7 @@
 #define __FS_DEMO_H__
 #include <stdio.h>
 #include <stdint.h>
-#include "los_task.ph"
+#include "los_task.h"
 #include "hal_spi_flash.h"
 #include "fs/sys/fcntl.h"
 #include "fs/los_vfs.h"

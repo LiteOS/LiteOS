@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -17,12 +17,23 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        10. January 2017
- * $Revision:    V2.1.0
+ * $Date:        18. June 2018
+ * $Revision:    V2.1.3
  *
  * Project:      CMSIS-RTOS2 API
  * Title:        cmsis_os2.h header file
  *
+ * Version 2.1.3
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osThreadGetId
+ * Version 2.1.2
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osKernelGetInfo, osKernelGetState
+ * Version 2.1.1
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osKernelGetTickCount, osKernelGetTickFreq
+ *    Changed Kernel Tick type to uint32_t:
+ *    - updated: osKernelGetTickCount, osDelayUntil
  * Version 2.1.0
  *    Support for critical and uncritical sections (nesting safe):
  *    - updated: osKernelLock, osKernelUnlock
@@ -155,6 +166,17 @@ typedef enum {
   osTimerOnce               = 0,          ///< One-shot timer.
   osTimerPeriodic           = 1           ///< Repeating timer.
 } osTimerType_t;
+
+typedef enum  {
+  osTimerRousesIgnore       =     0,      ///< timer can't wakeup system
+  osTimerRousesAllow        =     1       ///< timer can wakeup system
+} os_timer_rouses_type;
+
+typedef enum  {
+  osTimerAlignIgnore        =     0,      ///< timer no need to align
+  osTimerAlignAllow         =     1       ///< timer need to align
+} os_timer_align_type;
+
 
 /// Timeout value.
 #define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.0xffffffffUL
@@ -478,6 +500,9 @@ osStatus_t osDelayUntil (uint64_t ticks);
 
 
 //  ==== Timer Management Functions ====
+
+osTimerId_t osTimerExtNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
+                           os_timer_rouses_type ucRouses, os_timer_align_type ucSensitive);
 
 /// Create and Initialize a timer.
 /// \param[in]     func          start address of a timer call back function.

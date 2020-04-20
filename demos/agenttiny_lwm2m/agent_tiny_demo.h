@@ -36,7 +36,7 @@
 #define __AGENT_TINY_DEMO_H_
 
 #include "los_base.h"
-#include "los_task.ph"
+#include "los_task.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "atiny_lwm2m/agenttiny.h"

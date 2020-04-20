@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Task Mem Implementation
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,19 +22,18 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_memstat.inc"
-#include "los_task.ph"
-#include "los_config.h"
+#include "los_memstat_pri.h"
+#include "los_task_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -42,81 +41,70 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_MEM_TASK_USED_STATISTICS == YES)
+#define MIN_TASK_ID(x, y)               ((x) > (y) ? (y) : (x))
+#define MAX_MEM_USE(x, y)               ((x) > (y) ? (x) : (y))
 
-typedef struct {
-    UINT32 uwMemUsed;
-} TSK_MEM_USED_INFO;
-
-LITE_OS_SEC_BSS_MINOR TSK_MEM_USED_INFO g_TskMemUsedInfo[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
-
-LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedInc(UINT32 uwUsedSize)
+#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
+LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemUsedInc(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID)
 {
-    UINT32 uwTaskId;
-
-    if (NULL == g_stLosTask.pstRunTask)
-    {
-        return;
-    }
-
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
-
-    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return;
-    }
-
-    g_TskMemUsedInfo[uwTaskId].uwMemUsed += uwUsedSize;
+    UINT32 record = MIN_TASK_ID(taskID, TASK_BLOCK_NUM - 1);
+    memStats[record].memUsed += usedSize;
+    memStats[record].memPeak = MAX_MEM_USE(memStats[record].memPeak, memStats[record].memUsed);
 }
 
-LITE_OS_SEC_TEXT_MINOR VOID osTaskMemUsedDec(UINT32 uwUsedSize)
+LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemUsedDec(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID)
 {
-    UINT32 uwTaskId;
+    UINT32 record = MIN_TASK_ID(taskID, TASK_BLOCK_NUM - 1);
 
-    if (NULL == g_stLosTask.pstRunTask)
-    {
+    if (memStats[record].memUsed < usedSize) {
+        PRINT_INFO("mem used of current task '%s':0x%x, decrease size:0x%x\n",
+                   OsCurrTaskGet()->taskName, memStats[record].memUsed, usedSize);
         return;
     }
 
-    uwTaskId = (UINT32) g_stLosTask.pstRunTask->uwTaskID;
-
-    if (uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return;
-    }
-
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    g_TskMemUsedInfo[uwTaskId].uwMemUsed -= uwUsedSize;
+    memStats[record].memUsed -= usedSize;
 }
 
-LITE_OS_SEC_TEXT_MINOR UINT32 osTaskMemUsage(UINT32 uwTaskId)
+LITE_OS_SEC_TEXT_MINOR UINT32 OsTaskMemUsage(const TaskMemUsedInfo *memStats, UINT32 taskID)
 {
-    if ((UINT32)uwTaskId > LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return LOS_NOK;
-    }
-
-    return g_TskMemUsedInfo[(UINT32)uwTaskId].uwMemUsed;
+    UINT32 record = MIN_TASK_ID(taskID, TASK_BLOCK_NUM - 1);
+    return memStats[record].memUsed;
 }
 
-LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskMemUsage(UINT32 uwTaskId)
+LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemClear(UINT32 taskID)
 {
-    return osTaskMemUsage(uwTaskId);
+    UINT32 record = MIN_TASK_ID(taskID, TASK_BLOCK_NUM - 1);
+#if (LOSCFG_MEM_MUL_POOL == YES)
+    TaskMemUsedInfo *memStats = NULL;
+    LosMemPoolInfo *pool = (LosMemPoolInfo *)g_poolHead;
+    while (pool != NULL) {
+        memStats = (TaskMemUsedInfo *)(((LosMemPoolInfo *)pool)->memStats);
+        if (memStats[taskID].memUsed != 0) {
+            if (OS_TSK_GET_INDEX(taskID) < g_taskMaxNum) {
+                PRINT_INFO("mem used of task '%s' is:0x%x, not zero when task being deleted\n",
+                    OS_TCB_FROM_TID(taskID)->taskName, memStats[record].memUsed);
+            }
+        }
+        memStats[record].memUsed = 0;
+        memStats[record].memPeak = 0;
+        pool = pool->nextPool;
+    }
+#else
+    TaskMemUsedInfo *memStats = (TaskMemUsedInfo *)(((LosMemPoolInfo *)m_aucSysMem1)->memStats);
+    if (memStats[taskID].memUsed != 0) {
+        if (OS_TSK_GET_INDEX(taskID) < g_taskMaxNum) {
+            PRINT_INFO("mem used of task '%s' is:0x%x, not zero when task being deleted\n",
+                OS_TCB_FROM_TID(taskID)->taskName, memStats[record].memUsed);
+        }
+    }
+    memStats[record].memUsed = 0;
+    memStats[record].memPeak = 0;
+#endif
 }
-
-#endif /*(LOSCFG_MEM_TASK_USED_STATISTICS == YES)*/
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 #endif /* __cplusplus */

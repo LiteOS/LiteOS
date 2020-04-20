@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Misc Functions
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,66 +22,51 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_base.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_hwi.h"
+#include "los_task_pri.h"
 
-LITE_OS_SEC_TEXT UINT32 LOS_Align(UINT32 uwAddr, UINT32 uwBoundary)
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif
+#endif /* __cplusplus */
+
+LITE_OS_SEC_TEXT UINTPTR LOS_Align(UINTPTR addr, UINT32 boundary)
 {
-    if (uwAddr + uwBoundary - 1 > uwAddr) {
-        return (uwAddr + uwBoundary - 1) & ~(uwBoundary - 1);
+    if ((addr + boundary - 1) > addr) {
+        return (addr + boundary - 1) & ~((UINTPTR)(boundary - 1));
     } else {
-        return uwAddr & ~(uwBoundary - 1);
+        return addr & ~((UINTPTR)(boundary - 1));
     }
 }
 
-LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 uwMsecs)
+LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 msecs)
 {
-    UINT32 uwInterval = 0;
+    UINT32 interval;
 
-    if (OS_INT_ACTIVE)
-    {
-        return;
-    }
-
-    if (uwMsecs == 0)
-    {
-        uwInterval = 0;
-    }
-    else
-    {
-        uwInterval = LOS_MS2Tick(uwMsecs);
-        if (uwInterval == 0)
-        {
-             uwInterval = 1;
+    if (msecs == 0) {
+        interval = 0;
+    } else {
+        interval = LOS_MS2Tick(msecs);
+        if (interval == 0) {
+            interval = 1;
         }
     }
 
-    (VOID)LOS_TaskDelay(uwInterval);
+    (VOID)LOS_TaskDelay(interval);
 }
 
-#if defined (__ICC430__) || defined (__TI_COMPILER_VERSION__)
-static const uint8_t clz_table_4bit[16] = { 4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-int __clz ( unsigned long x )
-{
-  int n;
-  if ((x & 0xFFFF0000) == 0) {n  = 16; x <<= 16;} else {n = 0;}
-  if ((x & 0xFF000000) == 0) {n +=  8; x <<=  8;}
-  if ((x & 0xF0000000) == 0) {n +=  4; x <<=  4;}
-  n += (int)clz_table_4bit[x >> (32-4)];
-  return n;
+#ifdef __cplusplus
+#if __cplusplus
 }
-
 #endif
-
+#endif /* __cplusplus */

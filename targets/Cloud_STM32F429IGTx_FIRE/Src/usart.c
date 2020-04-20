@@ -259,4 +259,8 @@ __attribute__((used)) int _write(int fd, char *ptr, int len)
 /* USER CODE BEGIN 1 */
 
 
-
+int uart_write(const char *buf, int len, int timeout)
+{
+    (void)HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 0xFFFF);
+    return len;
+}

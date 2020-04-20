@@ -31,7 +31,6 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
-
 #include <reent.h>
 #include <stdlib.h>
 #include <sys/errno.h>
@@ -113,5 +112,3 @@ void abort(void)
 {
     while (1);
 }
-
-

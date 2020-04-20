@@ -34,9 +34,8 @@
 #include "main.h"
 #include "sys_init.h"
 
-
 #include "los_base.h"
-#include "los_task.ph"
+#include "los_task_pri.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 
@@ -54,20 +53,13 @@ int main(void)
     UINT32 uwRet = LOS_OK;
     HardWare_Init();
 
-    uwRet = LOS_KernelInit();
+    uwRet = OsMain();
     if (uwRet != LOS_OK)
     {
         return LOS_NOK;
     }
 
-    extern UINT32 create_work_tasks(VOID);
-    uwRet = create_work_tasks();
-    if (uwRet != LOS_OK)
-    {
-        return LOS_NOK;
-    }
+    OsStart();
 
-
-    (void)LOS_Start();
     return 0;
 }

@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Timeslice
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,21 +22,18 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_tick.ph"
-#include "los_typedef.ph"
-#include "los_timeslice.ph"
+#include "los_timeslice_pri.h"
+#include "los_task_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -44,45 +41,16 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if(LOSCFG_BASE_CORE_TIMESLICE == YES)
-LITE_OS_SEC_BSS OS_TASK_ROBIN_S        g_stTaskTimeSlice;
-
-/*****************************************************************************
- Function     : osTimesliceInit
- Description  : Initialztion Timeslice
- Input        : None
- Output       : None
- Return       : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT VOID osTimesliceInit(VOID)
+#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+LITE_OS_SEC_TEXT VOID OsTimesliceCheck(VOID)
 {
-    g_stTaskTimeSlice.pstTask = (LOS_TASK_CB *)NULL;
-    g_stTaskTimeSlice.usTout = LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT;
-}
-
-/*****************************************************************************
- Function     : osTimesliceCheck
- Description  : check Timeslice
- Input        : None
- Output       : None
- Return       : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT VOID osTimesliceCheck(VOID)
-{
-    if (g_stTaskTimeSlice.pstTask != g_stLosTask.pstRunTask)
-    {
-        g_stTaskTimeSlice.pstTask = g_stLosTask.pstRunTask;
-        g_stTaskTimeSlice.usTime = (UINT16)g_ullTickCount + g_stTaskTimeSlice.usTout - 1;
-    }
-
-    if (g_stTaskTimeSlice.usTime == (UINT16)g_ullTickCount)
-    {
-        g_stTaskTimeSlice.pstTask = (LOS_TASK_CB *)NULL;
-        if (LOS_TaskYield() != LOS_OK)
-        {
-            PRINT_INFO("%s, %d\n", __FUNCTION__, __LINE__);
+    LosTaskCB *runTask = OsCurrTaskGet();
+    if (runTask->timeSlice != 0) {
+        runTask->timeSlice--;
+        if (runTask->timeSlice == 0) {
+            LOS_Schedule();
         }
-    } /*lint !e548*/
+    }
 }
 
 #endif

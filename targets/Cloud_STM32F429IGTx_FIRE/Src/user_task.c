@@ -57,12 +57,11 @@ static UINT32 g_fs_tskHandle;
 
 void atiny_task_entry(void)
 {
-    extern void agent_tiny_entry();
+    extern void agent_tiny_entry(void);
 #if defined(WITH_LINUX) || defined(WITH_LWIP)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK)
-
 
     #if defined(USE_ESP8266)
     extern at_adaptor_api esp8266_interface;
@@ -186,7 +185,7 @@ uint32_t create_dtls_server_task()
 #endif
 
 
-UINT32 create_work_tasks(VOID)
+UINT32 app_init(VOID)
 {
     UINT32 uwRet = LOS_OK;
 

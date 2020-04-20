@@ -39,7 +39,6 @@
 #ifndef _LOS_DEMO_DEBUG_H
 #define _LOS_DEMO_DEBUG_H
 
-#include "target_config.h"
 #include "los_typedef.h"
 #include <string.h>
 

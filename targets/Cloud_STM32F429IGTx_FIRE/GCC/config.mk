@@ -63,12 +63,12 @@ USE_FOTA := yes
 USE_SOTA := yes
 
 #######################################
-# Lwm2m bootstrap program 
+# Lwm2m bootstrap program
 #######################################
 LWM2M_BOOTSTRAP := yes
 
 #######################################
-# Lwm2m bootstrap used 
+# Lwm2m bootstrap used
 #######################################
 SUPPORT_DTLS_SRV := no
 
@@ -97,3 +97,8 @@ endif
 # CMockery Test
 #######################################
 WITH_CMOCKERY_TEST := no
+
+#######################################
+# LiteOS test
+#######################################
+WITH_LITEOS_TEST := no

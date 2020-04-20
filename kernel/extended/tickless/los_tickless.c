@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Tickless
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,24 +22,21 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
-
-
-#include "los_hwi.h"
-#include "los_tick.ph"
-#include "los_tickless.inc"
-#include "los_hw.h"
-#include "los_task.h"
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
+ * --------------------------------------------------------------------------- */
+#include "los_tickless_pri.h"
+#include "los_hwi_pri.h"
+#include "los_tick_pri.h"
+#include "los_sortlink_pri.h"
+#include "los_swtmr_pri.h"
+#include "los_task_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -47,178 +44,156 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-BOOL g_bTicklessFlag = 1;
-BOOL g_bTickIrqFlag = 0;
-BOOL g_bReloadSysTickFlag = 0;
-#if (LOSCFG_PLATFORM_HWI == NO)
-enum TICKLESS_OS_TICK_INT_FLAG g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_INIT;
-#endif
+STATIC BOOL g_ticklessFlag = FALSE;
+STATIC BOOL g_tickIrqFlag[LOSCFG_KERNEL_CORE_NUM] = {FALSE};
+STATIC volatile UINT32 g_sleepTicks[LOSCFG_KERNEL_CORE_NUM] = {0};
 
-volatile UINT32 g_uwSleepTicks = 0;
-
-extern UINT32 osTaskNextSwitchTimeGet(VOID);
-extern UINT32 osSwTmrGetNextTimeout(VOID);
-
+#define OS_GET_CYCLECOMPENSATE(cyclesPre,cyclesCur) (((cyclesPre) > (cyclesCur)) ? \
+    ((g_sysClock / g_tickPerSecond) - (cyclesCur)) : (((g_sysClock / g_tickPerSecond) << 1) - (cyclesCur)))
 
 LITE_OS_SEC_TEXT VOID LOS_TicklessEnable(VOID)
 {
-    g_bTicklessFlag = 1;
+    g_ticklessFlag = TRUE;
 }
 
 LITE_OS_SEC_TEXT VOID LOS_TicklessDisable(VOID)
 {
-    g_bTicklessFlag = 0;
+    g_ticklessFlag = FALSE;
 }
 
-static inline UINT32 osSleepTicksGet(VOID)
+LITE_OS_SEC_TEXT BOOL OsTicklessFlagGet(VOID)
 {
-    UINT32 uwTskSortLinkTicks = 0;
-    UINT32 uwSwtmrSortLinkTicks = 0;
-    UINT32 uwSleepTicks = 0;
-
-    /** Context guarantees that the interrupt has been closed */
-    uwTskSortLinkTicks  = osTaskNextSwitchTimeGet();
-    uwSwtmrSortLinkTicks = osSwTmrGetNextTimeout();
-
-    uwSleepTicks = (uwTskSortLinkTicks < uwSwtmrSortLinkTicks) ? uwTskSortLinkTicks : uwSwtmrSortLinkTicks;
-    return uwSleepTicks;
+    return g_ticklessFlag;
 }
 
-inline VOID osUpdateKernelTickCount(UINT32 uwHwiIndex)
+LITE_OS_SEC_TEXT BOOL OsTickIrqFlagGet(VOID)
 {
-    /** this function must be called in interrupt context */
-    if (g_uwSleepTicks > 1)
-    {
-        UINT32 uwCyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-        UINT32 uwCurrSysCycles, uwElapseSysCycles, uwElapseTicks, uwRemainSysCycles;
-
-        g_bReloadSysTickFlag = 0;
-    #if (LOSCFG_PLATFORM_HWI == YES)
-        if (uwHwiIndex == (SysTick_IRQn + OS_SYS_VECTOR_CNT))
-    #else
-        if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_SET) /* OS tick interrupt */
-    #endif
-        {
-            uwElapseTicks = (g_uwSleepTicks - 1);
-            LOS_SysTickReload(OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND);
-        }
-        else
-        {
-            uwCurrSysCycles = LOS_SysTickCurrCycleGet();
-        #if (LOSCFG_SYSTICK_CNT_DIR_DECREASE == YES)
-            uwElapseSysCycles = ((g_uwSleepTicks * uwCyclesPerTick) - uwCurrSysCycles);
-        #else
-            uwElapseSysCycles = uwCurrSysCycles;
-        #endif
-            uwElapseTicks = uwElapseSysCycles / uwCyclesPerTick;
-            uwRemainSysCycles = uwElapseSysCycles % uwCyclesPerTick;
-            if (uwRemainSysCycles > 0)
-            {
-                LOS_SysTickReload(uwRemainSysCycles);
-                g_bReloadSysTickFlag = 1;
-            }
-            else
-            {
-                LOS_SysTickReload(uwCyclesPerTick);
-            }
-        }
-        osTickHandlerLoop(uwElapseTicks);
-        g_uwSleepTicks = 0;
-     #if (LOSCFG_PLATFORM_HWI == NO)
-        g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_INIT;
-     #endif
-    }
+    return g_tickIrqFlag[ArchCurrCpuid()];
 }
 
-VOID osTicklessStart(VOID)
+LITE_OS_SEC_TEXT VOID OsTickIrqFlagSet(BOOL tickIrqFlag)
 {
-    UINT32 uwCyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    UINT32 uwMaxTicks = LOSCFG_SYSTICK_LOAD_RELOAD_MAX / uwCyclesPerTick;
-    UINTPTR uvIntSave = 0;
-    UINT32 uwSleepTicks = 0;
+    g_tickIrqFlag[ArchCurrCpuid()] = tickIrqFlag;
+}
 
-    uvIntSave = LOS_IntLock();
-    LOS_SysTickStop();
-    if (LOS_SysTickGetIntStatus()) /* SysTick interrupt pend */
-    {
-        goto out;
+LITE_OS_SEC_TEXT UINT32 OsTicklessSleepTickGet(VOID)
+{
+    return g_sleepTicks[ArchCurrCpuid()];
+}
+
+LITE_OS_SEC_TEXT VOID OsTicklessSleepTickSet(UINT32 sleeptick)
+{
+    g_sleepTicks[ArchCurrCpuid()] = sleeptick;
+}
+
+STATIC INLINE UINT32 OsSleepTicksGet(VOID)
+{
+    UINT32 tskSortLinkTicks, swtmrSortLinkTicks, sleepTicks;
+
+    UINT32 intSave = LOS_IntLock();
+    LOS_SpinLock(&g_taskSpin);
+    tskSortLinkTicks = OsSortLinkGetNextExpireTime(&OsPercpuGet()->taskSortLink);
+    LOS_SpinUnlock(&g_taskSpin);
+    LOS_SpinLock(&g_swtmrSpin);
+    swtmrSortLinkTicks = OsSortLinkGetNextExpireTime(&OsPercpuGet()->swtmrSortLink);
+    LOS_SpinUnlock(&g_swtmrSpin);
+    sleepTicks = (tskSortLinkTicks < swtmrSortLinkTicks) ? tskSortLinkTicks : swtmrSortLinkTicks;
+    LOS_IntRestore(intSave);
+    return sleepTicks;
+}
+
+LITE_OS_SEC_TEXT VOID OsSysTimeUpdate(UINT32 sleepTicks)
+{
+    UINT32 intSave;
+
+    if (sleepTicks == 0) {
+        return;
     }
 
-    uwSleepTicks = osSleepTicksGet();
-    if (uwSleepTicks > 1)
-    {
-        UINT32 uwSleepCycles, uwCurrSysCycles;
-        if (uwSleepTicks >= uwMaxTicks)
-        {
-            uwSleepTicks = uwMaxTicks;
-        }
+    intSave = LOS_IntLock();
+    g_tickCount[ArchCurrCpuid()] += (sleepTicks - 1);
+    LOS_SpinLock(&g_taskSpin);
+    OsSortLinkUpdateExpireTime(sleepTicks, &OsPercpuGet()->taskSortLink);
+    LOS_SpinUnlock(&g_taskSpin);
+    LOS_SpinLock(&g_swtmrSpin);
+    OsSortLinkUpdateExpireTime(sleepTicks, &OsPercpuGet()->swtmrSortLink);
+    LOS_SpinUnlock(&g_swtmrSpin);
+    LOS_IntRestore(intSave);
+}
 
-        uwSleepCycles = uwSleepTicks * uwCyclesPerTick;
-        uwCurrSysCycles = LOS_SysTickCurrCycleGet();
-    #if (LOSCFG_SYSTICK_CNT_DIR_DECREASE == YES)
-        LOS_SysTickReload(uwSleepCycles - uwCyclesPerTick + uwCurrSysCycles);
-    #else
-        LOS_SysTickReload(uwSleepCycles - uwCurrSysCycles);
-    #endif
-        g_uwSleepTicks = uwSleepTicks;
-    #if (LOSCFG_PLATFORM_HWI == NO)
-        if (g_uwSysTickIntFlag == TICKLESS_OS_TICK_INT_INIT)
-        {
-            g_uwSysTickIntFlag = TICKLESS_OS_TICK_INT_WAIT;
-        }
-    #endif
+VOID OsTicklessUpdate(UINT32 irqnum)
+{
+    UINT32 cycles, ticks;
+    UINT32 cyclesPertick;
+    UINT32 sleepTicks;
+    UINT32 intSave = LOS_IntLock();
+
+    sleepTicks = OsTicklessSleepTickGet();
+    if (sleepTicks == 0) {
+        LOS_IntRestore(intSave);
+        return;
     }
-out:
-    LOS_SysTickStart();
-    LOS_IntRestore(uvIntSave);
 
+    cyclesPertick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    if (irqnum == OS_TICK_INT_NUM) {
+        OsSysTimeUpdate(sleepTicks);
+    } else {
+        cycles = HalClockGetTickTimerCycles();
+        cycles = (sleepTicks * cyclesPertick) - cycles;
+        ticks = cycles / cyclesPertick;
+        if (ticks < sleepTicks) {
+            cycles = cycles % cyclesPertick;
+            OsSysTimeUpdate(ticks + 1);
+            HalClockTickTimerReload(cyclesPertick - cycles);
+        } else {
+            /*
+             * If ticks is greater or equal to sleepTicks, it means the tick has already
+             * arrived, it should compensate with the sleepTicks just as that will be done
+             * in tick handler.
+             */
+            OsSysTimeUpdate(sleepTicks);
+        }
+    }
+    OsTicklessSleepTickSet(0);
+
+    LOS_IntRestore(intSave);
+}
+
+VOID OsTicklessStart(VOID)
+{
+    UINT32 intSave;
+    /*
+     * The system has already started, the g_sysClock is non-zero and greater or equal to
+     * LOSCFG_BASE_CORE_TICK_PER_SECOND (see OsTickInit). So the cyclesPerTick won't be zero.
+     */
+    UINT32 cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    UINT32 maxTicks = OS_NULL_INT / cyclesPerTick;
+    UINT32 sleepTicks;
+    UINT32 cycles, cyclesPre, cyclesCur, cycleCompensate;
+
+    intSave = LOS_IntLock();
+    /*
+     * The sleep tick may be changed afterwards, cause interrupt has been disabled, the sleep tick
+     * may increase but cannot decrease. Thus there's no need to spin here.
+     */
+    sleepTicks = OsSleepTicksGet();
+    cyclesPre = HalClockGetTickTimerCycles();
+
+    if (sleepTicks > 1) {
+        if (sleepTicks >= maxTicks) {
+            sleepTicks = maxTicks;
+        }
+        cycles = sleepTicks * cyclesPerTick;
+        cyclesCur = HalClockGetTickTimerCycles();
+        cycleCompensate = OS_GET_CYCLECOMPENSATE(cyclesPre, cyclesCur);
+        HalClockTickTimerReload(cycles - cycleCompensate);
+        OsTicklessSleepTickSet(sleepTicks);
+        LOS_IntRestore(intSave);
+
+        return;
+    }
+    LOS_IntRestore(intSave);
     return;
-}
-
-VOID osTicklessHandler(VOID)
-{
-#if (LOSCFG_PLATFORM_HWI == YES)
-
-    if (g_bTickIrqFlag)
-    {
-        g_bTickIrqFlag = 0;
-        osTicklessStart();
-    }
-
-    osEnterSleep();
-
-#else
-
-    if (g_bTickIrqFlag)
-    {
-        UINTPTR uvIntSave;
-        uvIntSave = LOS_IntLock();
-        LOS_TaskLock();
-
-        g_bTickIrqFlag = 0;
-        osTicklessStart();
-
-        osEnterSleep();
-        LOS_IntRestore(uvIntSave);
-
-        /*
-         * Here: Handling interrupts. However, because the task scheduler is locked,
-         * there will be no task switching, after the interrupt exit, the CPU returns
-         * here to continue excuting the following code.
-         */
-
-        uvIntSave = LOS_IntLock();
-        osUpdateKernelTickCount(0);  /* param: 0 - invalid */
-        LOS_TaskUnlock();
-        LOS_IntRestore(uvIntSave);
-    }
-    else
-    {
-        /* Waiting for g_bTickIrqFlag setup, at most one tick time, sleep directly */
-        osEnterSleep();
-    }
-
-#endif
 }
 
 #ifdef __cplusplus
@@ -226,6 +201,3 @@ VOID osTicklessHandler(VOID)
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-#endif  /* end of #if (LOSCFG_KERNEL_TICKLESS == YES) */
-

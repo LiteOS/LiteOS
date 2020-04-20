@@ -40,8 +40,8 @@
 #ifdef WITH_SOTA
 #include "sota/sota.h"
 #endif
-#include "los_sys.ph"
-#include "los_tick.ph"
+#include "los_sys_pri.h"
+#include "los_tick.h"
 
 static at_config at_user_conf;
 
@@ -842,21 +842,18 @@ int32_t at_init(at_config *config)
 
 void at_deinit(void)
 {
-
-
     int cnt = 0;
     const int max_try_num = 10;
+    TSK_INFO_S stTaskInfo;
 
-
-    while(LOS_TaskNameGet(at.tsk_hdl) != NULL && cnt < max_try_num)
+    while(LOS_TaskInfoGet(at.tsk_hdl, &stTaskInfo) != LOS_OK && cnt < max_try_num)
     {
         write_at_task_msg(AT_TASK_QUIT);
         LOS_TaskDelay(1000);
         cnt++;
     }
 
-
-    if (LOS_TaskNameGet(at.tsk_hdl) != NULL)
+    if (LOS_TaskInfoGet(at.tsk_hdl, &stTaskInfo) != LOS_OK)
     {
         if(LOS_OK != LOS_TaskDelete(at.tsk_hdl))
         {

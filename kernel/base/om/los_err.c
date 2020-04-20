@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Error Handling
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,17 +22,17 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_err.inc"
+#include "los_err.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,35 +40,13 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-LITE_OS_SEC_BSS USER_ERR_FUNC_S      g_stUserErrFunc;
+LITE_OS_SEC_BSS USER_ERR_FUNC_S g_stUserErrFunc;
 
-/*****************************************************************************
-Function   : LOS_ErrHandle
-Description: Error handle
-Input   : pcFileName
-          uwLineNo    -- error line number
-          uwErrorNo   -- user defined error number
-          uwParaLen   -- length of pPara
-          pPara       -- user description of error
-Output  :
-Return  : uwErrorNo   -- user defined error number
-Other   : None
-*****************************************************************************/
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle( CHAR *pcFileName,
-                                     UINT32 uwLineNo,
-                                     UINT32 uwErrorNo,
-                                     UINT32 uwParaLen,
-                                     VOID  *pPara)
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo, UINT32 errorNo,
+                                           UINT32 paraLen, VOID *para)
 {
-
-    if (NULL != g_stUserErrFunc.pfnHook)
-    {
-        g_stUserErrFunc.pfnHook(pcFileName, uwLineNo, uwErrorNo, uwParaLen, pPara);
-    }
-
-    if (OS_ERR_MAGIC_WORD != uwLineNo)
-    {
-        return LOS_OK;
+    if (g_stUserErrFunc.pfnHook != NULL) {
+        g_stUserErrFunc.pfnHook(fileName, lineNo, errorNo, paraLen, para);
     }
 
     return LOS_OK;

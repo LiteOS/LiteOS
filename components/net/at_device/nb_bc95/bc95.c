@@ -39,14 +39,10 @@
 
 //#include "bc95_test.h"
 
-
-
-
 extern at_task at;
 at_adaptor_api bc95_interface;
 extern char rbuf[AT_DATA_LEN];
 extern char wbuf[AT_DATA_LEN];
-
 
 typedef struct
 {

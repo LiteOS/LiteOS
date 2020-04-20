@@ -1,70 +1,79 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific prior written
- * permission.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: Error
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice,this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice,this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * Huawei LiteOS may be subject to applicable export control laws and regulations,
+ * which might include those applicable to Huawei LiteOS of U.S. and the country
+ * in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in
+ * compliance with such applicable export control laws and regulations.
+ * --------------------------------------------------------------------------- */
 
-/* Includes -----------------------------------------------------------------*/
-
-#include "los_config.h"
+#include "errno.h"
+#include "los_errno.h"
 #include "los_task.h"
-#include "los_printf.h"
 
+int errno_array[LOSCFG_BASE_CORE_TSK_CONFIG + 1];
 
-/* Typedefs -----------------------------------------------------------------*/
+/* the specific errno get or set in interrupt service routine */
+static int errno_isr;
 
-typedef struct TaskReent
-{
-    int errno;
-} TaskReent;
+void set_errno(int err_code) {
+  /* errno can not be set to 0 as posix standard */
+  if (err_code == 0)
+    return;
 
-
-/* Local variables ----------------------------------------------------------*/
-
-static TaskReent g_task_reent[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
-
-
-/* Public functions ---------------------------------------------------------*/
-
-int *task_errno(void)
-{
-    UINT32 taskid = LOS_CurTaskIDGet();
-
-    if (taskid <= LOSCFG_BASE_CORE_TSK_LIMIT)
-    {
-        return &g_task_reent[taskid].errno;
-    }
-    else
-    {
-        PRINT_WARN("TaskID[%d] is invalid\n", taskid);
-        return &g_task_reent[0].errno;
-    }
+  if (OS_INT_INACTIVE)
+    errno_array[LOS_CurTaskIDGet()] = err_code;
+  else
+    errno_isr = err_code;
 }
+
+int get_errno(void) {
+  if (OS_INT_INACTIVE)
+    return errno_array[LOS_CurTaskIDGet()];
+  else
+    return errno_isr;
+}
+
+int *__errno_location(void) {
+  if (OS_INT_INACTIVE)
+    return &errno_array[LOS_CurTaskIDGet()];
+  else
+    return &errno_isr;
+}
+
+volatile int *__os_errno(void) {
+  if (OS_INT_INACTIVE)
+    return (volatile int *)(&errno_array[LOS_CurTaskIDGet()]);
+  else
+    return (volatile int *)(&errno_isr);
+}
+

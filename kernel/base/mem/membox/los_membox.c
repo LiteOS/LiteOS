@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS memory Module Implementation
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,23 +22,19 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#include "los_typedef.h"
+#include "los_membox.h"
 #include "los_hwi.h"
-#include "los_membox.ph"
-
-#if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_memcheck.ph"
-#endif
+#include "los_spinlock.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,243 +42,189 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/**
- * The address of the static memory pool must be aligned to the boundary of 4.
- */
-#define OS_BOXMEM_BASE_ALIGN  4
-#define IS_BOXMEM_ALIGNED(value, alignSize)  (0 == (((UINT32)(value)) & ((UINT32)(alignSize - 1))))
-
-/**
- * Get the address of the next memory node in the static memory pool.
- */
-#define OS_MEMBOX_NODE_NEXT(addr, uwBlkSize)  (LOS_MEMBOX_NODE *)((UINT8 *)(addr) + (uwBlkSize))
-
-/**
- * The magic word of the memory box.
- */
-#ifdef LOS_MEMBOX_MAGIC_CHECK
-#define OS_MEMBOX_MAGIC              0xa55a5aa5
-#define OS_MEMBOX_SET_MAGIC(addr)    *((UINT32 *)(addr)) = OS_MEMBOX_MAGIC
-#define OS_MEMBOX_CHECK_MAGIC(addr)  ((*((UINT32 *)(addr)) == OS_MEMBOX_MAGIC) ? LOS_OK: LOS_NOK)
+#ifdef LOSCFG_AARCH64
+#define OS_MEMBOX_MAGIC 0xa55a5aa5a55a5aa5
 #else
-#define OS_MEMBOX_SET_MAGIC(addr)
-#define OS_MEMBOX_CHECK_MAGIC(addr)  LOS_OK
+#define OS_MEMBOX_MAGIC 0xa55a5aa5
 #endif
+#define OS_MEMBOX_SET_MAGIC(addr) \
+    ((LOS_MEMBOX_NODE *)(addr))->pstNext = (LOS_MEMBOX_NODE *)OS_MEMBOX_MAGIC
+#define OS_MEMBOX_CHECK_MAGIC(addr) \
+    ((((LOS_MEMBOX_NODE *)(addr))->pstNext == (LOS_MEMBOX_NODE *)OS_MEMBOX_MAGIC) ? LOS_OK : LOS_NOK)
 
-/**
- * Get the address of memory block according to the magic word information.
- */
-#define OS_MEMBOX_USER_ADDR(addr)  ((VOID *)((UINT8 *)(addr) + LOS_MEMBOX_MAGIC_SIZE))
-#define OS_MEMBOX_NODE_ADDR(addr)  ((LOS_MEMBOX_NODE *)((UINT8 *)(addr) - LOS_MEMBOX_MAGIC_SIZE))
+#define OS_MEMBOX_USER_ADDR(addr) \
+    ((VOID *)((UINT8 *)(addr) + OS_MEMBOX_NODE_HEAD_SIZE))
+#define OS_MEMBOX_NODE_ADDR(addr) \
+    ((LOS_MEMBOX_NODE *)(VOID *)((UINT8 *)(addr) - OS_MEMBOX_NODE_HEAD_SIZE))
+/* spinlock for mem module */
+LITE_OS_SEC_BSS  SPIN_LOCK_INIT(g_memboxSpin);
+#define MEMBOX_LOCK(state)       LOS_SpinLockSave(&g_memboxSpin, &(state))
+#define MEMBOX_UNLOCK(state)     LOS_SpinUnlockRestore(&g_memboxSpin, (state))
 
-
-/*****************************************************************************
- Function : osCheckBoxMem
- Description : Check whether the memory block is valid
- Input       : pstBoxInfo  --- Pointer to the memory pool
-               pstNode     --- Pointer to the memory block that will be checked
- Output      : None
- Return      : LOS_OK - OK, LOS_NOK - Error
-*****************************************************************************/
-LITE_OS_SEC_TEXT static INLINE UINT32 osCheckBoxMem(const LOS_MEMBOX_INFO *pstBoxInfo, const VOID *pstNode)
+STATIC INLINE UINT32 OsCheckBoxMem(const LOS_MEMBOX_INFO *boxInfo, const VOID *node)
 {
-    UINT32 uwOffSet;
+    UINT32 offset;
 
-    if (pstBoxInfo->uwBlkSize == 0)
-    {
+    if (boxInfo->uwBlkSize == 0) {
         return LOS_NOK;
     }
 
-    uwOffSet = (UINT32)pstNode - (UINT32)(pstBoxInfo + 1);
-    if ((uwOffSet % pstBoxInfo->uwBlkSize) != 0)
-    {
+    offset = (UINTPTR)node - (UINTPTR)(boxInfo + 1);
+    if ((offset % boxInfo->uwBlkSize) != 0) {
         return LOS_NOK;
     }
 
-    if ((uwOffSet / pstBoxInfo->uwBlkSize) >= pstBoxInfo->uwBlkNum)
-    {
+    if ((offset / boxInfo->uwBlkSize) >= boxInfo->uwBlkNum) {
         return LOS_NOK;
     }
 
-    return OS_MEMBOX_CHECK_MAGIC(pstNode);
+    return OS_MEMBOX_CHECK_MAGIC(node);
 }
 
-/*****************************************************************************
- Function : LOS_MemboxInit
- Description : Initialize Static Memory pool
- Input       : pBoxMem    --- Pointer to the memory pool
-               uwBoxSize  --- Size of the memory pool
-               uwBlkSize  --- Size of the memory block
- Output      : None
- Return      : LOS_OK - OK, LOS_NOK - Error
-*****************************************************************************/
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemboxInit(VOID *pBoxMem, UINT32 uwBoxSize, UINT32 uwBlkSize)
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemboxInit(VOID *pool, UINT32 poolSize, UINT32 blkSize)
 {
-    LOS_MEMBOX_INFO *pstBoxInfo = (LOS_MEMBOX_INFO *)pBoxMem;
-    LOS_MEMBOX_NODE *pstNode = NULL;
-    UINT32 i;
-    UINTPTR uvIntSave;
+    LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    LOS_MEMBOX_NODE *node = NULL;
+    UINT32 index;
+    UINT32 intSave;
 
-    if (pBoxMem == NULL || uwBlkSize == 0 || uwBoxSize < sizeof(LOS_MEMBOX_INFO))
-    {
+    if (pool == NULL) {
         return LOS_NOK;
     }
 
-    if (!IS_BOXMEM_ALIGNED(pBoxMem, OS_BOXMEM_BASE_ALIGN))
-    {
+    if (blkSize == 0) {
         return LOS_NOK;
     }
 
-    uvIntSave = LOS_IntLock();
-
-    /*
-     * The node size is aligned to the next 4 boundary.
-     * Memory that is not enough for one node size in the memory pool will be ignored.
-     */
-    pstBoxInfo->uwBlkSize = LOS_MEMBOX_ALIGNED(uwBlkSize + LOS_MEMBOX_MAGIC_SIZE);
-    pstBoxInfo->uwBlkNum = (uwBoxSize - sizeof(LOS_MEMBOX_INFO)) / pstBoxInfo->uwBlkSize;
-    pstBoxInfo->uwBlkCnt = 0;
-
-    if (pstBoxInfo->uwBlkNum == 0)
-    {
-        LOS_IntRestore(uvIntSave);
+    if (poolSize < sizeof(LOS_MEMBOX_INFO)) {
         return LOS_NOK;
     }
 
-    pstNode = (LOS_MEMBOX_NODE *)(pstBoxInfo + 1);
-    pstBoxInfo->stFreeList.pstNext = pstNode;
-
-    for (i = 0; i < pstBoxInfo->uwBlkNum - 1; ++i)
-    {
-        pstNode->pstNext = OS_MEMBOX_NODE_NEXT(pstNode, pstBoxInfo->uwBlkSize);
-        pstNode = pstNode->pstNext;
+    MEMBOX_LOCK(intSave);
+    boxInfo->uwBlkSize = LOS_MEMBOX_ALLIGNED(blkSize + OS_MEMBOX_NODE_HEAD_SIZE);
+    boxInfo->uwBlkNum = (poolSize - sizeof(LOS_MEMBOX_INFO)) / boxInfo->uwBlkSize;
+    boxInfo->uwBlkCnt = 0;
+    if (boxInfo->uwBlkNum == 0) {
+        MEMBOX_UNLOCK(intSave);
+        return LOS_NOK;
     }
-    pstNode->pstNext = (LOS_MEMBOX_NODE *)NULL;  /* The last node */
 
-#if ((LOSCFG_PLATFORM_EXC == YES) && (LOSCFG_SAVE_EXC_INFO == YES))
-    osMemInfoUpdate(pBoxMem, uwBoxSize, MEM_MANG_MEMBOX);
-#endif
+    node = (LOS_MEMBOX_NODE *)(boxInfo + 1);
 
-    (VOID)LOS_IntRestore(uvIntSave);
+    boxInfo->stFreeList.pstNext = node;
+
+    for (index = 0; index < boxInfo->uwBlkNum - 1; ++index) {
+        node->pstNext = OS_MEMBOX_NEXT(node, boxInfo->uwBlkSize);
+        node = node->pstNext;
+    }
+
+    node->pstNext = NULL;
+
+    MEMBOX_UNLOCK(intSave);
 
     return LOS_OK;
 }
 
-/*****************************************************************************
- Function : LOS_MemboxAlloc
- Description : Allocate Memory block from Static Memory pool
- Input       : pBoxMem  --- Pointer to memory pool
- Output      : None
- Return      : Pointer to allocated memory block
-*****************************************************************************/
-LITE_OS_SEC_TEXT VOID *LOS_MemboxAlloc(VOID *pBoxMem)
+LITE_OS_SEC_TEXT VOID *LOS_MemboxAlloc(VOID *pool)
 {
-    LOS_MEMBOX_INFO *pstBoxInfo = (LOS_MEMBOX_INFO *)pBoxMem;
-    LOS_MEMBOX_NODE *pstNode = NULL;
-    LOS_MEMBOX_NODE *pRet = NULL;
-    UINTPTR uvIntSave;
+    LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    LOS_MEMBOX_NODE *node = NULL;
+    LOS_MEMBOX_NODE *nodeTmp = NULL;
+    UINT32 intSave;
 
-    if (pBoxMem == NULL)
-    {
+    if (pool == NULL) {
         return NULL;
     }
 
-    uvIntSave = LOS_IntLock();
-
-    pstNode = &pstBoxInfo->stFreeList;
-    if (pstNode->pstNext != NULL)
-    {
-        pRet = pstNode->pstNext;
-        pstNode->pstNext = pRet->pstNext;
-        OS_MEMBOX_SET_MAGIC(pRet);
-        pstBoxInfo->uwBlkCnt++;
+    MEMBOX_LOCK(intSave);
+    node = &(boxInfo->stFreeList);
+    if (node->pstNext != NULL) {
+        nodeTmp = node->pstNext;
+        node->pstNext = nodeTmp->pstNext;
+        OS_MEMBOX_SET_MAGIC(nodeTmp);
+        boxInfo->uwBlkCnt++;
     }
+    MEMBOX_UNLOCK(intSave);
 
-    (VOID)LOS_IntRestore(uvIntSave);
-
-    return pRet == NULL ? NULL : OS_MEMBOX_USER_ADDR(pRet);
+    return (nodeTmp == NULL) ? NULL : OS_MEMBOX_USER_ADDR(nodeTmp);
 }
 
-/*****************************************************************************
- Function : LOS_MemboxFree
- Description : Free Memory block and return it to Static Memory pool
- Input       : pBoxMem  --- Pointer to memory pool
-               pBox     --- Pointer to memory block to free
- Output      : None
- Return      : LOS_OK - OK, LOS_NOK - Error
-*****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_MemboxFree(VOID *pBoxMem, VOID *pBox)
+LITE_OS_SEC_TEXT UINT32 LOS_MemboxFree(VOID *pool, VOID *box)
 {
-    LOS_MEMBOX_INFO *pstBoxInfo = (LOS_MEMBOX_INFO *)pBoxMem;
-    UINT32 uwRet = LOS_NOK;
-    UINTPTR uvIntSave;
+    LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    UINT32 ret = LOS_NOK;
+    UINT32 intSave;
 
-    if (pBoxMem == NULL || pBox == NULL)
-    {
+    if ((pool == NULL) || (box == NULL)) {
         return LOS_NOK;
     }
 
-    uvIntSave = LOS_IntLock();
-
-    do
-    {
-        LOS_MEMBOX_NODE *pstNode = OS_MEMBOX_NODE_ADDR(pBox);
-
-        if (osCheckBoxMem(pstBoxInfo, pstNode) != LOS_OK)
-        {
+    MEMBOX_LOCK(intSave);
+    do {
+        LOS_MEMBOX_NODE *node = OS_MEMBOX_NODE_ADDR(box);
+        if (OsCheckBoxMem(boxInfo, node) != LOS_OK) {
             break;
         }
 
-        pstNode->pstNext = pstBoxInfo->stFreeList.pstNext;
-        pstBoxInfo->stFreeList.pstNext = pstNode;
-        pstBoxInfo->uwBlkCnt--;
-        uwRet = LOS_OK;
+        node->pstNext = boxInfo->stFreeList.pstNext;
+        boxInfo->stFreeList.pstNext = node;
+        boxInfo->uwBlkCnt--;
+        ret = LOS_OK;
     } while (0);
+    MEMBOX_UNLOCK(intSave);
 
-    (VOID)LOS_IntRestore(uvIntSave);
-
-    return uwRet;
+    return ret;
 }
 
-/*****************************************************************************
- Function : LOS_MemboxClr
- Description : Clear the memory block
- Input       : pBoxMem  --- Pointer to memory pool
-               pBox     --- Pointer to memory block to clear
- Output      : None
- Return      : None
-*****************************************************************************/
-LITE_OS_SEC_TEXT_MINOR VOID LOS_MemboxClr(VOID *pBoxMem, VOID *pBox)
+LITE_OS_SEC_TEXT_MINOR VOID LOS_MemboxClr(VOID *pool, VOID *box)
 {
-    LOS_MEMBOX_INFO *pstBoxInfo = (LOS_MEMBOX_INFO *)pBoxMem;
+    LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
 
-    if (pBoxMem == NULL || pBox == NULL)
-    {
+    if ((pool == NULL) || (box == NULL)) {
         return;
     }
 
-    memset(pBox, 0, pstBoxInfo->uwBlkSize - LOS_MEMBOX_MAGIC_SIZE);
+    (VOID)memset_s(box, (boxInfo->uwBlkSize - OS_MEMBOX_NODE_HEAD_SIZE), 0,
+        (boxInfo->uwBlkSize - OS_MEMBOX_NODE_HEAD_SIZE));
 }
 
-/*****************************************************************************
- Function : LOS_MemboxStatisticsGet
- Description : Get information about membox
- Input       : pBoxMem     --- Pointer to the calculate membox
- Output      : puwMaxBlk   --- Record the total number of membox
-               puwBlkCnt   --- Record the number of the allocated blocks of membox
-               puwBlkSize  --- Record the block size of membox
- Return      : LOS_OK - OK, LOS_NOK - Error
-*****************************************************************************/
-LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemboxStatisticsGet(VOID *pBoxMem, UINT32 *puwMaxBlk, UINT32 *puwBlkCnt, UINT32 *puwBlkSize)
+LITE_OS_SEC_TEXT_MINOR VOID LOS_ShowBox(VOID *pool)
 {
-    if ((NULL == pBoxMem) || (NULL == puwMaxBlk) || (NULL == puwBlkCnt) || (NULL == puwBlkSize))
-    {
+    UINT32 index;
+    UINT32 intSave;
+    LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    LOS_MEMBOX_NODE *node = NULL;
+
+    if (pool == NULL) {
+        return;
+    }
+    MEMBOX_LOCK(intSave);
+    PRINT_INFO("membox(%p,0x%x,0x%x):\r\n", pool, boxInfo->uwBlkSize, boxInfo->uwBlkNum);
+    PRINT_INFO("free node list:\r\n");
+
+    for (node = boxInfo->stFreeList.pstNext, index = 0; node != NULL;
+         node = node->pstNext, ++index) {
+        PRINT_INFO("(%u,%p)\r\n", index, node);
+    }
+
+    PRINT_INFO("all node list:\r\n");
+    node = (LOS_MEMBOX_NODE *)(boxInfo + 1);
+    for (index = 0; index < boxInfo->uwBlkNum; ++index, node = OS_MEMBOX_NEXT(node, boxInfo->uwBlkSize)) {
+        PRINT_INFO("(%u,%p,%p)\r\n", index, node, node->pstNext);
+    }
+    MEMBOX_UNLOCK(intSave);
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemboxStatisticsGet(const VOID *boxMem, UINT32 *maxBlk,
+                                                      UINT32 *blkCnt, UINT32 *blkSize)
+{
+    if ((boxMem == NULL) || (maxBlk == NULL) || (blkCnt == NULL) || (blkSize == NULL)) {
         return LOS_NOK;
     }
 
-    *puwMaxBlk = ((LOS_MEMBOX_INFO *)pBoxMem)->uwBlkNum;    /* Total number of blocks */
-    *puwBlkCnt = ((LOS_MEMBOX_INFO *)pBoxMem)->uwBlkCnt;    /* The number of allocated blocks */
-    *puwBlkSize = ((LOS_MEMBOX_INFO *)pBoxMem)->uwBlkSize;  /* Block size */
+    *maxBlk = ((OS_MEMBOX_S *)boxMem)->uwBlkNum;
+    *blkCnt = ((OS_MEMBOX_S *)boxMem)->uwBlkCnt;
+    *blkSize = ((OS_MEMBOX_S *)boxMem)->uwBlkSize;
 
     return LOS_OK;
 }

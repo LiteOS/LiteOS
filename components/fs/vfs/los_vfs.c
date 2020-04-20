@@ -42,9 +42,6 @@
 #include "fs/sys/fcntl.h"
 #include "fs/los_vfs.h"
 
-
-#if (LOSCFG_ENABLE_VFS == YES)
-
 struct file          files [LOS_MAX_FILES];
 UINT32               fs_mutex = LOS_ERRNO_MUX_PTR_NULL;
 struct mount_point *mount_points = NULL;
@@ -1251,6 +1248,4 @@ int mkdir (const char *path, int mode)
     int ret = los_mkdir (path, mode);
     return MAP_TO_POSIX_RET(ret);
 }
-
-#endif
 #endif

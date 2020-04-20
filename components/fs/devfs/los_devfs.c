@@ -35,8 +35,6 @@
 #include <los_config.h>
 #include <los_devfs.h>
 
-#if (LOSCFG_ENABLE_DEVFS == YES)
-
 static void *devfs_root = NULL;
 
 UINT32 los_devfs_init (void)
@@ -85,6 +83,4 @@ UINT32 los_devfs_link (const char *path_in_mp, uint32_t flags,
 
     return ret == 0 ? LOS_OK : LOS_NOK;
 }
-
-#endif
 

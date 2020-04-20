@@ -1,6 +1,6 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2013-2015>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: CMSIS Interface V1.0
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,1268 +22,1316 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
  * Notice of Export Control Law
  * ===============================================
  * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
  * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
+
 #include "cmsis_os.h"
+#include "securec.h"
 #include "los_event.h"
 #include "los_membox.h"
 #include "los_hwi.h"
 
-#include "los_mux.ph"
-#include "los_queue.ph"
-#include "los_sem.ph"
-#include "los_swtmr.ph"
-#include "los_sys.ph"
-#include "los_task.ph"
-#include "los_tick.ph"
+#include "los_mux_pri.h"
+#include "los_queue_pri.h"
+#include "los_sem_pri.h"
+#include "los_swtmr_pri.h"
+#include "los_sys_pri.h"
+#include "los_task_pri.h"
+#include "los_tick_pri.h"
+#include "los_sched_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-#if (CMSIS_OS_VER == 1)
+#if (LOSCFG_CMSIS_VERSION == 1)
 
-#define PRIORITY_WIN 4u
+#define PRIORITY_WIN 4
 
 INT32 osKernelRunning(void)
 {
-    extern BOOL g_bTaskScheduled;
-    return (g_bTaskScheduled);
+    UINT32 cpuID = ArchCurrCpuid();
+    return (INT32)(g_taskScheduled & (1U << cpuID));
 }
 
-/// Start the RTOS Kernel with executing the specified thread
+/* Start the RTOS Kernel with executing the specified thread */
 osStatus osKernelStart(void)
 {
-    (VOID)LOS_Start();
+    OsStart();
     return osOK;
 }
 
-UINT32 osKernelSysTick (void)
+UINT32 osKernelSysTick(void)
 {
-    //todo: need to use external clock source
-    return (UINT32)g_ullTickCount;
+    return (UINT32)g_tickCount[0];
 }
 
-osStatus osKernelInitialize (void)
+osStatus osKernelInitialize(void)
 {
-    INT32 ret;
+    UINT32 ret;
 
     ret = LOS_KernelInit();
-    if (ret != LOS_OK)
-    {
+    if (ret != LOS_OK) {
         return osErrorOS;
     }
 
     return osOK;
 }
 
-// Thread Public API
-
-/// Create a thread and add it to Active Threads and set it to state READY
-osThreadId osThreadCreate(const osThreadDef_t *thread_def, void *argument)
+/* Create a thread and add it to Active Threads and set it to state READY */
+osThreadId osThreadCreate(const osThreadDef_t *threadDef, void *argument)
 {
-    osThreadId tskcb;
-    TSK_INIT_PARAM_S stTskInitParam;
-    UINT32 uwTskHandle;
-    UINT32 uwRet;
-    if ((thread_def == NULL) ||
-            (thread_def->pthread == NULL) ||
-            (thread_def->tpriority < osPriorityIdle) ||
-            (thread_def->tpriority > osPriorityRealtime))
-    {
+    osThreadId taskCb;
+    TSK_INIT_PARAM_S taskInitParam;
+    UINT32 taskHandle;
+    UINT32 ret;
+    if ((threadDef == NULL) ||
+        (threadDef->pthread == NULL) ||
+        (threadDef->tpriority < osPriorityIdle) ||
+        (threadDef->tpriority > osPriorityRealtime)) {
         return (osThreadId)NULL;
     }
 
-    (VOID)memset(&stTskInitParam, 0, sizeof(TSK_INIT_PARAM_S));
-    stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)thread_def->pthread;
-    stTskInitParam.uwStackSize  = thread_def->stacksize;
-    stTskInitParam.pcName       = thread_def->name;
-    stTskInitParam.uwArg        = (UINT32)argument;
-    stTskInitParam.usTaskPrio   = (UINT16)(PRIORITY_WIN - thread_def->tpriority);  /*1~7*/
+    (VOID)memset_s(&taskInitParam, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
+    taskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)threadDef->pthread;
+    taskInitParam.uwStackSize  = threadDef->stacksize;
+    taskInitParam.pcName       = threadDef->name;
+    taskInitParam.auwArgs[0]   = (UINT32)(UINTPTR)argument;
+    taskInitParam.usTaskPrio   = (UINT16)(PRIORITY_WIN - threadDef->tpriority); /* 1~7 */
+    taskInitParam.uwResved     = LOS_TASK_STATUS_DETACHED; /* the cmsis task is detached, the task can deleteself */
 
-    uwRet = LOS_TaskCreate(&uwTskHandle, &stTskInitParam);
-
-    if(LOS_OK != uwRet )
-    {
+    ret = LOS_TaskCreate(&taskHandle, &taskInitParam);
+    if (ret != LOS_OK) {
         return (osThreadId)NULL;
     }
 
-    tskcb = (osThreadId)&g_pstTaskCBArray[uwTskHandle];
+    taskCb = (osThreadId)&g_taskCBArray[taskHandle];
 
-    return tskcb;
+    return taskCb;
 }
 
-/// Return the thread ID of the current running thread
+#if (LOSCFG_KERNEL_USERSPACE == YES)
+osThreadId osUsrThreadCreate(const osThreadDef_t *thread_def, VOID *stack_pointer, UINT32 stack_size, VOID *argument)
+{
+    TSK_INIT_PARAM_S taskInitParam;
+    UINT32 taskHandle;
+    UINT32 ret;
+    if ((threadDef == NULL) ||
+        (threadDef->pthread == NULL) ||
+        (threadDef->tpriority < osPriorityIdle) ||
+        (threadDef->tpriority > osPriorityRealtime)) {
+        return (osThreadId)NULL;
+    }
+
+    (VOID)memset_s(&taskInitParam, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
+    taskInitParam.pfnTaskEntry     = (TSK_ENTRY_FUNC)thread_def->pthread;
+    taskInitParam.uwStackSize      = thread_def->stacksize;
+    taskInitParam.pcName           = thread_def->name;
+    taskInitParam.uwArg            = (UINT32)argument;
+    taskInitParam.usTaskPrio       = (UINT16)(PRIORITY_WIN - thread_def->tpriority);  /* 1~7 */
+    taskInitParam.uwResved         = OS_TASK_STATUS_USERSPACE;
+    taskInitParam.pUserSP          = stack_pointer;
+    taskInitParam.uwUserStackSize  = stack_size;
+
+    ret = LOS_TaskCreate(&taskHandle, &taskInitParam);
+    if (ret != LOS_OK) {
+        return (osThreadId)NULL;
+    }
+
+    return (osThreadId)&g_taskCBArray[taskHandle];
+}
+#endif
+
+/* Return the thread ID of the current running thread */
 osThreadId osThreadGetId(void)
 {
-    return (osThreadId)g_stLosTask.pstRunTask;
+    return (osThreadId)g_runTask;
 }
 
-UINT32 osThreadGetPId(osThreadId thread_id)
+UINT32 osThreadGetPId(osThreadId threadId)
 {
-    return ((LOS_TASK_CB *)thread_id)->uwTaskID;
+    return ((LosTaskCB *)threadId)->taskID;
 }
-/// Terminate execution of a thread and remove it from ActiveThreads
-osStatus osThreadTerminate(osThreadId thread_id)
-{
-    UINT32  uwRet;
 
-    if (thread_id == NULL)
+/* Terminate execution of a thread and remove it from ActiveThreads */
+osStatus osThreadTerminate(osThreadId threadId)
+{
+    UINT32 ret;
+
+    if (threadId == NULL) {
         return osErrorParameter;
+    }
 
-    if (OS_INT_ACTIVE)
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
+    }
 
-    uwRet = LOS_TaskDelete(((LOS_TASK_CB *)thread_id)->uwTaskID);
-
-    if (uwRet == LOS_OK)
+    ret = LOS_TaskDelete(((LosTaskCB *)threadId)->taskID);
+    if (ret == LOS_OK) {
         return osOK;
-    else
+    } else {
         return osErrorOS;
+    }
 }
 
-/// Pass control to next thread that is in state READY
+/* Pass control to next thread that is in state READY */
 osStatus osThreadYield(void)
 {
-    UINT32  uwRet;
+    UINT32 ret;
 
-    if (OS_INT_ACTIVE)
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
+    }
 
-    uwRet = LOS_TaskYield();
-
-    if (uwRet == LOS_OK)
+    ret = LOS_TaskYield();
+    if (ret == LOS_OK) {
         return osOK;
-    else
+    } else {
         return osErrorOS;
+    }
 }
 
-/// Change prority of an active thread
-osStatus osThreadSetPriority(osThreadId thread_id, osPriority priority)
+osStatus osThreadSetPriority(osThreadId threadId, osPriority priority)
 {
-    UINT32  uwRet;
-    UINT16    usPriorityTemp;
+    UINT32 ret;
+    UINT16 priorityTemp;
 
-    if (thread_id == NULL)
+    if (threadId == NULL) {
         return osErrorParameter;
+    }
 
-    if (OS_INT_ACTIVE)
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
+    }
 
-    if (priority < osPriorityIdle || priority > osPriorityRealtime)
+    if ((priority < osPriorityIdle) || (priority > osPriorityRealtime)) {
         return osErrorPriority;
+    }
 
-    usPriorityTemp = PRIORITY_WIN - priority;
+    priorityTemp = (UINT16)(PRIORITY_WIN - priority);
 
-    uwRet = LOS_TaskPriSet(((LOS_TASK_CB *)thread_id)->uwTaskID, usPriorityTemp);
-
-    if (uwRet == LOS_OK)
+    ret = LOS_TaskPriSet(((LosTaskCB *)threadId)->taskID, priorityTemp);
+    if (ret == LOS_OK) {
         return osOK;
-    else
+    } else {
         return osErrorOS;
+    }
 }
 
-/// Get current prority of an active thread
-osPriority osThreadGetPriority(osThreadId thread_id)
+osPriority osThreadGetPriority(osThreadId threadId)
 {
-    UINT16 usPriorityTemp;
-    INT16 osPriorityRet;
+    UINT16 priorityTemp;
+    INT16 priorityRet;
 
-    if (thread_id == NULL)
+    if (threadId == NULL) {
         return osPriorityError;
+    }
 
-    usPriorityTemp = LOS_TaskPriGet(((LOS_TASK_CB *)thread_id)->uwTaskID);
+    priorityTemp = LOS_TaskPriGet(((LosTaskCB *)threadId)->taskID);
 
-    osPriorityRet = PRIORITY_WIN - usPriorityTemp;
-
-    if (osPriorityRet < osPriorityIdle || osPriorityRet > osPriorityRealtime)
+    priorityRet = (INT16)(PRIORITY_WIN - (INT32)priorityTemp);
+    if ((priorityRet < osPriorityIdle) || (priorityRet > osPriorityRealtime)) {
         return osPriorityError;
+    }
 
-    return (osPriority)osPriorityRet;
+    return (osPriority)priorityRet;
 }
 
-osSemaphoreId osBinarySemaphoreCreate(const osSemaphoreDef_t *semaphore_def, INT32 count)
+#if (LOSCFG_KERNEL_USERSPACE == YES)
+osStatus osThreadSelfSuspend(void)
 {
-#if (LOSCFG_BASE_IPC_SEM == YES)
-    UINT32   uwRet;
-    UINT32   *SemHandle;
-    SEM_CB_S *pstSemCreated;
-
-    if (semaphore_def == NULL)
-    {
-        return (osSemaphoreId)NULL;
-    }
-
-    SemHandle = (UINT32 *)(semaphore_def->puwSemHandle);
-    uwRet =  LOS_BinarySemCreate (count,  SemHandle);
-
-    if (uwRet == LOS_OK)
-    {
-        pstSemCreated = GET_SEM(*SemHandle);
-        return (osSemaphoreId)pstSemCreated;
-    }
-    else
-    {
-        return (osSemaphoreId)NULL;
-    }
-#endif
-}
-
-osSemaphoreId osSemaphoreCreate(const osSemaphoreDef_t *semaphore_def, INT32 count)
-{
-#if (LOSCFG_BASE_IPC_SEM == YES)
-    UINT32 uwRet;
-    UINT32 *SemHandle;
-
-    if (semaphore_def == NULL)
-    {
-        return (osSemaphoreId)NULL;
-    }
-
-    SemHandle = (UINT32 *)(semaphore_def->puwSemHandle);
-    uwRet =  LOS_SemCreate (count,  SemHandle);
-
-    if (uwRet == LOS_OK)
-    {
-        return (osSemaphoreId)GET_SEM(*SemHandle);
-    }
-    else
-    {
-        return (osSemaphoreId)NULL;
-    }
-#endif
-}
-
-/// Wait until a Semaphore becomes available
-/*
-number of available tokens, or -1 in case of incorrect parameters.
-*/
-INT32 osSemaphoreWait(osSemaphoreId semaphore_id, UINT32 millisec)
-{
-#if (LOSCFG_BASE_IPC_SEM == YES)
-    UINT32 uwRet;
-    UINT32 SemID;
-
-    if (semaphore_id == NULL)
-    {
-        return -1;
-    }
-
-    if (OS_INT_ACTIVE)
-    {
-        return -1;
-    }
-
-    SemID = ((SEM_CB_S *)semaphore_id)->usSemID;
-
-    uwRet = LOS_SemPend(SemID, LOS_MS2Tick(millisec));
-
-    if (uwRet == LOS_OK)
-    {
-        return ((SEM_CB_S *)semaphore_id)->usSemCount;
-    }
-    else
-    {
-        return -1;
-    }
-#endif
-}
-
-/// Release a Semaphore
-/*
-osOK: the semaphore has been released.
-osErrorResource: all tokens have already been released.
-osErrorParameter: the parameter semaphore_id is incorrect.
-*/
-osStatus osSemaphoreRelease(osSemaphoreId semaphore_id)
-{
-#if (LOSCFG_BASE_IPC_SEM == YES)
-    UINT32  uwRet;
-    UINT32  SemID;
-
-    if (semaphore_id == NULL)
-    {
-        return osErrorParameter;
-    }
-
-    SemID = ((SEM_CB_S *)semaphore_id)->usSemID;
-    uwRet = LOS_SemPost(SemID);
-
-    if (uwRet == LOS_OK)
-    {
+    UINT32 taskHandle = ((LosTaskCB *)g_runTask)->taskID;
+    if (LOS_TaskSuspend(taskHandle) == LOS_OK) {
         return osOK;
+    } else {
+        return osErrorOS;
     }
-    else if (uwRet == LOS_ERRNO_SEM_INVALID)
-    {
+}
+
+osStatus osThreadResume(osThreadId threadId)
+{
+    UINT32 ret;
+    UINT32 taskHandle = osThreadGetPId(threadId);
+    ret = LOS_TaskResume(taskHandle);
+    if (ret == LOS_OK) {
+        return osOK;
+    } else {
+        return osErrorOS;
+    }
+}
+#endif
+
+osSemaphoreId osBinarySemaphoreCreate(const osSemaphoreDef_t *semaphoreDef, INT32 count)
+{
+#if (LOSCFG_BASE_IPC_SEM == YES)
+    UINT32 ret;
+    UINT32 *semHandle = NULL;
+    LosSemCB *semCreated = NULL;
+
+    if ((semaphoreDef == NULL) || (count > OS_NULL_SHORT) || (count < 0)) {
+        return (osSemaphoreId)NULL;
+    }
+
+    semHandle = (UINT32 *)(UINTPTR)(semaphoreDef->puwSemHandle);
+    if (semHandle == NULL) {
+        return (osSemaphoreId)NULL;
+    }
+    ret = LOS_BinarySemCreate((UINT16)count, semHandle);
+    if (ret == LOS_OK) {
+        semCreated = GET_SEM(*semHandle);
+        return semCreated;
+    } else {
+        return (osSemaphoreId)NULL;
+    }
+#endif
+}
+
+osSemaphoreId osSemaphoreCreate(const osSemaphoreDef_t *semaphoreDef, INT32 count)
+{
+#if (LOSCFG_BASE_IPC_SEM == YES)
+    UINT32 ret;
+    UINT32 *semHandle = NULL;
+
+    if ((semaphoreDef == NULL) || (count > OS_NULL_SHORT) || (count < 0)) {
+        return (osSemaphoreId)NULL;
+    }
+
+    semHandle = (UINT32 *)(UINTPTR)(semaphoreDef->puwSemHandle);
+    ret = LOS_SemCreate((UINT16)count, semHandle);
+    if (ret == LOS_OK) {
+        return GET_SEM(*semHandle);
+    } else {
+        return NULL;
+    }
+#endif
+}
+
+/*
+ * Wait until a Semaphore becomes available
+ * return numbers of available tokens, or -1 in case of incorrect parameters.
+ */
+INT32 osSemaphoreWait(osSemaphoreId semaphoreId, UINT32 millisec)
+{
+#if (LOSCFG_BASE_IPC_SEM == YES)
+    UINT32 ret;
+    UINT32 semId;
+
+    if (semaphoreId == NULL) {
+        return -1;
+    }
+
+    if (OS_INT_ACTIVE) {
+        return -1;
+    }
+
+    semId = ((LosSemCB *)semaphoreId)->semID;
+
+    ret = LOS_SemPend(semId, LOS_MS2Tick(millisec));
+    if (ret == LOS_OK) {
+        return ((LosSemCB *)semaphoreId)->semCount;
+    } else {
+        return -1;
+    }
+#else
+    (VOID)semaphoreId;
+    (VOID)millisec;
+    return -1;
+#endif
+}
+
+/*
+ * Release a Semaphore
+ * osOK: the semaphore has been released.
+ * osErrorResource: all tokens have already been released.
+ * osErrorParameter: the parameter semaphore_id is incorrect.
+ */
+osStatus osSemaphoreRelease(osSemaphoreId semaphoreId)
+{
+#if (LOSCFG_BASE_IPC_SEM == YES)
+    UINT32 ret;
+    UINT32 semId;
+
+    if (semaphoreId == NULL) {
         return osErrorParameter;
     }
-    else
-    {
+
+    semId = ((LosSemCB *)semaphoreId)->semID;
+    ret = LOS_SemPost(semId);
+    if (ret == LOS_OK) {
+        return osOK;
+    } else if (ret == LOS_ERRNO_SEM_INVALID) {
+        return osErrorParameter;
+    } else {
         return osErrorResource;
     }
+#else
+    (VOID)semaphoreId;
+    return osErrorParameter;
 #endif
 }
 
 /*
-osOK: the semaphore object has been deleted.
-osErrorISR: osSemaphoreDelete cannot be called from interrupt service routines.
-osErrorResource: the semaphore object could not be deleted.
-osErrorParameter: the parameter semaphore_id is incorrect.
-*/
-osStatus osSemaphoreDelete (osSemaphoreId semaphore_id)
+ * osOK: the semaphore object has been deleted.
+ * osErrorISR: osSemaphoreDelete cannot be called from interrupt service routines.
+ * osErrorResource: the semaphore object could not be deleted.
+ * osErrorParameter: the parameter semaphore_id is incorrect.
+ */
+osStatus osSemaphoreDelete(osSemaphoreId semaphoreId)
 {
 #if (LOSCFG_BASE_IPC_SEM == YES)
-    UINT32  uwRet;
-    UINT32  SemID;
+    UINT32 ret;
+    UINT32 semId;
 
-    if (semaphore_id == NULL)
-    {
+    if (semaphoreId == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    SemID = ((SEM_CB_S *)semaphore_id)->usSemID;
-    uwRet = LOS_SemDelete(SemID);
-
-    if (uwRet == LOS_OK)
-    {
+    semId = ((LosSemCB *)semaphoreId)->semID;
+    ret = LOS_SemDelete(semId);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if (uwRet == LOS_ERRNO_SEM_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_SEM_INVALID) {
         return osErrorParameter;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
+#else
+    (VOID)semaphoreId;
+    return osErrorParameter;
 #endif
 }
 
-//Mutex Public API
-
-/// Create and Initialize a Mutex object.
-/// \param[in]     mutex_def     mutex definition referenced with \ref osMutex.
-/// \return mutex ID for reference by other functions or NULL in case of error.
-/// \note MUST REMAIN UNCHANGED: \b osMutexCreate shall be consistent in every CMSIS-RTOS.
-osMutexId osMutexCreate (const osMutexDef_t *mutex_def)
-{
-#if (LOSCFG_BASE_IPC_MUX == YES)
-    UINT32  uwRet;
-    UINT32 *MuxHandle;
-
-    if(mutex_def == NULL)
-    {
-        return (osMutexId)NULL;
-    }
-
-    MuxHandle = (UINT32 *)(mutex_def->puwMuxHandle);
-    uwRet =  LOS_MuxCreate (MuxHandle);
-
-    if(uwRet == LOS_OK)
-    {
-        return (osMutexId)GET_MUX(*MuxHandle);
-    }
-    else
-    {
-        return (osMutexId)NULL;
-    }
-#endif
-}
-
-/// Wait until a Mutex becomes available.
-/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
-/// \param[in]     millisec      timeout value or 0 in case of no time-out.
-/// \return status code that indicates the execution status of the function.
-/// \note MUST REMAIN UNCHANGED: \b osMutexWait shall be consistent in every CMSIS-RTOS.
 /*
-osOK: the mutex has been obtain.
-osErrorTimeoutResource: the mutex could not be obtained in the given time.
-osErrorResource: the mutex could not be obtained when no timeout was specified.
-osErrorParameter: the parameter mutex_id is incorrect.
-osErrorISR: osMutexWait cannot be called from interrupt service routines.
-*/
-osStatus osMutexWait (osMutexId mutex_id, UINT32 millisec)
+ * Create and Initialize a Mutex object.
+ * param[in]     mutex_def     mutex definition referenced with \ref osMutex.
+ * return mutex ID for reference by other functions or NULL in case of error.
+ * note MUST REMAIN UNCHANGED: \b osMutexCreate shall be consistent in every CMSIS-RTOS.
+ */
+osMutexId osMutexCreate(const osMutexDef_t *mutexDef)
 {
 #if (LOSCFG_BASE_IPC_MUX == YES)
-    UINT32  uwRet;
-    UINT32  MutID;
+    UINT32 ret;
+    UINT32 *muxHandle = NULL;
 
-    if (mutex_id == NULL)
-    {
+    if (mutexDef == NULL) {
+        return NULL;
+    }
+
+    muxHandle = (UINT32 *)(UINTPTR)(mutexDef->puwMuxHandle);
+    if (muxHandle == NULL) {
+        return NULL;
+    }
+    ret = LOS_MuxCreate(muxHandle);
+    if (ret == LOS_OK) {
+        return GET_MUX(*muxHandle);
+    } else {
+        return NULL;
+    }
+#else
+    (VOID)mutexDef;
+    return NULL;
+#endif
+}
+
+/*
+ * Wait until a Mutex becomes available.
+ * param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
+ * param[in]     millisec      timeout value or 0 in case of no time-out.
+ * return status code that indicates the execution status of the function.
+ * note MUST REMAIN UNCHANGED: \b osMutexWait shall be consistent in every CMSIS-RTOS.
+ * osOK: the mutex has been obtain.
+ * osErrorTimeoutResource: the mutex could not be obtained in the given time.
+ * osErrorResource: the mutex could not be obtained when no timeout was specified.
+ * osErrorParameter: the parameter mutex_id is incorrect.
+ * osErrorISR: osMutexWait cannot be called from interrupt service routines.
+ */
+osStatus osMutexWait(osMutexId mutexId, UINT32 millisec)
+{
+#if (LOSCFG_BASE_IPC_MUX == YES)
+    UINT32 ret;
+    UINT32 mutId;
+
+    if (mutexId == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
+    mutId = ((LosMuxCB*)mutexId)->muxID;
 
-    uwRet = LOS_MuxPend(MutID, LOS_MS2Tick(millisec));
-
-    if(uwRet == LOS_OK)
-    {
+    ret = LOS_MuxPend(mutId, LOS_MS2Tick(millisec));
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if(uwRet == LOS_ERRNO_MUX_TIMEOUT)
-    {
+    } else if (ret == LOS_ERRNO_MUX_TIMEOUT) {
         return osErrorTimeoutResource;
-    }
-    else if(uwRet == LOS_ERRNO_MUX_UNAVAILABLE)
-    {
+    } else if (ret == LOS_ERRNO_MUX_UNAVAILABLE) {
         return osErrorResource;
-    }
-    else if(uwRet == LOS_ERRNO_MUX_PEND_INTERR)
-    {
+    } else if (ret == LOS_ERRNO_MUX_PEND_INTERR) {
         return osErrorISR;
-    }
-    else
-    {
+    } else {
         return osErrorParameter;
     }
+#else
+    (VOID)mutexId;
+    (VOID)millisec;
+    return osErrorParameter;
 #endif
 }
 
-/// Release a Mutex that was obtained by \ref osMutexWait.
-/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
-/// \return status code that indicates the execution status of the function.
-/// \note MUST REMAIN UNCHANGED: \b osMutexRelease shall be consistent in every CMSIS-RTOS.
 /*
-osOK: the mutex has been correctly released.
-osErrorResource: the mutex was not obtained before.
-osErrorParameter: the parameter mutex_id is incorrect.
-osErrorISR: osMutexRelease cannot be called from interrupt service routines.        //
-*/
-osStatus osMutexRelease (osMutexId mutex_id)
+ * Release a Mutex that was obtained by \ref osMutexWait.
+ * param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
+ * return status code that indicates the execution status of the function.
+ * note MUST REMAIN UNCHANGED: \b osMutexRelease shall be consistent in every CMSIS-RTOS.
+ * osOK: the mutex has been correctly released.
+ * osErrorResource: the mutex was not obtained before.
+ * osErrorParameter: the parameter mutex_id is incorrect.
+ * osErrorISR: osMutexRelease cannot be called from interrupt service routines.
+ */
+osStatus osMutexRelease(osMutexId mutexId)
 {
 #if (LOSCFG_BASE_IPC_MUX == YES)
-    UINT32  uwRet;
-    UINT32  MutID;
+    UINT32 ret;
+    UINT32 mutId;
 
-
-    if (mutex_id == NULL)
-    {
+    if (mutexId == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
-    uwRet = LOS_MuxPost(MutID);
-
-    if(uwRet == LOS_OK)
-    {
+    mutId = ((LosMuxCB*)mutexId)->muxID;
+    ret = LOS_MuxPost(mutId);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
+#else
+    (VOID)mutexId;
+    return osErrorParameter;
 #endif
 }
 
-/// Delete a Mutex that was created by \ref osMutexCreate.
-/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
-/// \return status code that indicates the execution status of the function.
-/// \note MUST REMAIN UNCHANGED: \b osMutexDelete shall be consistent in every CMSIS-RTOS.
 /*
-osOK: the mutex object has been deleted.
-osErrorISR: osMutexDelete cannot be called from interrupt service routines.    //osErrorISR
-osErrorResource: all tokens have already been released.
-osErrorParameter: the parameter mutex_id is incorrect.
-*/
-osStatus osMutexDelete (osMutexId mutex_id)
+ * Delete a Mutex that was created by \ref osMutexCreate.
+ * param[in]     mutex_id      mutex ID obtained by \ref osMutexCreate.
+ * return status code that indicates the execution status of the function.
+ * note MUST REMAIN UNCHANGED: \b osMutexDelete shall be consistent in every CMSIS-RTOS.
+ * osOK: the mutex object has been deleted.
+ * osErrorISR: osMutexDelete cannot be called from interrupt service routines.
+ * osErrorResource: all tokens have already been released.
+ * osErrorParameter: the parameter mutex_id is incorrect.
+ */
+osStatus osMutexDelete(osMutexId mutexId)
 {
 #if (LOSCFG_BASE_IPC_MUX == YES)
-    UINT32  uwRet;
-    UINT32  MutID;
+    UINT32 ret;
+    UINT32 mutId;
 
-    if (mutex_id == NULL)
-    {
+    if (mutexId == NULL) {
         return osErrorParameter;
     }
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    MutID = ((MUX_CB_S *)mutex_id)->ucMuxID;
-    uwRet = LOS_MuxDelete(MutID);
-
-    if(uwRet == LOS_OK)
-    {
+    mutId = ((LosMuxCB*)mutexId)->muxID;
+    ret = LOS_MuxDelete(mutId);
+    if (ret == LOS_OK) {
         return osOK;
-    }
-    else if(uwRet == LOS_ERRNO_MUX_INVALID)
-    {
+    } else if (ret == LOS_ERRNO_MUX_INVALID) {
         return osErrorResource;
-    }
-    else
-    {
+    } else {
         return osErrorParameter;
     }
+#else
+    (VOID)mutexId;
+    return osErrorParameter;
 #endif
 }
 
-osPoolId osPoolCreate (const osPoolDef_t *pool_def)
+osPoolId osPoolCreate(const osPoolDef_t *poolDef)
 {
-    UINT32 uwBlkSize, uwBoxSize;
-    UINT32 uwRet;
+    UINT32 blkSize;
+    UINT32 boxSize;
+    UINT32 ret;
 
-    if ((pool_def == NULL) ||
-            (pool_def->pool_sz == 0) ||
-            (pool_def->item_sz == 0) ||
-            (pool_def->pool == NULL))
-    {
+    if ((poolDef == NULL) ||
+        (poolDef->pool_sz == 0) ||
+        (poolDef->item_sz == 0) ||
+        (poolDef->pool == NULL)) {
         return (osPoolId)NULL;
     }
 
-    uwBlkSize = (pool_def->item_sz + 3) & ~3;
-    uwBoxSize = /*sizeof(OS_MEMBOX_S) + */pool_def->pool_sz * uwBlkSize; /* delete sizeof(OS_MEMBOX_S) after membox management change */
+    blkSize = (poolDef->item_sz + 3) & (~3); /* 3:the number 3 is for align 4 bytes */
+    boxSize = LOS_MEMBOX_SIZE(blkSize, poolDef->pool_sz);
 
-    uwRet = LOS_MemboxInit(pool_def->pool, uwBoxSize, uwBlkSize);
-    if(uwRet != LOS_OK)
-    {
+    ret = LOS_MemboxInit(poolDef->pool, boxSize, blkSize);
+    if (ret != LOS_OK) {
         return (osPoolId)NULL;
     }
 
-    return (osPoolId)(pool_def->pool);
+    return (osPoolId)(poolDef->pool);
 }
 
-void *osPoolAlloc (osPoolId pool_id)
+void *osPoolAlloc(osPoolId poolId)
 {
-    void *ptr;
+    void *ptr = NULL;
 
-    if (pool_id == NULL)
+    if (poolId == NULL) {
         return NULL;
+    }
 
-    ptr = LOS_MemboxAlloc(pool_id);
+    ptr = LOS_MemboxAlloc(poolId);
 
     return ptr;
 }
 
-
-void *osPoolCAlloc (osPoolId pool_id)
+void *osPoolCAlloc(osPoolId poolId)
 {
-    void *ptr;
+    void *ptr = NULL;
 
-    if (pool_id == NULL)
+    if (poolId == NULL) {
         return NULL;
+    }
 
-    ptr = LOS_MemboxAlloc(pool_id);
-
-    if (ptr)
-        LOS_MemboxClr(pool_id, ptr);
+    ptr = LOS_MemboxAlloc(poolId);
+    if (ptr) {
+        LOS_MemboxClr(poolId, ptr);
+    }
 
     return ptr;
 }
 
-
-osStatus osPoolFree (osPoolId pool_id, void *block)
+osStatus osPoolFree(osPoolId poolId, void *block)
 {
-    INT32 res;
+    UINT32 res;
 
-    if (pool_id == NULL)
+    if (poolId == NULL) {
         return osErrorParameter;
+    }
 
-    res = LOS_MemboxFree(pool_id, block);
-
-    if (res != 0)
+    res = LOS_MemboxFree(poolId, block);
+    if (res != 0) {
         return osErrorValue;
+    }
 
     return osOK;
 }
 
-// Message Queue Management Public API
-
-static inline UINT32 osMessageCheckRet(UINT32 uwRet)
+STATIC_INLINE UINT32 osMessageCheckRet(UINT32 ret)
 {
-    if (uwRet == LOS_OK)
-    {
-        uwRet = osOK;
+    if (ret == LOS_OK) {
+        ret = osOK;
+    } else if (ret == LOS_ERRNO_QUEUE_INVALID || ret == LOS_ERRNO_QUEUE_WRITE_IN_INTERRUPT) {
+        ret = osErrorParameter;
+    } else if (ret == LOS_ERRNO_QUEUE_TIMEOUT || ret == LOS_ERRNO_QUEUE_ISFULL) {
+        ret = osEventTimeout;
+    } else {
+        ret = osErrorOS;
     }
-    else if (uwRet == LOS_ERRNO_QUEUE_INVALID || uwRet == LOS_ERRNO_QUEUE_WRITE_IN_INTERRUPT)
-    {
-        uwRet = osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_TIMEOUT || uwRet == LOS_ERRNO_QUEUE_ISFULL)
-    {
-        uwRet = osEventTimeout;
-    }
-    else
-    {
-        uwRet = osErrorOS;
-    }
-    return uwRet;
+    return ret;
 }
 
-
-/// Create and Initialize Message Queue
-osMessageQId osMessageCreate(osMessageQDef_t *queue_def, osThreadId thread_id)
+osMessageQId osMessageCreate(osMessageQDef_t *queueDef, osThreadId threadId)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwQueueID;
-    UINT32 uwRet;
+    UINT32 queueId;
+    UINT32 ret;
 
-    (void)(thread_id);
-    if (NULL == queue_def)
-    {
+    (void)(threadId);
+    if (queueDef == NULL) {
         return (osMessageQId)NULL;
     }
-    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)(queue_def->queue_sz), &uwQueueID, 0, (UINT16)( queue_def->item_sz));
-    if (uwRet == LOS_OK)
-    {
-        return (osMessageQId)GET_QUEUE_HANDLE(uwQueueID);
-    }
-    else
-    {
+    ret = LOS_QueueCreate((char *)NULL, (UINT16)(queueDef->queue_sz), &queueId, 0, (UINT16)(queueDef->item_sz));
+    if (ret == LOS_OK) {
+        return (osMessageQId)GET_QUEUE_HANDLE(queueId);
+    } else {
         return (osMessageQId)NULL;
     }
+#else
+    (VOID)queueDef;
+    (VOID)threadId;
+    return (osMessageQId)NULL;
 #endif
 }
 
-/// Put a Message to a Queue header
-osStatus osMessagePutHead(const osMessageQId queue_id, UINT32 info, UINT32 millisec)
+osStatus osMessagePutHead(const osMessageQId queueId, UINT32 info, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwRet;
-    uwRet = LOS_QueueWriteHead(MESSAGEQID_TO_QUEUEID(queue_id), (void *)info, sizeof(UINT32), LOS_MS2Tick(millisec));
-    uwRet = osMessageCheckRet(uwRet);
-    return (osStatus)uwRet;
+    UINT32 ret;
+    ret = LOS_QueueWriteHead(MESSAGEQID_TO_QUEUEID(queueId),
+        (void *)(UINTPTR)info, sizeof(UINT32), LOS_MS2Tick(millisec));
+    ret = osMessageCheckRet(ret);
+    return (osStatus)ret;
+#else
+    (VOID)queueId;
+    (VOID)info;
+    (VOID)millisec;
+    return (osStatus)osErrorParameter;
 #endif
 }
 
-/// Put a Message to a Queue
-osStatus osMessagePut(const osMessageQId queue_id, UINT32 info, UINT32 millisec)
+static UINT32 osMessagePutCheckRet(UINT32 ret)
+{
+    UINT32 result;
+    if (ret == LOS_OK) {
+        result = osOK;
+    } else if ((ret == LOS_ERRNO_QUEUE_INVALID) || (ret == LOS_ERRNO_QUEUE_WRITE_IN_INTERRUPT)) {
+        result = osErrorParameter;
+    } else if ((ret == LOS_ERRNO_QUEUE_TIMEOUT) || (ret == LOS_ERRNO_QUEUE_ISFULL)) {
+        result = osEventTimeout;
+    } else {
+        result = osErrorOS;
+    }
+
+    return result;
+}
+
+osStatus osMessagePut(const osMessageQId queueId, UINT32 info, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwRet;
-    if(NULL == queue_id)
-    {
+    UINT32 ret;
+    if (queueId == NULL) {
         return osErrorParameter;
     }
 
-    uwRet = LOS_QueueWrite(MESSAGEQID_TO_QUEUEID(queue_id), (void *)info, sizeof(UINT32), LOS_MS2Tick(millisec));
-    uwRet = osMessageCheckRet(uwRet);
-    return (osStatus)uwRet;
+#if (LOSCFG_BASE_CORE_SWTMR == YES)
+    if (MESSAGEQID_TO_QUEUEID(queueId) == 0) {
+        return osErrorParameter;
+    }
+#endif
+
+    ret = LOS_QueueWrite(MESSAGEQID_TO_QUEUEID(queueId), 
+        (void*)(UINTPTR)info, sizeof(UINT32), LOS_MS2Tick(millisec));
+    ret = osMessagePutCheckRet(ret);
+    return (osStatus)ret;
+#else
+    (VOID)queue_id;
+    (VOID)info;
+    (VOID)millisec;
+    return (osStatus)osErrorParameter;
 #endif
 }
 
-/// Get a Message or Wait for a Message from a Queue
-osEvent osMessageGet(osMessageQId queue_id, UINT32 millisec)
+static UINT32 osMessageGetCheckRet(UINT32 ret)
 {
-#if (LOSCFG_BASE_IPC_QUEUE == YES)
-    osEvent ret;
-    UINT32 uwRet;
-    if(NULL == queue_id)
-    {
-        ret.status = osErrorParameter;
-        return ret;
-    }
-    (VOID)memset((void *)(&ret), 0, sizeof(osEvent));
-    uwRet = LOS_QueueRead(MESSAGEQID_TO_QUEUEID(queue_id), &(ret.value.v), sizeof(UINT32), LOS_MS2Tick(millisec));
-    if (uwRet == LOS_OK)
-    {
-        ret.status = osEventMessage;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_INVALID || uwRet == LOS_ERRNO_QUEUE_READ_IN_INTERRUPT)
-    {
-        ret.status = osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_ISEMPTY || uwRet == LOS_ERRNO_QUEUE_TIMEOUT)
-    {
-        ret.status = osEventTimeout;
-    }
-    else
-    {
-        ret.status = osErrorOS;
+    UINT32 result;
+    if (ret == LOS_OK) {
+        result = osEventMessage;
+    } else if ((ret == LOS_ERRNO_QUEUE_INVALID) || (ret == LOS_ERRNO_QUEUE_READ_IN_INTERRUPT)) {
+        result = osErrorParameter;
+    } else if ((ret == LOS_ERRNO_QUEUE_TIMEOUT) || (ret == LOS_ERRNO_QUEUE_ISEMPTY)) {
+        result = osEventTimeout;
+    } else {
+        result = osErrorOS;
     }
 
-    return ret;
+    return result;
+}
+
+/* Get a Message or Wait for a Message from a Queue */
+osEvent osMessageGet(osMessageQId queueId, UINT32 millisec)
+{
+#if (LOSCFG_BASE_IPC_QUEUE == YES)
+    UINT32 ret;
+    osEvent retEvent;
+
+    if (queueId == NULL) {
+        retEvent.status = osErrorParameter;
+        return retEvent;
+    }
+    (VOID)memset_s((VOID *)(&retEvent), sizeof(osEvent), 0, sizeof(osEvent));
+    ret = LOS_QueueRead(MESSAGEQID_TO_QUEUEID(queueId), &(retEvent.value.v), sizeof(UINT32), LOS_MS2Tick(millisec));
+    retEvent.status = osMessageGetCheckRet(ret);
+
+    return retEvent;
+#else
+    (VOID)queue_id;
+    (VOID)millisec;
+    osEvent retEvent;
+    retEvent.status = osErrorParameter;
+    return retEvent;
 #endif
 }
 
-
-// Mail Queue Management Public API
-
-/// Create and Initialize mail queue
-osMailQId osMailCreate(osMailQDef_t *queue_def, osThreadId thread_id)
+/* Create and Initialize mail queue */
+osMailQId osMailCreate(osMailQDef_t *queueDef, osThreadId threadId)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwRet;
-    UINT32 uwQueueID;
-    UINT32 uwBlkSize, uwBoxSize;
+    UINT32 ret;
+    UINT32 queueId;
+    UINT32 blkSize;
+    UINT32 boxSize;
 
-    (void)(thread_id);
-    if (NULL == queue_def)
-    {
+    (void)(threadId);
+    if (queueDef == NULL) {
         return (osMailQId)NULL;
     }
-    uwRet = LOS_QueueCreate((char *)NULL, (UINT16)(queue_def->queue_sz), &uwQueueID, 0, sizeof(UINT32));
-    if (uwRet == LOS_OK)
-    {
-        *(UINT32 *)(((void **)queue_def->pool) + 0) = (UINT32)(GET_QUEUE_HANDLE(uwQueueID));
-        uwBlkSize = (queue_def->item_sz + 3) & (~3);
-        uwBoxSize = /* sizeof(OS_MEMBOX_S) + */queue_def->queue_sz * uwBlkSize; /* delete sizeof(OS_MEMBOX_S) after membox management change */
 
-        (void)LOS_MemboxInit(*(((void **)queue_def->pool) + 1), uwBoxSize, uwBlkSize);
-        return (osMailQId)queue_def->pool;
+    if (!queueDef->pool) {
+        return (osMailQId)NULL;
     }
+
+    ret = LOS_QueueCreate((char *)NULL, (UINT16)(queueDef->queue_sz), &queueId, 0, sizeof(UINT32));
+    if (ret == LOS_OK) {
+        *(UINT32 *)(UINTPTR)((void **)(UINTPTR)queueDef->pool) = (UINT32)(UINTPTR)(GET_QUEUE_HANDLE(queueId));
+        blkSize = (queueDef->item_sz + 3) & (~3); /* 3:the number 3 is for align 4 bytes */
+        boxSize = LOS_MEMBOX_SIZE(blkSize, queueDef->queue_sz);
+
+        (void)LOS_MemboxInit(*(((void **)queueDef->pool) + 1), boxSize, blkSize);
+        return (osMailQId)queueDef->pool;
+    }
+    return (osMailQId)NULL;
+#else
+    (VOID)queue_def;
+    (VOID)thread_id;
     return (osMailQId)NULL;
 #endif
 }
 
-/// Allocate a memory block from a mail
-void *osMailAlloc(osMailQId queue_id, UINT32 millisec)
+/* Allocate a memory block from a mail */
+void *osMailAlloc(osMailQId queueId, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     void *pool = NULL;
-    UINT32 uwQueueID;
+    UINT32 id;
 
-    if (queue_id == NULL)
-    {
+    if (queueId == NULL) {
         return NULL;
     }
 
-    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
-    pool = *((((void **)queue_id) + 1));
+    id = *((UINT32 *)(UINTPTR)((void **)(UINTPTR)queueId));
+    pool = *((((void **)(UINTPTR)queueId) + 1));
 
-    return (void *)osQueueMailAlloc(MESSAGEQID_TO_QUEUEID(uwQueueID), pool, LOS_MS2Tick(millisec));
+    return (void *)OsQueueMailAlloc(MESSAGEQID_TO_QUEUEID((UINTPTR)id), pool, LOS_MS2Tick(millisec));
+#else
+    (VOID)queueId;
+    (VOID)millisec;
+    return NULL;
 #endif
 }
 
-/// Allocate a memory block from a mail and set memory block to zero
-void *osMailCAlloc(osMailQId queue_id, UINT32 millisec)
+/* Allocate a memory block from a mail and set memory block to zero */
+void *osMailCAlloc(osMailQId queueId, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     void *mem = NULL;
-    LOS_MEMBOX_INFO *pool = (LOS_MEMBOX_INFO *)NULL;
-    mem = osMailAlloc(queue_id, millisec);
+    OS_MEMBOX_S *pool = NULL;
 
-    if (mem != NULL)
-    {
-        pool = (LOS_MEMBOX_INFO *)(*(((void **)queue_id) + 1));
-        (VOID)memset(mem, 0, pool->uwBlkSize);
+    mem = osMailAlloc(queueId, millisec);
+    if (mem != NULL) {
+        pool = (OS_MEMBOX_S *)(*(((void **)(UINTPTR)queueId) + 1));
+        (VOID)memset_s(mem, pool->uwBlkSize, 0, pool->uwBlkSize);
     }
 
     return mem;
+#else
+    (VOID)queue_id;
+    (VOID)millisec;
+    return NULL;
 #endif
 }
 
-/// Free a memory block from a mail
-osStatus osMailFree(osMailQId queue_id, void *mail)
+/* Free a memory block from a mail */
+osStatus osMailFree(osMailQId queueId, void *mail)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     void *pool = NULL;
-    UINT32 uwQueueID;
-    UINT32 uwRet;
+    UINT32 id;
+    UINT32 ret;
 
-    if (queue_id == NULL)
-    {
+    if (queueId == NULL) {
         return osErrorParameter;
     }
 
-    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
-    pool = *((((void **)queue_id) + 1));
+    id = *((UINT32 *)(UINTPTR)((void **)(UINTPTR)queueId));
+    pool = *((((void **)(UINTPTR)queueId) + 1));
 
-    uwRet = osQueueMailFree(MESSAGEQID_TO_QUEUEID(uwQueueID), pool, mail);
-    if (uwRet == LOS_ERRNO_QUEUE_MAIL_HANDLE_INVALID || uwRet == LOS_ERRNO_QUEUE_MAIL_PTR_INVALID)
-    {
+    ret = OsQueueMailFree(MESSAGEQID_TO_QUEUEID((UINTPTR)id), pool, mail);
+    if (ret == LOS_ERRNO_QUEUE_MAIL_HANDLE_INVALID || ret == LOS_ERRNO_QUEUE_MAIL_PTR_INVALID) {
         return osErrorParameter;
-    }
-    else if (uwRet == LOS_ERRNO_QUEUE_MAIL_FREE_ERROR)
-    {
+    } else if (ret == LOS_ERRNO_QUEUE_MAIL_FREE_ERROR) {
         return osErrorOS;
     }
     return osOK;
+#else
+    (VOID)queue_id;
+    (VOID)mail;
+    return osErrorParameter;
 #endif
 }
 
-/// Put a mail to a queue Header
-osStatus osMailPutHead(osMailQId queue_id, void *mail)
+/* Put a mail to a queue Header */
+osStatus osMailPutHead(osMailQId queueId, const void *mail)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwQueueID;
+    UINT32 id;
 
-    if (queue_id == NULL)
-    {
+    if (queueId == NULL) {
         return osErrorParameter;
     }
 
-    if (mail == NULL)
-    {
+    if (mail == NULL) {
         return osErrorValue;
     }
 
-    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
+    id = *((UINT32 *)(UINTPTR)((void **)(UINTPTR)queueId));
 
-    return osMessagePutHead((osMessageQId)uwQueueID, (UINT32)mail, 0);
+    return osMessagePutHead ((osMessageQId)(UINTPTR)id, (UINT32)(UINTPTR)mail, 0);
+#else
+    (VOID)queue_id;
+    (VOID)mail;
+    return osErrorParameter;
 #endif
 }
 
-/// Put a mail to a queue
-osStatus osMailPut(osMailQId queue_id, void *mail)
+/* Put a mail to a queue */
+osStatus osMailPut(osMailQId queueId, void *mail)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwQueueID;
+    UINT32 id;
 
-    if (queue_id == NULL)
-    {
+    if (queueId == NULL) {
         return osErrorParameter;
     }
 
-    if (mail == NULL)
-    {
+    if (mail == NULL) {
         return osErrorValue;
     }
 
-    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
+    id = *((UINT32 *)(UINTPTR)((void **)(UINTPTR)queueId));
 
-    return osMessagePut((osMessageQId)uwQueueID, (UINT32)mail, 0);
+    return osMessagePut ((osMessageQId)(UINTPTR)id, (UINT32)(UINTPTR)mail, 0);
+#else
+    (VOID)queue_id;
+    (VOID)mail;
+    return osErrorParameter;
 #endif
 }
 
-/// Get a mail from a queue
-osEvent osMailGet(osMailQId queue_id, UINT32 millisec)
+/* Get a mail from a queue */
+osEvent osMailGet(osMailQId queueId, UINT32 millisec)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
-    UINT32 uwQueueID;
+    UINT32 id;
     osEvent ret;
 
-    if (queue_id == NULL)
-    {
+    if (queueId == NULL) {
         ret.status = osErrorParameter;
         return ret;
     }
 
-    uwQueueID = *((UINT32 *)(((void **)queue_id) + 0));
-    ret = osMessageGet((osMessageQId)uwQueueID, millisec);
-
-    if (ret.status == osEventMessage)
-    {
+    id = *((UINT32 *)(UINTPTR)((void **)(UINTPTR)queueId));
+    ret = osMessageGet((osMessageQId)(UINTPTR)id, millisec);
+    if (ret.status == osEventMessage) {
         ret.status = osEventMail;
     }
     return ret;
+#else
+    (VOID)queue_id;
+    (VOID)millisec;
+    osEvent ret;
+    ret.status = osErrorParameter;
+    return ret;
 #endif
 }
 
-/*lint -e1055 -e534*/
-osStatus osMailClear(osMailQId queue_id)
+osStatus osMailClear(osMailQId queueId)
 {
 #if (LOSCFG_BASE_IPC_QUEUE == YES)
     osEvent evt;
-    UINTPTR uvIntSave;
-    uvIntSave = LOS_IntLock();
-    while(1)
-    {
-        evt = osMailGet(queue_id, 0);
-        if(evt.status == osEventMail)
-        {
-            (VOID)osMailFree(queue_id, evt.value.p);
-        }
-        else if(evt.status == osEventTimeout)
-        {
-            (VOID)LOS_IntRestore(uvIntSave);
+    UINTPTR intSave;
+    intSave = LOS_IntLock();
+    for (; ;) {
+        evt = osMailGet(queueId, 0);
+        if (evt.status == osEventMail) {
+            (VOID)osMailFree(queueId, evt.value.p);
+        } else if (evt.status == osEventTimeout) {
+            LOS_IntRestore(intSave);
             return osOK;
-        }
-        else
-        {
-            (VOID)LOS_IntRestore(uvIntSave);
+        } else {
+            LOS_IntRestore(intSave);
             return evt.status;
         }
     }
+#else
+    (VOID)queueId;
+    return osErrorParameter;
 #endif
 }
 
-INT32 osSignalSet (osThreadId thread_id, INT32 signals)
+INT32 osSignalSet(osThreadId threadId, INT32 signals)
 {
     EVENT_CB_S sig;
-    UINT32 old_sig;
-    UINT32 uwRet;
+    UINT32 oldSig;
+    UINT32 ret;
+    UINTPTR intSave;
 
-    if (((LOS_TASK_CB *)thread_id) == NULL)
-    {
-        return 0x80000000;/*lint !e569*/
+    if (threadId == NULL) {
+        return (INT32)0x80000000;
     }
 
-    if (signals & (~((0x1 << osFeature_Signals) - 1)))
-    {
+    if (((UINT32)signals) & (~((0x1 << osFeature_Signals) - 1))) {
         return osErrorValue;
     }
 
-    sig = ((LOS_TASK_CB *)thread_id)->uwEvent;
-    old_sig = sig.uwEventID;
-    if (sig.uwEventID == 0xFFFFFFFF)
-    {
-        uwRet = LOS_EventInit(&(((LOS_TASK_CB *)thread_id)->uwEvent));
-        if (uwRet != LOS_OK)
-        {
+    intSave = LOS_IntLock();
+    sig = ((LosTaskCB *)threadId)->event;
+    oldSig = sig.uwEventID;
+    if (sig.uwEventID == 0xFFFFFFFF) {
+        ret = LOS_EventInit(&(((LosTaskCB *)threadId)->event));
+        if (ret != LOS_OK) {
+            LOS_IntRestore(intSave);
             return osErrorOS;
         }
     }
-    uwRet = LOS_EventWrite(&(((LOS_TASK_CB *)thread_id)->uwEvent), signals);
-    if (uwRet != LOS_OK)
-    {
+    LOS_IntRestore(intSave);
+
+    ret = LOS_EventWrite(&(((LosTaskCB *)threadId)->event), (UINT32)signals);
+    if (ret != LOS_OK) {
         return osErrorOS;
     }
 
-    return old_sig;
+    return (INT32)oldSig;
 }
 
-INT32 osSignalClear (osThreadId thread_id, INT32 signals)
+INT32 osSignalClear(osThreadId threadId, INT32 signals)
 {
     EVENT_CB_S sig;
-    UINT32 old_sig;
-    UINT32 uwRet;
+    UINT32 oldSig;
+    UINT32 ret;
 
-    if (((LOS_TASK_CB *)thread_id) == NULL)
-    {
-        return 0x80000000; /*lint !e569*/
+    if (threadId == NULL) {
+        return (INT32)0x80000000;
     }
 
-    if (signals & (~((0x1 << osFeature_Signals) - 1)))
-    {
+    if (((UINT32)signals) & (~((0x1 << osFeature_Signals) - 1))) {
         return osErrorValue;
     }
 
-    sig = ((LOS_TASK_CB *)thread_id)->uwEvent;
-    old_sig = sig.uwEventID;
-    uwRet = LOS_EventClear(&(((LOS_TASK_CB *)thread_id)->uwEvent), ~(UINT32)signals);
-    if (uwRet != LOS_OK)
-    {
+    sig = ((LosTaskCB *)threadId)->event;
+    oldSig = sig.uwEventID;
+    ret = LOS_EventClear(&(((LosTaskCB *)threadId)->event), ~(UINT32)signals);
+    if (ret != LOS_OK) {
         return osErrorValue;
     }
 
-    return old_sig;
+    return (INT32)oldSig;
 }
 
-osEvent osSignalWait (INT32 signals, UINT32 millisec)
+STATIC_INLINE VOID osSignalWaitRetCheck(UINT32 ret, osEvent *evt)
 {
-    UINT32 uwRet = 0;
-    osEvent ret;
-    UINT32 uwFlags = 0;
-    UINT32 uwTimeOut = osWaitForever;
-    EVENT_CB_S sig;
-    LOS_TASK_CB  *pstRunTsk;
+    evt->value.signals = 0;
+    if (ret == LOS_ERRNO_EVENT_READ_TIMEOUT) {
+        evt->status = osEventTimeout;
+    } else if (ret == 0) {
+        evt->status = osOK;
+    } else if ((ret == LOS_ERRNO_EVENT_PTR_NULL) || (ret == LOS_ERRNO_EVENT_EVENTMASK_INVALID) ||
+        (ret == LOS_ERRNO_EVENT_READ_IN_LOCK) || (ret == LOS_ERRNO_EVENT_READ_IN_INTERRUPT)) {
+        evt->status = osErrorOS;
+    } else {
+        evt->status = osEventSignal;
+        evt->value.signals = (INT32)ret;
+    }
+}
 
-    if (OS_INT_ACTIVE)
-    {
+osEvent osSignalWait(INT32 signals, UINT32 millisec)
+{
+    UINT32 ret;
+    UINTPTR intSave;
+    osEvent evt;
+    UINT32 flags = 0;
+    UINT32 timeOut;
+    EVENT_CB_S sig;
+    LosTaskCB *runTsk = NULL;
+
+    if (OS_INT_ACTIVE) {
         /* Not allowed in ISR */
-        ret.status = osErrorISR;
-        return ret;
+        evt.status = osErrorISR;
+        return evt;
     }
 
-    if (signals & (~((0x1 << osFeature_Signals) - 1)))
-    {
-        ret.status = osErrorValue;
-        return ret;
+    if (((UINT32)signals) & (~((0x1 << osFeature_Signals) - 1))) {
+        evt.status = osErrorValue;
+        return evt;
     }
 
-    if (signals != 0)
-    {
-        uwFlags |= LOS_WAITMODE_AND;
-    }
-    else
-    {
-        signals = 0xFFFFFFFF & ((0x1 << osFeature_Signals) - 1);
-        uwFlags |= LOS_WAITMODE_OR;
+    if (signals != 0) {
+        flags |= LOS_WAITMODE_AND;
+    } else {
+        signals = (INT32)(0xFFFFFFFF & ((0x1 << osFeature_Signals) - 1));
+        flags |= LOS_WAITMODE_OR;
     }
 
-    uwTimeOut = LOS_MS2Tick(millisec);
+    timeOut = LOS_MS2Tick(millisec);
 
-    pstRunTsk = g_stLosTask.pstRunTask;
-    sig = ((LOS_TASK_CB *)pstRunTsk)->uwEvent;
-    if (sig.uwEventID == 0xFFFFFFFF)
-    {
-        uwRet = LOS_EventInit(&(((LOS_TASK_CB *)(g_stLosTask.pstRunTask))->uwEvent));
-        if (uwRet != LOS_OK)
-        {
-            ret.status = osErrorOS;
-            return ret;
+    intSave = LOS_IntLock();
+    runTsk = (LosTaskCB *)g_runTask;
+    sig = (runTsk)->event;
+    if (sig.uwEventID == 0xFFFFFFFF) {
+        ret = LOS_EventInit(&(((LosTaskCB *)g_runTask)->event));
+        if (ret != LOS_OK) {
+            evt.status = osErrorOS;
+            LOS_IntRestore(intSave);
+            return evt;
         }
     }
-    uwRet = LOS_EventRead(&(((LOS_TASK_CB *)(g_stLosTask.pstRunTask))->uwEvent), signals, uwFlags | LOS_WAITMODE_CLR, uwTimeOut);
-    if (uwRet == LOS_ERRNO_EVENT_READ_TIMEOUT)
-    {
-        ret.status = osEventTimeout;
-        ret.value.signals = 0;
-    }
-    else if (uwRet == 0)
-    {
-        ret.status = osOK;
-        ret.value.signals = 0;
-    }
-    else if(uwRet == LOS_ERRNO_EVENT_PTR_NULL ||
-            uwRet == LOS_ERRNO_EVENT_EVENTMASK_INVALID ||
-            uwRet == LOS_ERRNO_EVENT_READ_IN_LOCK ||
-            uwRet == LOS_ERRNO_EVENT_READ_IN_INTERRUPT)
-    {
-        ret.status = osErrorOS;
-        ret.value.signals = 0;
-    }
-    else
-    {
-        ret.status = osEventSignal;
-        ret.value.signals = uwRet;
-    }
+    LOS_IntRestore(intSave);
+    ret = LOS_EventRead(&(((LosTaskCB *)g_runTask)->event),
+        (UINT32)signals, flags | LOS_WAITMODE_CLR, timeOut);
 
-    return ret;
+    osSignalWaitRetCheck(ret, &evt);
+
+    return evt;
 }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-osTimerId osTimerExtCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument, os_timer_rouses_type ucRouses, os_timer_align_type ucSensitive)
+osTimerId osTimerExtCreate(const osTimerDef_t *timerDef, os_timer_type type,
+    void *argument, os_timer_rouses_type rouses, os_timer_align_type sensitive)
 {
-    SWTMR_CTRL_S *pstSwtmr = NULL;
+    SWTMR_CTRL_S *swTmr = NULL;
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    UINT32 uwRet;
-    UINT16 usSwTmrID;
+    UINT32 ret;
+    UINT16 swTmrId;
 
-    if ((timer_def == NULL)
-            || (timer_def->ptimer == NULL)
-            || (timer_def->default_interval == 0)
-            || ((type != osTimerOnce) && (type != osTimerPeriodic)))
-    {
+    if ((timerDef == NULL) ||
+        (timerDef->ptimer == NULL) ||
+        (timerDef->default_interval == 0) ||
+        ((type != osTimerOnce) && (type != osTimerPeriodic))) {
         return NULL;
     }
 
-    uwRet = LOS_SwtmrCreate(timer_def->default_interval, type,
-                            (SWTMR_PROC_FUNC)(timer_def->ptimer),
-                            &usSwTmrID, (UINT32)argument, ucRouses, ucSensitive);
-
-    if (uwRet != LOS_OK)
-    {
+    ret = LOS_SwtmrCreate(timerDef->default_interval, type,
+                          (SWTMR_PROC_FUNC)(timerDef->ptimer),
+                          &swTmrId, (UINT32)(UINTPTR)argument, rouses, sensitive);
+    if (ret != LOS_OK) {
         return NULL;
     }
 
-    pstSwtmr = OS_SWT_FROM_SID(usSwTmrID);
+    swTmr = OS_SWT_FROM_SID(swTmrId);
+#else
+    (VOID)timerDef;
+    (VOID)type;
+    (VOID)argument;
+    (VOID)rouses;
+    (VOID)sensitive;
 #endif
-    return pstSwtmr;
+    return swTmr;
 }
 #endif
 
-osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void *argument)
+osTimerId osTimerCreate(const osTimerDef_t *timerDef, os_timer_type type, void *argument)
 {
-    SWTMR_CTRL_S *pstSwtmr = (SWTMR_CTRL_S *)NULL;
+    SWTMR_CTRL_S *swTmr = NULL;
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    UINT32 uwRet;
-    UINT16 usSwTmrID;
+    UINT32 ret;
+    UINT16 swTmrId;
 
-    if ((timer_def == NULL)
-            || (timer_def->ptimer == NULL)
-            || (timer_def->default_interval == 0)
-            || ((type != osTimerOnce) && (type != osTimerPeriodic) && (type != osTimerDelay)))
-    {
+    if ((timerDef == NULL) ||
+        (timerDef->ptimer == NULL) ||
+        (timerDef->default_interval == 0) ||
+        ((type != osTimerOnce) && (type != osTimerPeriodic) && (type != osTimerDelay))) {
         return (osTimerId)NULL;
     }
 
-    uwRet = LOS_SwtmrCreate(timer_def->default_interval, type,
-                            (SWTMR_PROC_FUNC)(timer_def->ptimer),
-                            &usSwTmrID, (UINT32)argument
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-                            , osTimerRousesAllow, osTimerAlignIgnore
+    ret = LOS_SwtmrCreate(timerDef->default_interval, type,
+                          (SWTMR_PROC_FUNC)(timerDef->ptimer),
+                          &swTmrId, (UINT32)(UINTPTR)argument,
+                          osTimerRousesAllow, osTimerAlignIgnore);
+#else
+    ret = LOS_SwtmrCreate(timerDef->default_interval, type,
+                          (SWTMR_PROC_FUNC)(timerDef->ptimer),
+                          &swTmrId, (UINT32)(UINTPTR)argument);
 #endif
-                           );
-
-    if (uwRet != LOS_OK)
-    {
+    if (ret != LOS_OK) {
         return (osTimerId)NULL;
     }
 
-    pstSwtmr = OS_SWT_FROM_SID(usSwTmrID);
+    swTmr = OS_SWT_FROM_SID(swTmrId);
+#else
+    (VOID)timerDef;
+    (VOID)type;
+    (VOID)argument;
 #endif
-    return pstSwtmr;
+    return swTmr;
 }
 
-osStatus osTimerStart (osTimerId timer_id, UINT32 millisec)
+osStatus osTimerStart(osTimerId timerId, UINT32 millisec)
 {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    SWTMR_CTRL_S  *pstSwtmr;
-    UINT32   uwInterval;
+    SWTMR_CTRL_S *swTmr = NULL;
+    UINT32 interval;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-    if (pstSwtmr == NULL)
-    {
+    swTmr = (SWTMR_CTRL_S *)timerId;
+    if (swTmr == NULL) {
         return osErrorParameter;
     }
 
-    uwInterval = LOS_MS2Tick(millisec);
-    if (uwInterval == 0)
-    {
+    interval = LOS_MS2Tick(millisec);
+    if (interval == 0) {
         return osErrorValue;
     }
 
-    pstSwtmr->uwInterval = uwInterval;
-    if (LOS_SwtmrStart(pstSwtmr->usTimerID))
-    {
+    swTmr->uwInterval = interval;
+    swTmr->uwExpiry = interval;
+    if (LOS_SwtmrStart(swTmr->usTimerID)) {
         return osErrorResource;
     }
+#else
+    (VOID)timerId;
+    (VOID)millisec;
 #endif
     return osOK;
 }
 
-osStatus osTimerStop (osTimerId timer_id)
+osStatus osTimerStop(osTimerId timerId)
 {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    SWTMR_CTRL_S  *pstSwtmr;
+    SWTMR_CTRL_S *swTmr = NULL;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-    if (pstSwtmr == NULL)
-    {
+    swTmr = (SWTMR_CTRL_S *)timerId;
+    if (swTmr == NULL) {
         return osErrorParameter;
     }
 
-    if (LOS_SwtmrStop(pstSwtmr->usTimerID))
-    {
+    if (LOS_SwtmrStop(swTmr->usTimerID)) {
         return osErrorResource;
     }
+#else
+    (VOID)timerId;
 #endif
     return osOK;
 }
 
-osStatus osTimerRestart (osTimerId timer_id, UINT32 millisec, UINT8 strict)
+osStatus osTimerRestart(osTimerId timerId, UINT32 millisec, UINT8 strict)
 {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    osStatus status = osOK;
+    osStatus status;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    status = osTimerStop(timer_id);
-    if (strict && (status != osOK))
-    {
+    status = osTimerStop(timerId);
+    if (strict && (status != osOK)) {
         return status;
     }
 
-    status = osTimerStart(timer_id, millisec);
-    if (status != osOK)
-    {
+    status = osTimerStart(timerId, millisec);
+    if (status != osOK) {
         return status;
     }
+#else
+    (VOID)timerId;
+    (VOID)millisec;
+    (VOID)strict;
 #endif
     return osOK;
 }
 
-osStatus osTimerDelete (osTimerId timer_id)
+osStatus osTimerDelete(osTimerId timerId)
 {
 #if (LOSCFG_BASE_CORE_SWTMR == YES)
-    SWTMR_CTRL_S  *pstSwtmr;
+    SWTMR_CTRL_S *swTmr = NULL;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-    if (pstSwtmr == NULL)
-    {
+    swTmr = (SWTMR_CTRL_S *)timerId;
+    if (swTmr == NULL) {
         return osErrorParameter;
     }
 
-    if (LOS_SwtmrDelete(pstSwtmr->usTimerID))
-    {
+    if (LOS_SwtmrDelete(swTmr->usTimerID)) {
         return osErrorResource;
     }
+#else
+    (VOID)timerId;
 #endif
     return osOK;
-
 }
 
-osStatus osDelay (UINT32 millisec)
+osStatus osDelay(UINT32 millisec)
 {
-    UINT32   uwInterval;
-    UINT32   uwRet = 0;
+    UINT32   interval;
+    UINT32 ret;
+    Percpu *perCpu = OsPercpuGet();
+    UINT32 idleTaskID = perCpu->idleTaskID;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
 
-    if (millisec == 0)
-    {
+    if (millisec == 0) {
         return osOK;
     }
 
-    //check if in idle we use udelay instead
-    if(g_uwIdleTaskID == LOS_CurTaskIDGet())
-    {
+    /* check if in idle we use udelay instead */
+    if (idleTaskID == LOS_CurTaskIDGet()) {
         PRINT_ERR("Idle Task Do Not Support Delay!\n");
         return osOK;
     }
 
-    uwInterval = LOS_MS2Tick(millisec);
-
-    uwRet = LOS_TaskDelay(uwInterval);
-
-    if (uwRet == LOS_OK)
-    {
+    interval = LOS_MS2Tick(millisec);
+    ret = LOS_TaskDelay(interval);
+    if (ret == LOS_OK) {
         return osEventTimeout;
-    }
-    else
-    {
+    } else {
         return osErrorResource;
     }
 }
 
 #if (defined (osFeature_Wait)  &&  (osFeature_Wait != 0))
-osEvent osWait (UINT32 millisec)
+osEvent osWait(UINT32 millisec)
 {
     osEvent evt;
-    UINT32   uwInterval;
-    UINT32   uwRet = 0;
+    UINT32 interval;
+    UINT32 ret;
 
-    if (OS_INT_ACTIVE)
-    {
+    if (OS_INT_ACTIVE) {
         evt.status = osErrorISR;
         return evt;
     }
 
-    if (millisec == 0)
-    {
+    if (millisec == 0) {
         evt.status = osOK;
         return evt;
     }
 
-    /* TODO: osEventSignal, osEventMessage, osEventMail */
-    uwInterval = LOS_MS2Tick(millisec);
-
-    uwRet = LOS_TaskDelay(uwInterval);
-
-    if (uwRet == LOS_OK)
-    {
+    interval = LOS_MS2Tick(millisec);
+    ret = LOS_TaskDelay(interval);
+    if (ret == LOS_OK) {
         evt.status = osEventTimeout;
-    }
-    else
-    {
+    } else {
         evt.status = osErrorResource;
     }
 
@@ -1292,169 +1340,215 @@ osEvent osWait (UINT32 millisec)
 #endif
 
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-
 fwMailQId g_fwMailQList = (fwMailQId)NULL;
 UINT32 g_maxEventTime = 0x400;
 #endif
 
-fwMailQId fwMailCreate (fwMailQDef_t *queue_def, osThreadId thread_id)
+fwMailQId fwMailCreate(fwMailQDef_t *queueDef, osThreadId threadId)
 {
+    if (queueDef == NULL) {
+        return (fwMailQId)NULL;
+    }
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    // add mailQ to list
-    (void)osMailCreate(queue_def->queue_id, thread_id);
-    queue_def->next = (struct fw_MailQ_def *)g_fwMailQList;
-    g_fwMailQList = (fwMailQId)queue_def;
-    return (fwMailQId)queue_def;
+    /* add mailQ to list */
+    if (queueDef->queue_id == NULL) {
+        return (fwMailQId)NULL;
+    }
+    (VOID)osMailCreate(queueDef->queue_id, threadId);
+    queueDef->next = (struct fw_MailQ_def *)g_fwMailQList;
+    g_fwMailQList = (fwMailQId)queueDef;
+    return (fwMailQId)queueDef;
 #else
-    return osMailCreate(queue_def, thread_id);
+    return osMailCreate(queueDef, threadId);
 #endif
 }
 
-void *fwMailAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd)
+VOID *fwMailAlloc(fwMailQId queueId, UINT32 millisec, UINT8 tag, UINT8 cmd)
 {
-    void *mem = NULL;
+    VOID *mem = NULL;
 
-    if (queue_id == NULL)
+    if (queueId == NULL) {
         return NULL;
-#if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    mem = osMailAlloc((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), millisec);
-#else
-    mem = osMailAlloc(queue_id, millisec);
-#endif
+    }
 
-    if (mem != NULL)
-    {
-        ((fw_event_t *)mem)->cmd = cmd;
-        ((fw_event_t *)mem)->tag = tag;
+#if (LOSCFG_COMPAT_CMSIS_FW == YES)
+    osMailQDef_t *pQueueId = ((fwMailQDef_t *)queueId)->queue_id;
+    if (pQueueId == NULL) {
+        return NULL;
+    }
+
+    if (pQueueId->pool == NULL) {
+        return NULL;
+    }
+    mem = osMailAlloc((osMailQId)(pQueueId)->pool, millisec);
+#else
+    mem = osMailAlloc(queueId, millisec);
+#endif
+    if (mem != NULL) {
+        ((fw_event_t*)mem)->cmd = cmd;
+        ((fw_event_t*)mem)->tag = tag;
     }
 
     return mem;
 }
 
-void *fwMailCAlloc (fwMailQId queue_id, UINT32 millisec, UINT8 tag, UINT8 cmd)
+VOID *fwMailCAlloc(fwMailQId queueId, UINT32 millisec, UINT8 tag, UINT8 cmd)
 {
-    void *mem = NULL;
+    VOID *mem = NULL;
 
-    if (queue_id == NULL)
+    if (queueId == NULL) {
         return NULL;
+    }
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    mem = osMailCAlloc((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), millisec);
+    osMailQDef_t *pQueueId = ((fwMailQDef_t *)queueId)->queue_id;
+    if (pQueueId == NULL) {
+        return NULL;
+    }
+    if (pQueueId->pool == NULL) {
+        return NULL;
+    }
+    mem = osMailCAlloc((osMailQId)(pQueueId)->pool, millisec);
 #else
     mem = osMailCAlloc(queue_id, millisec);
 #endif
-
-    if (mem != NULL)
-    {
-        ((fw_event_t *)mem)->cmd = cmd;
-        ((fw_event_t *)mem)->tag = tag;
+    if (mem != NULL) {
+        ((fw_event_t*)mem)->cmd = cmd;
+        ((fw_event_t*)mem)->tag = tag;
     }
 
     return mem;
 }
 
-osStatus fwMailFree (fwMailQId queue_id, void *mail)
+osStatus fwMailFree(fwMailQId queueId, VOID *mail)
 {
-    if (queue_id == NULL)
+    if (queueId == NULL) {
         return osErrorParameter;
+    }
 
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    return osMailFree((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), mail);
+    osMailQDef_t *pQueueId = ((fwMailQDef_t *)queueId)->queue_id;
+    if (pQueueId == NULL) {
+        return osErrorParameter;
+    }
+
+    if (pQueueId->pool == NULL) {
+        return osErrorParameter;
+    }
+
+    return osMailFree((osMailQId)(pQueueId)->pool, mail);
 #else
-    return osMailFree(queue_id, mail);
+    return osMailFree(queueId, mail);
 #endif
 }
 
-osStatus fwMailPut (fwMailQId queue_id, void *mail)
+osStatus fwMailPut(fwMailQId queueId, VOID *mail)
 {
-    if (queue_id == NULL)
+    if (queueId == NULL) {
         return osErrorParameter;
+    }
+
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    return osMailPut((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), mail);
+    osMailQDef_t *pQueueId = ((fwMailQDef_t *)queueId)->queue_id;
+    if (pQueueId == NULL) {
+        return osErrorParameter;
+    }
+
+    if (pQueueId->pool == NULL) {
+        return osErrorParameter;
+    }
+    return osMailPut((osMailQId)(pQueueId)->pool, mail);
 #else
-    return osMailPut(queue_id, mail);
+    return osMailPut(queueId, mail);
 #endif
 }
-/*lint  -e438 -e550 -e529*/
-osEvent fwMailGet (fwMailQId queue_id, UINT32 millisec)
+
+osEvent fwMailGet(fwMailQId queueId, UINT32 millisec)
 {
     osEvent evt;
-    UINT32 max_time;
-    void *pool;
-    UINT32 uwQueueID;
+#if (LOSCFG_COMPAT_CMSIS_FW == YES)
+    UINT32 maxTime;
+    VOID *pool = NULL;
+    UINT32 id;
+#endif
 
-    if (queue_id == NULL)
-    {
-        evt.status = osErrorParameter;
+    evt.status = osErrorParameter;
+    if (queueId == NULL) {
         return evt;
     }
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-
-    pool = ((((fwMailQDef_t *)queue_id)->queue_id)->pool);
-    uwQueueID = *((UINT32 *)(((void **)(pool)) + 0));
-    max_time = GET_EVENT_MAXTIME(queue_id) != 0 ? GET_EVENT_MAXTIME(queue_id) : g_maxEventTime;
-
-    if (((fwMailQDef_t *)queue_id)->event_begin_time != 0 &&
-            (osKernelSysTick() - ((fwMailQDef_t *)queue_id)->event_begin_time ) > max_time)
-    {
-        ((fwMailQDef_t *)queue_id)->timeout_cnt++;
-        PRINT_ERR("[ERR] Get QID %d TIMEOUTCNT %d\n", uwQueueID, ((fwMailQDef_t *)queue_id)->timeout_cnt);
+    osMailQDef_t *pQueueId = ((fwMailQDef_t *)queueId)->queue_id;
+    if (pQueueId == NULL) {
+        return evt;
     }
 
-    ((fwMailQDef_t *)queue_id)->event_begin_time = 0;
-    evt = osMailGet((osMailQId)((((fwMailQDef_t *)queue_id)->queue_id)->pool), millisec);
-    if (evt.status == osEventMail)
-    {
-        ((fwMailQDef_t *)queue_id)->last_event = *(fw_event_t *)(evt.value.p);
-        ((fwMailQDef_t *)queue_id)->event_begin_time = osKernelSysTick();
+    if (pQueueId->pool == NULL) {
+        return evt;
+    }
+
+    id = *((UINT32*)((VOID **)pool));
+    maxTime = (GET_EVENT_MAXTIME(queueId) != 0) ? GET_EVENT_MAXTIME(queueId) : g_maxEventTime;
+    if ((((fwMailQDef_t *)queueId)->event_begin_time != 0) &&
+        ((osKernelSysTick() - ((fwMailQDef_t *)queueId)->event_begin_time) > maxTime)) {
+        ((fwMailQDef_t *)queueId)->timeout_cnt++;
+        PRINT_ERR("[ERR] Get QID %d TIMEOUTCNT %d\n", id, ((fwMailQDef_t *)queueId)->timeout_cnt);
+    }
+
+    ((fwMailQDef_t *)queueId)->event_begin_time = 0;
+    evt = osMailGet((osMailQId)((((fwMailQDef_t *)queueId)->queue_id)->pool), millisec);
+    if (evt.status == osEventMail) {
+        ((fwMailQDef_t *)queueId)->last_event = *(fw_event_t*)(evt.value.p);
+        ((fwMailQDef_t *)queueId)->event_begin_time = osKernelSysTick();
     }
 #else
-    evt = osMailGet(queue_id, millisec);
+    evt = osMailGet(queueId, millisec);
 #endif
     return evt;
 }
 
-/*lint  -e438 -e550*/
-UINT32 fwMailQGetStatus(void)
+UINT32 fwMailQGetStatus(VOID)
 {
 #if (LOSCFG_COMPAT_CMSIS_FW == YES)
-    fwMailQDef_t *ptr = (fwMailQDef_t *)NULL;
-    void *pool = NULL;
-    UINT32 uwQueueID;
-    UINT32 curr_tick = osKernelSysTick();
-    UINT32 max_time = 0;
-    UINT8 ret = 0;
+    fwMailQDef_t *mailQueue = (fwMailQDef_t *)NULL;
+    VOID *pool = NULL;
+    UINT32 id;
+    UINT32 maxTime;
+    UINT32 currTick = osKernelSysTick();
+    UINT32 ret = 0;
 
-    ptr = (fwMailQDef_t *)g_fwMailQList;
-    while (ptr != NULL)
-    {
-        max_time = GET_EVENT_MAXTIME(ptr) != 0 ? GET_EVENT_MAXTIME(ptr) : g_maxEventTime;
-        pool = ((ptr->queue_id)->pool);
-        uwQueueID = *((UINT32 *)(((void **)(pool)) + 0));
-        if ( ptr->event_begin_time != 0 && (curr_tick - ptr->event_begin_time) > max_time)
-        {
-            ptr->timeout_cnt++;
-            PRINT_ERR("[ERR] QID %d OUTQUE %d Phase %d\n", uwQueueID, ptr->event_begin_time, GET_EVENT_PHASE(ptr));
-            PRINT_ERR("TAG %d CMD %d\n", ptr->last_event.tag, ptr->last_event.cmd);
+    mailQueue = (fwMailQDef_t *)g_fwMailQList;
+    while (mailQueue != NULL) {
+        maxTime = (GET_EVENT_MAXTIME(mailQueue) != 0) ? GET_EVENT_MAXTIME(mailQueue) : g_maxEventTime;
+        if (mailQueue->queue_id == NULL) {
+            return 0;
+        }
+
+        pool = (mailQueue->queue_id)->pool;
+        if (pool == NULL) {
+            return 0;
+        }
+
+        id = *((UINT32*)((VOID **)pool));
+        if ((mailQueue->event_begin_time != 0) && ((currTick - mailQueue->event_begin_time) > maxTime)) {
+            mailQueue->timeout_cnt++;
+            PRINT_ERR("[ERR] QID %d OUTQUE %d Phase %d\n", id, mailQueue->event_begin_time,
+                      GET_EVENT_PHASE(mailQueue));
+            PRINT_ERR("TAG %d CMD %d\n", mailQueue->last_event.tag, mailQueue->last_event.cmd);
             ret++;
         }
-        if (ptr->timeout_cnt != 0)
-        {
-            PRINT_ERR("QID %d TIMEOUTCNT %d\n", uwQueueID, ptr->timeout_cnt);
-            ret += ptr->timeout_cnt;
-            ptr->timeout_cnt = 0;
+        if (mailQueue->timeout_cnt != 0) {
+            PRINT_ERR("QID %d TIMEOUTCNT %d\n", id, mailQueue->timeout_cnt);
+            ret += mailQueue->timeout_cnt;
+            mailQueue->timeout_cnt = 0;
         }
-        ptr = ptr->next;
+        mailQueue = mailQueue->next;
     }
 
-    if (ret)
-        return 1;
-
-    return 0;
+    return (ret > 0) ? 1 : 0;
 #else
     return 0;
 #endif
 }
-#endif // (CMSIS_OS_VER == 1)
+#endif // (LOSCFG_CMSIS_VERSION == 1)
 #ifdef __cplusplus
 #if __cplusplus
 }

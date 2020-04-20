@@ -44,7 +44,7 @@
 #include "los_config.h"
 #include "los_sys.h"
 #include "los_typedef.h"
-#include "los_task.ph"
+#include "los_task_pri.h"
 
 #include "stdlib.h"
 #include "string.h"
