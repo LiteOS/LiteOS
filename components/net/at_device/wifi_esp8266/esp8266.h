@@ -69,6 +69,6 @@
 typedef enum {
 	STA = 1,
 	AP, 
-	ATA_AP,
+	STA_AP,
 }enum_net_mode;
 #endif
