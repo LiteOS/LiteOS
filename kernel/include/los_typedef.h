@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Type define
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -77,6 +79,7 @@ typedef unsigned int       UINTPTR;
 typedef signed int         INTPTR;
 #endif
 
+#ifndef __COMPILER_XTENSA__
 #ifdef __LP64__
 typedef __uint128_t        UINT128;
 typedef INT64              ssize_t;
@@ -86,9 +89,13 @@ typedef UINT64             size_t;
 typedef INT32              ssize_t;
 typedef UINT32             size_t;
 #endif
+#endif
 
 typedef UINTPTR            AARCHPTR;
 typedef size_t             BOOL;
+
+typedef volatile INT32     Atomic;
+typedef volatile INT64     Atomic64;
 
 #define VOID               void
 #define STATIC             static

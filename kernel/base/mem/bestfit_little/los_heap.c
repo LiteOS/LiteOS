@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Mem Module Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-05-12
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -32,137 +34,163 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
-#include "los_heap_pri.h"
+#include "los_memory_pri.h"
+#include "los_memory_internal.h"
+
 #include "string.h"
 #include "securec.h"
 #include "los_hwi.h"
 #include "los_config.h"
 #include "los_typedef.h"
 #include "los_task_pri.h"
+#include "los_exc.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-static UINT32 g_memAllocCount = 0;
-static UINT32 g_memFreeCount = 0;
 
-#if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-static UINT32 g_memCurHeapUsed = 0;
-static UINT32 g_memMaxHeapUsed = 0;
-#endif
-
-#define HEAP_CAST(t, exp) ((t)(exp))
-#define HEAP_ALIGN 4
-#define MALLOC_MAXSIZE (0xFFFFFFFF - HEAP_ALIGN + 1)
+#define HEAP_CAST(t, exp)   ((t)(exp))
+#define HEAP_ALIGN          4
+#define MALLOC_MAXSIZE      (0xFFFFFFFF - HEAP_ALIGN + 1)
 /*
  * Description : look up the next memory node according to one memory node in the memory block list.
- * Input       : struct LosMemPoolInfo *heapMan --- Pointer to the manager,to distinguish heap
+ * Input       : struct LosHeapManager *heapMan --- Pointer to the manager,to distinguish heap
  *               struct LosHeapNode *node --- Size of memory in bytes to allocate
  * Return      : Pointer to next memory node
  */
-struct LosHeapNode* OsHeapPrvGetNext(const LosMemPoolInfo *heapMan, struct LosHeapNode *node)
+struct LosHeapNode* OsHeapPrvGetNext(struct LosHeapManager *heapMan, struct LosHeapNode *node)
 {
     return (heapMan->tail == node) ? NULL : (struct LosHeapNode *)(UINTPTR)(node->data + node->size);
 }
 
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-VOID OsHeapSetTaskId(struct LosHeapNode *node)
+#ifdef LOSCFG_MEM_TASK_STAT
+
+VOID OsHeapStatInit(struct LosHeapManager *heapMan, UINT32 size)
 {
+    (VOID)memset_s(&heapMan->stat, sizeof(Memstat), 0, sizeof(Memstat));
+
+    heapMan->stat.memTotalUsed = sizeof(struct LosHeapNode) + sizeof(struct LosHeapManager);
+    heapMan->stat.memTotalPeak = heapMan->stat.memTotalUsed;
+}
+
+VOID OsHeapStatAddUsed(struct LosHeapManager *heapMan, struct LosHeapNode *node)
+{
+    UINT32 taskId;
+    UINT32 blockSize = sizeof(struct LosHeapNode) + node->size;
+
     if ((OsCurrTaskGet() != NULL) && OS_INT_INACTIVE) {
         /*
          * after OsTaskInit, OsCurrTaskGet() is not null, but id is the same
          * as (LOSCFG_BASE_CORE_TSK_LIMIT + 1), so it will be recorded into
          * the last one of the array.
          */
-        node->taskID = LOS_CurTaskIDGet();
+        taskId = LOS_CurTaskIDGet();
     } else {
-        node->taskID = TASK_BLOCK_NUM - 1;
+        taskId = TASK_NUM - 1;
+    }
+
+    node->taskId = taskId;
+    OS_MEM_ADD_USED(&heapMan->stat, blockSize, taskId);
+}
+
+VOID OsHeapStatDecUsed(struct LosHeapManager *heapMan, struct LosHeapNode *node)
+{
+    UINT32 taskId = node->taskId;
+    UINT32 blockSize = sizeof(struct LosHeapNode) + node->size;
+
+    OS_MEM_REDUCE_USED(&heapMan->stat, blockSize, taskId);
+}
+
+#else /* LOSCFG_MEM_TASK_STAT */
+
+VOID OsHeapStatInit(struct LosHeapManager *heapMan, UINT32 size) { }
+
+VOID OsHeapStatAddUsed(struct LosHeapManager *heapMan, struct LosHeapNode *node) { }
+
+VOID OsHeapStatDecUsed(struct LosHeapManager *heapMan, struct LosHeapNode *node) { }
+
+#endif /* LOSCFG_MEM_TASK_STAT */
+
+#ifdef LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK
+
+UINT32 OsHeapIntegrityCheck(struct LosHeapManager *heap)
+{
+    struct LosHeapNode *node = (struct LosHeapNode *)(heap + 1);
+    UINTPTR heapStart = (UINTPTR)heap;
+    UINTPTR heapEnd = (UINTPTR)node + heap->size;
+
+    while (node) {
+        if ((UINTPTR)node < heapStart || (UINTPTR)node > heapEnd) {
+            LOS_Panic("node %p has been corrupted.\n", node);
+            return LOS_NOK;
+        }
+
+        node = OsHeapPrvGetNext(heap, node);
+    }
+
+    return LOS_OK;
+}
+
+#else /* LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK */
+
+UINT32 OsHeapIntegrityCheck(struct LosHeapManager *heap)
+{
+    return LOS_OK;
+}
+
+#endif /* LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK */
+
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+
+VOID *OsMemAlloc(VOID *pool, UINT32 size)
+{
+    return OsHeapAlloc(pool, size);
+}
+
+UINT32 OsMemFree(VOID *pool, VOID *mem)
+{
+    if (OsHeapFree(pool, mem) == TRUE) {
+        return LOS_OK;
+    } else {
+        return LOS_NOK;
     }
 }
-#endif
+
+#endif /* LOSCFG_KERNEL_MEM_SLAB_EXTENTION */
+
 /*
  * Description : To initialize the heap memory and get the begin address and size of heap memory,
- *               then initialize LosMemPoolInfo.
+ *               then initialize LosHeapManager.
  * Input       : VOID *pool  --- begin address of the heap memory pool
  *               UITN32 size --- size of the heap memory pool
  * Return      : 1:success 0:error
  */
 BOOL OsHeapInit(VOID *pool, UINT32 size)
 {
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    UINT32 memStatsSize;
-#endif
     struct LosHeapNode *node = NULL;
-    LosMemPoolInfo *heapMan = HEAP_CAST(LosMemPoolInfo *, pool);
-    if ((heapMan == NULL) || (size <= (sizeof(struct LosHeapNode) + sizeof(LosMemPoolInfo)))) {
+    struct LosHeapManager *heapMan = HEAP_CAST(struct LosHeapManager *, pool);
+
+    if ((heapMan == NULL) || (size <= (sizeof(struct LosHeapNode) + sizeof(struct LosHeapManager)))) {
         return FALSE;
     }
 
-    /* Ignore the return code when matching CSEC rule 6.6(2). */
     (VOID)memset_s(pool, size, 0, size);
 
-    heapMan->size = size;
+    heapMan->size = size - sizeof(struct LosHeapManager);
 
-    node = heapMan->head = (struct LosHeapNode *)((UINT8*)pool + sizeof(LosMemPoolInfo));
+    node = heapMan->head = (struct LosHeapNode *)((UINT8*)pool + sizeof(struct LosHeapManager));
 
     heapMan->tail = node;
 
     node->used = 0;
     node->prev = NULL;
-    node->size = size - sizeof(struct LosHeapNode) - sizeof(LosMemPoolInfo);
+    node->size = heapMan->size - sizeof(struct LosHeapNode);
 
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    if (size > ((1U << (SIZE_BITS)) - 1)) {
-        PRINT_ERR("heap node size bits too small!\n");
-    }
+    OsHeapStatInit(heapMan, size);
 
-    memStatsSize = sizeof(TaskMemUsedInfo) * TASK_BLOCK_NUM;
-    (VOID)memset_s(heapMan->memStats, memStatsSize, 0, memStatsSize);
-#endif
     return TRUE;
-}
-
-/*
- * Description : update used size
- * Input       : size --- alloc memory size
- *               ptr --- memory chunk
- */
-VOID OsHeapUpdateUsedSize(UINT32 size, const VOID *ptr)
-{
-#if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-    g_memCurHeapUsed += (size + sizeof(struct LosHeapNode));
-    if (g_memCurHeapUsed > g_memMaxHeapUsed) {
-        g_memMaxHeapUsed = g_memCurHeapUsed;
-    }
-#else
-    (VOID)size;
-#endif
-
-    if (ptr != NULL) {
-        g_memAllocCount++;
-    }
-}
-
-STATIC VOID OsHeapSplitNode(struct LosHeapNode *best, UINT32 alignSize, LosMemPoolInfo *heapMan)
-{
-    /* hole divide into 2 */
-    struct LosHeapNode *node = (struct LosHeapNode*)(UINTPTR)(best->data + alignSize);
-    struct LosHeapNode *next = NULL;
-    node->used = 0;
-    node->size = best->size - alignSize - sizeof(struct LosHeapNode);
-    node->prev = best;
-
-    if (best != heapMan->tail) {
-        next = OsHeapPrvGetNext(heapMan, node);
-        if (next != NULL) {
-            next->prev = node;
-        }
-    } else {
-        heapMan->tail = node;
-    }
-
-    best->size = alignSize;
 }
 
 /*
@@ -173,20 +201,21 @@ STATIC VOID OsHeapSplitNode(struct LosHeapNode *best, UINT32 alignSize, LosMemPo
  */
 VOID *OsHeapAlloc(VOID *pool, UINT32 size)
 {
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    UINT32 blockSize;
-#endif
     struct LosHeapNode *node = NULL;
+    struct LosHeapNode *next = NULL;
     struct LosHeapNode *best = NULL;
     VOID *ptr = NULL;
-    UINT32 alignSize;
+    UINT32 alignSize = ALIGNE(size);
 
-    LosMemPoolInfo *heapMan = HEAP_CAST(LosMemPoolInfo *, pool);
+    struct LosHeapManager *heapMan = HEAP_CAST(struct LosHeapManager *, pool);
     if ((heapMan == NULL) || (size > MALLOC_MAXSIZE)) {
         return NULL;
     }
 
-    alignSize = ALIGNE(size);
+    if (OsHeapIntegrityCheck(heapMan) != LOS_OK) {
+        return NULL;
+    }
+
     node = heapMan->tail;
     while (node != NULL) {
         if ((node->used == 0) && (node->size >= alignSize) &&
@@ -206,7 +235,23 @@ VOID *OsHeapAlloc(VOID *pool, UINT32 size)
     }
 
     if ((best->size - alignSize) > sizeof(struct LosHeapNode)) {
-        OsHeapSplitNode(best, alignSize, heapMan);
+        /* hole divide into 2 */
+        node = (struct LosHeapNode*)(UINTPTR)(best->data + alignSize);
+
+        node->used = 0;
+        node->size = best->size - alignSize - sizeof(struct LosHeapNode);
+        node->prev = best;
+
+        if (best != heapMan->tail) {
+            next = OsHeapPrvGetNext(heapMan, node);
+            if (next != NULL) {
+                next->prev = node;
+            }
+        } else {
+            heapMan->tail = node;
+        }
+
+        best->size = alignSize;
     }
 
 SIZE_MATCH:
@@ -214,13 +259,7 @@ SIZE_MATCH:
     best->used = 1;
     ptr = best->data;
 
-    OsHeapUpdateUsedSize(alignSize, ptr);
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    blockSize = sizeof(struct LosHeapNode) + best->size;
-    OsHeapSetTaskId(best);
-    OsTaskMemUsedInc(heapMan->memStats, blockSize, best->taskID);
-#endif
-
+    OsHeapStatAddUsed(heapMan, best);
 OUT:
     return ptr;
 }
@@ -252,7 +291,7 @@ VOID* OsHeapAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
     ptr = OsHeapAlloc(pool, useSize);
     if (ptr != NULL) {
         alignedPtr = (VOID *)(UINTPTR)OS_MEM_ALIGN(ptr, boundary);
-        if (ptr == alignedPtr) {
+        if (alignedPtr == ptr) {
             goto OUT;
         }
 
@@ -266,22 +305,12 @@ OUT:
     return ptr;
 }
 
-STATIC VOID OsDoHeapFree(LosMemPoolInfo *heapMan, struct LosHeapNode *curNode)
+STATIC VOID OsHeapDoFree(struct LosHeapManager *heapMan, struct LosHeapNode *curNode)
 {
     struct LosHeapNode *node = curNode;
     struct LosHeapNode *next = NULL;
     /* set to unused status */
     node->used = 0;
-
-#if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-    if (g_memCurHeapUsed >= (node->size + sizeof(struct LosHeapNode))) {
-        g_memCurHeapUsed -= (node->size + sizeof(struct LosHeapNode));
-    }
-#endif
-
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    OsTaskMemUsedDec(heapMan->memStats, sizeof(struct LosHeapNode) + node->size, node->taskID);
-#endif
 
     /* unused region before and after combination */
     while (node->prev && !node->prev->used) {
@@ -315,7 +344,7 @@ BOOL OsHeapFree(VOID *pool, VOID *ptr)
     UINT32 gapSize;
     BOOL ret = TRUE;
 
-    LosMemPoolInfo *heapMan = HEAP_CAST(LosMemPoolInfo *, pool);
+    struct LosHeapManager *heapMan = HEAP_CAST(struct LosHeapManager *, pool);
     if ((heapMan == NULL) || (ptr == NULL)) {
         return LOS_NOK;
     }
@@ -329,7 +358,7 @@ BOOL OsHeapFree(VOID *pool, VOID *ptr)
 
     if (((UINTPTR)ptr < (UINTPTR)heapMan->head) ||
         ((UINTPTR)ptr > ((UINTPTR)heapMan->tail + sizeof(struct LosHeapNode)))) {
-        PRINT_ERR("0x%x out of range!\n", (UINTPTR)ptr);
+        PRINT_ERR("0x%lx out of range!\n", (UINTPTR)ptr);
         return FALSE;
     }
 
@@ -343,34 +372,11 @@ BOOL OsHeapFree(VOID *pool, VOID *ptr)
         goto OUT;
     }
 
-    OsDoHeapFree(heapMan, node);
+    OsHeapStatDecUsed(heapMan, node);
+    OsHeapDoFree(heapMan, node);
 
 OUT:
-    if (ret == TRUE) {
-        g_memFreeCount++;
-    }
-
     return ret;
-}
-
-/*
- * Description : print heap information
- * Input       : pool --- Pointer to the manager, to distinguish heap
- */
-VOID OsAlarmHeapInfo(VOID *pool)
-{
-    LosMemPoolInfo *heapMan = HEAP_CAST(LosMemPoolInfo *, pool);
-    LosHeapStatus status = {0};
-    (VOID)heapMan;
-
-    if (OsHeapStatisticsGet(pool, &status) == LOS_NOK) {
-        return;
-    }
-
-    PRINT_INFO("pool addr    pool size    used size    free size    max free    alloc Count    free Count\n");
-    PRINT_INFO("0x%-8x   0x%-8x   0x%-8x    0x%-8x   0x%-8x   0x%-8x     0x%-8x\n",
-               pool, heapMan->size, status.totalUsedSize, status.totalFreeSize, status.maxFreeNodeSize,
-               status.usedNodeNum, status.freeNodeNum);
 }
 
 /*
@@ -387,25 +393,21 @@ UINT32 OsHeapStatisticsGet(VOID *pool, LosHeapStatus *status)
     UINT32 usedNodeNum = 0;
 
     struct LosHeapNode *node = NULL;
-    LosMemPoolInfo *ramHeap = HEAP_CAST(LosMemPoolInfo *, pool);
-    VOID *heapEnd = NULL;
+    struct LosHeapManager *ramHeap = HEAP_CAST(struct LosHeapManager *, pool);
+
     if (ramHeap == NULL) {
         return LOS_NOK;
     }
-    heapEnd = (VOID *)((UINTPTR)pool + ramHeap->size);
+
     if (status == NULL) {
         return LOS_NOK;
     }
 
-    /* heap mannager header use heap space */
-    heapUsed += sizeof(LosMemPoolInfo);
+    /* heap manager header use heap space */
+    heapUsed += sizeof(struct LosHeapManager);
 
     node = ramHeap->tail;
     while (node != NULL) {
-        if ((node <= (struct LosHeapNode *)pool) ||
-            (node >= (struct LosHeapNode *)heapEnd)) {
-            return LOS_NOK;
-        }
         if (node->used) {
             heapUsed += (node->size + sizeof(struct LosHeapNode));
             usedNodeNum++;
@@ -428,15 +430,12 @@ UINT32 OsHeapStatisticsGet(VOID *pool, LosHeapStatus *status)
     status->usedNodeNum = usedNodeNum;
     status->freeNodeNum = freeNodeNum;
 
+#ifdef LOSCFG_MEM_TASK_STAT
+    status->usageWaterLine = ramHeap->stat.memTotalPeak;
+#endif
+
     return LOS_OK;
 }
-
-#if (LOSCFG_HEAP_MEMORY_PEAK_STATISTICS == YES)
-UINT32 LOS_HeapGetHeapMemoryPeak(VOID)
-{
-    return g_memMaxHeapUsed;
-}
-#endif
 
 /*
  * Description : get max free block size
@@ -448,7 +447,7 @@ UINT32 OsHeapGetMaxFreeBlkSize(VOID *pool)
     UINT32 size = 0;
     UINT32 temp;
     struct LosHeapNode *node = NULL;
-    LosMemPoolInfo *ramHeap = HEAP_CAST(LosMemPoolInfo *, pool);
+    struct LosHeapManager *ramHeap = HEAP_CAST(struct LosHeapManager *, pool);
 
     if (ramHeap == NULL) {
         return LOS_NOK;
@@ -466,57 +465,6 @@ UINT32 OsHeapGetMaxFreeBlkSize(VOID *pool)
     }
     return size;
 }
-
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-VOID LOS_HeapDumpMemoryStats(VOID *pool)
-{
-    LosMemPoolInfo *heapMan = NULL;
-    TaskMemUsedInfo *memStats = NULL;
-    LosHeapStatus status = {0};
-    UINT32 intSave;
-    /* heap mannager header use heap space */
-    UINT32 peak = sizeof(LosMemPoolInfo);
-    UINT32 i;
-
-    if (pool == NULL) {
-        return;
-    }
-
-    /* dump memory basic info */
-    heapMan = (LosMemPoolInfo *)pool;
-    MEM_LOCK(intSave);
-    if (OsHeapStatisticsGet(heapMan, &status) == LOS_NOK) {
-        MEM_UNLOCK(intSave);
-        return;
-    }
-
-    PRINT_INFO("Pool Addr : 0x%-8x\n", heapMan);
-    PRINT_INFO("Pool Size : %-8u\n", heapMan->size);
-    PRINT_INFO("Pool Used : %-8u\n", status.totalUsedSize);
-    PRINT_INFO("Pool Free : %-8u\n", status.totalFreeSize);
-
-    /* dump memory peak usage */
-    i = 0;
-    memStats = heapMan->memStats;
-    while (i < TASK_BLOCK_NUM) {
-        peak += memStats[i].memPeak;
-        i++;
-    }
-    PRINT_INFO("Pool Peak : %-8d\n", peak);
-
-    /* dump memory usage by tasks */
-    PRINT_INFO("Memory Usage By Tasks:\n");
-    i = 0;
-    while (i < TASK_BLOCK_NUM - 1) {
-        if (g_taskCBArray[i].taskStatus != OS_TASK_STATUS_UNUSED) {
-            PRINT_INFO("    task %3d use:%6d peak:%6d\n", i, memStats[i].memUsed, memStats[i].memPeak);
-        }
-        i++;
-    }
-    PRINT_INFO("    init/irq use:%6d peak:%6d\n", memStats[i].memUsed, memStats[i].memPeak);
-    MEM_UNLOCK(intSave);
-}
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus

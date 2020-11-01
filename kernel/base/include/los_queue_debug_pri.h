@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Queue Debug Pri HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -56,19 +58,19 @@ STATIC INLINE UINT32 OsQueueDbgInitHook(VOID)
 #endif
 }
 /* Update the last time the queue was executed */
-extern VOID OsQueueDbgTimeUpdate(UINT32 queueID);
-STATIC INLINE VOID OsQueueDbgTimeUpdateHook(UINT32 queueID)
+extern VOID OsQueueDbgTimeUpdate(UINT32 queueId);
+STATIC INLINE VOID OsQueueDbgTimeUpdateHook(UINT32 queueId)
 {
 #ifdef LOSCFG_DEBUG_QUEUE
-    OsQueueDbgTimeUpdate(queueID);
+    OsQueueDbgTimeUpdate(queueId);
 #endif
 }
 /* Update the task  entry of  the queue debug info when created or deleted */
-extern VOID OsQueueDbgUpdate(UINT32 queueID, TSK_ENTRY_FUNC entry);
-STATIC INLINE VOID OsQueueDbgUpdateHook(UINT32 queueID, TSK_ENTRY_FUNC entry)
+extern VOID OsQueueDbgUpdate(UINT32 queueId, TSK_ENTRY_FUNC entry);
+STATIC INLINE VOID OsQueueDbgUpdateHook(UINT32 queueId, TSK_ENTRY_FUNC entry)
 {
 #ifdef LOSCFG_DEBUG_QUEUE
-    OsQueueDbgUpdate(queueID, entry);
+    OsQueueDbgUpdate(queueId, entry);
 #endif
 }
 /* check the leak of queue */

@@ -1,0 +1,2 @@
+DEMOS_FS_INCLUDE := \
+	-I $(LITEOSTOPDIR)/demos/fs

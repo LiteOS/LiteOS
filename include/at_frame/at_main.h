@@ -184,16 +184,16 @@ typedef struct at_task{
 	at_listener * head;
 	uint32_t timeout; //command respond timeout
 
-	void (*step_callback)();
+	void (*step_callback)(void);
 
 	int32_t (*init)(at_config *config);
 	int32_t (*cmd)(int8_t * cmd, int32_t len, const char * suffix, char * resp_buf, int* resp_len);
 	int32_t (*write)(int8_t * cmd, int8_t * suffix, int8_t * buf, int32_t len);
 	/* get unused linkid, use in multi connection mode*/
-	int32_t (*get_id)();
+	int32_t (*get_id)(void);
 	/* register uset msg process to the listener list */
 	int32_t (*oob_register)(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
-	void (*deinit)();
+	void (*deinit)(void);
     int32_t (*cmd_multi_suffix)(const int8_t *cmd, int  len, at_cmd_info_s *cmd_info);
 } at_task;
 

@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Tick
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -51,6 +53,42 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
+ * @ingroup los_sys
+ * Number of milliseconds in one second.
+ */
+#define OS_SYS_MS_PER_SECOND   1000
+
+/**
+ * @ingroup los_sys
+ * Number of microseconds in one second.
+ */
+#define OS_SYS_US_PER_SECOND   1000000
+
+/**
+ * @ingroup los_sys
+ * Number of nanoseconds in one second.
+ */
+#define OS_SYS_NS_PER_SECOND   1000000000
+
+/**
+ * @ingroup los_sys
+ * Number of microseconds in one milliseconds.
+ */
+#define OS_SYS_US_PER_MS        1000
+
+/**
+ * @ingroup los_sys
+ * Number of nanoseconds in one milliseconds.
+ */
+#define OS_SYS_NS_PER_MS        1000000
+
+/**
+ * @ingroup los_sys
+ * Number of nanoseconds in one microsecond.
+ */
+#define OS_SYS_NS_PER_US        1000
+
+/**
  * @ingroup los_tick
  * Tick error code: The Tick configuration is incorrect.
  *
@@ -95,6 +133,106 @@ extern UINT32 g_sysClock;
 extern UINT32 g_tickPerSecond;
 
 /**
+ * @ingroup los_typedef
+ * system time structure.
+ */
+typedef struct tagSysTime {
+    UINT16 uwYear;   /**< value 1970 ~ 2038 or 1970 ~ 2100 */
+    UINT8 ucMonth;   /**< value 1 - 12 */
+    UINT8 ucDay;     /**< value 1 - 31 */
+    UINT8 ucHour;    /**< value 0 - 23 */
+    UINT8 ucMinute;  /**< value 0 - 59 */
+    UINT8 ucSecond;  /**< value 0 - 59 */
+    UINT8 ucWeek;    /**< value 0 - 6  */
+} SYS_TIME_S;
+
+/**
+ * @ingroup los_sys
+ * @brief Obtain the number of Ticks.
+ *
+ * @par Description:
+ * This API is used to obtain the number of Ticks.
+ * @attention
+ * <ul>
+ * <li>None</li>
+ * </ul>
+ *
+ * @param  None
+ *
+ * @retval UINT64 The number of Ticks.
+ * @par Dependency:
+ * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT64 LOS_TickCountGet(VOID);
+
+/**
+ * @ingroup los_sys
+ * @brief Obtain the number of cycles in one tick.
+ *
+ * @par Description:
+ * This API is used to obtain the number of cycles in one tick.
+ * @attention
+ * <ul>
+ * <li>None</li>
+ * </ul>
+ *
+ * @param  None
+ *
+ * @retval UINT32 Number of cycles obtained in one tick.
+ * @par Dependency:
+ * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_CyclePerTickGet(VOID);
+
+/**
+ * @ingroup los_sys
+ * @brief Convert Ticks to milliseconds.
+ *
+ * @par Description:
+ * This API is used to convert Ticks to milliseconds.
+ * @attention
+ * <ul>
+ * <li>The number of milliseconds obtained through the conversion is 32-bit.</li>
+ * </ul>
+ *
+ * @param  tick  [IN] Number of Ticks. The value range is (0,OS_SYS_CLOCK).
+ *
+ * @retval UINT32 Number of milliseconds obtained through the conversion. Ticks are successfully converted to
+ * milliseconds.
+ * @par  Dependency:
+ * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_MS2Tick
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_Tick2MS(UINT32 tick);
+
+/**
+ * @ingroup los_sys
+ * @brief Convert milliseconds to Ticks.
+ *
+ * @par Description:
+ * This API is used to convert milliseconds to Ticks.
+ * @attention
+ * <ul>
+ * <li>If the parameter passed in is equal to 0xFFFFFFFF, the retval is 0xFFFFFFFF. Pay attention to the value to be
+ * converted because data possibly overflows.</li>
+ * </ul>
+ *
+ * @param  millisec  [IN] Number of milliseconds.
+ *
+ * @retval UINT32 Number of Ticks obtained through the conversion.
+ * @par Dependency:
+ * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_Tick2MS
+ * @since Huawei LiteOS V100R001C00
+ */
+extern UINT32 LOS_MS2Tick(UINT32 millisec);
+
+/**
  * @ingroup  los_tick
  * @brief Obtain system cycle count.
  *
@@ -104,6 +242,8 @@ extern UINT32 g_tickPerSecond;
  * @attention
  * <ul>
  * <li> This count is determined by the tick source.</li>
+ * <li>Parameters of this interface is pointer, it should be a correct value, otherwise, the system may be
+ * abnormal.</li>
  * </ul>
  *
  * @param  puwCntHi    [OUT] Type  #UINT32 Pointer to the higher 32bit of cycles to be obtained.
@@ -176,7 +316,7 @@ extern VOID LOS_Udelay(UINT32 usecs);
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID LOS_Mdelay(UINT32 usecs);
+extern VOID LOS_Mdelay(UINT32 msecs);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -1693,7 +1693,7 @@ VOID los_membox_test(void) {
 **图 1**  结果显示<a name="f4d2fe363cb39425bade25d2435a240e4"></a>  
 
 
-![](figures/l00167098-中软欧拉开发部-iCOS-image-dd30deb7-1840-4cfc-b51d-e55d71b78f71.png)
+![](figures/zh-cn_image_0125701192.png)
 
 ##### 完整实例代码
 
@@ -2500,7 +2500,7 @@ Huawei LiteOS中Message消息处理模块提供了以下功能。
 
 #### 结果验证
 
-![](figures/wwx300029-中软欧拉开发部-iCOS-image-7af87939-8a3f-4948-9de4-4032c6292d6e.png)
+![](figures/zh-cn_image_0125701198.png)
 
 #### 完整实例代码
 

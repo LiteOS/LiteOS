@@ -34,7 +34,7 @@
 
 #include "atiny_mqtt/mqtt_client.h"
 #include "los_base.h"
-#include "los_task.ph"
+#include "los_task_pri.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "log/atiny_log.h"
@@ -623,7 +623,6 @@ static void mqtt_send_secret_ack(mqtt_client_s* handle)
     }
 }
 
-/*lint -e529*/
 static int mqtt_modify_payload(MessageData *md)
 {
     char *end = ((char *)md->message->payload) + md->message->payloadlen;
@@ -641,7 +640,6 @@ static int mqtt_modify_payload(MessageData *md)
 
     return ATINY_ERR;
 }
-/*lint +e529*/
 
 static void mqtt_recv_secret_topic(MessageData *md)
 {

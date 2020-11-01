@@ -1,0 +1,24 @@
+menu "FileSystem Demo"
+
+comment "only support Cloud_STM32F429IGTx_FIRE"
+
+config LOSCFG_DEMOS_FS
+    bool
+    depends on LOSCFG_COMPONENTS_FS
+    default y
+
+config LOSCFG_DEMOS_FS_FAT
+    bool "Enable Fat FileSystem Demo"
+    default n
+    depends on LOSCFG_DEMOS_FS && LOSCFG_COMPONENTS_FS_FATFS
+    help
+      Answer Y to enable LiteOS support fat filesystem demo.
+
+config LOSCFG_DEMOS_FS_SPIF
+    bool "Enable Spif FileSystem Demo"
+    default n
+    depends on LOSCFG_DEMOS_FS && LOSCFG_COMPONENTS_FS_SPIFS
+    help
+      Answer Y to enable LiteOS support fat filesystem demo.
+
+endmenu

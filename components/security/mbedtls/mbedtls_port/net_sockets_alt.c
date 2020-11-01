@@ -58,9 +58,13 @@ void mbedtls_net_init(mbedtls_net_context *ctx)
     ctx->fd = -1;
 }
 
-void *mbedtls_net_connect(const char *host, const char *port, int proto)
+int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *port, int proto)
 {
-    return atiny_net_connect(host, port, proto);
+    ctx = atiny_net_connect(host, port, proto);
+    if (ctx == NULL) {
+        return -1;
+    }
+    return 0;
 }
 
 void mbedtls_net_usleep(unsigned long usec)

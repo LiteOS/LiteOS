@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: ARM generic timer.
+ * Author: Huawei LiteOS Team
+ * Create: 2018-10-06
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -32,10 +34,9 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
-#include "los_hw_pri.h"
 #include "los_tick_pri.h"
-#include "los_sys_pri.h"
 #include "gic_common.h"
+#include "arch/regs.h"
 
 #define STRING_COMB(x, y, z)        x ## y ## z
 
@@ -80,7 +81,7 @@
 #define TIMER_REG_CNTP_CVAL         CP15_REG64(c14, 2)
 #define TIMER_REG_CNTPCT            CP15_REG64(c14, 0)
 
-/* CNTPS AArch32 registers are banked and accessed though CNTP */
+/* CNTPS AArch32 registers are banked and accessed through CNTP */
 #define CNTPS CNTP
 
 #define READ_TIMER_REG32(reg)       ARM_SYSREG_READ(reg)
@@ -147,13 +148,12 @@ LITE_OS_SEC_TEXT VOID OsTickEntry(VOID)
      * generic time in which case tick will be slower.
      */
     TimerCvalWrite(TimerCvalRead() + OS_CYCLE_PER_TICK);
-    SchedClockTimerCtlWrite(1);
+    TimerCtlWrite(1);
 }
 
 LITE_OS_SEC_TEXT_INIT VOID HalClockInit(VOID)
 {
     UINT32 ret;
-
     g_sysClock = HalClockFreqRead();
     ret = LOS_HwiCreate(OS_TICK_INT_NUM, MIN_INTERRUPT_PRIORITY, 0, OsTickEntry, 0);
     if (ret != LOS_OK) {
@@ -173,7 +173,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalClockStart(VOID)
 
 VOID HalDelayUs(UINT32 usecs)
 {
-    UINT64 cycles = (UINT64)usecs * HalClockFreqRead() / OS_SYS_US_PER_SECOND;
+    UINT64 cycles = (UINT64)usecs * g_sysClock / OS_SYS_US_PER_SECOND;
     UINT64 deadline = HalClockGetCycles() + cycles;
 
     while (HalClockGetCycles() < deadline) {
@@ -181,7 +181,7 @@ VOID HalDelayUs(UINT32 usecs)
     }
 }
 
-UINT64 HalSchedClock(VOID)
+UINT64 hi_sched_clock(VOID)
 {
     return LOS_CurrNanosec();
 }

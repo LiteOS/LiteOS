@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Tick Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -45,7 +47,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
 /* spinlock for tick */
 extern SPIN_LOCK_S g_tickSpin;
 #define TICK_LOCK(state)                       LOS_SpinLockSave(&g_tickSpin, &(state))
@@ -85,6 +86,8 @@ extern DOUBLE g_cycle2NsScale;
 */
 extern VOID OsTickHandler(VOID);
 
+extern UINT32 OsTickInit(UINT32 systemClock, UINT32 tickPerSecond);
+extern VOID OsTickStart(VOID);
 /**
  * @ingroup los_tick
  * Convert from the cycle count to nanosecond.

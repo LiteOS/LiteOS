@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Task Module Implementation Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -39,7 +41,12 @@
 #include "los_sched_pri.h"
 #include "los_sortlink_pri.h"
 #include "los_spinlock.h"
+#ifdef LOSCFG_KERNEL_SCHED_STATISTICS
+#include "los_sched_debug_pri.h"
+#endif
 #include "los_stackinfo_pri.h"
+
+#include "arch/task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -49,29 +56,29 @@ extern "C" {
 
 /**
  * @ingroup los_task
- * Define task siginal types.
+ * Define task signal types.
  *
- * Task siginal types.
+ * Task signal types.
  */
-#define SIGNAL_NONE                                 0U
-#define SIGNAL_KILL                                 (1U << 0)
-#define SIGNAL_SUSPEND                              (1U << 1)
-#define SIGNAL_AFFI                                 (1U << 2)
+#define SIGNAL_NONE                 0U
+#define SIGNAL_KILL                 (1U << 0)
+#define SIGNAL_SUSPEND              (1U << 1)
+#define SIGNAL_AFFI                 (1U << 2)
 
 /* scheduler lock */
 extern SPIN_LOCK_S g_taskSpin;
-#define SCHEDULER_LOCK(state)                       LOS_SpinLockSave(&g_taskSpin, &(state))
-#define SCHEDULER_UNLOCK(state)                     LOS_SpinUnlockRestore(&g_taskSpin, state)
+#define SCHEDULER_LOCK(state)       LOS_SpinLockSave(&g_taskSpin, &(state))
+#define SCHEDULER_UNLOCK(state)     LOS_SpinUnlockRestore(&g_taskSpin, state)
 
 /* default and non-running task's ownership id */
-#define OS_TASK_INVALID_CPUID                       0xFFFF
+#define OS_TASK_INVALID_CPUID       0xFFFF
 
 /**
  * @ingroup los_task
  * Null task ID
  *
  */
-#define OS_TASK_ERRORID           0xFFFFFFFF
+#define OS_TASK_ERRORID             0xFFFFFFFF
 
 /**
  * @ingroup los_task
@@ -79,7 +86,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * Highest task priority.
  */
-#define OS_TASK_PRIORITY_HIGHEST  0
+#define OS_TASK_PRIORITY_HIGHEST    0
 
 /**
  * @ingroup los_task
@@ -87,7 +94,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * Lowest task priority.
  */
-#define OS_TASK_PRIORITY_LOWEST   31
+#define OS_TASK_PRIORITY_LOWEST     31
 
 /**
  * @ingroup los_task
@@ -95,7 +102,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task control block is unused.
  */
-#define OS_TASK_STATUS_UNUSED     0x0001U
+#define OS_TASK_STATUS_UNUSED       0x0001U
 
 /**
  * @ingroup los_task
@@ -103,7 +110,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is suspended.
  */
-#define OS_TASK_STATUS_SUSPEND    0x0002U
+#define OS_TASK_STATUS_SUSPEND      0x0002U
 
 /**
  * @ingroup los_task
@@ -111,7 +118,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is ready.
  */
-#define OS_TASK_STATUS_READY      0x0004U
+#define OS_TASK_STATUS_READY        0x0004U
 
 /**
  * @ingroup los_task
@@ -119,7 +126,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is blocked.
  */
-#define OS_TASK_STATUS_PEND       0x0008U
+#define OS_TASK_STATUS_PEND         0x0008U
 
 /**
  * @ingroup los_task
@@ -127,7 +134,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is running.
  */
-#define OS_TASK_STATUS_RUNNING    0x0010U
+#define OS_TASK_STATUS_RUNNING      0x0010U
 
 /**
  * @ingroup los_task
@@ -135,7 +142,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is delayed.
  */
-#define OS_TASK_STATUS_DELAY      0x0020U
+#define OS_TASK_STATUS_DELAY        0x0020U
 
 /**
  * @ingroup los_task
@@ -143,7 +150,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The time for waiting for an event to occur expires.
  */
-#define OS_TASK_STATUS_TIMEOUT    0x0040U
+#define OS_TASK_STATUS_TIMEOUT      0x0040U
 
 /**
  * @ingroup los_task
@@ -151,7 +158,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is pend for a period of time.
  */
-#define OS_TASK_STATUS_PEND_TIME  0x0080U
+#define OS_TASK_STATUS_PEND_TIME    0x0080U
 
 /**
  * @ingroup los_task
@@ -159,7 +166,7 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is automatically deleted.
  */
-#define OS_TASK_FLAG_DETACHED                       0x0001
+#define OS_TASK_FLAG_DETACHED       0x0001U
 
 /**
  * @ingroup los_task
@@ -167,102 +174,53 @@ extern SPIN_LOCK_S g_taskSpin;
  *
  * The task is system-level task, like idle, swtmr and etc.
  */
-#define OS_TASK_FLAG_SYSTEM                         0x0002
+#define OS_TASK_FLAG_SYSTEM         0x0002U
 
 /**
  * @ingroup los_task
  * Boundary on which the stack size is aligned.
  *
  */
-#define OS_TASK_STACK_SIZE_ALIGN  16U
+#define OS_TASK_STACK_SIZE_ALIGN    16U
 
 /**
  * @ingroup los_task
  * Boundary on which the stack address is aligned.
  *
  */
-#define OS_TASK_STACK_ADDR_ALIGN  8U
+#define OS_TASK_STACK_ADDR_ALIGN    8U
 
 /**
  * @ingroup los_task
  * Number of usable task priorities.
  */
-#define OS_TSK_PRINUM             (OS_TASK_PRIORITY_LOWEST - OS_TASK_PRIORITY_HIGHEST + 1)
-
-/**
- * @ingroup los_task
- * @brief the max task count for switch.
- */
-#define OS_TASK_SWITCH_INFO_COUNT                   0xA
-
-/**
- * @ingroup  los_task
-* @brief Check whether a task ID is valid.
-*
-* @par Description:
-* This API is used to check whether a task ID, excluding the idle task ID, is valid.
-* @attention None.
-*
-* @param  taskID [IN] Task ID.
-*
-* @retval 0 or 1. One indicates that the task ID is invalid, whereas zero indicates that the task ID is valid.
-* @par Dependency:
-* <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
-* @see
-* @since Huawei LiteOS V100R001C00
-*/
-#define OS_TSK_GET_INDEX(taskID) (taskID)
+#define OS_TSK_PRINUM               (OS_TASK_PRIORITY_LOWEST - OS_TASK_PRIORITY_HIGHEST + 1)
 
 /**
 * @ingroup  los_task
-* @brief Obtain the pointer to a task control block.
-*
-* @par Description:
+* This API is used to get task control block index.
+*/
+#define OS_TSK_GET_INDEX(taskId) (taskId)
+
+/**
+* @ingroup  los_task
 * This API is used to obtain the pointer to a task control block using a corresponding parameter.
-* @attention None.
-*
-* @param  ptr [IN] Parameter used for obtaining the task control block.
-*
-* @retval Pointer to the task control block.
-* @par Dependency:
-* <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
-* @see
-* @since Huawei LiteOS V100R001C00
 */
 #define OS_TCB_FROM_PENDLIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosTaskCB, pendList)
 
 /**
 * @ingroup  los_task
-* @brief Obtain the pointer to a task control block.
-*
-* @par Description:
 * This API is used to obtain the pointer to a task control block that has a specified task ID.
-* @attention None.
-*
-* @param  TaskID [IN] Task ID.
-*
-* @retval Pointer to the task control block.
-* @par Dependency:
-* <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
-* @see
-* @since Huawei LiteOS V100R001C00
 */
-#define OS_TCB_FROM_TID(taskID) (((LosTaskCB *)g_taskCBArray) + (taskID))
+#define OS_TCB_FROM_TID(taskId) (((LosTaskCB *)g_taskCBArray) + (taskId))
 
 #ifndef LOSCFG_STACK_POINT_ALIGN_SIZE
+#ifdef LOSCFG_ARCH_RISCV
+#define LOSCFG_STACK_POINT_ALIGN_SIZE                       16
+#else
 #define LOSCFG_STACK_POINT_ALIGN_SIZE                       (sizeof(UINTPTR) * 2)
 #endif
-
-/**
- * @ingroup los_task
- * @brief Dynamic memory init switch
- */
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#define LOSCFG_BASE_CORE_TASK_DYN_MEM       YES
-#else
-#define LOSCFG_BASE_CORE_TASK_DYN_MEM       NO
 #endif
-
 
 typedef struct {
     VOID            *stackPointer;      /**< Task stack pointer */
@@ -271,13 +229,22 @@ typedef struct {
     UINT32          taskFlags;          /**< Task extend flags */
     UINT32          stackSize;          /**< Task stack size */
     UINTPTR         topOfStack;         /**< Task stack top */
-    UINT32          taskID;             /**< Task ID */
+    UINT32          taskId;             /**< Task ID */
     TSK_ENTRY_FUNC  taskEntry;          /**< Task entrance function */
     VOID            *taskSem;           /**< Task-held semaphore */
+#ifdef LOSCFG_LAZY_STACK
+    UINT32          stackFrame;         /**< Stack frame: 0=Basic, 1=Extended */
+#endif
+#ifdef LOSCFG_COMPAT_POSIX
     VOID            *threadJoin;        /**< pthread adaption */
     VOID            *threadJoinRetval;  /**< pthread adaption */
+#endif
     VOID            *taskMux;           /**< Task-held mutex */
+#ifdef LOSCFG_OBSOLETE_API
     UINTPTR         args[4];            /**< Parameter, of which the maximum number is 4 */
+#else
+    VOID            *args;              /**< Parameter, of which the type is void * */
+#endif
     CHAR            *taskName;          /**< Task name */
     LOS_DL_LIST     pendList;           /**< Task pend node */
     SortLinkList    sortList;           /**< Task sortlink node */
@@ -288,33 +255,26 @@ typedef struct {
     UINT32          priBitMap;          /**< BitMap for recording the change of task priority,
                                              the priority can not be greater than 31 */
     UINT32          signal;             /**< Task signal */
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
     UINT16          timeSlice;          /**< Remaining time slice */
+#endif
+#ifdef LOSCFG_KERNEL_SMP
+    UINT16          currCpu;            /**< CPU core number of this task is running on */
+    UINT16          lastCpu;            /**< CPU core number of this task is running on last time */
+    UINT32          timerCpu;           /**< CPU core number of this task is delayed or pended */
+    UINT16          cpuAffiMask;        /**< CPU affinity mask, support up to 16 cores */
+#ifdef LOSCFG_KERNEL_SMP_TASK_SYNC
+    UINT32          syncSignal;         /**< Synchronization for signal handling */
+#endif
+#ifdef LOSCFG_KERNEL_SMP_LOCKDEP
+    LockDep         lockDep;
+#endif
+#endif
+#ifdef LOSCFG_KERNEL_SCHED_STATISTICS
+    SchedStat       schedStat;          /**< Schedule statistics */
 #endif
 } LosTaskCB;
 
-typedef struct {
-    LosTaskCB *runTask;
-    LosTaskCB *newTask;
-} LosTask;
-
-
-typedef struct {
-    UINT8 maxCnt : 7;                /* bits [6:0] store count of task switch info */
-    UINT8 isFull : 1;                /* bit [7] store isfull status */
-} TaskCountInfo;
-
-/**
- * @ingroup los_task
- * Task switch information structure.
- *
- */
-typedef struct {
-    UINT8 idx;
-    TaskCountInfo cntInfo;
-    UINT16 pid[OS_TASK_SWITCH_INFO_COUNT];
-    CHAR name[OS_TASK_SWITCH_INFO_COUNT][LOS_TASK_NAMELEN];
-} TaskSwitchInfo;
 /**
  * @ingroup los_task
  * Maximum number of tasks.
@@ -328,11 +288,7 @@ extern UINT32 g_taskMaxNum;
  * Starting address of a task.
  *
  */
-#if (LOSCFG_BASE_CORE_TASK_DYN_MEM == YES)
 extern LosTaskCB *g_taskCBArray;
-#else
-extern LosTaskCB g_taskCBArray[];
-#endif
 
 /**
  * @ingroup los_task
@@ -351,7 +307,7 @@ STATIC INLINE LosTaskCB *OsCurrTaskGet(VOID)
 
 STATIC INLINE VOID OsCurrTaskSet(LosTaskCB *task)
 {
-    ArchCurrTaskSet((VOID *)task);
+    ArchCurrTaskSet(task);
 }
 
 extern VOID OsTaskSchedule(LosTaskCB *, LosTaskCB *);
@@ -367,7 +323,7 @@ extern UINT32 OsShellCmdDumpTask(INT32 argc, const CHAR **argv);
 
 /* get task info */
 #define OS_ALL_TASK_MASK  0xFFFFFFFF
-extern UINT32 OsShellCmdTskInfoGet(UINT32 taskID);
+extern UINT32 OsShellCmdTskInfoGet(UINT32 taskId);
 
 extern VOID* OsGetMainTask(VOID);
 extern VOID OsSetMainTask(VOID);
@@ -491,7 +447,7 @@ extern VOID OsTaskWait(LOS_DL_LIST *list, UINT16 taskStatus, UINT32 timeout);
  */
 extern VOID OsTaskWake(LosTaskCB *resumedTask, UINT16 taskStatus);
 
-extern VOID OsTaskEntry(UINT32 taskID);
+extern VOID OsTaskEntry(UINT32 taskId);
 extern SortLinkAttribute *OsTaskSortLinkGet(VOID);
 extern UINT32 OsTaskSwitchCheck(LosTaskCB *oldTask, LosTaskCB *newTask);
 extern UINT32 OsTaskProcSignal(VOID);

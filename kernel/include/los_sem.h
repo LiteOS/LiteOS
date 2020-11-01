@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
- * Description: Semaphore
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Semaphore HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -164,20 +166,6 @@ extern "C" {
 
 /**
  * @ingroup los_sem
- * Maximum number of semaphores.
- *
- */
-#define OS_SEM_COUNT_MAX                        0xFFFE
-
-/**
- * @ingroup los_sem
- * Maximum number of binary semaphores.
- *
- */
-#define OS_SEM_BINARY_COUNT_MAX                 1
-
-/**
- * @ingroup los_sem
  * @brief Create a semaphore.
  *
  * @par Description:
@@ -264,8 +252,9 @@ extern UINT32 LOS_SemDelete(UINT32 semHandle);
  * parameter that specifies the timeout period.
  * @attention
  * <ul>
+ * <li>Do not pend sem during an interrupt.</li>
  * <li>The specified sem id must be created first. </li>
- * <li>Do not call this API in software timer callback. </li>
+ * <li>Do not recommend to use this API in software timer callback. </li>
  * </ul>
  *
  * @param semHandle [IN] ID of the semaphore control structure to be requested. The ID of the semaphore control

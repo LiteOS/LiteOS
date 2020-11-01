@@ -46,7 +46,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <errno.h>
-#elif defined(WITH_LWIP)
+#elif defined(LOSCFG_COMPONENTS_NET_LWIP)
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"
@@ -78,7 +78,7 @@ typedef struct
 
 void *atiny_net_bind(const char *host, const char *port, int proto)
 {
-#if defined (WITH_LWIP) || defined (WITH_LINUX)
+#if defined (LOSCFG_COMPONENTS_NET_LWIP) || defined (WITH_LINUX)
     (void)host;
     (void)port;
     (void)proto;
@@ -162,11 +162,12 @@ exit_failed:
     }
 		return ctx;
 #endif
-
+   return NULL;
 }
+
 int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t buf_size, size_t *ip_len )
 {
-#if defined (WITH_LWIP) || defined (WITH_LINUX)
+#if defined (LOSCFG_COMPONENTS_NET_LWIP) || defined (WITH_LINUX)
     int bind_fd = ((atiny_net_context*)bind_ctx)->fd;
     int client_fd = ((atiny_net_context*)client_ctx)->fd;
     int type;
@@ -278,7 +279,7 @@ int atiny_net_accept( void *bind_ctx, void *client_ctx, void *client_ip, size_t 
 void *atiny_net_connect(const char *host, const char *port, int proto)
 {
     atiny_net_context *ctx = NULL;
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     int flags;
     int ret;
     struct addrinfo hints;
@@ -294,7 +295,7 @@ void *atiny_net_connect(const char *host, const char *port, int proto)
         return NULL;
     }
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
 
     /* Do name resolution with both IPv6 and IPv4 */
     memset(&hints, 0, sizeof(hints));
@@ -410,7 +411,7 @@ int atiny_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = -1;
     int fd = ((atiny_net_context *)ctx)->fd;
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     ret = recv(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_recv(fd, buf, len);
@@ -420,7 +421,7 @@ int atiny_net_recv(void *ctx, unsigned char *buf, size_t len)
     (void)fd; //clear unuse warning
 #endif
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     if (ret < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
@@ -448,14 +449,14 @@ int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                            uint32_t timeout)
 {
     int ret = -1;
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     struct timeval tv;
     fd_set read_fds;
 #endif
 
     int fd = ((atiny_net_context *)ctx)->fd;
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     if (fd < 0)
     {
         SOCKET_LOG("ilegal socket(%d)", fd);
@@ -505,7 +506,7 @@ int atiny_net_send(void *ctx, const unsigned char *buf, size_t len)
         return -1;
     }
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     ret = send(fd, buf, len, 0);
 #elif defined(WITH_AT_FRAMEWORK)
     ret = at_api_send(fd, buf, len);
@@ -514,7 +515,7 @@ int atiny_net_send(void *ctx, const unsigned char *buf, size_t len)
 #else
 #endif
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     if (ret < 0)
     {
         /* no data available for now */
@@ -539,7 +540,7 @@ void atiny_net_close(void *ctx)
 
     if (fd >= 0)
     {
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
         close(fd);
 #elif defined(WITH_AT_FRAMEWORK)
         at_api_close(fd);
@@ -551,7 +552,7 @@ void atiny_net_close(void *ctx)
     atiny_free(ctx);
 }
 
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
 static int atiny_net_write_sock(void *ctx, const unsigned char *buffer, int len, uint32_t timeout_ms)
 {
     int fd;
@@ -572,13 +573,13 @@ static int atiny_net_write_sock(void *ctx, const unsigned char *buffer, int len,
 int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
                           uint32_t timeout)
 {
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     return atiny_net_write_sock(ctx, buf, len, timeout);
 #elif defined(WITH_AT_FRAMEWORK)
         int fd;
         fd = ((atiny_net_context *)ctx)->fd;
         return at_api_send(fd , buf, (uint32_t)len);
 #endif
-
+   return 0;
 }
 

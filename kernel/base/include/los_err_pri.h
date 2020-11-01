@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Error Handling Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -43,85 +45,33 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/**
- * @ingroup los_err
- * Define the error magic word.
- */
 #define OS_ERR_MAGIC_WORD 0xa1b2c3f8
 
-/**
- * @ingroup los_err
- * @brief Error handling macro capable of returning error codes.
- *
- * @par Description:
- * This API is used to call the error handling function by using an error code and return the same error code.
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  errNo   [IN] Error code.
- *
- * @retval errNo
- * @par Dependency:
- * <ul><li>los_err_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- * @since Huawei LiteOS V100R001C00
- */
+/* used to call the error handling function by using an error code and return the same error code. */
 #define OS_RETURN_ERROR(errNo) do {                                               \
     (VOID)LOS_ErrHandle("os_unspecific_file", OS_ERR_MAGIC_WORD, errNo, 0, NULL); \
     return errNo;                                                                 \
 } while (0)
 
 /**
- * @ingroup los_err
- * @brief Error handling macro capable of returning error codes.
- *
- * @par Description:
- * This API is used to call the error handling function by using an error code and the line number of
+ * Call the error handling function by using an error code and the line number of
  * the erroneous line, and return the same error code.
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  errLine   [IN] Line number of the erroneous line.
- * @param  errNo   [IN] Error code.
- *
- * @retval errNo
- * @par Dependency:
- * <ul><li>los_err_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- * @since Huawei LiteOS V100R001C00
  */
 #define OS_RETURN_ERROR_P2(errLine, errNo) do {                          \
     (VOID)LOS_ErrHandle("os_unspecific_file", errLine, errNo, 0, NULL);  \
     return errNo;                                                        \
 } while (0)
 
-/**
- * @ingroup los_err
- * @brief Macro for jumping to error handler.
- *
- * @par Description:
- * This API is used to call the error handling function by using an error code.
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  errorNo   [IN] Error code.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_err_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- * @since Huawei LiteOS V100R001C00
- */
+/* Used to call the error handling function by using an error code. */
 #define OS_GOTO_ERR_HANDLER(errorNo) do { \
     errNo = errorNo;                      \
     errLine = OS_ERR_MAGIC_WORD;          \
     goto ERR_HANDLER;                     \
+} while (0)
+
+/* Unified error code return */
+#define OS_GOTO_ERREND() do { \
+    goto LOS_ERREND; \
 } while (0)
 
 #ifdef __cplusplus

@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 #include "agent_tiny_demo.h"
 #include "los_base.h"
-#include "los_task.ph"
+#include "los_task_pri.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "atiny_mqtt/mqtt_client.h"
@@ -293,7 +293,6 @@ EXIT:
 }
 
 
-/*lint -e550*/
 void app_data_report(void)
 {
     int cnt = 0;
@@ -331,7 +330,6 @@ void app_data_report(void)
          cnt++;
     }
 }
-/*lint +e550*/
 
 UINT32 creat_report_task()
 {

@@ -73,8 +73,7 @@ static s32_t stm32f4xx_spiffs_erase (struct spiffs_t *fs, u32_t addr, u32_t size
 int stm32f4xx_spiffs_init (int need_erase)
 {
     hal_spi_flash_config();
-    if (need_erase)
-    {
+    if (need_erase) {
         (void)hal_spi_flash_erase(SPIFFS_PHYS_ADDR, SPIFFS_PHYS_SIZE);
     }
 
@@ -82,8 +81,7 @@ int stm32f4xx_spiffs_init (int need_erase)
 
     if (spiffs_mount ("/spiffs/", SPIFFS_PHYS_ADDR, SPIFFS_PHYS_SIZE, PHYS_ERASE_SIZE,
                       LOG_BLOCK_SIZE, LOG_PAGE_SIZE, stm32f4xx_spiffs_read,
-                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK)
-    {
+                      stm32f4xx_spiffs_write, stm32f4xx_spiffs_erase) != LOS_OK) {
         PRINT_ERR ("failed to mount spiffs!\n");
         return LOS_NOK;
     }

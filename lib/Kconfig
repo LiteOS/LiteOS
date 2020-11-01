@@ -1,0 +1,42 @@
+menu "Lib"
+
+config LOSCFG_LIB_LIBC
+    bool "Enable Libc"
+    default y
+    select LOSCFG_BASE_CORE_SWTMR
+    help
+      Answer Y to enable LiteOS support libc.
+
+config  LOSCFG_COMPAT_POSIX
+    bool "Enable Posix"
+    default y
+    depends on LOSCFG_LIB_LIBC
+    select LOSCFG_BASE_IPC_MUX
+    help
+      Answer Y to enable LiteOS support posix interface.
+
+config LOSCFG_LIB_LIBM
+    bool "Enable Math"
+    default y
+    depends on LOSCFG_LIB_LIBC
+    help
+      Answer Y to enable LiteOS support math function.
+
+config LOSCFG_LIB_STDIO
+    bool "Enable Stdio"
+    default y
+    depends on LOSCFG_LIB_LIBC
+    select LOSCFG_COMPAT_POSIX
+    select LOSCFG_LIB_LIBM
+    help
+      Answer Y to enable LiteOS support I/O function.
+
+config LOSCFG_LIB_ZLIB
+    bool "Enable Zlib"
+    default y
+    select LOSCFG_LIB_LIBC
+    select LOSCFG_LIB_LIBM
+    help
+      Answer Y to enable LiteOS support compress file library.
+endmenu
+

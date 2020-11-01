@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: System Build Define HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -47,9 +49,6 @@ extern "C" {
 #ifndef OS_BYTE_ORDER
 #define OS_BYTE_ORDER OS_LITTLE_ENDIAN
 #endif
-
-extern char __text_start, __text_end;
-extern char __ram_data_start, __ram_data_end;
 
 /* Define OS code data sections */
 /* The indicator function is inline */

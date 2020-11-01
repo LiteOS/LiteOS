@@ -41,8 +41,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #define MEM_DYN_SIZE  256
 static UINT32 pDynMem[MEM_DYN_SIZE/4];
@@ -103,5 +103,5 @@ UINT32 Example_Dyn_Mem(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

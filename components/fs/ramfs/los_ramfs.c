@@ -55,7 +55,7 @@ struct ramfs_element
 {
     char                           name [LOS_MAX_FILE_NAME_LEN];
     uint32_t                       type;
-    struct ramfs_element          *sabling;
+    struct ramfs_element          *sibling;
     struct ramfs_element          *parent;
     volatile uint32_t              refs;
     union
@@ -121,7 +121,7 @@ static struct ramfs_element *ramfs_file_find (struct mount_point *mp,
             return NULL;
         }
 
-        for (t = walk->d.child; t != NULL; t = t->sabling)
+        for (t = walk->d.child; t != NULL; t = t->sibling)
         {
             if ((strncmp (t->name, path_in_mp, l) == 0) &&
                     (t->name [l] == '\0'))
@@ -249,7 +249,7 @@ static int ramfs_open (struct file *file, const char *path_in_mp, int flags)
     ramfs_file->refs = 1;
 
     ramfs_file->type = RAMFS_TYPE_FILE;
-    ramfs_file->sabling = walk->d.child;
+    ramfs_file->sibling = walk->d.child;
     walk->d.child = ramfs_file;
     ramfs_file->f.content = NULL;
     ramfs_file->f.size = 0;
@@ -385,16 +385,16 @@ static void ramfs_del (struct ramfs_element *e)
 
     if (t == e)
     {
-        dir->d.child = e->sabling;
+        dir->d.child = e->sibling;
     }
     else
     {
-        while (t->sabling != e)
+        while (t->sibling != e)
         {
-            t = t->sabling;
+            t = t->sibling;
         }
 
-        t->sabling = e->sabling;
+        t->sibling = e->sibling;
     }
 
     free (e);
@@ -530,7 +530,7 @@ static int ramfs_readdir (struct dir *dir, struct dirent *dent)
 
     for (i = 0, child = ramfs_dir->d.child;
             i < dir->d_offset && child != NULL;
-            i++, child = child->sabling)
+            i++, child = child->sibling)
     {
         /* nop */
     }
@@ -619,7 +619,7 @@ static int ramfs_mkdir (struct mount_point *mp, const char *path_in_mp)
 
     strncpy (ramfs_dir->name, path_in_mp, len);
     ramfs_dir->type       = RAMFS_TYPE_DIR;
-    ramfs_dir->sabling    = ramfs_parent->d.child;
+    ramfs_dir->sibling    = ramfs_parent->d.child;
     ramfs_parent->d.child = ramfs_dir;
     ramfs_dir->parent     = ramfs_parent;
 
@@ -751,7 +751,7 @@ void ramfs_ls (struct ramfs_element *dir, int level)
         return;
     }
 
-    for (itr = dir->d.child; itr != NULL; itr = itr->sabling)
+    for (itr = dir->d.child; itr != NULL; itr = itr->sibling)
     {
         for (i = 0; i < level; i++)
             PRINTK ("  ");

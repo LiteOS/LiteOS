@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: System Console HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -37,7 +39,7 @@
 
 #include "los_config.h"
 #ifdef LOSCFG_FS_VFS
-#include "asm/termbits.h"
+#include "termios.h"
 #ifdef LOSCFG_NET_TELNET
 #include "telnet_dev.h"
 #endif
@@ -73,6 +75,8 @@ extern "C" {
 #define CONSOLE_SHELL_EXITED           0x400
 #define CONSOLE_CONTROL_RIGHTS_CAPTURE 201
 #define CONSOLE_CONTROL_RIGHTS_RELEASE 202
+#define CONSOLE_CONTROL_CAPTURE_LINE   203
+#define CONSOLE_CONTROL_CAPTURE_CHAR   204
 #define CONSOLE_FIFO_SIZE              1024
 #define CONSOLE_NUM                    2
 
@@ -113,9 +117,9 @@ extern BOOL SetSerialNonBlock(const CONSOLE_CB *consoleCB);
 extern BOOL SetSerialBlock(const CONSOLE_CB *consoleCB);
 extern BOOL SetTelnetNonBlock(const CONSOLE_CB *consoleCB);
 extern BOOL SetTelnetBlock(const CONSOLE_CB *consoleCB);
-extern CONSOLE_CB *OsGetConsoleByID(INT32 consoleID);
-extern CONSOLE_CB *OsGetConsoleByTaskID(UINT32 taskID);
-extern VOID ConsoleTaskReg(INT32 consoleID, UINT32 taskID);
+extern CONSOLE_CB *OsGetConsoleByID(INT32 consoleId);
+extern CONSOLE_CB *OsGetConsoleByTaskID(UINT32 taskId);
+extern VOID ConsoleTaskReg(INT32 consoleId, UINT32 taskId);
 extern INT32 ConsoleUpdateFd(VOID);
 extern BOOL ConsoleEnable(VOID);
 extern BOOL is_nonblock(const CONSOLE_CB *consoleCB);

@@ -1,0 +1,16 @@
+menu "Security"
+
+config LOSCFG_COMPONENTS_SECURITY
+    bool "Enable Security"
+    default n
+    help
+      Answer Y to enable sucurity component.
+
+config LOSCFG_COMPONENTS_SECURITY_MBEDTLS
+    bool "Enable Mbed TLS Component"
+    default n
+    depends on LOSCFG_COMPONENTS_SECURITY
+    help
+      Answer Y to enable Mbed TLS.
+
+endmenu

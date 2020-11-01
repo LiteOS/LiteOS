@@ -1,0 +1,12 @@
+menu "Sensorhub Demo"
+
+comment "only support Cloud_STM32F429IGTx_FIRE"
+
+config LOSCFG_DEMOS_SENSORHUB
+    bool "Enable Sensorhub Demo"
+    default n
+    depends on LOSCFG_COMPONENTS_SENSORHUB
+    help
+      Answer Y to enable LiteOS support sensorhub demo.
+
+endmenu

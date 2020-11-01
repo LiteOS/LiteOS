@@ -32,11 +32,13 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __STM32F429_ETH_H__
-#define __STM32F429_ETH_H__
-#ifdef WITH_LWIP
+#ifndef _STM32F429_ETH_H
+#define _STM32F429_ETH_H
+
+#ifdef LOSCFG_COMPONENTS_NET_LWIP
 #include "ethernetif.h"
 
 extern struct ethernet_api g_eth_api;
 #endif
-#endif
+
+#endif /* _STM32F429_ETH_H */

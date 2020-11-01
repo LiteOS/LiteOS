@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Doubly linked list
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -355,7 +357,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
  */
 #define LOS_DL_LIST_FOR_EACH_ENTRY(item, list, type, member)             \
     for (item = LOS_DL_LIST_ENTRY((list)->pstNext, type, member);        \
-         &(item)->member != list;                                        \
+         &(item)->member != (list);                                      \
          item = LOS_DL_LIST_ENTRY((item)->member.pstNext, type, member))
 
 /**
@@ -384,7 +386,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
 #define LOS_DL_LIST_FOR_EACH_ENTRY_SAFE(item, next, list, type, member)               \
     for (item = LOS_DL_LIST_ENTRY((list)->pstNext, type, member),                     \
          next = LOS_DL_LIST_ENTRY((item)->member->pstNext, type, member);             \
-         &(item)->member != list;                                                     \
+         &(item)->member != (list);                                                   \
          item = next, next = LOS_DL_LIST_ENTRY((item)->member.pstNext, type, member))
 
 /**
@@ -435,7 +437,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
  */
 #define LOS_DL_LIST_FOR_EACH(item, list) \
     for (item = (list)->pstNext;         \
-         item != list;                   \
+         (item) != (list);               \
          item = (item)->pstNext)
 
 /**
@@ -461,7 +463,7 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
  */
 #define LOS_DL_LIST_FOR_EACH_SAFE(item, next, list)      \
     for (item = (list)->pstNext, next = (item)->pstNext; \
-         item != list;                                   \
+         (item) != (list);                               \
          item = next, next = (item)->pstNext)
 
 /**

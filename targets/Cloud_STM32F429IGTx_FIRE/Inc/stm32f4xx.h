@@ -3,42 +3,26 @@
   * @file    stm32f4xx.h
   * @author  MCD Application Team
   * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.
-  *
+  *            
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The STM32F4xx device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e.
-  *                code will be based on direct access to peripheral’s registers
-  *                rather than drivers API), this option is controlled by
+  *              - To use or not the peripheral’s drivers in application code(i.e. 
+  *                code will be based on direct access to peripheral’s registers 
+  *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
-  *
+  *  
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -50,18 +34,18 @@
 /** @addtogroup stm32f4xx
   * @{
   */
-
+    
 #ifndef __STM32F4xx_H
 #define __STM32F4xx_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */
-
+   
 /** @addtogroup Library_configuration_section
   * @{
   */
-
+  
 /**
   * @brief STM32 Family
   */
@@ -70,7 +54,7 @@
 #endif /* STM32F4 */
 
 /* Uncomment the line below according to the target STM32 device used in your
-   application
+   application 
   */
 #if !defined (STM32F405xx) && !defined (STM32F415xx) && !defined (STM32F407xx) && !defined (STM32F417xx) && \
     !defined (STM32F427xx) && !defined (STM32F437xx) && !defined (STM32F429xx) && !defined (STM32F439xx) && \
@@ -84,9 +68,9 @@
   /* #define STM32F417xx */   /*!< STM32F417VG, STM32F417VE, STM32F417ZG, STM32F417ZE, STM32F417IG and STM32F417IE Devices */
   /* #define STM32F427xx */   /*!< STM32F427VG, STM32F427VI, STM32F427ZG, STM32F427ZI, STM32F427IG and STM32F427II Devices */
   /* #define STM32F437xx */   /*!< STM32F437VG, STM32F437VI, STM32F437ZG, STM32F437ZI, STM32F437IG and STM32F437II Devices */
-  /* #define STM32F429xx */   /*!< STM32F429VG, STM32F429VI, STM32F429ZG, STM32F429ZI, STM32F429BG, STM32F429BI, STM32F429NG,
+  /* #define STM32F429xx */   /*!< STM32F429VG, STM32F429VI, STM32F429ZG, STM32F429ZI, STM32F429BG, STM32F429BI, STM32F429NG, 
                                    STM32F439NI, STM32F429IG  and STM32F429II Devices */
-  /* #define STM32F439xx */   /*!< STM32F439VG, STM32F439VI, STM32F439ZG, STM32F439ZI, STM32F439BG, STM32F439BI, STM32F439NG,
+  /* #define STM32F439xx */   /*!< STM32F439VG, STM32F439VI, STM32F439ZG, STM32F439ZI, STM32F439BG, STM32F439BI, STM32F439NG, 
                                    STM32F439NI, STM32F439IG and STM32F439II Devices */
   /* #define STM32F401xC */   /*!< STM32F401CB, STM32F401CC, STM32F401RB, STM32F401RC, STM32F401VB and STM32F401VC Devices */
   /* #define STM32F401xE */   /*!< STM32F401CD, STM32F401RD, STM32F401VD, STM32F401CE, STM32F401RE and STM32F401VE Devices */
@@ -94,11 +78,11 @@
   /* #define STM32F410Cx */   /*!< STM32F410C8 and STM32F410CB Devices */
   /* #define STM32F410Rx */   /*!< STM32F410R8 and STM32F410RB Devices */
   /* #define STM32F411xE */   /*!< STM32F411CC, STM32F411RC, STM32F411VC, STM32F411CE, STM32F411RE and STM32F411VE Devices */
-  /* #define STM32F446xx */   /*!< STM32F446MC, STM32F446ME, STM32F446RC, STM32F446RE, STM32F446VC, STM32F446VE, STM32F446ZC,
+  /* #define STM32F446xx */   /*!< STM32F446MC, STM32F446ME, STM32F446RC, STM32F446RE, STM32F446VC, STM32F446VE, STM32F446ZC, 
                                    and STM32F446ZE Devices */
-  /* #define STM32F469xx */   /*!< STM32F469AI, STM32F469II, STM32F469BI, STM32F469NI, STM32F469AG, STM32F469IG, STM32F469BG,
+  /* #define STM32F469xx */   /*!< STM32F469AI, STM32F469II, STM32F469BI, STM32F469NI, STM32F469AG, STM32F469IG, STM32F469BG, 
                                    STM32F469NG, STM32F469AE, STM32F469IE, STM32F469BE and STM32F469NE Devices */
-  /* #define STM32F479xx */   /*!< STM32F479AI, STM32F479II, STM32F479BI, STM32F479NI, STM32F479AG, STM32F479IG, STM32F479BG
+  /* #define STM32F479xx */   /*!< STM32F479AI, STM32F479II, STM32F479BI, STM32F479NI, STM32F479AG, STM32F479IG, STM32F479BG 
                                    and STM32F479NG Devices */
   /* #define STM32F412Cx */   /*!< STM32F412CEU and STM32F412CGU Devices */
   /* #define STM32F412Zx */   /*!< STM32F412ZET, STM32F412ZGT, STM32F412ZEJ and STM32F412ZGJ Devices */
@@ -108,25 +92,25 @@
                                    STM32F413RG, STM32F413VG and STM32F413ZG Devices */
   /* #define STM32F423xx */   /*!< STM32F423CH, STM32F423RH, STM32F423VH and STM32F423ZH Devices */
 #endif
-
+   
 /*  Tip: To avoid modifying this file each time you need to switch between these
         devices, you can define the device in your toolchain compiler preprocessor.
   */
 #if !defined  (USE_HAL_DRIVER)
 /**
  * @brief Comment the line below if you will not use the peripherals drivers.
-   In this case, these drivers will not be included and the application code will
-   be based on direct access to peripherals registers
+   In this case, these drivers will not be included and the application code will 
+   be based on direct access to peripherals registers 
    */
   /*#define USE_HAL_DRIVER */
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS version number V2.6.2
+  * @brief CMSIS version number V2.6.5
   */
 #define __STM32F4xx_CMSIS_VERSION_MAIN   (0x02U) /*!< [31:24] main version */
 #define __STM32F4xx_CMSIS_VERSION_SUB1   (0x06U) /*!< [23:16] sub1 version */
-#define __STM32F4xx_CMSIS_VERSION_SUB2   (0x02U) /*!< [15:8]  sub2 version */
+#define __STM32F4xx_CMSIS_VERSION_SUB2   (0x05U) /*!< [15:8]  sub2 version */
 #define __STM32F4xx_CMSIS_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32F4xx_CMSIS_VERSION        ((__STM32F4xx_CMSIS_VERSION_MAIN << 24)\
                                          |(__STM32F4xx_CMSIS_VERSION_SUB1 << 16)\
@@ -197,24 +181,24 @@
 
 /** @addtogroup Exported_types
   * @{
-  */
-typedef enum
+  */ 
+typedef enum 
 {
-  RESET = 0U,
+  RESET = 0U, 
   SET = !RESET
 } FlagStatus, ITStatus;
 
-typedef enum
+typedef enum 
 {
-  DISABLE = 0U,
+  DISABLE = 0U, 
   ENABLE = !DISABLE
 } FunctionalState;
 #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
 
 typedef enum
 {
-  ERROR = 0U,
-  SUCCESS = !ERROR
+  SUCCESS = 0U,
+  ERROR = !SUCCESS
 } ErrorStatus;
 
 /**
@@ -239,7 +223,7 @@ typedef enum
 
 #define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
 
-#define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL)))
+#define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL))) 
 
 
 /**
@@ -262,7 +246,7 @@ typedef enum
 /**
   * @}
   */
-
+  
 
 
 

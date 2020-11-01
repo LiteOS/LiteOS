@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Task Module Implementation HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -54,7 +56,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define CPUID_TO_AFFI_MASK(cpuid)                   (0x1u << (cpuid))
+#define CPUID_TO_AFFI_MASK(cpuid)               (0x1u << (cpuid))
 
 /**
  * @ingroup los_task
@@ -216,12 +218,12 @@ extern "C" {
 
 /**
  * @ingroup los_task
- * Task error code: The task yeild occurs when the task is locked.
+ * Task error code: The task yield occurs when the task is locked.
  * Value: 0x0200020f
  *
  * Solution: Check the task.
  */
-#define LOS_ERRNO_TSK_YIELD_IN_LOCK                 LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x0f)
+#define LOS_ERRNO_TSK_YIELD_IN_LOCK             LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x0f)
 
 /**
  * @ingroup los_task
@@ -272,7 +274,7 @@ extern "C" {
  *
  * Solution: Check the task ID and do not operate on the system-level task.
  */
-#define LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK           LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x14)
+#define LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK       LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x14)
 
 /**
  * @ingroup los_task
@@ -402,17 +404,17 @@ extern "C" {
  *
  * Solution: Please set the correct cpu affinity mask.
  */
-#define LOS_ERRNO_TSK_CPU_AFFINITY_MASK_ERR         LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x23)
+#define LOS_ERRNO_TSK_CPU_AFFINITY_MASK_ERR     LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x23)
 
 /**
  * @ingroup los_task
- * Task error code: Task yeild in int is not permited, which will result in unexpected result.
+ * Task error code: Task yield in int is not permited, which will result in unexpected result.
  *
  * Value: 0x02000224
  *
  * Solution: Don't call LOS_TaskYield in Interrupt.
  */
-#define LOS_ERRNO_TSK_YIELD_IN_INT                  LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x24)
+#define LOS_ERRNO_TSK_YIELD_IN_INT              LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x24)
 
 /**
 * @ingroup los_task
@@ -422,7 +424,7 @@ extern "C" {
 *
 * Solution: Expand LOSCFG_BASE_IPC_SEM_LIMIT.
 */
-#define LOS_ERRNO_TSK_MP_SYNC_RESOURCE              LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x25)
+#define LOS_ERRNO_TSK_MP_SYNC_RESOURCE          LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x25)
 
 /**
 * @ingroup los_task
@@ -432,7 +434,7 @@ extern "C" {
 *
 * Solution: Check task delete can be handled in user's scenario.
 */
-#define LOS_ERRNO_TSK_MP_SYNC_FAILED                LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x26)
+#define LOS_ERRNO_TSK_MP_SYNC_FAILED            LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x26)
 
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
 /**
@@ -469,11 +471,14 @@ extern TSKSWITCHHOOK g_pfnUsrTskSwitchHook;
 * @see
 * @since Huawei LiteOS V100R001C00
 */
+#ifdef LOSCFG_OBSOLETE_API
 typedef VOID *(*TSK_ENTRY_FUNC)(UINTPTR param1,
                                 UINTPTR param2,
                                 UINTPTR param3,
                                 UINTPTR param4);
-
+#else
+typedef VOID *(*TSK_ENTRY_FUNC)(VOID *param);
+#endif
 /**
  * @ingroup los_task
  * Define the structure of the parameters used for task creation.
@@ -483,9 +488,16 @@ typedef VOID *(*TSK_ENTRY_FUNC)(UINTPTR param1,
 typedef struct tagTskInitParam {
     TSK_ENTRY_FUNC  pfnTaskEntry;  /**< Task entrance function */
     UINT16          usTaskPrio;    /**< Task priority */
+#ifdef LOSCFG_OBSOLETE_API
     UINTPTR         auwArgs[4];    /**< Task parameters, of which the maximum number is four */
+#else
+    VOID            *pArgs;        /**< Task Parameter, of which the type is void * */
+#endif
     UINT32          uwStackSize;   /**< Task stack size */
     CHAR            *pcName;       /**< Task name */
+#ifdef LOSCFG_KERNEL_SMP
+    UINT16          usCpuAffiMask; /**< Task cpu affinity mask         */
+#endif
     UINT32          uwResved;      /**< It is automatically deleted if set to LOS_TASK_STATUS_DETACHED.
                                         It is unable to be deleted if set to 0. */
 } TSK_INIT_PARAM_S;
@@ -545,10 +557,10 @@ typedef struct tagTskInfo {
  * abnormal.</li>
  * </ul>
  *
- * @param  taskID    [OUT] Type  #UINT32 * Task ID.
+ * @param  taskId    [OUT] Type  #UINT32 * Task ID.
  * @param  initParam [IN]  Type  #TSK_INIT_PARAM_S * Parameter for task creation.
  *
- * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param taskID is NULL.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param taskId is NULL.
  * @retval #LOS_ERRNO_TSK_PTR_NULL          Param initParam is NULL.
  * @retval #LOS_ERRNO_TSK_NAME_EMPTY        The task name is NULL.
  * @retval #LOS_ERRNO_TSK_ENTRY_NULL        The task entrance is NULL.
@@ -564,7 +576,7 @@ typedef struct tagTskInfo {
  * @see LOS_TaskDelete
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
+extern UINT32 LOS_TaskCreateOnly(UINT32 *taskId, TSK_INIT_PARAM_S *initParam);
 
 /**
  * @ingroup  los_task
@@ -591,10 +603,10 @@ extern UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
  * abnormal.</li>
  * </ul>
  *
- * @param  taskID    [OUT] Type  #UINT32 * Task ID.
+ * @param  taskId    [OUT] Type  #UINT32 * Task ID.
  * @param  initParam [IN]  Type  #TSK_INIT_PARAM_S * Parameter for task creation.
  *
- * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param taskID is NULL.
+ * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID, param taskId is NULL.
  * @retval #LOS_ERRNO_TSK_PTR_NULL          Param initParam is NULL.
  * @retval #LOS_ERRNO_TSK_NAME_EMPTY        The task name is NULL.
  * @retval #LOS_ERRNO_TSK_ENTRY_NULL        The task entrance is NULL.
@@ -610,7 +622,7 @@ extern UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
  * @see LOS_TaskDelete
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
+extern UINT32 LOS_TaskCreate(UINT32 *taskId, TSK_INIT_PARAM_S *initParam);
 
 /**
  * @ingroup  los_task
@@ -626,7 +638,7 @@ extern UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
  * is not locked, it is scheduled for running.</li>
  * </ul>
  *
- * @param  taskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
  * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID
  * @retval #LOS_ERRNO_TSK_NOT_CREATED       The task is not created.
@@ -637,7 +649,7 @@ extern UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *initParam);
  * @see LOS_TaskSuspend
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskResume(UINT32 taskID);
+extern UINT32 LOS_TaskResume(UINT32 taskId);
 
 /**
  * @ingroup  los_task
@@ -652,7 +664,7 @@ extern UINT32 LOS_TaskResume(UINT32 taskID);
  * <li>The idle task and swtmr task cannot be suspended.</li>
  * </ul>
  *
- * @param  taskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
  * @retval #LOS_ERRNO_TSK_OPERATE_IDLE                  Check the task ID and do not operate on the idle task.
  * @retval #LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED     Check the task ID and do not operate on the swtmr task.
@@ -667,7 +679,7 @@ extern UINT32 LOS_TaskResume(UINT32 taskID);
  * @see LOS_TaskResume
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskSuspend(UINT32 taskID);
+extern UINT32 LOS_TaskSuspend(UINT32 taskId);
 
 /**
  * @ingroup  los_task
@@ -684,7 +696,7 @@ extern UINT32 LOS_TaskSuspend(UINT32 taskID);
  * this mutex maybe never be shchduled.</li>
  * </ul>
  *
- * @param  taskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
  * @retval #LOS_ERRNO_TSK_OPERATE_IDLE                  Check the task ID and do not operate on the idle task.
  * @retval #LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED     Check the task ID and do not operate on the swtmr task.
@@ -698,7 +710,7 @@ extern UINT32 LOS_TaskSuspend(UINT32 taskID);
  * @see LOS_TaskCreate | LOS_TaskCreateOnly
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskDelete(UINT32 taskID);
+extern UINT32 LOS_TaskDelete(UINT32 taskId);
 
 /**
  * @ingroup  los_task
@@ -790,14 +802,14 @@ extern VOID LOS_TaskUnlock(VOID);
  *
  * @attention
  * <ul>
- * <li>If the set priority is higher than the priority of the current running task, task scheduling 
+ * <li>If the set priority is higher than the priority of the current running task, task scheduling
  * probably occurs.</li>
  * <li>Changing the priority of the current running task also probably causes task scheduling.</li>
  * <li>Using the interface to change the priority of software timer task and idle task is not allowed.</li>
  * <li>Using the interface in the interrupt is not allowed.</li>
  * </ul>
  *
- * @param  taskID   [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId   [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  * @param  taskPrio [IN] Type #UINT16 Task priority.
  *
  * @retval #LOS_ERRNO_TSK_PRIOR_ERROR    Incorrect task priority.Re-configure the task priority
@@ -810,7 +822,7 @@ extern VOID LOS_TaskUnlock(VOID);
  * @see LOS_TaskPriSet
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskPriSet(UINT32 taskID, UINT16 taskPrio);
+extern UINT32 LOS_TaskPriSet(UINT32 taskId, UINT16 taskPrio);
 
 /**
  * @ingroup  los_task
@@ -877,7 +889,7 @@ extern UINT32 LOS_TaskYield(VOID);
  *
  * @attention None.
  *
- * @param  taskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
  *
  * @retval #OS_INVALID      The task priority fails to be obtained.
  * @retval #UINT16          The task priority.
@@ -886,7 +898,7 @@ extern UINT32 LOS_TaskYield(VOID);
  * @see LOS_TaskPriSet
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT16 LOS_TaskPriGet(UINT32 taskID);
+extern UINT16 LOS_TaskPriGet(UINT32 taskId);
 
 /**
  * @ingroup  los_task
@@ -922,7 +934,7 @@ extern UINT32 LOS_CurTaskIDGet(VOID);
  * abnormal.</li>
  * </ul>
  *
- * @param  taskID    [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId    [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
  * @param  taskInfo [OUT] Type  #TSK_INFO_S* Pointer to the task information structure to be obtained.
  *
  * @retval #LOS_ERRNO_TSK_PTR_NULL        Null parameter.
@@ -934,7 +946,7 @@ extern UINT32 LOS_CurTaskIDGet(VOID);
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_TaskInfoGet(UINT32 taskID, TSK_INFO_S *taskInfo);
+extern UINT32 LOS_TaskInfoGet(UINT32 taskId, TSK_INFO_S *taskInfo);
 
 
 /**
@@ -946,23 +958,23 @@ extern UINT32 LOS_TaskInfoGet(UINT32 taskID, TSK_INFO_S *taskInfo);
  *
  * @attention
  * <ul>
- * <li>If any low LOSCFG_KERNEL_CORE_NUM bit of the mask is not setted, an error is reported.</li>
+ * <li>If any low LOSCFG_KERNEL_CORE_NUM bit of the mask is not set, an error is reported.</li>
  * </ul>
  *
- * @param  uwTaskID      [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId      [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
  * @param  usCpuAffiMask [IN]  Type  #UINT32 The scheduling cpu mask.The low to high bit of the mask corresponds to
  *                             the cpu number, the high bit that exceeding the CPU number is ignored.
  *
  * @retval #LOS_ERRNO_TSK_ID_INVALID                Invalid task ID.
  * @retval #LOS_ERRNO_TSK_NOT_CREATED               The task is not created.
  * @retval #LOS_ERRNO_TSK_CPU_AFFINITY_MASK_ERR     The task cpu affinity mask is incorrect.
- * @retval #LOS_OK                                  The task cpu affinity mask is successfully setted.
+ * @retval #LOS_OK                                  The task cpu affinity mask is successfully set.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TaskCpuAffiGet
  * @since Huawei LiteOS V200R003C00
  */
-extern UINT32 LOS_TaskCpuAffiSet(UINT32 uwTaskID, UINT16 usCpuAffiMask);
+extern UINT32 LOS_TaskCpuAffiSet(UINT32 taskId, UINT16 usCpuAffiMask);
 
 /**
  * @ingroup  los_task
@@ -973,7 +985,7 @@ extern UINT32 LOS_TaskCpuAffiSet(UINT32 uwTaskID, UINT16 usCpuAffiMask);
  *
  * @attention None.
  *
- * @param  taskID       [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
+ * @param  taskId       [IN]  Type  #UINT32 Task ID. The task id value is obtained from task creation.
  *
  * @retval #0           The cpu affinity mask fails to be obtained.
  * @retval #UINT16      The scheduling cpu mask. The low to high bit of the mask corresponds to the cpu number.
@@ -982,7 +994,16 @@ extern UINT32 LOS_TaskCpuAffiSet(UINT32 uwTaskID, UINT16 usCpuAffiMask);
  * @see LOS_TaskCpuAffiSet
  * @since Huawei LiteOS V200R003C00
  */
-extern UINT16 LOS_TaskCpuAffiGet(UINT32 taskID);
+extern UINT16 LOS_TaskCpuAffiGet(UINT32 taskId);
+
+#ifdef LOSCFG_OBSOLETE_API
+    #define LOS_TASK_PARAM_INIT_ARG_0(initParam, arg) \
+            initParam.auwArgs[0] = (UINTPTR)arg
+    #define LOS_TASK_PARAM_INIT_ARG(initParam, arg) LOS_TASK_PARAM_INIT_ARG_0(initParam, arg)
+#else
+    #define LOS_TASK_PARAM_INIT_ARG(initParam, arg) \
+            initParam.pArgs = (VOID *)arg
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

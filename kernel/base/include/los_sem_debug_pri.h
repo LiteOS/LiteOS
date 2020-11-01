@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Sem Debug Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -55,20 +57,20 @@ STATIC INLINE UINT32 OsSemDbgInitHook(VOID)
 #endif
 }
 /* Update the last time the semaphore was executed */
-extern VOID OsSemDbgTimeUpdate(UINT32 semID);
-STATIC INLINE VOID OsSemDbgTimeUpdateHook(UINT32 semID)
+extern VOID OsSemDbgTimeUpdate(UINT32 semId);
+STATIC INLINE VOID OsSemDbgTimeUpdateHook(UINT32 semId)
 {
 #ifdef LOSCFG_DEBUG_SEMAPHORE
-    OsSemDbgTimeUpdate(semID);
+    OsSemDbgTimeUpdate(semId);
 #endif
     return;
 }
 /* Update the SEM_DEBUG_CB of the semaphore when created or deleted */
-extern VOID OsSemDbgUpdate(UINT32 semID, TSK_ENTRY_FUNC creater, UINT16 count);
-STATIC INLINE VOID OsSemDbgUpdateHook(UINT32 semID, TSK_ENTRY_FUNC creater, UINT16 count)
+extern VOID OsSemDbgUpdate(UINT32 semID, TSK_ENTRY_FUNC creator, UINT16 count);
+STATIC INLINE VOID OsSemDbgUpdateHook(UINT32 semId, TSK_ENTRY_FUNC creator, UINT16 count)
 {
 #ifdef LOSCFG_DEBUG_SEMAPHORE
-    OsSemDbgUpdate(semID, creater, count);
+    OsSemDbgUpdate(semId, creator, count);
 #endif
     return;
 }

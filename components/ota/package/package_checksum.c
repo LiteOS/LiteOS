@@ -201,13 +201,11 @@ int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8
         thi->offset = offset + len;
         return PACK_OK;
     }
-    /*lint -e525*/
     if((NULL == hardware) || (NULL == hardware->read_software))
     {
         PACK_LOG("hardware null");
         return PACK_ERR;
     }
-    /*lint +e525*/
 
     ret = pack_checksum_init_head_data(thi);
     if(ret != PACK_OK)

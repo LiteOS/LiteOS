@@ -165,8 +165,8 @@ int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int3
         goto END;
     }
 
-    rlen = strstr((const char*)in_buf,":");/*lint !e158*/
-    if (rlen == NULL)/*lint !e158*/
+    rlen = strstr((const char*)in_buf,":");
+    if (rlen == NULL)
     {
         SOTA_LOG("buflen invalid");
         goto END;
@@ -175,9 +175,9 @@ int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int3
     if (out_len < buflen)
     {
         SOTA_LOG("out buf not enough");
-        goto END; 
+        goto END;
     }
-    
+
     buflen = buflen * 2;
     databuf = strstr(rlen,",");
     if (databuf == NULL)

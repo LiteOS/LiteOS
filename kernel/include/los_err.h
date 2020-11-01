@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Error Handling
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -106,6 +108,28 @@ extern UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo,
 
 /**
  * @ingroup los_err
+ * @brief User registration error handling hook function.
+ *
+ * @par Description:
+ * This API is used to register user error handling hook function,
+ * Support repeated registration.
+ * @attention
+ * <ul>
+ * <li>None</li>
+ * </ul>
+ *
+ * @param  func  [IN] error handling hook function.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_err.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ * @since Huawei LiteOS V100R001C00
+ */
+extern VOID LOS_RegErrHandle(LOS_ERRORHANDLE_FUNC func);
+
+/**
+ * @ingroup los_err
  * Error handling function structure.
  */
 typedef struct tagUserErrFunc_S {
@@ -117,46 +141,6 @@ typedef struct tagUserErrFunc_S {
  * Error handling function.
  */
 extern USER_ERR_FUNC_S g_stUserErrFunc;
-
-enum LOS_MOUDLE_ID {
-    LOS_MOD_SYS = 0x0,
-    LOS_MOD_MEM = 0x1,
-    LOS_MOD_TSK = 0x2,
-    LOS_MOD_SWTMR = 0x3,
-    LOS_MOD_TICK = 0x4,
-    LOS_MOD_MSG = 0x5,
-    LOS_MOD_QUE = 0x6,
-    LOS_MOD_SEM = 0x7,
-    LOS_MOD_MBOX = 0x8,
-    LOS_MOD_HWI = 0x9,
-    LOS_MOD_HWWDG = 0xa,
-    LOS_MOD_CACHE = 0xb,
-    LOS_MOD_HWTMR = 0xc,
-    LOS_MOD_MMU = 0xd,
-
-    LOS_MOD_LOG = 0xe,
-    LOS_MOD_ERR = 0xf,
-
-    LOS_MOD_EXC = 0x10,
-    LOS_MOD_CSTK = 0x11,
-
-    LOS_MOD_MPU = 0x12,
-    LOS_MOD_NMHWI = 0x13,
-    LOS_MOD_TRACE = 0x14,
-    LOS_MOD_KNLSTAT = 0x15,
-    LOS_MOD_EVTTIME = 0x16,
-    LOS_MOD_THRDCPUP = 0x17,
-    LOS_MOD_IPC = 0x18,
-    LOS_MOD_STKMON = 0x19,
-    LOS_MOD_TIMER = 0x1a,
-    LOS_MOD_RESLEAKMON = 0x1b,
-    LOS_MOD_EVENT = 0x1c,
-    LOS_MOD_MUX = 0X1d,
-    LOS_MOD_CPUP = 0x1e,
-    LOS_MOD_SHELL = 0x31,
-    LOS_MOD_DRIVER = 0x41,
-    LOS_MOD_BUTT
-};
 
 #ifdef __cplusplus
 #if __cplusplus

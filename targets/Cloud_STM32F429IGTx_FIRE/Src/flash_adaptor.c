@@ -37,8 +37,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "osdepends/atiny_osdep.h"
-#include <board.h>
+#include "board_ota.h"
 #include "common.h"
+#include "securec.h"
 
 #define FLASH_BLOCK_SIZE 0x1000
 #define FLASH_BLOCK_MASK 0xfff
@@ -46,51 +47,48 @@
 
 int flash_adaptor_write(uint32_t offset, const uint8_t *buffer, uint32_t len)
 {
-    int ret = ERR;
-    uint8_t *block_buff;
+    int ret;
+    uint8_t *block_buff = NULL;
 
-    if((NULL == buffer) || (0 == len) || (len > FLASH_BLOCK_SIZE)
-        || ((offset & FLASH_BLOCK_MASK)))
-    {
+    if ((buffer == NULL) || (len == 0) || (len > FLASH_BLOCK_SIZE)
+        || ((offset & FLASH_BLOCK_MASK))) {
         HAL_OTA_LOG("invalid param len %ld, offset %ld", len, offset);
         return ERR;
     }
 
-    if (len == FLASH_BLOCK_SIZE)
-    {
+    if (len == FLASH_BLOCK_SIZE) {
         ret = hal_spi_flash_erase_write(buffer, FLASH_BLOCK_SIZE, offset);
-        if(ret != OK)
-        {
-           HAL_OTA_LOG("hal_ota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
+        if (ret != OK) {
+            HAL_OTA_LOG("hal_ota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
         }
         return ret;
     }
 
     block_buff = atiny_malloc(FLASH_BLOCK_SIZE);
-    if(NULL == block_buff)
-    {
+    if (block_buff == NULL) {
         HAL_OTA_LOG("atiny_malloc fail");
         return ERR;
     }
 
     ret = hal_spi_flash_read(block_buff + len, FLASH_BLOCK_SIZE - len, offset + len);
-    if(ret != OK)
-    {
+    if (ret != OK) {
         HAL_OTA_LOG("hal_spi_flash_read fail offset %lu, len %lu", offset + len, FLASH_BLOCK_SIZE - len);
         goto EXIT;
     }
-    (void)memcpy(block_buff, buffer, len);
+
+    if (memcpy_s(block_buff, FLASH_BLOCK_SIZE, buffer, len) != EOK) {
+        return ERR;
+    }
+
     ret = hal_spi_flash_erase_write(block_buff, FLASH_BLOCK_SIZE, offset);
-    if(ret != OK)
-    {
+    if (ret != OK) {
         HAL_OTA_LOG("hal_ota_write_flash fail offset %lu, len %u", offset, FLASH_BLOCK_SIZE);
     }
+
 EXIT:
     atiny_free(block_buff);
     return ret;
 }
-
-
 
 void flash_adaptor_init(void)
 {
@@ -99,8 +97,7 @@ void flash_adaptor_init(void)
 
 int flash_adaptor_write_mqtt_info(const void *buffer, uint32_t len)
 {
-    if(len > MQTT_INFO_SIZE)
-    {
+    if (len > MQTT_INFO_SIZE) {
         HAL_OTA_LOG("err offset len %lu",  len);
         return ERR;
     }
@@ -110,13 +107,10 @@ int flash_adaptor_write_mqtt_info(const void *buffer, uint32_t len)
 
 int flash_adaptor_read_mqtt_info(void *buffer, uint32_t len)
 {
-    if(len > MQTT_INFO_SIZE)
-    {
+    if (len > MQTT_INFO_SIZE) {
         HAL_OTA_LOG("err offset len %lu",  len);
         return ERR;
     }
-     return hal_spi_flash_read(buffer, len, MQTT_INFO_ADDR);
+
+    return hal_spi_flash_read(buffer, len, MQTT_INFO_ADDR);
 }
-
-
-

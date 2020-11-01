@@ -104,7 +104,7 @@ ATINY_INLINE int atiny_list_empty(atiny_dl_list *node)
 }
 
 #define ATINY_OFFSET_OF_FIELD(type, field)    ((UINT32)&(((type *)0)->field))
-#define ATINY_OFF_SET_OF(type, member) ((long)&((type *)0)->member)   /*lint -e(413) */
+#define ATINY_OFF_SET_OF(type, member) ((long)&((type *)0)->member)
 #define ATINY_FIELD_TO_STRUCT(field_addr, type, member) \
     ((type *)((char *)(field_addr) - ATINY_OFF_SET_OF(type, member)))
 

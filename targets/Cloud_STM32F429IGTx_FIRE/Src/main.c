@@ -33,29 +33,31 @@
  *---------------------------------------------------------------------------*/
 #include "main.h"
 #include "sys_init.h"
-
 #include "los_base.h"
 #include "los_task_pri.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 
-
-VOID HardWare_Init(VOID)
+VOID HardwareInit(VOID)
 {
     SystemClock_Config();
-    Debug_USART1_UART_Init();
+    MX_USART1_UART_Init();
     hal_rng_config();
     dwt_delay_init(SystemCoreClock);
 }
 
-int main(void)
+INT32 main(VOID)
 {
-    UINT32 uwRet = LOS_OK;
-    HardWare_Init();
+    HardwareInit();
 
-    uwRet = OsMain();
-    if (uwRet != LOS_OK)
-    {
+    PRINT_RELEASE("\n********Hello Huawei LiteOS********\n"
+                  "\nLiteOS Kernel Version : %s\n"
+                  "build data : %s %s\n\n"
+                  "**********************************\n",
+                  HW_LITEOS_KERNEL_VERSION_STRING, __DATE__, __TIME__);
+
+    UINT32 ret = OsMain();
+    if (ret != LOS_OK) {
         return LOS_NOK;
     }
 

@@ -44,8 +44,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /* mux handle id */
 static UINT32 g_Testmux01;
@@ -166,5 +166,5 @@ UINT32 Example_MutexLock(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

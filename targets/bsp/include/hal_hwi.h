@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Hwi Implementation HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -43,7 +45,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_PLATFORM_HWI == YES)
 extern VOID HalIrqInit(VOID);
 extern VOID HalIrqInitPercpu(VOID);
 extern VOID HalIrqMask(UINT32 vector);
@@ -53,8 +54,9 @@ extern VOID HalIrqClear(UINT32 vector);
 extern CHAR *HalIrqVersion(VOID);
 extern UINT32 HalCurIrqGet(VOID);
 extern UINT32 HalIrqSetPrio(UINT32 vector, UINT8 priority);
-extern UINT32 HalIrqCreate(UINT32 irq, UINT8 priority);
-extern UINT32 HalIrqDelete(UINT32 irq);
+#if (LOSCFG_KERNEL_SMP == YES)
+extern VOID HalIrqSendIpi(UINT32 target, UINT32 ipi);
+extern VOID HalIrqSetAffinity(UINT32 vector, UINT32 cpuMask);
 #endif
 
 #ifdef __cplusplus

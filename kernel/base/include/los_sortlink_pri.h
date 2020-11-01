@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Sortlink Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -55,13 +57,42 @@ extern "C" {
  *  Low Bits  : circles
  *  High Bits : sortlink index
  */
+#ifndef LOSCFG_BASE_CORE_USE_SINGLE_LIST
+#ifndef LOSCFG_BASE_CORE_USE_MULTI_LIST
+#error "NO SORTLIST TYPE SELECTED"
+#endif
+#endif
+
+#ifdef LOSCFG_BASE_CORE_USE_SINGLE_LIST
+
+#define OS_TSK_SORTLINK_LOGLEN  0U
+#define OS_TSK_SORTLINK_LEN     1U
+#define OS_TSK_MAX_ROLLNUM      0xFFFFFFFEU
+#define OS_TSK_LOW_BITS_MASK    0xFFFFFFFFU
+
+#define SORTLINK_CURSOR_UPDATE(CURSOR)
+#define SORTLINK_LISTOBJ_GET(LISTOBJ, SORTLINK)  (LISTOBJ = SORTLINK->sortLink)
+
+#define ROLLNUM_SUB(NUM1, NUM2)         NUM1 = (ROLLNUM(NUM1) - ROLLNUM(NUM2))
+#define ROLLNUM_ADD(NUM1, NUM2)         NUM1 = (ROLLNUM(NUM1) + ROLLNUM(NUM2))
+#define ROLLNUM_DEC(NUM)                NUM = ((NUM) - 1)
+#define ROLLNUM(NUM)                    (NUM)
+
+#define SET_SORTLIST_VALUE(sortList, value) (((SortLinkList *)(sortList))->idxRollNum = (value))
+
+#else
+
 #define OS_TSK_HIGH_BITS       3U
 #define OS_TSK_LOW_BITS        (32U - OS_TSK_HIGH_BITS)
 #define OS_TSK_SORTLINK_LOGLEN OS_TSK_HIGH_BITS
+#define OS_TSK_SORTLINK_LEN    (1U << OS_TSK_SORTLINK_LOGLEN)
 #define OS_TSK_SORTLINK_MASK   (OS_TSK_SORTLINK_LEN - 1U)
 #define OS_TSK_MAX_ROLLNUM     (0xFFFFFFFFU - OS_TSK_SORTLINK_LEN)
 #define OS_TSK_HIGH_BITS_MASK  (OS_TSK_SORTLINK_MASK << OS_TSK_LOW_BITS)
 #define OS_TSK_LOW_BITS_MASK   (~OS_TSK_HIGH_BITS_MASK)
+
+#define SORTLINK_CURSOR_UPDATE(CURSOR)          ((CURSOR) = ((CURSOR) + 1) & OS_TSK_SORTLINK_MASK)
+#define SORTLINK_LISTOBJ_GET(LISTOBJ, SORTLINK) ((LISTOBJ) = (SORTLINK)->sortLink + (SORTLINK)->cursor)
 
 #define EVALUATE_L(NUM, VALUE) NUM = (((NUM) & OS_TSK_HIGH_BITS_MASK) | (VALUE))
 
@@ -83,13 +114,15 @@ extern "C" {
 
 #define SET_SORTLIST_VALUE(sortList, value) (((SortLinkList *)(sortList))->idxRollNum = (value))
 
+#endif
+
 typedef struct {
     LOS_DL_LIST sortLinkNode;
     UINT32 idxRollNum;
 } SortLinkList;
 
 typedef struct {
-    LOS_DL_LIST sortLink[OS_TSK_SORTLINK_LEN];
+    LOS_DL_LIST *sortLink;
     UINT16 cursor;
     UINT16 reserved;
 } SortLinkAttribute;

@@ -287,7 +287,7 @@ int32_t sim900a_cmd_match(const char *buf, char* featurestr,int len)
     return memcmp(buf,featurestr,len);
 }
 
-int32_t sim900a_ini()
+int32_t sim900a_ini(void)
 {
     at_config at_user_conf =
     {

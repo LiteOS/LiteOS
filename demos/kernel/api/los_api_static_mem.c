@@ -40,8 +40,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 static UINT32 pBoxMem[144];
 UINT32 Example_StaticMem(VOID)
@@ -102,5 +102,5 @@ UINT32 Example_StaticMem(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

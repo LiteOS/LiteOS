@@ -34,7 +34,7 @@
 #ifdef INCLUDE_PACK_OPTION_FILE
 #include "package_sha256.h"
 #include <string.h>
-#include "../package_head.h"/*lint !e451*/
+#include "../package_head.h"
 
 static void pack_sha256_reset(pack_checksum_alg_s *thi)
 {

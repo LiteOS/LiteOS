@@ -68,30 +68,12 @@
 
 #include "cpu.h"
 
-typedef unsigned   char    u8_t;
-typedef signed     char    s8_t;
-typedef unsigned   short   u16_t;
-typedef signed     short   s16_t;
-typedef unsigned   long    u32_t;
-typedef signed     long    s32_t;
-typedef u32_t mem_ptr_t;
-//typedef int sys_prot_t;
-
-//#define U16_F "hu"
-//#define S16_F "d"
-//#define X16_F "hx"
-//#define U32_F "u"
-//#define S32_F "d"
-//#define X32_F "x"
-//#define SZT_F "uz"
-
 #define U16_F "4d"
 #define S16_F "4d"
 #define X16_F "4x"
 #define U32_F "8ld"
 #define S32_F "8ld"
 #define X32_F "8lx"
-
 
 /* define compiler specific symbols */
 #if defined (__ICCARM__)
@@ -125,8 +107,9 @@ typedef u32_t mem_ptr_t;
 
 #endif
 
-#include <stdio.h>  //use the printf
+#include <stdio.h>  // use the printf
 #include <stdlib.h>
+
 
 #define LWIP_RAND() ((u32_t)rand())
 #define LWIP_PLATFORM_DIAG(x)  {printf x;}
@@ -136,6 +119,6 @@ typedef u32_t mem_ptr_t;
 
 #define LWIP_ERROR(message, expression, handler) do { if (!(expression)) { \
   printf("Assertion \"%s\" failed at line %d in %s\n", message, \
-    __LINE__, __FILE__); fflush(NULL);handler;} } while(0)
+    __LINE__, __FILE__); handler;} } while(0)
 
 #endif /* __CC_H__ */

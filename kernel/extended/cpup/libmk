@@ -1,0 +1,11 @@
+include $(LITEOSTOPDIR)/config.mk
+
+MODULE_NAME := $(notdir $(shell pwd))
+
+all:
+	mkdir -p $(OUT)/lib
+	cp -rf $(LITEOS_CPU_TYPE)/*.a $(OUT)/lib
+
+.PHONY: all
+
+include $(MODULE)

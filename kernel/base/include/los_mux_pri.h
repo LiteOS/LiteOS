@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Mutex Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -45,16 +47,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @ingroup los_sem
- * Configuration item for mux to use dynamic memory
- */
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#define LOSCFG_BASE_IPC_MUX_DYN_MEM       YES
-#else
-#define LOSCFG_BASE_IPC_MUX_DYN_MEM       NO
-#endif
-
-/**
  * @ingroup los_mux
  * Mutex base object must be the same as the first three member names of LosMuxCB,
  * so that pthread_mutex_t can share the kernel mutex mechanism.
@@ -74,7 +66,7 @@ typedef struct {
     LosTaskCB *owner; /**< The current thread that is locking a mutex */
     UINT16 muxCount; /**< Times of locking a mutex */
     UINT8 muxStat; /**< State OS_MUX_UNUSED, OS_MUX_USED */
-    UINT32 muxID; /**< Handle ID */
+    UINT32 muxId; /**< Handle ID */
 } LosMuxCB;
 
 /**
@@ -93,11 +85,7 @@ typedef struct {
  * @ingroup los_mux
  * Mutex global array address, which can be obtained by using a handle ID.
  */
-#if (LOSCFG_BASE_IPC_MUX_DYN_MEM == YES)
 extern LosMuxCB *g_allMux;
-#else
-extern LosMuxCB g_allMux[];
-#endif
 
 /**
  * @ingroup los_mux
@@ -108,30 +96,30 @@ extern LosMuxCB g_allMux[];
  * @ingroup los_mux
  * Set the mutex id
  */
-#define SET_MUX_ID(count, muxID)    (((count) << MUX_SPLIT_BIT) | (muxID))
+#define SET_MUX_ID(count, muxId)    (((count) << MUX_SPLIT_BIT) | (muxId))
 
 /**
  * @ingroup los_mux
  * get the mutex index
  */
-#define GET_MUX_INDEX(muxID)        ((muxID) & ((1U << MUX_SPLIT_BIT) - 1))
+#define GET_MUX_INDEX(muxId)        ((muxId) & ((1U << MUX_SPLIT_BIT) - 1))
 
 /**
  * @ingroup los_mux
  * get the mutex count
  */
-#define GET_MUX_COUNT(muxID)        ((muxID) >> MUX_SPLIT_BIT)
+#define GET_MUX_COUNT(muxId)        ((muxId) >> MUX_SPLIT_BIT)
 /**
  * @ingroup los_mux
  * Obtain the pointer to a mutex object of the mutex that has a specified handle.
  */
-#define GET_MUX(muxID)              (((LosMuxCB *)g_allMux) + GET_MUX_INDEX(muxID))
+#define GET_MUX(muxId)              (((LosMuxCB *)g_allMux) + GET_MUX_INDEX(muxId))
 
 extern UINT32 OsMuxInit(VOID);
 
 #define MUX_SCHEDULE    0x01
 #define MUX_NO_SCHEDULE 0x02
-extern UINT32 OsMuxPendOp(LosTaskCB *runTask, MuxBaseCB *muxPended, UINT32 timeout, UINT32 intSave);
+extern UINT32 OsMuxPendOp(LosTaskCB *runTask, MuxBaseCB *muxPended, UINT32 timeout, UINT32 *intSave);
 extern UINT32 OsMuxPostOp(LosTaskCB *runTask, MuxBaseCB *muxPosted);
 #ifdef __cplusplus
 #if __cplusplus

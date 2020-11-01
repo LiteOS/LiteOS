@@ -7,64 +7,66 @@
 格式化的Commit message有几个好处：
 
 - 提供更多的历史信息，方便快速浏览
-- 可以过滤某些commit（比如文档改动），便于快速查找信息。
-- 可以直接从commit生成Change log。
+- 可以过滤某些commit（比如文档改动），便于快速查找信息
+- 可以直接从commit生成Change log
 
 ## LiteOS Commit message的格式
 
 每次提交，Commit message 都包括三个部分：Header，Body 和 Footer。
+```
+<header>
+空一行
+<body>
+空一行
+<footer>
 
-	<type>(<scope>): <subject>
-	空一行
-	<body>
-	空一行
-	<footer>
-	比如：
+比如：
+fix(stm32f411): fix stm32f411 migration guide file error
 
-    fix(stm32f411):fix stm32f411 migration guide file error
+fix some error in stm32f411re migration guide file.
 
-    fix some error in stm32f411re migration guide file.
-
-    Close #75
-
+Close #75
+```
 ### Header格式
- Header部分只有一行，包括三个字段：type（必需）、scope（可选）和subject（必需）。
+ Header部分只有一行，格式为：
+```
+<type>(<scope>): <subject>
+```	
+ Header部分共包括三个字段：type（必需）、scope（可选）和subject（必需）。
 
 - type
 
 	type用于说明 commit 的类别，只允许使用下面7个标识。
-
-	feat：新功能（feature）
+	```
+	feat：feature的缩写，表示这是一个新功能
 
 	fix：修补bug
 
-	docs：文档（documentation）
+	docs：documentation的缩写，表示修改的是文档
 
-	style： 格式（不影响代码运行的变动）
+	style： 格式修改，是不影响代码运行的变动
 
-	refactor：重构（即不是新增功能，也不是修改bug的代码变动）
+	refactor：重构，它即不是新增功能，也不是修改bug
 
 	test：增加测试
 
 	chore：构建过程或辅助工具的变动
-
-	如果type为feat和fix，则该 commit 将肯定出现在 Change log 之中。其他情况（docs、chore、style、refactor、test）由你决定，要不要放入 Change log，建议是不要。
+	```
 
 - scope
 
-	scope用于说明 commit 影响的范围，比如LiteOS kernel的core修改影响全部则填写all，如果只修改stm32f411的则填写stm32f411。
+	scope用于说明 commit 影响的范围，比如对LiteOS kernel的base的修改会影响全部代码，所以填写all。如果只修改stm32f411的代码，则填写stm32f411。
 
 - subject
 
-	subject是 commit 目的的简短描述，不超过50个字符。
+	subject用于简短描述 commit 目的，不超过50个字符。
 
-	以动词开头，使用第一人称现在时，比如change，而不是changed或changes
-
-	第一个字母小写, 结尾不加句号（.）
+	- 以动词开头，使用第一人称现在时，比如change，而不是changed或changes
+	- 第一个字母小写，结尾不加英文句号（.）
 
 ### Body格式
 
-Body 部分是对本次 commit 的详细描述，可以分成多行。下面是一个范例。
+Body 部分是对本次 commit 的详细描述，可以分成多行，下面是一个范例。
 
     Add porting contest board projects to LiteOS
     Board list:
@@ -77,8 +79,7 @@ Body 部分是对本次 commit 的详细描述，可以分成多行。下面是�
     FRDM-KL26Z
     FRDM-KW41Z
 
-
-有两个注意点。
+有两个注意点：
 
 - 使用第一人称现在时，比如使用change而不是changed或changes。
 
@@ -113,11 +114,12 @@ Footer 部分只用于两种情况。
 - 关闭 Issue
 
 	如果当前 commit 针对某个issue，那么可以在 Footer 部分关闭这个 issue 。
-
-	Closes #16, #24, #92
+```
+Closes #16, #24, #92
+```
 
 ## 更多参考
 
 更详细的commit规则请参考原始的规范说明
- 
+
 [Angular规范](https://github.com/mychaser/docgather/blob/master/GitCommitMessageConventions.pdf)

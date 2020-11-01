@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Printf Private Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -43,6 +45,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+extern VOID ConsoleVprintf(const CHAR *fmt, va_list ap);
 extern VOID UartVprintf(const CHAR *fmt, va_list ap);
 extern VOID PrintExcInfo(const CHAR *fmt, ...);
 

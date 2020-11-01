@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Basic definitions
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -163,9 +165,7 @@ extern "C" {
  */
 #define GET_UINT64(addr)                            ({ UINT64 r = *((volatile UINT64 *)((UINTPTR)(addr))); dsb(); r; })
 
-#if PRINT_LEVEL < LOS_ERR_LEVEL
-#define LOS_ASSERT(judge)
-#else
+#ifdef LOSCFG_DEBUG_VERSION
 #define LOS_ASSERT(judge) do {                                                     \
     if ((UINT32)(judge) == 0) {                                                    \
         (VOID)LOS_IntLock();                                                       \
@@ -173,6 +173,8 @@ extern "C" {
         while (1) {}                                                               \
     }                                                                              \
 } while (0)
+#else
+#define LOS_ASSERT(judge)
 #endif
 
 #define STATIC_ASSERT _Static_assert
@@ -187,6 +189,7 @@ extern "C" {
  * @attention
  * <ul>
  * <li>the value of boundary usually is 4,8,16,32.</li>
+ * <li>users should avoid overflows due to alignment.</li>
  * </ul>
  *
  * @param addr     [IN]  The variable what you want to align.

@@ -1,0 +1,12 @@
+menu "Graphical User Interface"
+
+comment "only support STM32F769IDISCOVERY"
+
+config LOSCFG_COMPONENTS_GUI
+    bool "Enable Gui"
+    default y
+    depends on LOSCFG_PLATFORM_STM32F769IDISCOVERY
+    help
+      Answer Y to enable LiteOS support Graphical User Interface
+
+endmenu

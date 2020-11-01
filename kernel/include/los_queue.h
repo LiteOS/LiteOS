@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Queue
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -351,6 +353,7 @@ typedef struct tagQueueInfo {
     UINT64 uwWaitMemTask;   /**< Memory task */
 } QUEUE_INFO_S;
 
+#ifdef LOSCFG_QUEUE_STATIC_ALLOCATION
 /**
  * @ingroup los_queue
  * @brief Create a message queue.
@@ -361,16 +364,55 @@ typedef struct tagQueueInfo {
  * <ul>
  * <li>Threre are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessory.</li>
  * </ul>
+ * @param queueName        [IN]    Message queue name. Reserved parameter, not used for now.
+ * @param len              [IN]    Queue length. The value range is [1,0xffff].
+ * @param queueId          [OUT]   ID of the queue control structure that is successfully created.
+ * @param flags            [IN]    Queue mode. Reserved parameter, not used for now.
+ * @param maxMsgSize       [IN]    Node size. The value range is [1,0xffff-4].
+ * @param queueMem         [IN]    Static queue memory. The value range is [0,0xffffffff].
+ * @param memSize          [IN]    Queue memory size. The value range is [1,0xffff-4].
+
+ * @retval   #LOS_OK                               The message queue is successfully created.
+ * @retval   #LOS_ERRNO_QUEUE_CB_UNAVAILABLE       The upper limit of the number of created queues is exceeded.
+ * @retval   #LOS_ERRNO_QUEUE_CREATE_NO_MEMORY     Insufficient memory for queue creation.
+ * @retval   #LOS_ERRNO_QUEUE_CREAT_PTR_NULL       Null pointer, queueID is NULL.
+ * @retval   #LOS_ERRNO_QUEUE_PARA_ISZERO          The queue length or message node size passed in during queue
+ * creation is 0.
+ * @retval   #LOS_ERRNO_QUEUE_SIZE_TOO_BIG         The parameter maxMsgSize is larger than 0xffff - 4.
+ * @par Dependency:
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_QueueDelete
+ * @since Huawei LiteOS V200R005C00
+ */
+extern UINT32 LOS_QueueCreateStatic(CHAR *queueName,
+                                    UINT16 len,
+                                    UINT32 *queueId,
+                                    UINT32 flags,
+                                    UINT16 maxMsgSize,
+                                    VOID *queueMem,
+                                    UINT16 memSize);
+#endif
+
+/**
+ * @ingroup los_queue
+ * @brief Create a message queue.
+ *
+ * @par Description:
+ * This API is used to create a message queue.
+ * @attention
+ * <ul>
+ * <li>There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.</li>
+ * </ul>
  * @param queueName        [IN]  Message queue name. Reserved parameter, not used for now.
  * @param len              [IN]  Queue length. The value range is [1,0xffff].
- * @param queueID          [OUT] ID of the queue control structure that is successfully created.
+ * @param queueId          [OUT] ID of the queue control structure that is successfully created.
  * @param flags            [IN]  Queue mode. Reserved parameter, not used for now.
  * @param maxMsgSize       [IN]  Node size. The value range is [1,0xffff-4].
  *
  * @retval   #LOS_OK                            The message queue is successfully created.
  * @retval   #LOS_ERRNO_QUEUE_CB_UNAVAILABLE    The upper limit of the number of created queues is exceeded.
  * @retval   #LOS_ERRNO_QUEUE_CREATE_NO_MEMORY  Insufficient memory for queue creation.
- * @retval   #LOS_ERRNO_QUEUE_CREAT_PTR_NULL    Null pointer, queueID is NULL.
+ * @retval   #LOS_ERRNO_QUEUE_CREAT_PTR_NULL    Null pointer, queueId is NULL.
  * @retval   #LOS_ERRNO_QUEUE_PARA_ISZERO       The queue length or message node size passed in during queue
  * creation is 0.
  * @retval   #LOS_ERRNO_QUEUE_SIZE_TOO_BIG      The parameter usMaxMsgSize is larger than 0xffff - 4.
@@ -379,9 +421,9 @@ typedef struct tagQueueInfo {
  * @see LOS_QueueDelete
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueCreate(const CHAR *queueName,
+extern UINT32 LOS_QueueCreate(CHAR *queueName,
                               UINT16 len,
-                              UINT32 *queueID,
+                              UINT32 *queueId,
                               UINT32 flags,
                               UINT16 maxMsgSize);
 
@@ -404,7 +446,7 @@ extern UINT32 LOS_QueueCreate(const CHAR *queueName,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN]     Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN]     Queue ID created by LOS_QueueCreate. The value range is
  * [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT]    Starting address that stores the obtained data. The starting address must not be
  * null.
@@ -430,7 +472,7 @@ extern UINT32 LOS_QueueCreate(const CHAR *queueName,
  * @see LOS_QueueWriteCopy | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueReadCopy(UINT32 queueID,
+extern UINT32 LOS_QueueReadCopy(UINT32 queueId,
                                 VOID *bufferAddr,
                                 UINT32 *bufferSize,
                                 UINT32 timeout);
@@ -453,7 +495,7 @@ extern UINT32 LOS_QueueReadCopy(UINT32 queueID,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN]  Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
  *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [IN]  Starting address that stores the data to be written.The starting address must
  *                             not be null.
@@ -478,7 +520,7 @@ extern UINT32 LOS_QueueReadCopy(UINT32 queueID,
  * @see LOS_QueueReadCopy | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueWriteCopy(UINT32 queueID,
+extern UINT32 LOS_QueueWriteCopy(UINT32 queueId,
                                  VOID *bufferAddr,
                                  UINT32 bufferSize,
                                  UINT32 timeout);
@@ -505,7 +547,7 @@ extern UINT32 LOS_QueueWriteCopy(UINT32 queueID,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN]  Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
  *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the obtained data. The starting address must
  *                             not be null.
@@ -530,7 +572,7 @@ extern UINT32 LOS_QueueWriteCopy(UINT32 queueID,
  * @see LOS_QueueWrite | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueRead(UINT32 queueID,
+extern UINT32 LOS_QueueRead(UINT32 queueId,
                             VOID *bufferAddr,
                             UINT32 bufferSize,
                             UINT32 timeout);
@@ -554,7 +596,7 @@ extern UINT32 LOS_QueueRead(UINT32 queueID,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN] Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN] Queue ID created by LOS_QueueCreate. The value range is
  *                            [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [IN] Starting address that stores the data to be written. The starting address
  *                            must not be null.
@@ -579,7 +621,7 @@ extern UINT32 LOS_QueueRead(UINT32 queueID,
  * @see LOS_QueueRead | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueWrite(UINT32 queueID,
+extern UINT32 LOS_QueueWrite(UINT32 queueId,
                              VOID *bufferAddr,
                              UINT32 bufferSize,
                              UINT32 timeout);
@@ -603,7 +645,7 @@ extern UINT32 LOS_QueueWrite(UINT32 queueID,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN]  Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
  *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the data to be written. The starting address
  *                             must not be null.
@@ -628,7 +670,7 @@ extern UINT32 LOS_QueueWrite(UINT32 queueID,
  * @see LOS_QueueRead | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueWriteHead(UINT32 queueID,
+extern UINT32 LOS_QueueWriteHead(UINT32 queueId,
                                  VOID *bufferAddr,
                                  UINT32 bufferSize,
                                  UINT32 timeout);
@@ -652,7 +694,7 @@ extern UINT32 LOS_QueueWriteHead(UINT32 queueID,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueID        [IN]  Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
  *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the data to be written.
  *                             The starting address must not be null.
@@ -677,7 +719,7 @@ extern UINT32 LOS_QueueWriteHead(UINT32 queueID,
  * @see LOS_QueueWrite | LOS_QueueWriteHead
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueID,
+extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueId,
                                      VOID *bufferAddr,
                                      UINT32 bufferSize,
                                      UINT32 timeout);
@@ -695,7 +737,7 @@ extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueID,
  * written.</li>
  * </ul>
  *
- * @param queueID     [IN] Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId     [IN] Queue ID created by LOS_QueueCreate. The value range is
  *                         [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  *
  * @retval   #LOS_OK                      The queue is successfully deleted.
@@ -709,7 +751,7 @@ extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueID,
  * @see LOS_QueueCreate | LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueDelete(UINT32 queueID);
+extern UINT32 LOS_QueueDelete(UINT32 queueId);
 
 /**
  * @ingroup los_queue
@@ -721,7 +763,7 @@ extern UINT32 LOS_QueueDelete(UINT32 queueID);
  * <ul>
  * <li>The specific queue should be created firstly.</li>
  * </ul>
- * @param queueID       [IN]  Queue ID created by LOS_QueueCreate. The value range is
+ * @param queueId       [IN]  Queue ID created by LOS_QueueCreate. The value range is
  *                            [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param queueInfo     [OUT] The queue information to be read must not be null.
  *
@@ -736,7 +778,7 @@ extern UINT32 LOS_QueueDelete(UINT32 queueID);
  * @see LOS_QueueCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *queueInfo);
+extern UINT32 LOS_QueueInfoGet(UINT32 queueId, QUEUE_INFO_S *queueInfo);
 
 #ifdef __cplusplus
 #if __cplusplus

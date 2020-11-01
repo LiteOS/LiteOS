@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Exception Information Module Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -47,8 +49,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #ifdef LOSCFG_SHELL_EXCINFO
 STATIC log_read_write_fn g_excInfoRW = NULL; /* the hook of read-writing exception information */
@@ -218,7 +220,15 @@ VOID OsReadWriteExceptionInfo(UINT32 startAddr, UINT32 space, UINT32 flag, CHAR 
         if (OsWriteExcInfoToSpiFlash(startAddr, space, buf) != LOS_OK) {
             PRINT_ERR("Exception information written to flash failed\n");
         }
-        free(buf);  /* Consider whether or not the "buf" is released according to actual use */
+#ifndef LOSCFG_EXC_INTERACTION
+        /*
+         * When system is in the exception interaction, this buf was free,
+         * but this feature is still running. This buffer may be used again
+         * without malloc.
+         * So, consider whether or not the "buf" is released according to actual use.
+         */
+        free(buf);
+#endif
 #endif
     } else if (flag == 1) {
 #ifdef LOSCFG_DRIVERS_MTD_SPI_NOR
@@ -256,5 +266,5 @@ VOID OsRecordExcInfoTime(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

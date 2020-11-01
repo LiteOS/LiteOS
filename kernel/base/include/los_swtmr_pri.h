@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Software Timer Manager Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -44,6 +46,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#ifdef LOSCFG_BASE_CORE_SWTMR
+
 /**
  * @ingroup los_swtmr_pri
  * Software timer state
@@ -65,29 +69,36 @@ typedef struct {
 } SwtmrHandlerItem;
 
 /**
+ * @ingroup los_swtmr
+ * Software timer control structure
+ */
+typedef struct {
+    SortLinkList sortList;
+    UINT8 state;      /**< Software timer state */
+    UINT8 mode;       /**< Software timer mode */
+    UINT8 overrun;    /**< Times that a software timer repeats timing */
+    UINT16 timerId;   /**< Software timer ID */
+    UINT32 interval;  /**< Timeout interval of a periodic software timer (unit: tick) */
+    UINT32 expiry;    /**< Timeout interval of an one-off software timer (unit: tick) */
+#if (LOSCFG_KERNEL_SMP == YES)
+    UINT32 cpuid;     /**< The cpu where the timer running on */
+#endif
+    UINTPTR arg;      /**< Parameter passed in when the callback function
+                             that handles software timer timeout is called */
+    SWTMR_PROC_FUNC handler; /**< Callback function that handles software timer timeout */
+} LosSwtmrCB;
+
+/**
  * @ingroup los_swtmr_pri
  * Type of the pointer to the structure of the callback function that handles software timer timeout
  */
 typedef SwtmrHandlerItem *SwtmrHandlerItemPtr;
 
-/**
- * @ingroup los_swtmr
- * Configuration item for software timer to use dynamic memory
- */
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#define LOSCFG_BASE_CORE_SWTMR_DYN_MEM       YES
-#else
-#define LOSCFG_BASE_CORE_SWTMR_DYN_MEM       NO
-#endif
+extern LosSwtmrCB *g_swtmrCBArray;
 
-#if (LOSCFG_BASE_CORE_SWTMR_DYN_MEM == YES)
-extern SWTMR_CTRL_S *g_swtmrCBArray;
-#else
-extern LITE_OS_SEC_BSS SWTMR_CTRL_S    g_swtmrCBArray[LOSCFG_BASE_CORE_SWTMR_LIMIT];
-#endif
 extern SortLinkAttribute g_swtmrSortLink; /* The software timer count list */
 
-#define OS_SWT_FROM_SID(swtmrID) ((SWTMR_CTRL_S *)g_swtmrCBArray + ((swtmrID) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
+#define OS_SWT_FROM_SID(swtmrId) ((LosSwtmrCB *)g_swtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
 
 /**
  * @ingroup los_swtmr_pri
@@ -115,6 +126,9 @@ extern VOID OsSwtmrScan(VOID);
 extern UINT32 OsSwtmrInit(VOID);
 extern VOID OsSwtmrTask(VOID);
 extern SPIN_LOCK_S g_swtmrSpin;
+
+#endif /* LOSCFG_BASE_CORE_SWTMR */
+
 #ifdef __cplusplus
 #if __cplusplus
 }

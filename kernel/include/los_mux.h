@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Mutex
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -59,7 +61,7 @@ extern "C" {
  *
  * Solution: Decrease the number of mutexes defined by LOSCFG_BASE_IPC_MUX_LIMIT.
  */
-#define LOS_ERRNO_MUX_NO_MEMORY       LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x00)
+#define LOS_ERRNO_MUX_NO_MEMORY             LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x00)
 
 /**
  * @ingroup los_mux
@@ -69,7 +71,7 @@ extern "C" {
  *
  * Solution: Check whether the mutex ID and the mutex state are applicable for the current operation.
  */
-#define LOS_ERRNO_MUX_INVALID           LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x01)
+#define LOS_ERRNO_MUX_INVALID               LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x01)
 
 /**
  * @ingroup los_mux
@@ -79,7 +81,7 @@ extern "C" {
  *
  * Solution: Check whether the input parameter is usable.
  */
-#define LOS_ERRNO_MUX_PTR_NULL          LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x02)
+#define LOS_ERRNO_MUX_PTR_NULL              LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x02)
 
 /**
  * @ingroup los_mux
@@ -89,7 +91,7 @@ extern "C" {
  *
  * Solution: Increase the number of mutexes defined by LOSCFG_BASE_IPC_MUX_LIMIT.
  */
-#define LOS_ERRNO_MUX_ALL_BUSY          LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x03)
+#define LOS_ERRNO_MUX_ALL_BUSY              LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x03)
 
 /**
  * @ingroup los_mux
@@ -99,7 +101,7 @@ extern "C" {
  *
  * Solution: Lock the mutex after it is unlocked by the thread that owns it, or set a waiting time.
  */
-#define LOS_ERRNO_MUX_UNAVAILABLE       LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x04)
+#define LOS_ERRNO_MUX_UNAVAILABLE           LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x04)
 
 /**
  * @ingroup los_mux
@@ -109,7 +111,7 @@ extern "C" {
  *
  * Solution: Check whether the mutex is being locked during an interrupt.
  */
-#define LOS_ERRNO_MUX_PEND_INTERR       LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x05)
+#define LOS_ERRNO_MUX_PEND_INTERR           LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x05)
 
 /**
  * @ingroup los_mux
@@ -121,7 +123,7 @@ extern "C" {
  * Solution: Check whether the task scheduling is disabled, or set timeout to 0, which means that the
  * thread will not wait for the mutex to become available.
  */
-#define LOS_ERRNO_MUX_PEND_IN_LOCK      LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x06)
+#define LOS_ERRNO_MUX_PEND_IN_LOCK          LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x06)
 
 /**
  * @ingroup los_mux
@@ -131,7 +133,7 @@ extern "C" {
  *
  * Solution: Increase the waiting time or set the waiting time to LOS_WAIT_FOREVER (forever-blocking mode).
  */
-#define LOS_ERRNO_MUX_TIMEOUT           LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x07)
+#define LOS_ERRNO_MUX_TIMEOUT               LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x07)
 
 /**
  * @ingroup los_mux
@@ -139,7 +141,7 @@ extern "C" {
  * Value: 0x02001d08
  * Not in use temporarily.
  */
-#define LOS_ERRNO_MUX_OVERFLOW          LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x08)
+#define LOS_ERRNO_MUX_OVERFLOW              LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x08)
 
 /**
  * @ingroup los_mux
@@ -149,7 +151,7 @@ extern "C" {
  *
  * Solution: Delete the mutex after it is unlocked.
  */
-#define LOS_ERRNO_MUX_PENDED            LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x09)
+#define LOS_ERRNO_MUX_PENDED                LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x09)
 
 /**
  * @ingroup los_mux
@@ -157,7 +159,7 @@ extern "C" {
  * Value: 0x02001d0A
  * Not in use temporarily.
  */
-#define LOS_ERRNO_MUX_GET_COUNT_ERR     LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0A)
+#define LOS_ERRNO_MUX_GET_COUNT_ERR         LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0A)
 
 /**
  * @ingroup los_mux
@@ -165,7 +167,7 @@ extern "C" {
  * Value: 0x02001d0B
  * Not in use temporarily.
  */
-#define LOS_ERRNO_MUX_REG_ERROR         LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0B)
+#define LOS_ERRNO_MUX_REG_ERROR             LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0B)
 
 /**
 * @ingroup los_mux
@@ -175,7 +177,7 @@ extern "C" {
 *
 * Solution: Pend the mutex in a vailid task.
 */
-#define LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK       LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0C)
+#define LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK   LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0C)
 
 /**
  * @ingroup los_mux
@@ -243,7 +245,7 @@ extern UINT32 LOS_MuxDelete(UINT32 muxHandle);
  * <li>The priority inheritance protocol is supported. If a higher-priority thread is waiting on a mutex, it changes
  * the priority of the thread that owns the mutex to avoid priority inversion.</li>
  * <li>A recursive mutex can be locked more than once by the same thread.</li>
- * <li>Do not call this API in software timer callback. </li>
+ * <li>Do not recommend to use this API in software timer callback. </li>
  * </ul>
  *
  * @param muxHandle    [IN] Handle of the mutex to be waited on.  The value of handle should be

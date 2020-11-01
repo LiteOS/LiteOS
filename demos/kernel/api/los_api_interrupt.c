@@ -40,8 +40,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #if (LOSCFG_PLATFORM_HWI == YES)
 static VOID Example_Exti0_Init(VOID)
@@ -76,5 +76,5 @@ UINT32 Example_Interrupt(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

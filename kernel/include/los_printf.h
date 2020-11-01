@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Los_printf HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -39,6 +41,9 @@
 
 #ifndef _LOS_PRINTF_H
 #define _LOS_PRINTF_H
+
+// fix opensource compilation issue
+#include "menuconfig.h"
 
 #include "sys_config.h"
 #ifdef LOSCFG_LIB_LIBC
@@ -97,9 +102,7 @@ typedef VOID (*pf_OUTPUT)(const CHAR *fmt, ...);
  * @see printf
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID OsDprintf(const char *fmt, ...);
-
-#define  dprintf  OsDprintf
+extern void dprintf(const char *fmt, ...);
 
 #define diag_printf      dprintf
 

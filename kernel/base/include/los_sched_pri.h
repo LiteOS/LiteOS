@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: Scheduler Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2018-09-10
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -70,8 +72,8 @@ STATIC INLINE BOOL OsPreemptable(VOID)
 {
     /*
      * Unlike OsPreemptableInSched, the int may be not disabled when OsPreemptable
-     * is called, needs mannually disable interrupt, to prevent current task from
-     * being migrated to another core, and get the wrong preeptable status.
+     * is called, needs manually disable interrupt, to prevent current task from
+     * being migrated to another core, and get the wrong preemptable status.
      */
     UINT32 intSave = LOS_IntLock();
     BOOL preemptable = (OsPercpuGet()->taskLockCnt == 0);
@@ -87,7 +89,16 @@ STATIC INLINE BOOL OsPreemptableInSched(VOID)
 {
     BOOL preemptable = FALSE;
 
+#ifdef LOSCFG_KERNEL_SMP
+    /*
+     * For smp systems, schedule must hold the task spinlock, and this counter
+     * will increase by 1 in that case.
+     */
+    preemptable = (OsPercpuGet()->taskLockCnt == 1);
+
+#else
     preemptable = (OsPercpuGet()->taskLockCnt == 0);
+#endif
     if (!preemptable) {
         /* Set schedule flag if preemption is disabled */
         OsPercpuGet()->schedFlag = INT_PEND_RESCH;
@@ -116,20 +127,28 @@ extern VOID OsSchedPreempt(VOID);
  */
 STATIC INLINE VOID LOS_Schedule(VOID)
 {
-#if (LOSCFG_PLATFORM_HWI == YES)
     if (OS_INT_ACTIVE) {
         OsPercpuGet()->schedFlag = INT_PEND_RESCH;
         return;
     }
-#endif
 
     /*
      * trigger schedule in task will also do the slice check
-     * if neccessary, it will give up the timeslice more in time.
-     * otherwhise, there's no other side effects.
+     * if necessary, it will give up the timeslice more in time.
+     * otherwise, there's no other side effects.
      */
     OsSchedPreempt();
 }
+
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
+/**
+ * @ingroup los_timeslice
+ * This API is used to check time slices. If the number of Ticks equals to the time for task switch,
+ * tasks are switched. Otherwise, the Tick counting continues.
+ */
+extern VOID OsTimesliceCheck(VOID);
+#endif
+
 
 #ifdef __cplusplus
 #if __cplusplus

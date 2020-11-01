@@ -1,0 +1,30 @@
+source "targets/Kconfig"
+
+choice
+    prompt "IRQCHIP"
+    default LOSCFG_PLATFORM_BSP_NVIC
+    help
+      Interrupt Controller.
+
+config LOSCFG_PLATFORM_BSP_GIC_V2
+    bool "GIC Version 2"
+    help
+      This GIC(General Interrupt Controller) version 2 driver is compatatble with
+      GIC version 1 and version 2.
+
+config LOSCFG_PLATFORM_BSP_GIC_V3
+    bool "GIC Version 3"
+    depends on LOSCFG_ARCH_ARM_V8A || LOSCFG_ARCH_ARM_V8R
+    help
+      General Interrupt Controller version 3.
+
+config LOSCFG_PLATFORM_BSP_NVIC
+    bool "NVIC"
+    help
+      NVIC(Nested Vectored Interrupt Controller) for Cortex-M.
+
+config LOSCFG_PLATFORM_BSP_XTENSA_XEA3
+    bool "XTENSA Xea3"
+    help
+      General Interrupt Controller xtensa xea3.
+endchoice

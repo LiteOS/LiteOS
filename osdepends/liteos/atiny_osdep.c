@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Task Module Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -140,16 +142,16 @@ void atiny_delay(uint32_t second)
 
 void *atiny_mutex_create(void)
 {
-    uint32_t uwRet;
-    uint32_t uwSemId;
+    uint32_t ret;
+    uint32_t semId;
 
     if (OS_INT_ACTIVE) {
         return NULL;
     }
 
-    uwRet = LOS_BinarySemCreate(1, (UINT32 *)&uwSemId);
-    if (uwRet == LOS_OK) {
-        return (void *)(GET_SEM(uwSemId));
+    ret = LOS_BinarySemCreate(1, (UINT32 *)&semId);
+    if (ret == LOS_OK) {
+        return (void *)(GET_SEM(semId));
     } else {
         return NULL;
     }
@@ -165,7 +167,7 @@ void atiny_mutex_destroy(void *mutex)
         return;
     }
 
-    (void)LOS_SemDelete(((LosSemCB *)mutex)->semID);
+    (void)LOS_SemDelete(((LosSemCB *)mutex)->semId);
 }
 
 void atiny_mutex_lock(void *mutex)
@@ -178,7 +180,7 @@ void atiny_mutex_lock(void *mutex)
         return;
     }
 
-    (void)LOS_SemPend(((LosSemCB *)mutex)->semID, ATINY_CNT_MAX_WAITTIME);
+    (void)LOS_SemPend(((LosSemCB *)mutex)->semId, ATINY_CNT_MAX_WAITTIME);
 }
 
 void atiny_mutex_unlock(void *mutex)
@@ -187,7 +189,7 @@ void atiny_mutex_unlock(void *mutex)
         return;
     }
 
-    (void)LOS_SemPost(((LosSemCB *)mutex)->semID);
+    (void)LOS_SemPost(((LosSemCB *)mutex)->semId);
 }
 
 #else

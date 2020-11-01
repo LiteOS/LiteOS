@@ -1,67 +1,111 @@
 /**
   ******************************************************************************
-  * @file    lwipopts.h
+  * @file    LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc/lwipopts.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    31-July-2013
   * @brief   lwIP Options Configuration.
-  *          This file is based on Utilities\lwip_v1.4.1\src\include\lwip\opt.h
-  *          and contains the lwIP configuration for the STM32F4x7 demonstration.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.</center></h2>
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
   *
-  *        http://www.st.com/software_license_agreement_liberty_v2
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
 
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Description: LiteOS Mem Module Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------
+ * Notice of Export Control Law
+ * ===============================================
+ * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
+ * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
+ * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
+ * applicable export control laws and regulations.
+ * --------------------------------------------------------------------------- */
+
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
+#define ETHARP_TRUST_IP_MAC      0
+#define IP_REASSEMBLY            1
+#define IP_FRAG                  1
+#define ARP_QUEUEING             0
+#define TCP_LISTEN_BACKLOG       1
 
-//#define LWIP_IPV6                       1
-//#define IPV6_FRAG_COPYHEADER            1
-//#define LWIP_IPV6_DUP_DETECT_ATTEMPTS   0
-
-//#define LWIP_IPV4           0
-#define ETHARP_TRUST_IP_MAC 0
-#define IP_REASSEMBLY  1
-#define IP_FRAG        1
-#define ARP_QUEUEING   0
-#define TCP_LISTEN_BACKLOG  1
-
-
-
-/**
+/* *
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
  * critical regions during buffer allocation, deallocation and memory
  * allocation and deallocation.
  */
-#define SYS_LIGHTWEIGHT_PROT    0
+#define SYS_LIGHTWEIGHT_PROT     1
 
-/**
+/* *
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
  */
 #define NO_SYS                  0
 
-/**
+/* *
  * NO_SYS_NO_TIMERS==1: Drop support for sys_timeout when NO_SYS==1
  * Mainly for compatibility to old versions.
  */
-#define NO_SYS_NO_TIMERS        1
+#define NO_SYS_NO_TIMERS         0
 
 /* ---------- Memory options ---------- */
 /* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
@@ -79,13 +123,13 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_PBUF           100
 /* MEMP_NUM_UDP_PCB: the number of UDP protocol control blocks. One
    per active UDP "connection". */
-#define MEMP_NUM_UDP_PCB        6
+#define MEMP_NUM_UDP_PCB        8
 /* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
    connections. */
 #define MEMP_NUM_TCP_PCB        10
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
    connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN 6
+#define MEMP_NUM_TCP_PCB_LISTEN 8
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
    segments. */
 #define MEMP_NUM_TCP_SEG        12
@@ -97,15 +141,12 @@ a lot of data that needs to be copied, this should be set high. */
 /* ---------- Pbuf options ---------- */
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
 #define PBUF_POOL_SIZE          20
-
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
 #define PBUF_POOL_BUFSIZE       500
 
 
 /* ---------- TCP options ---------- */
-#if !defined ( __GNUC__ )  /* GCC*/
 #define LWIP_TCP                1
-#endif
 #define TCP_TTL                 255
 
 /* Controls if TCP should queue segments that arrive out of
@@ -113,7 +154,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_QUEUE_OOSEQ         0
 
 /* TCP Maximum segment size. */
-#define TCP_MSS                 (1500 - 40)/* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
+#define TCP_MSS                 (1500 - 40) /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
 
 /* TCP sender buffer space (bytes). */
 #define TCP_SND_BUF             (4*TCP_MSS)
@@ -128,30 +169,30 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* ---------- ICMP options ---------- */
-#define LWIP_ICMP                       1
+#define LWIP_ICMP                 1
 
 
 /* ---------- DHCP options ---------- */
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. DHCP is not implemented in lwIP 0.5.1, however, so
    turning this on does currently not work. */
-#define LWIP_DHCP               1
+#define LWIP_DHCP                 0
 
 
-/* ---------- UDP options ---------- */
-#define LWIP_UDP                1
-#define UDP_TTL                 255
+/* ---------- UDP options ----------- */
+#define LWIP_UDP                  1
+#define UDP_TTL                   255
 
 
-/* ---------- Statistics options ---------- */
-#define LWIP_STATS 0
-#define LWIP_PROVIDE_ERRNO 1
+/* ------- Statistics options ------- */
+#define LWIP_STATS                0
+#define LWIP_PROVIDE_ERRNO        1
 
-/* ---------- link callback options ---------- */
+/* ------ link callback options ----- */
 /* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
  * whenever the link changes (i.e., link down)
  */
-#define LWIP_NETIF_LINK_CALLBACK        1
+#define LWIP_NETIF_LINK_CALLBACK  1
 
 /*
    --------------------------------------
@@ -160,21 +201,19 @@ a lot of data that needs to be copied, this should be set high. */
 */
 
 /*
-The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
+The STM32F4xx allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
 #if defined(USE_PPPOS) && (USE_PPPOS == 1)
-//for the ppp support
-#define  PPP_SUPPORT       1
-#define  PAP_SUPPORT       1
-#define  PPP_IPV4_SUPPORT  1
+// for the ppp support
+#define PPP_SUPPORT        1
+#define PAP_SUPPORT        1
+#define PPP_IPV4_SUPPORT   1
 #else
 #define CHECKSUM_BY_HARDWARE
 
 #endif
-
-
 
 #ifdef CHECKSUM_BY_HARDWARE
   /* CHECKSUM_GEN_IP==0: Generate checksums by hardware for outgoing IP packets.*/
@@ -217,7 +256,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
  */
-#define LWIP_NETCONN                    1
+#define LWIP_NETCONN                      1
 
 /*
    ------------------------------------
@@ -227,35 +266,70 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     1
+#define LWIP_SOCKET                       1
 
-/**
+/*
+   ------------------------------------
+   ----------- dns   options ----------
+   ------------------------------------
+*/
+/* *
  * LWIP_DNS==1: Enable Domain Name System
  */
-#define LWIP_DNS                        1
+#define LWIP_DNS                          1
+
+
+/*
+   ------------------------------------
+   ---------- httpd options ----------
+   ------------------------------------
+*/
+/** Set this to 1 to include "fsdata_custom.c" instead of "fsdata.c" for the
+ * file system (to prevent changing the file included in CVS) */
+#define HTTPD_USE_CUSTOM_FSDATA          1
+
 
 /*
    ----------------------------------------
-   ---------- Lwip Debug options ----------
+   ------- Lwip Dtls Server options -------
    ----------------------------------------
 */
-//#define LWIP_DEBUG                      1
+#define SO_REUSE                         1
 
-#define TCPIP_THREAD_STACKSIZE 0x1000
-#define TCPIP_MBOX_SIZE 12
-#define DEFAULT_UDP_RECVMBOX_SIZE 12
-#define DEFAULT_TCP_RECVMBOX_SIZE 6
-#define DEFAULT_ACCEPTMBOX_SIZE 6
-#define DEFALUT_THREAD_STACKSIZE 500
-#define TCPIP_THREAD_PRIO  6
-
-#define LWIP_COMPAT_MUTEX_ALLOWED 1
-#define LWIP_COMPAT_MUTEX  1
-
-//for dtls server
-#define SO_REUSE 1
-
+/*
+   ----------------------------------------
+   ----------- Lwip Ipv6 options ----------
+   ----------------------------------------
+*/
 #define LWIP_HOOK_ND6_GET_GW get_lwip_ipv6_default_gw
+
+/*
+   ---------------------------------
+   ---------- OS options ----------
+   ---------------------------------
+*/
+
+#define TCPIP_THREAD_NAME              "TCP/IP"
+#define TCPIP_THREAD_STACKSIZE          0x1000
+#define TCPIP_MBOX_SIZE                 12
+#define DEFAULT_UDP_RECVMBOX_SIZE       12
+#define DEFAULT_TCP_RECVMBOX_SIZE       6
+#define DEFAULT_ACCEPTMBOX_SIZE         6
+#define DEFAULT_THREAD_STACKSIZE        500
+#define TCPIP_THREAD_PRIO               6
+
+#define LWIP_COMPAT_MUTEX_ALLOWED       1
+#define LWIP_COMPAT_MUTEX               1
+
+#define LWIP_DEBUG
+#define NETIF_DEBUG LWIP_DBG_ON
+#define INET_DEBUG  LWIP_DBG_ON
+#define DHCP_DEBUG  LWIP_DBG_OFF
+#define IGMP_DEBUG  LWIP_DBG_ON
+#define MDNS_DEBUG  LWIP_DBG_ON
+#define UDP_DEBUG   LWIP_DBG_OFF
+#define SNTP_DEBUG  LWIP_DBG_OFF
+#define SYS_DEBUG   LWIP_DBG_OFF
 
 #endif /* __LWIPOPTS_H__ */
 

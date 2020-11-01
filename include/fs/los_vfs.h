@@ -61,7 +61,6 @@ typedef long                                off_t;
 #define VFS_ERRNO_SET(err)
 #endif
 
-/*lint -e145*/
 struct file_ops
 {
     int     (*open)     (struct file *, const char *, int);
@@ -79,7 +78,6 @@ struct file_ops
     int     (*closedir) (struct dir *);
     int     (*mkdir)    (struct mount_point *, const char *);
 };
-/*lint +e145*/
 
 struct file_system
 {

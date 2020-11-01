@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Timer Header File
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -41,14 +43,20 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+extern UINT64 hi_sched_clock(VOID);
 extern UINT32 HalClockFreqRead(VOID);
 extern VOID HalClockFreqWrite(UINT32 freq);
 extern VOID HalClockStart(VOID);
+extern VOID HalClockIrqInit(VOID);
 extern VOID HalClockIrqClear(VOID);
+extern VOID HalClockInitStart(VOID);
+extern VOID HalClockEnable(VOID);
 extern VOID HalClockInit(VOID);
+extern VOID PlatformHalClockInitialize(UINT32 period);
+
 extern UINT64 HalClockGetCycles(VOID);
+extern UINT64 HalClockGetCurrCycles(VOID);
 extern VOID HalDelayUs(UINT32 usecs);
-extern UINT64 HalSchedClock(VOID);
 extern UINT32 HalClockGetTickTimerCycles(VOID);
 extern VOID HalClockTickTimerReload(UINT32 cycles);
 

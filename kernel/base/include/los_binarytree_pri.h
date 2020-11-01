@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: BinaryTree Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -45,7 +47,7 @@ extern "C" {
 typedef struct tagBinNode {
     struct tagBinNode *left;
     struct tagBinNode *right;
-    UINT32 nodeID;
+    UINT32 nodeId;
     CHAR keyValue[0];
 } BinNode;
 
@@ -83,26 +85,26 @@ extern ReqSizeNode *g_reqSizeRoot;
 
 typedef struct {
     BinNode leaf;
-    UINT32 taskID;
+    UINT32 taskId;
 } TaskIDNode;
 
 #define TASK_ID_COUNT 1024
 
 extern UINT32 OsBinTreeInsert(const VOID *node, UINT32 nodeLen, BinNode **leaf,
-                              BinNode *(*GetMyBinNode)(UINT32 *nodeID),
+                              BinNode *(*GetMyBinNode)(UINT32 *nodeId),
                               INT32 (*CompareNode)(const VOID *node1, const VOID *node2));
 
 extern INT32 OsCompareLRNode(const VOID *node1, const VOID *node2);
-extern BinNode *OsGetLRBinNode(UINT32 *nodeID);
+extern BinNode *OsGetLRBinNode(UINT32 *nodeId);
 
 extern INT32 OsCompareAddrNode(const VOID *node1, const VOID *node2);
-extern BinNode *OsGetAddrBinNode(UINT32 *nodeID);
+extern BinNode *OsGetAddrBinNode(UINT32 *nodeId);
 
 extern INT32 OsCompareReqSizeNode(const VOID *node1, const VOID *node2);
-extern BinNode *OsGetReqSizeBinNode(UINT32 *nodeID);
+extern BinNode *OsGetReqSizeBinNode(UINT32 *nodeId);
 
 extern INT32 OsCompareTaskIDNode(const VOID *node1, const VOID *node2);
-extern BinNode *OsGetTaskIDBinNode(UINT32 *nodeID);
+extern BinNode *OsGetTaskIDBinNode(UINT32 *nodeId);
 
 #ifdef __cplusplus
 #if __cplusplus

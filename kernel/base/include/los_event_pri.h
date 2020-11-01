@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Event Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -52,10 +54,10 @@ typedef struct {
 
 extern UINT32 OsEventReadWithCond(const EventCond *cond, PEVENT_CB_S eventCB,
                                   UINT32 eventMask, UINT32 mode, UINT32 timeout);
-#endif
-
 extern UINT32 OsEventReadOnce(PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode, UINT32 timeout);
+#endif
 extern UINT32 OsEventWriteOnce(PEVENT_CB_S eventCB, UINT32 events);
+
 
 #ifdef __cplusplus
 #if __cplusplus

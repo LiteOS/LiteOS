@@ -1,0 +1,55 @@
+menu "Memory Management"
+
+choice
+    prompt "Dynamic Memory Management Algorithm"
+    default LOSCFG_KERNEL_MEM_BESTFIT
+
+config LOSCFG_KERNEL_MEM_BESTFIT
+    bool "bestfit"
+    help
+      This option will change mem type as bestfit
+
+config LOSCFG_KERNEL_MEM_BESTFIT_LITTLE
+    bool "bestfit_little"
+    help
+      This option will change mem type as bestfit little
+endchoice
+
+config LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    bool "Enable Mem SLAB Extention"
+    default n
+
+config LOSCFG_KERNEL_MEM_SLAB_AUTO_EXPANSION_MODE
+    bool "Enable Mem SLAB Auto Expansion Mode"
+    default n
+    depends on LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+
+config LOSCFG_MEM_TASK_STAT
+    bool "Enable Memory Task Usage Statistics"
+    default y
+    depends on (LOSCFG_KERNEL_MEM_BESTFIT || LOSCFG_KERNEL_MEM_BESTFIT_LITTLE)
+    help
+      Answer Y to enable LiteOS support memory task statistics
+
+config LOSCFG_KERNEL_MEMBOX
+    bool "Membox Management"
+    default y
+
+choice
+    prompt "Membox Management Algorithm"
+    default LOSCFG_KERNEL_MEMBOX_STATIC
+    depends on LOSCFG_KERNEL_MEMBOX
+
+config LOSCFG_KERNEL_MEMBOX_STATIC
+    bool "static memory"
+    help
+      This option will change membox implemented with input memory
+
+config LOSCFG_KERNEL_MEMBOX_DYNAMIC
+    bool "dynmic memory"
+    help
+      This option will change membox implemented with dynamic allocated memory
+
+endchoice
+
+endmenu

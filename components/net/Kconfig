@@ -1,0 +1,15 @@
+menu "Network"
+
+config LOSCFG_COMPONENTS_NETWORK
+bool "Enable Network"
+default n
+help
+    Answer Y to enable network support.
+
+config LOSCFG_COMPONENTS_NET_LWIP
+depends on LOSCFG_COMPONENTS_NETWORK
+bool "Enable LWIP"
+default n
+help
+    Answer Y to enable lwip support.
+endmenu

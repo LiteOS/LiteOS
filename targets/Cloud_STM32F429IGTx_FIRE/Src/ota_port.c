@@ -38,7 +38,7 @@
 #include "upgrade_flag.h"
 #include <string.h>
 #include <stdlib.h>
-#include <board.h>
+#include "board_ota.h"
 #include "flash_adaptor.h"
 #include "hal_spi_flash.h"
 
@@ -48,14 +48,12 @@ static const uint32_t g_flash_max_size[] = {OTA_IMAGE_DOWNLOAD_SIZE, OTA_IMAGE_D
 
 static int hal_check_flash_param(ota_flash_type_e type, int32_t len, uint32_t location)
 {
-    if (type > OTA_UPDATE_INFO)
-    {
+    if (type > OTA_UPDATE_INFO) {
         HAL_OTA_LOG("err type %d", type);
         return ERR;
     }
 
-    if(len > g_flash_max_size[type])
-    {
+    if (len > g_flash_max_size[type]) {
         HAL_OTA_LOG("err offset %lu, len %lu", location, len);
         return ERR;
     }
@@ -65,8 +63,7 @@ static int hal_check_flash_param(ota_flash_type_e type, int32_t len, uint32_t lo
 
 static int hal_read_flash(ota_flash_type_e type, void *buf, int32_t len, uint32_t location)
 {
-    if (hal_check_flash_param(type, len, location) != OK)
-    {
+    if (hal_check_flash_param(type, len, location) != OK) {
         return ERR;
     }
 
@@ -75,8 +72,7 @@ static int hal_read_flash(ota_flash_type_e type, void *buf, int32_t len, uint32_
 
 static int hal_write_flash(ota_flash_type_e type, const void *buf, int32_t len, uint32_t location)
 {
-    if (hal_check_flash_param(type, len, location) != OK)
-    {
+    if (hal_check_flash_param(type, len, location) != OK) {
         return ERR;
     }
 
@@ -91,8 +87,7 @@ void hal_init_ota(void)
 
 void hal_get_ota_opt(ota_opt_s *opt)
 {
-    if (opt == NULL)
-    {
+    if (opt == NULL) {
         HAL_OTA_LOG("opt NULL");
         return;
     }
@@ -102,6 +97,3 @@ void hal_get_ota_opt(ota_opt_s *opt)
     opt->write_flash = hal_write_flash;
     opt->flash_block_size = FLASH_BLOCK_SIZE;
 }
-
-
-

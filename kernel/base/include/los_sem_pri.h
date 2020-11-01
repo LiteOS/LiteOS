@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Semaphore Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,7 +38,6 @@
 #define _LOS_SEM_PRI_H
 
 #include "los_sem.h"
-#include "los_config.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -49,82 +50,119 @@ extern "C" {
  * Semaphore control structure.
  */
 typedef struct {
-    UINT8 semStat; /**< Semaphore state */
-    UINT16 semCount; /**< Number of available semaphores */
-    UINT16 maxSemCount;  /**< Max number of available semaphores */
-    UINT32 semID; /**< Semaphore control structure ID */
-    LOS_DL_LIST semList; /**< Queue of tasks that are waiting on a semaphore */
+    UINT8 semStat;       /**< Semaphore state, enum LosSemState */
+    UINT8 semType;       /**< Semaphore Type, enum LosSemType */
+    UINT16 semCount;     /**< number of available semaphores */
+    UINT32 semId;        /**< Semaphore control structure ID, COUNT(UINT16)|INDEX(UINT16) */
+    LOS_DL_LIST semList; /**< List of tasks that are waiting on a semaphore */
 } LosSemCB;
 
 /**
  * @ingroup los_sem
- * The semaphore is not in use.
- *
+ * Semaphore state enums.
  */
-#define OS_SEM_UNUSED        0
-/**
- * @ingroup los_sem
- * The semaphore is used.
- *
- */
-#define OS_SEM_USED          1
-/**
- * @ingroup los_sem
- * Obtain the head node in a semaphore doubly linked list.
- *
- */
-#define GET_SEM_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosSemCB, semList)
+enum {
+    OS_SEM_UNUSED, /**< The semaphore is not in use */
+    OS_SEM_USED,   /**< The semaphore is used */
+};
 
 /**
  * @ingroup los_sem
- * Configuration item for IPC to use dynamic memory
+ * Semaphore type enums.
  */
-#if (LOSCFG_LIB_CONFIGURABLE == YES)
-#define LOSCFG_BASE_IPC_DYNAMIC_MEM       YES
-#else
-#define LOSCFG_BASE_IPC_DYNAMIC_MEM       NO
-#endif
+enum {
+    OS_SEM_COUNTING, /**< The semaphore is a counting semaphore which max count is OS_SEM_COUNT_MAX */
+    OS_SEM_BINARY,   /**< The semaphore is a binary semaphore which max count is OS_SEM_BINARY_COUNT_MAX */
+};
+
+/**
+ * @ingroup los_sem
+ * Max semaphore count enums.
+ */
+enum {
+    OS_SEM_COUNT_MAX = 0xFFFE,   /**< Max count of counting semaphores */
+    OS_SEM_BINARY_COUNT_MAX = 1, /**< Max count of binary semaphores */
+};
 
 /**
  *  @ingroup los_sem
  *  Semaphore information control block
  */
-#if (LOSCFG_BASE_IPC_DYNAMIC_MEM == YES)
 extern LosSemCB *g_allSem;
-#else
-extern LosSemCB g_allSem[];
-#endif
 
+/**
+ * @ingroup los_sem
+ * Obtain the head node in a semaphore doubly linked list.
+ *
+ */
+#define GET_SEM_LIST(ptr)                   LOS_DL_LIST_ENTRY(ptr, LosSemCB, semList)
+
+#ifndef LOSCFG_RESOURCE_ID_NOT_USE_HIGH_BITS
 /**
  * @ingroup los_sem
  * COUNT | INDEX  split bit
  */
-#define SEM_SPLIT_BIT        16
+#define SEM_SPLIT_BIT                       16
+
 /**
  * @ingroup los_sem
  * Set the semaphore id
  */
-#define SET_SEM_ID(count, semID)    (((count) << SEM_SPLIT_BIT) | (semID))
+#define SET_SEM_ID(count, semId)            (((count) << SEM_SPLIT_BIT) | (semId))
 
 /**
  * @ingroup los_sem
  * get the semaphore index
  */
-#define GET_SEM_INDEX(semID)        ((semID) & ((1U << SEM_SPLIT_BIT) - 1))
+#define GET_SEM_INDEX(semId)                ((semId) & ((1U << SEM_SPLIT_BIT) - 1))
 
 /**
  * @ingroup los_sem
  * get the semaphore count
  */
-#define GET_SEM_COUNT(semID)        ((semID) >> SEM_SPLIT_BIT)
+#define GET_SEM_COUNT(semId)                ((semId) >> SEM_SPLIT_BIT)
+
+#else
+
+/**
+ * @ingroup los_sem
+ * get the semaphore index
+ */
+#define GET_SEM_INDEX(semId)                (semId)
+
+#endif
 
 /**
  * @ingroup los_sem
  * Obtain a semaphore ID.
- *
  */
-#define GET_SEM(semID)              (((LosSemCB *)g_allSem) + GET_SEM_INDEX(semID))
+#define GET_SEM(semId)                      (((LosSemCB *)g_allSem) + GET_SEM_INDEX(semId))
 
+/**
+ * @ingroup los_sem
+ * @brief Initialize the semaphore module.
+ *
+ * @par Description:
+ * This API is used to create a semaphore control structure according to the initial number of available semaphores
+ * specified by count and return the ID of this semaphore control structure.
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param count       [IN] Initial number of available semaphores. The value range is [0, OS_SEM_COUNT_MAX).
+ * @param semHandle   [OUT] ID of the semaphore control structure that is initialized.
+ *
+ * @retval #LOS_ERRNO_SEM_PTR_NULL  The passed-in semHandle value is NULL.
+ * @retval #LOS_ERRNO_SEM_OVERFLOW  The passed-in count value is greater than the maximum number of available
+ * semaphores.
+ * @retval #LOS_ERRNO_SEM_ALL_BUSY  No semaphore control structure is available.
+ * @retval #LOS_OK   The semaphore is successfully created.
+ * @par Dependency:
+ * <ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SemDelete
+ * @since Huawei LiteOS V100R001C00
+ */
 extern UINT32 OsSemInit(VOID);
 
 #ifdef __cplusplus

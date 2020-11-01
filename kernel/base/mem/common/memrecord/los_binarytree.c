@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS BinTree Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -45,10 +47,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 UINT32 OsBinTreeInsert(const VOID *node, UINT32 nodeLen, BinNode **leaf,
-                       BinNode *(*GetMyBinNode)(UINT32 *nodeID),
+                       BinNode *(*GetMyBinNode)(UINT32 *nodeId),
                        INT32 (*CompareNode)(const VOID *node1, const VOID *node2))
 {
-    UINT32 nodeID;
+    UINT32 nodeId;
     INT32 result;
     BinNode **currentNode = leaf;
 
@@ -60,26 +62,26 @@ UINT32 OsBinTreeInsert(const VOID *node, UINT32 nodeLen, BinNode **leaf,
         if (*currentNode != NULL) {
             result = CompareNode(node, (const VOID *)(*currentNode));
             if (result == 0) {
-                return (*currentNode)->nodeID;
+                return (*currentNode)->nodeId;
             } else if (result < 0) {
                 currentNode = (BinNode **)(&((*currentNode)->left));
             } else {
                 currentNode = (BinNode **)(&((*currentNode)->right));
             }
         } else {
-            (*currentNode) = GetMyBinNode(&nodeID);
+            (*currentNode) = GetMyBinNode(&nodeId);
             if (*currentNode == NULL) {
                 return OS_INVALID;
             }
 
             (VOID)memcpy_s((*currentNode)->keyValue, (nodeLen - sizeof(BinNode)),
                 ((BinNode *)node)->keyValue, (nodeLen - sizeof(BinNode)));
-            (*currentNode)->nodeID = nodeID;
+            (*currentNode)->nodeId = nodeId;
             /* initialize the children to NULL */
             (*currentNode)->left = NULL;
             (*currentNode)->right = NULL;
 
-            return (*currentNode)->nodeID;
+            return (*currentNode)->nodeId;
         }
     } while (1);
 }
@@ -110,13 +112,13 @@ INT32 OsCompareLRNode(const VOID *node1, const VOID *node2)
     }
 }
 
-BinNode *OsGetLRBinNode(UINT32 *nodeID)
+BinNode *OsGetLRBinNode(UINT32 *nodeId)
 {
     if (g_linkRegNodeIndex < LR_COUNT) {
-        *nodeID = g_linkRegNodeIndex;
+        *nodeId = g_linkRegNodeIndex;
         return (BinNode *)(&g_linkRegNode[g_linkRegNodeIndex++]);
     } else {
-        *nodeID = (UINT32)-1;
+        *nodeId = (UINT32)-1;
         return NULL;
     }
 }
@@ -138,13 +140,13 @@ INT32 OsCompareAddrNode(const VOID *node1, const VOID *node2)
     }
 }
 
-BinNode *OsGetAddrBinNode(UINT32 *nodeID)
+BinNode *OsGetAddrBinNode(UINT32 *nodeId)
 {
     if (g_addrNodeIndex < ADDR_COUNT) {
-        *nodeID = g_addrNodeIndex;
+        *nodeId = g_addrNodeIndex;
         return (BinNode *)(&g_addrNode[g_addrNodeIndex++]);
     } else {
-        *nodeID = (UINT32)-1;
+        *nodeId = (UINT32)-1;
         return NULL;
     }
 }
@@ -167,41 +169,41 @@ INT32 OsCompareReqSizeNode(const VOID *node1, const VOID *node2)
     }
 }
 
-BinNode *OsGetReqSizeBinNode(UINT32 *nodeID)
+BinNode *OsGetReqSizeBinNode(UINT32 *nodeId)
 {
     if (g_reqSizeNodeIndex < REQ_SIZE_COUNT) {
-        *nodeID = g_reqSizeNodeIndex;
+        *nodeId = g_reqSizeNodeIndex;
         return (BinNode *)(&g_reqSizeNode[g_reqSizeNodeIndex++]);
     } else {
-        *nodeID = (UINT32)-1;
+        *nodeId = (UINT32)-1;
         return NULL;
     }
 }
 
 /* TASKIDNODE */
-STATIC TaskIDNode g_taskIDNode[TASK_ID_COUNT];
-STATIC UINT32 g_taskIDNodeIndex = 0;
-STATIC TaskIDNode *g_taskIDRoot = NULL;
+STATIC TaskIDNode g_taskIdNode[TASK_ID_COUNT];
+STATIC UINT32 g_taskIdNodeIndex = 0;
+STATIC TaskIDNode *g_taskIdRoot = NULL;
 INT32 OsCompareTaskIDNode(const VOID *node1, const VOID *node2)
 {
-    TaskIDNode *taskIDNode1 = (TaskIDNode *)node1;
-    TaskIDNode *taskIDNode2 = (TaskIDNode *)node2;
-    if (taskIDNode1->taskID < taskIDNode2->taskID) {
+    TaskIDNode *taskIdNode1 = (TaskIDNode *)node1;
+    TaskIDNode *taskIdNode2 = (TaskIDNode *)node2;
+    if (taskIdNode1->taskId < taskIdNode2->taskId) {
         return -1;
-    } else if (taskIDNode1->taskID == taskIDNode2->taskID) {
+    } else if (taskIdNode1->taskId == taskIdNode2->taskId) {
         return 0;
     } else {
         return 1;
     }
 }
 
-BinNode *OsGetTaskIDBinNode(UINT32 *nodeID)
+BinNode *OsGetTaskIDBinNode(UINT32 *nodeId)
 {
-    if (g_taskIDNodeIndex < TASK_ID_COUNT) {
-        *nodeID = g_taskIDNodeIndex;
-        return (BinNode *)(&g_taskIDNode[g_taskIDNodeIndex++]);
+    if (g_taskIdNodeIndex < TASK_ID_COUNT) {
+        *nodeId = g_taskIdNodeIndex;
+        return (BinNode *)(&g_taskIdNode[g_taskIdNodeIndex++]);
     } else {
-        *nodeID = (UINT32)-1;
+        *nodeId = (UINT32)-1;
         return NULL;
     }
 }
@@ -231,8 +233,8 @@ VOID OsBinaryTreeInit(VOID)
                           OsGetAddrBinNode, OsCompareAddrNode);
 
     for (index = 0; index < BINARYTREE_TASKID_COUNT; index++) {
-        taskNode.taskID = g_binaryTreeTaskID[index];
-        (VOID)OsBinTreeInsert(&taskNode, sizeof(TaskIDNode), (BinNode **)&g_taskIDRoot,
+        taskNode.taskId = g_binaryTreeTaskID[index];
+        (VOID)OsBinTreeInsert(&taskNode, sizeof(TaskIDNode), (BinNode **)&g_taskIdRoot,
                               OsGetTaskIDBinNode, OsCompareTaskIDNode);
     }
 

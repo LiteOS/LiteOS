@@ -1,0 +1,13 @@
+include $(LITEOSTOPDIR)/config.mk
+
+MODULE_NAME := posix
+
+ARFLAGS = cr
+
+all:
+    mkdir -p $(OUT)/lib
+    cp -rf *.a $(OUT)/lib
+
+.PHONY: all
+
+include $(MODULE)

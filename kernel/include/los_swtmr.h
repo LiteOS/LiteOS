@@ -1,6 +1,8 @@
 /* ---------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Software Timer Manager HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -265,24 +267,6 @@ typedef VOID (*SWTMR_PROC_FUNC)(UINTPTR arg);
 
 /**
  * @ingroup los_swtmr
- * Software timer control structure
- */
-typedef struct tagSwTmrCtrl {
-    SortLinkList stSortList;
-    UINT8 ucState;      /**< Software timer state */
-    UINT8 ucMode;       /**< Software timer mode */
-    UINT8 ucOverrun;    /**< Times that a software timer repeats timing */
-    UINT16 usTimerID;   /**< Software timer ID */
-    UINT32 uwCount;     /**< Times that a software timer works */
-    UINT32 uwInterval;  /**< Timeout interval of a periodic software timer */
-    UINT32 uwExpiry;    /**< Timeout interval of an one-off software timer */
-    UINTPTR uwArg;      /**< Parameter passed in when the callback function
-                             that handles software timer timeout is called */
-    SWTMR_PROC_FUNC pfnHandler; /**< Callback function that handles software timer timeout */
-} SWTMR_CTRL_S;
-
-/**
- * @ingroup los_swtmr
  * @brief Start a software timer.
  *
  * @par Description:
@@ -292,7 +276,7 @@ typedef struct tagSwTmrCtrl {
  * <li>The specific timer must be created first</li>
  * </ul>
  *
- * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
+ * @param  swtmrId  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                       [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
@@ -304,7 +288,7 @@ typedef struct tagSwTmrCtrl {
  * @see LOS_SwtmrStop | LOS_SwtmrCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrStart(UINT16 swtmrId);
 
 /**
  * @ingroup los_swtmr
@@ -317,7 +301,7 @@ extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
  * <li>The specific timer should be created and started firstly.</li>
  * </ul>
  *
- * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
+ * @param  swtmrId  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                       [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
@@ -330,7 +314,7 @@ extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
  * @see LOS_SwtmrStart | LOS_SwtmrCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrStop(UINT16 swtmrId);
 
 /**
  * @ingroup los_swtmr
@@ -341,10 +325,10 @@ extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
  * specified by usSwTmrID.
  * @attention
  * <ul>
- * <li>The specific timer should be created and started successfully, error happends otherwise.</li>
+ * <li>The specific timer should be created and started successfully, error happens otherwise.</li>
  * </ul>
  *
- * @param  swtmrID  [IN]  Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
+ * @param  swtmrId  [IN]  Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                        [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  * @param  tick     [OUT] Number of remaining Ticks configured on the software timer.
  *
@@ -358,7 +342,7 @@ extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
  * @see LOS_SwtmrCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
+extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrId, UINT32 *tick);
 
 /**
  * @ingroup los_swtmr
@@ -370,7 +354,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
  * @attention
  * <ul>
  * <li>Do not use the delay interface in the callback function that handles software timer timeout.</li>
- * <li>Threre are LOSCFG_BASE_CORE_SWTMR_LIMIT timers available, change it's value when necessory.</li>
+ * <li>There are LOSCFG_BASE_CORE_SWTMR_LIMIT timers available, change it's value when necessary.</li>
  * </ul>
  *
  * @param  interval     [IN] Timing duration of the software timer to be created (unit: tick).
@@ -378,7 +362,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
  * types of modes, one-off, periodic, and continuously periodic after one-off, of which the third mode is not
  * supported temporarily.
  * @param  handler     [IN] Callback function that handles software timer timeout.
- * @param  swtmrID     [OUT] Software timer ID created by LOS_SwtmrCreate.
+ * @param  swtmrId     [OUT] Software timer ID created by LOS_SwtmrCreate.
  * @param  arg         [IN] Parameter passed in when the callback function that handles software timer timeout is
  * called.
  *
@@ -394,7 +378,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
  * @see LOS_SwtmrDelete
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrCreate(UINT32 interval, UINT8 mode, SWTMR_PROC_FUNC handler, UINT16 *swtmrID, UINTPTR arg);
+extern UINT32 LOS_SwtmrCreate(UINT32 interval, UINT8 mode, SWTMR_PROC_FUNC handler, UINT16 *swtmrId, UINTPTR arg);
 
 /**
  * @ingroup los_swtmr
@@ -407,7 +391,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval, UINT8 mode, SWTMR_PROC_FUNC handl
  * <li>The specific timer should be created and then stopped firstly.</li>
  * </ul>
  *
- * @param  swtmrID     [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
+ * @param  swtmrId     [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                          [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID        Invalid software timer ID.
@@ -419,7 +403,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval, UINT8 mode, SWTMR_PROC_FUNC handl
  * @see LOS_SwtmrCreate
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_SwtmrDelete(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrDelete(UINT16 swtmrId);
 
 #ifdef __cplusplus
 #if __cplusplus

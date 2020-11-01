@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Tickless
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -32,7 +34,7 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 #include "los_tickless_pri.h"
-#include "los_hwi_pri.h"
+#include "los_hwi.h"
 #include "los_tick_pri.h"
 #include "los_sortlink_pri.h"
 #include "los_swtmr_pri.h"
@@ -88,16 +90,23 @@ LITE_OS_SEC_TEXT VOID OsTicklessSleepTickSet(UINT32 sleeptick)
 
 STATIC INLINE UINT32 OsSleepTicksGet(VOID)
 {
-    UINT32 tskSortLinkTicks, swtmrSortLinkTicks, sleepTicks;
+    UINT32 tskSortLinkTicks, sleepTicks;
 
     UINT32 intSave = LOS_IntLock();
     LOS_SpinLock(&g_taskSpin);
     tskSortLinkTicks = OsSortLinkGetNextExpireTime(&OsPercpuGet()->taskSortLink);
     LOS_SpinUnlock(&g_taskSpin);
+
+#ifdef LOSCFG_BASE_CORE_SWTMR
+    UINT32 swtmrSortLinkTicks;
     LOS_SpinLock(&g_swtmrSpin);
     swtmrSortLinkTicks = OsSortLinkGetNextExpireTime(&OsPercpuGet()->swtmrSortLink);
     LOS_SpinUnlock(&g_swtmrSpin);
     sleepTicks = (tskSortLinkTicks < swtmrSortLinkTicks) ? tskSortLinkTicks : swtmrSortLinkTicks;
+#else
+    sleepTicks = tskSortLinkTicks;
+#endif
+
     LOS_IntRestore(intSave);
     return sleepTicks;
 }
@@ -115,9 +124,13 @@ LITE_OS_SEC_TEXT VOID OsSysTimeUpdate(UINT32 sleepTicks)
     LOS_SpinLock(&g_taskSpin);
     OsSortLinkUpdateExpireTime(sleepTicks, &OsPercpuGet()->taskSortLink);
     LOS_SpinUnlock(&g_taskSpin);
+
+#ifdef LOSCFG_BASE_CORE_SWTMR
     LOS_SpinLock(&g_swtmrSpin);
     OsSortLinkUpdateExpireTime(sleepTicks, &OsPercpuGet()->swtmrSortLink);
     LOS_SpinUnlock(&g_swtmrSpin);
+#endif
+
     LOS_IntRestore(intSave);
 }
 

@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: Spinlock
+ * Author: Huawei LiteOS Team
+ * Create: 2018-07-11
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -38,6 +40,9 @@
 #include "los_config.h"
 #include "los_hwi.h"
 #include "los_task.h"
+#include "los_lockdep.h"
+
+#include "arch/spinlock.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -45,14 +50,22 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-extern VOID ArchSpinLock(size_t *lock);
-extern VOID ArchSpinUnlock(size_t *lock);
-extern INT32 ArchSpinTrylock(size_t *lock);
+#ifdef LOSCFG_KERNEL_SMP_LOCKDEP
+#define SPINLOCK_OWNER_INIT     NULL
 
-typedef struct Spinlock {
-    size_t      rawLock;
-} SPIN_LOCK_S;
+#define LOCKDEP_CHECK_IN(lock)  OsLockDepCheckIn(lock)
+#define LOCKDEP_RECORD(lock)    OsLockDepRecord(lock)
+#define LOCKDEP_CHECK_OUT(lock) OsLockDepCheckOut(lock)
+#define LOCKDEP_CLEAR_LOCKS()   OsLockdepClearSpinlocks()
 
+#define SPIN_LOCK_INITIALIZER(lockName) \
+{                                       \
+    .rawLock    = 0U,                   \
+    .cpuid      = (UINT32)(-1),         \
+    .owner      = SPINLOCK_OWNER_INIT,  \
+    .name       = #lockName,            \
+}
+#else
 #define LOCKDEP_CHECK_IN(lock)
 #define LOCKDEP_RECORD(lock)
 #define LOCKDEP_CHECK_OUT(lock)
@@ -61,8 +74,197 @@ typedef struct Spinlock {
 {                                       \
     .rawLock    = 0U,                   \
 }
+#endif
 
 #define SPIN_LOCK_INIT(lock)  SPIN_LOCK_S lock = SPIN_LOCK_INITIALIZER(lock)
+
+#if (LOSCFG_KERNEL_SMP == YES)
+/**
+ * @ingroup  los_spinlock
+ * @brief Lock the spinlock.
+ *
+ * @par Description:
+ * This API is used to lock the spin lock.
+ *
+ * @attention None.
+ *
+ * @param  lock [IN] Type #SPIN_LOCK_S spinlock pointer.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SpinUnlock
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinLock(SPIN_LOCK_S *lock)
+{
+    /*
+     * disable the scheduler, so it won't do schedule until
+     * scheduler is reenabled. The LOS_TaskUnlock should not
+     * be directly called along this critic area.
+     */
+    LOS_TaskLock();
+
+    LOCKDEP_CHECK_IN(lock);
+    ArchSpinLock(&lock->rawLock);
+    LOCKDEP_RECORD(lock);
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Trying lock the spinlock.
+ *
+ * @par Description:
+ * This API is used to trying lock the spin lock.
+ *
+ * @attention None.
+ *
+ * @param  lock [IN] Type #SPIN_LOCK_S spinlock pointer.
+ *
+ * @retval LOS_OK   Got the spinlock.
+ * @retval LOS_NOK  Not getting the spinlock.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SpinLock
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE INT32 LOS_SpinTrylock(SPIN_LOCK_S *lock)
+{
+    LOS_TaskLock();
+
+    LOCKDEP_CHECK_IN(lock);
+    INT32 ret = ArchSpinTrylock(&lock->rawLock);
+    if (ret == LOS_OK) {
+        LOCKDEP_RECORD(lock);
+    }
+
+    return ret;
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Unlock the spinlock.
+ *
+ * @par Description:
+ * This API is used to unlock the spin lock.
+ *
+ * @attention None.
+ *
+ * @param  lock [IN] Type #SPIN_LOCK_S spinlock pointer.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SpinLock
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinUnlock(SPIN_LOCK_S *lock)
+{
+    LOCKDEP_CHECK_OUT(lock);
+    ArchSpinUnlock(&lock->rawLock);
+
+    /* restore the scheduler flag */
+    LOS_TaskUnlock();
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Lock the spinlock and disable all interrupts.
+ *
+ * @par Description:
+ * This API is used to lock the spin lock and disable all interrupts.
+ *
+ * @attention None.
+ *
+ * @param  lock     [IN]    Type #SPIN_LOCK_S spinlock pointer.
+ * @param  intSave  [OUT]   Type #UINT32 Saved interrupt flag for latter restored.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SpinLock
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinLockSave(SPIN_LOCK_S *lock, UINT32 *intSave)
+{
+    *intSave = LOS_IntLock();
+    LOS_SpinLock(lock);
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Unlock the spinlock and restore interrupt flag.
+ *
+ * @par Description:
+ * This API is used to unlock the spin lock and restore interrupt flag.
+ *
+ * @attention None.
+ *
+ * @param  lock     [IN]    Type #SPIN_LOCK_S spinlock pointer.
+ * @param  intSave  [IN]    Type #UINT32 Interrupt flag to be restored.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SpinUnlock
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinUnlockRestore(SPIN_LOCK_S *lock, UINT32 intSave)
+{
+    LOS_SpinUnlock(lock);
+    LOS_IntRestore(intSave);
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Check if holding the spinlock.
+ *
+ * @par Description:
+ * This API is used to check if holding the spinlock.
+ *
+ * @attention None.
+ *
+ * @param  lock     [IN]    Type #SPIN_LOCK_S spinlock pointer.
+ *
+ * @retval TRUE   Holding the spinlock.
+ * @retval FALSE  Not Holding the spinlock.
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_SpinHeld(const SPIN_LOCK_S *lock)
+{
+    return (lock->rawLock != 0);
+}
+
+/**
+ * @ingroup  los_spinlock
+ * @brief Spinlock initialization.
+ *
+ * @par Description:
+ * This API is used to initialize a spinlock.
+ *
+ * @attention None.
+ *
+ * @param  lock     [IN]    Type #SPIN_LOCK_S spinlock pointer.
+ *
+ * @retval None.
+ *
+ * @par Dependency:
+ * <ul><li>los_spinlock.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R003C00
+ */
+LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinInit(SPIN_LOCK_S *lock)
+{
+    lock->rawLock     = 0;
+#ifdef LOSCFG_KERNEL_SMP_LOCKDEP
+    lock->cpuid       = (UINT32)-1;
+    lock->owner       = SPINLOCK_OWNER_INIT;
+    lock->name        = "spinlock";
+#endif
+}
+
+#else
 
 /*
  * For Non-SMP system, these apis does not handle with spinlocks,
@@ -106,6 +308,8 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_SpinInit(SPIN_LOCK_S *lock)
 {
     (VOID)lock;
 }
+
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

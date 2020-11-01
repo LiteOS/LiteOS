@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Stack Info Private Headfile
+ * Author: Huawei LiteOS Team
+ * Create: 2019-09-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,7 +38,8 @@
 #define _LOS_STACK_INFO_PRI_H
 
 #include "los_typedef.h"
-#include "arch_config.h"
+
+#include "arch/exception.h"
 
 #ifdef __cplusplus
 #if __cplusplus

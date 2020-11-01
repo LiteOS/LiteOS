@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Priority Queue
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -44,15 +46,21 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-#define PRIQUEUE_PRIOR0_BIT           0x80000000U
+#define OS_PRIORITY_QUEUE_NUM 32
+#define PRIQUEUE_PRIOR0_BIT   0x80000000U
 
-LITE_OS_SEC_BSS LOS_DL_LIST g_priQueueList[OS_PRIORITY_QUEUE_NUM];
-
+LITE_OS_SEC_BSS LOS_DL_LIST *g_priQueueList = NULL;
 STATIC LITE_OS_SEC_BSS UINT32 g_priQueueBitmap;
 
 UINT32 OsPriQueueInit(VOID)
 {
     UINT32 priority;
+
+    /* system resident resource */
+    g_priQueueList = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, (OS_PRIORITY_QUEUE_NUM * sizeof(LOS_DL_LIST)));
+    if (g_priQueueList == NULL) {
+        return LOS_NOK;
+    }
 
     for (priority = 0; priority < OS_PRIORITY_QUEUE_NUM; ++priority) {
         LOS_ListInit(&g_priQueueList[priority]);
@@ -63,7 +71,7 @@ UINT32 OsPriQueueInit(VOID)
 VOID OsPriQueueEnqueueHead(LOS_DL_LIST *priqueueItem, UINT32 priority)
 {
     /*
-     * Task control blocks are inited as zero. And when task is deleted,
+     * Task control blocks are initd as zero. And when task is deleted,
      * and at the same time would be deleted from priority queue or
      * other lists, task pend node will restored as zero.
      */
@@ -79,7 +87,7 @@ VOID OsPriQueueEnqueueHead(LOS_DL_LIST *priqueueItem, UINT32 priority)
 VOID OsPriQueueEnqueue(LOS_DL_LIST *priqueueItem, UINT32 priority)
 {
     /*
-     * Task control blocks are inited as zero. And when task is deleted,
+     * Task control blocks are initd as zero. And when task is deleted,
      * and at the same time would be deleted from priority queue or
      * other lists, task pend node will restored as zero.
      */
@@ -119,11 +127,21 @@ UINT32 OsPriQueueSize(UINT32 priority)
 {
     UINT32      itemCnt = 0;
     LOS_DL_LIST *curNode = NULL;
+#if (LOSCFG_KERNEL_SMP == YES)
+    LosTaskCB *task = NULL;
+    UINT32 cpuId = ArchCurrCpuid();
+#endif
 
     LOS_ASSERT(OsIntLocked());
     LOS_ASSERT(LOS_SpinHeld(&g_taskSpin));
 
     LOS_DL_LIST_FOR_EACH(curNode, &g_priQueueList[priority]) {
+#if (LOSCFG_KERNEL_SMP == YES)
+        task = OS_TCB_FROM_PENDLIST(curNode);
+        if (!(task->cpuAffiMask & (1U << cpuId))) {
+            continue;
+        }
+#endif
         ++itemCnt;
     }
 
@@ -135,13 +153,23 @@ LITE_OS_SEC_TEXT_MINOR LosTaskCB *OsGetTopTask(VOID)
     UINT32 priority;
     UINT32 bitmap;
     LosTaskCB *newTask = NULL;
+#if (LOSCFG_KERNEL_SMP == YES)
+    UINT32 cpuid = ArchCurrCpuid();
+#endif
+
     bitmap = g_priQueueBitmap;
 
     while (bitmap) {
         priority = CLZ(bitmap);
         LOS_DL_LIST_FOR_EACH_ENTRY(newTask, &g_priQueueList[priority], LosTaskCB, pendList) {
-            OsPriQueueDequeue(&newTask->pendList);
-            goto OUT;
+#if (LOSCFG_KERNEL_SMP == YES)
+            if (newTask->cpuAffiMask & (1U << cpuid)) {
+#endif
+                OsPriQueueDequeue(&newTask->pendList);
+                goto OUT;
+#if (LOSCFG_KERNEL_SMP == YES)
+            }
+#endif
         }
         bitmap &= ~(1U << (OS_PRIORITY_QUEUE_NUM - priority - 1));
     }
@@ -155,3 +183,4 @@ OUT:
 }
 #endif
 #endif /* __cplusplus */
+

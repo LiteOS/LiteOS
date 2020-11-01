@@ -54,12 +54,9 @@ void delayus(uint32_t usec)
     ts =  usec * (cpuclkfeq / (1000 * 1000));
     endts = startts + ts;
     uwIntSave = LOS_IntLock();
-    if(endts > startts)
-    {
+    if (endts > startts) {
         while(DWT_CYCCNT < endts);
-    }
-    else
-    {
+    } else {
         while(DWT_CYCCNT > endts);
         while(DWT_CYCCNT < endts);
     }

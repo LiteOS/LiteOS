@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS memory Module HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -68,7 +70,9 @@ typedef struct {
     UINT32 uwBlkSize;           /**< Block size */
     UINT32 uwBlkNum;            /**< Block number */
     UINT32 uwBlkCnt;            /**< The number of allocated blocks */
+#ifdef LOSCFG_KERNEL_MEMBOX_STATIC
     LOS_MEMBOX_NODE stFreeList; /**< Free list */
+#endif
 } LOS_MEMBOX_INFO;
 
 typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
@@ -99,7 +103,6 @@ typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
  * <li>The poolSize parameter value should match the following two conditions :
  * 1) Be less than or equal to the Memory pool size;
  * 2) Be greater than the size of LOS_MEMBOX_INFO.</li>
- * <li>The pool parameter must be pointer size aligned.</li>
  * </ul>
  *
  * @param pool     [IN] Memory pool address.

@@ -405,7 +405,7 @@ int32_t esp8266_cmd_match(const char *buf, char* featurestr,int len)
     return memcmp(buf,featurestr,len);
 }
 
-int32_t esp8266_init()
+int32_t esp8266_init(void)
 {
     at_config at_user_conf =
     {

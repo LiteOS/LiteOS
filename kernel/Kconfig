@@ -1,0 +1,329 @@
+menu "Kernel"
+
+config LOSCFG_KERNEL_SMP
+    bool "Enable Kernel SMP"
+    default n
+    select LOSCFG_BASE_CORE_SWTMR
+    help
+      This option will enable smp support of LiteOS.
+
+menu "Smp Options"
+    depends on LOSCFG_KERNEL_SMP
+
+config LOSCFG_KERNEL_SMP_CORE_NUM
+    int "Muti-processing Core Numbers"
+    default 2
+    help
+      This represents the number of muti-processing cores.
+
+config LOSCFG_KERNEL_SMP_LOCKDEP
+    bool "Enable Spinlock Lockdep Check"
+    default n
+    help
+      This option will enable spinlock lockdep check.
+
+config LOSCFG_KERNEL_SMP_TASK_SYNC
+    bool "Enable Synchronized Task Operations"
+    default n
+    help
+      This option will enable task synchronized operate task across cores.
+
+config LOSCFG_KERNEL_SCHED_STATISTICS
+    bool "Enable Scheduler statistics"
+    default n
+    help
+      This option will enable schedulder statistics.
+
+endmenu
+
+menu "Basic Config"
+
+choice
+    prompt "Scheduler"
+    default LOSCFG_SCHED_SQ
+    help
+      The scheduler used to dispatch tasks.
+
+config LOSCFG_SCHED_SQ
+    bool "Single Ready Queue"
+    help
+      The scheduler uses a single ready queue.
+
+config LOSCFG_SCHED_MQ
+    bool "Mutiple Ready Queue"
+    help
+      The scheduler uses multiple ready queues.
+endchoice
+
+menu "Task"
+
+config LOSCFG_OBSOLETE_API
+    bool "Enable Obsolete Api"
+    default y
+    help
+      Task processing function parameters use the old way.
+
+config LOSCFG_LAZY_STACK
+    bool "Enable Lazy Stack Function"
+    default n
+    help
+      Task lazy stack function.
+
+config LOSCFG_TASK_STATIC_ALLOCATION
+    bool "Enable Task Create Static Allocation"
+    default n
+    help
+        This represents to support task create static allocation.
+
+config LOSCFG_BASE_CORE_TSK_LIMIT
+    int "Max Task Number"
+    default 64
+    help
+      This represents the max number of task.
+
+endmenu
+
+config LOSCFG_BASE_CORE_TIMESLICE
+    bool "Enable Timeslice"
+    default y
+
+config LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT
+    int "Timeslice Value(ticks)"
+    default 2
+    depends on LOSCFG_BASE_CORE_TIMESLICE
+    help
+      This represents task slice's value(ticks).
+
+choice
+    prompt "Sortlink Option"
+    default LOSCFG_BASE_CORE_USE_MULTI_LIST
+    help
+      The scheduler used to dispatch tasks.
+
+config LOSCFG_BASE_CORE_USE_MULTI_LIST
+    bool "Use Multi List"
+    help
+      The scheduler uses a single ready queue.
+
+config LOSCFG_BASE_CORE_USE_SINGLE_LIST
+    bool "Use Single List"
+    help
+      Use Single List for Task & Swtmr.
+endchoice
+
+endmenu
+
+source "kernel/base/mem/Kconfig"
+
+menu "Hardware Interrupt"
+
+config LOSCFG_ARCH_INTERRUPT_PREEMPTION
+    bool "Enable hwi preempt"
+    default n
+
+config LOSCFG_NO_SHARED_IRQ
+    bool "Enable interrupt no share"
+    default n
+
+config LOSCFG_PLATFORM_HWI_LIMIT
+    int "Max Hardware Interrupts"
+    default 96
+    help
+      This represents the maximum number of hardware interrupts, including Tick interrupt.
+
+endmenu
+
+config LOSCFG_BASE_CORE_SWTMR
+    bool "Enable Software Timer"
+    default y
+    select LOSCFG_BASE_IPC_QUEUE
+
+menu "Software Timer Options"
+    depends on LOSCFG_BASE_CORE_SWTMR
+
+config LOSCFG_BASE_CORE_SWTMR_LIMIT
+    int "Max Swmtmr Number"
+    default 1024
+    help
+      This represents the maximum number of soft-timers.
+
+config LOSCFG_BASE_CORE_SWTMR_IN_ISR
+    bool "Software Timer callback in interrupt"
+    default n
+
+endmenu
+
+config LOSCFG_BASE_IPC_QUEUE
+    bool "Enable Queue"
+    default y
+
+menu "Queue Options"
+    depends on LOSCFG_BASE_IPC_QUEUE
+
+config LOSCFG_QUEUE_STATIC_ALLOCATION
+    bool "Enable Queue Static Allocation"
+    default n
+    help
+      This option will support static alloction interface for users to create a queue.
+
+config LOSCFG_BASE_IPC_QUEUE_LIMIT
+    int "Max Queue Number"
+    default 1024
+    help
+      This represents the maximum number of queues.
+
+endmenu
+
+config LOSCFG_BASE_IPC_EVENT
+    bool "Enable Event"
+    default y
+
+menu "Event Options"
+    depends on LOSCFG_BASE_IPC_EVENT
+
+config LOSCFG_BASE_IPC_EVENT_LIMIT
+    int "Max Event Number"
+    default 1024
+    help
+      This represents the maximum number of events.
+
+endmenu
+
+config LOSCFG_BASE_IPC_MUX
+    bool "Enable Mutex"
+    default y
+
+menu "Mutex Options"
+    depends on LOSCFG_BASE_IPC_MUX
+
+config LOSCFG_MUTEX_WAIT_PRIORITY
+    bool "Enable Mutex Pend Wait Priority Mode"
+    default y
+    help
+      This option will enable waiting queues for a mutex sorted based on task priority.
+
+config LOSCFG_BASE_IPC_MUX_LIMIT
+    int "Max Mutex Number"
+    default 1024
+    help
+      This represents the maximum number of mutexes.
+
+endmenu
+
+config LOSCFG_BASE_IPC_SEM
+    bool "Enable Sem"
+    default y
+
+menu "Sem Options"
+    depends on LOSCFG_BASE_IPC_SEM
+
+config LOSCFG_BASE_IPC_SEM_LIMIT
+    int "Max Semphore Number"
+    default 1024
+    help
+      This represents the maximum number of semaphores.
+
+endmenu
+
+config LOSCFG_KERNEL_EXTKERNEL
+    bool "Enable Extend Kernel"
+    default y
+    help
+      This option will enable extend Kernel of LiteOS.  Extend kernel include
+      cppsupport, cpup, dynload, runstop and scatter. You can select one or some
+      of them.
+
+config LOSCFG_KERNEL_CPPSUPPORT
+    bool "C++ Support"
+    default y
+    depends on LOSCFG_KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for C++.
+
+config LOSCFG_KERNEL_MPU
+   bool "Enable MPU Support"
+   default n
+   depends on LOSCFG_KERNEL_EXTKERNEL
+   help
+     Enable this option only when the processor has a Memory Protection Unit
+
+config LOSCFG_KERNEL_CPUP
+    bool "Enable Cpup"
+    default y
+    select LOSCFG_BASE_CORE_SWTMR
+    depends on LOSCFG_KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for cpup.
+
+config LOSCFG_CPUP_INCLUDE_IRQ
+    bool "Enable Cpup include irq"
+    default y
+    depends on LOSCFG_KERNEL_CPUP
+    help
+      If you wish to include irq usage for cpup.
+
+config LOSCFG_KERNEL_DYNLOAD
+    bool "Enable Dynamic Load Feature"
+    default y
+    depends on LOSCFG_KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for dynamic load.
+
+config LOSCFG_KERNEL_RUNSTOP
+    bool "Enable Run stop Feature"
+    default y
+    depends on LOSCFG_KERNEL_EXTKERNEL && (LOSCFG_DRIVERS_MTD_NAND || LOSCFG_DRIVERS_MTD_SPI_NOR) && \
+               LOSCFG_KERNEL_MEM_BESTFIT
+    help
+      If you wish to build LiteOS with support for run-stop.
+
+config LOSCFG_KERNEL_SCATTER
+    bool "Enable Scatter Feature"
+    default y
+    depends on LOSCFG_KERNEL_EXTKERNEL && (LOSCFG_DRIVERS_MTD_NAND || LOSCFG_DRIVERS_MTD_SPI_NOR)
+    help
+      If you wish to build LiteOS with support for scatter.
+
+config LOSCFG_KERNEL_TICKLESS
+    bool "Enable Tickless Feature"
+    default y
+    depends on LOSCFG_KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for tickless.
+
+config LOSCFG_KERNEL_TRACE
+    bool "Enable Trace Feature"
+    default n
+    depends on LOSCFG_KERNEL_EXTKERNEL
+
+choice
+    prompt "Trace work mode"
+    depends on LOSCFG_KERNEL_TRACE
+
+config LOSCFG_RECORDER_MODE_ONLINE
+    bool "Enable Online mode"
+
+config LOSCFG_RECORDER_MODE_OFFLINE
+    bool "Enable Offline mode"
+
+endchoice
+
+choice
+    prompt "Trace PipeLine"
+    depends on LOSCFG_KERNEL_TRACE
+
+config LOSCFG_TRACE_PIPELINE_SERIAL
+    bool "Use serial as trace pipeline"
+    depends on LOSCFG_DRIVERS_UART
+
+endchoice
+
+config LOSCFG_TRACE_CONTROL_AGENT
+    bool "Trace Agent enable"
+    default n
+    depends on LOSCFG_KERNEL_TRACE
+    help
+      If you wish to control Trace's start/stop etc.,dynamically by Trace Client.
+
+endmenu
+

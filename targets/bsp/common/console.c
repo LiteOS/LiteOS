@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: System Console Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -38,6 +40,7 @@
 #include "stdarg.h"
 #endif
 #include "unistd.h"
+#include "sys/ioctl.h"
 #include "securec.h"
 #include "inode/inode.h"
 #ifdef LOSCFG_SHELL_DMESG
@@ -47,22 +50,22 @@
 #include "shcmd.h"
 #include "shell_pri.h"
 #endif
+#include "los_task_pri.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #define EACH_CHAR 1
 /* Inter-module variable */
 extern UINT32 g_uart_fputc_en;
-STATIC UINT32 ConsoleSendTask(UINTPTR param);
-STATIC UINT8 g_taskConsoleIDArray[LOSCFG_BASE_CORE_TSK_CONFIG];
+STATIC UINT32 ConsoleSendTask(VOID *param);
 
-
+STATIC UINT8 g_taskConsoleIDArray[LOSCFG_BASE_CORE_TSK_LIMIT];
 STATIC SPIN_LOCK_INIT(g_consoleSpin);
 
-#define SHELL_TASK_PRIORITY       9
 #define CONSOLE_CIRBUF_EVENT      0x02U
 #define CONSOLE_SEND_TASK_EXIT    0x04U
 #define CONSOLE_SEND_TASK_RUNNING 0x10U
@@ -84,7 +87,7 @@ INT32 GetFilepOps(const struct file *filep, struct file **privFilep, const struc
         goto ERROUT;
     }
 
-    /* to find console device's filep(now it is *privFilep) throught i_private */
+    /* to find console device's filep(now it is *privFilep) through i_private */
     *privFilep = (struct file *)filep->f_inode->i_private;
     if (((*privFilep)->f_inode == NULL) || ((*privFilep)->f_inode->u.i_ops == NULL)) {
         ret = EINVAL;
@@ -104,6 +107,7 @@ INT32 ConsoleTcGetAttr(INT32 fd, struct termios *termios)
 {
     struct file *filep = NULL;
     CONSOLE_CB *consoleCB = NULL;
+    int ret;
 
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO)) {
         fd = ConsoleUpdateFd();
@@ -112,8 +116,8 @@ INT32 ConsoleTcGetAttr(INT32 fd, struct termios *termios)
         }
     }
 
-    filep = fs_getfilep(fd);
-    if (filep == NULL) {
+    ret = fs_getfilep(fd, &filep);
+    if (ret < 0) {
         return -EPERM;
     }
 
@@ -130,6 +134,7 @@ INT32 ConsoleTcSetAttr(INT32 fd, INT32 actions, const struct termios *termios)
 {
     struct file *filep = NULL;
     CONSOLE_CB *consoleCB = NULL;
+    int ret;
 
     (VOID)actions;
     if ((fd >= STDIN_FILENO) && (fd <= STDERR_FILENO)) {
@@ -139,8 +144,8 @@ INT32 ConsoleTcSetAttr(INT32 fd, INT32 actions, const struct termios *termios)
         }
     }
 
-    filep = fs_getfilep(fd);
-    if (filep == NULL) {
+    ret = fs_getfilep(fd, &filep);
+    if (ret < 0) {
         return -EPERM;
     }
 
@@ -173,6 +178,36 @@ BOOL IsConsoleOccupied(const CONSOLE_CB *consoleCB)
     } else {
         return FALSE;
     }
+}
+
+STATIC INT32 ConsoleCtrlCaptureLine(CONSOLE_CB *consoleCB)
+{
+    struct termios *consoleTermios = NULL;
+    UINT32 intSave;
+
+    LOS_SpinLockSave(&g_consoleSpin, &intSave);
+    consoleTermios = &consoleCB->consoleTermios;
+    (VOID)ConsoleTcGetAttr(consoleCB->fd, consoleTermios);
+    consoleTermios->c_lflag |= ICANON | ECHO;
+    (VOID)ConsoleTcSetAttr(consoleCB->fd, 0, consoleTermios);
+    LOS_SpinUnlockRestore(&g_consoleSpin, intSave);
+
+    return LOS_OK;
+}
+
+STATIC INT32 ConsoleCtrlCaptureChar(CONSOLE_CB *consoleCB)
+{
+    struct termios *consoleTermios = NULL;
+    UINT32 intSave;
+
+    LOS_SpinLockSave(&g_consoleSpin, &intSave);
+    consoleTermios = &consoleCB->consoleTermios;
+    (VOID)ConsoleTcGetAttr(consoleCB->fd, consoleTermios);
+    consoleTermios->c_lflag &= ~(ICANON | ECHO);
+    (VOID)ConsoleTcSetAttr(consoleCB->fd, 0, consoleTermios);
+    LOS_SpinUnlockRestore(&g_consoleSpin, intSave);
+
+    return LOS_OK;
 }
 
 STATIC INT32 ConsoleCtrlRightsCapture(CONSOLE_CB *consoleCB)
@@ -495,16 +530,16 @@ INT32 FilepPoll(struct file *filep, const struct file_operations_vfs *fops, poll
 STATIC INT32 ConsoleOpen(struct file *filep)
 {
     INT32 ret;
-    UINT32 consoleID;
+    UINT32 consoleId;
     struct file *privFilep = NULL;
     const struct file_operations_vfs *fileOps = NULL;
 
-    consoleID = (UINT32)OsConsoleFullpathToID(filep->f_path);
-    if (consoleID == (UINT32)-1) {
+    consoleId = (UINT32)OsConsoleFullpathToID(filep->f_path);
+    if (consoleId == (UINT32)-1) {
         ret = EPERM;
         goto ERROUT;
     }
-    filep->f_priv = g_console[consoleID - 1];
+    filep->f_priv = g_console[consoleId - 1];
 
     ret = GetFilepOps(filep, &privFilep, &fileOps);
     if (ret != ENOERR) {
@@ -561,7 +596,7 @@ STATIC ssize_t ConsoleRead(struct file *filep, CHAR *buffer, size_t bufLen)
     }
     consoleCB = (CONSOLE_CB *)filep->f_priv;
     if (consoleCB == NULL) {
-        consoleCB = OsGetConsoleByTaskID(OsCurrTaskGet()->taskID);
+        consoleCB = OsGetConsoleByTaskID(OsCurrTaskGet()->taskId);
         if (consoleCB == NULL) {
             return -EFAULT;
         }
@@ -685,6 +720,12 @@ STATIC INT32 ConsoleIoctl(struct file *filep, INT32 cmd, unsigned long arg)
         case CONSOLE_CONTROL_RIGHTS_RELEASE:
             ret = ConsoleCtrlRightsRelease(consoleCB);
             break;
+        case CONSOLE_CONTROL_CAPTURE_LINE:
+            ret = ConsoleCtrlCaptureLine(consoleCB);
+            break;
+        case CONSOLE_CONTROL_CAPTURE_CHAR:
+            ret = ConsoleCtrlCaptureChar(consoleCB);
+            break;
         default:
             ret = fileOps->ioctl(privFilep, cmd, arg);
             break;
@@ -786,11 +827,12 @@ STATIC INT32 OsConsoleFileInit(CONSOLE_CB *consoleCB)
         goto ERROUT_WITH_INODE;
     }
 
-    filep = fs_getfilep(consoleCB->fd);
-    if (filep == NULL) {
+    ret = fs_getfilep(consoleCB->fd, &filep);
+    if (ret < 0) {
         ret = EPERM;
         goto ERROUT_WITH_INODE;
     }
+
     filep->f_path = fullpath;
     return LOS_OK;
 
@@ -855,7 +897,7 @@ STATIC INT32 OsConsoleDevInit(CONSOLE_CB *consoleCB, const CHAR *deviceName)
     }
 
     /*
-     * Use filep to connect console and uart, we can find uart driver function throught filep.
+     * Use filep to connect console and uart, we can find uart driver function through filep.
      * now we can operate /dev/console to operate /dev/ttyS0 through filep.
      */
     (VOID)register_driver(consoleCB->name, &g_consoleDevOps, DEFFILEMODE, filep);
@@ -971,8 +1013,8 @@ STATIC UINT32 OsConsoleBufInit(CONSOLE_CB *consoleCB)
     }
 
     initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)ConsoleSendTask;
-    initParam.usTaskPrio   = SHELL_TASK_PRIORITY;
-    initParam.auwArgs[0]   = (UINTPTR)consoleCB;
+    initParam.usTaskPrio   = LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
+
     initParam.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     if (consoleCB->consoleID == CONSOLE_SERIAL) {
         initParam.pcName   = "SendToSer";
@@ -980,6 +1022,7 @@ STATIC UINT32 OsConsoleBufInit(CONSOLE_CB *consoleCB)
         initParam.pcName   = "SendToTelnet";
     }
     initParam.uwResved     = LOS_TASK_STATUS_DETACHED;
+    LOS_TASK_PARAM_INIT_ARG(initParam, consoleCB);
 
     ret = LOS_TaskCreate(&consoleCB->sendTaskID, &initParam);
     if (ret != LOS_OK) {
@@ -1001,7 +1044,7 @@ STATIC VOID OsConsoleBufDeinit(CONSOLE_CB *consoleCB)
     (VOID)LOS_EventWrite(&cirBufSendCB->sendEvent, CONSOLE_SEND_TASK_EXIT);
 }
 
-STATIC CONSOLE_CB *OsConsoleCBInit(UINT32 consoleID)
+STATIC CONSOLE_CB *OsConsoleCBInit(UINT32 consoleId)
 {
     CONSOLE_CB *consoleCB = (CONSOLE_CB *)LOS_MemAlloc((VOID *)m_aucSysMem0, sizeof(CONSOLE_CB));
     if (consoleCB == NULL) {
@@ -1009,7 +1052,7 @@ STATIC CONSOLE_CB *OsConsoleCBInit(UINT32 consoleID)
     }
     (VOID)memset_s(consoleCB, sizeof(CONSOLE_CB), 0, sizeof(CONSOLE_CB));
 
-    consoleCB->consoleID = consoleID;
+    consoleCB->consoleID = consoleId;
     consoleCB->shellEntryId = 0xffffffff;  /* initialize shellEntryId to an invalid value */
     consoleCB->name = LOS_MemAlloc((VOID *)m_aucSysMem0, CONSOLE_NAMELEN);
     if (consoleCB->name == NULL) {
@@ -1027,10 +1070,10 @@ STATIC VOID OsConsoleCBDeinit(CONSOLE_CB *consoleCB)
     (VOID)LOS_MemFree((VOID *)m_aucSysMem0, consoleCB);
 }
 
-STATIC CONSOLE_CB *OsConsoleCreate(UINT32 consoleID, const CHAR *deviceName)
+STATIC CONSOLE_CB *OsConsoleCreate(UINT32 consoleId, const CHAR *deviceName)
 {
     INT32 ret;
-    CONSOLE_CB *consoleCB = OsConsoleCBInit(consoleID);
+    CONSOLE_CB *consoleCB = OsConsoleCBInit(consoleId);
     if (consoleCB == NULL) {
         PRINT_ERR("console malloc error.\n");
         return NULL;
@@ -1105,37 +1148,37 @@ INT32 system_console_init(const CHAR *deviceName)
 #ifdef LOSCFG_SHELL
     UINT32 ret;
 #endif
-    INT32 consoleID;
+    INT32 consoleId;
     UINT32 intSave;
     CONSOLE_CB *consoleCB = NULL;
 
-    consoleID = OsGetConsoleID(deviceName);
-    if (consoleID == -1) {
+    consoleId = OsGetConsoleID(deviceName);
+    if (consoleId == -1) {
         PRINT_ERR("device is full.\n");
         return VFS_ERROR;
     }
 
-    consoleCB = OsConsoleCreate((UINT32)consoleID, deviceName);
+    consoleCB = OsConsoleCreate((UINT32)consoleId, deviceName);
     if (consoleCB == NULL) {
         PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
         return VFS_ERROR;
     }
 
     LOS_SpinLockSave(&g_consoleSpin, &intSave);
-    g_console[consoleID - 1] = consoleCB;
+    g_console[consoleId - 1] = consoleCB;
     if (OsCurrTaskGet() != NULL) {
-        g_taskConsoleIDArray[OsCurrTaskGet()->taskID] = (UINT8)consoleID;
+        g_taskConsoleIDArray[OsCurrTaskGet()->taskId] = (UINT8)consoleId;
     }
     LOS_SpinUnlockRestore(&g_consoleSpin, intSave);
 
 #ifdef LOSCFG_SHELL
-    ret = OsShellInit(consoleID);
+    ret = OsShellInit(consoleId);
     if (ret != LOS_OK) {
         PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
         LOS_SpinLockSave(&g_consoleSpin, &intSave);
         (VOID)OsConsoleDelete(consoleCB);
-        g_console[consoleID - 1] = NULL;
-        g_taskConsoleIDArray[OsCurrTaskGet()->taskID] = 0;
+        g_console[consoleId - 1] = NULL;
+        g_taskConsoleIDArray[OsCurrTaskGet()->taskId] = 0;
         LOS_SpinUnlockRestore(&g_consoleSpin, intSave);
         return VFS_ERROR;
     }
@@ -1168,7 +1211,7 @@ INT32 system_console_deinit(const CHAR *deviceName)
         if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
             continue;
         } else {
-            g_taskConsoleIDArray[taskCB->taskID] = CONSOLE_SERIAL;
+            g_taskConsoleIDArray[taskCB->taskId] = CONSOLE_SERIAL;
         }
     }
     g_console[consoleCB->consoleID - 1] = NULL;
@@ -1185,10 +1228,10 @@ INT32 system_console_deinit(const CHAR *deviceName)
 
 BOOL ConsoleEnable(VOID)
 {
-    INT32 consoleID;
+    INT32 consoleId;
 
     if (OsCurrTaskGet() != NULL) {
-        consoleID = g_taskConsoleIDArray[OsCurrTaskGet()->taskID];
+        consoleId = g_taskConsoleIDArray[OsCurrTaskGet()->taskId];
         if (g_uart_fputc_en == 0) {
             if ((g_console[CONSOLE_TELNET - 1] != NULL) && OsPreemptable()) {
                 return TRUE;
@@ -1197,9 +1240,9 @@ BOOL ConsoleEnable(VOID)
             }
         }
 
-        if (consoleID == 0) {
+        if (consoleId == 0) {
             return FALSE;
-        } else if ((consoleID == CONSOLE_TELNET) && OsPreemptable()) {
+        } else if ((consoleId == CONSOLE_TELNET) && OsPreemptable()) {
             return TRUE;
         }
 #if defined (LOSCFG_DRIVERS_USB_SERIAL_GADGET) || defined (LOSCFG_DRIVERS_USB_ETH_SER_GADGET)
@@ -1212,9 +1255,9 @@ BOOL ConsoleEnable(VOID)
     return FALSE;
 }
 
-VOID ConsoleTaskReg(INT32 consoleID, UINT32 taskID)
+VOID ConsoleTaskReg(INT32 consoleId, UINT32 taskId)
 {
-    g_console[consoleID - 1]->shellEntryId = taskID;
+    g_console[consoleId - 1]->shellEntryId = taskId;
 }
 
 BOOL SetSerialNonBlock(const CONSOLE_CB *consoleCB)
@@ -1290,87 +1333,118 @@ BOOL is_nonblock(const CONSOLE_CB *consoleCB)
 
 INT32 ConsoleUpdateFd(VOID)
 {
-    INT32 consoleID = 0;
+    INT32 consoleId;
 
     if (OsCurrTaskGet() != NULL) {
-        consoleID = g_taskConsoleIDArray[(OsCurrTaskGet())->taskID];
+        consoleId = g_taskConsoleIDArray[(OsCurrTaskGet())->taskId];
     } else {
         return -1;
     }
 
     if (g_uart_fputc_en == 0) {
         if (g_console[CONSOLE_TELNET - 1] != NULL) {
-            consoleID = CONSOLE_TELNET;
+            consoleId = CONSOLE_TELNET;
         } else {
             return -1;
         }
-    } else if (consoleID == 0) {
+    } else if (consoleId == 0) {
         if (g_console[CONSOLE_SERIAL - 1] != NULL) {
-            consoleID = CONSOLE_SERIAL;
+            consoleId = CONSOLE_SERIAL;
         } else if (g_console[CONSOLE_TELNET - 1] != NULL) {
-            consoleID = CONSOLE_TELNET;
+            consoleId = CONSOLE_TELNET;
         } else {
             PRINT_ERR("No console dev used.\n");
             return -1;
         }
     }
 
-    if (g_console[consoleID - 1] == NULL) {
+    if (g_console[consoleId - 1] == NULL) {
         return -1;
     }
 
-    return g_console[consoleID - 1]->fd;
+    return g_console[consoleId - 1]->fd;
 }
 
-CONSOLE_CB *OsGetConsoleByID(INT32 consoleID)
+CONSOLE_CB *OsGetConsoleByID(INT32 consoleId)
 {
-    if (consoleID != CONSOLE_TELNET) {
-        consoleID = CONSOLE_SERIAL;
+    if (consoleId != CONSOLE_TELNET) {
+        consoleId = CONSOLE_SERIAL;
     }
-    return g_console[consoleID - 1];
+    return g_console[consoleId - 1];
 }
 
-CONSOLE_CB *OsGetConsoleByTaskID(UINT32 taskID)
+CONSOLE_CB *OsGetConsoleByTaskID(UINT32 taskId)
 {
-    INT32 consoleID = g_taskConsoleIDArray[taskID];
+    INT32 consoleId = g_taskConsoleIDArray[taskId];
 
-    return OsGetConsoleByID(consoleID);
+    return OsGetConsoleByID(consoleId);
 }
 
-VOID OsSetConsoleID(UINT32 newTaskID, UINT32 curTaskID)
+VOID OsSetConsoleID(UINT32 newTaskId, UINT32 curTaskId)
 {
-    if ((newTaskID >= LOSCFG_BASE_CORE_TSK_LIMIT) || (curTaskID >= LOSCFG_BASE_CORE_TSK_LIMIT)) {
+    if ((newTaskId >= LOSCFG_BASE_CORE_TSK_LIMIT) || (curTaskId >= LOSCFG_BASE_CORE_TSK_LIMIT)) {
         return;
     }
 
-    g_taskConsoleIDArray[newTaskID] = g_taskConsoleIDArray[curTaskID];
+    g_taskConsoleIDArray[newTaskId] = g_taskConsoleIDArray[curTaskId];
 }
 
 STATIC ssize_t WriteToTerminal(const CONSOLE_CB *consoleCB, const CHAR *buffer, size_t bufLen)
 {
     INT32 ret, fd;
+    INT32 cnt = 0;
     struct file *privFilep = NULL;
     struct file *filep = NULL;
     const struct file_operations_vfs *fileOps = NULL;
 
     fd = consoleCB->fd;
-    filep = fs_getfilep(fd);
+    ret = fs_getfilep(fd, &filep);
+    if (ret < 0) {
+        ret = EPERM;
+        goto ERROUT;
+    }
     ret = GetFilepOps(filep, &privFilep, &fileOps);
 
-    if (fileOps->write == NULL) {
+    if ((fileOps == NULL) || (fileOps->write == NULL)) {
         ret = EFAULT;
         goto ERROUT;
     }
     (VOID)fileOps->write(privFilep, buffer, bufLen);
 
-    return 0;
+    return cnt;
 
 ERROUT:
     set_errno(ret);
     return VFS_ERROR;
 }
 
-STATIC UINT32 ConsoleSendTask(UINTPTR param)
+STATIC VOID ConsoleFlush(const CONSOLE_CB *consoleCB, CHAR *buf, UINT32 size)
+{
+    UINT32 cnt = 0;
+    UINT32 start = 0;
+    UINT32 temp = 0;
+
+    /*
+     * Since the console driver may require a lock which will affect the timing of
+     * the irq response. Put every single line to the driver to reduce the impact.
+     */
+    while (cnt < size) {
+        if (buf[cnt] == '\n') {
+            (VOID)WriteToTerminal(consoleCB, &buf[start], temp + 1);
+            start = ++cnt;
+            temp = 0;
+            continue;
+        }
+        cnt++;
+        temp++;
+    }
+
+    if (temp != 0) {
+        (VOID)WriteToTerminal(consoleCB, &buf[start], temp);
+    }
+}
+
+STATIC UINT32 ConsoleSendTask(VOID *param)
 {
     CONSOLE_CB *consoleCB = (CONSOLE_CB *)param;
     CirBufSendCB *cirBufSendCB = consoleCB->cirBufSendCB;
@@ -1399,7 +1473,8 @@ STATIC UINT32 ConsoleSendTask(UINTPTR param)
             (VOID)LOS_CirBufRead(cirBufCB, buf, size);
             LOS_CirBufUnlock(cirBufCB, intSave);
 
-            (VOID)WriteToTerminal(consoleCB, buf, size);
+            ConsoleFlush(consoleCB, buf, size);
+
             (VOID)LOS_MemFree(m_aucSysMem1, buf);
         } else if (ret == CONSOLE_SEND_TASK_EXIT) {
             break;
@@ -1413,5 +1488,5 @@ STATIC UINT32 ConsoleSendTask(UINTPTR param)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

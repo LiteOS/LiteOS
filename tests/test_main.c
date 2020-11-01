@@ -32,7 +32,7 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 #include "sys_init.h"
-#if defined(WITH_LWIP)
+#if defined(LOSCFG_COMPONENTS_NET_LWIP)
 #include "../../../test_agenttiny/test_agenttiny.h"
 #endif
 
@@ -123,7 +123,7 @@ int demo_cmockery_test(void)
     }
 #endif
 
-#if defined(WITH_LWIP) && (!defined(USE_NB_NEUL95_NO_ATINY))
+#if defined(LOSCFG_COMPONENTS_NET_LWIP) && (!defined(USE_NB_NEUL95_NO_ATINY))
 
     uwRet = creat_agenttiny_test_task();
     if (uwRet != LOS_OK)

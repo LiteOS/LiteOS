@@ -40,7 +40,7 @@
 #include "hal_flash.h"
 #include "hal_spi_flash.h"
 #include "usart.h"
-#include "board.h"
+#include "board_ota.h"
 #include "ota/recover_image.h"
 
 void SysTick_Handler(void)
@@ -80,15 +80,13 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLN = 180;
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = 4;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
     }
 
     /**Activate the Over-Drive mode
     */
-    if (HAL_PWREx_EnableOverDrive() != HAL_OK)
-    {
+    if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
     }
 
@@ -101,8 +99,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
     }
 
@@ -111,32 +108,30 @@ void SystemClock_Config(void)
 
 static int flash_read(flash_type_e flash_type, void *buf, int32_t len, uint32_t offset)
 {
-    switch (flash_type)
-    {
-    case FLASH_OLDBIN_READ:
-        return hal_flash_read(buf, len, OTA_DEFAULT_IMAGE_ADDR + offset);
-    case FLASH_PATCH:
-        return hal_spi_flash_read(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
-    case FLASH_UPDATE_INFO:
-        return hal_spi_flash_read(buf, len, OTA_FLAG_ADDR1);
-    default:
-        printf("wrong flash type detected %d\n", flash_type);
-        return -1;
+    switch (flash_type) {
+        case FLASH_OLDBIN_READ:
+            return hal_flash_read(buf, len, OTA_DEFAULT_IMAGE_ADDR + offset);
+        case FLASH_PATCH:
+            return hal_spi_flash_read(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+        case FLASH_UPDATE_INFO:
+            return hal_spi_flash_read(buf, len, OTA_FLAG_ADDR1);
+        default:
+            printf("wrong flash type detected %d\n", flash_type);
+            return -1;
     }
 }
 
 static int flash_write(flash_type_e flash_type, const void *buf, int32_t len, uint32_t offset)
 {
-    switch (flash_type)
-    {
-    case FLASH_NEWBIN_WRITE:
-        return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DIFF_UPGRADE_ADDR + offset);
-    case FLASH_PATCH:
-        return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
-    case FLASH_UPDATE_INFO:
-        return hal_spi_flash_erase_write(buf, len, OTA_FLAG_ADDR1);
-    default:
-        return -1;
+    switch (flash_type) {
+        case FLASH_NEWBIN_WRITE:
+            return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DIFF_UPGRADE_ADDR + offset);
+        case FLASH_PATCH:
+            return hal_spi_flash_erase_write(buf, len, OTA_IMAGE_DOWNLOAD_ADDR + offset);
+        case FLASH_UPDATE_INFO:
+            return hal_spi_flash_erase_write(buf, len, OTA_FLAG_ADDR1);
+        default:
+            return -1;
     }
 }
 
@@ -171,21 +166,18 @@ static int jump(uint32_t oldbin_size)
 
     printf("info: begin to jump to application\n");
     ret = board_jump2app();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("warning: jump to app failed, try to roll back now\n");
         (void)recover_set_update_fail();
         ret = board_rollback_copy(oldbin_size);
-        if (ret != 0)
-        {
+        if (ret != 0) {
             printf("fatal: roll back failed, system start up failed\n");
             _Error_Handler(__FILE__, __LINE__);
         }
     }
     printf("info: begin to try to jump to application again\n");
     ret = board_jump2app();
-    if (ret != 0)
-    {
+    if (ret != 0) {
         printf("fatal: roll back succeed, system start up failed\n");
         _Error_Handler(__FILE__, __LINE__);
     }
@@ -207,44 +199,44 @@ int main(void)
     printf("bootloader begin\n");
 
     ret = register_info();
-    if (ret != 0)
+    if (ret != 0) {
         printf("warning: recover register failed\n");
+    }
 
     printf("info: begin to process upgrade\n");
     ret = recover_image(&upgrade_type, &newbin_size, &oldbin_size);
-    if (oldbin_size == 0)
+    if (oldbin_size == 0) {
         oldbin_size = OTA_IMAGE_DOWNLOAD_SIZE;
-    if (ret == 0)
-    {
-        switch (upgrade_type)
-        {
-        case RECOVER_UPGRADE_NONE:
-            printf("info: normal start up\n");
-            break;
-        case RECOVER_UPGRADE_FULL:
-            printf("info: full upgrade\n");
-            ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DOWNLOAD_ADDR);
-            if (ret != 0)
-            {
-                printf("warning: [full] copy newimage to inner flash failed\n");
-                (void)recover_set_update_fail();
-            }
-            break;
-        case RECOVER_UPGRADE_DIFF:
-            printf("info: diff upgrade\n");
-            ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DIFF_UPGRADE_ADDR);
-            if (ret != 0)
-            {
-                printf("warning: [diff] copy newimage to inner flash failed\n");
-                (void)recover_set_update_fail();
-            }
-            break;
-        default:
-            break;
-        }
     }
-    else
+    if (ret == 0) {
+        switch (upgrade_type) {
+            case RECOVER_UPGRADE_NONE:
+                printf("info: normal start up\n");
+                break;
+            case RECOVER_UPGRADE_FULL:
+                printf("info: full upgrade\n");
+                ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DOWNLOAD_ADDR);
+                if (ret != 0)
+                {
+                    printf("warning: [full] copy newimage to inner flash failed\n");
+                    (void)recover_set_update_fail();
+                }
+                break;
+            case RECOVER_UPGRADE_DIFF:
+                printf("info: diff upgrade\n");
+                ret = board_update_copy(oldbin_size, newbin_size, OTA_IMAGE_DIFF_UPGRADE_ADDR);
+                if (ret != 0)
+                {
+                    printf("warning: [diff] copy newimage to inner flash failed\n");
+                    (void)recover_set_update_fail();
+                }
+                break;
+            default:
+                break;
+        }
+    } else {
         printf("warning: upgrade failed with ret %d\n", ret);
+    }
 
     ret = jump(oldbin_size);
 

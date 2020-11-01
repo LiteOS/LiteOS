@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Virtual Serial Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -42,7 +44,6 @@
 #include "console.h"
 #endif
 #include "uart.h"
-#include "local.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -236,7 +237,7 @@ INT32 virtual_serial_init(const CHAR *deviceName)
     }
 
     inode = inode_find(fullpath, NULL);
-    if (inode == NULL) {
+    if ((inode == NULL) || (inode->u.i_ops == NULL)) {
         ret = ENOENT;
         goto ERROUT_WITH_FULLPATH;
     }

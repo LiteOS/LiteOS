@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #include "spiffs_config.h"
+#include <string.h>
 
 #define SPIFFS_OK                       0
 #define SPIFFS_ERR_NOT_MOUNTED          -10000

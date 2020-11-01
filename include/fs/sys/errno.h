@@ -39,8 +39,8 @@
 extern "C" {
 #endif
 
-extern volatile int *__os_errno(void);
-#define errno (*__os_errno())
+extern volatile int *__errno(void);
+#define errno (*__errno())
 
 #define	EPERM 1		/* Not owner */
 #define	ENOENT 2	/* No such file or directory */

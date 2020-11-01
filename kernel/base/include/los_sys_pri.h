@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: System time Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,72 +38,5 @@
 #define _LOS_SYS_PRI_H
 
 #include "los_sys.h"
-#include "los_base_pri.h"
-
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
-/**
- * @ingroup los_sys
- * Number of milliseconds in one second.
- */
-#define OS_SYS_MS_PER_SECOND   1000
-
-/**
- * @ingroup los_sys
- * Number of microseconds in one second.
- */
-#define OS_SYS_US_PER_SECOND   1000000
-
-/**
- * @ingroup los_sys
- * Number of nanoseconds in one second.
- */
-#define OS_SYS_NS_PER_SECOND   1000000000
-
-/**
- * @ingroup los_sys
- * Number of microseconds in one milliseconds.
- */
-#define OS_SYS_US_PER_MS        1000
-
-/**
- * @ingroup los_sys
- * Number of nanoseconds in one milliseconds.
- */
-#define OS_SYS_NS_PER_MS        1000000
-
-/**
- * @ingroup los_sys
- * Number of nanoseconds in one microsecond.
- */
-#define OS_SYS_NS_PER_US        1000
-
-/**
- * @ingroup los_sys
- * The maximum length of name.
- */
-#define OS_SYS_APPVER_NAME_MAX 64
-
-/**
- * @ingroup los_sys
- * The magic word.
- */
-#define OS_SYS_MAGIC_WORD      0xAAAAAAAA
-
-/**
- * @ingroup los_sys
- * The initialization value of stack space.
- */
-#define OS_SYS_EMPTY_STACK     0xCACACACA
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #endif /* _LOS_SYS_PRI_H */

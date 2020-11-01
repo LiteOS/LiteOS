@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Tickless HeadFile
- * Author: zhangfanfan
+ * Author: Huawei LiteOS Team
  * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:

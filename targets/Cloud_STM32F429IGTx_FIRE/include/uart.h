@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: uart config HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -32,22 +34,20 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
-#ifndef __UART_H__
-#define __UART_H__
+#ifndef _UART_H
+#define _UART_H
 
-#include "stm32f4xx_hal.h"
+#define UART_WITH_LOCK     1
+#define UART_WITHOUT_LOCK  0
+#define UART_BUF           128
+#define DEFAULT_TIMEOUT    0xFFFF
+#define DEFAULT_UART_IRQN  USART1_IRQn
 
-#define UART_WITH_LOCK    1
-#define UART_WITHOUT_LOCK 0
+extern VOID   uart_init(VOID);
+extern UINT8  uart_getc(VOID);
+extern UINT32 uart_wait_adapt(VOID);
+extern INT32  uart_write(const CHAR *buf, INT32 len, INT32 timeout);
+extern INT32  uart_read(UINT8 *buf, INT32 len, INT32 timeout);
+#define UartPuts(str, len, isLock)   uart_write(str, len, DEFAULT_TIMEOUT)
 
-extern int uart_write(const char *buf, int len, int timeout);
-#define UartPuts(str, len, isLock)   uart_write(str, len, 0xFFFF)
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-#ifdef __cplusplus
-}
-#endif
-#endif
+#endif /* _UART_H */

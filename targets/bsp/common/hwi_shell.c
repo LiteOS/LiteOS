@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Hwi Shell Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -92,13 +94,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdHwi(INT32 argc, const CHAR **argv)
                "%2d.%-9d"
                "%2d.%-6d"
                "%s\n",
-               g_hwiCpupAll[i].uwUsage / LOS_CPUP_PRECISION_MULT,
-               g_hwiCpupAll[i].uwUsage % LOS_CPUP_PRECISION_MULT,
-               g_hwiCpup10s[i].uwUsage / LOS_CPUP_PRECISION_MULT,
-               g_hwiCpup10s[i].uwUsage % LOS_CPUP_PRECISION_MULT,
-               g_hwiCpup1s[i].uwUsage / LOS_CPUP_PRECISION_MULT,
-               g_hwiCpup1s[i].uwUsage % LOS_CPUP_PRECISION_MULT,
-               g_hwiForm[i].uwParam == IRQF_SHARED ? "shared" : "normal");
+               g_hwiCpupAll[i].uwUsage / LOS_CPUP_PRECISION_MULT, g_hwiCpupAll[i].uwUsage % LOS_CPUP_PRECISION_MULT,
+               g_hwiCpup10s[i].uwUsage / LOS_CPUP_PRECISION_MULT, g_hwiCpup10s[i].uwUsage % LOS_CPUP_PRECISION_MULT,
+               g_hwiCpup1s[i].uwUsage / LOS_CPUP_PRECISION_MULT, g_hwiCpup1s[i].uwUsage % LOS_CPUP_PRECISION_MULT,
+               OsIntGetPara(i) == IRQF_SHARED ? "shared" : "normal");
     }
     return 0;
 }

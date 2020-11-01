@@ -1,0 +1,372 @@
+OPEN SOURCE SOFTWARE NOTICE
+
+Please note we provide an open source software notice along with this product and/or this product firmware (in the following just “this product”). The open source software licenses are granted by the respective right holders. And the open source licenses prevail all other license information with regard to the respective open source software contained in the product, including but not limited to End User Software Licensing Agreement. This notice is provided on behalf of Huawei Technologies Co. Ltd. and any of its local subsidiaries which may have provided this product to you in your local country. 
+
+Warranty Disclaimer
+THE OPEN SOURCE SOFTWARE IN THIS PRODUCT IS DISTRIBUTED IN THE HOPE THAT IT WILL BE USEFUL, BUT WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. SEE THE APPLICABLE LICENSES FOR MORE DETAILS.
+
+Copyright Notice and License Texts
+
+Software: libsec
+Copyright notice:
+Copyright (c) [Year] [name of copyright holder]
+License:
+[Software Name] is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details.
+Mulan Permissive Software License,Version 2
+Mulan Permissive Software License,Version 2 (Mulan PSL v2)
+January 2020 http://license.coscl.org.cn/MulanPSL2
+Your reproduction, use, modification and distribution of the Software shall be subject to Mulan PSL v2 (this License) with the following terms and conditions:
+0. Definition
+Software means the program and related documents which are licensed under this License and comprise all Contribution(s).
+Contribution means the copyrightable work licensed by a particular Contributor under this License.
+Contributor means the Individual or Legal Entity who licenses its copyrightable work under this License.
+Legal Entity means the entity making a Contribution and all its Affiliates.
+Affiliates means entities that control, are controlled by, or are under common control with the acting entity under this License, 'control' means direct or indirect ownership of at least fifty percent (50%) of the voting power, capital or other securities of controlled or commonly controlled entity.
+1. Grant of Copyright License
+Subject to the terms and conditions of this License, each Contributor hereby grants to you a perpetual, worldwide, royalty-free, non-exclusive, irrevocable copyright license to reproduce, use, modify, or distribute its Contribution, with modification or not.
+2. Grant of Patent License
+Subject to the terms and conditions of this License, each Contributor hereby grants to you a perpetual, worldwide, royalty-free, non-exclusive, irrevocable (except for revocation under this Section) patent license to make, have made, use, offer for sale, sell, import or otherwise transfer its Contribution, where such patent license is only limited to the patent claims owned or controlled by such Contributor now or in future which will be necessarily infringed by its Contribution alone, or by combination of the Contribution with the Software to which the Contribution was contributed. The patent license shall not apply to any modification of the Contribution, and any other combination which includes the Contribution. If you or your Affiliates directly or indirectly institute patent litigation (including a cross claim or counterclaim in a litigation) or other patent enforcement activities against any individual or entity by alleging that the Software or any Contribution in it infringes patents, then any patent license granted to you under this License for the Software shall terminate as of the date such litigation or activity is filed or taken.
+3. No Trademark License
+No trademark license is granted to use the trade names, trademarks, service marks, or product names of Contributor, except as required to fulfill notice requirements in section 4.
+4. Distribution Restriction
+You may distribute the Software in any medium with or without modification, whether in source or executable forms, provided that you provide recipients with a copy of this License and retain copyright, patent, trademark and disclaimer statements in the Software.
+5. Disclaimer of Warranty and Limitation of Liability
+THE SOFTWARE AND CONTRIBUTION IN IT ARE PROVIDED WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. IN NO EVENT SHALL ANY CONTRIBUTOR OR COPYRIGHT HOLDER BE LIABLE TO YOU FOR ANY DAMAGES, INCLUDING, BUT NOT LIMITED TO ANY DIRECT, OR INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES ARISING FROM YOUR USE OR INABILITY TO USE THE SOFTWARE OR THE CONTRIBUTION IN IT, NO MATTER HOW IT'S CAUSED OR BASED ON WHICH LEGAL THEORY, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+6. Language
+THIS LICENSE IS WRITTEN IN BOTH CHINESE AND ENGLISH, AND THE CHINESE VERSION AND ENGLISH VERSION SHALL HAVE THE SAME LEGAL EFFECT. IN THE CASE OF DIVERGENCE BETWEEN THE CHINESE AND ENGLISH VERSIONS, THE CHINESE VERSION SHALL PREVAIL.
+
+END OF THE TERMS AND CONDITIONS
+
+How to Apply the Mulan Permissive Software License,Version 2 (Mulan PSL v2) to Your Software
+
+To apply the Mulan PSL v2 to your work, for easy identification by recipients, you are suggested to complete following three steps:
+
+Fill in the blanks in following statement, including insert your software name, the year of the first publication of your software, and your name identified as the copyright owner;
+Create a file named "LICENSE" which contains the whole context of this License in the first directory of your software package;
+Attach the statement to the appropriate annotated syntax at the beginning of each source file.
+Copyright (c) [Year] [name of copyright holder]
+[Software Name] is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details.
+
+Software: zlib 1.2.11
+Copyright notice:
+Copyright (C) 1995-2006, 2011, 2016 Jean-loup Gailly
+Copyright (C) 2011, 2016 Mark Adler
+Copyright (C) 1995-2006, 2010, 2011, 2016 Jean-loup Gailly
+Copyright (C) 1995-2003 Mark Adler
+Copyright (C) 2003 Chris Anderson &lt;christop@charm.net&gt;
+2005 - Adaptation to Microsoft C Compiler for AMD64 by Gilles Vollant
+Copyright (C) 1995-2003 Jean-loup Gailly and Mark Adler.
+Copyright (C) 1998 by Bob Dellaca.
+Copyright (C) 2003 by Cosmin Truta.
+Copyright (C) 1995-2003 by Jean-loup Gailly.
+Copyright (C) 1998,1999,2000 by Jacques Nomssi Nzali.
+Copyright (C) 1995-2011, 2016 Mark Adler
+Copyright (C) 1995-2005, 2014, 2016 Jean-loup Gailly, Mark Adler
+Copyright (C) 1995-2006, 2010, 2011, 2012, 2016 Mark Adler
+Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (C) 1995-2016 Jean-loup Gailly
+Copyright (C) 2004, 2010 Mark Adler
+Copyright (C) 2004, 2005, 2010, 2011, 2012, 2013, 2016 Mark Adler
+Copyright (C) 2004-2017 Mark Adler
+Copyright (C) 1995-2016 Mark Adler
+Copyright (C) 1995-2017 Mark Adler
+Copyright (C) 1995-2003, 2010 Mark Adler
+Copyright (C) 1995-2005, 2010 Mark Adler
+(C) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (C) 1995-2017 Jean-loup Gailly
+Copyright (C) 1995-2003, 2010, 2014, 2016 Jean-loup Gailly, Mark Adler
+Copyright (C) 1995-2016 Jean-loup Gailly, Mark Adler
+Copyright (C) 1995-2008 Mark Adler
+Copyright (C) 2003 Mark Adler
+Copyright (C) 1998-2005 Gilles Vollant
+Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http:www.winimage.com/zLibDll/minizip.html )
+Copyright (C) 2009-2010 Mathias Svensson ( http:result42.com )
+Copyright (C) 2007-2008 Even Rouault
+Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
+Copyright (C) 1998 - 2010 Gilles Vollant, Even Rouault, Mathias Svensson
+Copyright (c) 1997
+Copyright (C) 2002-2013 Mark Adler
+Copyright (C) 2002-2013 Mark Adler, all rights reserved
+Copyright (C) 2003, 2012, 2013 Mark Adler
+Copyright (c) Henrik Ravn 2004
+Copyright (C) 2007, 2008, 2012 Mark Adler
+Copyright (C) 2003, 2005, 2008, 2010, 2012 Mark Adler
+Copyright (C) 2003, 2012 Mark Adler, all rights reserved
+Copyright (C) 2004, 2005, 2012 Mark Adler, all rights reserved
+Copyright (C) 2004, 2008, 2012, 2016 Mark Adler, all rights reserved
+Copyright (C) 2004, 2008, 2012 Mark Adler, all rights reserved
+Copyright (C) 2005, 2012 Mark Adler
+(C) Copyright Henrik Ravn 2004
+
+License: zlib License
+Copyright (c) <year> <copyright holders>
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+1. The origin of this software must not be misrepresented; you must not
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+misrepresented as being the original software.
+3. This notice may not be removed or altered from any source
+distribution.
+
+Software: cmsis v5.0.1
+Copyright notice:
+Copyright (c) 2009-2017 ARM Limited.
+License: Apache-2.0
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the License); you may
+not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an AS IS BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License
+
+Software: mbedtls-2.16.8
+Copyright notice:
+Copyright The Mbed TLS Contributors
+License: Apache-2.0 OR GPL-2.0-or-late
+
+Unless specifically indicated otherwise in a file, Mbed TLS files are provided
+under the Apache License 2.0, or the GNU General Public License v2.0 or later
+(SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later).
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+This file is part of mbed TLS (https://tls.mbed.org)
+
+License:GPL-2.0-or-later-with-exception
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+Software: LVGL v7.0.0
+Copyright notice:
+Copyright (c) 2020 LVGL LLC
+License: MIT licence
+
+MIT licence
+Copyright (c) 2016 Gábor Kiss-Vámosi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Software: lwip 2.1.2
+Copyright notice:
+Copyright (c) 2001, 2002 Swedish Institute of Computer Science.
+Copyright (c) 2016 Elias Oenal.
+Copyright (c) 2016 Elias Oenal and Dirk Ziegelmeier.
+Copyright (c) 2006 Axon Digital Design B.V., The Netherlands.
+Copyright (c) 2001-2004 Swedish Institute of Computer Science.
+Copyright (c) 2007 Dominik Spies <kontakt@dspies.de>
+Copyright (c) 2001-2004 Leon Woestenberg <leon.woestenberg@gmx.net>
+Copyright (c) 2001-2004 Axon Digital Design B.V., The Netherlands.
+Copyright (c) 2017 Simon Goldschmidt <goldsimon@gmx.de>
+uIP version Copyright (c) 2002-2003, Adam Dunkels.
+Copyright (c) 2017 Dirk Ziegelmeier.
+Copyright (c) 2015 Verisure Innovation AB
+Copyright (c) 2018 Simon Goldschmidt
+Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+Copyright (c) 2018 Simon Goldschmidt <goldsimon@gmx.de>
+Copyright (c) 1994-2002 Paul Mackerras. All rights reserved.
+Copyright (c) 2003 Paul Mackerras. All rights reserved.
+Copyright (c) 1995 Eric Rosenquist.  All rights reserved.
+Copyright (c) 2001 by Sun Microsystems, Inc.
+Copyright (c) 2002 Google, Inc.
+Copyright (c) 1999 Tommi Komulainen.  All rights reserved.
+Copyright (c) 1984-2000 Carnegie Mellon University. All rights reserved.
+Copyright (c) 1995, 1996, 1997 Francis.Dupont@inria.fr, INRIA Rocquencourt,
+Alain.Durand@imag.fr, IMAG,
+Jean-Luc.Richier@imag.fr, IMAG-LSR.
+Copyright (c) 1998, 1999 Francis.Dupont@inria.fr, GIE DYADE,
+Copyright (c) 2003 by Marc Boucher, Services Informatiques (MBSI) inc.
+Copyright (c) 1998 Global Election Systems Inc.
+Copyright (c) 2008 Paul Mackerras. All rights reserved.
+portions Copyright (c) 1997 Global Election Systems Inc.
+portions Copyright (c) 1998 Global Election Systems Inc.
+portions Copyright (c) 2001 by Cognizant Pty Ltd.
+Copyright (c) 2006 by Marc Boucher, Services Informatiques (MBSI) inc.
+Copyright (c) 2002 The NetBSD Foundation, Inc.
+Copyright (c) 1989 Regents of the University of California.
+Copyright (c) Deltatee Enterprises Ltd. 2013
+Copyright (c) 1993-2002 Paul Mackerras. All rights reserved.
+Copyright (c) 2002 Google, Inc.  All rights reserved.
+Copyright (c) 1996-2002 Paul Mackerras. All rights reserved.
+Copyright (c) 1998 by Global Election Systems Inc.
+Copyright (c) 2002,2003,2004 Google, Inc.
+Copyright (c) 2000-2002 Paul Mackerras. All rights reserved.
+portions Copyright (c) 1997 by Global Election Systems Inc.
+Copyright (c) 1994 The Australian National University.
+Copyright (c) 1989 Carnegie Mellon University.
+Copyright (c) 1999-2002 Paul Mackerras. All rights reserved.
+Copyright (c) 2017 Simon Goldschmidt.
+Copyright (c) 2003-2004 Leon Woestenberg <leon.woestenberg@axon.tv>
+Copyright (c) 2003-2004 Axon Digital Design B.V., The Netherlands.
+Copyright (c) 2015 Inico Technologies Ltd.
+Copyright (c) 2017 Benjamin Aigner
+Copyright (c) 2015 Inico Technologies Ltd. , Author: Ivan Delamer <delamer@inicotech.com>
+Copyright (c) 2007-2009 Frédéric Bernon, Simon Goldschmidt
+Copyright (c) 2017 Simon Goldschmidt
+Copyright (c) 2013-2017, tinydir authors:
+- Cong Xu
+- Lautis Sun
+- Baudouin Feildel
+- Andargor <andargor@yahoo.com>
+All rights reserved.
+Copyright (c) 2014 Simon Goldschmidt
+Copyright (c) 2016 Erik Andersson <erian747@gmail.com>
+Copyright (c) 2017 Joel Cunningham, Garmin International, Inc. <joel.cunningham@garmin.com>
+Copyright (c) 2016 Erik Andersson
+Copyright (c) 2001, 2002 Leon Woestenberg <leon.woestenberg@axon.tv>
+Copyright (c) 2001, 2002 Axon Digital Design B.V., The Netherlands.
+Copyright (c) 2015 Dirk Ziegelmeier
+ported from uIP resolv.c Copyright (c) 2002-2003, Adam Dunkels.
+Copyright (c) 2010 Inico Technologies Ltd.
+Copyright (c) 2002 CITEL Technologies Ltd.
+Copyright (c) 2017 The MINIX 3 Project.
+Copyright (c) 2018 Swedish Institute of Computer Science.
+Copyright (c) 2018 Simon Goldschmidt.
+Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
+Copyright (C) 2009  Paul Bakker <polarsslmaintainer at polarssl dot org>
+Copyright (c) 2001, Swedish Institute of Computer Science.
+Copyright (c) 2001, 2002 Swedish Institute of Computer Science.
+
+License: BSD licence
+
+Copyright (c) 2001, 2002 Swedish Institute of Computer Science.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+3. The name of the author may not be used to endorse or promote products
+    derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+OF SUCH DAMAGE.
+This file is part of the lwIP TCP/IP stack.
+
+Author: Adam Dunkels <adam@sics.se>
+
+Software: lwm2m-master
+Copyright notice:
+Copyright (c) 2013, 2014 Intel Corporation
+David Navarro david.navarro@intel.com
+Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
+Copyright (c) 2016 Intel Corporation and others.
+License: Eclipse Public License v1.0
+
+Copyright (c) 2013, 2014 Intel Corporation and others.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+and Eclipse Distribution License v1.0 which accompany this distribution.
+
+The Eclipse Public License is available at
+   http://www.eclipse.org/legal/epl-v10.html
+The Eclipse Distribution License is available at
+   http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+Contributors:
+   David Navarro, Intel Corporation - initial API and implementation
+   domedambrosio - Please refer to git log
+   Fabien Fleutot - Please refer to git log
+   Simon Bernard - Please refer to git log
+   Toby Jaffey - Please refer to git log
+   Manuel Sangoi - Please refer to git log
+   Julien Vermillard - Please refer to git log
+   Bosch Software Innovations GmbH - Please refer to git log
+   Pascal Rieux - Please refer to git log
+   Scott Bertin - Please refer to git log
+
+Software: cmockery
+Copyright notice:
+Copyright 2014 Google Inc.
+License: Apache License, Version 2.0 (the "License");
+
+Copyright (c) 2013, 2014 Intel Corporation and others.
+All rights reserved. you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+The Eclipse Public License is available at
+   http://www.apache.org/licenses/LICENSE-2.0
+The Eclipse Distribution License is available at
+   http://www.apache.org/licenses/LICENSE-2.0.
+ *
+Contributors:
+   stewartmiles, - Please refer to git log
+   joaopapereira - Please refer to git log
+   Androbin - Please refer to git log
+   imbur - Please refer to git log
+   smac89 - Please refer to git log
+  jmccullough0 - Please refer to git log
+
+Software:
+STM32Cube_FW_F4_V1.25.0
+STM32Cube_FW_F7_V1.15.0
+STM32Cube_FW_L4_V1.11.0
+Copyright notice:
+COPYRIGHT(c) 2015-2020 STMicroelectronics
+License：BSD-3-Clause
+COPYRIGHT(c) 2015-2020 STMicroelectronics
+SPDX short identifier: BSD-3-Clause
+Note: This license has also been called the "New BSD License" or "Modified BSD License". See also the 2-clause BSD License.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+

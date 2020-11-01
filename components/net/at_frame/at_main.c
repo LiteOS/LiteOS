@@ -165,7 +165,7 @@ static void at_rm_node(at_listener *listener, at_listener *pre)
     LOS_MuxPost(at.trx_mux);
 }
 
-static void at_rm_timeout_nodes()
+static void at_rm_timeout_nodes(void)
 {
     at_listener *pre = NULL;
     at_listener *next = NULL;
@@ -465,7 +465,7 @@ static void at_handle_resp(int8_t *resp_buf, uint32_t resp_len)
     }
 }
 
-static uint32_t at_get_queue_wait_time()
+static uint32_t at_get_queue_wait_time(void)
 {
     uint32_t ret;
 
@@ -490,7 +490,7 @@ static uint32_t at_get_queue_wait_time()
     return ret;
 }
 
-void at_recv_task()
+void at_recv_task(void)
 {
     uint32_t recv_len = 0;
     uint8_t *tmp = at.userdata;  //[MAX_USART_BUF_LEN] = {0};
@@ -554,7 +554,7 @@ void at_recv_task()
     }
 }
 
-uint32_t create_at_recv_task()
+uint32_t create_at_recv_task(void)
 {
     uint32_t uwRet = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;

@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Exception Interaction Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -46,15 +48,15 @@
 /* Inter-module variable and function */
 extern CONSOLE_CB *g_console[];
 
-#define IS_UARTSHELL_ID(taskID) (((taskID) == shellCB->shellTaskHandle) || \
-                                 ((taskID) == shellCB->shellEntryHandle))
+#define IS_UARTSHELL_ID(taskId) (((taskId) == shellCB->shellTaskHandle) || \
+                                 ((taskId) == shellCB->shellEntryHandle))
 
-STATIC BOOL IsIdleTask(UINT32 taskID)
+STATIC BOOL IsIdleTask(UINT32 taskId)
 {
     UINT32 i;
 
     for (i = 0; i < LOSCFG_KERNEL_CORE_NUM; i++) {
-        if (taskID == g_percpu[i].idleTaskID) {
+        if (taskId == g_percpu[i].idleTaskId) {
             return TRUE;
         }
     }
@@ -62,12 +64,12 @@ STATIC BOOL IsIdleTask(UINT32 taskID)
     return FALSE;
 }
 
-STATIC BOOL IsSwtTask(UINT32 taskID)
+STATIC BOOL IsSwtTask(UINT32 taskId)
 {
     UINT32 i;
 
     for (i = 0; i < LOSCFG_KERNEL_CORE_NUM; i++) {
-        if (taskID == g_percpu[i].swtmrTaskID) {
+        if (taskId == g_percpu[i].swtmrTaskId) {
             return TRUE;
         }
     }
@@ -91,7 +93,7 @@ VOID OsExcInteractionTaskKeep(VOID)
 {
     LosTaskCB *taskCB = NULL;
     UINT16 tempStatus;
-    UINT32 taskID;
+    UINT32 taskId;
     UINT32 curIrqNum;
     ShellCB *shellCB = NULL;
     CONSOLE_CB *consoleCB = NULL;
@@ -104,36 +106,36 @@ VOID OsExcInteractionTaskKeep(VOID)
     shellCB = (ShellCB *)(consoleCB->shellHandle);
 
     g_intCount[ArchCurrCpuid()] = 0;
-    for (taskID = 0; taskID < g_taskMaxNum; taskID++) {
-        if (taskID == OsCurrTaskGet()->taskID) {
+    for (taskId = 0; taskId < g_taskMaxNum; taskId++) {
+        if (taskId == OsCurrTaskGet()->taskId) {
             continue;
-        } else if ((IsIdleTask(taskID) == TRUE) || IS_UARTSHELL_ID(taskID)) {
+        } else if ((IsIdleTask(taskId) == TRUE) || IS_UARTSHELL_ID(taskId)) {
             continue;
         }
 
-        taskCB = OS_TCB_FROM_TID(taskID);
+        taskCB = OS_TCB_FROM_TID(taskId);
 
         tempStatus = taskCB->taskStatus;
         if (tempStatus & OS_TASK_STATUS_UNUSED) {
             continue;
         }
-        if (IsSwtTask(taskID) == TRUE) {
+        if (IsSwtTask(taskId) == TRUE) {
             taskCB->taskFlags &= (~OS_TASK_FLAG_SYSTEM);
         }
 
-        (VOID)LOS_TaskDelete(taskID);
+        (VOID)LOS_TaskDelete(taskId);
     }
     HalIrqInit();
     HalIrqUnmask(NUM_HAL_INTERRUPT_UART);
     curIrqNum = HalCurIrqGet();
     HalIrqClear(curIrqNum);
-    (VOID)LOS_TaskDelete(OsCurrTaskGet()->taskID);
+    (VOID)LOS_TaskDelete(OsCurrTaskGet()->taskId);
     /* unreachable */
 }
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif

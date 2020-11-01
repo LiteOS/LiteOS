@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Mem Module HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -62,7 +64,7 @@ extern "C" {
 
 /**
  * @ingroup los_memory
- * The recored layes of function call.
+ * The recorded layers of function call.
  */
 #define LOS_RECORD_LR_CNT 3
 #endif
@@ -137,7 +139,7 @@ extern UINTPTR g_excInteractMemSize;
  *
  * @param  pool     [IN] Pointer to the memory pool that contains the memory block to be allocated.
  * @param  size     [IN] Size of the memory block to be allocated (unit: byte).
- * @param  moduleID [IN] module ID (0~MODULE_MAX).
+ * @param  moduleId [IN] module ID (0~MODULE_MAX).
  *
  * @retval #NULL         The memory fails to be allocated.
  * @retval #VOID*        The memory is successfully allocated with the starting address of the allocated memory block
@@ -147,7 +149,7 @@ extern UINTPTR g_excInteractMemSize;
  * @see LOS_MemRealloc | LOS_MemAllocAlign | LOS_MemFree
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID *LOS_MemMalloc(VOID *pool, UINT32 size, UINT32 moduleID);
+extern VOID *LOS_MemMalloc(VOID *pool, UINT32 size, UINT32 moduleId);
 
 /**
  * @ingroup los_memory
@@ -169,7 +171,7 @@ extern VOID *LOS_MemMalloc(VOID *pool, UINT32 size, UINT32 moduleID);
  * @param  pool      [IN] Pointer to the memory pool that contains the memory blocks to be allocated.
  * @param  size      [IN] Size of the memory to be allocated.
  * @param  boundary  [IN] Boundary on which the memory is aligned.
- * @param  moduleID  [IN] module ID (0~MODULE_MAX).
+ * @param  moduleId  [IN] module ID (0~MODULE_MAX).
  *
  * @retval #NULL          The memory fails to be allocated.
  * @retval #VOID*         The memory is successfully allocated with the starting address of the allocated
@@ -179,7 +181,7 @@ extern VOID *LOS_MemMalloc(VOID *pool, UINT32 size, UINT32 moduleID);
  * @see LOS_MemAlloc | LOS_MemRealloc | LOS_MemFree
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID *LOS_MemMallocAlign(VOID *pool, UINT32 size, UINT32 boundary, UINT32 moduleID);
+extern VOID *LOS_MemMallocAlign(VOID *pool, UINT32 size, UINT32 boundary, UINT32 moduleId);
 
 /**
  * @ingroup los_memory
@@ -195,7 +197,7 @@ extern VOID *LOS_MemMallocAlign(VOID *pool, UINT32 size, UINT32 boundary, UINT32
  *
  * @param  pool     [IN] Pointer to the memory pool that contains the dynamic memory block to be freed.
  * @param  ptr      [IN] Starting address of the memory block to be freed.
- * @param  moduleID [IN] module ID (0~MODULE_MAX).
+ * @param  moduleId [IN] module ID (0~MODULE_MAX).
  *
  * @retval #LOS_NOK          The memory block fails to be freed because the starting address of the memory block is
  * invalid, or the memory overwriting occurs.
@@ -205,7 +207,7 @@ extern VOID *LOS_MemMallocAlign(VOID *pool, UINT32 size, UINT32 boundary, UINT32
  * @see LOS_MemAlloc | LOS_MemRealloc | LOS_MemAllocAlign
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_MemMfree(VOID *pool, VOID *ptr, UINT32 moduleID);
+extern UINT32 LOS_MemMfree(VOID *pool, VOID *ptr, UINT32 moduleId);
 
 /**
  * @ingroup los_memory
@@ -232,7 +234,7 @@ extern UINT32 LOS_MemMfree(VOID *pool, VOID *ptr, UINT32 moduleID);
  * @param  pool      [IN] Pointer to the memory pool that contains the original and new memory blocks.
  * @param  ptr       [IN] Address of the original memory block.
  * @param  size      [IN] Size of the new memory block.
- * @param  moduleID  [IN] module ID (0~MODULE_MAX).
+ * @param  moduleId  [IN] module ID (0~MODULE_MAX).
  *
  * @retval #NULL          The memory fails to be re-allocated.
  * @retval #VOID*         The memory is successfully re-allocated with the starting address of the new memory block
@@ -242,7 +244,7 @@ extern UINT32 LOS_MemMfree(VOID *pool, VOID *ptr, UINT32 moduleID);
  * @see LOS_MemAlloc | LOS_MemAllocAlign | LOS_MemFree
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID *LOS_MemMrealloc(VOID *pool, VOID *ptr, UINT32 size, UINT32 moduleID);
+extern VOID *LOS_MemMrealloc(VOID *pool, VOID *ptr, UINT32 size, UINT32 moduleId);
 
 /**
  * @ingroup los_memory
@@ -250,7 +252,7 @@ extern VOID *LOS_MemMrealloc(VOID *pool, VOID *ptr, UINT32 size, UINT32 moduleID
  *
  * @par Description:
  * <li>This API is used to get special module's mem consume size.</li>
- * @param  moduleID   [IN] module ID (0~MODULE_MAX).
+ * @param  moduleId   [IN] module ID (0~MODULE_MAX).
  *
  * @retval #UINT32         The size of the special module's memory consumed.
  * @retval #OS_NULL_INT    The illegal module.
@@ -258,7 +260,7 @@ extern VOID *LOS_MemMrealloc(VOID *pool, VOID *ptr, UINT32 size, UINT32 moduleID
  * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_MemMusedGet(UINT32 moduleID);
+extern UINT32 LOS_MemMusedGet(UINT32 moduleId);
 #endif
 
 #ifdef LOSCFG_MEM_MUL_POOL
@@ -286,11 +288,11 @@ extern UINT32 LOS_MemDeInit(VOID *pool);
 
 /**
  * @ingroup los_memory
- * @brief Print infomation about all pools.
+ * @brief Print information about all pools.
  *
  * @par Description:
  * <ul>
- * <li>This API is used to print infomation about all pools.</li>
+ * <li>This API is used to print information about all pools.</li>
  * </ul>
  *
  * @retval #UINT32   The pool number.
@@ -314,7 +316,7 @@ typedef struct {
     UINT32 uwMaxFreeNodeSize;
     UINT32 uwUsedNodeNum;
     UINT32 uwFreeNodeNum;
-#if defined(OS_MEM_WATERLINE) && (OS_MEM_WATERLINE == YES)
+#ifdef LOSCFG_MEM_TASK_STAT
     UINT32 uwUsageWaterLine;
 #endif
 } LOS_MEM_POOL_STATUS;
@@ -419,12 +421,18 @@ extern UINT32 LOS_MemFree(VOID *pool, VOID *ptr);
  * @attention
  * <ul>
  * <li>The input pool parameter must be initialized via func LOS_MemInit.</li>
- * <li>The input ptr parameter must be allocated by LOS_MemAlloc or LOS_MemAllocAlign.</li>
- * <li>The size of the input parameter size can not be greater than the memory pool size that specified at the second
+ * <li>The input ptr parameter must be allocated by LOS_MemAlloc; if the ptr is allocated by LOS_MemAllocAlign,
+ * the alignment of the newly allocated memory address cannot be guaranteed to be consistent with the original
+ * memory address.</li>
+ * <li>The input size parameter can not be greater than the memory pool size that specified at the second
  * input parameter of LOS_MemInit.</li>
- * <li>The size of the input parameter size must be aligned as follows: 1) if the ptr is allocated by LOS_MemAlloc,
+ * <li>The input size parameter must be aligned as follows: 1) if the ptr is allocated by LOS_MemAlloc,
  * it must be four byte-aligned; 2) if the ptr is allocated by LOS_MemAllocAlign, it must be aligned with the size of
  * the input parameter boundary of LOS_MemAllocAlign.</li>
+ * <li> If the user has special requirements for address alignment, it is not recommended to use this realloc function
+ *  for address allocated by LOS_MemAllocAlign. For example, on a 32-bit system, LiteOS's default address alignment
+ *  is 4 bytes, and if the boundary specified in LOS_MemAllocAlign is 8 bytes, it is cannot be ensured that the
+ *  reallocated address is 8 bytes aligned.</li>
  * </ul>
  *
  * @param  pool     [IN] Pointer to the memory pool that contains the original and new memory blocks.
@@ -609,7 +617,7 @@ extern UINT32 LOS_MemTaskIdGet(VOID *ptr);
  * @param  pool               [IN] A pointer pointed to the memory pool.
  *
  * @retval #LOS_NOK           The incoming parameter pool is NULL.
- * @retval #UINTPTR          The address of the last used node that casts to UINTPTR.
+ * @retval #UINTPTR           The address of the last used node that casts to UINTPTR.
  * @par Dependency:
  * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
  * @see None.
@@ -619,11 +627,11 @@ extern UINTPTR LOS_MemLastUsedGet(VOID *pool);
 
 /**
  * @ingroup los_memory
- * @brief Get the infomation of memory pool.
+ * @brief Get the information of memory pool.
  *
  * @par Description:
  * <ul>
- * <li>This API is used to get the infomation of memory pool.</li>
+ * <li>This API is used to get the information of memory pool.</li>
  * </ul>
  * @attention
  * <ul>
@@ -634,7 +642,7 @@ extern UINTPTR LOS_MemLastUsedGet(VOID *pool);
  * @param  poolStatus           [IN] A pointer for storage the pool status
  *
  * @retval #LOS_NOK           The incoming parameter pool is NULL or invalid.
- * @retval #LOS_OK            Success to get memory infomation.
+ * @retval #LOS_OK            Success to get memory information.
  * @par Dependency:
  * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
  * @see None.
@@ -775,55 +783,6 @@ extern UINT32 LOS_MemCheckLevelSet(UINT8 checkLevel);
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT8 LOS_MemCheckLevelGet(VOID);
-
-#ifdef LOSCFG_KERNEL_MEM_BESTFIT_LITTLE
-/**
- * @ingroup los_memory
- * @brief calculate heap max free block size.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to calculate heap max free block size.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  pool          [IN] Pointer to memory pool.
- *
- * @retval #UINT32        The  max free block size.
- * @par Dependency:
- * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_MemAlloc | LOS_MemRealloc | LOS_MemFree
- * @since Huawei LiteOS V100R001C00
- */
-extern UINT32 LOS_MemGetMaxFreeBlkSize(VOID *pool);
-#if defined(LOSCFG_KERNEL_MEM_STATISTICS) && (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-/**
- * @ingroup los_memory
- * @brief Get the memory statistics from Heap.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to dump the information of pool.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  pool          [IN] Pointer to memory pool.
- *
- * @retval #None
- * @par Dependency:
- * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
- * @see None
- * @since Huawei LiteOS V100R001C00
- */
-extern VOID LOS_HeapDumpMemoryStats(VOID *pool);
-#endif
-#endif
 
 /**
  * @ingroup los_memory

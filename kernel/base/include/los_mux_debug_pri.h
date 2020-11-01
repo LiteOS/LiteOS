@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Mutex Debug Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -54,27 +56,27 @@ STATIC INLINE UINT32 OsMuxDlockCheckInitHook(VOID)
 }
 
 /* Add holding mutex lock node information */
-extern VOID OsMuxDlockNodeInsert(UINT32 taskID, VOID *muxCB);
-STATIC INLINE VOID OsMuxDlockNodeInsertHook(UINT32 taskID, VOID *muxCB)
+extern VOID OsMuxDlockNodeInsert(UINT32 taskId, VOID *muxCB);
+STATIC INLINE VOID OsMuxDlockNodeInsertHook(UINT32 taskId, VOID *muxCB)
 {
 #ifdef LOSCFG_DEBUG_DEADLOCK
-    OsMuxDlockNodeInsert(taskID, muxCB);
+    OsMuxDlockNodeInsert(taskId, muxCB);
 #endif
 }
 /* Delete holding mutex lock node information */
-extern VOID OsMuxDlockNodeDelete(UINT32 taskID, const VOID *muxCB);
-STATIC INLINE VOID OsMuxDlockNodeDeleteHook(UINT32 taskID, const VOID *muxCB)
+extern VOID OsMuxDlockNodeDelete(UINT32 taskId, const VOID *muxCB);
+STATIC INLINE VOID OsMuxDlockNodeDeleteHook(UINT32 taskId, const VOID *muxCB)
 {
 #ifdef LOSCFG_DEBUG_DEADLOCK
-    OsMuxDlockNodeDelete(taskID, muxCB);
+    OsMuxDlockNodeDelete(taskId, muxCB);
 #endif
 }
 /* Update the last time the task was executed */
-extern VOID OsTaskTimeUpdate(UINT32 taskID, UINT64 tickCount);
-STATIC INLINE VOID OsTaskTimeUpdateHook(UINT32 taskID, UINT64 tickCount)
+extern VOID OsTaskTimeUpdate(UINT32 taskId, UINT64 tickCount);
+STATIC INLINE VOID OsTaskTimeUpdateHook(UINT32 taskId, UINT64 tickCount)
 {
 #ifdef LOSCFG_DEBUG_DEADLOCK
-    OsTaskTimeUpdate(taskID, tickCount);
+    OsTaskTimeUpdate(taskId, tickCount);
 #endif
 }
 
@@ -89,19 +91,19 @@ STATIC INLINE UINT32 OsMuxDbgInitHook(VOID)
 #endif
 }
 /* Update the last time the mutex was executed */
-extern VOID OsMuxDbgTimeUpdate(UINT32 muxID);
-STATIC INLINE VOID OsMuxDbgTimeUpdateHook(UINT32 muxID)
+extern VOID OsMuxDbgTimeUpdate(UINT32 muxId);
+STATIC INLINE VOID OsMuxDbgTimeUpdateHook(UINT32 muxId)
 {
 #ifdef LOSCFG_DEBUG_MUTEX
-    OsMuxDbgTimeUpdate(muxID);
+    OsMuxDbgTimeUpdate(muxId);
 #endif
 }
 /* Update the MUX_DEBUG_CB of the mutex when created or deleted */
-extern VOID OsMuxDbgUpdate(UINT32 muxID, TSK_ENTRY_FUNC creater);
-STATIC INLINE VOID OsMuxDbgUpdateHook(UINT32 muxID, TSK_ENTRY_FUNC creater)
+extern VOID OsMuxDbgUpdate(UINT32 muxID, TSK_ENTRY_FUNC creator);
+STATIC INLINE VOID OsMuxDbgUpdateHook(UINT32 muxId, TSK_ENTRY_FUNC creator)
 {
 #ifdef LOSCFG_DEBUG_MUTEX
-    OsMuxDbgUpdate(muxID, creater);
+    OsMuxDbgUpdate(muxId, creator);
 #endif
 }
 /* check the leak of mutex */

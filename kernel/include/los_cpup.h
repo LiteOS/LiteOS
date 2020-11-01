@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description : LiteOS Cpu Usage Calculation Module Headfile For User
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -125,12 +127,12 @@ extern "C" {
 
 /**
  * @ingroup los_cpup
- * Type of the CPU usage query.
+ * Count the CPU usage structures of all tasks.
  */
-typedef enum {
-    SYS_CPU_USAGE = 0,      /**< system cpu occupancy rate */
-    TASK_CPU_USAGE,         /**< task cpu occupancy rate */
-} CPUP_TYPE_E;
+typedef struct tagCpupInfo {
+    UINT16 usStatus; /**< Save the cur task status     */
+    UINT32 uwUsage;  /**< Usage. The value range is [0,1000].   */
+} CPUP_INFO_S;
 
 /**
  * @ingroup los_cpup
@@ -142,14 +144,6 @@ enum {
     CPUP_ALL_TIME = 0xffff     /**< Display CPU usage from system startup to now. */
 };
 
-/**
- * @ingroup los_cpup
- * Count the CPU usage structures of all tasks.
- */
-typedef struct tagCpupInfo {
-    UINT16 usStatus;            /**< Save the cur task status     */
-    UINT32 uwUsage;             /**< Usage. The value range is [0,1000].   */
-} CPUP_INFO_S;
 
 /**
  * @ingroup los_cpup
@@ -174,7 +168,7 @@ typedef struct tagCpupInfo {
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
+extern UINT32 LOS_HistorySysCpuUsage(UINT32 mode);
 
 /**
  * @ingroup los_cpup
@@ -190,7 +184,7 @@ extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
  * the CPU usage fails to be obtained.</li>
  * </ul>
  *
- * @param taskID   [IN] UINT32. Task ID.
+ * @param taskId   [IN] UINT32. Task ID.
  * @param mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s will be
  *                              obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will
  *                              be obtained. Other values indicate that the CPU usage in the period that is less than
@@ -205,7 +199,7 @@ extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode);
+extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskId, UINT32 mode);
 
 /**
  * @ingroup los_cpup
@@ -242,7 +236,7 @@ extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode);
  * @see
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_AllCpuUsage(UINT16 maxNum, CPUP_INFO_S *cpupInfo, UINT16 mode, UINT16 flag);
+extern UINT32 LOS_AllCpuUsage(UINT16 maxNum, CPUP_INFO_S *cpupInfo, UINT32 mode, UINT16 flag);
 
 /**
  * @ingroup los_cpup
@@ -266,31 +260,6 @@ extern UINT32 LOS_AllCpuUsage(UINT16 maxNum, CPUP_INFO_S *cpupInfo, UINT16 mode,
  */
 extern VOID LOS_CpupReset(VOID);
 
-/**
- * @ingroup los_cpup
- * @brief Obtain CPU usage history of certain task or system.
- *
- * @par Description:
- * This API is used to obtain CPU usage history of certain task or system.
- * @attention
- * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, -1 will be returned.</li>
- * <li> Only in SYS_CPU_USAGE type, taskID is unused.</li>
- * </ul>
- *
- * @param type        [IN] cpup type, SYS_CPU_USAGE or TASK_CPU_USAGE
- * @param mode        [IN] mode,CPUP_LAST_TEN_SECONDS = usage in 10s,CPUP_LAST_ONE_SECONDS = usage in last 1s,
- * CPUP_ALL_TIME = usage form system startup, if the inpuit mode is none of them, it will be as CPUP_ALL_TIME.
- * @param taskID      [IN] task ID, Only in SYS_CPU_USAGE type, taskID is unused
- *
- * @retval #OS_ERROR           -1:CPU usage info obtain failed.
- * @retval #LOS_OK              0:CPU usage info is successfully obtained.
- * @par Dependency:
- * <ul><li>los_monitor.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_CpupUsageMonitor
- * @since Huawei LiteOS V100R001C00
- */
-extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, UINT16 mode, UINT32 taskID);
 #ifdef __cplusplus
 #if __cplusplus
 }

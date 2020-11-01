@@ -32,11 +32,11 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
-#ifndef PLATFORM_HAL_PLATFORM_INTS_H
-#define PLATFORM_HAL_PLATFORM_INTS_H
+#ifndef _HAL_PLATFORM_INTS_H
+#define _HAL_PLATFORM_INTS_H
 
 #include "stm32f429xx.h"
-#include"los_typedef.h"
+#include "los_typedef.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,14 +46,14 @@ extern "C" {
 
 /**
  * Maximum number of supported hardware devices that generate hardware interrupts.
- * The maximum number of hardware devices that generate hardware interrupts is 128.
+ * The maximum number of exceptions and interrupts is: 240(IRQ) + OS_SYS_VECTOR_CNT.
  */
-#define OS_HWI_MAX_NUM                  240
+#define OS_HWI_MAX_NUM                  LOSCFG_PLATFORM_HWI_LIMIT
 
 /**
  * Maximum interrupt number.
  */
-#define OS_HWI_MAX                      ((OS_HWI_MAX_NUM) - 1)
+#define OS_HWI_MAX                      (OS_HWI_MAX_NUM - 1)
 
 /**
  * Minimum interrupt number.
@@ -87,4 +87,5 @@ extern "C" {
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-#endif // PLATFORM_HAL_PLATFORM_INTS_H
+
+#endif /* _HAL_PLATFORM_INTS_H */

@@ -1,0 +1,33 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
+
+source "arch/arm/Kconfig"
+source "arch/arm64/Kconfig"
+
+comment "Extra Configurations"
+
+config LOSCFG_ARCH_FPU_DISABLE
+    bool "Disable Floating Pointer Unit"
+    default n
+    help
+      This option will bypass floating procedure in system.
+
+config LOSCFG_ARCH_SECURE_MONITOR_MODE
+    bool "Run On Secure Monitor Mode"
+    default n
+    depends on LOSCFG_ARCH_ARM_AARCH64
+    help
+      This option will make the system run on EL3.
+
+config LOSCFG_ARCH_INTERRUPT_PREEMPTION
+    bool "Enable Interrupt Preemption"
+    default n
+    depends on LOSCFG_ARCH_ARM_AARCH64
+    help
+      This option will support high priority interrupt preemption.
+
+config LOSCFG_IRQ_USE_STANDALONE_STACK
+    bool "Use Interrupt Stack"
+    default y
+    depends on LOSCFG_ARCH_ARM_AARCH64 || LOSCFG_ARCH_ARM_AARCH32
+    help
+      This option will support using standalone interrupt stack.

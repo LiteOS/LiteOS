@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Memory Module Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,79 +38,103 @@
 #define _LOS_MEMORY_PRI_H
 
 #include "los_memory.h"
+#include "los_memstat_pri.h"
+#include "los_slab_pri.h"
 #include "los_spinlock.h"
+#include "los_misc_pri.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-extern UINTPTR g_sys_mem_addr_end;
+/* Memory pool information structure */
+#if defined(LOSCFG_KERNEL_MEM_BESTFIT)
 
+typedef struct {
+    VOID        *pool;      /* Starting address of a memory pool */
+    UINT32      poolSize;   /* Memory pool size */
+
+#ifdef LOSCFG_MEM_TASK_STAT
+    Memstat     stat;
+#endif
+
+#ifdef LOSCFG_MEM_MUL_POOL
+    VOID        *nextPool;
+#endif
+
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    struct LosSlabControlHeader slabCtrlHdr;
+#endif
+} LosMemPoolInfo;
+
+#elif defined(LOSCFG_KERNEL_MEM_BESTFIT_LITTLE)
+
+typedef struct LosHeapManager {
+    struct LosHeapNode *head;
+    struct LosHeapNode *tail;
+    UINT32 size;
+
+#ifdef LOSCFG_MEM_TASK_STAT
+    Memstat stat;
+#endif
+
+#ifdef LOSCFG_MEM_MUL_POOL
+    VOID *nextPool;
+#endif
+
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    struct LosSlabControlHeader slabCtrlHdr;
+#endif
+} LosMemPoolInfo;
+
+#endif
+
+#define IS_ALIGNED(value, alignSize) ((((UINTPTR)(value)) & ((UINTPTR)((alignSize) - 1))) == 0)
+
+/* spinlock for mem module, only available on SMP mode */
+extern SPIN_LOCK_S g_memSpin;
+#define MEM_LOCK(state)       LOS_SpinLockSave(&g_memSpin, &(state))
+#define MEM_UNLOCK(state)     LOS_SpinUnlockRestore(&g_memSpin, (state))
+
+extern UINTPTR g_sys_mem_addr_end;
 extern UINT32 OsMemSystemInit(UINTPTR memStart);
+
+/* SLAB extention needs memory algorithms provide following internal apis */
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+extern VOID* OsMemAlloc(VOID *pool, UINT32 size);
+extern UINT32 OsMemFree(VOID *pool, VOID *mem);
+#endif /* LOSCFG_KERNEL_MEM_SLAB_EXTENTION */
+
+#ifdef LOSCFG_MEM_MUL_POOL
+extern UINT32 OsMemMulPoolInit(VOID *pool, UINT32 size);
+extern UINT32 OsMemMulPoolDeinit(VOID *pool);
+extern VOID *OsMemMulPoolHeadGet(VOID);
+#else /* LOSCFG_MEM_MUL_POOL */
+STATIC INLINE UINT32 OsMemMulPoolInit(VOID *pool, UINT32 size)
+{
+    return LOS_OK;
+}
+
+STATIC INLINE UINT32 OsMemMulPoolDeinit(VOID *pool)
+{
+    return LOS_OK;
+}
+#endif /* LOSCFG_MEM_MUL_POOL */
 
 #ifdef LOSCFG_EXC_INTERACTION
 extern UINT32 OsMemExcInteractionInit(UINTPTR memStart);
 #endif
-#define IS_ALIGNED(value, alignSize) ((((UINTPTR)(value)) & ((UINTPTR)((alignSize) - 1))) == 0)
-extern VOID OsDumpMemByte(UINT32 length, UINTPTR addr);
 
 #ifdef LOSCFG_MEM_LEAKCHECK
 extern VOID OsMemUsedNodeShow(VOID *pool);
 #endif
 
 extern VOID OsMemResetEndNode(VOID *pool, UINTPTR preAddr);
-
+extern VOID OsMemInfoPrint(VOID *pool);
 extern UINT32 OsShellCmdMemCheck(INT32 argc, const CHAR *argv[]);
-
-/* spinlock for mem module */
-extern SPIN_LOCK_S g_memSpin;
-#define MEM_LOCK(state)       LOS_SpinLockSave(&g_memSpin, &(state))
-#define MEM_UNLOCK(state)     LOS_SpinUnlockRestore(&g_memSpin, (state))
-
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-#define TASK_BLOCK_NUM                          (LOSCFG_BASE_CORE_TSK_CONFIG + 2)
-typedef struct {
-    UINT32 memUsed;
-    UINT32 memPeak;
-} TaskMemUsedInfo;
-#endif
-
-#if (LOSCFG_KERNEL_MEM_BESTFIT == YES)
-/* Memory pool information structure */
-typedef struct {
-    VOID *pool;      /* Starting address of a memory pool */
-    UINT32 poolSize; /* Memory pool size */
-#if defined(OS_MEM_WATERLINE) && (OS_MEM_WATERLINE == YES)
-    UINT32 poolWaterLine;   /* Maximum usage size in a memory pool */
-    UINT32 poolCurUsedSize; /* Current usage size in a memory pool */
-#endif
-#ifdef LOSCFG_MEM_MUL_POOL
-    VOID *nextPool;
-#endif
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    TaskMemUsedInfo memStats[TASK_BLOCK_NUM];
-#endif
-} LosMemPoolInfo;
-
-#elif (LOSCFG_KERNEL_MEM_BESTFIT_LITTLE == YES)
-typedef struct {
-    struct LosHeapNode *head;
-    struct LosHeapNode *tail;
-    UINT32 size;
-#if (LOSCFG_MEM_MUL_POOL == YES)
-    VOID *nextPool;
-#endif
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
-    TaskMemUsedInfo memStats[TASK_BLOCK_NUM];
-#endif
-} LosMemPoolInfo;
-
-#endif
-
-#if (LOSCFG_MEM_MUL_POOL == YES)
-extern VOID *g_poolHead;
-#endif
+extern VOID OsMemIntegrityMultiCheck(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

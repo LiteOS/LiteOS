@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: Tickless
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -74,7 +76,7 @@ extern VOID LOS_TicklessEnable(VOID);
  * @brief disable the tickless mode.
  *
  * @par Description:
- * This API is used to diable the tickless mode. System will not change from periodic clock mode to dynamic clock mode.
+ * This API is used to disable the tickless mode. System will not change from periodic clock mode to dynamic clock mode.
  *
  * @attention
  * <ul>

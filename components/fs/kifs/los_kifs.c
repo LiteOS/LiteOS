@@ -50,7 +50,7 @@ struct kifs_node
 {
     char                        name [LOS_MAX_FILE_NAME_LEN];
     uint32_t                    attr;       /* R(readable)/W(writable)/E(exclusive)/D(dir)/B(buffer) */
-    struct kifs_node           *sabling;
+    struct kifs_node           *sibling;
     struct kifs_node           *parent;
     union
     {
@@ -104,7 +104,7 @@ static struct kifs_node *kifs_file_find (struct kifs_node *root,
             return NULL;
         }
 
-        for (t = dir->child; t != NULL; t = t->sabling)
+        for (t = dir->child; t != NULL; t = t->sibling)
         {
             if ((strncmp (t->name, path_in_mp, l) == 0) &&
                     (t->name [l] == '\0'))
@@ -308,7 +308,7 @@ static int kifs_readdir (struct dir *dir, struct dirent *dent)
 
     for (i = 0, child = node->child;
             i < dir->d_offset && child != NULL;
-            i++, child = child->sabling)
+            i++, child = child->sibling)
     {
         /* nop */
     }
@@ -419,7 +419,7 @@ static struct kifs_node *kifs_file_creat (void *root,
         strncpy (node->name, path_in_mp, t - path_in_mp);
 
         node->parent  = dir;
-        node->sabling = dir->child;
+        node->sibling = dir->child;
         dir->child    = node;
         node->attr    = KIFS_ATTR_D;
 
@@ -447,7 +447,7 @@ static struct kifs_node *kifs_file_creat (void *root,
     strcpy (node->name, path_in_mp);
 
     node->parent  = dir;
-    node->sabling = dir->child;
+    node->sibling = dir->child;
     dir->child    = node;
     node->attr    = flags;
 

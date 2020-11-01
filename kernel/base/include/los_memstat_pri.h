@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Memory Module Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,7 +38,7 @@
 #define _LOS_MEMSTAT_PRI_H
 
 #include "los_typedef.h"
-#include "los_memory_pri.h"
+#include "los_memory.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -44,22 +46,39 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
+/* extra 1 blocks is for extra temparary task */
+#define TASK_NUM        (LOSCFG_BASE_CORE_TSK_LIMIT + 1)
 
-extern VOID OsTaskMemUsedInc(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID);
-extern VOID OsTaskMemUsedDec(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID);
-extern UINT32 OsTaskMemUsage(const TaskMemUsedInfo *memStats, UINT32 taskID);
-extern VOID OsTaskMemClear(UINT32 taskID);
+typedef struct {
+    UINT32 memUsed;
+    UINT32 memPeak;
+} TaskMemUsedInfo;
 
-#define OS_MEM_ADD_USED(memStats, usedSize, taskID)    OsTaskMemUsedInc(memStats, usedSize, taskID)
-#define OS_MEM_REDUCE_USED(memStats, usedSize, taskID) OsTaskMemUsedDec(memStats, usedSize, taskID)
-#define OS_MEM_CLEAR(taskID)                           OsTaskMemClear(taskID)
+typedef struct {
+    UINT32 memTotalUsed;
+    UINT32 memTotalPeak;
+    TaskMemUsedInfo taskMemstats[TASK_NUM];
+} Memstat;
+
+extern VOID OsMemstatTaskUsedInc(Memstat *stat, UINT32 usedSize, UINT32 taskId);
+extern VOID OsMemstatTaskUsedDec(Memstat *stat, UINT32 usedSize, UINT32 taskId);
+extern VOID OsMemstatTaskClear(Memstat *stat, UINT32 taskId);
+extern UINT32 OsMemstatTaskUsage(const Memstat *stat, UINT32 taskId);
+
+extern VOID OsMemTaskClear(UINT32 taskId);
+extern UINT32 OsMemTaskUsage(UINT32 taskId);
+
+#ifdef LOSCFG_MEM_TASK_STAT
+#define OS_MEM_ADD_USED(stat, usedSize, taskId)         OsMemstatTaskUsedInc(stat, usedSize, taskId)
+#define OS_MEM_REDUCE_USED(stat, usedSize, taskId)      OsMemstatTaskUsedDec(stat, usedSize, taskId)
+#define OS_MEM_CLEAR(taskId)                            OsMemTaskClear(taskId)
+#define OS_MEM_USAGE(taskId)                            OsMemTaskUsage(taskId)
 #else
-#define OS_MEM_ADD_USED(memStats, usedSize, taskID)
-#define OS_MEM_REDUCE_USED(memStats, usedSize, taskID)
-#define OS_MEM_CLEAR(taskID)
+#define OS_MEM_ADD_USED(stat, usedSize, taskId)
+#define OS_MEM_REDUCE_USED(stat, usedSize, taskId)
+#define OS_MEM_CLEAR(taskId)
+#define OS_MEM_USAGE(taskId)
 #endif
-
 
 #ifdef __cplusplus
 #if __cplusplus

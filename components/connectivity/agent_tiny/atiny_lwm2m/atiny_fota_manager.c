@@ -196,7 +196,6 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
     ATINY_LOG(LOG_INFO, "download stat from %d to %d", thi->state, state);
     if(thi->state != state)
     {
-        /*lint -e614 */
         atiny_fota_state_s *states[ATINY_FOTA_UPDATING + 1];
         states[ATINY_FOTA_IDLE] = ATINY_GET_STATE(thi->idle_state);
         states[ATINY_FOTA_DOWNLOADING] = ATINY_GET_STATE(thi->downloading_state);
@@ -205,7 +204,6 @@ int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e s
         thi->current = states[state];
         thi->state = state;
         thi->wait_ack_flag = false;
-        /*lint +e614 */
     }
     thi->rpt_state = state;
     atiny_event_notify(ATINY_FOTA_STATE, (const char *)&thi->state, sizeof(thi->state));
@@ -336,9 +334,7 @@ void atiny_fota_manager_destroy(atiny_fota_manager_s *thi)
     {
         atiny_free(thi->pkg_uri);
     }
-    /*lint -e668 */
     memset(thi, 0, sizeof(*thi));
-    /*lint +e668 */
 }
 
 int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t  *lwm2m_context)

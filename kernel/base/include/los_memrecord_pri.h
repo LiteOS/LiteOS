@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: MemRecord Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -46,13 +48,13 @@ extern "C" {
 #define RECORD_LEN 4000
 
 typedef struct {
-    UINT32 addrID;
-    UINT32 taskID;
-    UINT32 reqSizeID;
-    UINT32 allocatedSizeID;
+    UINT32 addrId;
+    UINT32 taskId;
+    UINT32 reqSizeId;
+    UINT32 allocatedSizeId;
     UINT32 actType;
     UINT64 sysTick;
-    UINT32 linkRegID;
+    UINT32 linkRegId;
 } MemRecordInfo;
 
 #define MEM_RECORDSHOW_TIMEOUT 6000

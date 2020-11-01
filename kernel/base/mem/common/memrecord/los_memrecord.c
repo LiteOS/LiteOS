@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Mem Record Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,7 +38,6 @@
 #include "los_memory.h"
 #include "los_binarytree_pri.h"
 #include "los_event.h"
-#include "los_exc.h"
 #include "los_task_pri.h"
 
 #ifdef __cplusplus
@@ -86,21 +87,21 @@ STATIC VOID OsMemRecordCompressInfo(VOID)
 
     UINT32 currentIndex = g_addrNodeIndex;
     for (count = g_lastAddrNodeIndex; count < currentIndex; count++) {
-        OsDecTo64F(g_addrNode[count].leaf.nodeID, infoStr, ADDR_ID_LENGTH);
+        OsDecTo64F(g_addrNode[count].leaf.nodeId, infoStr, ADDR_ID_LENGTH);
         printf("~^%s%x^~\n", infoStr, g_addrNode[count].addr);
     }
     g_lastAddrNodeIndex = currentIndex;
 
     currentIndex = g_reqSizeNodeIndex;
     for (count = g_lastReqSizeNodeIndex; count < currentIndex; count++) {
-        OsDecTo64F(g_reqSizeNode[count].leaf.nodeID, infoStr, REQSIZE_ID_LENGTH);
+        OsDecTo64F(g_reqSizeNode[count].leaf.nodeId, infoStr, REQSIZE_ID_LENGTH);
         printf("*^%s%u^*\n", infoStr, g_reqSizeNode[count].reqSize);
     }
     g_lastReqSizeNodeIndex = currentIndex;
 
     currentIndex = g_linkRegNodeIndex;
     for (count = g_lastlinkRegNodeIndex; count < currentIndex; count++) {
-        OsDecTo64F(g_linkRegNode[count].leaf.nodeID, infoStr, LINK_REG_ID_LENGTH);
+        OsDecTo64F(g_linkRegNode[count].leaf.nodeId, infoStr, LINK_REG_ID_LENGTH);
         printf("$^%s%x%x%x^$\n", infoStr, g_linkRegNode[count].linkReg1, g_linkRegNode[count].linkReg2,
                g_linkRegNode[count].linkReg3);
     }
@@ -124,13 +125,13 @@ STATIC VOID PrintPtrAssign(CHAR *printStr, UINT32 strLen, UINT32 startIndex, UIN
     printStr[index++] = nodeValue[tmpIndex];
 
     tmpIndex = 0;
-    OsDecTo64F(g_curPtr[startIndex].addrID, nodeValue, ADDR_ID_LENGTH);
+    OsDecTo64F(g_curPtr[startIndex].addrId, nodeValue, ADDR_ID_LENGTH);
     printStr[index++] = nodeValue[tmpIndex++];
     printStr[index++] = nodeValue[tmpIndex++];
     printStr[index++] = nodeValue[tmpIndex];
 
     tmpIndex = 0;
-    OsDecTo64F(g_curPtr[startIndex].reqSizeID, nodeValue, REQSIZE_ID_LENGTH);
+    OsDecTo64F(g_curPtr[startIndex].reqSizeId, nodeValue, REQSIZE_ID_LENGTH);
     printStr[index++] = nodeValue[tmpIndex++];
     printStr[index++] = nodeValue[tmpIndex];
 
@@ -142,7 +143,7 @@ STATIC VOID PrintPtrAssign(CHAR *printStr, UINT32 strLen, UINT32 startIndex, UIN
     printStr[index++] = nodeValue[tmpIndex];
 
     tmpIndex = 0;
-    OsDecTo64F(g_curPtr[startIndex].taskID, nodeValue, TASK_ID_LENGTH);
+    OsDecTo64F(g_curPtr[startIndex].taskId, nodeValue, TASK_ID_LENGTH);
     printStr[index++] = nodeValue[tmpIndex++];
     printStr[index++] = nodeValue[tmpIndex];
 
@@ -156,7 +157,7 @@ STATIC VOID PrintPtrAssign(CHAR *printStr, UINT32 strLen, UINT32 startIndex, UIN
     printStr[index++] = nodeValue[tmpIndex];
 
     tmpIndex = 0;
-    OsDecTo64F(g_curPtr[startIndex].linkRegID, nodeValue, LINK_REG_ID_LENGTH);
+    OsDecTo64F(g_curPtr[startIndex].linkRegId, nodeValue, LINK_REG_ID_LENGTH);
     printStr[index++] = nodeValue[tmpIndex++];
     printStr[index++] = nodeValue[tmpIndex];
 
@@ -239,7 +240,7 @@ STATIC INLINE VOID OsMemRecordLR(LinkRegNode *linkRegNode)
     linkRegNode->linkReg2 = 0;
     linkRegNode->linkReg3 = 0;
 
-    framePtr = Get_Fp();
+    framePtr = ArchGetFp();
     while ((framePtr > OS_SYS_FUNC_ADDR_START) &&
            (framePtr < OS_SYS_FUNC_ADDR_END) &&
            ((framePtr % sizeof(CHAR *)) == 0)) {
@@ -263,46 +264,46 @@ STATIC VOID OsMemRecordTaskID(VOID)
 {
     LosTaskCB *runTask = OsCurrTaskGet();
     if (runTask != NULL) {
-        g_saveMemRecord[g_memRecordIndex].taskID = LOS_CurTaskIDGet();
+        g_saveMemRecord[g_memRecordIndex].taskId = LOS_CurTaskIDGet();
     } else {
-        g_saveMemRecord[g_memRecordIndex].taskID = 0;
+        g_saveMemRecord[g_memRecordIndex].taskId = 0;
     }
 }
 
 STATIC INLINE VOID OsMemRecord(const VOID *ptr, UINT32 size)
 {
     UINT64 tickCount = LOS_TickCountGet();
-    UINT32 nodeID;
+    UINT32 nodeId;
     LinkRegNode linkRegNode;
     AddrNode node;
     ReqSizeNode reqNode;
 
     OsMemRecordLR(&linkRegNode);
-    nodeID = OsBinTreeInsert(&linkRegNode, sizeof(linkRegNode), (BinNode **)&g_linkRegRoot, OsGetLRBinNode,
+    nodeId = OsBinTreeInsert(&linkRegNode, sizeof(linkRegNode), (BinNode **)&g_linkRegRoot, OsGetLRBinNode,
                              OsCompareLRNode);
-    if (nodeID == OS_INVALID) {
+    if (nodeId == OS_INVALID) {
         PRINT_WARN("LIST g_linkRegRoot insert linkRegNode failed!\n");
     }
-    g_saveMemRecord[g_memRecordIndex].linkRegID = nodeID;
+    g_saveMemRecord[g_memRecordIndex].linkRegId = nodeId;
 
     node.addr = (UINTPTR)ptr;
-    nodeID = OsBinTreeInsert(&node, sizeof(AddrNode), (BinNode **)&g_addrRoot, OsGetAddrBinNode,
+    nodeId = OsBinTreeInsert(&node, sizeof(AddrNode), (BinNode **)&g_addrRoot, OsGetAddrBinNode,
                              OsCompareAddrNode);
-    if (nodeID == OS_INVALID) {
+    if (nodeId == OS_INVALID) {
         PRINT_WARN("LIST g_addrRoot insert addrNode failed!\n");
     }
-    g_saveMemRecord[g_memRecordIndex].addrID = nodeID;
+    g_saveMemRecord[g_memRecordIndex].addrId = nodeId;
     g_saveMemRecord[g_memRecordIndex].sysTick = tickCount;
 
     OsMemRecordTaskID();
 
     reqNode.reqSize = size;
-    nodeID = OsBinTreeInsert(&reqNode, sizeof(ReqSizeNode), (BinNode **)&g_reqSizeRoot, OsGetReqSizeBinNode,
+    nodeId = OsBinTreeInsert(&reqNode, sizeof(ReqSizeNode), (BinNode **)&g_reqSizeRoot, OsGetReqSizeBinNode,
                              OsCompareReqSizeNode);
-    if (nodeID == OS_INVALID) {
+    if (nodeId == OS_INVALID) {
         PRINT_WARN("LIST g_reqSizeRoot insert reqSizeNode failed!\n");
     }
-    g_saveMemRecord[g_memRecordIndex].reqSizeID = nodeID;
+    g_saveMemRecord[g_memRecordIndex].reqSizeId = nodeId;
 
     g_memRecordIndex++;
     if (g_memRecordIndex == RECORD_LEN) {
@@ -316,8 +317,8 @@ VOID OsMemRecordMalloc(const VOID *ptr, UINT32 size)
         return;
     }
 
-    OsMemRecord(ptr, size);
     g_saveMemRecord[g_memRecordIndex].actType = OS_MEM_ALLOC;
+    OsMemRecord(ptr, size);
 }
 
 VOID OsMemRecordFree(const VOID *ptr, UINT32 size)
@@ -327,8 +328,8 @@ VOID OsMemRecordFree(const VOID *ptr, UINT32 size)
         return;
     }
     actType = (size == 0) ? OS_MEM_INVALIDFREE : OS_MEM_VALIDFREE;
-    OsMemRecord(ptr, size);
     g_saveMemRecord[g_memRecordIndex].actType = actType;
+    OsMemRecord(ptr, size);
 }
 
 VOID OsMemRecordShowTask(VOID)

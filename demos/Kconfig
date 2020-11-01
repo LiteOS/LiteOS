@@ -1,0 +1,8 @@
+menu "Demos"
+
+source "demos/agenttiny_mqtt/Kconfig"
+source "demos/fs/Kconfig"
+source "demos/gui/Kconfig"
+source "demos/sensorhub/Kconfig"
+
+endmenu

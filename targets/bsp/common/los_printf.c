@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS Printf Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -32,16 +34,10 @@
  * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
-#include "los_base.h"
 #ifdef LOSCFG_LIB_LIBC
-#include "stdlib.h"
 #include "unistd.h"
 #endif
-#ifdef LOSCFG_LIB_LIBCMINI
-#include "stdarg.h"
-#endif
-#include "los_hwi.h"
-#include "los_memory_pri.h"
+#include "los_memory.h"
 #include "uart.h"
 #ifdef LOSCFG_FS_VFS
 #include "console.h"
@@ -59,7 +55,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define USE_STACK_BUFFER
 #define SIZEBUF  256
 
 typedef enum {
@@ -72,7 +67,7 @@ typedef enum {
 STATIC VOID ErrorMsg(VOID)
 {
     const CHAR *p = "Output illegal string! vsnprintf_s failed!\n";
-    (VOID)UartPuts(p, (INT32)strlen(p), UART_WITH_LOCK);
+    UartPuts(p, (UINT32)strlen(p), UART_WITH_LOCK);
 }
 
 STATIC VOID UartOutput(const CHAR *str, UINT32 len, BOOL isLock)
@@ -85,7 +80,7 @@ STATIC VOID UartOutput(const CHAR *str, UINT32 len, BOOL isLock)
         (VOID)OsLogMemcpyRecord(str, len);
     }
 #else
-    (VOID)UartPuts(str, (INT32)len, isLock);
+    UartPuts(str, len, isLock);
 #endif
 }
 
@@ -114,35 +109,26 @@ STATIC VOID OutputControl(const CHAR *str, UINT32 len, OutputType type)
 
 STATIC VOID OsVprintfFree(CHAR *buf, UINT32 bufLen)
 {
-#ifdef USE_STACK_BUFFER
     if (bufLen != SIZEBUF) {
         (VOID)LOS_MemFree(m_aucSysMem0, buf);
     }
-#else
-    (VOID)LOS_MemFree(m_aucSysMem0, buf);
-#endif
 }
 
 STATIC VOID OsVprintf(const CHAR *fmt, va_list ap, OutputType type)
 {
     INT32 len;
-    UINT32 bufLen = SIZEBUF;
+    const CHAR *errMsgMalloc = "OsVprintf, malloc failed!\n";
+    const CHAR *errMsgLen = "OsVprintf, length overflow!\n";
+    CHAR aBuf[SIZEBUF] = {0};
     CHAR *bBuf = NULL;
-#ifdef USE_STACK_BUFFER
-    CHAR aBuf[SIZEBUF];
+    UINT32 bufLen = SIZEBUF;
+
     bBuf = aBuf;
-#else
-    bBuf = (CHAR *)LOS_MemAlloc(m_aucSysMem0, SIZEBUF);
-    if (bBuf == NULL) {
-        PRINT_ERR("%s, %d, malloc failed!\n", __FUNCTION__, __LINE__);
-        return;
-    }
-#endif
     len = vsnprintf_s(bBuf, bufLen, bufLen - 1, fmt, ap);
     if ((len == -1) && (*bBuf == '\0')) {
         /* parameter is illegal or some features in fmt dont support */
         ErrorMsg();
-        goto EXIT;
+        return;
     }
 
     while (len == -1) {
@@ -151,30 +137,35 @@ STATIC VOID OsVprintf(const CHAR *fmt, va_list ap, OutputType type)
 
         bufLen = bufLen << 1;
         if ((INT32)bufLen <= 0) {
-            PRINT_ERR("%s, %d, length overflow!\n", __FUNCTION__, __LINE__);
+            UartPuts(errMsgLen, (UINT32)strlen(errMsgLen), UART_WITH_LOCK);
             return;
         }
         bBuf = (CHAR *)LOS_MemAlloc(m_aucSysMem0, bufLen);
         if (bBuf == NULL) {
-            PRINT_ERR("%s, %d, malloc failed!\n", __FUNCTION__, __LINE__);
+            UartPuts(errMsgMalloc, (UINT32)strlen(errMsgMalloc), UART_WITH_LOCK);
             return;
         }
         len = vsnprintf_s(bBuf, bufLen, bufLen - 1, fmt, ap);
         if (*bBuf == '\0') {
             /* parameter is illegal or some features in fmt dont support */
+            (VOID)LOS_MemFree(m_aucSysMem0, bBuf);
             ErrorMsg();
-            goto EXIT;
+            return;
         }
     }
     *(bBuf + len) = '\0';
     OutputControl(bBuf, len, type);
-EXIT:
     OsVprintfFree(bBuf, bufLen);
 }
 
 VOID UartVprintf(const CHAR *fmt, va_list ap)
 {
     OsVprintf(fmt, ap, UART_OUTPUT);
+}
+
+VOID ConsoleVprintf(const CHAR *fmt, va_list ap)
+{
+    OsVprintf(fmt, ap, CONSOLE_OUTPUT);
 }
 
 __attribute__((noinline)) VOID UartPrintf(const CHAR *fmt, ...)
@@ -185,7 +176,7 @@ __attribute__((noinline)) VOID UartPrintf(const CHAR *fmt, ...)
     va_end(ap);
 }
 
-__attribute__ ((noinline)) VOID OsDprintf(const CHAR *fmt, ...)
+__attribute__ ((noinline)) VOID dprintf(const CHAR *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -204,36 +195,6 @@ VOID DmesgPrintf(const CHAR *fmt, va_list ap)
     OsVprintf(fmt, ap, CONSOLE_OUTPUT);
 }
 #endif
-
-#ifdef LOSCFG_PLATFORM_UART_WITHOUT_VFS
-__attribute__ ((noinline)) INT32 printf(const CHAR *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    OsVprintf(fmt, ap, UART_OUTPUT);
-    va_end(ap);
-}
-#else
-#ifdef LOSCFG_PLATFORM_NO_UART
-__attribute__ ((noinline)) int printf(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    OsVprintf(fmt, ap, CONSOLE_OUTPUT);
-    va_end(ap);
-    return LOS_OK;
-}
-#endif
-#endif
-
-__attribute__((noinline)) VOID syslog(INT32 level, const CHAR *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    OsVprintf(fmt, ap, CONSOLE_OUTPUT);
-    va_end(ap);
-    (VOID)level;
-}
 
 __attribute__((noinline)) VOID ExcPrintf(const CHAR *fmt, ...)
 {

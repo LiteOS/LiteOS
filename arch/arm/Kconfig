@@ -1,0 +1,156 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
+
+#
+# ARM 32-bit(Aarch32) implementations
+#
+config LOSCFG_ARCH_ARM_AARCH32
+    bool
+    help
+      32-bit ARM architecture implementations.
+      It is not limited to ARMv7-A but also ARMv7-R, ARMv7-M and etc.
+
+config LOSCFG_ARCH_ARM_CORTEX_A
+    bool
+    select LOSCFG_ARCH_ARM_AARCH32
+
+config LOSCFG_ARCH_ARM_CORTEX_R
+    bool
+    select LOSCFG_ARCH_ARM_AARCH32
+
+config LOSCFG_ARCH_ARM_CORTEX_M
+    bool
+    select LOSCFG_ARCH_ARM_AARCH32
+
+#
+# Architecture Versions
+#
+config LOSCFG_ARCH_ARM_V6M
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_M
+
+config LOSCFG_ARCH_ARM_V7M
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_M
+
+config LOSCFG_ARCH_ARM_V7A
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_A
+
+config LOSCFG_ARCH_ARM_V8A_AARCH32
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_A
+    help
+      ARMv8-A supported Aarch32 and Aarch64. This option is for ARMv8-A cores running
+      at Aarch32 mode.
+
+config LOSCFG_ARCH_ARM_V7R
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_R
+
+config LOSCFG_ARCH_ARM_V8R
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_R
+
+config LOSCFG_ARCH_ARM_VER
+    string
+    default "armv6-m" if LOSCFG_ARCH_ARM_V6M
+    default "armv7-a" if LOSCFG_ARCH_ARM_V7A
+    default "armv7-r" if LOSCFG_ARCH_ARM_V7R
+    default "armv7-m" if LOSCFG_ARCH_ARM_V7M
+    default "armv8-a" if LOSCFG_ARCH_ARM_V8A_AARCH32
+    default "armv8-r" if LOSCFG_ARCH_ARM_V8R
+
+#
+# VFP Hardware
+#
+config LOSCFG_ARCH_FPU_VFP_V3
+    bool
+    help
+      An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
+      VFPv3U is a variant of VFPv3 that supports the trapping of floating-point exceptions to support code.
+
+config LOSCFG_ARCH_FPU_VFP_V4
+    bool
+    help
+      An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
+      VFPv4U is a variant of VFPv4 that supports the trapping of floating-point exceptions to support code.
+      VFPv4 and VFPv4U add both the Half-precision Extension and the fused multiply-add instructions to the features of VFPv3.
+
+config LOSCFG_ARCH_FPU_VFP_V5
+    bool
+    help
+      An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A ARMv7-R and ARMv7-M profiles.
+      Addition of double-precision operand support for existing data processing instructions in FPv4-SP-D16-M.
+      16 double-precision registers. This is the same as for FPv4 and there are no additional registers.
+      Software-enable control for single-precision and double-precision support using CPACR.
+      Double-precision and single-precision support, when both are implemented, cannot be enabled independently of one another.
+      Identical load/store instruction support to FPv4 extensions that already includes support for 64-bit data types.
+
+config LOSCFG_ARCH_FPU_VFP_D16
+    bool
+    depends on LOSCFG_ARCH_ARM_AARCH32
+    help
+      VPU implemented with 16 doubleword registers (16 x 64-bit).
+
+config LOSCFG_ARCH_FPU_VFP_D32
+    bool
+    depends on LOSCFG_ARCH_ARM_AARCH32
+    help
+      VPU implemented with 32 doubleword registers (32 x 64-bit).
+
+config LOSCFG_ARCH_FPU_VFP_NEON
+    bool
+    help
+      Advanced SIMD extension (NEON) support.
+
+config LOSCFG_ARCH_FPU
+    string
+    default "vfpv3"       if LOSCFG_ARCH_FPU_VFP_V3 && LOSCFG_ARCH_FPU_VFP_D32
+    default "vfpv3-d16"   if LOSCFG_ARCH_FPU_VFP_V3 && LOSCFG_ARCH_FPU_VFP_D16
+    default "neon-vfpv4"  if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D32 && LOSCFG_ARCH_FPU_VFP_NEON
+    default "vfpv4"       if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D32
+    default "vfpv4-d16"   if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D16
+    default "fpv5-sp-d16" if LOSCFG_ARCH_FPU_VFP_V5 && LOSCFG_ARCH_FPU_VFP_D16
+
+#
+# Supported Processor Cores
+#
+config LOSCFG_ARCH_CORTEX_M0
+    bool
+    select LOSCFG_ARCH_ARM_V6M
+    select LOSCFG_ARCH_ARM_AARCH32
+
+config LOSCFG_ARCH_CORTEX_M4
+    bool
+    select LOSCFG_ARCH_ARM_V7M
+    select LOSCFG_ARCH_ARM_AARCH32
+    select LOSCFG_ARCH_FPU_VFP_V4
+    select LOSCFG_ARCH_FPU_VFP_D16
+
+config LOSCFG_ARCH_CORTEX_M7
+    bool
+    select LOSCFG_ARCH_ARM_V7M
+    select LOSCFG_ARCH_ARM_AARCH32
+    select LOSCFG_ARCH_FPU_VFP_V5
+    select LOSCFG_ARCH_FPU_VFP_D16
+
+config LOSCFG_ARCH_CORTEX_A7
+    bool
+    select LOSCFG_ARCH_ARM_V7A
+    select LOSCFG_ARCH_FPU_VFP_V4
+    select LOSCFG_ARCH_FPU_VFP_D32
+    select LOSCFG_ARCH_FPU_VFP_NEON
+
+config LOSCFG_ARCH_CORTEX_A9
+    bool
+    select LOSCFG_ARCH_ARM_V7A
+    select LOSCFG_ARCH_FPU_VFP_V3
+    select LOSCFG_ARCH_FPU_VFP_D16
+
+config LOSCFG_ARCH_CPU
+    string
+    default "cortex-m4"  if LOSCFG_ARCH_CORTEX_M4
+    default "cortex-m7"  if LOSCFG_ARCH_CORTEX_M7
+    default "cortex-a7"  if LOSCFG_ARCH_CORTEX_A7
+    default "cortex-a9"  if LOSCFG_ARCH_CORTEX_A9
+

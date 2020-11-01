@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: ARM private timer.
+ * Author: Huawei LiteOS Team
+ * Create: 2018-06-26
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -73,7 +75,7 @@ VOID HalClockStart(VOID)
     HalIrqUnmask(PRVTIMER_INT_NUM);
 
     g_privateTimer->load = OS_CYCLE_PER_TICK;
-    g_privateTimer->control = 0x06; /* IAE bits = 110, not eanbled yet */
+    g_privateTimer->control = 0x06; /* IAE bits = 110, not enabled yet */
     g_privateTimer->control |= 0x01; /* enable private timer */
 }
 
@@ -87,9 +89,7 @@ VOID OsTickEntry(VOID)
 
 VOID HalClockInit(VOID)
 {
-    UINT32 ret;
-
-    ret =  LOS_HwiCreate(PRVTIMER_INT_NUM, 0xa0, 0, OsTickEntry, NULL);
+    UINT32 ret =  LOS_HwiCreate(PRVTIMER_INT_NUM, 0xa0, 0, OsTickEntry, NULL);
     if (ret != LOS_OK) {
         PRINT_ERR("%s, %d create tick irq failed, ret:0x%x\n", __FUNCTION__, __LINE__, ret);
     }
@@ -117,7 +117,7 @@ VOID HalDelayUs(UINT32 usecs)
     }
 }
 
-UINT64 HalSchedClock(VOID)
+UINT64 hi_sched_clock(VOID)
 {
     return LOS_CurrNanosec();
 }
@@ -127,12 +127,12 @@ UINT32 HalClockGetTickTimerCycles(VOID)
     return g_privateTimer->count;
 }
 
-VOID HalClockTickTimerReload(UINT32 period)
+VOID HalClockTickTimerReload(UINT32 cycles)
 {
     HalIrqUnmask(PRVTIMER_INT_NUM);
 
     /* set control counter regs to defaults */
-    g_privateTimer->load = period;
-    g_privateTimer->control = 0x06; /* IAE bits = 110, not eanbled yet */
+    g_privateTimer->load = cycles;
+    g_privateTimer->control = 0x06;  /* IAE bits = 110, not enabled yet */
     g_privateTimer->control |= 0x01; /* reenable private timer */
 }

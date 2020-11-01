@@ -1,0 +1,35 @@
+config LOSCFG_PLATFORM
+    string
+    default "Cloud_STM32F429IGTx_FIRE"  if LOSCFG_PLATFORM_STM32F429IGTX
+    default "STM32F769IDISCOVERY"       if LOSCFG_PLATFORM_STM32F769IDISCOVERY
+    default "STM32L431_BearPi"          if LOSCFG_PLATFORM_STM32L431_BearPi
+
+choice
+    prompt "Target"
+    default LOSCFG_PLATFORM_STM32F429IGTX
+    help
+      support several boards:
+      Cloud_STM32F429IGTx_FIRE
+      STM32F769IDISCOVERY
+      STM32L431_BearPi
+
+
+config LOSCFG_PLATFORM_STM32F429IGTX
+    bool "Cloud_STM32F429IGTx_FIRE"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M4
+
+config LOSCFG_PLATFORM_STM32F769IDISCOVERY
+    bool "STM32F769IDISCOVERY"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M7
+
+config LOSCFG_PLATFORM_STM32L431_BearPi
+    bool "STM32L431_BearPi"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M4
+
+endchoice
+
+config LOSCFG_USING_BOARD_LD
+    bool

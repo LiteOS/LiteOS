@@ -1,88 +1,94 @@
 ## LiteOS贡献代码流程
-进行LiteOS的代码贡献可以遵循以下流程
+进行LiteOS的代码贡献可以遵循以下流程：
 
-1. 创建github账号
-2. fork LiteOS Kernel源代码
-3. 创建开发分支
-4. 同步LiteOS主仓库代码到fork的仓库
-5. 提交pull request到LiteOS仓库
+1. 创建gitee账号
+2. fork LiteOS源代码
+3. 同步LiteOS仓库代码到fork的仓库
+4. 在本地PC上开发代码并提交到fork的仓库
+5. 提交Pull Request到LiteOS仓库
+6. 查看Pull Request的状态
 
-### 1 创建GitHub账号
+### 1 创建gitee账号
 
-由于LiteOS是在GitHub上进行代码管理的，因此代码贡献者也需要在Github上注册账户才能贡献代码。
-在浏览器输入github.com，然后在其界面上进行账户的注册(如有github账户，则直接使用即可)。
+由于LiteOS是在gitee上进行代码管理的，因此代码贡献者需要在gitee上注册账号才能贡献代码。
+在浏览器中输入 gitee.com，然后在其界面上进行账号的注册(如有gitee账号，则直接使用即可)。
 
-![](./meta/guides/github_regist.png)
+![](./meta/guides/gitee_regist.png)
 
 ### 2 fork LiteOS源代码
 
-拥有Github账户后，则可以将LiteOS仓库fork到自己账户下，步骤如下：
+拥有gitee账号后，则可以将LiteOS仓库fork到自己账号下，步骤如下：
 
-- 首先登录github账户
-- 然后在github中找到https://github.com/LITEOS/LiteOS
-![](./meta/guides/github_fork.png)
+- 首先登录gitee账号
+- 然后在gitee中找到LiteOS的源码 https://gitee.com/LiteOS/LiteOS
 
-- 点击fork按钮，将LiteOS的代码fork到自己账户下(比如：我的账户是mychaser)
-![](./meta/guides/github_fork2.png)
+![](./meta/guides/gitee_fork.png)
 
-![](./meta/guides/github_fork3.png)
+- 点击右上角fork按钮，将LiteOS的代码fork到自己的个人账号下(比如：我的个人账号名是hy)
 
-点击完成后，稍等一会就会自动跳转到自己账户下的LiteOS位置。
+![](./meta/guides/gitee_fork2.png)
 
-![](./meta/guides/github_fork4.png)
+- 点击确定后，稍等一会就会自动跳转到刚刚fork到自己个人账号下的LiteOS仓库
 
-### 3 创建开发分支
+![](./meta/guides/gitee_fork3.png)
 
-在自己的账户下的LiteOS仓库下创建新的开发分支，开发新功能或者修正bug等等。
+### 3 同步LiteOS仓库代码到fork的仓库
 
-![](./meta/guides/github_fork5.png)
+开发代码前，首先需要确保当前个人账号下的LiteOS代码和LiteOS官方仓库是一致的。
+因为从fork代码到现在，LiteOS官方仓库可能已经更新了内容，所以开发代码前需要先同步LiteOS仓库代码到fork的仓库，同步方法如下：
 
-在上图中master的下拉框点击后，可以选择不同的分支，默认是master，建议选择develop。然后在下拉的菜单中输入新的分支的名字，比如smartcar
+![](./meta/guides/gitee_fork4.png)
 
-![](./meta/guides/github_fork6.png)
+点击上图中红框中的按钮从LiteOS官方仓库拉取代码到个人账号fork的仓库，此时会弹出一个对话框以确定同步动作，如下图所示：
 
-点击上图中蓝色的内容，则会创建一个叫做smartcar的分支
+![](./meta/guides/gitee_fork5.png)
 
+点击确定后，gitee就会开始同步代码，用户无需再做其他操作。
 
-### 4 同步LiteOS主仓库代码到fork的仓库
+### 4 在本地PC上开发代码并提交到fork的仓库
 
 - 开发的第一步，是clone代码到本地PC
+
+		git clone https://gitee.com/hy/LiteOS
   
-		git clone https://github.com/mychaser/LiteOS.git
-  
-		clone之后checkout到smartcar分支
+		clone之后checkout到master分支
 
-		git checkout -b smartcar origin/smartcar
+		git checkout -b master origin/master
 
-然后在该分支进行开发，开发完成之后，进行git add 添加代码到PC本地的仓库，然后git commit提交到PC本地仓库。
+- 然后在该分支上进行开发，开发完成之后，git add 添加代码到本地PC的仓库，然后git commit 提交到本地PC仓库
+- 最后执行git push origin master操作，将代码提交到gitee上自己个人账号的master分支
 
-- 由于在开发的过程中，LiteOS的主仓库可能已经更新的许多新的内容，所以建议提交代码到自己账户下的仓库时先同步LiteOS的主仓库的内容，步骤示意如下：
+说明：所有git命令相关操作，如果不熟悉，请自行google或者baidu查找。
 
-		git remote add upstream https://github.com/LITEOS/LiteOS
+### 5 提交Pull Request到LiteOS仓库
 
-		git remote update upstream
+代码开发完成后，就可以向LiteOS的主仓库提交Pull Request，该操作在gitee网页上进行操作。
 
-		git merge upstream/develop
+- 进入个人账号下fork的LiteOS仓库首页，点击下图红框中的“+ Pull Request”
 
-		如果存在冲突，请解决冲突，然后在merge
-以上步骤完成之后，再进行git push origin smartcar操作，将代码提交到自己账户的github smartcar分支
+![](./meta/guides/gitee_fork6.png)
 
-说明：所有git命令相关内容，如果不熟悉，请自行google或者baidu查找。
+- 之后gitee会跳转到创建Pull Request的详细页面，并给出对应的源分支和要修改的目标分支，如下图
 
+![](./meta/guides/gitee_fork7.png)
 
-### 5 提交pull request到LiteOS仓库
+如果代码没有冲突则会显示下图红框中“可自动合并”的提示，否则需要先解决冲突然后再重新创建Pull Request。在线解决代码冲突可以参考 https://gitee.com/help/articles/4305
 
-代码开发完毕之后，就可以向LiteOS的主仓库提交pull request，该操作在github网页上进行操作。
+填入Pull Request的标题和说明，点击“创建”，就可以提交一个Pull Request。右边的审查人员、测试人员、里程碑、标签、优先级是可选项，不选择也不影响Pull Request的创建。
 
-点击 New pull request
+![](./meta/guides/gitee_fork8.png)
 
-![](./meta/guides/github_fork7.png)
+注：
 
-![](./meta/guides/github_fork8.png)
-在上图中 1 标识的位置选择 develop ， 2 标识的位置选择smartcart
+- 如果提交的代码是为了解决issue问题，记得将issue和此次代码提交相关联，关联方法请参考 https://gitee.com/help/articles/4141 和 https://gitee.com/help/articles/4142
 
-如果没有冲突则会显示 3所示内容，否则需要先解决冲突然后重新创建pull request。
+- 如果提交的Pull Request中有新增意见，需要在评论里回复，并@提意见的人说明已经解决
 
-选择完成后，并输入相关描述，最后点击绿色按钮 Create pull request 完成pull request的创建。
+### 6. 查看Pull Request的状态
+- 进入LiteOS仓库首页 https://gitee.com/LiteOS/LiteOS
 
-注：请将以上示例图中的LiteOS_Kernel替换为LiteOS即可。
+- 点击下图中的“Pull Requests”，可以看到当前LiteOS仓库上所有的Pull Request
+
+![](./meta/guides/gitee_pr.png)
+
+“开启的”表示这个Pull Request的代码还没有合入，“已合并”表示这个Pull Request的代码已经合入，“已关闭”表示这个Pull Request虽然已经关闭但是代码没有被合入。

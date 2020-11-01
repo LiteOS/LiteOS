@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Event
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -53,19 +55,19 @@ extern "C" {
  * @ingroup los_event
  * Event reading mode: The task waits for all its expected events to occur.
  */
-#define LOS_WAITMODE_AND                   4U
+#define LOS_WAITMODE_AND                    4U
 
 /**
  * @ingroup los_event
  * Event reading mode: The task waits for any of its expected events to occur.
  */
-#define LOS_WAITMODE_OR                    2U
+#define LOS_WAITMODE_OR                     2U
 
 /**
  * @ingroup los_event
  * Event reading mode: The event flag is immediately cleared after the event is read.
  */
-#define LOS_WAITMODE_CLR                   1U
+#define LOS_WAITMODE_CLR                    1U
 
 /**
  * @ingroup los_event
@@ -75,7 +77,7 @@ extern "C" {
  *
  * Solution: Set bits excluding bit 25 of the event mask to events.
  */
-#define LOS_ERRNO_EVENT_SETBIT_INVALID     LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x00)
+#define LOS_ERRNO_EVENT_SETBIT_INVALID      LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x00)
 
 /**
  * @ingroup los_event
@@ -85,7 +87,7 @@ extern "C" {
  *
  * Solution: Increase the waiting time for event reading, or make another task write a mask for the event.
  */
-#define LOS_ERRNO_EVENT_READ_TIMEOUT       LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x01)
+#define LOS_ERRNO_EVENT_READ_TIMEOUT        LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x01)
 
 /**
  * @ingroup los_event
@@ -95,7 +97,7 @@ extern "C" {
  *
  * Solution: Pass in a valid EVENTMASK value.
  */
-#define LOS_ERRNO_EVENT_EVENTMASK_INVALID  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x02)
+#define LOS_ERRNO_EVENT_EVENTMASK_INVALID   LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x02)
 
 /**
  * @ingroup los_event
@@ -105,7 +107,7 @@ extern "C" {
  *
  * Solution: Read the event in a task.
  */
-#define LOS_ERRNO_EVENT_READ_IN_INTERRUPT  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x03)
+#define LOS_ERRNO_EVENT_READ_IN_INTERRUPT   LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x03)
 
 /**
  * @ingroup los_event
@@ -118,7 +120,7 @@ extern "C" {
  *
  * Solution: Pass in a valid flag value.
  */
-#define LOS_ERRNO_EVENT_FLAGS_INVALID      LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x04)
+#define LOS_ERRNO_EVENT_FLAGS_INVALID       LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x04)
 
 /**
  * @ingroup los_event
@@ -128,7 +130,7 @@ extern "C" {
  *
  * Solution: Unlock the task and read the event.
  */
-#define LOS_ERRNO_EVENT_READ_IN_LOCK       LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x05)
+#define LOS_ERRNO_EVENT_READ_IN_LOCK        LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x05)
 
 /**
  * @ingroup los_event
@@ -138,7 +140,7 @@ extern "C" {
  *
  * Solution: Check whether the input parameter is null.
  */
-#define LOS_ERRNO_EVENT_PTR_NULL           LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x06)
+#define LOS_ERRNO_EVENT_PTR_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x06)
 
 /**
  * @ingroup los_event
@@ -148,7 +150,7 @@ extern "C" {
  *
  * Solution: Read the event in a vailid task.
  */
-#define LOS_ERRNO_EVENT_READ_IN_SYSTEM_TASK                 LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x07)
+#define LOS_ERRNO_EVENT_READ_IN_SYSTEM_TASK LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x07)
 
 /**
  * @ingroup los_event
@@ -158,7 +160,7 @@ extern "C" {
  *
  * Solution: Check whether the event list is not empty.
  */
-#define LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x08)
+#define LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x08)
 
 /**
  * @ingroup los_event
@@ -202,15 +204,15 @@ extern UINT32 LOS_EventInit(PEVENT_CB_S eventCB);
  * valid memory.
  * @attention
  * <ul>
- * <li>When the mode is LOS_WAITMODE_CLR, the eventID is passed-out.</li>
- * <li>Otherwise the eventID is passed-in.</li>
+ * <li>When the mode is LOS_WAITMODE_CLR, the eventId is passed-out.</li>
+ * <li>Otherwise the eventId is passed-in.</li>
  * <li>An error code and an event return value can be same. To differentiate the error code and return value, bit 25 of
  * the event mask is forbidden to be used.</li>
  * </ul>
  *
- * @param eventID      [IN/OUT] Pointer to the ID of the event to be checked.
+ * @param eventId      [IN/OUT] Pointer to the ID of the event to be checked.
  * @param eventMask    [IN] Mask of the event expected to occur by the user, indicating the event obtained after
- *                          it is logically processed that matches the ID pointed to by eventID.
+ *                          it is logically processed that matches the ID pointed to by eventId.
  * @param mode         [IN] Event reading mode. The modes include LOS_WAITMODE_AND, LOS_WAITMODE_OR, LOS_WAITMODE_CLR.
  *
  * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID     Bit 25 of the event mask cannot be set because it is set to an
@@ -225,7 +227,7 @@ extern UINT32 LOS_EventInit(PEVENT_CB_S eventCB);
  * @see LOS_EventRead | LOS_EventWrite
  * @since Huawei LiteOS V100R001C00
  */
-extern UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 mode);
+extern UINT32 LOS_EventPoll(UINT32 *eventId, UINT32 eventMask, UINT32 mode);
 
 /**
  * @ingroup los_event
@@ -237,14 +239,16 @@ extern UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 mode);
  * </ul>
  * @attention
  * <ul>
+ * <li>Do not read event during an interrupt.</li>
  * <li>An error code and an event return value can be same. To differentiate the error code and return value, bit 25 of
  * the event mask is forbidden to be used.</li>
+ * <li>Do not recommend to use this API in software timer callback. </li>
  * </ul>
  *
  * @param eventCB      [IN/OUT] Pointer to the event control block to be checked. This parameter must point
  *                              to valid memory.
  * @param eventMask    [IN] Mask of the event expected to occur by the user, indicating the event obtained after
- *                          it is logically processed that matches the ID pointed to by eventID.
+ *                          it is logically processed that matches the ID pointed to by eventId.
  * @param mode         [IN] Event reading mode.
  * @param timeout      [IN] Timeout interval of event reading (unit: Tick).
  *

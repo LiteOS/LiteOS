@@ -45,20 +45,20 @@
 #else
 //#include "agenttiny_lwm2m/agent_tiny_demo.h"
 #endif
-
-
+#ifdef WITH_SENSORHUB
+#include "sensorhub_demo.h"
+#endif
 
 static UINT32 g_atiny_tskHandle;
 static UINT32 g_fs_tskHandle;
 
-
-
-
-
 void atiny_task_entry(void)
 {
+#ifdef WITH_MQTT
     extern void agent_tiny_entry(void);
-#if defined(WITH_LINUX) || defined(WITH_LWIP)
+#endif
+
+#if defined(WITH_LINUX) || defined(LOSCFG_COMPONENTS_NET_LWIP)
     hieth_hw_init();
     net_init();
 #elif defined(WITH_AT_FRAMEWORK)
@@ -109,14 +109,15 @@ void atiny_task_entry(void)
 #ifdef CONFIG_FEATURE_FOTA
     hal_init_ota();
 #endif
+#ifdef WITH_MQTT
     agent_tiny_entry();
+#endif
 #endif
 }
 
-
 UINT32 creat_agenttiny_task(VOID)
 {
-    UINT32 uwRet = LOS_OK;
+    UINT32 ret = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
     task_init_param.usTaskPrio = 2;
@@ -129,43 +130,39 @@ UINT32 creat_agenttiny_task(VOID)
     task_init_param.uwStackSize = 0x1000;
 #endif
 
-    uwRet = LOS_TaskCreate(&g_atiny_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
+    ret = LOS_TaskCreate(&g_atiny_tskHandle, &task_init_param);
+    if(LOS_OK != ret) {
+        return ret;
     }
-    return uwRet;
+
+    return ret;
 }
 
 
 UINT32 creat_fs_task(void)
 {
-    UINT32 uwRet = LOS_OK;
+    UINT32 ret = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
     task_init_param.usTaskPrio = 2;
     task_init_param.pcName = "main_task";
     extern void fs_demo(void);
     task_init_param.pfnTaskEntry = (TSK_ENTRY_FUNC)fs_demo;
-
-
     task_init_param.uwStackSize = 0x1000;
 
-    uwRet = LOS_TaskCreate(&g_fs_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
+    ret = LOS_TaskCreate(&g_fs_tskHandle, &task_init_param);
+    if (LOS_OK != ret) {
+        return ret;
     }
-    return uwRet;
+
+    return ret;
 }
-
-
 
 #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
 static UINT32 g_dtls_server_tskHandle;
 uint32_t create_dtls_server_task()
 {
-    uint32_t uwRet = LOS_OK;
+    uint32_t ret = LOS_OK;
     TSK_INIT_PARAM_S task_init_param;
 
     task_init_param.usTaskPrio = 3;
@@ -175,31 +172,29 @@ uint32_t create_dtls_server_task()
 
     task_init_param.uwStackSize = 0x1000;
 
-    uwRet = LOS_TaskCreate(&g_dtls_server_tskHandle, &task_init_param);
-    if(LOS_OK != uwRet)
-    {
-        return uwRet;
+    ret = LOS_TaskCreate(&g_dtls_server_tskHandle, &task_init_param);
+    if (LOS_OK != ret) {
+        return ret;
     }
-    return uwRet;
+
+    return ret;
 }
 #endif
 
-
 UINT32 app_init(VOID)
 {
-    UINT32 uwRet = LOS_OK;
+    UINT32 ret = LOS_OK;
 
-    uwRet = creat_agenttiny_task();
-    if (uwRet != LOS_OK)
+    ret = creat_agenttiny_task();
+    if (ret != LOS_OK)
     {
-    	return LOS_NOK;
+        return LOS_NOK;
     }
 
 #if defined(FS_SPIFFS) || defined(FS_FATFS)
-    uwRet = creat_fs_task();
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
+    ret = creat_fs_task();
+    if (ret != LOS_OK) {
+        return LOS_NOK;
     }
 #endif
 
@@ -211,18 +206,16 @@ UINT32 app_init(VOID)
     task_create("main_ppp", main_ppp, 0x1500, NULL, NULL, 2);
 #endif
 
-
 #if defined(WITH_DTLS) && defined(SUPPORT_DTLS_SRV)
-    uwRet = create_dtls_server_task()
-    if (uwRet != LOS_OK)
-    {
-    	return LOS_NOK;
+    ret = create_dtls_server_task();
+    if (ret != LOS_OK) {
+        return LOS_NOK;
     }
 #endif
 
-    return uwRet;
+#if defined(WITH_SENSORHUB)
+    MiscInit();
+#endif
 
+    return ret;
 }
-
-
-

@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
  * Description: LiteOS memory Module Implementation
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -56,7 +58,8 @@ extern "C" {
     ((VOID *)((UINT8 *)(addr) + OS_MEMBOX_NODE_HEAD_SIZE))
 #define OS_MEMBOX_NODE_ADDR(addr) \
     ((LOS_MEMBOX_NODE *)(VOID *)((UINT8 *)(addr) - OS_MEMBOX_NODE_HEAD_SIZE))
-/* spinlock for mem module */
+
+/* spinlock for mem module, only available on SMP mode */
 LITE_OS_SEC_BSS  SPIN_LOCK_INIT(g_memboxSpin);
 #define MEMBOX_LOCK(state)       LOS_SpinLockSave(&g_memboxSpin, &(state))
 #define MEMBOX_UNLOCK(state)     LOS_SpinUnlockRestore(&g_memboxSpin, (state))
@@ -69,7 +72,7 @@ STATIC INLINE UINT32 OsCheckBoxMem(const LOS_MEMBOX_INFO *boxInfo, const VOID *n
         return LOS_NOK;
     }
 
-    offset = (UINTPTR)node - (UINTPTR)(boxInfo + 1);
+    offset = (UINT32)((UINTPTR)node - (UINTPTR)(boxInfo + 1));
     if ((offset % boxInfo->uwBlkSize) != 0) {
         return LOS_NOK;
     }
@@ -104,7 +107,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemboxInit(VOID *pool, UINT32 poolSize, UINT32 
     boxInfo->uwBlkSize = LOS_MEMBOX_ALLIGNED(blkSize + OS_MEMBOX_NODE_HEAD_SIZE);
     boxInfo->uwBlkNum = (poolSize - sizeof(LOS_MEMBOX_INFO)) / boxInfo->uwBlkSize;
     boxInfo->uwBlkCnt = 0;
-    if (boxInfo->uwBlkNum == 0) {
+    if ((boxInfo->uwBlkNum == 0) || (boxInfo->uwBlkSize < blkSize)) {
         MEMBOX_UNLOCK(intSave);
         return LOS_NOK;
     }

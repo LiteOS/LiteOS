@@ -47,7 +47,7 @@ void LOS_Schedule (void)
     flags = LOS_IntLock ();
 
     g_stLosTask.pstNewTask = LOS_DL_LIST_ENTRY (osPriqueueTop (),
-                                                LOS_TASK_CB, stPendList);/*lint !e413*/
+                                                LOS_TASK_CB, stPendList);
 
     need_schedule = (g_stLosTask.pstRunTask != g_stLosTask.pstNewTask) &&
                     (!g_usLosTaskLock) && (!OS_INT_ACTIVE);

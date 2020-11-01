@@ -32,8 +32,9 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifndef __DWT_H_
-#define __DWT_H_
+#ifndef _DWT_H
+#define _DWT_H
+
 #include "stm32f4xx.h"
 #include "los_hwi.h"
 #define  DWT_CR      *(volatile uint32_t *)0xE0001000
@@ -51,4 +52,5 @@
 void dwt_delay_init(uint32_t clk);
 void delayus(uint32_t usec);
 void delay10ms(__IO uint32_t nTime);
-#endif
+
+#endif /* _DWT_H */

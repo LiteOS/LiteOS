@@ -1,0 +1,35 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
+
+#
+# ARM 64-bit(Aarch64) implementations
+#
+config LOSCFG_ARCH_ARM_AARCH64
+    bool
+    help
+      64-bit ARM architecture implementations.
+      AArch64 was introduced in ARMv8-A and is included in subsequent versions of ARMV8-A.
+
+#
+# Architecture Versions
+#
+config LOSCFG_ARCH_ARM_V8A
+    bool
+    select LOSCFG_ARCH_ARM_AARCH64
+    help
+      ARMv8-A supported Aarch32 and Aarch64. If this option is chosen, the target platform needs
+      to specified whether the core runs in Aarch32 or Aarch64 mode.
+
+config LOSCFG_ARCH_ARM_VER
+    string
+    default "armv8-a" if LOSCFG_ARCH_ARM_V8A
+
+#
+# Supported Processor Cores
+#
+config LOSCFG_ARCH_CORTEX_A53
+    bool
+    select LOSCFG_ARCH_ARM_V8A
+
+config LOSCFG_ARCH_CPU
+    string
+    default "cortex-a53" if LOSCFG_ARCH_CORTEX_A53

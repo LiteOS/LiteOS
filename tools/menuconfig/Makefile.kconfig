@@ -1,0 +1,30 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+
+.PHONY += menuconfig savemenuconfig
+.PHONY += defconfig allyesconfig allnoconfig
+
+MCONF = tools/menuconfig/extra/config/mconf
+KCONFIG = tools/menuconfig/extra/Configs/Config.in
+
+$(MCONF):
+	@$(MAKE) -C tools/menuconfig/extra/config ncurses mconf
+
+menuconfig:
+	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py
+	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)
+
+savemenuconfig:
+	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py savemenuconfig
+	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)
+
+defconfig:
+	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py defconfig
+	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)
+
+allyesconfig:
+	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py allyesconfig
+	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)
+
+allnoconfig:
+	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py allnoconfig
+	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)

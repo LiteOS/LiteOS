@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: Scheduler
+ * Author: Huawei LiteOS Team
+ * Create: 2018-08-29
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -35,6 +37,8 @@
 #include "los_base.h"
 #include "los_task_pri.h"
 #include "los_priqueue_pri.h"
+#include "los_percpu_pri.h"
+#include "los_task_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -68,19 +72,29 @@ VOID OsSchedResched(VOID)
     runTask->taskStatus &= ~OS_TASK_STATUS_RUNNING;
     newTask->taskStatus |= OS_TASK_STATUS_RUNNING;
 
+#ifdef LOSCFG_KERNEL_SMP
+    /* mask new running task's owner processor */
+    runTask->currCpu = OS_TASK_INVALID_CPUID;
+    newTask->currCpu = ArchCurrCpuid();
+#endif
+
     (VOID)OsTaskSwitchCheck(runTask, newTask);
+
+#ifdef LOSCFG_KERNEL_SCHED_STATISTICS
+    OsSchedStatistics(runTask, newTask);
+#endif
 
     PRINT_TRACE("cpu%d (%s) status: %x -> (%s) status:%x\n", ArchCurrCpuid(),
                 runTask->taskName, runTask->taskStatus,
                 newTask->taskName, newTask->taskStatus);
 
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
     if (newTask->timeSlice == 0) {
         newTask->timeSlice = LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT;
     }
 #endif
 
-    OsCurrTaskSet(newTask);
+    OsCurrTaskSet((VOID*)newTask);
 
     /* do the task context switch */
     OsTaskSchedule(newTask, runTask);
@@ -101,13 +115,13 @@ VOID OsSchedPreempt(VOID)
     runTask = OsCurrTaskGet();
     runTask->taskStatus |= OS_TASK_STATUS_READY;
 
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
     if (runTask->timeSlice == 0) {
         OsPriQueueEnqueue(&runTask->pendList, runTask->priority);
     } else {
 #endif
         OsPriQueueEnqueueHead(&runTask->pendList, runTask->priority);
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
     }
 #endif
 
@@ -116,6 +130,19 @@ VOID OsSchedPreempt(VOID)
 
     SCHEDULER_UNLOCK(intSave);
 }
+
+#ifdef LOSCFG_BASE_CORE_TIMESLICE
+LITE_OS_SEC_TEXT VOID OsTimesliceCheck(VOID)
+{
+    LosTaskCB *runTask = OsCurrTaskGet();
+    if (runTask->timeSlice != 0) {
+        runTask->timeSlice--;
+        if (runTask->timeSlice == 0) {
+            LOS_Schedule();
+        }
+    }
+}
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -50,7 +50,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <errno.h>
-#elif defined(WITH_LWIP)
+#elif defined(LOSCFG_COMPONENTS_NET_LWIP)
 //#include "lwip/sockets.h"
 #include "lwip/netdb.h"
 #include "lwip/errno.h"

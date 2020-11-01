@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: Percpu Private HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2018-08-29
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -36,8 +38,9 @@
 #define _LOS_PERCPU_PRI_H
 
 #include "los_base.h"
-#include "los_hw_cpu.h"
 #include "los_sortlink_pri.h"
+
+#include "arch/cpu.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -45,16 +48,29 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#if (LOSCFG_KERNEL_SMP == YES)
+typedef enum {
+    CPU_RUNNING = 0,   /* cpu is running */
+    CPU_HALT,          /* cpu in the halt */
+    CPU_EXC            /* cpu in the exc */
+} ExcFlag;
+#endif
+
 typedef struct {
     SortLinkAttribute taskSortLink;             /* task sort link */
+#ifdef LOSCFG_BASE_CORE_SWTMR
     SortLinkAttribute swtmrSortLink;            /* swtmr sort link */
+#endif
 
-    UINT32 idleTaskID;                          /* idle task id */
+    UINT32 idleTaskId;                          /* idle task id */
     UINT32 taskLockCnt;                         /* task lock flag */
     UINT32 swtmrHandlerQueue;                   /* software timer timeout queue id */
-    UINT32 swtmrTaskID;                         /* software timer task id */
+    UINT32 swtmrTaskId;                         /* software timer task id */
 
     UINT32 schedFlag;                           /* pending scheduler flag */
+#if (LOSCFG_KERNEL_SMP == YES)
+    UINT32 excFlag;                             /* cpu halt or exc flag */
+#endif
 } Percpu;
 
 /* the kernel per-cpu structure */

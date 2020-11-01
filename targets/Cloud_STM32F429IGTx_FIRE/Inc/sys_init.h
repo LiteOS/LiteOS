@@ -33,8 +33,8 @@
  *---------------------------------------------------------------------------*/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SYS_H_
-#define __SYS_H_
+#ifndef _SYS_H
+#define _SYS_H
 
 /* Includes ------------------------------------------------------------------*/
 
@@ -53,7 +53,7 @@
 #include "hal_rng.h"
 #include "usart.h"
 #include "dwt.h"
-#ifdef WITH_LWIP
+#ifdef LOSCFG_COMPONENTS_NET_LWIP
 
 #include "lwip/netif.h"
 #if defined ( __CC_ARM )  /* MDK ARM Compiler */
@@ -79,10 +79,14 @@
 
 #include "eth.h"
 #endif
+
 #ifdef __cplusplus
- extern "C" {
-#endif
-#ifdef WITH_LWIP
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#ifdef LOSCFG_COMPONENTS_NET_LWIP
 void net_init(void);
 #endif
 uint32_t HAL_GetTick(void);
@@ -91,9 +95,11 @@ void _Error_Handler(char *, int);
 void hieth_hw_init(void);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* __SYS_H_ */
-
+#endif /* _SYS_H */

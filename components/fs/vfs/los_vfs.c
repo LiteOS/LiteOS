@@ -1040,8 +1040,7 @@ int los_fs_mount (const char *fsname, const char *path, void *data)
     struct mount_point *mp;
     const char          *tmp = NULL;
 
-    if (fsname == NULL || path == NULL ||
-            path [0] == '\0' || path [0] != '/')
+    if (fsname == NULL || path == NULL || path [0] != '/')
     {
         return LOS_NOK;
     }
