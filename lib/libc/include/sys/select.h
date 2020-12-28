@@ -20,7 +20,6 @@ extern "C" {
 
 #include <bits/alltypes.h>
 
-#include "los_config.h"
 #if defined(__LITEOS__) && defined(LOSCFG_FS_VFS)
 #include "vfs_config.h"
 #else

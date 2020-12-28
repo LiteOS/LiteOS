@@ -1,0 +1,6 @@
+config LOSCFG_COMPONENTS_CONNECTIVITY_LWM2M
+    bool "Enable Lwm2m"
+    depends on LOSCFG_COMPONENTS_CONNECTIVITY
+    default n
+    help
+        Answer y to enable lwm2m.

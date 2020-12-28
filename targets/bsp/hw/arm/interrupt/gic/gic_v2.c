@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2012-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: General interrupt controller version 2.0 (GICv2).
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -27,14 +27,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "gic_common.h"
 #include "los_hwi_pri.h"
@@ -45,7 +37,7 @@ STATIC_ASSERT(OS_USER_HWI_MAX <= 1020, "hwi max is too large!");
 #ifdef LOSCFG_PLATFORM_BSP_GIC_V2
 
 STATIC UINT32 g_curIrqNum = 0;
-STATIC HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = { 0 };
+STATIC HwiHandleInfo g_hwiForm[OS_HWI_MAX_NUM] = { 0 };
 
 #ifdef LOSCFG_KERNEL_SMP
 /*
@@ -113,7 +105,6 @@ VOID HalIrqClear(UINT32 vector)
     GIC_REG_32(GICC_EOIR) = vector;
 }
 
-
 VOID HalIrqHandler(VOID)
 {
     UINT32 iar = GIC_REG_32(GICC_IAR);
@@ -153,7 +144,7 @@ STATIC UINT32 HwiNumToIndex(HWI_HANDLE_T hwiNum)
     return hwiNum;
 }
 
-HWI_HANDLE_FORM_S *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
+HwiHandleInfo *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
 {
     UINT32 index;
 
@@ -181,18 +172,18 @@ UINT32 StubSetIrqPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
 }
 
 STATIC const HwiControllerOps g_gicv2Ops = {
-    .triggerIrq = HalIrqPending,
-    .clearIrq = HalIrqClear,
-    .enableIrq = HalIrqUnmask,
-    .disableIrq = HalIrqMask,
-    .setIrqPriority = StubSetIrqPriority,
-    .getCurIrqNum = HalCurIrqGet,
-    .getIrqVersion = HalIrqVersion,
-    .getHandleForm = HalIrqGetHandleForm,
-    .handleIrq = HalIrqHandler,
+    .triggerIrq         = HalIrqPending,
+    .clearIrq           = HalIrqClear,
+    .enableIrq          = HalIrqUnmask,
+    .disableIrq         = HalIrqMask,
+    .setIrqPriority     = StubSetIrqPriority,
+    .getCurIrqNum       = HalCurIrqGet,
+    .getIrqVersion      = HalIrqVersion,
+    .getHandleForm      = HalIrqGetHandleForm,
+    .handleIrq          = HalIrqHandler,
 #ifdef LOSCFG_KERNEL_SMP
-    .sendIpi = HalIrqSendIpi,
-    .setIrqCpuAffinity = HalIrqSetAffinity,
+    .sendIpi            = HalIrqSendIpi,
+    .setIrqCpuAffinity  = HalIrqSetAffinity,
 #endif
 };
 
@@ -232,6 +223,9 @@ VOID HalIrqInit(VOID)
     (VOID) LOS_HwiCreate(LOS_MP_IPI_WAKEUP, 0xa0, 0, OsMpWakeHandler, 0);
     (VOID) LOS_HwiCreate(LOS_MP_IPI_SCHEDULE, 0xa0, 0, OsMpScheduleHandler, 0);
     (VOID) LOS_HwiCreate(LOS_MP_IPI_HALT, 0xa0, 0, OsMpHaltHandler, 0);
+#ifdef LOSCFG_KERNEL_SMP_CALL
+    (VOID) LOS_HwiCreate(LOS_MP_IPI_FUNC_CALL, 0xa0, 0, OsMpFuncCallHandler, 0);
+#endif
 #endif
 }
 

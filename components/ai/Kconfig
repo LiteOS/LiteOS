@@ -1,0 +1,9 @@
+menu "Ai"
+
+config LOSCFG_COMPONENTS_AI
+    bool "Enable Ai"
+    default n
+    help
+      Answer y to enable LiteOS support ai.
+
+endmenu

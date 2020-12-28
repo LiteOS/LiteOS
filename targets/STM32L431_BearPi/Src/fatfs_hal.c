@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Fat Fs Hal
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,21 +24,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-/* Includes -----------------------------------------------------------------*/
+/* Includes ----------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-#if defined (__GNUC__) || defined (__CC_ARM)
+#if defined(__GNUC__) || defined(__CC_ARM)
 #include "fs/sys/fcntl.h"
 #include <los_printf.h>
 #endif
@@ -45,18 +39,18 @@
 #include "fs/los_fatfs.h"
 
 #include <hal_spi_flash.h>
-/* Defines ------------------------------------------------------------------*/
+/* Defines ------------------------------------------------------------------ */
 #define SPI_FLASH_ID            0xEF4018
 
 #define SPI_FLASH_SECTOR_SIZE   (4 * 1024)
 #define SPI_FLASH_PAGE_SIZE     256
-/* Typedefs -----------------------------------------------------------------*/
-/* Macros -------------------------------------------------------------------*/
-/* Local variables ----------------------------------------------------------*/
-/* Extern variables ---------------------------------------------------------*/
-/* Global variables ---------------------------------------------------------*/
-/* Private function prototypes ----------------------------------------------*/
-/* Public functions ---------------------------------------------------------*/
+/* Typedefs ----------------------------------------------------------------- */
+/* Macros ------------------------------------------------------------------- */
+/* Local variables ---------------------------------------------------------- */
+/* Extern variables --------------------------------------------------------- */
+/* Global variables --------------------------------------------------------- */
+/* Private function prototypes ---------------------------------------------- */
+/* Public functions --------------------------------------------------------- */
 static DSTATUS stm32f4xx_fatfs_status(BYTE lun)
 {
     DSTATUS status = STA_NOINIT;
@@ -80,8 +74,7 @@ static DSTATUS stm32f4xx_fatfs_initialize(BYTE lun)
 static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
     int ret;
-    ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE,
-            FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
+    ret = hal_spi_flash_read(buff, count * SPI_FLASH_SECTOR_SIZE, FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
     if (ret != 0) {
         return RES_ERROR;
     }
@@ -91,8 +84,7 @@ static DRESULT stm32f4xx_fatfs_read(BYTE lun, BYTE *buff, DWORD sector, UINT cou
 static DRESULT stm32f4xx_fatfs_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
     int ret;
-    ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE,
-            FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
+    ret = hal_spi_flash_erase_write(buff, count * SPI_FLASH_SECTOR_SIZE, FF_PHYS_ADDR + sector * SPI_FLASH_SECTOR_SIZE);
     if (ret != 0) {
         return RES_ERROR;
     }
@@ -120,8 +112,7 @@ static DRESULT stm32f4xx_fatfs_ioctl(BYTE lun, BYTE cmd, void *buff)
     return res;
 }
 
-static struct diskio_drv spi_drv =
-{
+static struct diskio_drv spi_drv = {
     stm32f4xx_fatfs_initialize,
     stm32f4xx_fatfs_status,
     stm32f4xx_fatfs_read,
@@ -141,15 +132,15 @@ int stm32f4xx_fatfs_init(int need_erase)
     (void)fatfs_init();
 
     if (fatfs_mount("/fatfs/", &spi_drv, (uint8_t *)&drive) < 0) {
-        PRINT_ERR ("failed to mount fatfs!\n");
+        PRINT_ERR("failed to mount fatfs!\n");
     }
 
     return drive;
 }
 
-DWORD get_fattime (void)
+DWORD get_fattime(void)
 {
     return 0;
 }
 
-/* Private functions --------------------------------------------------------*/
+/* Private functions -------------------------------------------------------- */

@@ -12,7 +12,13 @@ hidden FILE __stdout_FILE = {
 	.write = __stdout_write,
 	.seek = __stdio_seek,
 	.close = __stdio_close,
+#ifndef __LITEOS__
 	.lock = -1,
+#else
+	/* lock always check */
+	.lock = 0,
+	__INIT_LOCK_ATTR(._lock),
+#endif
 };
 FILE *const stdout = &__stdout_FILE;
 FILE *volatile __stdout_used = &__stdout_FILE;

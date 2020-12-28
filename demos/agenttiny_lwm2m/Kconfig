@@ -1,0 +1,9 @@
+menu "Agent Tiny Lwm2m Demo"
+
+config LOSCFG_DEMOS_AGENT_TINY_LWM2M
+    bool "Enable Agent Tiny Lwm2m Demo"
+    default n
+    help
+      Answer y to enable agent tiny lwm2m demo.
+
+endmenu

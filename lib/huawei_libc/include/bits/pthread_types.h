@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
- * Description: PTHREAD TYPE
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ * Description: Pthread Type
  * Author: Huawei LiteOS Team
  * Create: 2020-01-15
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _BITS_PTHREAD_TYPES_H_
 #define _BITS_PTHREAD_TYPES_H_
@@ -41,17 +33,17 @@
 #include "los_config.h"
 
 typedef struct __pthread_attr_s {
-  unsigned int detachstate;
-  unsigned int schedpolicy;
-  struct sched_param schedparam;
-  unsigned int inheritsched;
-  unsigned int scope;
-  unsigned int stackaddr_set;
-  void* stackaddr;
-  unsigned int stacksize_set;
-  size_t stacksize;
+    unsigned int detachstate;
+    unsigned int schedpolicy;
+    struct sched_param schedparam;
+    unsigned int inheritsched;
+    unsigned int scope;
+    unsigned int stackaddr_set;
+    void* stackaddr;
+    unsigned int stacksize_set;
+    size_t stacksize;
 #if (LOSCFG_KERNEL_SMP == YES)
-  cpu_set_t cpuset;
+    cpu_set_t cpuset;
 #endif
 } pthread_attr_t;
 

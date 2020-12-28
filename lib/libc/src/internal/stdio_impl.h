@@ -33,6 +33,9 @@ struct _IO_FILE {
 	size_t (*read)(FILE *, unsigned char *, size_t);
 	size_t (*write)(FILE *, const unsigned char *, size_t);
 	off_t (*seek)(FILE *, off_t, int);
+#ifdef __LITEOS__
+	off64_t (*seek64)(FILE *, off64_t, int);
+#endif
 	unsigned char *buf;
 	size_t buf_size;
 	FILE *prev, *next;
@@ -69,17 +72,28 @@ extern hidden FILE *volatile __stdin_used;
 extern hidden FILE *volatile __stdout_used;
 extern hidden FILE *volatile __stderr_used;
 
+#ifdef __LITEOS__
+/* init pthread_mutex for __fdopen and stdin stdout stderr */
+#define __INIT_LOCK_ATTR(_lock) \
+	_lock.stAttr.protocol = PTHREAD_PRIO_INHERIT, \
+	_lock.stAttr.prioceiling = OS_TASK_PRIORITY_LOWEST, \
+	_lock.stAttr.type = PTHREAD_MUTEX_RECURSIVE_NP, \
+	_lock.stAttr.reserved = 0, \
+	_lock.stLock.muxList.pstPrev = (struct LOS_DL_LIST *)NULL, \
+	_lock.stLock.muxList.pstNext = (struct LOS_DL_LIST *)NULL, \
+	_lock.stLock.owner = (LosTaskCB *)NULL, \
+	_lock.stLock.muxCount = 0
+#endif
 hidden int __lockfile(FILE *);
 hidden void __unlockfile(FILE *);
-#ifdef __LITEOS__
-hidden void __initlockattr(pthread_mutex_t *lock);
-#endif
-
 hidden size_t __stdio_read(FILE *, unsigned char *, size_t);
 hidden size_t __stdio_write(FILE *, const unsigned char *, size_t);
 hidden size_t __stdout_write(FILE *, const unsigned char *, size_t);
 hidden off_t __stdio_seek(FILE *, off_t, int);
 hidden int __stdio_close(FILE *);
+#ifdef __LITEOS__
+hidden off64_t __stdio_seek64(FILE *, off64_t, int);
+#endif
 
 hidden size_t __string_read(FILE *, unsigned char *, size_t);
 

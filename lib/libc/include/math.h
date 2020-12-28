@@ -111,6 +111,13 @@ int __signbitl(long double);
 
 #define isunordered(x,y) (isnan((x)) ? ((void)(y),1) : isnan((y)))
 
+#ifdef __GNUC__
+#define isless(x, y)         __builtin_isless (x, y)
+#define islessequal(x, y)    __builtin_islessequal (x, y)
+#define islessgreater(x, y)  __builtin_islessgreater (x, y)
+#define isgreater(x, y)      __builtin_isgreater (x, y)
+#define isgreaterequal(x, y) __builtin_isgreaterequal (x, y)
+#else
 #define __ISREL_DEF(rel, op, type) \
 static __inline int __is##rel(type __x, type __y) \
 { return !isunordered(__x,__y) && __x op __y; }
@@ -141,6 +148,7 @@ __ISREL_DEF(greaterequall, >=, long double)
 #define islessgreater(x, y)     __tg_pred_2(x, y, __islessgreater)
 #define isgreater(x, y)         __tg_pred_2(x, y, __isgreater)
 #define isgreaterequal(x, y)    __tg_pred_2(x, y, __isgreaterequal)
+#endif
 
 /**
  * @ingroup  math

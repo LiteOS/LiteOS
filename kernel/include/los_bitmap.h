@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_bitmap Bitmap
@@ -69,7 +61,7 @@ extern "C" {
  * <li>When the value of pos is greater than 31, the bit (pos & 0x1f) of bitmap will be set.</li>
  * </ul>
  * @param bitmap   [IN] The bitmap variable pointer.
- * @param pos       [IN] The number bit to be set.
+ * @param pos      [IN] The number bit to be set.
  *
  * @retval None
  * @par Dependency:
@@ -90,9 +82,9 @@ VOID LOS_BitmapSet(UINT32 *bitmap, UINT16 pos);
  * <li>When the value of pos is greater than 31, the bit (pos & 0x1f) of bitmap will be clear.</li>
  * </ul>
  * @param bitmap   [IN] The bitmap variable pointer.
- * @param pos          [IN] The number bit to be cleared.
+ * @param pos      [IN] The number bit to be cleared.
  *
- * @retval none.
+ * @retval None.
  * @par Dependency:
  * <ul><li>los_bitmap.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_BitmapSet.
@@ -107,12 +99,10 @@ VOID LOS_BitmapClr(UINT32 *bitmap, UINT16 pos);
  * @par Description:
  * This API is used to find the lowest one bit that is set and return the bit index.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None.
  * @param bitmap   [IN] The bitmap variable.
  *
- * @retval UINT16 The bit index of the lowest one bit that is set.
+ * @retval #UINT16 The bit index of the lowest one bit that is set.
  * @par Dependency:
  * <ul><li>los_bitmap.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_HighBitGet
@@ -127,12 +117,10 @@ UINT16 LOS_LowBitGet(UINT32 bitmap);
  * @par Description:
  * This API is used to find the highest one bit that is set and return the bit index.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None.
  * @param bitmap   [IN] The bitmap variable.
  *
- * @retval UINT16 The bit index of the highest one bit that is set.
+ * @retval #UINT16 The bit index of the highest one bit that is set.
  * @par Dependency:
  * <ul><li>los_bitmap.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_LowBitGet

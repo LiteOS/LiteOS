@@ -1,20 +1,6 @@
 #include "stdio_impl.h"
 #include "pthread_impl.h"
 
-#ifdef __LITEOS__
-void __initlockattr(pthread_mutex_t *lock)
-{
-	lock->stAttr.protocol = PTHREAD_PRIO_INHERIT;
-	lock->stAttr.prioceiling = OS_TASK_PRIORITY_LOWEST;
-	lock->stAttr.type = PTHREAD_MUTEX_RECURSIVE_NP;
-	lock->stAttr.reserved = 0;
-	lock->stLock.muxList.pstPrev = (struct LOS_DL_LIST *)NULL;
-	lock->stLock.muxList.pstNext = (struct LOS_DL_LIST *)NULL;
-	lock->stLock.owner = (LosTaskCB *)NULL;
-	lock->stLock.muxCount = 0;
-}
-#endif
-
 int __lockfile(FILE *f)
 {
 #ifndef __LITEOS__

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch64 Dispatch Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,29 +25,21 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "arch/regs.h"
 #include "arch/exception.h"
 
 #define FUNCTION(x) .global x; .text; x:
 
-    .extern HalIrqClear
+.extern HalIrqClear
 
-    .global _osExceptIrqHdl
-    .global OsStartToRun
-    .global OsTaskSchedule
+.global _osExceptIrqHdl
+.global OsStartToRun
+.global OsTaskSchedule
 
-    .equ TASK_STATUS_RUNNING, 0x0010
+.equ TASK_STATUS_RUNNING, 0x0010
 
-    .arch armv8-a
+.arch armv8-a
 
 #define fp  x29
 #define lr  x30
@@ -58,9 +50,8 @@
  *  x9-x15  Scratch
  *  x19-x28 Globals
  */
-
 .macro PUSH reg1, reg2
-    stp     \reg1, \reg2, [sp,#-16]!
+    stp     \reg1, \reg2, [sp, #-16]!
 .endm
 
 .macro POP reg1, reg2
@@ -68,14 +59,12 @@
 .endm
 
 .macro FPU_PUSH ra, rb
-    stp     \ra, \rb, [sp,#-32]!
+    stp     \ra, \rb, [sp, #-32]!
 .endm
 
 .macro FPU_POP ra, rb
     ldp     \ra, \rb, [sp], #32
 .endm
-
-/***************  General Registers  ***************/
 
 .macro PUSH_REGS
     PUSH    x28, x29
@@ -88,19 +77,19 @@
     PUSH    x14, x15
     PUSH    x12, x13
     PUSH    x10, x11
-    PUSH    x8, x9
-    PUSH    x6, x7
-    PUSH    x4, x5
-    PUSH    x2, x3
-    PUSH    x0, x1
+    PUSH    x8,  x9
+    PUSH    x6,  x7
+    PUSH    x4,  x5
+    PUSH    x2,  x3
+    PUSH    x0,  x1
 .endm
 
 .macro POP_REGS
-    POP     x0, x1
-    POP     x2, x3
-    POP     x4, x5
-    POP     x6, x7
-    POP     x8, x9
+    POP     x0,  x1
+    POP     x2,  x3
+    POP     x4,  x5
+    POP     x6,  x7
+    POP     x8,  x9
     POP     x10, x11
     POP     x12, x13
     POP     x14, x15
@@ -134,52 +123,51 @@
 .endm
 
 .macro IRQ_PUSH_REGS
-    sub     sp, sp, #32
+    sub     sp,  sp, #32
     PUSH    x18, x19
     PUSH    x16, x17
     PUSH    x14, x15
     PUSH    x12, x13
     PUSH    x10, x11
-    PUSH    x8, x9
-    PUSH    x6, x7
-    PUSH    x4, x5
-    PUSH    x2, x3
-    PUSH    x0, x1
-    mrs     x3, SPSR_ELx
-    and     x0, x3, #0xf0000000 /* CPSR.NZCV */
-    and     x1, x3, #0x3c0      /* CPSR.DAIF */
-    mrs     x2, ELR_ELx
-    stp     x0, x1, [sp, #(10 * 16)]
-    stp     lr, x2, [sp, #(10 * 16 + 16)]
+    PUSH    x8,  x9
+    PUSH    x6,  x7
+    PUSH    x4,  x5
+    PUSH    x2,  x3
+    PUSH    x0,  x1
+    mrs     x3,  SPSR_ELx
+    and     x0,  x3, #0xf0000000 /* CPSR.NZCV */
+    and     x1,  x3, #0x3c0      /* CPSR.DAIF */
+    mrs     x2,  ELR_ELx
+    stp     x0,  x1, [sp, #(10 * 16)]
+    stp     lr,  x2, [sp, #(10 * 16 + 16)]
 .endm
 
 .macro IRQ_POP_REGS
-    ldp     lr, x2, [sp, #(10 * 16 + 16)]
-    ldp     x0, x1, [sp, #(10 * 16)]
+    ldp     lr,  x2, [sp, #(10 * 16 + 16)]
+    ldp     x0,  x1, [sp, #(10 * 16)]
     msr     ELR_ELx, x2
-    orr     x0, x0, x1
-    orr     x0, x0, #1
-    orr     x0, x0, #RUNLVL
+    orr     x0,  x0, x1
+    orr     x0,  x0, #1
+    orr     x0,  x0, #RUNLVL
     msr     SPSR_ELx, x0
-    POP     x0, x1
-    POP     x2, x3
-    POP     x4, x5
-    POP     x6, x7
-    POP     x8, x9
+    POP     x0,  x1
+    POP     x2,  x3
+    POP     x4,  x5
+    POP     x6,  x7
+    POP     x8,  x9
     POP     x10, x11
     POP     x12, x13
     POP     x14, x15
     POP     x16, x17
     POP     x18, x19
-    add     sp, sp, #32
+    add     sp,  sp, #32
 .endm
 
 /* FPU/SIMD Registers */
-
 .macro FPU_PUSH_REGS
-    mrs     x1, fpcr
-    mrs     x2, fpsr
-    stp     x1, x2, [sp, #-16]!
+    mrs         x2,  fpcr
+    mrs         x3,  fpsr
+    stp         x2,  x3, [sp, #-16]!
     FPU_PUSH    q30, q31
     FPU_PUSH    q28, q29
     FPU_PUSH    q26, q27
@@ -191,19 +179,19 @@
     FPU_PUSH    q14, q15
     FPU_PUSH    q12, q13
     FPU_PUSH    q10, q11
-    FPU_PUSH    q8, q9
-    FPU_PUSH    q6, q7
-    FPU_PUSH    q4, q5
-    FPU_PUSH    q2, q3
-    FPU_PUSH    q0, q1
+    FPU_PUSH    q8,  q9
+    FPU_PUSH    q6,  q7
+    FPU_PUSH    q4,  q5
+    FPU_PUSH    q2,  q3
+    FPU_PUSH    q0,  q1
 .endm
 
 .macro FPU_POP_REGS
-    FPU_POP     q0, q1
-    FPU_POP     q2, q3
-    FPU_POP     q4, q5
-    FPU_POP     q6, q7
-    FPU_POP     q8, q9
+    FPU_POP     q0,  q1
+    FPU_POP     q2,  q3
+    FPU_POP     q4,  q5
+    FPU_POP     q6,  q7
+    FPU_POP     q8,  q9
     FPU_POP     q10, q11
     FPU_POP     q12, q13
     FPU_POP     q14, q15
@@ -215,9 +203,9 @@
     FPU_POP     q26, q27
     FPU_POP     q28, q29
     FPU_POP     q30, q31
-    ldp     x1, x2, [sp], #16
-    msr     fpsr, x2
-    msr     fpcr, x1
+    ldp         x2,  x3, [sp], #16
+    msr         fpsr, x3
+    msr         fpcr, x2
 .endm
 
 /*
@@ -225,7 +213,6 @@
  */
 OsStartToRun:
     msr     daifset, #3
-
 
     ldr     x2, [x0, #8]
     mov     x3, #TASK_STATUS_RUNNING
@@ -273,10 +260,19 @@ osThrdContextLoad:
     /* x0 is parameter, use scratch x1 */
     ret     x1
 
-
 /* Description: Interrupt request exception handler */
 _osExceptIrqHdl:
     msr     daifset, #3
+
+#ifdef LOSCFG_KERNEL_PERF
+    PUSH_REGS
+    PUSH    lr, fp
+    mrs     x0, ELR_EL1
+    MOV     x1, fp
+    BL      OsPerfSetIrqRegs
+    POP     lr, fp
+    POP_REGS
+#endif
 
     /* save irq stack */
     IRQ_PUSH_REGS
@@ -292,6 +288,7 @@ _osExceptIrqHdl:
 #else
     mov     x0, #0
 #endif
+
     /* check nesting count, if 0, switch sp to irq stack */
     ldr     x3, =g_intCount
     ldr     x4, [x3, x0, lsl #3]

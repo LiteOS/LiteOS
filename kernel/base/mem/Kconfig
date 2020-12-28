@@ -46,7 +46,7 @@ config LOSCFG_KERNEL_MEMBOX_STATIC
       This option will change membox implemented with input memory
 
 config LOSCFG_KERNEL_MEMBOX_DYNAMIC
-    bool "dynmic memory"
+    bool "dynamic memory"
     help
       This option will change membox implemented with dynamic allocated memory
 

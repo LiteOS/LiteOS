@@ -9,7 +9,7 @@ const struct __locale_map __c_dot_utf8 = {
 	.name = "C.UTF-8"
 };
 
-const struct __locale_struct __c_locale = { 0 };
+const struct __locale_struct __c_locale = { { 0 } };
 const struct __locale_struct __c_dot_utf8_locale = {
 	.cat[LC_CTYPE] = &__c_dot_utf8
 };

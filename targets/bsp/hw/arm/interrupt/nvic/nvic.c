@@ -25,18 +25,14 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 
 #include "nvic.h"
 #include "los_hwi_pri.h"
 #include "los_task_pri.h"
+
+#if (__CORTEX_M == 0x0U)  /* only for Cortex-M0*/
+#include "stm32f0xx_hal.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,25 +42,25 @@ extern "C" {
 
 STATIC UINT32 g_curIrqNum = 0;
 
-LITE_OS_SEC_BSS HWI_HANDLE_FORM_S g_hwiForm[OS_USER_HWI_MAX];
+LITE_OS_SEC_BSS HwiHandleInfo g_hwiForm[LOSCFG_PLATFORM_HWI_LIMIT];
 
-LITE_OS_SEC_DATA_VEC HWI_PROC_FUNC g_hwiVec[OS_USER_HWI_MAX] = {
-    (HWI_PROC_FUNC)0,             // [0] Top of Stack
-    (HWI_PROC_FUNC)Reset_Handler, // [1] reset
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [2] NMI Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [3] Hard Fault Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [4] MPU Fault Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [5] Bus Fault Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [6] Usage Fault Handler
-    (HWI_PROC_FUNC)0,             // [7] Reserved
-    (HWI_PROC_FUNC)0,             // [8] Reserved
-    (HWI_PROC_FUNC)0,             // [9] Reserved
-    (HWI_PROC_FUNC)0,             // [10] Reserved
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [11] SVCall Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [12] Debug Monitor Handler
-    (HWI_PROC_FUNC)0,             // [13] Reserved
-    (HWI_PROC_FUNC)osPendSV,      // [14] PendSV Handler
-    (HWI_PROC_FUNC)IrqEntryV7M,   // [15] SysTick Handler
+LITE_OS_SEC_DATA_VEC HWI_PROC_FUNC g_hwiVec[LOSCFG_PLATFORM_HWI_LIMIT] = {
+    (HWI_PROC_FUNC)0,             /* [0] Top of Stack */
+    (HWI_PROC_FUNC)Reset_Handler, /* [1] reset */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [2] NMI Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [3] Hard Fault Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [4] MPU Fault Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [5] Bus Fault Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [6] Usage Fault Handler */
+    (HWI_PROC_FUNC)0,             /* [7] Reserved */
+    (HWI_PROC_FUNC)0,             /* [8] Reserved */
+    (HWI_PROC_FUNC)0,             /* [9] Reserved */
+    (HWI_PROC_FUNC)0,             /* [10] Reserved */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [11] SVCall Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [12] Debug Monitor Handler */
+    (HWI_PROC_FUNC)0,             /* [13] Reserved */
+    (HWI_PROC_FUNC)osPendSV,      /* [14] PendSV Handler */
+    (HWI_PROC_FUNC)IrqEntryV7M,   /* [15] SysTick Handler */
 };
 
 
@@ -72,15 +68,15 @@ LITE_OS_SEC_TEXT_MINOR VOID IrqEntryV7M(VOID)
 {
     UINT32 hwiIndex;
 
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
+#ifdef LOSCFG_KERNEL_RUNSTOP
     SCB->SCR &= (UINT32)~((UINT32)SCB_SCR_SLEEPDEEP_Msk);
 #endif
 
     hwiIndex = __get_IPSR();
     g_curIrqNum = hwiIndex;
-
     OsIntHandle(hwiIndex, &g_hwiForm[hwiIndex]);
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
+
+#ifdef LOSCFG_KERNEL_RUNSTOP
     if (g_srStateFlag == SENSORHUB_SLEEP) {
         DisableWakeUpTimer();
         LOS_SystemWakeup(hwiIndex);
@@ -163,7 +159,7 @@ CHAR *HalIrqVersion(VOID)
     return "NVIC";
 }
 
-HWI_HANDLE_FORM_S *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
+HwiHandleInfo *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
 {
     if ((hwiNum > OS_USER_HWI_MAX) || (hwiNum < OS_USER_HWI_MIN)) {
         return NULL;
@@ -172,39 +168,32 @@ HWI_HANDLE_FORM_S *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
     return &g_hwiForm[hwiNum];
 }
 
-
-VOID HalIrqHandler(VOID)
-{
-}
-
-VOID Stub(UINT32 hwiNum)
-{
-    (VOID)hwiNum;
-}
-
 STATIC const HwiControllerOps g_nvicOps = {
-    .triggerIrq = HalIrqPending,
-    .clearIrq = Stub,
-    .enableIrq = HalIrqUnmask,
-    .disableIrq = HalIrqMask,
+    .triggerIrq     = HalIrqPending,
+    .enableIrq      = HalIrqUnmask,
+    .disableIrq     = HalIrqMask,
     .setIrqPriority = HalIrqSetPriority,
-    .getCurIrqNum = HalCurIrqGet,
-    .getIrqVersion = HalIrqVersion,
-    .getHandleForm = HalIrqGetHandleForm,
-    .handleIrq = HalIrqHandler,
-
+    .getCurIrqNum   = HalCurIrqGet,
+    .getIrqVersion  = HalIrqVersion,
+    .getHandleForm  = HalIrqGetHandleForm,
 };
 
 VOID HalIrqInit(VOID)
 {
     UINT32 i;
-    for (i = OS_SYS_VECTOR_CNT; i < OS_USER_HWI_MAX; i++) {
+
+    for (i = OS_SYS_VECTOR_CNT; i < LOSCFG_PLATFORM_HWI_LIMIT; i++) {
         g_hwiVec[i] = (HWI_PROC_FUNC)IrqEntryV7M;
     }
-
-    /* Interrupt vector table location */
+#if (__CORTEX_M == 0x0U)  /* only for Cortex-M0*/
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    /* Remap SRAM at 0x00000000 */
+    __HAL_SYSCFG_REMAPMEMORY_SRAM();
+#else
+/* Interrupt vector table location */
     SCB->VTOR = (UINT32)g_hwiVec;
-#if (__CORTEX_M >= 0x03U)  /* only for Cortex-M3 and above */
+#endif
+#if (__CORTEX_M >= 0x03U) /* only for Cortex-M3 and above */
     NVIC_SetPriorityGrouping(OS_NVIC_AIRCR_PRIGROUP);
 #endif
 

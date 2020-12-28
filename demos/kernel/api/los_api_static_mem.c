@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Static Memory Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include "los_membox.h"
@@ -43,56 +37,49 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-static UINT32 pBoxMem[144];
+static UINT32 g_demoBoxMem[144];
 UINT32 Example_StaticMem(VOID)
 {
-    UINT32 *p_num = NULL;
-    UINT32 uwBlkSize = 3, uwBoxSize = 48;
-    UINT32 uwRet;
+    UINT32 *mem = NULL;
+    UINT32 blksize = 3;
+    UINT32 boxsize = 48;
+    UINT32 ret;
 
-    uwRet = LOS_MemboxInit(&pBoxMem[0], uwBoxSize, uwBlkSize);
-    if (uwRet != LOS_OK)
-    {
-        dprintf("Mem box init failed .\r\n");
+    printf("Kernel static memory demo begin.\n");
+    ret = LOS_MemboxInit(&g_demoBoxMem[0], boxsize, blksize);
+    if (ret != LOS_OK) {
+        printf("Mem box init failed.\n");
         return LOS_NOK;
-    }
-    else
-    {
-        dprintf("Mem box init ok! .\r\n");
+    } else {
+        printf("Mem box init ok.\n");
     }
 
     /* membox alloc */
-    p_num = (UINT32*)LOS_MemboxAlloc(pBoxMem);
-    if (NULL == p_num)
-    {
-        dprintf("Mem box alloc failed! .\r\n");
+    mem = (UINT32*)LOS_MemboxAlloc(g_demoBoxMem);
+    if (mem == NULL) {
+        printf("Mem box alloc failed.\n");
         return LOS_NOK;
     }
-    dprintf("Mem box alloc ok .\r\n");
+    printf("Mem box alloc ok.\n");
     /* assignment */
-    *p_num = 828;
-    dprintf("*p_num = %d .\r\n", *p_num);	
+    *mem = 828;
+    printf("*mem = %d.\n", *mem);
     /* clear mem context */
-    LOS_MemboxClr(pBoxMem, p_num);
-    dprintf("clear data ok \r\n *p_num = %d .\r\n", *p_num);
+    LOS_MemboxClr(g_demoBoxMem, mem);
+    printf("Clear data ok, *mem = %d.\n", *mem);
     /* membox free */
-    uwRet = LOS_MemboxFree(pBoxMem, p_num);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("Mem box free ok! .\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err .\r\n");
+    ret = LOS_MemboxFree(g_demoBoxMem, mem);
+    if (ret == LOS_OK) {
+        printf("Mem box free ok.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_SMEM, LOS_INSPECT_STU_SUCCESS);
+        if (ret != LOS_OK) {
+            printf("Set InspectStatus Err.\n");
         }
-    }
-    else
-    {
-        dprintf("Mem box free failed! .\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SMEM, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err .\r\n");
+    } else {
+        printf("Mem box free failed.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_SMEM, LOS_INSPECT_STU_ERROR);
+        if (ret != LOS_OK) {
+            printf("Set InspectStatus Err.\n");
         }
     }
 

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup kernel Kernel
@@ -64,6 +56,26 @@ extern "C" {
 
 #define SIZE(a) (a)
 
+/**
+ * @ingroup los_base
+ * @brief Assertion.
+ *
+ * @par Description:
+ * When the program runs to the assertion position, the corresponding expression should
+ * be true. If the expression is not true, the program stops running and gives an error
+ * message. The LOS_ASSERT_COND function is same with #LOS_ASSERT function.
+ *
+ * @attention
+ * The function is effective only LOSCFG_DEBUG_VERSION is defined.
+ *
+ * @param expression  [IN] The judgement expression of the assertion.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_ASSERT
+ * @since Huawei LiteOS V100R001C00
+ */
 #define LOS_ASSERT_COND(expression) LOS_ASSERT(expression)
 
 /**
@@ -80,8 +92,26 @@ extern "C" {
 
 /**
  * @ingroup los_base
- * Align the beginning of the object with the base address addr, with boundary bytes being the smallest unit of
- * alignment.
+ * @brief Align the value (addr) by some bytes (boundary).
+ *
+ * @par Description:
+ * Align the beginning of the object with the base address, with boundary bytes being
+ * the smallest unit of alignment. The ALIGN function is same with #LOS_Align function.
+ *
+ * @attention
+ * <ul>
+ * <li>the value of boundary usually is 4,8,16,32.</li>
+ * <li>users should avoid overflows due to alignment.</li>
+ * </ul>
+ *
+ * @param addr     [IN] Type #UINTPTR The address you want to align.
+ * @param boundary [IN] Type #UINT32 The alignment size.
+ *
+ * @retval #UINTPTR The address which have been aligned.
+ * @par Dependency:
+ * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_Align | TRUNCATE
+ * @since Huawei LiteOS V100R001C00
  */
 #ifndef ALIGN
 #define ALIGN(addr, boundary)                       LOS_Align(addr, boundary)
@@ -89,82 +119,115 @@ extern "C" {
 
 /**
  * @ingroup los_base
- * Align the tail of the object with the base address addr, with size bytes being the smallest unit of alignment.
+ * @brief Align the value (addr) by some bytes (size).
+ *
+ * @par Description:
+ * Align the tail of the object with the base address, with size bytes being the
+ * smallest unit of alignment.
+ *
+ * @attention
+ * <ul>
+ * <li>the value of size usually is 4,8,16,32.</li>
+ * <li>users should avoid overflows due to alignment.</li>
+ * </ul>
+ *
+ * @param addr     [IN] Type #UINTPTR The address you want to align.
+ * @param size     [IN] Type #UINT32  The alignment size.
+ *
+ * @retval #UINTPTR The address which have been aligned.
+ * @par Dependency:
+ * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_Align | ALIGN
+ * @since Huawei LiteOS V100R001C00
  */
 #define TRUNCATE(addr, size)                        ((UINTPTR)(addr) & ~((size) - 1))
 
 /**
- * @ingroup los_base
  * Read a UINT8 value from addr and stroed in value.
  */
 #define READ_UINT8(value, addr)                     ({ (value) = *((volatile UINT8 *)((UINTPTR)(addr))); dsb(); })
 
 /**
- * @ingroup los_base
  * Read a UINT16 value from addr and stroed in addr.
  */
 #define READ_UINT16(value, addr)                    ({ (value) = *((volatile UINT16 *)((UINTPTR)(addr))); dsb(); })
 
 /**
- * @ingroup los_base
  * Read a UINT32 value from addr and stroed in value.
  */
 #define READ_UINT32(value, addr)                    ({ (value) = *((volatile UINT32 *)((UINTPTR)(addr))); dsb(); })
 
+#ifdef __LP64__
 /**
- * @ingroup los_base
  * Read a UINT64 value from addr and stroed in value.
  */
 #define READ_UINT64(value, addr)                    ({ (value) = *((volatile UINT64 *)((UINTPTR)(addr))); dsb(); })
+#endif
 
 /**
- * @ingroup los_base
  * Write a UINT8 value to addr.
  */
 #define WRITE_UINT8(value, addr)                    ({ dsb(); *((volatile UINT8 *)((UINTPTR)(addr))) = (value); })
 
 /**
- * @ingroup los_base
  * Write a UINT16 value to addr.
  */
 #define WRITE_UINT16(value, addr)                   ({ dsb(); *((volatile UINT16 *)((UINTPTR)(addr))) = (value); })
 
 /**
- * @ingroup los_base
  * Write a UINT32 value to addr.
  */
 #define WRITE_UINT32(value, addr)                   ({ dsb(); *((volatile UINT32 *)((UINTPTR)(addr))) = (value); })
 
+#ifdef __LP64__
 /**
- * @ingroup los_base
  * Write a UINT64 addr to addr.
  */
 #define WRITE_UINT64(value, addr)                   ({ dsb(); *((volatile UINT64 *)((UINTPTR)(addr))) = (value); })
+#endif
 
 /**
- * @ingroup los_base
  * Get a UINT8 value from addr.
  */
 #define GET_UINT8(addr)                             ({ UINT8 r = *((volatile UINT8 *)((UINTPTR)(addr))); dsb(); r; })
 
 /**
- * @ingroup los_base
  * Get a UINT16 value from addr.
  */
 #define GET_UINT16(addr)                            ({ UINT16 r = *((volatile UINT16 *)((UINTPTR)(addr))); dsb(); r; })
 
 /**
- * @ingroup los_base
  * Get a UINT32 value from addr.
  */
 #define GET_UINT32(addr)                            ({ UINT32 r = *((volatile UINT32 *)((UINTPTR)(addr))); dsb(); r; })
 
+#ifdef __LP64__
 /**
- * @ingroup los_base
  * Get a UINT64 value from addr.
  */
 #define GET_UINT64(addr)                            ({ UINT64 r = *((volatile UINT64 *)((UINTPTR)(addr))); dsb(); r; })
+#endif
 
+/**
+ * @ingroup los_base
+ * @brief Assertion.
+ *
+ * @par Description:
+ * When the program runs to the assertion position, the corresponding expression should
+ * be true. If the expression is not true, the program stops running and gives an error
+ * message. The function is same with #LOS_ASSERT_COND function.
+ *
+ * @attention
+ * The function is effective only LOSCFG_DEBUG_VERSION is defined.
+ *
+ * @param judge [IN] The judgement expression of the assertion.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_ASSERT_COND
+ * @since Huawei LiteOS V100R001C00
+ */
 #ifdef LOSCFG_DEBUG_VERSION
 #define LOS_ASSERT(judge) do {                                                     \
     if ((UINT32)(judge) == 0) {                                                    \
@@ -181,10 +244,10 @@ extern "C" {
 
 /**
  * @ingroup los_base
- * @brief Align the value (addr) by some bytes (boundary) you specify.
+ * @brief Align the address (addr) by some bytes (boundary) you specify.
  *
  * @par Description:
- * This API is used to align the value (addr) by some bytes (boundary) you specify.
+ * This API is used to align the address (addr) by some bytes (boundary) you specify.
  *
  * @attention
  * <ul>
@@ -192,13 +255,13 @@ extern "C" {
  * <li>users should avoid overflows due to alignment.</li>
  * </ul>
  *
- * @param addr     [IN]  The variable what you want to align.
- * @param boundary [IN]  The align size what you want to align.
+ * @param addr     [IN] Type #UINTPTR The address you want to align.
+ * @param boundary [IN] Type #UINT32  The alignment size.
  *
- * @retval #UINTPTR The variable what have been aligned.
+ * @retval #UINTPTR The address which have been aligned.
  * @par Dependency:
  * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see ALIGN | TRUNCATE
  * @since Huawei LiteOS V100R001C00
  */
 extern UINTPTR LOS_Align(UINTPTR addr, UINT32 boundary);
@@ -209,7 +272,7 @@ extern UINTPTR LOS_Align(UINTPTR addr, UINT32 boundary);
  *
  * @par Description:
  * This API is used to delay the execution of the current task. The task is able to be scheduled after it is delayed
- * for a specified number of Ticks.
+ * for a specified milliseconds.
  *
  * @attention
  * <ul>
@@ -222,12 +285,12 @@ extern UINTPTR LOS_Align(UINTPTR addr, UINT32 boundary);
  * If that happens, the task will not sleep 0xFFFFFFFF milliseconds or sleep forever but sleep 0xFFFFFFFF Ticks.</li>
  * </ul>
  *
- * @param msecs [IN] Type #UINT32 Number of MS for which the task is delayed.
+ * @param msecs [IN] Type #UINT32 Milliseconds for which the task is delayed.
  *
  * @retval None
  * @par Dependency:
  * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
- * @see None
+ * @see LOS_Mdelay | LOS_TaskDelay
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_Msleep(UINT32 msecs);

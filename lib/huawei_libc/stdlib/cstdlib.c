@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+* Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Memory related implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "stdlib.h"
 #include "los_memory.h"
@@ -43,21 +35,21 @@
  * size is nitems each size bytes long (total memory requested is nitems*size).
  * The space is initialized to all zero bits.
  */
+void *calloc(size_t nitems, size_t size)
+{
+    size_t real_size;
+    void *ptr = NULL;
 
-void* calloc(size_t nitems, size_t size) {
-  size_t real_size;
-  void* ptr = NULL;
+    if (nitems == 0 || size == 0 || nitems > (UINT32_MAX / size)) {
+        return NULL;
+    }
 
-  if (nitems == 0 || size == 0 || nitems > (UINT32_MAX / size)) {
-    return NULL;
-  }
-
-  real_size = (size_t)(nitems * size);
-  ptr = LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)real_size);
-  if (ptr != NULL) {
-    (void)memset_s((void *)ptr, real_size, 0, real_size);
-  }
-  return ptr;
+    real_size = (size_t)(nitems * size);
+    ptr = LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)real_size);
+    if (ptr != NULL) {
+        (void)memset_s((void *)ptr, real_size, 0, real_size);
+    }
+    return ptr;
 }
 
 /*
@@ -66,26 +58,26 @@ void* calloc(size_t nitems, size_t size) {
  * If ptr points to a memory block that was not allocated with calloc, malloc,
  * or realloc, or is a space that has been deallocated, then the result is undefined.
  */
+void free(void *ptr)
+{
+    if (ptr == NULL) {
+        return;
+    }
 
-void free(void* ptr) {
-  if (ptr == NULL) {
-    return;
-  }
-
-  (void)LOS_MemFree((void *)OS_SYS_MEM_ADDR, ptr);
+    (void)LOS_MemFree((void *)OS_SYS_MEM_ADDR, ptr);
 }
 
 /*
  * Allocates the requested memory and returns a pointer to it. The requested
  * size is size bytes. The value of the space is indeterminate.
  */
+void *malloc(size_t size)
+{
+    if (size == 0) {
+        return NULL;
+    }
 
-void* malloc(size_t size) {
-  if (size == 0) {
-    return NULL;
-  }
-
-  return (void *)LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)size);
+    return (void *)LOS_MemAlloc((void *)OS_SYS_MEM_ADDR, (UINT32)size);
 }
 
 /*
@@ -101,17 +93,17 @@ void* malloc(size_t size) {
  * to by ptr are unchanged. If size is zero, then the memory block is completely
  * freed.
  */
+void *realloc(void *ptr, size_t size)
+{
+    if (ptr == NULL) {
+        ptr = malloc(size);
+        return ptr;
+    }
 
-void* realloc(void* ptr, size_t size) {
-  if (ptr == NULL) {
-    ptr = malloc(size);
-    return ptr;
-  }
+    if (size == 0) {
+        free(ptr);
+        return NULL;
+    }
 
-  if (size == 0) {
-    free(ptr);
-    return NULL;
-  }
-
-  return (void *)LOS_MemRealloc((void *)OS_SYS_MEM_ADDR, (void *)ptr, (UINT32)size);
+    return (void *)LOS_MemRealloc((void *)OS_SYS_MEM_ADDR, (void *)ptr, (UINT32)size);
 }

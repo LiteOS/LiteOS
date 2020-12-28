@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_mp_pri.h"
 #include "los_task_pri.h"
@@ -46,7 +38,13 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
+
+#ifdef LOSCFG_KERNEL_SMP_CALL
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_mpCallSpin);
+#define MP_CALL_LOCK(state)       LOS_SpinLockSave(&g_mpCallSpin, &(state))
+#define MP_CALL_UNLOCK(state)     LOS_SpinUnlockRestore(&g_mpCallSpin, (state))
+#endif
 
 VOID LOS_MpSchedule(UINT32 target)
 {
@@ -105,6 +103,70 @@ VOID OsMpCollectTasks(VOID)
     }
 }
 
+#ifdef LOSCFG_KERNEL_SMP_CALL
+VOID OsMpFuncCall(UINT32 target, SMP_FUNC_CALL func, VOID *args)
+{
+    UINT32 index;
+    UINT32 intSave;
+
+    if (func == NULL) {
+        return;
+    }
+
+    if (!(target & OS_MP_CPU_ALL)) {
+        return;
+    }
+
+    for (index = 0; index < LOSCFG_KERNEL_CORE_NUM; index++) {
+        if (CPUID_TO_AFFI_MASK(index) & target) {
+            MpCallFunc *mpCallFunc = (MpCallFunc *)LOS_MemAlloc(m_aucSysMem0, sizeof(MpCallFunc));
+            if (mpCallFunc == NULL) {
+                PRINT_ERR("smp func call malloc failed\n");
+                return;
+            }
+            mpCallFunc->func = func;
+            mpCallFunc->args = args;
+
+            MP_CALL_LOCK(intSave);
+            LOS_ListAdd(&g_percpu[index].funcLink, &(mpCallFunc->node));
+            MP_CALL_UNLOCK(intSave);
+        }
+    }
+    HalIrqSendIpi(target, LOS_MP_IPI_FUNC_CALL);
+}
+
+VOID OsMpFuncCallHandler(VOID)
+{
+    UINT32 intSave;
+    UINT32 cpuid = ArchCurrCpuid();
+    LOS_DL_LIST *list = NULL;
+    MpCallFunc* mpCallFunc = NULL;
+
+    MP_CALL_LOCK(intSave);
+    while (!LOS_ListEmpty(&g_percpu[cpuid].funcLink)) {
+        list = LOS_DL_LIST_FIRST(&g_percpu[cpuid].funcLink);
+        LOS_ListDelete(list);
+        MP_CALL_UNLOCK(intSave);
+
+        mpCallFunc = LOS_DL_LIST_ENTRY(list, MpCallFunc, node);
+        mpCallFunc->func(mpCallFunc->args);
+        (VOID)LOS_MemFree(m_aucSysMem0, mpCallFunc);
+
+        MP_CALL_LOCK(intSave);
+    }
+    MP_CALL_UNLOCK(intSave);
+}
+
+VOID OsMpFuncCallInit(VOID)
+{
+    UINT32 index;
+    /* init funclink for each core */
+    for (index = 0; index < LOSCFG_KERNEL_CORE_NUM; index++) {
+        LOS_ListInit(&g_percpu[index].funcLink);
+    }
+}
+#endif /* LOSCFG_KERNEL_SMP_CALL */
+
 UINT32 OsMpInit(VOID)
 {
     UINT16 swtmrId;
@@ -121,7 +183,9 @@ UINT32 OsMpInit(VOID)
         PRINT_ERR("Swtmr Start failed err:0x%x\n", ret);
         return ret;
     }
-
+#ifdef LOSCFG_KERNEL_SMP_CALL
+    OsMpFuncCallInit();
+#endif
     return LOS_OK;
 }
 

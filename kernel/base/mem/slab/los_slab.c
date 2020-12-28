@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_slab_pri.h"
 #include "los_memory_pri.h"
@@ -72,7 +64,7 @@ BOOL OsAtomicBitsetGetBit(const struct AtomicBitset *set, UINT32 num)
     if (num >= set->numBits) {
         return FALSE;
     }
-    return !!((set->words[num / NUM_BITS_IN_ONE_BYTE]) & (1UL << (num & LOW_BITS_MASK)));
+    return !!((set->words[num / NUM_BITS_IN_ONE_BYTE]) & (1U << (num & LOW_BITS_MASK)));
 }
 
 VOID OsAtomicBitsetClearBit(struct AtomicBitset *set, UINT32 num)
@@ -82,7 +74,7 @@ VOID OsAtomicBitsetClearBit(struct AtomicBitset *set, UINT32 num)
     if (num >= set->numBits) {
         return;
     }
-    (*wordPtr) &= ~(1UL << (num & LOW_BITS_MASK));
+    (*wordPtr) &= ~(1U << (num & LOW_BITS_MASK));
 }
 
 /* find from the high bit to high bit return the address of the first available bit */
@@ -102,7 +94,7 @@ INT32 OsAtomicBitsetFindClearAndSet(struct AtomicBitset *set)
         tmpWord = ~(*wordPtr);
 
         while (tmpWord) {
-            tmpWord = tmpWord >> 1UL;
+            tmpWord = tmpWord >> 1U;
             count++;
         }
 
@@ -116,7 +108,7 @@ INT32 OsAtomicBitsetFindClearAndSet(struct AtomicBitset *set)
 
 BOOL OsAtomicBitsetEmpty(const struct AtomicBitset *bitset)
 {
-    UINT32 idx = 0;
+    UINT32 idx;
     for (idx = 0; idx < (bitset->numBits / NUM_BITS_IN_ONE_BYTE); idx++) {
         if (bitset->words[idx] != 0) {
             return FALSE;

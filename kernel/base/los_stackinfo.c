@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
  * Description: Stack Info Implementation
  * Author: Huawei LiteOS Team
  * Create: 2019-09-01
@@ -25,18 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
+
 #include "securec.h"
-#include "los_config.h"
 #include "los_stackinfo_pri.h"
-#include "los_printf_pri.h"
 #ifdef LOSCFG_SHELL
 #include "shcmd.h"
 #include "shell.h"
@@ -63,55 +54,6 @@ UINT32 OsStackWaterLineGet(const UINTPTR *stackBottom, const UINTPTR *stackTop, 
     }
 }
 
-VOID OsExcStackCheck(VOID)
-{
-    UINT32 index;
-    UINT32 cpuid;
-    UINTPTR *stackTop = NULL;
-
-    if (g_stackInfo == NULL) {
-        return;
-    }
-    for (index = 0; index < g_stackNum; index++) {
-        for (cpuid = 0; cpuid < LOSCFG_KERNEL_CORE_NUM; cpuid++) {
-            stackTop = (UINTPTR *)((UINTPTR)g_stackInfo[index].stackTop + cpuid * g_stackInfo[index].stackSize);
-            if (*stackTop != OS_STACK_MAGIC_WORD) {
-                PRINT_ERR("cpu:%u %s overflow , magic word changed to 0x%x\n",
-                          LOSCFG_KERNEL_CORE_NUM - 1 - cpuid, g_stackInfo[index].stackName, *stackTop);
-            }
-        }
-    }
-}
-
-VOID OsExcStackInfo(VOID)
-{
-    UINT32 index;
-    UINT32 cpuid;
-    UINT32 size;
-    UINTPTR *stackTop = NULL;
-    UINTPTR *stack = NULL;
-
-    if (g_stackInfo == NULL) {
-        return;
-    }
-
-    PrintExcInfo("\n stack name    cpu id     stack addr     total size   used size\n"
-                 " ----------    ------     ---------      --------     --------\n");
-
-    for (index = 0; index < g_stackNum; index++) {
-        for (cpuid = 0; cpuid < LOSCFG_KERNEL_CORE_NUM; cpuid++) {
-            stackTop = (UINTPTR *)((UINTPTR)g_stackInfo[index].stackTop + cpuid * g_stackInfo[index].stackSize);
-            stack = (UINTPTR *)((UINTPTR)stackTop + g_stackInfo[index].stackSize);
-            (VOID)OsStackWaterLineGet(stack, stackTop, &size);
-
-            PrintExcInfo("%11s      %-5d    %-10p     0x%-8x   0x%-4x\n", g_stackInfo[index].stackName,
-                         LOSCFG_KERNEL_CORE_NUM - 1 - cpuid, stackTop, g_stackInfo[index].stackSize, size);
-        }
-    }
-
-    OsExcStackCheck();
-}
-
 VOID OsExcStackInfoReg(const StackInfo *stackInfo, UINT32 stackNum)
 {
     g_stackInfo = stackInfo;
@@ -125,6 +67,8 @@ VOID OsStackInit(VOID *stacktop, UINT32 stacksize)
     *((UINTPTR *)stacktop) = OS_STACK_MAGIC_WORD;
 }
 
-#ifdef LOSCFG_SHELL
-SHELLCMD_ENTRY(stack_shellcmd, CMD_TYPE_EX, "stack", 1, (CmdCallBackFunc)OsExcStackInfo);
-#endif
+VOID OsGetStackInfo(const StackInfo **stackInfo, UINT32 *stackNum)
+{
+    *stackInfo = g_stackInfo;
+    *stackNum = g_stackNum;
+}

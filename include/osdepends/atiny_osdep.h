@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Atiny Osdep HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,26 +24,20 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /**@defgroup atiny_osdep Agenttiny OS Depends
  * @ingroup agent
  */
 
-#ifndef _ATINY_OSDEP_H_
-#define _ATINY_OSDEP_H_
+#ifndef _ATINY_OSDEP_H
+#define _ATINY_OSDEP_H
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #include <stdint.h>
 #include <stdio.h>
@@ -96,7 +92,7 @@ void atiny_usleep(unsigned long usec);
  *@par Dependency: none.
  *@see none.
  */
-int atiny_random(void* output, size_t len);
+int atiny_random(void *output, size_t len);
 
 /**
  *@ingroup atiny_adapter
@@ -112,7 +108,7 @@ int atiny_random(void* output, size_t len);
  *@par Dependency: none.
  *@see atiny_free
  */
-void* atiny_malloc(size_t size);
+void *atiny_malloc(size_t size);
 
 /**
  *@ingroup atiny_adapter
@@ -128,7 +124,7 @@ void* atiny_malloc(size_t size);
  *@par Dependency: none.
  *@see atiny_malloc
  */
-void atiny_free(void* ptr);
+void atiny_free(void *ptr);
 
 /**
  *@ingroup atiny_adapter
@@ -149,7 +145,7 @@ void atiny_free(void* ptr);
  *@par Dependency: none.
  *@see none.
  */
-int atiny_snprintf(char* buf, unsigned int size, const char* format, ...);
+int atiny_snprintf(char *buf, unsigned int size, const char *format, ...);
 
 /**
  *@ingroup atiny_adapter
@@ -168,7 +164,7 @@ int atiny_snprintf(char* buf, unsigned int size, const char* format, ...);
  *@par Dependency: none.
  *@see none.
  */
-int atiny_printf(const char* format, ...);
+int atiny_printf(const char *format, ...);
 
 /**
  *@ingroup atiny_strdup
@@ -180,7 +176,7 @@ int atiny_printf(const char* format, ...);
  *@attention none.
  *
  *@param format         [IN] const char pointer
- *@param ch            [IN] const char pointer points to the string to be duplicated
+ *@param ch             [IN] const char pointer points to the string to be duplicated
  *
  *@retval #char pointer          a pointer to a new string which is a duplicate of the string ch
  *@par Dependency: none.
@@ -219,7 +215,7 @@ void* atiny_mutex_create(void);
  *@par Dependency: none.
  *@see atiny_mutex_create | atiny_mutex_lock | atiny_mutex_unlock
  */
-void atiny_mutex_destroy(void* mutex);
+void atiny_mutex_destroy(void *mutex);
 
 /**
  *@ingroup atiny_adapter
@@ -235,7 +231,7 @@ void atiny_mutex_destroy(void* mutex);
  *@par Dependency: none.
  *@see atiny_mutex_create | atiny_mutex_destroy | atiny_mutex_unlock
  */
-void atiny_mutex_lock(void* mutex);
+void atiny_mutex_lock(void *mutex);
 
 /**
  *@ingroup atiny_adapter
@@ -251,7 +247,7 @@ void atiny_mutex_lock(void* mutex);
  *@par Dependency: none.
  *@see atiny_mutex_create | atiny_mutex_destroy | atiny_mutex_lock
  */
-void atiny_mutex_unlock(void* mutex);
+void atiny_mutex_unlock(void *mutex);
 
 /**
  *@ingroup atiny_adapter
@@ -296,9 +292,10 @@ int atiny_task_mutex_lock(atiny_task_mutex_s *mutex);
 int atiny_task_mutex_unlock(atiny_task_mutex_s *mutex);
 #endif
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif
-
+#endif /* _ATINY_OSDEP_H */

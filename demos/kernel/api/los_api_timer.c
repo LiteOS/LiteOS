@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Timer Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include "los_swtmr.h"
@@ -45,132 +39,111 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-static UINT32 g_timercount1 = 0;
-static UINT32 g_timercount2 = 0;
+static UINT32 g_demoTimerCount1 = 0;
+static UINT32 g_demoTimerCount2 = 0;
 
 static VOID Timer1_Callback(UINT32 arg)
 {
-    UINT32 tick_last1;
+    UINT32 tickLast1;
 
-    g_timercount1++;
-    tick_last1 = (UINT32)LOS_TickCountGet();
-    dprintf("g_timercount1=%d .\r\n", g_timercount1);
-    dprintf("tick_last1=%d .\r\n", tick_last1);
+    g_demoTimerCount1++;
+    tickLast1 = (UINT32)LOS_TickCountGet();
+    printf("LOS_TickCountGet g_demoTimerCount1 = %d.\n", g_demoTimerCount1);
+    printf("LOS_TickCountGet tickLast1 = %d.\n", tickLast1);
 }
 
 static VOID Timer2_Callback(UINT32 arg)
 {
-    UINT32 uwRet = LOS_OK;
-    UINT32 tick_last2;
+    UINT32 ret;
+    UINT32 tickLast2;
 
-    tick_last2 = (UINT32)LOS_TickCountGet();
-    g_timercount2++;
-    dprintf("g_timercount2=%d .\r\n", g_timercount2);
-    dprintf("tick_last2=%d .\r\n", tick_last2);
-    uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_TIMER, LOS_INSPECT_STU_SUCCESS);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("Set Inspect Status Err .\r\n");
+    tickLast2 = (UINT32)LOS_TickCountGet();
+    g_demoTimerCount2++;
+    printf("LOS_TickCountGet g_demoTimerCount2 = %d.\n", g_demoTimerCount2);
+    printf("LOS_TickCountGet tickLast2 = %d.\n", tickLast2);
+    ret = LOS_InspectStatusSetById(LOS_INSPECT_TIMER, LOS_INSPECT_STU_SUCCESS);
+    if (ret != LOS_OK) {
+        printf("Set Inspect Status Err.\n");
     }
 }
 
-UINT32 Example_swTimer(VOID)
+UINT32 Example_SwTimer(VOID)
 {
     UINT16 id1;
-    UINT16 id2;// timer id
-    UINT32 uwRet = LOS_OK;
+    UINT16 id2; // timer id
+    UINT32 ret;
 
+    printf("Kernel swtimer demo begin.\n");
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
+    ret = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
 #else
-    uwRet = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1);
+    ret = LOS_SwtmrCreate(1000, LOS_SWTMR_MODE_ONCE, Timer1_Callback, &id1, 1);
 #endif
-    if (LOS_OK != uwRet)
-    {
-        dprintf("create Timer1 failed .\r\n");
-    }
-    else
-    {
-        dprintf("create Timer1 success .\r\n");
+    if (ret != LOS_OK) {
+        printf("Create Timer1 failed.\n");
+    } else {
+        printf("Create Timer1 ok.\n");
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-    uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
+    ret = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1, OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_SENSITIVE);
 #else
-    uwRet = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1);
+    ret = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_PERIOD, Timer2_Callback, &id2, 1);
 #endif
-    if(LOS_OK != uwRet)
-    {
-        dprintf("create Timer2 failed .\r\n");
-    }
-    else
-    {
-        dprintf("create Timer2 success .\r\n");
+    if (ret != LOS_OK) {
+        printf("Create Timer2 failed.\n");
+    } else {
+        printf("Create Timer2 ok.\n");
     }
 
-    uwRet = LOS_SwtmrStart(id1);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("start Timer1 failed .\r\n");
-    }
-    else
-    {
-        dprintf("start Timer1 sucess .\r\n");
+    ret = LOS_SwtmrStart(id1);
+    if (ret != LOS_OK) {
+        printf("Start Timer1 failed.\n");
+    } else {
+        printf("Start Timer1 ok.\n");
     }
 
     (VOID)LOS_TaskDelay(200);
 
-    uwRet = LOS_SwtmrStop(id1);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("stop Timer1 failed .\r\n");
-    }
-    else
-    {
-        dprintf("stop Timer1 sucess .\r\n");
+    ret = LOS_SwtmrStop(id1);
+    if (ret != LOS_OK) {
+        printf("Stop Timer1 failed.\n");
+    } else {
+        printf("Stop Timer1 ok.\n");
     }
 
-    uwRet = LOS_SwtmrStart(id1);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("start Timer1 failed .\r\n");
+    ret = LOS_SwtmrStart(id1);
+    if (ret != LOS_OK) {
+        printf("Start Timer1 failed.\n");
     }
 
     (VOID)LOS_TaskDelay(1000);
 
-    /*the timer that mode is once, kernel will delete it automatically when timer is timeout */
-    uwRet = LOS_SwtmrDelete(id1);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("delete Timer1 failed .\r\n");
-    }
-    else
-    {
-        dprintf("delete Timer1 sucess .\r\n");
+    /* the timer that mode is once, kernel will delete it automatically when timer is timeout */
+    ret = LOS_SwtmrDelete(id1);
+    if (ret != LOS_OK) {
+        printf("Delete Timer1 failed.\n");
+    } else {
+        printf("Delete Timer1 ok.\n");
     }
 
-    uwRet = LOS_SwtmrStart(id2);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("start Timer2 failed .\r\n");
-    }
-    else
-    {
-        dprintf("start Timer2 success .\r\n");
+    ret = LOS_SwtmrStart(id2);
+    if (ret != LOS_OK) {
+        printf("Start Timer2 failed.\n");
+    } else {
+        printf("Start Timer2 ok.\n");
     }
 
     (VOID)LOS_TaskDelay(1000);
 
-    uwRet = LOS_SwtmrStop(id2);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("stop Timer2 failed .\r\n");
+    ret = LOS_SwtmrStop(id2);
+    if (ret != LOS_OK) {
+        printf("Stop Timer2 failed.\n");
     }
 
-    uwRet = LOS_SwtmrDelete(id2);
-    if (LOS_OK != uwRet)
-    {
-        dprintf("delete Timer2 failed .\r\n");
+    ret = LOS_SwtmrDelete(id2);
+    if (ret != LOS_OK) {
+        printf("Delete Timer2 failed.\n");
     }
 
     return LOS_OK;

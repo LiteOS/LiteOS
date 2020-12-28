@@ -1,0 +1,2 @@
+DEMOS_AI_INCLUDE := \
+    -I $(LITEOSTOPDIR)/demos/ai

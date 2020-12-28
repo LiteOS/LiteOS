@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Time file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,30 +25,19 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#include "time.h"
+#include "time_pri.h"
 #include "limits.h"
-#include "signal.h"
 #include "sys/times.h"
 #ifndef LOSCFG_AARCH64
 #include "time64.h"
 #endif
-#include "time_pri.h"
 #include "errno.h"
 #include "unistd.h"
 #include "stdio.h"
 #include "sys/time.h"
 #include "stdint.h"
-#include "los_swtmr_pri.h"
-#include "los_sys_pri.h"
+#include "los_sys.h"
 #include "los_tick_pri.h"
 #include "asm/hal_platform_ints.h"
 #include "los_tick.h"
@@ -85,6 +74,9 @@ extern "C" {
 #define timespec64 timespec
 #endif
 
+#define TV_SEC_MAX ((INT_MAX / 1000000L) - 2)
+#define TV_SEC_MIN ((INT_MIN / 1000000L) + 2)
+
 STATIC INLINE BOOL ValidTimeval(const struct timeval *tv)
 {
     /* Fail a NULL pointer */
@@ -100,6 +92,7 @@ STATIC INLINE BOOL ValidTimeval(const struct timeval *tv)
     return TRUE;
 }
 
+#ifndef LOSCFG_AARCH64
 STATIC INLINE BOOL ValidTimeval64(const struct timeval64 *tv)
 {
     /* Fail a NULL pointer */
@@ -114,14 +107,14 @@ STATIC INLINE BOOL ValidTimeval64(const struct timeval64 *tv)
 
     return TRUE;
 }
+#endif
 
 STATIC SPIN_LOCK_INIT(g_timeSpin);
 STATIC long long g_adjTimeLeft; /* absolute value of adjtime */
 STATIC INT32 g_adjDirection;    /* 1, speed up; 0, slow down; */
 
 /* Adjust pacement, nanoseconds per SCHED_CLOCK_INTETRVAL_TICKS ticks */
-STATIC const long long g_adjPacement = (((LOSCFG_BASE_CORE_ADJ_PER_SECOND * SCHED_CLOCK_INTETRVAL_TICKS) /
-                                        LOSCFG_BASE_CORE_TICK_PER_SECOND) * OS_SYS_NS_PER_US);
+#define TIME_ADJ_PACEMENT (((LOSCFG_BASE_CORE_ADJ_PER_SECOND * SCHED_CLOCK_INTETRVAL_TICKS) / LOSCFG_BASE_CORE_TICK_PER_SECOND) * OS_SYS_NS_PER_US)
 
 /* accumulative time delta from continuous modify, such as adjtime */
 STATIC struct timespec64 g_accDeltaFromAdj;
@@ -137,24 +130,24 @@ VOID OsAdjTime(VOID)
         return;
     }
 
-    if (g_adjTimeLeft > g_adjPacement) {
+    if (g_adjTimeLeft > TIME_ADJ_PACEMENT) {
         if (g_adjDirection) {
-            if ((g_accDeltaFromAdj.tv_nsec + g_adjPacement) >= OS_SYS_NS_PER_SECOND) {
+            if ((g_accDeltaFromAdj.tv_nsec + TIME_ADJ_PACEMENT) >= OS_SYS_NS_PER_SECOND) {
                 g_accDeltaFromAdj.tv_sec++;
-                g_accDeltaFromAdj.tv_nsec  = (g_accDeltaFromAdj.tv_nsec + g_adjPacement) % OS_SYS_NS_PER_SECOND;
+                g_accDeltaFromAdj.tv_nsec  = (g_accDeltaFromAdj.tv_nsec + TIME_ADJ_PACEMENT) % OS_SYS_NS_PER_SECOND;
             } else {
-                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec + g_adjPacement;
+                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec + TIME_ADJ_PACEMENT;
             }
         } else {
-            if ((g_accDeltaFromAdj.tv_nsec - g_adjPacement) < 0) {
+            if ((g_accDeltaFromAdj.tv_nsec - TIME_ADJ_PACEMENT) < 0) {
                 g_accDeltaFromAdj.tv_sec--;
-                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec - g_adjPacement + OS_SYS_NS_PER_SECOND;
+                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec - TIME_ADJ_PACEMENT + OS_SYS_NS_PER_SECOND;
             } else {
-                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec - g_adjPacement;
+                g_accDeltaFromAdj.tv_nsec  = g_accDeltaFromAdj.tv_nsec - TIME_ADJ_PACEMENT;
             }
         }
 
-        g_adjTimeLeft -= g_adjPacement;
+        g_adjTimeLeft -= TIME_ADJ_PACEMENT;
     } else {
         if (g_adjDirection) {
             if ((g_accDeltaFromAdj.tv_nsec + g_adjTimeLeft) >= OS_SYS_NS_PER_SECOND) {
@@ -210,17 +203,13 @@ int adjtime(const struct timeval *delta, struct timeval *oldDelta)
         TIME_RETURN(EINVAL);
     }
 
-    /*
-     * 2: in the glibc implementation, delta must be less than or equal to (INT_MAX / 1000000 - 2) and
-     * greater than or equal to (INT_MIN / 1000000 + 2)
-     */
-    if ((delta->tv_sec < (INT_MIN / OS_SYS_US_PER_SECOND + 2)) ||
-        (delta->tv_sec > (INT_MAX / OS_SYS_US_PER_SECOND + 2))) {
+    if ((delta->tv_sec < TV_SEC_MIN) ||
+        (delta->tv_sec > TV_SEC_MAX)) {
         LOS_SpinUnlockRestore(&g_timeSpin, intSave);
         TIME_RETURN(EINVAL);
     }
 
-    g_adjTimeLeft = (INT64)delta->tv_sec * OS_SYS_NS_PER_SECOND + delta->tv_usec * OS_SYS_NS_PER_US;
+    g_adjTimeLeft = ((INT64)delta->tv_sec * OS_SYS_NS_PER_SECOND) + (delta->tv_usec * OS_SYS_NS_PER_US);
     if (g_adjTimeLeft > 0) {
         g_adjDirection = 1;
     } else {
@@ -341,7 +330,7 @@ STATIC INT32 OsGettimeOfDay(struct timeval64 *tv, struct timezone *tz)
 
     nowNsec = LOS_CurrNanosec();
     hwTime.tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
-    hwTime.tv_nsec = (INT64)(nowNsec - hwTime.tv_sec * OS_SYS_NS_PER_SECOND);
+    hwTime.tv_nsec = (INT64)(nowNsec - (hwTime.tv_sec * OS_SYS_NS_PER_SECOND));
 
     LOS_SpinLockSave(&g_timeSpin, &intSave);
     realTime = OsTimeSpecAdd(hwTime, g_accDeltaFromAdj);
@@ -477,148 +466,6 @@ int clock_getres(clockid_t clockId, struct timespec *tp)
     TIME_RETURN(0);
 }
 
-int timer_create(clockid_t clockId, struct sigevent *evp, timer_t *timerId)
-{
-    LosSwtmrCB *swtmr = NULL;
-    UINT32 ret;
-    UINT16 swtmrId;
-
-    if ((clockId != CLOCK_REALTIME) || (timerId == NULL) || (evp == NULL)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (evp->sigev_notify != SIGEV_THREAD) {
-        errno = EAGAIN;
-        return -1;
-    }
-
-    ret = LOS_SwtmrCreate(1, LOS_SWTMR_MODE_PERIOD,
-                          (SWTMR_PROC_FUNC)evp->sigev_notify_function,
-                          &swtmrId, (UINTPTR)evp->sigev_value.sival_int);
-    if (ret != LOS_OK) {
-        errno = EAGAIN;
-        return -1;
-    }
-
-    swtmr = OS_SWT_FROM_SID(swtmrId);
-    *timerId = swtmr;
-
-    return 0;
-}
-
-int timer_delete(timer_t timerId)
-{
-    LosSwtmrCB *swtmr = (LosSwtmrCB *)timerId;
-    if (OS_INT_ACTIVE || (timerId == NULL)) {
-        goto ERROUT;
-    }
-
-    if (LOS_SwtmrDelete(swtmr->timerId)) {
-        goto ERROUT;
-    }
-
-    return 0;
-
-ERROUT:
-    errno = EINVAL;
-    return -1;
-}
-
-int timer_settime(timer_t timerId, int flags,
-                  const struct itimerspec *value,   /* new value */
-                  struct itimerspec *oldValue)      /* old value to return, always 0 */
-{
-    LosSwtmrCB *swtmr = (LosSwtmrCB *)timerId;
-    UINT32 interval, expiry, ret;
-    UINT32 intSave;
-
-    (VOID)flags;
-    (VOID)oldValue;
-    if ((value == NULL) || OS_INT_ACTIVE || (timerId == NULL)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (!ValidTimespec(&value->it_value) || !ValidTimespec(&value->it_interval)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    ret = LOS_SwtmrStop(swtmr->timerId);
-    if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    expiry = OsTimespec2Tick(&value->it_value);
-    interval = OsTimespec2Tick(&value->it_interval);
-    if (expiry == 0) {
-        /*
-         * 1) when expiry is 0, means timer should be stopped.
-         * 2) If timer is ticking, stopping timer is already done before.
-         * 3) If timer is created but not ticking, return 0 as well.
-         */
-        return 0;
-    } else {
-        LOS_SpinLockSave(&g_swtmrSpin, &intSave);
-        if (interval == 0) {
-            swtmr->mode = LOS_SWTMR_MODE_ONCE;
-        } else {
-            swtmr->mode = LOS_SWTMR_MODE_OPP;
-        }
-    }
-
-    swtmr->expiry = expiry;
-    swtmr->interval = interval;
-    swtmr->overrun = 0;
-    LOS_SpinUnlockRestore(&g_swtmrSpin, intSave);
-    if (LOS_SwtmrStart(swtmr->timerId)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    return 0;
-}
-
-int timer_gettime(timer_t timerId, struct itimerspec *value)
-{
-    UINT32 tick = 0;
-    LosSwtmrCB *swtmr = NULL;
-
-    swtmr = (LosSwtmrCB *)timerId;
-
-    /* expire time */
-    if ((value == NULL) || (swtmr == NULL) ||
-        (LOS_SwtmrTimeGet(swtmr->timerId, &tick) != LOS_OK)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    OsTick2TimeSpec(&value->it_value, tick);
-    OsTick2TimeSpec(&value->it_interval, swtmr->interval);
-    return 0;
-}
-
-int timer_getoverrun(timer_t timerId)
-{
-    LosSwtmrCB *swtmr = (LosSwtmrCB *)timerId;
-    if (swtmr == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if (swtmr->timerId >= OS_SWTMR_MAX_TIMERID) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if ((swtmr->overrun) >= (UINT8)DELAYTIMER_MAX) {
-        return (INT32)DELAYTIMER_MAX;
-    }
-    return (INT32)(swtmr->overrun);
-}
-
 STATIC INT32 DoSleep(UINT32 mseconds)
 {
     UINT32 interval;
@@ -674,7 +521,7 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
         return ret;
     }
 
-    useconds = ((UINT64)rqtp->tv_sec * OS_SYS_US_PER_SECOND + rqtp->tv_nsec / OS_SYS_NS_PER_US);
+    useconds = (((UINT64)rqtp->tv_sec * OS_SYS_US_PER_SECOND) + (rqtp->tv_nsec / OS_SYS_NS_PER_US));
     if ((useconds == 0) && (rqtp->tv_nsec != 0)) {
         useconds = 1;
     } else if (useconds > UINT32_MAX) {

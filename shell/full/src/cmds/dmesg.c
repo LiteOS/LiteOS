@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /*
  *  +-------------------------------------------------------+
@@ -54,9 +46,8 @@
  *             |                                    |
  *             Tail                                 Head
  */
-#include "los_config.h"
+
 #ifdef LOSCFG_SHELL_DMESG
-#include "sys_config.h"
 #include "dmesg_pri.h"
 #include "unistd.h"
 #include "stdlib.h"
@@ -65,7 +56,9 @@
 #include "securec.h"
 #include "los_task.h"
 #include "uart.h"
-
+#ifdef LOSCFG_FS_VFS
+#include "inode/inode.h"
+#endif
 #include "show.h"
 #include "shcmd.h"
 
@@ -204,7 +197,7 @@ STATIC INT32 OsCopyToNew(VOID *addr, UINT32 size)
     (VOID)memset_s(temp, g_dmesgInfo->logSize, 0, g_dmesgInfo->logSize);
     copyLen = ((bufSize < g_dmesgInfo->logSize) ? bufSize : g_dmesgInfo->logSize);
     if (bufSize < g_dmesgInfo->logSize) {
-        copyStart = g_dmesgInfo->logSize - bufSize ;
+        copyStart = g_dmesgInfo->logSize - bufSize;
     }
 
     ret = OsDmesgRead(temp, g_dmesgInfo->logSize);
@@ -369,7 +362,7 @@ STATIC VOID OsBufFullWrite(const CHAR *dst, UINT32 logLen)
     CHAR *buf = g_dmesgInfo->logBuf;
     errno_t ret;
 
-    if (!logLen || (dst == NULL)) {
+    if ((logLen == 0) || (dst == NULL)) {
         return;
     }
     if (logLen > bufSize) { /* full re-write */
@@ -424,8 +417,8 @@ STATIC VOID OsWriteTailToHead(const CHAR *dst, UINT32 logLen)
     CHAR *buf = g_dmesgInfo->logBuf;
     errno_t ret;
 
-    if ((!logLen) || (dst == NULL)) {
-        return ;
+    if ((logLen == 0) || (dst == NULL)) {
+        return;
     }
     if (logLen > (bufSize - logSize)) { /* space-need > space-remain */
         writeLen = bufSize - logSize;
@@ -458,8 +451,8 @@ STATIC VOID OsWriteTailToEnd(const CHAR *dst, UINT32 logLen)
     CHAR *buf = g_dmesgInfo->logBuf;
     errno_t ret;
 
-    if ((!logLen) || (dst == NULL)) {
-        return ;
+    if ((logLen == 0) || (dst == NULL)) {
+        return;
     }
     if (logLen >= (bufSize - tail)) { /* need cycle to start ,then became B */
         writeLen = bufSize - tail;
@@ -648,12 +641,69 @@ INT32 OsDmesgWrite2File(const CHAR *fullpath, const CHAR *buf, UINT32 logSize)
     return ret;
 }
 
+#ifdef LOSCFG_FS_VFS
+INT32 LOS_DmesgToFile(CHAR *filename)
+{
+    CHAR *fullpath = NULL;
+    CHAR *buf = NULL;
+    INT32 ret;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+    UINT32 logSize, bufSize, head, tail, intSave;
+    CHAR *logBuf = NULL;
+
+    LOS_SpinLockSave(&g_dmesgSpin, &intSave);
+    if (OsCheckError()) {
+        LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+        return -1;
+    }
+    logSize = g_dmesgInfo->logSize;
+    bufSize = g_logBufSize;
+    head = g_dmesgInfo->logHead;
+    tail = g_dmesgInfo->logTail;
+    logBuf = g_dmesgInfo->logBuf;
+    LOS_SpinUnlockRestore(&g_dmesgSpin, intSave);
+
+    ret = vfs_normalize_path(shellWorkingDirectory, filename, &fullpath);
+    if (ret != 0) {
+        return -1;
+    }
+
+    buf = (CHAR *)malloc(logSize);
+    if (buf == NULL) {
+        goto ERR_OUT2;
+    }
+
+    if (head < tail) {
+        ret = memcpy_s(buf, logSize, logBuf + head, logSize);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+    } else {
+        ret = memcpy_s(buf, logSize, logBuf + head, bufSize - head);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+        ret = memcpy_s(buf + bufSize - head, logSize - (bufSize - head), logBuf, tail);
+        if (ret != EOK) {
+            goto ERR_OUT3;
+        }
+    }
+
+    ret = OsDmesgWrite2File(fullpath, buf, logSize);
+ERR_OUT3:
+    free(buf);
+ERR_OUT2:
+    free(fullpath);
+    return ret;
+}
+#else
 INT32 LOS_DmesgToFile(CHAR *filename)
 {
     (VOID)filename;
     PRINTK("File operation need VFS\n");
     return -1;
 }
+#endif
 
 INT32 OsShellCmdDmesg(INT32 argc, const CHAR **argv)
 {

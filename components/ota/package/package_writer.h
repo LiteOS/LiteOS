@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Package Write HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,41 +24,35 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-/**@defgroup atiny_adapter Agenttiny Adapter
+/**
+ * @defgroup atiny_adapter Agenttiny Adapter
  * @ingroup agent
  */
 
-#ifndef PACKAGE_WRITER_H
-#define PACKAGE_WRITER_H
+#ifndef _PACKAGE_WRITER_H
+#define _PACKAGE_WRITER_H
 
 #include "ota/package.h"
 #include "package_head.h"
 
 
-typedef struct
-{
+typedef struct {
     uint32_t offset;
     int32_t offset_flag;
 
-    uint8_t * buffer;
+    uint8_t *buffer;
     uint16_t block_size;
     uint16_t buffer_stored_len;
     pack_hardware_s *hardware;
-}pack_writer_s;
+} pack_writer_s;
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 void pack_wr_init(pack_writer_s *writer);
 void pack_wr_destroy(pack_writer_s *writer);
@@ -65,13 +61,10 @@ int pack_wr_write(pack_writer_s *writer, uint32_t offset, const uint8_t *buff, u
 int pack_wr_write_end(pack_writer_s *writer);
 
 
-
-
-
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif //PACKAGE_WRITER_H
-
-
+#endif /* _PACKAGE_WRITER_H */

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: ARM cortex-m timer
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "asm/platform.h"
 #include "hal_hwi.h"
@@ -41,22 +33,31 @@
 #include "los_hwi_pri.h"
 #include "nvic.h"
 
-#define CYCLE_REG_MASK 0xFFFFFFFFU
+#if defined (LOSCFG_ARCH_ARM_CORTEX_M) && (LOSCFG_KERNEL_CPUP)
+#include "timer.h"
+#endif
 
-#define TICK_INTR_CHECK 0x4000000U
+#define CYCLE_REG_MASK    0xFFFFFFFFU
+
+#define TICK_INTR_CHECK   0x4000000U
 
 #define OS_CYCLE_PER_TICK (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
-LITE_OS_SEC_BSS UINT32      g_cyclesPerTick;
+#define TIMER_CYCLE_SWITCH     (OS_CYCLE_PER_TICK / 10)
 
-#define M_INT_NUM  15 // SysTick_IRQn + OS_SYS_VECOTRE
+LITE_OS_SEC_BSS UINT32     g_cyclesPerTick;
+
+#define M_INT_NUM  15 /* SysTick_IRQn + OS_SYS_VECOTRE */
 
 VOID HalClockInit(VOID)
 {
-    UINT32 ret = LOS_HwiCreate(M_INT_NUM, 0xa0, 0, OsTickHandler, 0);
+    UINT32 ret = LOS_HwiCreate(M_INT_NUM, 0, 0, OsTickHandler, 0);
     if (ret != 0) {
         PRINTK("ret of LOS_HwiCreate = %#x\n", ret);
     }
+#if defined (LOSCFG_ARCH_ARM_CORTEX_M) && (LOSCFG_KERNEL_CPUP)
+    TimerHwiCreate();
+#endif
 }
 
 VOID HalClockStart(VOID)
@@ -76,6 +77,13 @@ VOID HalClockStart(VOID)
         PRINTK("LOS_HwiEnable failed. ret = %#x\n", ret);
     }
 }
+
+#if defined (LOSCFG_ARCH_ARM_CORTEX_M) && (LOSCFG_KERNEL_CPUP)
+UINT64 HalClockGetCpupCycles(VOID)
+{
+    return GetTimerCpupCycles();
+}
+#endif
 
 UINT64 HalClockGetCycles(VOID)
 {
@@ -97,7 +105,9 @@ UINT64 HalClockGetCycles(VOID)
 
     cycle = (swTick * g_cyclesPerTick) + (g_cyclesPerTick - hwCycle);
     LOS_IntRestore(intSave);
-
+#if defined (LOSCFG_ARCH_ARM_CORTEX_M) && (LOSCFG_KERNEL_CPUP)
+    cycle = HalClockGetCpupCycles() * TIMER_CYCLE_SWITCH;
+#endif
     return cycle;
 }
 
@@ -133,7 +143,7 @@ UINT64 HalClockGetSysTickCycles(VOID)
 
 VOID HalDelayUs(UINT32 usecs)
 {
-    UINT64 tmo = LOS_CurrNanosec() + usecs * 1000;
+    UINT64 tmo = LOS_CurrNanosec() + usecs * OS_SYS_NS_PER_US;
 
     while (LOS_CurrNanosec() < tmo) {
         __asm__ volatile ("nop");
@@ -145,13 +155,13 @@ UINT64 hi_sched_clock(VOID)
     return LOS_CurrNanosec();
 }
 
-// just stub api for tickless
+/* just stub api for tickless */
 UINT32 HalClockGetTickTimerCycles(VOID)
 {
     return 0;
 }
 
-// just stub api for tickless
+/* just stub api for tickless */
 VOID HalClockTickTimerReload(UINT32 cycles)
 {
     (VOID)cycles;

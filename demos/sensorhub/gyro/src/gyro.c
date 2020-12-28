@@ -1,5 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Gyro
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,14 +25,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
+
 #include "gyro.h"
 #include "los_printf.h"
 #include "los_swtmr.h"
@@ -50,12 +46,14 @@ extern "C" {
 STATIC INT32 g_gyroSensorData[SENSOR_DATA_LEN];
 STATIC INT16 g_accel[SENSOR_DATA_LEN];
 STATIC INT16 g_gyro[SENSOR_DATA_LEN];
+STATIC INT16 g_tempDate = 0;
+
 STATIC Mpu6050Priv g_gyroPriv = {
     .gyroTimerId = INVALID_TIMER_ID,
 };
 STATIC INT32 g_gyroPeriod;
 
-STATIC VOID GypoTimerFunc(VOID const *arg)
+STATIC VOID GypoTimerFunc(VOID const * arg)
 {
     SensorSample((SensorType *)arg);
 }
@@ -64,8 +62,8 @@ STATIC INT32 GyroInit(SensorType *sensor)
 {
     (VOID)(sensor);
     PRINT_DEBUG("gypo init.\n");
-    MPU6050_Init();
-    if (MPU6050ReadID() == 1) { // 1 read ok
+    MpuSensorInit();
+    if (MpuSensorGetId() == LOS_OK) { // 1 read ok
         PRINT_DEBUG("gypo read id ok.\n");
     } else {
         PRINT_DEBUG("gypo read id fail.\n");
@@ -95,7 +93,8 @@ STATIC INT32 GyroOpen(SensorType *sensor, OpenParam *para)
     }
 
     // creat a timer, first parameter is ticks.
-    ret = LOS_SwtmrCreate(sensor->interval, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)GypoTimerFunc, &gyro->gyroTimerId, (UINT32)sensor);
+    ret = LOS_SwtmrCreate(sensor->interval, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)GypoTimerFunc, &gyro->gyroTimerId,
+        (UINT32)sensor);
     if (ret != LOS_OK) {
         PRINT_ERR("creat a timer failed!\n");
         return LOS_NOK;
@@ -137,11 +136,14 @@ STATIC INT32 GyroClose(SensorType *sensor)
 STATIC INT32 GyroReadData(SensorType *sensor)
 {
     PRINTK("read data\n");
-    MPU6050ReadAcc(g_accel);
-    PRINTK("Acc: %8d%8d%8d", g_accel[0], g_accel[1], g_accel[2]); // 0: x, 1: y, 2: z
+    MpuSensorGetData(g_accel, MPU6050_AACEL_DATA_TYPE);
+    PRINTK("Acc:  %8d%8d%8d\n", g_accel[0], g_accel[1], g_accel[2]); // 0: x, 1: y, 2: z
 
-    MPU6050ReadGyro(g_gyro);
-    PRINTK("Gyro: %8d%8d%8d\r\n", g_gyro[0], g_gyro[1], g_gyro[2]); // 0: x, 1: y, 2: z
+    MpuSensorGetData(g_gyro, MPU6050_GYRO_DATA_TYPE);
+    PRINTK("Gyro: %8d%8d%8d\n", g_gyro[0], g_gyro[1], g_gyro[2]); // 0: x, 1: y, 2: z
+
+    MpuSensorGetData(&g_tempDate, MPU6050_TEMP_DATA_TYPE);
+    PRINTK("temp: %8d\n", g_tempDate); // temperature °C
 
     INT32 *data = (INT32 *)sensor->sensorData;
     data[0] = g_gyro[0]; // 0: x

@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Commandline HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,8 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
+
 
 /*******************************************************************************
  *
@@ -53,27 +48,25 @@
 
 #define COMMAND_END_LIST {NULL, NULL, NULL, NULL, NULL}
 
-typedef void (*command_handler_t) (char * args, void * user_data);
+typedef void (*command_handler_t) (char *args, void *user_data);
 
-typedef struct
-{
-    char *            name;
-    char *            shortDesc;
-    char *            longDesc;
+typedef struct {
+    char              *name;
+    char              *shortDesc;
+    char              *longDesc;
     command_handler_t callback;
-    void *            userData;
+    void              *userData;
 } command_desc_t;
 
-
-void handle_command(command_desc_t * commandArray, char * buffer);
-char* get_end_of_arg(char* buffer);
-char * get_next_arg(char * buffer, char **end);
+void handle_command(command_desc_t *commandArray, char *buffer);
+char *get_end_of_arg(char* buffer);
+char *get_next_arg(char * buffer, char **end);
 int check_end_of_args(char* buffer);
 
-void output_buffer(FILE * stream, uint8_t * buffer, int length, int indent);
-void output_tlv(FILE * stream, uint8_t * buffer, size_t buffer_len, int indent);
-void dump_tlv(FILE * stream, int size, lwm2m_data_t * dataP, int indent);
-void output_data(FILE * stream, lwm2m_media_type_t format, uint8_t * buffer, int length, int indent);
-void print_status(FILE * stream, uint8_t status);
+void output_buffer(FILE *stream, uint8_t *buffer, int length, int indent);
+void output_tlv(FILE *stream, uint8_t *buffer, size_t buffer_len, int indent);
+void dump_tlv(FILE *stream, int size, lwm2m_data_t *dataP, int indent);
+void output_data(FILE *stream, lwm2m_media_type_t format, uint8_t *buffer, int length, int indent);
+void print_status(FILE *stream, uint8_t status);
 
-size_t base64_decode(uint8_t * dataP, size_t dataLen, uint8_t ** bufferP);
+size_t base64_decode(uint8_t *dataP, size_t dataLen, uint8_t **bufferP);

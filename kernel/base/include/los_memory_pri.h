@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_MEMORY_PRI_H
 #define _LOS_MEMORY_PRI_H
@@ -109,7 +101,7 @@ extern UINT32 OsMemFree(VOID *pool, VOID *mem);
 
 #ifdef LOSCFG_MEM_MUL_POOL
 extern UINT32 OsMemMulPoolInit(VOID *pool, UINT32 size);
-extern UINT32 OsMemMulPoolDeinit(VOID *pool);
+extern UINT32 OsMemMulPoolDeinit(const VOID *pool);
 extern VOID *OsMemMulPoolHeadGet(VOID);
 #else /* LOSCFG_MEM_MUL_POOL */
 STATIC INLINE UINT32 OsMemMulPoolInit(VOID *pool, UINT32 size)
@@ -117,7 +109,7 @@ STATIC INLINE UINT32 OsMemMulPoolInit(VOID *pool, UINT32 size)
     return LOS_OK;
 }
 
-STATIC INLINE UINT32 OsMemMulPoolDeinit(VOID *pool)
+STATIC INLINE UINT32 OsMemMulPoolDeinit(const VOID *pool)
 {
     return LOS_OK;
 }
@@ -132,7 +124,7 @@ extern VOID OsMemUsedNodeShow(VOID *pool);
 #endif
 
 extern VOID OsMemResetEndNode(VOID *pool, UINTPTR preAddr);
-extern VOID OsMemInfoPrint(VOID *pool);
+extern VOID OsMemInfoPrint(const VOID *pool);
 extern UINT32 OsShellCmdMemCheck(INT32 argc, const CHAR *argv[]);
 extern VOID OsMemIntegrityMultiCheck(VOID);
 

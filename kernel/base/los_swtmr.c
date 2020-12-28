@@ -25,19 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_swtmr_pri.h"
 #include "los_sortlink_pri.h"
 #include "los_queue_pri.h"
 #include "los_task_pri.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,10 +39,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_BASE_CORE_SWTMR
-#if (LOSCFG_BASE_CORE_SWTMR_LIMIT <= 0)
-#error "swtmr maxnum cannot be zero"
-#endif /* LOSCFG_BASE_CORE_SWTMR_LIMIT <= 0 */
-
 LITE_OS_SEC_BSS LosSwtmrCB      *g_swtmrCBArray = NULL;     /* First address in Timer memory space */
 LITE_OS_SEC_BSS UINT8           *g_swtmrHandlerPool = NULL; /* Pool of Swtmr Handler */
 LITE_OS_SEC_BSS LOS_DL_LIST     g_swtmrFreeList;            /* Free list of Software Timer */
@@ -77,7 +66,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStart(LosSwtmrCB *swtmr)
 
     swtmr->state = OS_SWTMR_STATUS_TICKING;
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     swtmr->cpuid = ArchCurrCpuid();
 #endif
 }
@@ -123,15 +112,30 @@ LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
     for (;;) {
         ret = LOS_QueueReadCopy(swtmrHandlerQueue, &swtmrHandler, &readSize, LOS_WAIT_FOREVER);
         if ((ret == LOS_OK) && (readSize == sizeof(CHAR *))) {
-            SWTMR_PROC_FUNC pfnHandler = swtmrHandler->handler;
-            UINTPTR uwArg = swtmrHandler->arg;
+            SWTMR_PROC_FUNC handler = swtmrHandler->handler;
+            UINTPTR arg = swtmrHandler->arg;
             (VOID)LOS_MemFree(m_aucSysMem0, swtmrHandler);
-            if (pfnHandler != NULL) {
-                pfnHandler(uwArg);
+            if (handler != NULL) {
+                handler(arg);
             }
         }
     }
 }
+
+#ifdef LOSCFG_EXC_INTERACTION
+BOOL IsSwtmrTask(UINT32 taskId)
+{
+    UINT32 i;
+
+    for (i = 0; i < LOSCFG_KERNEL_CORE_NUM; i++) {
+        if (taskId == g_percpu[i].swtmrTaskId) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+#endif
 
 LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)
 {
@@ -141,12 +145,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)
 
     (VOID)memset_s(&swtmrTask, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
     swtmrTask.pfnTaskEntry = (TSK_ENTRY_FUNC)OsSwtmrTask;
-    swtmrTask.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    swtmrTask.uwStackSize = LOSCFG_BASE_CORE_TSK_SWTMR_STACK_SIZE;
     swtmrTask.pcName = "Swt_Task";
     swtmrTask.usTaskPrio = 0;
     swtmrTask.uwResved = LOS_TASK_STATUS_DETACHED;
-#if (LOSCFG_KERNEL_SMP == YES)
-    swtmrTask.usCpuAffiMask   = CPUID_TO_AFFI_MASK(cpuid);
+#ifdef LOSCFG_KERNEL_SMP
+    swtmrTask.usCpuAffiMask = CPUID_TO_AFFI_MASK(cpuid);
 #endif
     ret = LOS_TaskCreate(&swtmrTaskId, &swtmrTask);
     if (ret == LOS_OK) {
@@ -234,6 +238,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrScan(VOID)
         swtmr = LOS_DL_LIST_ENTRY(sortList, LosSwtmrCB, sortList);
 
 #ifndef LOSCFG_BASE_CORE_SWTMR_IN_ISR
+        LOS_TRACE(SWTMR_EXPIRED, swtmr->timerId);
         SwtmrHandlerItemPtr swtmrHandler = (SwtmrHandlerItemPtr)LOS_MemAlloc(m_aucSysMem0, sizeof(SwtmrHandlerItem));
         if (swtmrHandler != NULL) {
             swtmrHandler->handler = swtmr->handler;
@@ -250,6 +255,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrScan(VOID)
         if (handler != NULL) {
             LOS_SpinUnlock(&g_swtmrSpin);
 
+            LOS_TRACE(SWTMR_EXPIRED, swtmr->timerId);
             handler(arg); /* do swtmr callback */
 
             LOS_SpinLock(&g_swtmrSpin);
@@ -283,7 +289,7 @@ LITE_OS_SEC_TEXT STATIC VOID OsSwtmrStop(LosSwtmrCB *swtmr)
 {
     SortLinkAttribute *sortLinkHeader = NULL;
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     /*
      * the timer is running on the specific processor,
      * we need delete the timer from that processor's sortlink.
@@ -306,7 +312,7 @@ LITE_OS_SEC_TEXT STATIC UINT32 OsSwtmrTimeGet(const LosSwtmrCB *swtmr)
 {
     SortLinkAttribute *sortLinkHeader = NULL;
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     /*
      * the timer is running on the specific processor,
      * we need search the timer from that processor's sortlink.
@@ -366,6 +372,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
     swtmr->state = OS_SWTMR_STATUS_CREATED;
     SET_SORTLIST_VALUE(&(swtmr->sortList), 0);
     *swtmrId = swtmr->timerId;
+    LOS_TRACE(SWTMR_CREATE, swtmr->timerId);
 
     return LOS_OK;
 }
@@ -410,6 +417,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT16 swtmrId)
     }
 
     SWTMR_UNLOCK(intSave);
+    LOS_TRACE(SWTMR_START, swtmr->timerId, swtmr->mode, swtmr->overrun, swtmr->interval, swtmr->expiry);
     return ret;
 }
 
@@ -449,6 +457,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT16 swtmrId)
     }
 
     SWTMR_UNLOCK(intSave);
+    LOS_TRACE(SWTMR_STOP, swtmr->timerId);
     return ret;
 }
 
@@ -529,6 +538,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT16 swtmrId)
     }
 
     SWTMR_UNLOCK(intSave);
+    LOS_TRACE(SWTMR_DELETE, swtmr->timerId);
     return ret;
 }
 

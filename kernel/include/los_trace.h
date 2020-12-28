@@ -25,24 +25,19 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
+
+/**
+ * @defgroup los_trace Trace
+ * @ingroup kernel
+ */
 
 #ifndef _LOS_TRACE_H
 #define _LOS_TRACE_H
 
 #include "los_base.h"
-#include "los_task_pri.h"
+#include "los_task.h"
 
-#if (LOSCFG_KERNEL_SMP == YES)
-#include "los_mp_pri.h"
-#endif
+#include "los_perf.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -50,25 +45,47 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_TRACE_CONTROL_AGENT == YES)
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
+
+/**
+ * @ingroup los_trace
+ * Trace Control agent task's priority.
+ */
 #define LOSCFG_TRACE_TASK_PRIORITY                              2
 #endif
 
+/**
+ * @ingroup los_trace
+ * Whether trace records key informations, including cpuid, hardware interrupt status, task lock status.
+ */
 #define LOSCFG_TRACE_FRAME_CORE_MSG                             NO
+
+/**
+ * @ingroup los_trace
+ * Whether trace records event count, which can indicate the sequence of happend events and the event loss count.
+ */
 #define LOSCFG_TRACE_FRAME_EVENT_COUNT                          NO
-#define LOSCFG_TRACE_FRAME_MAX_PARAMS                           0
+
+/**
+ * @ingroup los_trace
+ * Trace records the max params number in struct TraceEventFrame of events. if set to 0, trace will just record basic
+ * event's type, not record event's any params.
+ */
+#define LOSCFG_TRACE_FRAME_MAX_PARAMS                           3
 
 #define LOSCFG_TRACE_OBJ_MAX_NAME_SIZE                          LOS_TASK_NAMELEN
+
+/**
+ * @ingroup los_trace
+ * Trace records the max number of objects(kernel object, like tasks). if set to 0, trace will not record any object.
+ */
 #define LOSCFG_TRACE_OBJ_MAX_NUM                                0 // LOSCFG_BASE_CORE_TSK_LIMIT
 
+/**
+ * @ingroup los_trace
+ * Trace tlv encode buffer size, the buffer is used to encode one piece raw frame to tlv message in online mode.
+ */
 #define LOSCFG_TRACE_TLV_BUF_SIZE                               100
-
-#define LOSCFG_TRACE_TICK_HWI                                   OS_TICK_INT_NUM
-#define LOSCFG_TRACE_UART_HWI                                   NUM_HAL_INTERRUPT_UART
-
-#if (LOSCFG_KERNEL_SMP == YES)
-#define LOSCFG_TRACE_IPI_SCHEDULE_HWI                           LOS_MP_IPI_SCHEDULE
-#endif
 
 /**
  * @ingroup los_trace
@@ -86,7 +103,7 @@ extern "C" {
  *
  * Value: 0x02001401
  *
- * Solution: Decrease the maximum number of tasks.
+ * Solution: Expand the configured system memory or decrease the value defined by LOS_TRACE_BUFFER_SIZE.
  */
 #define LOS_ERRNO_TRACE_NO_MEMORY                  LOS_ERRNO_OS_ERROR(LOS_MOD_TRACE, 0x01)
 
@@ -102,94 +119,108 @@ extern "C" {
 
 /**
  * @ingroup los_trace
- * Trace mask
+ * Trace state.
+ */
+enum TraceState {
+    TRACE_UNINIT = 0,  /**< trace isn't inited */
+    TRACE_INITED,      /**< trace is inited but not started yet */
+    TRACE_STARTED,     /**< trace is started and system is tracing */
+    TRACE_STOPED,      /**< trace is stopped */
+};
+
+/**
+ * @ingroup los_trace
+ * Trace mask is used to filter events in runtime. Each mask keep only one unique bit to 1, and user can define own
+ * module's trace mask.
  */
 typedef enum {
-    TRACE_SYS_FLAG      = 0x10,
-    TRACE_HWI_FLAG      = 0x20,
-    TRACE_TASK_FLAG     = 0x40,
-    TRACE_SWTMR_FLAG    = 0x80,
-    TRACE_MEM_FLAG      = 0x100,
-    TRACE_QUE_FLAG      = 0x200,
-    TRACE_EVENT_FLAG    = 0x400,
-    TRACE_SEM_FLAG      = 0x800,
-    TRACE_MUX_FLAG      = 0x1000,
+    TRACE_SYS_FLAG          = 0x10,
+    TRACE_HWI_FLAG          = 0x20,
+    TRACE_TASK_FLAG         = 0x40,
+    TRACE_SWTMR_FLAG        = 0x80,
+    TRACE_MEM_FLAG          = 0x100,
+    TRACE_QUE_FLAG          = 0x200,
+    TRACE_EVENT_FLAG        = 0x400,
+    TRACE_SEM_FLAG          = 0x800,
+    TRACE_MUX_FLAG          = 0x1000,
 
-    TRACE_MAX_FLAG      = 0x80000000,
+    TRACE_MAX_FLAG          = 0x80000000,
+    TRACE_USER_DEFAULT_FLAG = 0xFFFFFFF0,
 } LOS_TRACE_MASK;
 
 /**
  * @ingroup los_trace
- * Trace event type
+ * Trace event type which indicate the exactly happend events, user can define own module's event type like
+ * TRACE_#MODULE#_FLAG | NUMBER.
  */
 typedef enum {
-    /* 0x1000~0x1FFF */
-    TRACE_TASK_CREATE           = TRACE_TASK_FLAG | 0,
-    TRACE_TASK_PRIOSET          = TRACE_TASK_FLAG | 1,
-    TRACE_TASK_DELETE           = TRACE_TASK_FLAG | 2,
-    TRACE_TASK_SUSPEND          = TRACE_TASK_FLAG | 3,
-    TRACE_TASK_RESUME           = TRACE_TASK_FLAG | 4,
-    TRACE_TASK_DELAY            = TRACE_TASK_FLAG | 5,
-    TRACE_TASK_SWITCH           = TRACE_TASK_FLAG | 6,
-    TRACE_TASK_READY            = TRACE_TASK_FLAG | 7,
-    TRACE_TASK_UNREADY          = TRACE_TASK_FLAG | 8,
-
-    /* 0x800~0xFFF */
-    TRACE_SWTMR_CREATE          = TRACE_SWTMR_FLAG | 0,
-    TRACE_SWTMR_DELETE          = TRACE_SWTMR_FLAG | 1,
-    TRACE_SWTMR_START           = TRACE_SWTMR_FLAG | 2,
-    TRACE_SWTMR_STOP            = TRACE_SWTMR_FLAG | 3,
-    TRACE_SWTMR_EXPIRED         = TRACE_SWTMR_FLAG | 4,
-    TRACE_SWTMR_FUNCIN          = TRACE_SWTMR_FLAG | 5,
-
-    /* 0x400~0x7FF */
-    TRACE_HWI_CREATE            = TRACE_HWI_FLAG | 0,
-    TRACE_HWI_DELETE            = TRACE_HWI_FLAG | 1,
-    TRACE_HWI_RESPONSE_IN       = TRACE_HWI_FLAG | 2,
-    TRACE_HWI_RESPONSE_OUT      = TRACE_HWI_FLAG | 3,
-
-    /* 0x200~0x3FF */
-    TRACE_MEM_ALLOC             = TRACE_MEM_FLAG | 0,
-    TRACE_MEM_FREE              = TRACE_MEM_FLAG | 1,
-    TRACE_MEM_INFO_REQ          = TRACE_MEM_FLAG | 2,
-    TRACE_MEM_INFO              = TRACE_MEM_FLAG | 3,
-
-    /* 0x100~0x1FF */
-    TRACE_QUEUE_CREATE          = TRACE_QUE_FLAG | 0,
-    TRACE_QUEUE_DELETE          = TRACE_QUE_FLAG | 1,
-    TRACE_QUEUE_READ            = TRACE_QUE_FLAG | 2,
-    TRACE_QUEUE_WRITE           = TRACE_QUE_FLAG | 3,
-    TRACE_QUEUE_READ_BLOCK      = TRACE_QUE_FLAG | 4,
-    TRACE_QUEUE_WRITE_BLOCK     = TRACE_QUE_FLAG | 5,
-    TRACE_QUEUE_MAIL_BLOCK      = TRACE_QUE_FLAG | 6,
-
-    /* 0x80~0xFF */
-    TRACE_EVENT_CREATE          = TRACE_EVENT_FLAG | 0,
-    TRACE_EVENT_DELETE          = TRACE_EVENT_FLAG | 1,
-    TRACE_EVENT_READ            = TRACE_EVENT_FLAG | 2,
-    TRACE_EVENT_WRITE           = TRACE_EVENT_FLAG | 3,
-    TRACE_EVENT_CLEAR           = TRACE_EVENT_FLAG | 4,
-    TRACE_EVENT_POLL            = TRACE_EVENT_FLAG | 5,
-    TRACE_EVENT_READ_BLOCK      = TRACE_EVENT_FLAG | 6,
-
-    /* 0x40~0x7F */
-    TRACE_SEM_CREATE            = TRACE_SEM_FLAG | 0,
-    TRACE_SEM_DELETE            = TRACE_SEM_FLAG | 1,
-    TRACE_SEM_PEND              = TRACE_SEM_FLAG | 2,
-    TRACE_SEM_POST              = TRACE_SEM_FLAG | 3,
-    TRACE_SEM_PEND_BLOCK        = TRACE_SEM_FLAG | 4,
+    /* 0x10~0x1F */
+    SYS_ERROR             = TRACE_SYS_FLAG | 0,
+    SYS_START             = TRACE_SYS_FLAG | 1,
+    SYS_STOP              = TRACE_SYS_FLAG | 2,
 
     /* 0x20~0x3F */
-    TRACE_MUX_CREATE            = TRACE_MUX_FLAG | 0,
-    TRACE_MUX_DELETE            = TRACE_MUX_FLAG | 1,
-    TRACE_MUX_PEND              = TRACE_MUX_FLAG | 2,
-    TRACE_MUX_POST              = TRACE_MUX_FLAG | 3,
-    TRACE_MUX_PEND_BLOCK        = TRACE_MUX_FLAG | 4,
+    HWI_CREATE              = TRACE_HWI_FLAG | 0,
+    HWI_CREATE_SHARE        = TRACE_HWI_FLAG | 1,
+    HWI_DELETE              = TRACE_HWI_FLAG | 2,
+    HWI_DELETE_SHARE        = TRACE_HWI_FLAG | 3,
+    HWI_RESPONSE_IN         = TRACE_HWI_FLAG | 4,
+    HWI_RESPONSE_OUT        = TRACE_HWI_FLAG | 5,
+    HWI_ENABLE              = TRACE_HWI_FLAG | 6,
+    HWI_DISABLE             = TRACE_HWI_FLAG | 7,
+    HWI_TRIGGER             = TRACE_HWI_FLAG | 8,
+    HWI_SETPRI              = TRACE_HWI_FLAG | 9,
+    HWI_CLEAR               = TRACE_HWI_FLAG | 10,
+    HWI_SETAFFINITY         = TRACE_HWI_FLAG | 11,
+    HWI_SENDIPI             = TRACE_HWI_FLAG | 12,
 
-    /* 0x10~0x1F */
-    TRACE_SYS_ERROR             = TRACE_SYS_FLAG | 0,
-    TRACE_SYS_START             = TRACE_SYS_FLAG | 1,
-    TRACE_SYS_STOP              = TRACE_SYS_FLAG | 2,
+    /* 0x40~0x7F */
+    TASK_CREATE           = TRACE_TASK_FLAG | 0,
+    TASK_PRIOSET          = TRACE_TASK_FLAG | 1,
+    TASK_DELETE           = TRACE_TASK_FLAG | 2,
+    TASK_SUSPEND          = TRACE_TASK_FLAG | 3,
+    TASK_RESUME           = TRACE_TASK_FLAG | 4,
+    TASK_SWITCH           = TRACE_TASK_FLAG | 5,
+    TASK_SIGNAL           = TRACE_TASK_FLAG | 6,
+
+     /* 0x80~0xFF */
+    SWTMR_CREATE          = TRACE_SWTMR_FLAG | 0,
+    SWTMR_DELETE          = TRACE_SWTMR_FLAG | 1,
+    SWTMR_START           = TRACE_SWTMR_FLAG | 2,
+    SWTMR_STOP            = TRACE_SWTMR_FLAG | 3,
+    SWTMR_EXPIRED         = TRACE_SWTMR_FLAG | 4,
+
+     /* 0x100~0x1FF */
+    MEM_ALLOC             = TRACE_MEM_FLAG | 0,
+    MEM_ALLOC_ALIGN       = TRACE_MEM_FLAG | 1,
+    MEM_REALLOC           = TRACE_MEM_FLAG | 2,
+    MEM_FREE              = TRACE_MEM_FLAG | 3,
+    MEM_INFO_REQ          = TRACE_MEM_FLAG | 4,
+    MEM_INFO              = TRACE_MEM_FLAG | 5,
+
+     /* 0x200~0x3FF */
+    QUEUE_CREATE          = TRACE_QUE_FLAG | 0,
+    QUEUE_DELETE          = TRACE_QUE_FLAG | 1,
+    QUEUE_RW              = TRACE_QUE_FLAG | 2,
+
+     /* 0x400~0x7FF */
+    EVENT_CREATE          = TRACE_EVENT_FLAG | 0,
+    EVENT_DELETE          = TRACE_EVENT_FLAG | 1,
+    EVENT_READ            = TRACE_EVENT_FLAG | 2,
+    EVENT_WRITE           = TRACE_EVENT_FLAG | 3,
+    EVENT_CLEAR           = TRACE_EVENT_FLAG | 4,
+
+     /* 0x800~0xFFF */
+    SEM_CREATE            = TRACE_SEM_FLAG | 0,
+    SEM_DELETE            = TRACE_SEM_FLAG | 1,
+    SEM_PEND              = TRACE_SEM_FLAG | 2,
+    SEM_POST              = TRACE_SEM_FLAG | 3,
+
+     /* 0x1000~0x1FFF */
+    MUX_CREATE            = TRACE_MUX_FLAG | 0,
+    MUX_DELETE            = TRACE_MUX_FLAG | 1,
+    MUX_PEND              = TRACE_MUX_FLAG | 2,
+    MUX_POST              = TRACE_MUX_FLAG | 3,
 } LOS_TRACE_TYPE;
 
 /**
@@ -207,33 +238,33 @@ typedef struct {
  * struct to store the event infomation
  */
 typedef struct {
-    UINT32  eventType;
-    UINT32  curTask;
-    UINT64  curTime;
-    UINTPTR identity;
+    UINT32  eventType;                               /**< event type */
+    UINT32  curTask;                                 /**< current running task */
+    UINT64  curTime;                                 /**< current timestamp */
+    UINTPTR identity;                                /**< subject of the event description */
 #if (LOSCFG_TRACE_FRAME_CORE_MSG == YES)
     struct CoreStatus {
-        UINT32 cpuId      : 8,
-               hwiActive  : 4,
-               isTaskLock : 4,
-               paramCount : 4,
-               reserves   : 12;
+        UINT32 cpuId      : 8,                       /**< cpuid */
+               hwiActive  : 4,                       /**< whether is in hwi response */
+               taskLockCnt : 4,                      /**< task lock count */
+               paramCount : 4,                       /**< event frame params' number */
+               reserves   : 12;                      /**< reserves */
     } core;
 #endif
 
 #if (LOSCFG_TRACE_FRAME_EVENT_COUNT == YES)
-    UINT32  eventCount;
+    UINT32  eventCount;                               /**< the sequence of happend events */
 #endif
-    UINTPTR params[LOSCFG_TRACE_FRAME_MAX_PARAMS];
+    UINTPTR params[LOSCFG_TRACE_FRAME_MAX_PARAMS];    /**< event frame's params */
 } TraceEventFrame;
 
 /**
  * @ingroup los_trace
- * struct to store the kernel obj information
+ * struct to store the kernel obj information, we defined task as kernel obj in this system.
  */
 typedef struct {
     UINT32      id;                                     /**< kernel obj's id */
-    UINT32      prio;                                   /**< kernel obj's prio */
+    UINT32      prio;                                   /**< kernel obj's priority */
     CHAR        name[LOSCFG_TRACE_OBJ_MAX_NAME_SIZE];   /**< kernel obj's name */
 } ObjData;
 
@@ -242,14 +273,33 @@ typedef struct {
  * struct to store the trace data.
  */
 typedef struct {
-    TraceBaseHeaderInfo baseInfo;
-    UINT16 totalLen;
-    UINT16 objSize;
-    UINT16 frameSize;
-    UINT16 objOffset;
-    UINT16 frameOffset;
+    TraceBaseHeaderInfo baseInfo;          /**< basic info, include bigLittleEndian flag, system clock freq */
+    UINT16 totalLen;                       /**< trace data's total length */
+    UINT16 objSize;                        /**< sizeof #ObjData */
+    UINT16 frameSize;                      /**< sizeof #TraceEventFrame */
+    UINT16 objOffset;                      /**< the offset of the first obj data to record beginning */
+    UINT16 frameOffset;                    /**< the offset of the first event frame data to record beginning */
 } OfflineHead;
 
+/**
+ * @ingroup  los_trace
+ * @brief Define the type of trace hardware interrupt filter hook function.
+ *
+ * @par Description:
+ * User can register fliter function by LOS_TraceHwiFilterHookReg to filter hardware interrupt events. Return true if
+ * user don't need trace the certain number.
+ *
+ * @attention
+ * None.
+ *
+ * @param hwiNum        [IN] Type #UINT32. The hardware interrupt number.
+ * @retval #TRUE        0x00000001: Not record the certain number.
+ * @retval #FALSE       0x00000000: Need record the certain number.
+ *
+ * @par Dependency:
+ * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R005C00
+ */
 typedef BOOL (*TRACE_HWI_FILTER_HOOK)(UINT32 hwiNum);
 
 extern VOID OsTraceHook(UINT32 eventType, UINTPTR identity, const UINTPTR *params, UINT16 paramCount);
@@ -259,84 +309,141 @@ extern VOID OsTraceHook(UINT32 eventType, UINTPTR identity, const UINTPTR *param
  * Trace event params:
  1. Configure the macro without parameters so as not to record events of this type;
  2. Configure the macro at least with one parameter to record this type of event;
- 3. User can add parameters according to the structure type of the variable;
+ 3. User can delete unnecessary parameters which defined in corresponding marco;
  * @attention
  * <ul>
- * <li>Cause the first param was Casted to UINTPTR, do not enclose it with parentheses.</li>
- * <li>The structure member variables of the first param were treated as UINTPTR too.</li>
+ * <li>The first param is treat as key, keep at least this param if you want trace this event.</li>
+ * <li>All parameters were treated as UINTPTR.</li>
  * </ul>
- eg. TASK_CREATE_PARAMS(taskCB)         taskCB, taskCB->taskID, taskCB->stackSize, taskCB->priority
- eg. SWTMR_CREATE_PARAMS(swtmr)         swtmr, swtmr->ucMode, swtmr->uwInterval, (UINTPTR)(swtmr->pfnHandler)
- eg. EVENT_CREATE_PARAMS(eventCB)       eventCB, eventCB->uwEventID
- eg. MEM_INFO_PARAMS(pool, status)      pool, (status)->uwTotalUsedSize, (status)->uwTotalFreeSize
+ * eg. Trace a event as:
+ * #define TASK_PRIOSET_PARAMS(taskId, taskStatus, oldPrio, newPrio) taskId, taskStatus, oldPrio, newPrio
+ * eg. Not Trace a event as:
+ * #define TASK_PRIOSET_PARAMS(taskId, taskStatus, oldPrio, newPrio)
+ * eg. Trace only you need parmas as:
+ * #define TASK_PRIOSET_PARAMS(taskId, taskStatus, oldPrio, newPrio) taskId
  */
-#define TASK_SWITCH_PARAMS(taskCB)                      taskCB
-#define TASK_READY_PARAMS(taskCB)                       taskCB
-#define TASK_PRIOSET_PARAMS(taskCB)                     taskCB, taskCB->priority
-#define TASK_CREATE_PARAMS(taskCB)                      taskCB, taskCB->priority
-#define TASK_RESUME_PARAMS(taskCB)                      taskCB
-#define TASK_SUSPEND_PARAMS(taskCB)                     taskCB
-#define TASK_DELETE_PARAMS(taskCB)                      taskCB
-#define TASK_DELAY_PARAMS(taskCB, tick)                 taskCB, tick
+#define TASK_SWITCH_PARAMS(taskId, oldPriority, oldTaskStatus, newPriority, newTaskStatus) \
+    taskId, oldPriority, oldTaskStatus, newPriority, newTaskStatus
+#define TASK_PRIOSET_PARAMS(taskId, taskStatus, oldPrio, newPrio) taskId, taskStatus, oldPrio, newPrio
+#define TASK_CREATE_PARAMS(taskId, taskStatus, prio)     taskId, taskStatus, prio
+#define TASK_DELETE_PARAMS(taskId, taskStatus, usrStack) taskId, taskStatus, usrStack
+#define TASK_SUSPEND_PARAMS(taskId, taskStatus, runTaskId) taskId, taskStatus, runTaskId
+#define TASK_RESUME_PARAMS(taskId, taskStatus, prio)     taskId, taskStatus, prio
+#define TASK_SIGNAL_PARAMS(taskId, signal, schedFlag)    // taskId, signal, schedFlag
 
-#define SWTMR_FUNCIN_PARAMS(handler, tick)              handler, tick
-#define SWTMR_START_PARAMS(swtmr)                       swtmr, swtmr->uwInterval
-#define SWTMR_DELETE_PARAMS(swtmr)                      swtmr
-#define SWTMR_EXPIRED_PARAMS(swtmr)                     swtmr, (UINTPTR)(swtmr->pfnHandler)
-#define SWTMR_STOP_PARAMS(swtmr)                        swtmr
-#define SWTMR_CREATE_PARAMS(swtmr)                      swtmr
+#define SWTMR_START_PARAMS(swtmrId, mode, overrun, interval, expiry)  swtmrId, mode, overrun, interval, expiry
+#define SWTMR_DELETE_PARAMS(swtmrId)                                  swtmrId
+#define SWTMR_EXPIRED_PARAMS(swtmrId)                                 swtmrId
+#define SWTMR_STOP_PARAMS(swtmrId)                                    swtmrId
+#define SWTMR_CREATE_PARAMS(swtmrId)                                  swtmrId
 
-#define HWI_RESPONSE_IN_PARAMS(intNum)                  intNum
-#define HWI_RESPONSE_OUT_PARAMS(intNum)                 intNum
-#define HWI_CREATE_PARAMS(intNum, prio, handler, irqDevId)      intNum, prio, (UINTPTR)handler, (UINTPTR)irqDevId
-#define HWI_DELETE_PARAMS(intNum, irqDevId)             intNum, irqDevId
-
+#define HWI_CREATE_PARAMS(hwiNum, hwiPrio, hwiMode, hwiHandler) hwiNum, hwiPrio, hwiMode, hwiHandler
+#define HWI_CREATE_SHARE_PARAMS(hwiNum, pDevId, ret)    hwiNum, pDevId, ret
+#define HWI_DELETE_PARAMS(hwiNum)                       hwiNum
+#define HWI_DELETE_SHARE_PARAMS(hwiNum, pDevId, ret)    hwiNum, pDevId, ret
+#define HWI_RESPONSE_IN_PARAMS(hwiNum)                  hwiNum
+#define HWI_RESPONSE_OUT_PARAMS(hwiNum)                 hwiNum
+#define HWI_ENABLE_PARAMS(hwiNum)                       hwiNum
+#define HWI_DISABLE_PARAMS(hwiNum)                      hwiNum
+#define HWI_TRIGGER_PARAMS(hwiNum)                      hwiNum
+#define HWI_SETPRI_PARAMS(hwiNum, priority)             hwiNum, priority
+#define HWI_CLEAR_PARAMS(hwiNum)                        hwiNum
+#define HWI_SETAFFINITY_PARAMS(hwiNum, cpuMask)         hwiNum, cpuMask
+#define HWI_SENDIPI_PARAMS(hwiNum, cpuMask)             hwiNum, cpuMask
 
 #define EVENT_CREATE_PARAMS(eventCB)                    eventCB
-#define EVENT_READ_BLOCK_PARAMS(eventCB, events, timeout)   eventCB, events, timeout
-#define EVENT_READ_PARAMS(eventCB, events)              eventCB, events
-#define EVENT_WRITE_PARAMS(eventCB, events)             eventCB, events
-#define EVENT_POLL_PARAMS(eventID, events)              eventID, events
-#define EVENT_DELETE_PARAMS(eventCB)                    eventCB
-#define EVENT_CLEAR_PARAMS(eventCB, events)             eventCB, events
+#define EVENT_DELETE_PARAMS(eventCB, delRetCode)        eventCB, delRetCode
+#define EVENT_READ_PARAMS(eventCB, eventId, mask, mode, timeout) \
+    eventCB, eventId, mask, mode, timeout
+#define EVENT_WRITE_PARAMS(eventCB, eventId, events)    eventCB, eventId, events
+#define EVENT_CLEAR_PARAMS(eventCB, eventId, events)    eventCB, eventId, events
 
-#define QUEUE_CREATE_PARAMS(queueCB)                    queueCB, queueCB->queueLen, queueCB->queueSize
-#define QUEUE_READ_BLOCK_PARAMS(queueCB, timeout)       queueCB, timeout
-#define QUEUE_WRITE_BLOCK_PARAMS(queueCB, timeout)      queueCB, timeout
-#define QUEUE_READ_PARAMS(queueCB)                      queueCB
-#define QUEUE_WRITE_PARAMS(queueCB)                     queueCB
-#define QUEUE_DELETE_PARAMS(queueCB)                    queueCB
+#define QUEUE_CREATE_PARAMS(queueId, queueSz, itemSz, queueAddr, memType) \
+    queueId, queueSz, itemSz, queueAddr, memType
+#define QUEUE_DELETE_PARAMS(queueId, state, readable)   queueId, state, readable
+#define QUEUE_RW_PARAMS(queueId, queueSize, bufSize, operateType, readable, writeable, timeout) \
+    queueId, queueSize, bufSize, operateType, readable, writeable, timeout
 
-#define SEM_CREATE_PARAMS(semCB)                        semCB, semCB->semCount, semCB->maxSemCount
-#define SEM_DELETE_PARAMS(semCB)                        semCB
-#define SEM_PEND_BLOCK_PARAMS(semCB, timeout)           semCB, timeout
-#define SEM_PEND_PARAMS(semCB)                          semCB
-#define SEM_POST_PARAMS(semCB)                          semCB
+#define SEM_CREATE_PARAMS(semId, type, count)           semId, type, count
+#define SEM_DELETE_PARAMS(semId, delRetCode)            semId, delRetCode
+#define SEM_PEND_PARAMS(semId, count, timeout)          semId, count, timeout
+#define SEM_POST_PARAMS(semId, type, count)             semId, type, count
 
-#define MUX_CREATE_PARAMS(muxCB)                        muxCB
-#define MUX_DELETE_PARAMS(muxCB)                        muxCB
-#define MUX_PEND_BLOCK_PARAMS(muxCB, timeout)           muxCB, timeout
-#define MUX_PEND_PARAMS(muxCB)                          muxCB
-#define MUX_POST_PARAMS(muxCB)                          muxCB
+#define MUX_CREATE_PARAMS(muxId)                        muxId
+#define MUX_DELETE_PARAMS(muxId, state, count, owner)   muxId, state, count, owner
+#define MUX_PEND_PARAMS(muxId, count, owner, timeout)   muxId, count, owner, timeout
+#define MUX_POST_PARAMS(muxId, count, owner)            muxId, count, owner
 
-#define MEM_ALLOC_PARAMS(ptr, size)                     ptr, size
-#define MEM_FREE_PARAMS(ptr, size)                      ptr
-#define MEM_INFO_REQ_PARAMS(pool)                       pool
-#define MEM_INFO_PARAMS(pool, status)                   pool, (status)->uwTotalUsedSize, (status)->uwTotalFreeSize
+#define MEM_ALLOC_PARAMS(pool, ptr, size)                   pool, ptr, size
+#define MEM_ALLOC_ALIGN_PARAMS(pool, ptr, size, boundary)   pool, ptr, size, boundary
+#define MEM_REALLOC_PARAMS(pool, ptr, size)                 pool, ptr, size
+#define MEM_FREE_PARAMS(pool, ptr)                          pool, ptr
+#define MEM_INFO_REQ_PARAMS(pool)                           pool
+#define MEM_INFO_PARAMS(pool, usedSize, freeSize)           pool, usedSize, freeSize
 
 #define SYS_ERROR_PARAMS(errno)                         errno
 
-#if (LOSCFG_KERNEL_TRACE == YES)
-#define LOS_TRACE(MOD, OPS, IDENTITY, ...)                                                \
-    do {                                                                                  \
-        UINTPTR _inner[] = {0, MOD##_##OPS##_PARAMS((UINTPTR)IDENTITY, ##__VA_ARGS__)};   \
-        UINTPTR _n = sizeof(_inner) / sizeof(UINTPTR);                                    \
-        if (_n > 1) {                                                                     \
-            OsTraceHook(TRACE_##MOD##_##OPS, (UINTPTR)IDENTITY, &_inner[1], _n - 1);      \
-        }                                                                                 \
+#ifdef LOSCFG_KERNEL_TRACE
+
+/**
+ * @ingroup los_trace
+ * @brief Trace static code stub.
+ *
+ * @par Description:
+ * This API is used to instrument trace code stub in source code, to track events.
+ * @attention
+ * None.
+ *
+ * @param TYPE           [IN] Type #LOS_TRACE_TYPE. The event type.
+ * @param IDENTITY       [IN] Type #UINTPTR. The subject of this event description.
+ * @param ...            [IN] Type #UINTPTR. This piece of event's params.
+ * @retval None.
+ *
+ * @par Dependency:
+ * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R005C00
+ */
+#define LOS_TRACE(TYPE, IDENTITY, ...)                                             \
+    do {                                                                           \
+        LOS_PERF(TYPE);                                                            \
+        UINTPTR _inner[] = {0, TYPE##_PARAMS((UINTPTR)IDENTITY, ##__VA_ARGS__)};   \
+        UINTPTR _n = sizeof(_inner) / sizeof(UINTPTR);                             \
+        if (_n > 1) {                                                              \
+            OsTraceHook(TYPE, _inner[1], _n > 2 ? &_inner[2] : NULL, _n - 2);      \
+        }                                                                          \
     } while (0)
 #else
-#define LOS_TRACE(MOD, OPS, ...)
+#define LOS_TRACE(TYPE, ...)   LOS_PERF(TYPE)
+#endif
+
+#ifdef LOSCFG_KERNEL_TRACE
+
+/**
+ * @ingroup los_trace
+ * @brief Trace static easier user-defined code stub.
+ *
+ * @par Description:
+ * This API is used to instrument user-defined trace code stub in source code, to track events simply.
+ * @attention
+ * None.
+ *
+ * @param TYPE           [IN] Type #UINT32. The event type, only low 4 bits take effect.
+ * @param IDENTITY       [IN] Type #UINTPTR. The subject of this event description.
+ * @param ...            [IN] Type #UINTPTR. This piece of event's params.
+ * @retval None.
+ *
+ * @par Dependency:
+ * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R005C00
+ */
+#define LOS_TRACE_EASY(TYPE, IDENTITY, ...)                                                                 \
+    do {                                                                                                    \
+        UINTPTR _inner[] = {0, ##__VA_ARGS__};                                                              \
+        UINTPTR _n = sizeof(_inner) / sizeof(UINTPTR);                                                      \
+        OsTraceHook(TRACE_USER_DEFAULT_FLAG | TYPE, (UINTPTR)IDENTITY, _n > 1 ? &_inner[1] : NULL, _n - 1); \
+    } while (0)
+#else
+#define LOS_TRACE_EASY(...)
 #endif
 
 /**
@@ -457,27 +564,49 @@ extern VOID LOS_TraceEventMaskSet(UINT32 mask);
 
 /**
  * @ingroup los_trace
- * @brief Offline trace buffer export.
+ * @brief Offline trace buffer display.
  *
  * @par Description:
- * Return the trace buf only at offline mode.
+ * Display trace buf data only at offline mode.
  * @attention
  * <ul>
- * <li>This API can be called only after that trace buffer has been established.</li>
- * Otherwise, the trace will be failed.</li>
- * <li>Trace data will be send to pipeline when user set toClient = TRUE.</li>
- * <li>The return buffer's address is a critical resource, user can only ready.</li>
+ * <li>This API can be called only after that trace stopped. Otherwise the trace dump will be failed.</li>
+ * <li>Trace data will be send to pipeline when user set toClient = TRUE. Otherwise it will be formatted and printed
+ * out.</li>
  * </ul>
  *
  * @param toClient           [IN] Type #BOOL. Whether send trace data to Client through pipeline.
- * @retval #VOID*            The trace buffer's address, analyze this buffer according to the structure of OfflineHead.
+ * @retval #NA
  *
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceRecordDump
  * @since Huawei LiteOS V200R005C00
  */
-extern VOID *LOS_TraceRecordDump(BOOL toClient);
+extern VOID LOS_TraceRecordDump(BOOL toClient);
+
+/**
+ * @ingroup los_trace
+ * @brief Offline trace buffer export.
+ *
+ * @par Description:
+ * Return the trace buf only at offline mode.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after that trace buffer has been established. </li>
+ * <li>The return buffer's address is a critical resource, user can only ready.</li>
+ * </ul>
+ *
+ * @param NA
+ * @retval #OfflineHead*   The trace buffer's address, analyze this buffer according to the structure of
+ * OfflineHead.
+ *
+ * @par Dependency:
+ * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_TraceRecordGet
+ * @since Huawei LiteOS V200R005C00
+ */
+extern OfflineHead *LOS_TraceRecordGet(VOID);
 
 /**
  * @ingroup los_trace

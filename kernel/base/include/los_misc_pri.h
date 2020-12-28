@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
  * Description: System time Private HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2020-07-28
@@ -25,18 +25,44 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_MISC_PRI_H
 #define _LOS_MISC_PRI_H
 
+#include "los_typedef.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
 VOID OsDumpMemByte(size_t length, UINTPTR addr);
+
+#if defined(LOSCFG_DEBUG_SEMAPHORE) || defined(LOSCFG_DEBUG_MUTEX) || defined(LOSCFG_DEBUG_QUEUE)
+typedef struct {
+    CHAR *buf;             /**< Control block array total buffer */
+    size_t ctrlBlockSize; /**< Single control block size */
+    size_t ctrlBlockCnt;  /**< Number of control blocks */
+    UINT32 sortElemOff;    /**< The offset of the member to be compared in the control block */
+} SortParam;
+
+/* Compare the size of the last access time */
+typedef BOOL (*OsCompareFunc)(const SortParam *sortParam, UINT32 left, UINT32 right);
+
+/* Get the address of the comparison member variable */
+#define SORT_ELEM_ADDR(sortParam, index) \
+    ((sortParam)->buf + ((index) * (sortParam)->ctrlBlockSize) + (sortParam)->sortElemOff)
+
+/* Sort this index array. */
+extern VOID OsArraySort(UINT32 *sortArray, UINT32 start, UINT32 end, const SortParam *sortParam,
+                        OsCompareFunc compareFunc);
+#endif
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* _LOS_MISC_PRI_H */

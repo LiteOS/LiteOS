@@ -22,7 +22,9 @@ int __towrite(FILE *f)
 	return 0;
 }
 
+#ifndef __LITEOS__
 hidden void __towrite_needs_stdio_exit(void)
 {
 	__stdio_exit_needed();
 }
+#endif

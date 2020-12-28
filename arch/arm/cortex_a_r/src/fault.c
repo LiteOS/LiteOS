@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: ARMv7 Exc Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,25 +25,15 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "arch/exception.h"
 
 #include "los_memory_pri.h"
 #include "los_printf_pri.h"
 #include "los_task_pri.h"
-#ifdef LOSCFG_SHELL_EXCINFO
-#include "los_excinfo_pri.h"
-#endif
-#ifdef LOSCFG_EXC_INTERACTION
-#include "los_exc_interaction_pri.h"
+#if defined(LOSCFG_SHELL_EXCINFO_DUMP) || defined(LOSCFG_EXC_INTERACTION)
+#include "los_exc_pri.h"
+#include "los_hwi_pri.h"
 #endif
 #ifdef LOSCFG_COREDUMP
 #include "los_coredump.h"
@@ -52,6 +42,10 @@
 #include "gdb_int.h"
 #endif
 #include "los_mp_pri.h"
+
+#ifdef LOSCFG_KERNEL_TRACE
+#include "los_trace_pri.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -236,7 +230,7 @@ UINT32 ArchSetExcHook(EXC_PROC_FUNC excHook)
 }
 
 
-EXC_PROC_FUNC OsExcRegHookGet(VOID)
+EXC_PROC_FUNC ArchGetExcHook(VOID)
 {
     return g_excHook;
 }
@@ -307,7 +301,7 @@ FOUND:
     return found;
 }
 
-STATIC VOID BackTraceWithFp(UINTPTR fp)
+UINT32 ArchBackTraceGet(UINTPTR fp, UINTPTR *callChain, UINT32 maxDepth)
 {
     UINTPTR tmpFP;
     UINTPTR backLR;
@@ -316,10 +310,12 @@ STATIC VOID BackTraceWithFp(UINTPTR fp)
     UINT32 count = 0;
 
     if (FindSuitableStack(fp, &stackStart, &stackEnd) == FALSE) {
-        return;
+        return 0;
     }
 
-    PrintExcInfo("*******backtrace begin*******\n");
+    if (callChain == NULL) {
+        PrintExcInfo("*******backtrace begin*******\n");
+    }
 
     /*
      * Check whether it is the leaf function.
@@ -330,20 +326,33 @@ STATIC VOID BackTraceWithFp(UINTPTR fp)
     tmpFP = *((UINTPTR *)(fp));
     if (IsValidFP(tmpFP, stackStart, stackEnd)) {
         backFP = tmpFP;
-        PrintExcInfo("traceback fp fixed, trace using   fp = 0x%x\n", backFP);
+
+        if (callChain == NULL) {
+            PrintExcInfo("traceback fp fixed, trace using   fp = 0x%x\n", backFP);
+        }
     }
 
     while (IsValidFP(backFP, stackStart, stackEnd)) {
         tmpFP = backFP;
         backLR = *((UINTPTR *)(tmpFP));
         backFP = *((UINTPTR *)(tmpFP - POINTER_SIZE));
-        PrintExcInfo("traceback %u -- lr = 0x%x    fp = 0x%x\n", count, backLR, backFP);
 
+        if (callChain == NULL) {
+            PrintExcInfo("traceback %u -- lr = 0x%x    fp = 0x%x\n", count, backLR, backFP);
+        } else {
+            callChain[count] = backLR;
+        }
         count++;
-        if ((count == OS_MAX_BACKTRACE) || (backFP == tmpFP)) {
+        if ((count == maxDepth) || (backFP == tmpFP)) {
             break;
         }
     }
+    return count;
+}
+
+STATIC VOID BackTraceWithFp(UINTPTR fp)
+{
+    (VOID)ArchBackTraceGet(fp, NULL, OS_MAX_BACKTRACE);
 }
 
 VOID ArchBackTrace(VOID)
@@ -358,7 +367,7 @@ VOID ArchExcInit(VOID)
     OsExcStackInfoReg(g_excStack, sizeof(g_excStack) / sizeof(g_excStack[0]));
 }
 
-VOID ArchBackTraceWithSp(VOID *stackPointer)
+VOID ArchBackTraceWithSp(const VOID *stackPointer)
 {
     UINT32 regFp = ArchGetTaskFp(stackPointer);
 
@@ -374,11 +383,15 @@ VOID OsExcHook(UINT32 excType, ExcContext *excBufAddr)
     BackTraceWithFp(excBufAddr->R11);
 #ifdef LOSCFG_SHELL
     (VOID)OsShellCmdTskInfoGet(OS_ALL_TASK_MASK);
-#endif
     OsExcStackInfo();
+#endif
     OsDumpContextMem(excBufAddr);
 #ifdef LOSCFG_KERNEL_MEM_BESTFIT
     OsMemIntegrityMultiCheck();
+#endif
+
+#ifdef LOSCFG_KERNEL_TRACE
+    OsTraceRecordDump(FALSE);
 #endif
 
 #ifdef LOSCFG_COREDUMP
@@ -549,20 +562,20 @@ LITE_OS_SEC_TEXT_INIT VOID OsExcHandleEntry(UINT32 excType, ExcContext *excBufAd
     CheckAllCpuStatus();
 #endif
 
-#ifdef LOSCFG_SHELL_EXCINFO
-    log_read_write_fn func = GetExcInfoRW();
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+    LogReadWriteFunc func = OsGetExcInfoRW();
 #endif
 
     g_curNestCount++;
 
     if (g_excHook != NULL) {
         if (g_curNestCount == 1) {
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
             if (func != NULL) {
-                SetExcInfoIndex(0);
-                g_intCount[ArchCurrCpuid()] = 0;
+                OsSetExcInfoOffset(0);
+                OsIrqNestingCntSet(0); /* 0: int nest count */
                 OsRecordExcInfoTime();
-                g_intCount[ArchCurrCpuid()] = 1;
+                OsIrqNestingCntSet(1); /* 1: int nest count */
             }
 #endif
             g_excHook(excType, excBufAddr);
@@ -570,26 +583,23 @@ LITE_OS_SEC_TEXT_INIT VOID OsExcHandleEntry(UINT32 excType, ExcContext *excBufAd
             OsCallStackInfo();
         }
 
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
         if (func != NULL) {
-            PrintExcInfo("Be sure flash space bigger than GetExcInfoIndex():0x%x\n", GetExcInfoIndex());
-            g_intCount[ArchCurrCpuid()] = 0;
-            func(GetRecordAddr(), GetRecordSpace(), 0, GetExcInfoBuf());
-            g_intCount[ArchCurrCpuid()] = 1;
+            PrintExcInfo("Be sure your space bigger than OsOsGetExcInfoOffset():0x%x\n", OsGetExcInfoOffset());
+            OsIrqNestingCntSet(0);     /* 0: int nest count */
+            func(OsGetExcInfoDumpAddr(), OsGetExcInfoLen(), 0, OsGetExcInfoBuf());
+            OsIrqNestingCntSet(1);     /* 1: int nest count */
         }
 #endif
     }
 #ifdef LOSCFG_EXC_INTERACTION
-    OsExcInteractionTaskKeep();
+    OsKeepExcInteractionTask();
 #endif
 
     while (1) {
         ;
     }
 }
-
-/* stack protector */
-UINT32 __stack_chk_guard = 0xd00a0dff;
 
 #ifdef __cplusplus
 #if __cplusplus

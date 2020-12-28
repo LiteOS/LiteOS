@@ -25,22 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_mux_debug_pri.h"
 #include "los_typedef.h"
 #include "los_task.h"
-#include "los_ipcdebug_pri.h"
-
+#include "los_misc_pri.h"
 #include "arch/exception.h"
-
 #ifdef LOSCFG_SHELL
 #include "shcmd.h"
 #endif /* LOSCFG_SHELL */
@@ -52,14 +42,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_DEBUG_MUTEX
-
 typedef struct {
     TSK_ENTRY_FUNC creator; /* The task entry who created this mutex */
     UINT64  lastAccessTime; /* The last access time */
 } MuxDebugCB;
 STATIC MuxDebugCB *g_muxDebugArray = NULL;
 
-STATIC BOOL MuxCompareValue(const IpcSortParam *sortParam, UINT32 left, UINT32 right)
+STATIC BOOL MuxCompareValue(const SortParam *sortParam, UINT32 left, UINT32 right)
 {
     return (*((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, left)) >
             *((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, right)));
@@ -96,15 +85,15 @@ STATIC VOID SortMuxIndexArray(UINT32 *indexArray, UINT32 count)
     LosMuxCB muxNode = {0};
     MuxDebugCB muxDebugNode = {0};
     UINT32 index, intSave;
-    IpcSortParam muxSortParam;
+    SortParam muxSortParam;
     muxSortParam.buf = (CHAR *)g_muxDebugArray;
-    muxSortParam.ipcDebugCBSize = sizeof(MuxDebugCB);
-    muxSortParam.ipcDebugCBCnt = LOSCFG_BASE_IPC_MUX_LIMIT;
+    muxSortParam.ctrlBlockSize = sizeof(MuxDebugCB);
+    muxSortParam.ctrlBlockCnt = LOSCFG_BASE_IPC_MUX_LIMIT;
     muxSortParam.sortElemOff = OFFSET_OF_FIELD(MuxDebugCB, lastAccessTime);
 
     if (count > 0) {
         SCHEDULER_LOCK(intSave);
-        OsArraySortByTime(indexArray, 0, count - 1, &muxSortParam, MuxCompareValue);
+        OsArraySort(indexArray, 0, count - 1, &muxSortParam, MuxCompareValue);
         SCHEDULER_UNLOCK(intSave);
         for (index = 0; index < count; index++) {
             SCHEDULER_LOCK(intSave);
@@ -189,222 +178,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdMuxInfoGet(UINT32 argc, const CHAR **arg
 SHELLCMD_ENTRY(mutex_shellcmd, CMD_TYPE_EX, "mutex", 0, (CmdCallBackFunc)OsShellCmdMuxInfoGet);
 #endif /* LOSCFG_SHELL */
 #endif /* LOSCFG_DEBUG_MUTEX */
-
-#ifdef LOSCFG_DEBUG_DEADLOCK
-typedef struct {
-    LOS_DL_LIST muxListHead;    /* Task-held mutexs list */
-    UINT64      lastAccessTime; /* The last operation time */
-} MuxDLinkCB;
-
-typedef struct {
-    LOS_DL_LIST muxList; /* Insert mutex into the owner task CB */
-    VOID        *muxCB;  /* The Mutex CB pointer */
-} MuxDLinkNode;
-
-STATIC MuxDLinkCB *g_muxDeadlockCBArray = NULL;
-
-/*
- * Mutex deadlock detection time threshold, will print out task information
- * that has not been scheduled within this time.
- * The unit is tick.
- */
-#define OS_MUX_DEADLOCK_CHECK_THRESHOLD 60000
-
-UINT32 OsMuxDlockCheckInit(VOID)
-{
-    UINT32 index;
-    UINT32 size = (LOSCFG_BASE_CORE_TSK_LIMIT + 1) * sizeof(MuxDLinkCB);
-
-    /* system resident memory, don't free */
-    g_muxDeadlockCBArray = (MuxDLinkCB *)LOS_MemAlloc(m_aucSysMem1, size);
-    if (g_muxDeadlockCBArray == NULL) {
-        PRINT_ERR("%s: malloc failed!\n", __FUNCTION__);
-        return LOS_NOK;
-    }
-
-    for (index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT + 1; index++) {
-        g_muxDeadlockCBArray[index].lastAccessTime = 0;
-        LOS_ListInit(&g_muxDeadlockCBArray[index].muxListHead);
-    }
-    return LOS_OK;
-}
-
-VOID OsMuxDlockNodeInsert(UINT32 taskId, VOID *muxCB)
-{
-    MuxDLinkNode *muxDLNode = NULL;
-
-    if ((taskId > LOSCFG_BASE_CORE_TSK_LIMIT) || (muxCB == NULL)) {
-        PRINT_ERR("%s: Argument is invalid!\n", __FUNCTION__);
-        return;
-    }
-
-    muxDLNode = (MuxDLinkNode *)LOS_MemAlloc(m_aucSysMem1, sizeof(MuxDLinkNode));
-    if (muxDLNode == NULL) {
-        PRINT_ERR("%s: malloc failed!\n", __FUNCTION__);
-        return;
-    }
-    (VOID)memset_s(muxDLNode, sizeof(MuxDLinkNode), 0, sizeof(MuxDLinkNode));
-    muxDLNode->muxCB = muxCB;
-
-    LOS_ListTailInsert(&g_muxDeadlockCBArray[taskId].muxListHead, &muxDLNode->muxList);
-}
-
-VOID OsMuxDlockNodeDelete(UINT32 taskId, const VOID *muxCB)
-{
-    MuxDLinkCB *muxDLCB = NULL;
-    LOS_DL_LIST *list = NULL;
-    MuxDLinkNode *muxDLNode = NULL;
-
-    if ((taskId > LOSCFG_BASE_CORE_TSK_LIMIT) || (muxCB == NULL)) {
-        PRINT_ERR("%s: Argument is invalid!\n", __FUNCTION__);
-        return;
-    }
-
-    muxDLCB = &g_muxDeadlockCBArray[taskId];
-    LOS_DL_LIST_FOR_EACH(list, &muxDLCB->muxListHead) {
-        muxDLNode = LOS_DL_LIST_ENTRY(list, MuxDLinkNode, muxList);
-        if (muxDLNode->muxCB == muxCB) {
-            LOS_ListDelete(&muxDLNode->muxList);
-            (VOID)LOS_MemFree(m_aucSysMem1, muxDLNode);
-            return;
-        }
-    }
-
-    PRINT_ERR("%s: find mutex deadlock node failed!\n", __FUNCTION__);
-}
-
-VOID OsTaskTimeUpdate(UINT32 taskId, UINT64 tickCount)
-{
-    if (taskId > LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return;
-    }
-
-    g_muxDeadlockCBArray[taskId].lastAccessTime = tickCount;
-}
-
-STATIC VOID OsDeadlockBackTrace(const LosTaskCB *taskCB)
-{
-    TaskContext *context = NULL;
-
-    PRINTK("*******backtrace begin*******\n");
-    context = (TaskContext *)taskCB->stackPointer;
-    ArchBackTraceWithSp(context);
-    PRINTK("********backtrace end********\n");
-    return;
-}
-
-STATIC VOID OsMutexPendTaskList(LOS_DL_LIST *list)
-{
-    LOS_DL_LIST *listTmp = NULL;
-    LosTaskCB *pendedTask = NULL;
-    CHAR *name = NULL;
-    UINT32 index = 0;
-    UINT32 id, intSave;
-
-    SCHEDULER_LOCK(intSave);
-    if (LOS_ListEmpty(list) == TRUE) {
-        SCHEDULER_UNLOCK(intSave);
-        PRINTK("Pended Task: null\n");
-        return;
-    }
-
-    LOS_DL_LIST_FOR_EACH(listTmp, list) {
-        pendedTask = OS_TCB_FROM_PENDLIST(listTmp);
-        name = pendedTask->taskName;
-        id = pendedTask->taskId;
-        SCHEDULER_UNLOCK(intSave);
-        if (index == 0) {
-            PRINTK("Pended task: %u. name:%-15s, id:0x%-5x\n", index, name, id);
-        } else {
-            PRINTK("             %u. name:%-15s, id:0x%-5x\n", index, name, id);
-        }
-        index++;
-        SCHEDULER_LOCK(intSave);
-    }
-    SCHEDULER_UNLOCK(intSave);
-}
-
-STATIC VOID OsTaskHoldMutexList(MuxDLinkCB *muxDLCB)
-{
-    UINT32 index = 0;
-    MuxDLinkNode *muxDLNode = NULL;
-    CHAR *ownerName = NULL;
-    LosMuxCB *muxCB = NULL;
-    LOS_DL_LIST *list = NULL;
-    LOS_DL_LIST *listTmp = NULL;
-    UINT32 count, intSave;
-
-    SCHEDULER_LOCK(intSave);
-    if (LOS_ListEmpty(&muxDLCB->muxListHead) == TRUE) {
-        SCHEDULER_UNLOCK(intSave);
-        PRINTK("null\n");
-    } else {
-        LOS_DL_LIST_FOR_EACH(list, &muxDLCB->muxListHead) {
-            muxDLNode = LOS_DL_LIST_ENTRY(list, MuxDLinkNode, muxList);
-            muxCB = (LosMuxCB *)muxDLNode->muxCB;
-            count = muxCB->muxCount;
-            ownerName = muxCB->owner->taskName;
-            SCHEDULER_UNLOCK(intSave);
-            PRINTK("<Mutex%u info>\n", index);
-            PRINTK("Ptr handle:%p\n", muxCB);
-            PRINTK("Owner:%s\n", ownerName);
-            PRINTK("Count:%u\n", count);
-
-            listTmp = &muxCB->muxList;
-            OsMutexPendTaskList(listTmp);
-
-            index++;
-            SCHEDULER_LOCK(intSave);
-        }
-        SCHEDULER_UNLOCK(intSave);
-    }
-}
-
-VOID OsMutexDlockCheck(VOID)
-{
-    UINT32 loop, intSave;
-    UINT32 taskId;
-    CHAR *name = NULL;
-    LosTaskCB *taskCB = NULL;
-    MuxDLinkCB *muxDLCB = NULL;
-
-    SCHEDULER_LOCK(intSave);
-    for (loop = 0; loop < g_taskMaxNum; loop++) {
-        taskCB = (LosTaskCB *)g_taskCBArray + loop;
-        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
-            continue;
-        }
-
-        muxDLCB = &g_muxDeadlockCBArray[taskCB->taskId];
-        if ((LOS_TickCountGet() - muxDLCB->lastAccessTime) > OS_MUX_DEADLOCK_CHECK_THRESHOLD) {
-            name = taskCB->taskName;
-            taskId = taskCB->taskId;
-            SCHEDULER_UNLOCK(intSave);
-            PRINTK("Task_name:%s, ID:0x%x, holds the Mutexs below:\n", name, taskId);
-            OsTaskHoldMutexList(muxDLCB);
-            OsDeadlockBackTrace(taskCB);
-            PRINTK("\n");
-            SCHEDULER_LOCK(intSave);
-        }
-    }
-    SCHEDULER_UNLOCK(intSave);
-}
-
-#ifdef LOSCFG_SHELL
-UINT32 OsShellCmdMuxDeadlockCheck(UINT32 argc, const CHAR **argv)
-{
-    if (argc > 0) {
-        PRINTK("\nUsage: dlock\n");
-        return OS_ERROR;
-    }
-    PRINTK("Start mutexs deadlock check: \n");
-    OsMutexDlockCheck();
-    PRINTK("-----------End-----------\n");
-    return LOS_OK;
-}
-SHELLCMD_ENTRY(deadlock_shellcmd, CMD_TYPE_EX, "dlock", 0, (CmdCallBackFunc)OsShellCmdMuxDeadlockCheck);
-#endif /* LOSCFG_SHELL */
-#endif /* LOSCFG_DEBUG_DEADLOCK */
 
 #ifdef __cplusplus
 #if __cplusplus

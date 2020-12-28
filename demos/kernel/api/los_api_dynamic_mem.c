@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Dynamic Memory Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include <stdlib.h>
 #include "los_config.h"
@@ -44,56 +38,52 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#ifdef LOSCFG_ARCH_ARM_CORTEX_A
+#define MEM_DYN_SIZE  (256 * 4)
+#else
 #define MEM_DYN_SIZE  256
-static UINT32 pDynMem[MEM_DYN_SIZE/4];
-extern UINT32 LOS_MemInit(VOID *pPool, UINT32 uwSize);
+#endif
+
+static UINT32 g_demoDynMem[MEM_DYN_SIZE / 4];
 
 UINT32 Example_Dyn_Mem(VOID)
 {
-    UINT32 *p_num = NULL;
-    UINT32 uwRet;
-    uwRet = LOS_MemInit(pDynMem, MEM_DYN_SIZE);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mempool init ok! \r\n");
-    }
-    else
-    {
-        dprintf("mempool init failed! \r\n");
+    UINT32 *mem = NULL;
+    UINT32 ret;
+    printf("Kernel dynamic memory demo begin.\n");
+    ret = LOS_MemInit(g_demoDynMem, MEM_DYN_SIZE);
+    if (ret == LOS_OK) {
+        printf("Mempool init ok.\n");
+    } else {
+        printf("Mempool init failed.\n");
         return LOS_NOK;
     }
 
     /* mem alloc */
-    p_num = (UINT32 *)LOS_MemAlloc(pDynMem, 4);
-    if (NULL == p_num)
-    {
-        dprintf("mem alloc failed! \r\n");
+    mem = (UINT32 *)LOS_MemAlloc(g_demoDynMem, 4);
+    if (mem == NULL) {
+        printf("Mem alloc failed.\n");
         return LOS_NOK;
     }
-    dprintf("mem alloc ok \r\n");
+    printf("Mem alloc ok.\n");
 
     /* assignment */
-    *p_num = 828;
-    dprintf("*p_num = %d \r\n", *p_num);
+    *mem = 828;
+    printf("*mem = %d.\n", *mem);
 
     /* mem free */
-    uwRet = LOS_MemFree(pDynMem, p_num);
-    if (LOS_OK == uwRet)
-    {
-        dprintf("mem free ok!\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
+    ret = LOS_MemFree(g_demoDynMem, mem);
+    if (ret == LOS_OK) {
+        printf("Mem free ok.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_DMEM, LOS_INSPECT_STU_SUCCESS);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
-    }
-    else
-    {
-        dprintf("mem free failed! \r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err \r\n");
+    } else {
+        printf("Mem free failed.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_DMEM, LOS_INSPECT_STU_ERROR);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
         return LOS_NOK;
     }

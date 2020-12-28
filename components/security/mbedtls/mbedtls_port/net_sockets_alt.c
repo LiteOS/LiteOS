@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Network Sockets Alt
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -52,19 +46,21 @@
 #include "osdepends/atiny_osdep.h"
 #include "sal/atiny_socket.h"
 
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 void mbedtls_net_init(mbedtls_net_context *ctx)
 {
     ctx->fd = -1;
 }
 
-int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *port, int proto)
+int  mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *port, int proto)
 {
-    ctx = atiny_net_connect(host, port, proto);
-    if (ctx == NULL) {
-        return -1;
-    }
-    return 0;
+     int ret = atiny_net_connect((atiny_net_context*)ctx, host, port, proto);
+     return ret;
 }
 
 void mbedtls_net_usleep(unsigned long usec)
@@ -76,12 +72,9 @@ int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     int ret = atiny_net_recv(ctx, buf, len);
 
-    if (ret == 0)
-    {
+    if (ret == 0) {
         return MBEDTLS_ERR_SSL_WANT_READ;
-    }
-    else if (ret < 0)
-    {
+    } else if (ret < 0) {
         return MBEDTLS_ERR_NET_RECV_FAILED;
     }
 
@@ -93,12 +86,9 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
 {
     int ret = atiny_net_recv_timeout(ctx, buf, len, timeout);
 
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return MBEDTLS_ERR_SSL_TIMEOUT;
-    }
-    else if (ret == 0)
-    {
+    } else if (ret == 0) {
         return MBEDTLS_ERR_SSL_WANT_READ;
     }
 
@@ -109,12 +99,9 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
 {
     int ret = atiny_net_send(ctx, buf, len);
 
-    if (ret == 0)
-    {
+    if (ret == 0) {
         return MBEDTLS_ERR_SSL_WANT_WRITE;
-    }
-    else if (ret < 0)
-    {
+    } else if (ret < 0) {
         return MBEDTLS_ERR_NET_SEND_FAILED;
     }
 
@@ -132,20 +119,27 @@ int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
 {
     int ret = atiny_net_accept(bind_ctx, client_ctx, client_ip, buf_size, ip_len);
 
-    if (ret == ATINY_NET_ERR)
-       return MBEDTLS_ERR_NET_UNKNOWN_HOST;
-    else if (ret == ATINY_NET_SOCKET_FAILED)
+    if (ret == ATINY_NET_ERR) {
+        return MBEDTLS_ERR_NET_UNKNOWN_HOST;
+    } else if (ret == ATINY_NET_SOCKET_FAILED) {
        return MBEDTLS_ERR_NET_SOCKET_FAILED;
-    else if (ret == ATINY_NET_BIND_FAILED)
+    } else if (ret == ATINY_NET_BIND_FAILED) {
       return MBEDTLS_ERR_NET_BIND_FAILED;
-    else if (ret == ATINY_NET_LISTEN_FAILED)
+    } else if (ret == ATINY_NET_LISTEN_FAILED) {
         return MBEDTLS_ERR_NET_LISTEN_FAILED;
-    else if (ret == ATINY_NET_ACCEPT_FAILED)
+    } else if (ret == ATINY_NET_ACCEPT_FAILED) {
         return MBEDTLS_ERR_NET_ACCEPT_FAILED;
-    else if(ret == ATINY_NET_BUF_SMALL_FAILED)
+    } else if(ret == ATINY_NET_BUF_SMALL_FAILED) {
         return MBEDTLS_ERR_NET_BUFFER_TOO_SMALL;
+    }
 
     return ret;
 }
-#endif /* MBEDTLS_NET_C */
 
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* MBEDTLS_NET_C */

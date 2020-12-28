@@ -12,7 +12,13 @@ hidden FILE __stderr_FILE = {
 	.write = __stdio_write,
 	.seek = __stdio_seek,
 	.close = __stdio_close,
+#ifndef __LITEOS__
 	.lock = -1,
+#else
+	/* lock always check */
+	.lock = 0,
+	__INIT_LOCK_ATTR(._lock),
+#endif
 };
 FILE *const stderr = &__stderr_FILE;
 FILE *volatile __stderr_used = &__stderr_FILE;

@@ -1,12 +1,14 @@
 menu "Components"
-#source "components/connectivity/Kconfig"
+
+source "components/connectivity/Kconfig"
 source "components/fs/Kconfig"
 source "components/gui/Kconfig"
-#source "components/lib/Kconfig"
-#source "components/log/Kconfig"
+source "components/lib/Kconfig"
+source "components/log/Kconfig"
 source "components/net/Kconfig"
 #source "components/ota/Kconfig"
 source "components/security/Kconfig"
 source "components/sensorhub/Kconfig"
+source "components/ai/Kconfig"
 
 endmenu

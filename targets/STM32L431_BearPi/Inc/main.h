@@ -43,13 +43,6 @@
 
 /* Includes LiteOS------------------------------------------------------------------*/
 
-#include "los_base.h"
-#include "los_config.h"
-#include "los_sys.h"
-#include "los_typedef.h"
-#include "los_event_pri.h"
-#include "los_event.h"
-
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */

@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Spi Flash Fs Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,45 +24,31 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-/* Includes -----------------------------------------------------------------*/
 #include "fs_common.h"
 
-
-
-#define SPIFFS_PATH         "/spiffs"
+#define SPIFFS_PATH "/spiffs"
 
 char spiffs_file_name[100] = {0};
 char spiffs_dir_name[100] = {0};
 
-extern int stm32f4xx_spiffs_init (int need_erase);
+extern int hal_spiffs_init(int need_erase);
 extern int spiffs_unmount(const char *path);
 
 void spiffs_demo(void)
 {
     int ret = 0;
 
-    ret = stm32f4xx_spiffs_init(0);
-    if(ret == LOS_NOK)
-    {
-        FS_LOG_ERR("stm32f4xx_spiffs_init failed.");
+    ret = hal_spiffs_init(0);
+    if (ret == LOS_NOK) {
+        FS_LOG_ERR("spiffs_init failed.");
         return;
     }
     sprintf(spiffs_file_name, "%s/%s", SPIFFS_PATH, LOS_FILE);
     sprintf(spiffs_dir_name, "%s/%s", SPIFFS_PATH, LOS_DIR);
 
-    los_vfs_io(spiffs_file_name,spiffs_dir_name);
+    los_vfs_io(spiffs_file_name, spiffs_dir_name);
 
     spiffs_unmount("/spiffs/");
 }
-
-

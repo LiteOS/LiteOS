@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch32 Assembly Defines and Macros HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,17 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#ifndef __ARCH_ASM_H
-#define __ARCH_ASM_H
+#ifndef _ARCH_ASM_H
+#define _ARCH_ASM_H
 
 #include "arch/regs.h"
 
@@ -75,4 +67,4 @@ x:                      \
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* __ARCH_ASM_H */
+#endif /* _ARCH_ASM_H */

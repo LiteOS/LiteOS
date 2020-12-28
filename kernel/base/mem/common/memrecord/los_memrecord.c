@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 #include "los_memrecord_pri.h"
 #include "stdio.h"
 #include "los_memory.h"
@@ -62,7 +54,7 @@ STATIC volatile UINT32 g_memRecordIndex = 0;
 STATIC volatile UINT32 g_memLastEndIndex = 0;
 STATIC EVENT_CB_S g_memShowEvent;
 
-UINT32 g_memRecordShowEnable = 1;
+BOOL g_memRecordShowEnable = TRUE;
 STATIC UINT32 g_lastAddrNodeIndex = 0;
 STATIC UINT32 g_lastReqSizeNodeIndex = 0;
 STATIC UINT32 g_lastlinkRegNodeIndex = 0;
@@ -313,7 +305,7 @@ STATIC INLINE VOID OsMemRecord(const VOID *ptr, UINT32 size)
 
 VOID OsMemRecordMalloc(const VOID *ptr, UINT32 size)
 {
-    if (g_memRecordShowEnable == 0) {
+    if (g_memRecordShowEnable == FALSE) {
         return;
     }
 
@@ -324,7 +316,7 @@ VOID OsMemRecordMalloc(const VOID *ptr, UINT32 size)
 VOID OsMemRecordFree(const VOID *ptr, UINT32 size)
 {
     UINT32 actType;
-    if (g_memRecordShowEnable == 0) {
+    if (g_memRecordShowEnable == FALSE) {
         return;
     }
     actType = (size == 0) ? OS_MEM_INVALIDFREE : OS_MEM_VALIDFREE;
@@ -344,7 +336,7 @@ VOID OsMemRecordShowTask(VOID)
     }
 }
 
-VOID OsMemRecordShowSet(UINT32 value)
+VOID OsMemRecordShowSet(BOOL value)
 {
     g_memRecordShowEnable = value;
 }

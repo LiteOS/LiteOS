@@ -1,0 +1,6 @@
+config LOSCFG_KERNEL_LMS
+    bool "Enable Lite Memory Sanitizer"
+    default n
+    depends on LOSCFG_KERNEL_MEM_BESTFIT &&  !LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    help
+      Select y to build LiteOS with memory sanitizer.

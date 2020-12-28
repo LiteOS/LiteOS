@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Hal Iwdg HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,28 +24,23 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
- /**@defgroup hal_iwdg Watch Dog
+/**
+ * @defgroup hal_iwdg Watch Dog
  * @ingroup hal
  */
 
-#ifndef _HAL_IWDG_H_
-#define _HAL_IWDG_H_
+#ifndef _HAL_IWDG_H
+#define _HAL_IWDG_H
 
 #include <stdint.h>
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /**
  *@ingroup hal_iwdg
@@ -65,23 +62,25 @@ extern "C" {
 int hal_iwdg_config(uint8_t prvscaler, uint16_t reload);
 
 /**
- *@ingroup hal_iwdg
- *@brief feed the watch dog.
+ * @ingroup hal_iwdg
+ * @brief feed the watch dog.
  *
- *@par Description:
- *This API is used to feed the watch dog.
- *@attention none.
+ * @par Description:
+ * This API is used to feed the watch dog.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval none.
- *@par Dependency: none.
- *@see none.
+ * @retval none.
+ * @par Dependency: none.
+ * @see none.
  */
 void hal_iwdg_feed(void);
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif  /* _HAL_IWDG_H_ */
+#endif  /* _HAL_IWDG_H */

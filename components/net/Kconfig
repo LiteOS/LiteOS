@@ -1,15 +1,73 @@
 menu "Network"
 
 config LOSCFG_COMPONENTS_NETWORK
-bool "Enable Network"
-default n
-help
-    Answer Y to enable network support.
+    bool "Enable Network"
+    default n
+    help
+      Answer y to enable network support.
 
 config LOSCFG_COMPONENTS_NET_LWIP
-depends on LOSCFG_COMPONENTS_NETWORK
-bool "Enable LWIP"
-default n
-help
-    Answer Y to enable lwip support.
+    bool "Enable Lwip"
+    depends on LOSCFG_COMPONENTS_NETWORK
+    default n
+    help
+      Answer y to enable lwip support.
+
+choice
+    prompt "Enable Ipv4 Or Ipv6"
+    default LOSCFG_LWIP_IPV4
+    depends on LOSCFG_COMPONENTS_NET_LWIP
+
+config LOSCFG_LWIP_IPV4
+    bool "Enable Ipv4"
+
+config LOSCFG_LWIP_IPV6
+    bool "Enable Ipv6"
+
+endchoice
+
+config LOSCFG_COMPONENTS_NET_SAL
+    bool "Enable Sal"
+    depends on LOSCFG_COMPONENTS_NETWORK
+    default n
+    help
+      Answer y to enable sal support.
+
+config LOSCFG_COMPONNETS_NET_AT
+    bool "Enable AT"
+    depends on LOSCFG_COMPONENTS_NETWORK
+    default n
+    help
+        Answer y to enable AT support.
+
+choice
+    prompt "Choose AT Device"
+    default LOSCFG_COMPONENTS_NET_AT_ESP8266
+    depends on LOSCFG_COMPONNETS_NET_AT
+
+    config LOSCFG_COMPONENTS_NET_AT_ESP8266
+    bool "Enable esp8266"
+
+    config LOSCFG_COMPONENTS_NET_AT_BC95
+    bool "Enable bc95"
+    select LOSCFG_COMPONENTS_CONNECTIVITY_NB_IOT
+
+    config LOSCFG_COMPONENTS_NET_AT_SIM900A
+    bool "Enable sim900a"
+
+    config LOSCFG_COMPONENTS_NET_AT_BG36
+    bool "Enable bg36"
+
+endchoice
+
+config LOSCFG_COMPONNETS_NET_AT_INFO
+    bool "Enable AT INFO"
+    depends on LOSCFG_COMPONNETS_NET_AT
+    default y
+
+config LOSCFG_COMPONNETS_NET_AT_DEBUG
+    bool "Enable AT DEBUG"
+    depends on LOSCFG_COMPONNETS_NET_AT
+    default y
+
 endmenu

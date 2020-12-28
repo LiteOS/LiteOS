@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2019-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
  * Description: Time HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2019-12-18
@@ -24,14 +24,6 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
 #ifndef _TIME_PRI_H
@@ -89,10 +81,12 @@ STATIC INLINE UINT32 OsTimespec2Tick(const struct timespec *tp)
 
 STATIC INLINE VOID OsTick2TimeSpec(struct timespec *tp, UINT32 tick)
 {
-    tp->tv_sec = tick / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    tick -= tp->tv_sec * LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    tp->tv_sec = (time_t)(tick / LOSCFG_BASE_CORE_TICK_PER_SECOND);
+    tick = tick % LOSCFG_BASE_CORE_TICK_PER_SECOND;
     tp->tv_nsec = (long)((UINT64)tick * OS_SYS_NS_PER_SECOND) / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 }
+
+extern VOID OsAdjTime(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

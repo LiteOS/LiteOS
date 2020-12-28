@@ -68,6 +68,7 @@ RM       = -rm -rf
 ECHO     = echo
 ARFLAGS := cr
 PYTHON  := python
+PYTHON3  := python3
 
 OS       ?= $(shell uname -s)
 OBJ_MKDIR = if [ ! -d $(dir $@) ]; then mkdir -p $(dir $@); fi
@@ -83,10 +84,12 @@ BUILD  = $(OUT)/obj
 MK_PATH  = $(LITEOSTOPDIR)/build/mk
 LITEOS_SCRIPTPATH  ?= $(LITEOSTOPDIR)/tools/scripts
 LITEOS_LIB_BIGODIR  = $(OUT)/lib/obj
-LOSCFG_ENTRY_SRC    = $(LITEOSTOPDIR)/targets/bsp/common/los_config.c
+LOSCFG_ENTRY_SRC    = $(LITEOSTOPDIR)/kernel/init/los_init.c
 
 LITEOS_MENUCONFIG_H = $(LITEOSTOPDIR)/targets/bsp/common/menuconfig.h
 LITEOS_PLATFORM_MENUCONFIG_H = $(LITEOSTOPDIR)/targets/$(LITEOS_PLATFORM)/include/menuconfig.h
+BOARD_LD_FILE = $(LITEOSTOPDIR)/targets/$(LITEOS_PLATFORM)/board.ld
+BOARD_LD_S_FILE = $(BOARD_LD_FILE).S
 
 ### include variable
 MODULE = $(MK_PATH)/module.mk
@@ -94,7 +97,7 @@ MODULE_LIB = $(MK_PATH)/module_lib.mk
 
 ifeq ($(LOSCFG_COMPILER_HIMIX_32), y)
 LITEOS_CMACRO      += -D__COMPILER_HUAWEILITEOS__
-else ifeq ($(LOSCFG_COMPILER_HIMIX100_64), y)
+else ifeq ($(LOSCFG_COMPILER_HIMIX210_64), y)
 LITEOS_CMACRO      += -D__COMPILER_HUAWEILITEOS__
 else ifeq ($(LOSCFG_COMPILER_HCC_64), y)
 LITEOS_CMACRO      += -D__COMPILER_HUAWEILITEOS__
@@ -105,9 +108,7 @@ endif
 
 LITEOS_CMACRO      += -D__LITEOS__ -DSECUREC_IN_KERNEL=0 -D_ALL_SOURCE
 LITEOS_BASELIB     += -lgcc
-
-ifneq ($(findstring $(LOSCFG_COMPILER_ARM_NONE_EABI)$(LOSCFG_COMPILER_RISCV_UNKNOWN)$(LOSCFG_COMPILER_XTENSA_32), y), )
-else
+ifneq ($(LOSCFG_COMPILER_ARM_NONE_EABI)$(LOSCFG_COMPILER_RISCV_UNKNOWN)$(LOSCFG_COMPILER_XTENSA_32), y)
 LITEOS_BASELIB     += -lgcc_eh
 endif
 AS_OBJS_LIBC_FLAGS  = -D__ASSEMBLY__
@@ -127,9 +128,13 @@ include $(LITEOSTOPDIR)/shell/api.mk
 include $(LITEOSTOPDIR)/components/components.mk
 include $(LITEOSTOPDIR)/demos/demos.mk
 
-LIB_SUBDIRS += kernel compat lib components demos shell
+LIB_SUBDIRS += kernel compat lib osdepends components demos shell
 
 LITEOS_KERNEL_INCLUDE := -I $(LITEOSTOPDIR)/kernel/include
+
+# auto added the header file LITEOS_PLATFORM_MENUCONFIG_H in all files
+LITEOS_PLATFORM_INCLUDE += -include $(LITEOS_PLATFORM_MENUCONFIG_H)
+LITEOS_CXXINCLUDE       += -include $(LITEOS_PLATFORM_MENUCONFIG_H)
 
 ############################# Tools && Debug Option Begin ##############################
 
@@ -176,13 +181,18 @@ else ifeq ($(LOSCFG_CC_STACKPROTECTOR_ALL), y)
     LITEOS_SSP = -fstack-protector-all
 endif
 
-# TODO : THIS feature whether support or not depands on if its C++ libs
-#        are compiled with liteos which should be controlled with KCONFIGS.
+# THIS feature whether support or not depands on if its C++ libs
+# are compiled with liteos which should be controlled with KCONFIGS.
 LITEOS_CMACRO     += -DLOSCFG_KERNEL_CPP_EXCEPTIONS_SUPPORT
 LITEOS_CXXMACRO   += -DLOSCFG_KERNEL_CPP_EXCEPTIONS_SUPPORT
 
-LITEOS_COMMON_OPTS = -fno-pic -fno-builtin \
+LITEOS_COMMON_OPTS = -fno-pic -fno-builtin -freg-struct-return -funsigned-char \
                      -ffunction-sections -fdata-sections $(WARNING_AS_ERROR) $(LITEOS_SSP)
+
+LITEOS_COMMON_OPTS += -Wformat=2
+ifneq ($(LOSCFG_COMPILER_CLANG), y)
+LITEOS_COMMON_OPTS += -Wtrampolines
+endif
 
 ifeq ($(LOSCFG_LIB_LIBC), y)
     LITEOS_COMMON_OPTS += -nostdinc -nostdlib
@@ -200,19 +210,20 @@ endif
 
 # -Wpointer-arith will treat the size of a void or of a function as 1.
 # -Wstrict-prototypes will warn if a function is defined without specifying the argument types.
-LITEOS_COPTS_BASE += -Wpointer-arith -Wstrict-prototypes -fno-exceptions
+# -pipe will use pipes, save compilation time
+LITEOS_COPTS_BASE += -Wpointer-arith -Wstrict-prototypes -fno-exceptions -pipe
 
 ifeq ($(LOSCFG_COMPILER_GCC), y)
 LITEOS_COPTS_BASE += -fno-aggressive-loop-optimizations
 endif
 
 # clang support -fno-omit-frame-pointer
-ifneq ($(LOSCFG_COMPILER_XTENSA_32), y)
-LITEOS_COPTS_BASE += -fno-omit-frame-pointer -Winvalid-pch
+ifeq ($(LOSCFG_BACKTRACE_WITH_FP), y)
+LITEOS_COPTS_BASE += -fno-omit-frame-pointer
 endif
 
-ifeq ($(LOSCFG_COMPILER_ARM_NONE_EABI), y)
-LITEOS_COPTS_EXTRA += -Wno-unused-value -Wno-unused-function
+ifneq ($(LOSCFG_COMPILER_XTENSA_32), y)
+LITEOS_COPTS_BASE += -Winvalid-pch
 endif
 
 ifneq ($(LOSCFG_ARCH_RISCV), y)
@@ -222,18 +233,12 @@ endif
 LITEOS_CXXOPTS_BASE += -std=c++11 -nostdinc++ -fexceptions -fpermissive -fno-use-cxa-atexit -frtti \
                        $(LITEOS_COMMON_OPTS)
 
-ifneq ($(LOSCFG_COMPILER_XTENSA_32), y)
-LITEOS_CXXOPTS_BASE += -fno-omit-frame-pointer -Winvalid-pch
+ifeq ($(LOSCFG_BACKTRACE_WITH_FP), y)
+LITEOS_CXXOPTS_BASE += -fno-omit-frame-pointer
 endif
 
-ifeq ($(LOSCFG_COMPILER_RISCV_UNKNOWN), y)
-LITEOS_COPTS_BASE += -msave-restore -fno-schedule-insns -fno-inline-small-functions \
-                         -fno-inline-functions-called-once  -fldm-stm-optimize \
-                         -mabi=ilp32 -falign-functions=2 -fno-optimize-strlen -freorder-blocks-algorithm=simple \
-                         -Wa,-enable-c-lbu-sb -mtune=size -fno-strict-aliasing -msmall-data-limit=0 -fno-short-enums \
-                         -fno-common -freg-struct-return -freg-struct-return
-LITEOS_CMACRO += -DLOS_COMPILE_LDM
-LITEOS_ASOPTS += -DLOS_COMPILE_LDM
+ifneq ($(LOSCFG_COMPILER_XTENSA_32), y)
+LITEOS_CXXOPTS_BASE += -Winvalid-pch
 endif
 
 ifeq ($(LOSCFG_LLTREPORT), y)
@@ -244,15 +249,13 @@ endif
 
 LITEOS_LD_OPTS += -nostartfiles -static --gc-sections
 
-# determine libgcc.a for fpu, use thumb as default
-ifeq ($(LOSCFG_ARCH_ARM_CORTEX_M), y)
-ifeq ($(LOSCFG_ARCH_FPU_DISABLE), y)
-GCCLIBA := $(LITEOS_COMPILER_GCCLIB_PATH)/thumb/v7e-m+fp/softfp
-else
-GCCLIBA := $(LITEOS_COMPILER_GCCLIB_PATH)/thumb/v7e-m+fp/hard
+ifeq ($(LOSCFG_PLATFORM_PBX_A9), y)
+LITEOS_COMPILER_GCCLIB_PATH = $(GCC_GCCLIB_PATH)
+LITEOS_COMPILER_CXXLIB_PATH = $(GCC_GXXLIB_PATH)
 endif
 
-LITEOS_LD_PATH += -L$(GCCLIBA)
+ifeq ($(LOSCFG_ARCH_CORTEX_M0), y)
+LITEOS_COPTS_BASE += -fshort-enums
 endif
 
 LITEOS_LD_OPTS += $(LITEOS_DYNLOADOPTS)
@@ -264,6 +267,18 @@ ifeq ($(LOSCFG_VENDOR), y)
 LITEOS_LD_PATH +=  -L$(OUT)/lib/rdk \
                    -L$(OUT)/lib/sdk \
                    -L$(OUT)/lib/main_server
+endif
+
+ifeq ($(LOSCFG_DEMOS_AI), y)
+LITEOS_LD_PATH +=  -L$(LITEOSTOPDIR)/components/ai/nnacl_lib
+endif
+
+ifeq ($(LOSCFG_KERNEL_LMS), y)
+ifeq ($(LOSCFG_ARCH_ARM_CORTEX_M),y)
+LITEOS_LD_PATH +=  -L$(LITEOSTOPDIR)/kernel/extended/lms/cortex_m/$(LOSCFG_ARCH_CPU)
+else
+LITEOS_LD_PATH +=  -L$(LITEOSTOPDIR)/kernel/extended/lms/cortex_a_r
+endif
 endif
 
 ifeq ($(LOSCFG_USING_BOARD_LD), y)

@@ -58,12 +58,9 @@ typedef double double_t;
 #define __DEFINED_double_t
 #endif
 
-/* conflict with value.h in 3rdParty/jsoncpp */
-#ifndef __LITEOS__
 #if defined(__NEED_max_align_t) && !defined(__DEFINED_max_align_t)
 typedef struct { long long __ll; long double __ld; } max_align_t;
 #define __DEFINED_max_align_t
-#endif
 #endif
 
 #define __LITTLE_ENDIAN 1234
@@ -459,6 +456,16 @@ typedef struct { union { int __i[sizeof(long)==8?8:5]; volatile int __vi[sizeof(
 #define __DEFINED_pthread_barrier_t
 #endif
 
+#ifdef __LITEOS__
+#if defined(__NEED_ldouble_t) && !defined(__DEFINED_ldouble_t)
+#ifdef LOSCFG_SUPPORT_LONG_DOUBLE
+typedef long double ldouble_t;
+#else
+typedef double ldouble_t;
+#endif
+#define __DEFINED_ldouble_t
+#endif
+#endif
 
 #undef _Addr
 #undef _Int64

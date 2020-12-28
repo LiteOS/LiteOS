@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Package Opt Sha256
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 #ifdef INCLUDE_PACK_OPTION_FILE
 #include "package_sha256.h"
 #include <string.h>
@@ -42,27 +36,27 @@ static void pack_sha256_reset(pack_checksum_alg_s *thi)
     mbedtls_sha256_init(&sha256->sha256_context);
     mbedtls_sha256_starts(&sha256->sha256_context, false);
 }
+
 static int pack_sha256_update(pack_checksum_alg_s *thi, const uint8_t *buff, uint16_t len)
 {
     pack_sha256_s *sha256 = (pack_sha256_s *)thi;
     mbedtls_sha256_update(&sha256->sha256_context, buff, len);
     return PACK_OK;
 }
-static int pack_sha256_check(pack_checksum_alg_s *thi, const uint8_t  *checksum, uint16_t checksum_len)
+
+static int pack_sha256_check(pack_checksum_alg_s *thi, const uint8_t *checksum, uint16_t checksum_len)
 {
     uint8_t real_value[32];
     pack_sha256_s *sha256 = (pack_sha256_s *)thi;
 
     ASSERT_THIS(return PACK_ERR);
 
-    if(sizeof(real_value) != checksum_len)
-    {
+    if (sizeof(real_value) != checksum_len) {
         PACK_LOG("len %d not the same", checksum_len);
         return PACK_ERR;
     }
     mbedtls_sha256_finish(&sha256->sha256_context, real_value);
-    if(memcmp(real_value, checksum, checksum_len) != 0)
-    {
+    if (memcmp(real_value, checksum, checksum_len) != 0) {
         PACK_LOG("checksum err");
         return PACK_ERR;
     }
@@ -85,4 +79,3 @@ int pack_sha256_init(pack_sha256_s *thi)
     return PACK_OK;
 }
 #endif
-

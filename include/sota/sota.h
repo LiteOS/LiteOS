@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Main
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,32 +24,23 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
-#ifndef __SOTA_H__
-#define __SOTA_H__
+ * --------------------------------------------------------------------------- */
 
-#include<stdint.h>
-#include"ota/ota_api.h"
-#include<stddef.h>
+#ifndef _SOTA_H
+#define _SOTA_H
+
+#include <stdint.h>
+#include "ota/ota_api.h"
+#include <stddef.h>
 
 #define SOTA_DEBUG 1
 
-typedef enum
-{
+typedef enum {
     APPLICATION = 0,
     BOOTLOADER = 1,
 } sota_run_mode_e;
 
-typedef enum
-{
+typedef enum {
     SOTA_OK = 0,
     SOTA_DOWNLOADING = 1,
     SOTA_UPDATING    = 2,
@@ -59,21 +52,20 @@ typedef enum
     SOTA_WRITE_FLASH_FAILED = 105
 } sota_ret_e;
 
-typedef struct
-{
-    int (*get_ver)(char* buf, uint32_t len);
-    int (*sota_send)(const char* buf, int len);
-    void* (*sota_malloc)(size_t size);
+typedef struct {
+    int (*get_ver)(char *buf, uint32_t len);
+    int (*sota_send)(const char *buf, int len);
+    void *(*sota_malloc)(size_t size);
     void (*sota_free)(void *ptr);
-    int  (*sota_printf)(const char *fmt, ...);
-    sota_run_mode_e  firmware_download_stage;
-    sota_run_mode_e  current_run_stage;
+    int (*sota_printf)(const char *fmt, ...);
+    sota_run_mode_e firmware_download_stage;
+    sota_run_mode_e current_run_stage;
     ota_opt_s ota_info;
 } sota_arg_s;
 
-
-int32_t sota_init(const sota_arg_s* sota_arg);
-int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t * out_buf,  int32_t out_len);
+int32_t sota_init(const sota_arg_s *sota_arg);
+int32_t sota_parse(const int8_t *in_buf, int32_t in_len, int8_t *out_buf, int32_t out_len);
 int32_t sota_process(void *arg, const int8_t *buf, int32_t buf_len);
-void    sota_timeout_handler(void);
-#endif
+void sota_timeout_handler(void);
+
+#endif /* _SOTA_H */

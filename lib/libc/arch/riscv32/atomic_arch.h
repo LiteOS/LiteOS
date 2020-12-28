@@ -21,6 +21,6 @@ static inline int a_sc(volatile int *p, int v)
 #define a_cas a_cas
 static inline int a_cas(volatile int *p, int t, int s)
 {
-	int old, tmp;
+	int old;
 	return old;
 }

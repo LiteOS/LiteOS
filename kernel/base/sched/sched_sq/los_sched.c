@@ -25,20 +25,17 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_base.h"
+#include "los_trace.h"
 #include "los_task_pri.h"
 #include "los_priqueue_pri.h"
 #include "los_percpu_pri.h"
 #include "los_task_pri.h"
+#include "los_mux_debug_pri.h"
+#ifdef LOSCFG_KERNEL_CPUP
+#include "los_cpup_pri.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -78,13 +75,24 @@ VOID OsSchedResched(VOID)
     newTask->currCpu = ArchCurrCpuid();
 #endif
 
-    (VOID)OsTaskSwitchCheck(runTask, newTask);
+    OsTaskTimeUpdateHook(runTask->taskId, LOS_TickCountGet());
 
-#ifdef LOSCFG_KERNEL_SCHED_STATISTICS
+#ifdef LOSCFG_KERNEL_CPUP
+    OsTaskCycleEndStart(newTask);
+#endif
+
+#ifdef LOSCFG_BASE_CORE_TSK_MONITOR
+    OsTaskSwitchCheck(runTask, newTask);
+#endif
+
+    LOS_TRACE(TASK_SWITCH, newTask->taskId, runTask->priority, runTask->taskStatus, newTask->priority,
+        newTask->taskStatus);
+
+#ifdef LOSCFG_DEBUG_SCHED_STATISTICS
     OsSchedStatistics(runTask, newTask);
 #endif
 
-    PRINT_TRACE("cpu%d (%s) status: %x -> (%s) status:%x\n", ArchCurrCpuid(),
+    PRINT_TRACE("cpu%u (%s) status: %x -> (%s) status:%x\n", ArchCurrCpuid(),
                 runTask->taskName, runTask->taskStatus,
                 newTask->taskName, newTask->taskStatus);
 

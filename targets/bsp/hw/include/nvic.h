@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
- * Description: hwi cortex-m
+ * Description: NVIC(Nested Vectored Interrupt Controller) for Cortex-M.
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,40 +25,31 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 
 /**
  * @defgroup los_hwi Hardware interrupt
  * @ingroup kernel
  */
-#ifndef _LOS_HWI_M_H
-#define _LOS_HWI_M_H
+#ifndef _NVIC_H
+#define _NVIC_H
 
 #include "los_hwi.h"
 #include "los_hwi_pri.h"
-#include "los_armcm.h"
 #include "asm/platform.h"
+
+#ifdef LOSCFG_ARCH_CORTEX_M7
+#include "core_cm7.h"
+#endif
+
+#ifdef LOSCFG_ARCH_CORTEX_M4
+#include "core_cm4.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-/**
- * @ingroup los_hwi
- * Maximum number of used hardware interrupts.
- */
-#ifndef OS_HWI_MAX_NUM
-#define OS_HWI_MAX_NUM              32
-#endif
 
 /**
  * @ingroup los_hwi
@@ -81,12 +72,6 @@ extern "C" {
  * Count of M-Core system interrupt vector.
  */
 #define OS_SYS_VECTOR_CNT           16
-
-/**
- * @ingroup los_hwi
- * Count of M-Core interrupt vector.
- */
-#define OS_VECTOR_CNT               (OS_SYS_VECTOR_CNT + OS_HWI_MAX_NUM)
 
 /**
  * @ingroup los_hwi
@@ -164,67 +149,64 @@ extern "C" {
  * @ingroup los_hwi
  * Interrupt No. 1 :reset.
  */
-#define OS_EXC_RESET           1
+#define OS_EXC_RESET                1
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 2 :Non-Maskable Interrupt.
  */
-#define OS_EXC_NMI             2
+#define OS_EXC_NMI                  2
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 3 :(hard)fault.
  */
-#define OS_EXC_HARD_FAULT      3
+#define OS_EXC_HARD_FAULT           3
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 4 :MemManage fault.
  */
-#define OS_EXC_MPU_FAULT       4
+#define OS_EXC_MPU_FAULT            4
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 5 :Bus fault.
  */
-#define OS_EXC_BUS_FAULT       5
+#define OS_EXC_BUS_FAULT            5
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 6 :Usage fault.
  */
-#define OS_EXC_USAGE_FAULT     6
+#define OS_EXC_USAGE_FAULT          6
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 11 :SVCall.
  */
-#define OS_EXC_SVC_CALL        11
+#define OS_EXC_SVC_CALL             11
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 12 :Debug monitor.
  */
-#define OS_EXC_DBG_MONITOR     12
+#define OS_EXC_DBG_MONITOR          12
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 14 :PendSV.
  */
-#define OS_EXC_PEND_SV         14
+#define OS_EXC_PEND_SV              14
 
 /**
  * @ingroup los_hwi
  * Interrupt No. 15 :SysTick.
  */
-#define OS_EXC_SYS_TICK        15
+#define OS_EXC_SYS_TICK             15
 
 /* hardware interrupt entry */
 extern VOID IrqEntryV7M(VOID);
-
-/* Default vector handling function */
-extern VOID OsHwiDefaultHandler(VOID);
 
 /* Reset handle entry */
 extern VOID Reset_Handler(VOID);
@@ -235,16 +217,17 @@ extern VOID osPendSV(VOID);
  * @ingroup los_hwi
  * Set interrupt vector table.
  */
-#define OsSetVector(num, vector) do {       \
-    g_hwiVec[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)IrqEntryV7M;\
-    g_hwiForm[num + OS_SYS_VECTOR_CNT].pfnHook = vector; \
+#define OsSetVector(num, vector) do {                               \
+    g_hwiVec[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)IrqEntryV7M; \
+    g_hwiForm[num + OS_SYS_VECTOR_CNT].pfnHook = vector;            \
 } while (0)
 
-extern HWI_PROC_FUNC g_hwiVec[OS_USER_HWI_MAX];
+extern HWI_PROC_FUNC g_hwiVec[LOSCFG_PLATFORM_HWI_LIMIT];
 
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-#endif /* _LOS_HWI_M_H */
+
+#endif /* _NVIC_H */

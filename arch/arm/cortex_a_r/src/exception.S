@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: ARMv7 Hw Exc Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "arch/regs.h"
 #include "arch/asm.h"
@@ -43,8 +35,6 @@
     .extern   OsExcHandleEntry
     .extern   __svc_stack_top
     .extern   __exc_stack_top
-    .extern   __stack_chk_guard
-    .extern   OsRandomStackGuard
 #ifdef LOSCFG_GDB
     .extern   OsUndefIncExcHandleEntry
 #if __LINUX_ARM_ARCH__ >= 7
@@ -59,7 +49,6 @@
     .global   _osExceptPrefetchAbortHdl
     .global   _osExceptSwiHdl
     .global   _osExceptUndefInstrHdl
-    .global   __stack_chk_guard_setup
 
     .fpu vfpv4
 
@@ -121,16 +110,6 @@
     LDMFD   SP!, {R0-R1, PC}^
 .endm
 #endif
-
-@ Description: Stack-Protector Init
-__stack_chk_guard_setup:
-    PUSH    {FP, LR}
-    BL      OsRandomStackGuard
-    LDR     R1, =__stack_chk_guard
-    MOV     R3, R0
-    ORR     R2, R3, #0X80000000
-    STR     R2, [R1]
-    POP     {FP, PC}
 
 @ Description: Undefined instruction exception handler
 _osExceptUndefInstrHdl:

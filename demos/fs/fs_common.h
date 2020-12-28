@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Fs Common HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,47 +24,38 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
-/* Define to prevent recursive inclusion ------------------------------------*/
-#ifndef __FS_DEMO_H__
-#define __FS_DEMO_H__
+ * --------------------------------------------------------------------------- */
+
+#ifndef _FS_DEMO_H
+#define _FS_DEMO_H
+
 #include <stdio.h>
 #include <stdint.h>
 #include "los_task.h"
-#include "hal_spi_flash.h"
-#include "fs/sys/fcntl.h"
+
+#include "fcntl.h"
 #include "fs/los_vfs.h"
 
-
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
-
-
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #ifndef FS_LOG_ERR
-#define FS_LOG_ERR(fmt, arg...)  printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
+#define FS_LOG_ERR(fmt, arg...) printf("[%s:%d]" fmt "\n", __func__, __LINE__, ##arg)
 #endif
 
 #ifndef MIN
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MIN(a, b)               ((a) < (b) ? (a) : (b))
 #endif
 
-#define LOS_FILE            "f.txt"
-#define LOS_DIR             "d"
+#define LOS_FILE                "f.txt"
+#define LOS_DIR                 "d"
 
-
-/* Typedefs -----------------------------------------------------------------*/
-/* Extern variables ---------------------------------------------------------*/
-/* Functions API ------------------------------------------------------------*/
+/* Typedefs ----------------------------------------------------------------- */
+/* Extern variables --------------------------------------------------------- */
+/* Functions API ------------------------------------------------------------ */
 int write_file(const char *name, char *buff, int len);
 int read_file(const char *name, char *buff, int len);
 int open_dir(const char *name, struct dir **dir);
@@ -72,11 +65,10 @@ void print_dir(const char *name, int level);
 
 void los_vfs_io(char *file_name, char *dir_name);
 
-
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-
-
-#endif /* __FS_DEMO_H__ */
+#endif /* _FS_DEMO_H */

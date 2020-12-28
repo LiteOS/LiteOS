@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Agent Fota State HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*******************************************************************************
  *
@@ -49,81 +43,68 @@
  *
  *******************************************************************************/
 
-#ifndef ATINY_FOTA_STATE_H_
-#define ATINY_FOTA_STATE_H_
+#ifndef _ATINY_FOTA_STATE_H
+#define _ATINY_FOTA_STATE_H
 #include "atiny_fota_manager.h"
 #include "log/atiny_log.h"
 #include "object_comm.h"
 #include "flag_manager.h"
 #include "upgrade_flag.h"
 
-
-
-#define ASSERT_THIS(do_something) \
-        if(NULL == thi)\
-        {\
-            ATINY_LOG(LOG_ERR, "this null pointer");\
-            do_something;\
-        }
+#define ASSERT_THIS(do_something) if (thi == NULL) { \
+        ATINY_LOG(LOG_ERR, "this null pointer");     \
+        do_something;                                \
+    }
 
 #define ATINY_GET_STATE(state) (&((state).interface))
 
-#define CALL_MEM_FUNCTION_R(object, func,  ret, ...) do\
-{\
-    if(NULL != (object) && (NULL != (object)->func))\
-    {\
-        (ret) = (object)->func(__VA_ARGS__);\
-    }\
-}while(0)
+#define CALL_MEM_FUNCTION_R(object, func, ret, ...) do {   \
+        if ((object) != NULL) && ((object)->func) != NULL) \
+            {                                              \
+                (ret) = (object)->func(__VA_ARGS__);       \
+            }                                              \
+    } while (0)
 
-
-typedef struct atiny_fota_state_tag_s
-{
-    int (*start_download)(struct atiny_fota_state_tag_s * thi, const char *uri);
-    int (*execute_update)(struct atiny_fota_state_tag_s * thi);
-    int (*finish_download)(struct atiny_fota_state_tag_s * thi, int result);
+typedef struct atiny_fota_state_tag_s {
+    int (*start_download)(struct atiny_fota_state_tag_s *thi, const char *uri);
+    int (*execute_update)(struct atiny_fota_state_tag_s *thi);
+    int (*finish_download)(struct atiny_fota_state_tag_s *thi, int result);
     int (*repot_result)(struct atiny_fota_state_tag_s *thi);
     int (*recv_notify_ack)(struct atiny_fota_state_tag_s *thi, data_send_status_e status);
     atiny_fota_manager_s *manager;
-}atiny_fota_state_s;
+} atiny_fota_state_s;
 
-typedef struct
-{
+typedef struct {
     atiny_fota_state_s interface;
     lwm2m_observe_info_t observe_info;
     int report_result;
     bool report_flag;
-}atiny_fota_idle_state_s;
+} atiny_fota_idle_state_s;
 
-typedef struct atiny_fota_downloading_state_tag_s
-{
+typedef struct atiny_fota_downloading_state_tag_s {
     atiny_fota_state_s interface;
-}atiny_fota_downloading_state_s;
+} atiny_fota_downloading_state_s;
 
 typedef atiny_fota_downloading_state_s atiny_fota_downloaded_state_s;
 typedef atiny_fota_downloading_state_s atiny_fota_updating_state_s;
 
-
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
-
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 void atiny_fota_state_init(atiny_fota_state_s *thi, atiny_fota_manager_s *manager);
-
 void atiny_fota_idle_state_init(atiny_fota_idle_state_s *thi, atiny_fota_manager_s *manager);
-int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s * thi);
-
-
-
+int atiny_fota_idle_state_int_report_result(atiny_fota_idle_state_s *thi);
 void atiny_fota_downloading_state_init(atiny_fota_downloading_state_s *thi, atiny_fota_manager_s *manager);
-
 void atiny_fota_downloaded_state_init(atiny_fota_downloaded_state_s *thi, atiny_fota_manager_s *manager);
-
 void atiny_fota_updating_state_init(atiny_fota_updating_state_s *thi, atiny_fota_manager_s *manager);
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* ATINY_FOTA_STATE_H_ */
+#endif /* _ATINY_FOTA_STATE_H */

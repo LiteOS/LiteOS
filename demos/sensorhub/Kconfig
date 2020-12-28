@@ -7,6 +7,6 @@ config LOSCFG_DEMOS_SENSORHUB
     default n
     depends on LOSCFG_COMPONENTS_SENSORHUB
     help
-      Answer Y to enable LiteOS support sensorhub demo.
+      Answer y to enable sensorhub demo.
 
 endmenu

@@ -20,6 +20,9 @@ extern "C" {
 #define SEEK_CUR 1
 #define SEEK_END 2
 
+#ifdef __LITEOS__
+#undef NULL
+#endif
 #ifdef __cplusplus
 #define NULL 0L
 #else

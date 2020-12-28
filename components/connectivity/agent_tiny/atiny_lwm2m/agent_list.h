@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Agent List HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,31 +24,18 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #ifndef _ATINY_LIST_H
 
 #define _ATINY_LIST_H
 #define ATINY_INLINE static inline
 
-
 #ifdef __cplusplus
 #if __cplusplus
-
 extern "C" {
-
 #endif /* __cplusplus */
-
 #endif /* __cplusplus */
-
 
 /**
 
@@ -56,11 +45,9 @@ extern "C" {
 
  */
 
-typedef struct atiny_dl_list
-{
+typedef struct atiny_dl_list {
     struct atiny_dl_list *prev;            /**< Current node's pointer to the previous node*/
     struct atiny_dl_list *next;            /**< Current node's pointer to the next node*/
-
 } atiny_dl_list;
 
 
@@ -85,7 +72,7 @@ ATINY_INLINE void atiny_list_insert_tail(atiny_dl_list *list, atiny_dl_list *nod
     atiny_list_add(list->prev, node);
 }
 
-ATINY_INLINE atiny_dl_list * atiny_list_get_head(atiny_dl_list *header)
+ATINY_INLINE atiny_dl_list *atiny_list_get_head(atiny_dl_list *header)
 {
     return header->next;
 }
@@ -149,11 +136,9 @@ ATINY_INLINE void ATINY_ListDelInit(atiny_dl_list *pstList)
             atiny_dl_list list = { &(list), &(list) }
 
 #ifdef __cplusplus
-
 #if __cplusplus
-
 }
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 #endif /* _ATINY_LIST_H */

@@ -1,6 +1,6 @@
-/* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020 All rights reserved.
- * Description: platform Config HeadFile
+/*----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Platform Config HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _PLATFORM_CONFIG_H
 #define _PLATFORM_CONFIG_H
@@ -52,19 +44,10 @@ extern UINT32 __LOS_HEAP_ADDR_END__;
 
 #define OS_SYS_MEM_SIZE                            ((UINT32)(__LOS_HEAP_ADDR_END__ - __LOS_HEAP_ADDR_START__ + 1))
 
-#define OS_SYS_VECTOR_CNT                          16
-#define LOSCFG_BASE_CORE_TSK_CONFIG                15
-#define LOSCFG_BASE_CORE_TICK_PER_SECOND           1000
-#define LOSCFG_BASE_CORE_SWTMR_CONFIG              16
-#define LOSCFG_BASE_IPC_QUEUE_CONFIG               10
-#define LOSCFG_BASE_IPC_MUX_CONFIG                 20
-#define LOSCFG_BASE_IPC_SEM_CONFIG                 20
-#define LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE       0x200
-#define LOS_TASK_MIN_STACK_SIZE                    0x200
-#define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE    0x500
-#define LOSCFG_BASE_CORE_EXC_TSK_SWITCH            YES
-#define LOSCFG_COMPAT_CMSIS_FW                     YES
-#define LOSCFG_NO_SHARED_IRQ
+#ifdef LOSCFG_PLATFORM_OSAPPINIT
+extern UINT32 osAppInit(VOID);
+extern VOID app_init(VOID);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

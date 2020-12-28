@@ -44,14 +44,6 @@ extern "C" {
 #define ZLIB_VER_REVISION 11
 #define ZLIB_VER_SUBREVISION 0
 
-#define zlib_deflateInit(x,y) deflateInit(x,y)
-#define zlib_deflate(x,y) deflate(x,y)
-#define zlib_deflateEnd(x) deflateEnd(x)
-#define zlib_inflateInit(x) inflateInit(x)
-#define zlib_inflateInit2(x,y) inflateInit2(x,y)
-#define zlib_inflate(x,y) inflate(x,y)
-#define zlib_inflateEnd(x) inflateEnd(x)
-
 /*
     The 'zlib' compression library provides in-memory compression and
   decompression functions, including integrity checks of the uncompressed data.

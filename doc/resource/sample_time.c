@@ -3,36 +3,34 @@
 
 VOID Example_TransformTime(VOID)
 {
-    UINT32 uwMs;
-    UINT32 uwTick;
-    uwTick = LOS_MS2Tick(10000);// 10000 ms数转换为tick数
-        dprintf("uwTick = %d \n",uwTick);
-    uwMs = LOS_Tick2MS(100);// 100 tick数转换为ms数
-        dprintf("uwMs = %d \n",uwMs);
+    UINT32 ms;
+    UINT32 tick;
+
+    tick = LOS_MS2Tick(10000);    // 10000ms转换为tick
+    dprintf("tick = %d \n",tick);
+    ms = LOS_Tick2MS(100);        // 100tick转换为ms
+    dprintf("ms = %d \n",ms);
 }
 
 
 VOID Example_GetTime(VOID)
 {
-    UINT32 uwcyclePerTick;
-    UINT64 uwTickCount;
+    UINT32 cyclePerTick;
+    UINT64 tickCount;
 
-    uwcyclePerTick  = LOS_CyclePerTickGet();
-    if(0 != uwcyclePerTick)
-    {
-        dprintf("LOS_CyclePerTickGet = %d \n", uwcyclePerTick);
+    cyclePerTick  = LOS_CyclePerTickGet();
+    if(0 != cyclePerTick) {
+        dprintf("LOS_CyclePerTickGet = %d \n", cyclePerTick);
     }
 
-    uwTickCount = LOS_TickCountGet();
-    if(0 != uwTickCount)
-    {
-        dprintf("LOS_TickCountGet = %d \n", (UINT32)uwTickCount);
+    tickCount = LOS_TickCountGet();
+    if(0 != tickCount) {
+        dprintf("LOS_TickCountGet = %d \n", (UINT32)tickCount);
     }
-	LOS_TaskDelay(200);
-	uwTickCount = LOS_TickCountGet();
-    if(0 != uwTickCount)
-    {
-        dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)uwTickCount);
+
+    LOS_TaskDelay(200);
+    tickCount = LOS_TickCountGet();
+    if(0 != tickCount) {
+        dprintf("LOS_TickCountGet after delay = %d \n", (UINT32)tickCount);
     }
-	
 }

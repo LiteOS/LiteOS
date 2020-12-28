@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: LiteOS Time Zone Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -24,14 +24,6 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 #include "tzdst.h"
 #include "tzdst_pri.h"
@@ -75,7 +67,8 @@ STATIC const INT32 g_monLengths[2][MONSPERYEAR] = {
 /* Time Zone functions */
 #define IS_NUM(x) (((x) >= '0') && ((x) <= '9'))
 
-long int timezone;
+/* used in localtime_r.c */
+long timezone;
 
 STATIC VOID BufferInsert(CHAR *buf, size_t bufLen, size_t positions, CHAR data)
 {

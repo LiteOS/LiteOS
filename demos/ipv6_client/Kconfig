@@ -1,0 +1,22 @@
+menu "Ipv6 Client Demo"
+
+config LOSCFG_DEMOS_IPV6_CLIENT
+    bool "Enable Ipv6 Client Demo"
+    default n
+    help
+      Answer y to enable ipv6 client demo.
+
+choice
+    prompt "Enable Tcp Or Udp"
+    default LOSCFG_DEMOS_IPV6_TCP_CLIENT
+    depends on LOSCFG_DEMOS_IPV6_CLIENT
+
+    config LOSCFG_DEMOS_IPV6_TCP_CLIENT
+    bool "Enable Tcp Client"
+
+    config LOSCFG_DEMOS_IPV6_UDP_CLIENT
+    bool "Enable Udp Client"
+
+endchoice
+
+endmenu

@@ -1,0 +1,109 @@
+menu "Kernel Demo"
+
+config LOSCFG_DEMOS_KERNEL
+   bool "Enable Kernel Demo"
+   default n
+   help
+   Answer y to enable kernel demo.
+
+config LOSCFG_DEMOS_KERNEL_SELECT
+   depends on LOSCFG_DEMOS_KERNEL
+   string
+   default "DemoEntry"              if LOSCFG_DEMOS_KERNEL_ENTRY
+   default "InspectEntry"           if LOSCFG_DEMOS_KERNEL_INSPECT_ENTRY
+
+choice
+   prompt "Kernel Demo Entry"
+   depends on LOSCFG_DEMOS_KERNEL
+   default LOSCFG_DEMOS_KERNEL_INSPECT_ENTRY
+   help
+      support entry:
+      DemoEntry
+      InspectEntry
+
+config LOSCFG_DEMOS_KERNEL_INSPECT_ENTRY
+   bool "InspectEntry"
+
+config LOSCFG_DEMOS_KERNEL_ENTRY
+   bool "DemoEntry"
+
+config LOS_KERNEL_DEMO_TASK
+   bool "Run Kernel Task Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel task demo.
+
+config LOS_KERNEL_DEMO_MEM_DYNAMIC
+   bool "Run Kernel Dynamic Mem Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel dynamic mem demo.
+
+config LOS_KERNEL_DEMO_MEM_STATIC
+   bool "Run Kernel Static Mem Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel mem_static demo.
+
+config LOS_KERNEL_DEMO_INTERRUPT
+   bool "Run Kernel Interrupt Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel interrupt demo.
+
+config LOS_KERNEL_DEMO_QUEUE
+   bool "Run Kernel Queue Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel queue demo.
+
+config LOS_KERNEL_DEMO_EVENT
+   bool "Run Kernel Event Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel event demo.
+
+config LOS_KERNEL_DEMO_MUTEX
+   bool "Run Kernel Mutex Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel mutex demo.
+
+config LOS_KERNEL_DEMO_SEMPHORE
+   bool "Run Kernel Semphore Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel semphore demo.
+
+config LOS_KERNEL_DEMO_SYSTICK
+   bool "Run Kernel Systick Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel systick demo.
+
+config LOS_KERNEL_DEMO_SWTIMER
+   bool "Run Kernel Software Timer Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel software timer demo.
+
+config LOS_KERNEL_DEMO_LIST
+   bool "Run Kernel List Demo"
+   depends on LOSCFG_DEMOS_KERNEL_ENTRY
+   default n
+   help
+     Answer y to run kernel list demo.
+
+endchoice
+
+endmenu

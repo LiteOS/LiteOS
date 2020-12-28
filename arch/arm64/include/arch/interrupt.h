@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_INTERRUPT_H
 #define _ARCH_INTERRUPT_H
@@ -51,8 +43,8 @@ STATIC INLINE UINT32 ArchIntLock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
-        "mrs    %0, daif      \n"
-        "msr    daifset, #0xf   "
+        "mrs %0, daif \n"
+        "msr daifset, #0xf"
         : "=r" (intSave)
         :
         : "memory");
@@ -63,8 +55,8 @@ STATIC INLINE UINT32 ArchIntUnlock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
-        "mrs    %0, daif      \n"
-        "msr    daifclr, #3     "
+        "mrs %0, daif \n"
+        "msr daifclr, #3"
         : "=r"(intSave)
         :
         : "memory");
@@ -73,24 +65,16 @@ STATIC INLINE UINT32 ArchIntUnlock(VOID)
 
 STATIC INLINE VOID ArchIntRestore(UINT32 intSave)
 {
-    __asm__ __volatile__(
-        "msr    daif, %0        "
-        :
-        : "r"(intSave)
-        : "memory");
+    __asm__ __volatile__("msr daif, %0 " : : "r"(intSave) : "memory");
 }
 
 #define PSR_I_BIT   0x00000080U
 
-STATIC INLINE UINT32 OsIntLocked(VOID)
+STATIC INLINE UINT32 ArchIntLocked(VOID)
 {
     UINT32 intSave;
 
-    __asm__ __volatile__(
-        "mrs    %0, daif        "
-        : "=r" (intSave)
-        :
-        : "memory");
+    __asm__ __volatile__("mrs %0, daif" : "=r" (intSave) : : "memory");
 
     return intSave & PSR_I_BIT;
 }

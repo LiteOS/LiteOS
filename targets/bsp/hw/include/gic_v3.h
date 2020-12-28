@@ -25,17 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#ifndef _GIC_V3_H_
-#define _GIC_V3_H_
+#ifndef _GIC_V3_H
+#define _GIC_V3_H
 
 #include "stdint.h"
 #include "asm/platform.h"
@@ -47,8 +39,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define BIT_32(bit) (1u << bit)
-#define BIT_64(bit) (1ul << bit)
+#define BIT_32(bit)     (1u << bit)
+#define BIT_64(bit)     (1ul << bit)
 
 #define ICC_CTLR_EL1    "S3_0_C12_C12_4"
 #define ICC_PMR_EL1     "S3_0_C4_C6_0"
@@ -68,15 +60,15 @@ extern "C" {
 #define ICC_IGRPEN1_EL3 "S3_6_C12_C12_7"
 
 /* GICD_CTLR bit definitions */
-#define CTLR_ENALBE_G0 BIT_32(0)
-#define CTLR_ENABLE_G1NS BIT_32(1)
-#define CTLR_ENABLE_G1S BIT_32(2)
-#define CTLR_RES0 BIT_32(3)
-#define CTLR_ARE_S BIT_32(4)
-#define CTLR_ARE_NS BIT_32(5)
-#define CTLR_DS BIT_32(6)
-#define CTLR_E1NWF BIT_32(7)
-#define GICD_CTLR_RWP BIT_32(31)
+#define CTLR_ENALBE_G0      BIT_32(0)
+#define CTLR_ENABLE_G1NS    BIT_32(1)
+#define CTLR_ENABLE_G1S     BIT_32(2)
+#define CTLR_RES0           BIT_32(3)
+#define CTLR_ARE_S          BIT_32(4)
+#define CTLR_ARE_NS         BIT_32(5)
+#define CTLR_DS             BIT_32(6)
+#define CTLR_E1NWF          BIT_32(7)
+#define GICD_CTLR_RWP       BIT_32(31)
 
 /* peripheral identification registers */
 #define GICD_CIDR0 (GICD_OFFSET + 0xfff0)
@@ -90,10 +82,10 @@ extern "C" {
 
 /* GICD_PIDR bit definitions and masks */
 #define GICD_PIDR2_ARCHREV_SHIFT 4
-#define GICD_PIDR2_ARCHREV_MASK 0xf
+#define GICD_PIDR2_ARCHREV_MASK  0xf
 
 /* redistributor registers */
-#define GICR_SGI_OFFSET (GICR_OFFSET + 0x10000)
+#define GICR_SGI_OFFSET     (GICR_OFFSET + 0x10000)
 
 #define GICR_CTLR(i)        (GICR_OFFSET + GICR_STRIDE * (i) + 0x0000)
 #define GICR_IIDR(i)        (GICR_OFFSET + GICR_STRIDE * (i) + 0x0004)
@@ -218,4 +210,4 @@ STATIC INLINE VOID GiccSetBpr0(UINT32 val)
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif
+#endif /* _GIC_V3_H */

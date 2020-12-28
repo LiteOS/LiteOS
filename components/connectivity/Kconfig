@@ -1,0 +1,14 @@
+menu "Connectivity"
+
+config LOSCFG_COMPONENTS_CONNECTIVITY
+    bool "Enable Connectivity"
+    default n
+    help
+      Answer y to enable connectivity.
+
+source "components/connectivity/mqtt/Kconfig"
+source "components/connectivity/lwm2m/Kconfig"
+source "components/connectivity/agent_tiny/Kconfig"
+source "components/connectivity/nb_iot/Kconfig"
+
+endmenu

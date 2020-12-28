@@ -128,6 +128,34 @@
   ******************************************************************************
   */
 
+/*----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Enable Multicast Mac Addr
+ * Author: Huawei LiteOS Team
+ * Create: 2020-11-20
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
@@ -1814,6 +1842,71 @@ HAL_ETH_StateTypeDef HAL_ETH_GetState(ETH_HandleTypeDef *heth)
   /* Return ETH state */
   return heth->State;
 }
+
+#ifdef __LITEOS__
+static void ETH_MACAddressConfigWithControl(ETH_HandleTypeDef *heth, uint32_t MacAddr, uint8_t *Addr, uint32_t control_flag)
+{
+  uint32_t tmpreg1;
+
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+
+  /* Check the parameters */
+  assert_param(IS_ETH_MAC_ADDRESS0123(MacAddr));
+
+  /* Calculate the selected MAC address high register */
+  tmpreg1 = (((uint32_t)Addr[5U] << 8U) | (uint32_t)Addr[4U] | control_flag);
+  /* Load the selected MAC address high register */
+  (*(__IO uint32_t *)((uint32_t)(ETH_MAC_ADDR_HBASE + MacAddr))) = tmpreg1;
+  /* Calculate the selected MAC address low register */
+  tmpreg1 = ((uint32_t)Addr[3U] << 24U) | ((uint32_t)Addr[2U] << 16U) | ((uint32_t)Addr[1U] << 8U) | Addr[0U];
+
+  /* Load the selected MAC address low register */
+  (*(__IO uint32_t *)((uint32_t)(ETH_MAC_ADDR_LBASE + MacAddr))) = tmpreg1;
+}
+
+/**
+  * @brief   enable mac address 1 to 3 to implement the multiple cast.
+  * @param  heth pointer to a ETH_HandleTypeDef structure that contains
+  *         the configuration information for ETHERNET module
+  * @param  mac_addr The MAC address to configure
+  *          This parameter can be one of the following values:
+  *             @arg ETH_MAC_Address1: MAC Address1
+  *             @arg ETH_MAC_Address2: MAC Address2
+  *             @arg ETH_MAC_Address3: MAC Address3
+  * @param  addr Pointer to MAC address buffer data (6 bytes)
+  * @param  bit_map Bit map to enable mac address filter, the valid bit
+                is 0 to 5 casting a byte in mac address in parameter addr.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_ETH_EnableMulticastMacAddr(ETH_HandleTypeDef *heth, uint32_t mac_addr, uint8_t *addr, uint32_t bitmap)
+{
+    uint32_t control_flag = 0;
+    uint32_t i;
+    const uint32_t max_bit_num = 6;
+    uint32_t bit_value = 0x20000000;
+    const uint32_t address_filter_enable = 0x80000000;
+
+    if (heth == NULL || addr == NULL)
+    {
+       return HAL_ERROR;
+    }
+
+    /* Ethernet MAC frame filter register (ETH_MACFFR), the address order is according the PHY byte order, and is
+        the reversed order to memory */
+    for (i = 0; i < max_bit_num; i++)
+    {
+        if (!((1 << i) & bitmap))
+        {
+            control_flag |= bit_value;
+        }
+        bit_value = (bit_value >> 1);
+    }
+    ETH_MACAddressConfigWithControl(heth, mac_addr, addr, control_flag | address_filter_enable);
+
+    return HAL_OK;
+}
+#endif
 
 /**
   * @}

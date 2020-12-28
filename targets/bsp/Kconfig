@@ -27,4 +27,10 @@ config LOSCFG_PLATFORM_BSP_XTENSA_XEA3
     bool "XTENSA Xea3"
     help
       General Interrupt Controller xtensa xea3.
+
+config LOSCFG_RISCV_HIMIDEERV200_PLIC
+    bool "RISCV PLIC"
+    depends on LOSCFG_ARCH_RISCV
+    help
+      HiMiDeerV200 Riscv Platform Level Interrupt Controller
 endchoice

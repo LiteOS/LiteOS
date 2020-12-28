@@ -5,49 +5,34 @@ config LOSCFG_COMPONENTS_FS
     default n
     select LOSCFG_COMPONENTS_FS_VFS
     help
-      Answer Y to enable LiteOS support filesystem.
+      Answer y to enable LiteOS support filesystem.
 
 config LOSCFG_COMPONENTS_FS_VFS
     bool "Enable VFS"
     default y
     depends on LOSCFG_COMPONENTS_FS
     help
-      Answer Y to enable LiteOS support virtual filesystem.
-
-config LOSCFG_COMPONENTS_FS_DEVFS
-    bool "Enable DEVFS"
-    default n
-    depends on LOSCFG_COMPONENTS_FS_VFS
-    help
-      Answer Y to enable LiteOS support dev filesystem.
+      Answer y to enable LiteOS support virtual filesystem.
 
 config LOSCFG_COMPONENTS_FS_FATFS
     bool "Enable FATFS"
     default n
     depends on LOSCFG_COMPONENTS_FS_VFS
     help
-      Answer Y to enable LiteOS support fat filesystem.
-
-config LOSCFG_COMPONENTS_FS_KIFS
-    bool "Enable KIFS"
-    default n
-    depends on LOSCFG_COMPONENTS_FS_VFS
-    help
-      Answer Y to enable LiteOS support ki filesystem.
+      Answer y to enable LiteOS support fat filesystem.
 
 config LOSCFG_COMPONENTS_FS_RAMFS
     bool "Enable RAMFS"
     default n
     depends on LOSCFG_COMPONENTS_FS_VFS
     help
-      Answer Y to enable LiteOS support ramfs filesystem.
+      Answer y to enable LiteOS support ram filesystem.
 
-config LOSCFG_COMPONENTS_FS_SPIFS
-    bool "Enable SPIFS"
+config LOSCFG_COMPONENTS_FS_SPIFFS
+    bool "Enable SPIFFS"
     default n
     depends on LOSCFG_COMPONENTS_FS_VFS
     help
-      Answer Y to enable LiteOS support spi filesystem.
-
+      Answer y to enable LiteOS support spi flash filesystem.
 
 endmenu

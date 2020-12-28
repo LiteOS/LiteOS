@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Sched file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -24,14 +24,6 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
 #include "sched.h"
@@ -152,7 +144,7 @@ int __sched_cpucount(size_t set_size, const cpu_set_t* set)
         return 0;
     }
 
-    for (i = 0; i < set_size / sizeof(__CPU_BITTYPE); i++) {
+    for (i = 0; i < (set_size / sizeof(__CPU_BITTYPE)); i++) {
         count += __builtin_popcountl(set->__bits[i]);
     }
 

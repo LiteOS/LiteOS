@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_INTERRUPT_H
 #define _ARCH_INTERRUPT_H
@@ -55,8 +47,8 @@ STATIC INLINE UINT32 ArchIntLock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
-        "mrs    %0, cpsr      \n"
-        "cpsid  if              "
+        "mrs    %0, cpsr \n"
+        "cpsid  if"
         : "=r"(intSave)
         :
         : "memory");
@@ -67,8 +59,8 @@ STATIC INLINE UINT32 ArchIntUnlock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
-        "mrs    %0, cpsr      \n"
-        "cpsie  if              "
+        "mrs    %0, cpsr \n"
+        "cpsie  if"
         : "=r"(intSave)
         :
         : "memory");
@@ -81,11 +73,12 @@ STATIC INLINE UINT32 ArchIntLock(VOID)
 {
     UINT32 intSave, temp;
     __asm__ __volatile__(
-        "mrs    %0, cpsr      \n"
+        "mrs    %0, cpsr \n"
         "orr    %1, %0, #0xc0 \n"
-        "msr    cpsr_c, %1      "
-        :"=r"(intSave),  "=r"(temp)
-        : :"memory");
+        "msr    cpsr_c, %1"
+        : "=r"(intSave),  "=r"(temp)
+        :
+        : "memory");
     return intSave;
 }
 
@@ -93,11 +86,12 @@ STATIC INLINE UINT32 ArchIntUnlock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
-        "mrs    %0, cpsr      \n"
+        "mrs    %0, cpsr \n"
         "bic    %0, %0, #0xc0 \n"
-        "msr    cpsr_c, %0      "
+        "msr    cpsr_c, %0"
         : "=r"(intSave)
-        : : "memory");
+        :
+        : "memory");
     return intSave;
 }
 
@@ -105,22 +99,14 @@ STATIC INLINE UINT32 ArchIntUnlock(VOID)
 
 STATIC INLINE VOID ArchIntRestore(UINT32 intSave)
 {
-    __asm__ __volatile__(
-        "msr    cpsr_c, %0      "
-        :
-        : "r"(intSave)
-        : "memory");
+    __asm__ __volatile__("msr cpsr_c, %0" : :"r"(intSave) :"memory");
 }
 
-STATIC INLINE UINT32 OsIntLocked(VOID)
+STATIC INLINE UINT32 ArchIntLocked(VOID)
 {
     UINT32 intSave;
 
-    __asm__ __volatile__(
-        "mrs    %0, cpsr        "
-        : "=r" (intSave)
-        :
-        : "memory", "cc");
+    __asm__ __volatile__("mrs %0, cpsr" :"=r" (intSave) : :"memory", "cc");
 
     return intSave & PSR_I_BIT;
 }

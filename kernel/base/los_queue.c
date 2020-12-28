@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_queue_pri.h"
 #include "los_queue_debug_pri.h"
@@ -40,17 +32,13 @@
 #include "los_spinlock.h"
 #include "los_mp_pri.h"
 #include "los_percpu_pri.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif
 #endif /* __cplusplus */
-
-#ifdef LOSCFG_BASE_IPC_QUEUE
-#if (LOSCFG_BASE_IPC_QUEUE_LIMIT <= 0)
-#error "queue maxnum cannot be zero"
-#endif /* LOSCFG_BASE_IPC_QUEUE_LIMIT <= 0 */
 
 LITE_OS_SEC_BSS LosQueueCB *g_allQueue = NULL;
 LITE_OS_SEC_BSS STATIC LOS_DL_LIST g_freeQueueList;
@@ -135,6 +123,8 @@ LITE_OS_SEC_TEXT_INIT STATIC UINT32 OsQueueCreateInternal(UINT16 len, UINT32 *qu
     SCHEDULER_UNLOCK(intSave);
 
     *queueId = queueCB->queueId;
+
+    LOS_TRACE(QUEUE_CREATE, *queueId, len, msgSize - sizeof(UINT32), (UINTPTR)queue, queueMemType);
     return LOS_OK;
 }
 
@@ -322,14 +312,16 @@ STATIC UINT32 OsQueueOperateParamCheck(const LosQueueCB *queueCB, UINT32 queueId
 
 UINT32 OsQueueOperate(UINT32 queueId, UINT32 operateType, VOID *bufferAddr, UINT32 *bufferSize, UINT32 timeout)
 {
-    LosQueueCB *queueCB = NULL;
+    LosQueueCB *queueCB = (LosQueueCB *)GET_QUEUE_HANDLE(queueId);
     LosTaskCB *resumedTask = NULL;
     UINT32 ret;
     UINT32 readWrite = OS_QUEUE_READ_WRITE_GET(operateType);
     UINT32 intSave;
 
+    LOS_TRACE(QUEUE_RW, queueId, queueCB->queueSize, *bufferSize, operateType,
+        queueCB->readWriteableCnt[OS_QUEUE_READ], queueCB->readWriteableCnt[OS_QUEUE_WRITE], timeout);
+
     SCHEDULER_LOCK(intSave);
-    queueCB = (LosQueueCB *)GET_QUEUE_HANDLE(queueId);
     ret = OsQueueOperateParamCheck(queueCB, queueId, operateType, bufferSize);
     if (ret != LOS_OK) {
         goto QUEUE_END;
@@ -467,8 +459,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueId)
         return LOS_ERRNO_QUEUE_NOT_FOUND;
     }
 
-    SCHEDULER_LOCK(intSave);
     queueCB = (LosQueueCB *)GET_QUEUE_HANDLE(queueId);
+
+    LOS_TRACE(QUEUE_DELETE, queueId, queueCB->queueState, queueCB->readWriteableCnt[OS_QUEUE_READ]);
+
+    SCHEDULER_LOCK(intSave);
     if ((queueCB->queueId != queueId) || (queueCB->queueState == OS_QUEUE_UNUSED)) {
         ret = LOS_ERRNO_QUEUE_NOT_CREATE;
         goto QUEUE_END;
@@ -546,15 +541,15 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueId, QUEUE_INFO_S *que
     queueInfo->usWritableCnt = queueCB->readWriteableCnt[OS_QUEUE_WRITE];
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_READ], LosTaskCB, pendList) {
-        queueInfo->uwWaitReadTask |= 1ULL << tskCB->taskId;
+        queueInfo->uwWaitReadTask |= (1ULL << tskCB->taskId);
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_WRITE], LosTaskCB, pendList) {
-        queueInfo->uwWaitWriteTask |= 1ULL << tskCB->taskId;
+        queueInfo->uwWaitWriteTask |= (1ULL << tskCB->taskId);
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->memList, LosTaskCB, pendList) {
-        queueInfo->uwWaitMemTask |= 1ULL << tskCB->taskId;
+        queueInfo->uwWaitMemTask |= (1ULL << tskCB->taskId);
     }
 
 QUEUE_END:
@@ -610,6 +605,8 @@ LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueId, VOID *mailPool, UINT32 t
         OsTaskWait(&queueCB->memList, OS_TASK_STATUS_PEND, timeout);
 
         OsSchedResched();
+        SCHEDULER_UNLOCK(intSave);
+        SCHEDULER_LOCK(intSave);
 
         if (runTask->taskStatus & OS_TASK_STATUS_TIMEOUT) {
             runTask->taskStatus &= ~OS_TASK_STATUS_TIMEOUT;
@@ -662,7 +659,6 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueId, VOID *mailPool, VOID *ma
         return LOS_ERRNO_QUEUE_MAIL_FREE_ERROR;
     }
 
-    queueCB = GET_QUEUE_HANDLE(queueId);
     if ((queueCB->queueId != queueId) || (queueCB->queueState == OS_QUEUE_UNUSED)) {
         SCHEDULER_UNLOCK(intSave);
         return LOS_ERRNO_QUEUE_NOT_CREATE;
@@ -685,7 +681,6 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueId, VOID *mailPool, VOID *ma
     return LOS_OK;
 }
 #endif /* LOSCFG_COMPAT_CMSIS */
-#endif /* LOSCFG_BASE_IPC_QUEUE */
 
 #ifdef __cplusplus
 #if __cplusplus

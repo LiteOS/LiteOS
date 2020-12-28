@@ -1,0 +1,10 @@
+menu "Trace Demo"
+
+config LOSCFG_DEMOS_TRACE
+    bool "Enable Trace Demo"
+    default n
+    depends on LOSCFG_KERNEL_TRACE
+    help
+      Answer y to enable trace demo.
+
+endmenu

@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: libm2m HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*******************************************************************************
  *
@@ -89,11 +83,12 @@
 #ifndef _LWM2M_CLIENT_H_
 #define _LWM2M_CLIENT_H_
 
-#include "liblwm2m_api.h"
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #include <stdint.h>
 #include <stddef.h>
@@ -102,6 +97,8 @@ extern "C" {
 
 #include "er-coap-13/er-coap-13.h"
 #include "osdepends/atiny_osdep.h"
+
+#include "liblwm2m_api.h"
 
 #ifdef LWM2M_SERVER_MODE
 #ifndef LWM2M_SUPPORT_JSON
@@ -744,6 +741,7 @@ typedef int (*lwm2m_bootstrap_callback_t) (void* sessionH, uint8_t status, lwm2m
 #endif
 
 #ifdef LWM2M_CLIENT_MODE
+
 /* use to control the bootstrap, factory bootstrap, client initiated bootstrap, server initiated bootstrap.
 factory bootstrap is used security object to register.
 */

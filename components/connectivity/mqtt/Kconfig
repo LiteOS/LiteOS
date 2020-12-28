@@ -1,0 +1,6 @@
+config LOSCFG_COMPONENTS_CONNECTIVITY_MQTT
+    bool "Enable Mqtt"
+    depends on LOSCFG_COMPONENTS_CONNECTIVITY
+    default n
+    help
+        Answer y to enable mqtt.

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_mux_pri.h"
 #include "los_mux_debug_pri.h"
@@ -42,17 +34,13 @@
 #include "los_mp_pri.h"
 #include "los_percpu_pri.h"
 #include "los_err_pri.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif
 #endif /* __cplusplus */
-
-#ifdef LOSCFG_BASE_IPC_MUX
-#if (LOSCFG_BASE_IPC_MUX_LIMIT <= 0)
-#error "mux maxnum cannot be zero"
-#endif /* LOSCFG_BASE_IPC_MUX_LIMIT <= 0 */
 
 LITE_OS_SEC_BSS LosMuxCB *g_allMux = NULL;
 LITE_OS_SEC_DATA_INIT STATIC LOS_DL_LIST g_unusedMuxList;
@@ -76,6 +64,7 @@ LITE_OS_SEC_TEXT UINT32 OsMuxInit(VOID)
     for (index = 0; index < LOSCFG_BASE_IPC_MUX_LIMIT; index++) {
         muxNode = g_allMux + index;
         muxNode->muxId = index;
+        muxNode->owner = NULL;
         muxNode->muxStat = OS_MUX_UNUSED;
         LOS_ListTailInsert(&g_unusedMuxList, &muxNode->muxList);
     }
@@ -117,6 +106,8 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxCreate(UINT32 *muxHandle)
     OsMuxDbgUpdateHook(muxCreated->muxId, OsCurrTaskGet()->taskEntry);
 
     SCHEDULER_UNLOCK(intSave);
+
+    LOS_TRACE(MUX_CREATE, muxCreated->muxId);
     return LOS_OK;
 
 ERR_HANDLER:
@@ -135,6 +126,10 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxDelete(UINT32 muxHandle)
     }
 
     muxDeleted = GET_MUX(muxHandle);
+
+    LOS_TRACE(MUX_DELETE, muxHandle, muxDeleted->muxStat, muxDeleted->muxCount,
+        ((muxDeleted->owner == NULL) ? 0xFFFFFFFF : muxDeleted->owner->taskId));
+
     SCHEDULER_LOCK(intSave);
     if ((muxDeleted->muxId != muxHandle) || (muxDeleted->muxStat == OS_MUX_UNUSED)) {
         SCHEDULER_UNLOCK(intSave);
@@ -199,7 +194,7 @@ LITE_OS_SEC_TEXT STATIC VOID OsMuxBitmapRestore(const LosTaskCB *runTask, LosTas
     }
 }
 
-#ifdef LOSCFG_MUTEX_WAIT_PRIORITY
+#ifdef LOSCFG_MUTEX_WAITMODE_PRIO
 LITE_OS_SEC_TEXT STATIC LOS_DL_LIST *OsMuxPendFindPosSub(const LosTaskCB *runTask, const MuxBaseCB *muxPended)
 {
     LosTaskCB *pendedTask = NULL;
@@ -288,6 +283,10 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
     }
 
     muxPended = GET_MUX(muxHandle);
+
+    LOS_TRACE(MUX_PEND, muxHandle, muxPended->muxCount,
+        ((muxPended->owner == NULL) ? 0xFFFFFFFF : muxPended->owner->taskId), timeout);
+
     SCHEDULER_LOCK(intSave);
 
     ret = OsMuxParaCheck(muxPended, muxHandle);
@@ -360,8 +359,8 @@ LITE_OS_SEC_TEXT UINT32 OsMuxPostOp(LosTaskCB *runTask, MuxBaseCB *muxPosted)
         return MUX_NO_SCHEDULE;
     }
 
-#ifdef LOSCFG_MUTEX_WAIT_PRIORITY
     resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&(muxPosted->muxList)));
+#ifdef LOSCFG_MUTEX_WAITMODE_PRIO
     if (resumedTask->priority > runTask->priority) {
         if (LOS_HighBitGet(runTask->priBitMap) != resumedTask->priority) {
             LOS_BitmapClr(&runTask->priBitMap, resumedTask->priority);
@@ -397,6 +396,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         OS_RETURN_ERROR(LOS_ERRNO_MUX_INVALID);
     }
 
+    LOS_TRACE(MUX_POST, muxHandle, muxPosted->muxCount,
+        ((muxPosted->owner == NULL) ? 0xFFFFFFFF : muxPosted->owner->taskId));
+
     SCHEDULER_LOCK(intSave);
 
     ret = OsMuxParaCheck(muxPosted, muxHandle);
@@ -425,7 +427,6 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 
     return LOS_OK;
 }
-#endif /* LOSCFG_BASE_IPC_MUX */
 
 #ifdef __cplusplus
 #if __cplusplus

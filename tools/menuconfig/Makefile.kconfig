@@ -3,12 +3,6 @@
 .PHONY += menuconfig savemenuconfig
 .PHONY += defconfig allyesconfig allnoconfig
 
-MCONF = tools/menuconfig/extra/config/mconf
-KCONFIG = tools/menuconfig/extra/Configs/Config.in
-
-$(MCONF):
-	@$(MAKE) -C tools/menuconfig/extra/config ncurses mconf
-
 menuconfig:
 	python  $(LITEOSTOPDIR)/tools/menuconfig/usr_config.py
 	-mv -f $(LITEOS_MENUCONFIG_H) $(LITEOS_PLATFORM_MENUCONFIG_H)

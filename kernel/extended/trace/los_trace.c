@@ -25,17 +25,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
+
+#ifdef LOSCFG_KERNEL_SMP
+#include "los_mp_pri.h"
+#endif
 
 #ifdef LOSCFG_SHELL
 #include "shcmd.h"
@@ -48,15 +44,17 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_KERNEL_TRACE == YES)
+#ifdef LOSCFG_KERNEL_TRACE
 LITE_OS_SEC_BSS STATIC UINT32 g_traceEventCount;
-LITE_OS_SEC_BSS STATIC volatile enum TraceStatus g_traceStatus = TRACE_UNINIT;
+LITE_OS_SEC_BSS STATIC volatile enum TraceState g_traceState = TRACE_UNINIT;
 LITE_OS_SEC_DATA_INIT STATIC volatile BOOL g_enableTrace = FALSE;
 LITE_OS_SEC_BSS STATIC UINT32 g_traceMask = TRACE_DEFAULT_MASK;
 
-#if (LOSCFG_TRACE_CONTROL_AGENT == YES)
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
 LITE_OS_SEC_BSS STATIC UINT32 g_traceTaskId;
 #endif
+
+#define MIN(x, y)             ((x) < (y) ? (x) : (y))
 
 LITE_OS_SEC_BSS STATIC TRACE_HWI_FILTER_HOOK g_traceHwiFliterHook = NULL;
 
@@ -64,9 +62,9 @@ LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_traceSpin);
 
 STATIC_INLINE BOOL OsTraceHwiFilter(UINT32 hwiNum)
 {
-    BOOL ret = ((hwiNum == LOSCFG_TRACE_UART_HWI) || (hwiNum == LOSCFG_TRACE_TICK_HWI));
-#if (LOSCFG_KERNEL_SMP == YES)
-    ret |= (hwiNum == LOSCFG_TRACE_IPI_SCHEDULE_HWI);
+    BOOL ret = ((hwiNum == NUM_HAL_INTERRUPT_UART) || (hwiNum == OS_TICK_INT_NUM));
+#ifdef LOSCFG_KERNEL_SMP
+    ret |= (hwiNum == LOS_MP_IPI_SCHEDULE);
 #endif
     if (g_traceHwiFliterHook != NULL) {
         ret |= g_traceHwiFliterHook(hwiNum);
@@ -87,7 +85,7 @@ STATIC VOID OsTraceSetFrame(TraceEventFrame *frame, UINT32 eventType, UINTPTR id
     }
 
     TRACE_LOCK(intSave);
-    frame->curTask   = OsTraceGetMaskTid(OsCurrTaskGet());
+    frame->curTask   = OsTraceGetMaskTid(OsCurrTaskGet()->taskId);
     frame->identity  = identity;
     frame->curTime   = HalClockGetCycles();
     frame->eventType = eventType;
@@ -95,7 +93,7 @@ STATIC VOID OsTraceSetFrame(TraceEventFrame *frame, UINT32 eventType, UINTPTR id
 #if (LOSCFG_TRACE_FRAME_CORE_MSG == YES)
     frame->core.cpuId      = ArchCurrCpuid();
     frame->core.hwiActive  = OS_INT_ACTIVE ? TRUE : FALSE;
-    frame->core.isTaskLock = OsPercpuGet()->taskLockCnt ? TRUE : FALSE;
+    frame->core.taskLockCnt = MIN(OsPercpuGet()->taskLockCnt, 0xF); /* taskLockCnt is 4 bits, max vaule = 0xF */
     frame->core.paramCount = paramCount;
 #endif
 
@@ -105,10 +103,9 @@ STATIC VOID OsTraceSetFrame(TraceEventFrame *frame, UINT32 eventType, UINTPTR id
 #endif
     TRACE_UNLOCK(intSave);
 
-    for (i = 1; i < paramCount; i++) {
-        frame->params[i - 1] = params[i]; /* the params[0] is identity */
+    for (i = 0; i < paramCount; i++) {
+        frame->params[i] = params[i];
     }
-    return;
 }
 
 VOID OsTraceSetObj(ObjData *obj, const LosTaskCB *tcb)
@@ -116,34 +113,33 @@ VOID OsTraceSetObj(ObjData *obj, const LosTaskCB *tcb)
     errno_t ret;
     (VOID)memset_s(obj, sizeof(ObjData), 0, sizeof(ObjData));
 
-    obj->id   = OsTraceGetMaskTid(tcb);
+    obj->id   = OsTraceGetMaskTid(tcb->taskId);
     obj->prio = tcb->priority;
 
     ret = strncpy_s(obj->name, LOSCFG_TRACE_OBJ_MAX_NAME_SIZE, tcb->taskName, LOSCFG_TRACE_OBJ_MAX_NAME_SIZE - 1);
     if (ret != EOK) {
         TRACE_ERROR("Task name copy failed!\n");
     }
-    return;
 }
 
 VOID OsTraceHook(UINT32 eventType, UINTPTR identity, const UINTPTR *params, UINT16 paramCount)
 {
-    if ((eventType == TRACE_TASK_CREATE) || (eventType == TRACE_TASK_PRIOSET)) {
-        OsTraceObjAdd(eventType, (LosTaskCB *)identity); /* handle important obj info, these can not be filtered */
+    if ((eventType == TASK_CREATE) || (eventType == TASK_PRIOSET)) {
+        OsTraceObjAdd(eventType, identity); /* handle important obj info, these can not be filtered */
     }
 
     if ((g_enableTrace == TRUE) && (eventType & g_traceMask)) {
         UINTPTR id = identity;
-        if (eventType & TRACE_HWI_FLAG) {
+        if (TRACE_GET_MODE_FLAG(eventType) == TRACE_HWI_FLAG) {
             if (OsTraceHwiFilter(identity)) {
                 return;
             }
-        } else if (eventType & TRACE_TASK_FLAG) {
-            id = OsTraceGetMaskTid((LosTaskCB *)identity);
-        } else if (eventType == TRACE_MEM_INFO_REQ) {
+        } else if (TRACE_GET_MODE_FLAG(eventType) == TRACE_TASK_FLAG) {
+            id = OsTraceGetMaskTid(identity);
+        } else if (eventType == MEM_INFO_REQ) {
             LOS_MEM_POOL_STATUS status;
             LOS_MemInfoGet((VOID *)identity, &status);
-            LOS_TRACE(MEM, INFO, identity, &status);
+            LOS_TRACE(MEM_INFO, identity, status.uwTotalUsedSize, status.uwTotalFreeSize);
             return;
         }
 
@@ -159,7 +155,7 @@ BOOL OsTraceIsEnable(VOID)
     return g_enableTrace == TRUE;
 }
 
-#if (LOSCFG_TRACE_CONTROL_AGENT == YES)
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
 STATIC BOOL OsTraceCmdIsValid(const TraceClientCmd *msg)
 {
     return ((msg->end == TRACE_CMD_END_CHAR) && (msg->cmd < TRACE_CMD_MAX_CODE));
@@ -188,7 +184,6 @@ STATIC VOID OsTraceCmdHandle(const TraceClientCmd *msg)
         default:
             break;
     }
-    return;
 }
 
 VOID TraceAgent(VOID)
@@ -216,7 +211,7 @@ STATIC UINT32 OsCreateTraceAgentTask(VOID)
     taskInitParam.usTaskPrio = LOSCFG_TRACE_TASK_PRIORITY;
     taskInitParam.pcName = "TraceAgent";
     taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     taskInitParam.usCpuAffiMask = CPUID_TO_AFFI_MASK(ArchCurrCpuid());
 #endif
     ret = LOS_TaskCreate(&g_traceTaskId, &taskInitParam);
@@ -230,23 +225,20 @@ UINT32 LOS_TraceInit(VOID *buf, UINT32 size)
     UINT32 ret;
 
     TRACE_LOCK(intSave);
-    if (g_traceStatus != TRACE_UNINIT) {
-        TRACE_ERROR("trace init state's error :%d\n", g_traceStatus);
+    if (g_traceState != TRACE_UNINIT) {
+        TRACE_ERROR("trace has been initialized already, the current state is :%d\n", g_traceState);
         ret = LOS_ERRNO_TRACE_ERROR_STATUS;
         goto LOS_ERREND;
     }
 
+#ifdef LOSCFG_TRACE_CLIENT_INTERACT
     ret = OsTracePipelineInit();
     if (ret != LOS_OK) {
         goto LOS_ERREND;
     }
+#endif
 
-    ret = OsTraceBufInit(buf, size);
-    if (ret != LOS_OK) {
-        goto LOS_ERREND;
-    }
-
-#if (LOSCFG_TRACE_CONTROL_AGENT == YES)
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
     ret = OsCreateTraceAgentTask();
     if (ret != LOS_OK) {
         TRACE_ERROR("trace init create agentTask error :0x%x\n", ret);
@@ -254,17 +246,26 @@ UINT32 LOS_TraceInit(VOID *buf, UINT32 size)
     }
 #endif
 
+    ret = OsTraceBufInit(buf, size);
+    if (ret != LOS_OK) {
+        goto LOS_RELEASE;
+    }
+
     g_traceEventCount = 0;
 
 #ifdef LOSCFG_RECORDER_MODE_ONLINE  /* Wait trace client to start trace */
     g_enableTrace = FALSE;
-    g_traceStatus = TRACE_INITED;
+    g_traceState = TRACE_INITED;
 #else
     g_enableTrace = TRUE;
-    g_traceStatus = TRACE_STARTED;
+    g_traceState = TRACE_STARTED;
 #endif
     TRACE_UNLOCK(intSave);
     return LOS_OK;
+LOS_RELEASE:
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
+    LOS_TaskDelete(g_traceTaskId);
+#endif
 LOS_ERREND:
     TRACE_UNLOCK(intSave);
     return ret;
@@ -273,21 +274,30 @@ LOS_ERREND:
 UINT32 LOS_TraceStart(VOID)
 {
     UINT32 intSave;
+    UINT32 ret = LOS_OK;
 
     TRACE_LOCK(intSave);
-    if ((g_traceStatus != TRACE_INITED) && (g_traceStatus != TRACE_STOPED)) {
-        TRACE_ERROR("trace start state's error :%d\n", g_traceStatus);
-        TRACE_UNLOCK(intSave);
-        return LOS_ERRNO_TRACE_ERROR_STATUS;
+    if (g_traceState == TRACE_STARTED) {
+        goto START_END;
+    }
+
+    if (g_traceState == TRACE_UNINIT) {
+        TRACE_ERROR("trace not inited, be sure LOS_TraceInit excute success\n");
+        ret = LOS_ERRNO_TRACE_ERROR_STATUS;
+        goto START_END;
     }
 
     OsTraceNotifyStart();
 
     g_enableTrace = TRUE;
-    g_traceStatus = TRACE_STARTED;
+    g_traceState = TRACE_STARTED;
 
     TRACE_UNLOCK(intSave);
-    return LOS_OK;
+    LOS_TRACE(MEM_INFO_REQ, m_aucSysMem0);
+    return ret;
+START_END:
+    TRACE_UNLOCK(intSave);
+    return ret;
 }
 
 VOID LOS_TraceStop(VOID)
@@ -295,17 +305,15 @@ VOID LOS_TraceStop(VOID)
     UINT32 intSave;
 
     TRACE_LOCK(intSave);
-    if (g_traceStatus != TRACE_STARTED) {
-        TRACE_ERROR("trace stop state's error :%d\n", g_traceStatus);
-        TRACE_UNLOCK(intSave);
-        return;
+    if (g_traceState != TRACE_STARTED) {
+        goto STOP_END;
     }
 
     g_enableTrace = FALSE;
-    g_traceStatus = TRACE_STOPED;
+    g_traceState = TRACE_STOPED;
     OsTraceNotifyStop();
+STOP_END:
     TRACE_UNLOCK(intSave);
-    return;
 }
 
 VOID LOS_TraceEventMaskSet(UINT32 mask)
@@ -313,24 +321,28 @@ VOID LOS_TraceEventMaskSet(UINT32 mask)
     g_traceMask = mask;
 }
 
-VOID *LOS_TraceRecordDump(BOOL toClient)
+VOID LOS_TraceRecordDump(BOOL toClient)
 {
-    if (g_traceStatus == TRACE_UNINIT) {
-        TRACE_ERROR("trace buffer dump state's error :%d\n", g_traceStatus);
-        return NULL;
+    if (g_traceState != TRACE_STOPED) {
+        TRACE_ERROR("trace dump must after trace stopped , the current state is : %d\n", g_traceState);
+        return;
     }
-    return OsTraceRecordDump(toClient);
+    OsTraceRecordDump(toClient);
+}
+
+OfflineHead *LOS_TraceRecordGet(VOID)
+{
+    return OsTraceRecordGet();
 }
 
 VOID LOS_TraceReset(VOID)
 {
-    if (g_traceStatus == TRACE_UNINIT) {
-        TRACE_ERROR("trace reset state's error :%d\n", g_traceStatus);
+    if (g_traceState == TRACE_UNINIT) {
+        TRACE_ERROR("trace not inited, be sure LOS_TraceInit excute success\n");
         return;
     }
 
     OsTraceReset();
-    return;
 }
 
 VOID LOS_TraceHwiFilterHookReg(TRACE_HWI_FILTER_HOOK hook)
@@ -340,7 +352,6 @@ VOID LOS_TraceHwiFilterHookReg(TRACE_HWI_FILTER_HOOK hook)
     TRACE_LOCK(intSave);
     g_traceHwiFliterHook = hook;
     TRACE_UNLOCK(intSave);
-    return;
 }
 
 #ifdef LOSCFG_SHELL
@@ -365,9 +376,20 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdTraceSetMask(INT32 argc, const CHAR **ar
 
 LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdTraceDump(INT32 argc, const CHAR **argv)
 {
-    (VOID)argc;
-    (VOID)argv;
-    LOS_TraceRecordDump(TRUE);
+    BOOL toClient;
+    CHAR *endPtr = NULL;
+
+    if (argc >= 2) { /* 2:Just as number of parameters */
+        PRINTK("\nUsage: trace_dump or trace_dump [1/0]\n");
+        return OS_ERROR;
+    }
+
+    if (argc == 0) {
+        toClient = FALSE;
+    } else {
+        toClient = strtoul(argv[0], &endPtr, 0) != 0 ? TRUE : FALSE;
+    }
+    LOS_TraceRecordDump(toClient);
     return LOS_OK;
 }
 
@@ -375,10 +397,10 @@ SHELLCMD_ENTRY(tracestart_shellcmd,   CMD_TYPE_EX, "trace_start", 0, (CmdCallBac
 SHELLCMD_ENTRY(tracestop_shellcmd,    CMD_TYPE_EX, "trace_stop",  0, (CmdCallBackFunc)LOS_TraceStop);
 SHELLCMD_ENTRY(tracesetmask_shellcmd, CMD_TYPE_EX, "trace_mask",  1, (CmdCallBackFunc)OsShellCmdTraceSetMask);
 SHELLCMD_ENTRY(tracereset_shellcmd,   CMD_TYPE_EX, "trace_reset", 0, (CmdCallBackFunc)LOS_TraceReset);
-SHELLCMD_ENTRY(tracedump_shellcmd,    CMD_TYPE_EX, "trace_dump",  0, (CmdCallBackFunc)OsShellCmdTraceDump);
+SHELLCMD_ENTRY(tracedump_shellcmd,    CMD_TYPE_EX, "trace_dump", 1, (CmdCallBackFunc)OsShellCmdTraceDump);
 #endif
 
-#endif /* LOSCFG_KERNEL_TRACE == YES */
+#endif /* LOSCFG_KERNEL_TRACE */
 
 #ifdef __cplusplus
 #if __cplusplus

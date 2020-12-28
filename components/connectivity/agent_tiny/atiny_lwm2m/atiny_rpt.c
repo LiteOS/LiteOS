@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Agent Rpt
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,22 +24,13 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "liblwm2m.h"
 #include "atiny_rpt.h"
 #include "log/atiny_log.h"
 
-typedef struct _atiny_rpt_list_t
-{
+typedef struct _atiny_rpt_list_t {
     atiny_dl_list node;
     lwm2m_uri_t uri;
     atiny_dl_list rpt_list;
@@ -45,8 +38,7 @@ typedef struct _atiny_rpt_list_t
     uint32_t max_cnt;
 } atiny_rpt_list_t;
 
-typedef struct
-{
+typedef struct {
     atiny_dl_list list;
     data_report_t data;
 } atiny_rpt_node_t;
@@ -54,12 +46,11 @@ typedef struct
 static atiny_dl_list g_atiny_rpt_table;
 static void *g_mutex = NULL;
 
-// TODO: when free, recorrect then callback code
+// when free, recorrect then callback code
 
 static int atiny_is_uri_equal(const lwm2m_uri_t *uri0, const lwm2m_uri_t *uri1)
 {
-    if (LWM2M_URI_IS_SET_RESOURCE(uri0) && LWM2M_URI_IS_SET_RESOURCE(uri1))
-    {
+    if (LWM2M_URI_IS_SET_RESOURCE(uri0) && LWM2M_URI_IS_SET_RESOURCE(uri1)) {
         return (uri0->objectId == uri1->objectId) && (uri0->instanceId == uri1->instanceId)
                && (uri0->resourceId == uri1->resourceId);
     }
@@ -69,15 +60,13 @@ static int atiny_is_uri_equal(const lwm2m_uri_t *uri0, const lwm2m_uri_t *uri1)
 
 static atiny_rpt_list_t *atiny_find_rpt_list(const lwm2m_uri_t *uri)
 {
-    atiny_dl_list *item;
-    atiny_dl_list *next;
+    atiny_dl_list *item = NULL;
+    atiny_dl_list *next = NULL;
 
-    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, &g_atiny_rpt_table)
-    {
+    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, &g_atiny_rpt_table) {
         atiny_rpt_list_t *data_node = (atiny_rpt_list_t *)item;
 
-        if (atiny_is_uri_equal(&data_node->uri, uri))
-        {
+        if (atiny_is_uri_equal(&data_node->uri, uri)) {
             return data_node;
         }
     }
@@ -85,46 +74,41 @@ static atiny_rpt_list_t *atiny_find_rpt_list(const lwm2m_uri_t *uri)
     return NULL;
 }
 
-static void atiny_free_list(atiny_dl_list *list,  void(*free_data)(atiny_dl_list *node, void *param),  void *param)
+static void atiny_free_list(atiny_dl_list *list, void(*free_data)(atiny_dl_list *node, void *param), void *param)
 {
-    atiny_dl_list *item;
-    atiny_dl_list *next;
+    atiny_dl_list *item = NULL;
+    atiny_dl_list *next = NULL;
 
-    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list)
-    {
+    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list) {
         atiny_list_delete(item);
 
-        if (free_data != NULL)
-        {
+        if (free_data != NULL) {
             free_data(item, param);
         }
         lwm2m_free(item);
     }
 }
 
-static void atiny_visit_list(atiny_dl_list *list,  void(*visit_data)(atiny_dl_list *node, void *param), void *param)
+static void atiny_visit_list(atiny_dl_list *list, void(*visit_data)(atiny_dl_list *node, void *param), void *param)
 {
-    atiny_dl_list *item;
-    atiny_dl_list *next;
+    atiny_dl_list *item = NULL;
+    atiny_dl_list *next = NULL;
 
-    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list)
-    {
+    ATINY_DL_LIST_FOR_EACH_SAFE(item, next, list) {
         visit_data(item, param);
     }
 }
 
-static void atiny_clear_rpt_list_node_data(atiny_dl_list *node,  void *result)
+static void atiny_clear_rpt_list_node_data(atiny_dl_list *node, void *result)
 {
     atiny_rpt_node_t *rpt_node = (atiny_rpt_node_t *)node;
 
-    if (rpt_node->data.callback)
-    {
+    if (rpt_node->data.callback) {
         rpt_node->data.callback(rpt_node->data.type,
                                 rpt_node->data.cookie, (data_send_status_e)(long)result);
     }
 
-    if (rpt_node->data.buf)
-    {
+    if (rpt_node->data.buf) {
         lwm2m_free(rpt_node->data.buf);
         rpt_node->data.buf = NULL;
     }
@@ -140,8 +124,7 @@ static void atiny_notify_stack_rpt_data_change(atiny_dl_list *node, void *contex
 {
     atiny_rpt_list_t *rpt_list = (atiny_rpt_list_t *)node;
 
-    if (!atiny_list_empty(&rpt_list->rpt_list))
-    {
+    if (!atiny_list_empty(&rpt_list->rpt_list)) {
         ATINY_LOG(LOG_INFO, "data change cnt %d "URI_FORMAT,  rpt_list->rpt_node_cnt, URI_LOG_PARAM(&rpt_list->uri));
         lwm2m_resource_value_changed(context, &rpt_list->uri);
     }
@@ -152,8 +135,7 @@ int atiny_init_rpt(void)
     atiny_list_init(&g_atiny_rpt_table);
     g_mutex = atiny_mutex_create();
 
-    if (NULL == g_mutex)
-    {
+    if (g_mutex == NULL) {
         ATINY_LOG(LOG_ERR, "atiny_mutex_create fail");
         return ATINY_RESOURCE_NOT_ENOUGH;;
     }
@@ -166,36 +148,27 @@ int atiny_add_rpt_uri(const lwm2m_uri_t *uri,  rpt_list_t *list)
     atiny_rpt_list_t *rpt_list  = NULL;
     int ret = ATINY_ARG_INVALID;
 
-    if (NULL == uri)
-    {
+    if (uri == NULL) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
-
-    if (NULL == list)
-    {
+    if (list == NULL) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
 
     *list = NULL;
-
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
+    do {
         rpt_list = atiny_find_rpt_list(uri);
 
-        if (rpt_list != NULL)
-        {
+        if (rpt_list != NULL) {
             ATINY_LOG(LOG_ERR, "uri exist," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
 
         rpt_list = lwm2m_malloc(sizeof(*rpt_list));
-
-        if (NULL == rpt_list)
-        {
+        if (rpt_list == NULL) {
             ATINY_LOG(LOG_ERR, "lwm2m_malloc fail," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
@@ -206,14 +179,10 @@ int atiny_add_rpt_uri(const lwm2m_uri_t *uri,  rpt_list_t *list)
         rpt_list->max_cnt = MAX_BUFFER_REPORT_CNT;
         atiny_list_insert_tail(&g_atiny_rpt_table, &rpt_list->node);
         ret = ATINY_OK;
-
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
-
     *list = rpt_list;
-
     return ret;
 }
 
@@ -221,22 +190,17 @@ int atiny_rm_rpt_uri(const lwm2m_uri_t *uri)
 {
 
     int ret = ATINY_ARG_INVALID;
-
-    if (NULL == uri)
-    {
+    if (uri == NULL) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
 
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
+    do {
         atiny_rpt_list_t *rpt_list  = NULL;
         rpt_list = atiny_find_rpt_list(uri);
 
-        if (NULL == rpt_list)
-        {
+        if (rpt_list == NULL) {
             ATINY_LOG(LOG_ERR, "uri not exit," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
@@ -244,35 +208,25 @@ int atiny_rm_rpt_uri(const lwm2m_uri_t *uri)
         atiny_list_delete(&rpt_list->node);
         atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data,  (void *)NOT_SENT);
         lwm2m_free(rpt_list);
-
         ret = ATINY_OK;
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
-
     return ret;
 }
 
 int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t *data)
 {
     int ret = ATINY_RESOURCE_NOT_FOUND;
-
-    if (NULL == rpt_list || (NULL == data))
-    {
+    if ((rpt_list == NULL) || (data == NULL)) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
 
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
-        atiny_rpt_node_t *data_node;
-
-        if (atiny_list_empty(&rpt_list->rpt_list))
-        {
-
+    do {
+        atiny_rpt_node_t *data_node = NULL;
+        if (atiny_list_empty(&rpt_list->rpt_list)) {
             ATINY_LOG(LOG_INFO, "dequeue empty rpt list");
             break;
         }
@@ -285,42 +239,33 @@ int atiny_dequeue_rpt_data(rpt_list_t rpt_list,  data_report_t *data)
         lwm2m_free(data_node);
 
         ret = ATINY_OK;
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
-
     return ret;
 }
 
 int atiny_queue_rpt_data(const lwm2m_uri_t *uri, const data_report_t *data)
 {
     int ret = ATINY_MALLOC_FAILED;
-
-    if ((NULL == uri) || (NULL == data))
-    {
+    if ((uri == NULL) || (data == NULL)) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
 
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
-        atiny_rpt_list_t *rpt_list;
-        atiny_rpt_node_t *data_node;
+    do {
+        atiny_rpt_list_t *rpt_list = NULL;
+        atiny_rpt_node_t *data_node = NULL;
 
         rpt_list = atiny_find_rpt_list(uri);
-
-        if (NULL == rpt_list)
-        {
+        if (rpt_list == NULL) {
             ATINY_LOG(LOG_INFO, "uri rpt list not exit," URI_FORMAT, URI_LOG_PARAM(uri));
             ret = ATINY_RESOURCE_NOT_FOUND;
             break;
         }
 
-        if (rpt_list->rpt_node_cnt >= rpt_list->max_cnt)
-        {
+        if (rpt_list->rpt_node_cnt >= rpt_list->max_cnt) {
             ATINY_LOG(LOG_INFO, "uri rpt exceed rpt cnt %d max cnt %d," URI_FORMAT,
                       rpt_list->rpt_node_cnt, rpt_list->max_cnt, URI_LOG_PARAM(uri));
             ret = ATINY_RESOURCE_NOT_ENOUGH;
@@ -328,9 +273,7 @@ int atiny_queue_rpt_data(const lwm2m_uri_t *uri, const data_report_t *data)
         }
 
         data_node = lwm2m_malloc(sizeof(*data_node));
-
-        if (NULL == data_node)
-        {
+        if (data_node == NULL) {
             ATINY_LOG(LOG_ERR, "malloc fail," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
@@ -339,11 +282,9 @@ int atiny_queue_rpt_data(const lwm2m_uri_t *uri, const data_report_t *data)
         memcpy((void *)&data_node->data, (void *)data, sizeof(data_node->data));
         atiny_list_insert_tail(&rpt_list->rpt_list, &data_node->list);
         rpt_list->rpt_node_cnt++;
-
         ret = ATINY_OK;
 
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
 
@@ -355,35 +296,26 @@ int atiny_clear_rpt_data(const lwm2m_uri_t *uri, int result)
 {
     int ret = ATINY_RESOURCE_NOT_FOUND;
 
-    if (NULL == uri)
-    {
+    if (uri == NULL) {
         ATINY_LOG(LOG_ERR, "null point");
         return ATINY_ARG_INVALID;
     }
 
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
+    do {
         atiny_rpt_list_t *rpt_list;
-
         rpt_list = atiny_find_rpt_list(uri);
-
-        if (NULL == rpt_list)
-        {
+        if (rpt_list == NULL) {
             ATINY_LOG(LOG_ERR, "uri rpt list not exit," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
 
         atiny_free_list(&rpt_list->rpt_list, atiny_clear_rpt_list_node_data, (void *)result);
         rpt_list->rpt_node_cnt = 0;
-
         ret = ATINY_OK;
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
-
     return ret;
 }
 
@@ -407,26 +339,18 @@ int atiny_set_max_rpt_cnt(const lwm2m_uri_t *uri, uint32_t max_rpt_cnt)
     int ret = ATINY_RESOURCE_NOT_FOUND;
 
     atiny_mutex_lock(g_mutex);
-
-    do
-    {
+    do {
         atiny_rpt_list_t *rpt_list;
-
         rpt_list = atiny_find_rpt_list(uri);
-
-        if (NULL == rpt_list)
-        {
+        if (rpt_list == NULL) {
             ATINY_LOG(LOG_ERR, "uri rpt list not exit," URI_FORMAT, URI_LOG_PARAM(uri));
             break;
         }
 
         rpt_list->max_cnt = max_rpt_cnt;
         ret = ATINY_OK;
-    }
-    while (0);
+    } while (0);
 
     atiny_mutex_unlock(g_mutex);
-
     return ret;
 }
-

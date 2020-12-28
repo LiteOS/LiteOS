@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_priqueue_pri.h"
 #include "los_task_pri.h"
@@ -43,7 +35,7 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 #endif /* __cplusplus */
 
 #define OS_PRIORITY_QUEUE_NUM 32
@@ -65,6 +57,7 @@ UINT32 OsPriQueueInit(VOID)
     for (priority = 0; priority < OS_PRIORITY_QUEUE_NUM; ++priority) {
         LOS_ListInit(&g_priQueueList[priority]);
     }
+
     return LOS_OK;
 }
 
@@ -125,18 +118,18 @@ LOS_DL_LIST *OsPriQueueTop(VOID)
 
 UINT32 OsPriQueueSize(UINT32 priority)
 {
-    UINT32      itemCnt = 0;
+    UINT32 itemCnt = 0;
     LOS_DL_LIST *curNode = NULL;
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     LosTaskCB *task = NULL;
     UINT32 cpuId = ArchCurrCpuid();
 #endif
 
-    LOS_ASSERT(OsIntLocked());
+    LOS_ASSERT(ArchIntLocked());
     LOS_ASSERT(LOS_SpinHeld(&g_taskSpin));
 
     LOS_DL_LIST_FOR_EACH(curNode, &g_priQueueList[priority]) {
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
         task = OS_TCB_FROM_PENDLIST(curNode);
         if (!(task->cpuAffiMask & (1U << cpuId))) {
             continue;
@@ -153,7 +146,7 @@ LITE_OS_SEC_TEXT_MINOR LosTaskCB *OsGetTopTask(VOID)
     UINT32 priority;
     UINT32 bitmap;
     LosTaskCB *newTask = NULL;
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     UINT32 cpuid = ArchCurrCpuid();
 #endif
 
@@ -162,12 +155,12 @@ LITE_OS_SEC_TEXT_MINOR LosTaskCB *OsGetTopTask(VOID)
     while (bitmap) {
         priority = CLZ(bitmap);
         LOS_DL_LIST_FOR_EACH_ENTRY(newTask, &g_priQueueList[priority], LosTaskCB, pendList) {
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
             if (newTask->cpuAffiMask & (1U << cpuid)) {
 #endif
                 OsPriQueueDequeue(&newTask->pendList);
                 goto OUT;
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
             }
 #endif
         }
@@ -181,6 +174,6 @@ OUT:
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 #endif /* __cplusplus */
 

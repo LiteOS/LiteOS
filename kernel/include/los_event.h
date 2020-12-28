@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_event Event
@@ -71,9 +63,10 @@ extern "C" {
 
 /**
  * @ingroup los_event
- * Bit 25 of the event mask cannot be set to an event because it is set to an error code.
+ * Event error code: Bit 25 of the event mask cannot be set to an event because it is
+ * set to an error code.
  *
- * Value: 0x02001c00
+ * Value: 0x02001c00.
  *
  * Solution: Set bits excluding bit 25 of the event mask to events.
  */
@@ -83,17 +76,19 @@ extern "C" {
  * @ingroup los_event
  * Event reading error code: Event reading times out.
  *
- * Value: 0x02001c01
+ * Value: 0x02001c01.
  *
- * Solution: Increase the waiting time for event reading, or make another task write a mask for the event.
+ * Solution: Increase the waiting time for event reading, or make another task write a
+ * mask for the event.
  */
 #define LOS_ERRNO_EVENT_READ_TIMEOUT        LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x01)
 
 /**
  * @ingroup los_event
- * Event reading error code: The EVENTMASK input parameter value is valid. The input parameter value must not be 0.
+ * Event reading error code: The EVENTMASK input parameter value is valid. The input
+ * parameter value must not be 0.
  *
- * Value: 0x02001c02
+ * Value: 0x02001c02.
  *
  * Solution: Pass in a valid EVENTMASK value.
  */
@@ -103,7 +98,7 @@ extern "C" {
  * @ingroup los_event
  * Event reading error code: The event is being read during an interrupt.
  *
- * Value: 0x02001c03
+ * Value: 0x02001c03.
  *
  * Solution: Read the event in a task.
  */
@@ -112,11 +107,11 @@ extern "C" {
 /**
  * @ingroup los_event
  * Event reading error code: The flag input parameter value used in the event reading API is invalid.
- * This input parameter value is obtained by performing an OR operation on corresponding bits of either OS_EVENT_ANY or
- * OS_EVENT_ANY and corresponding bits of either OS_EVENT_WAIT or OS_EVENT_NOWAIT. The waiting time must be set to
- * a nonzero value when an event is read in the mode of OS_EVENT_WAIT.
+ * This input parameter value is obtained by performing an OR operation on corresponding bits of either
+ * OS_EVENT_ANY or OS_EVENT_ANY and corresponding bits of either OS_EVENT_WAIT or OS_EVENT_NOWAIT. The
+ * waiting time must be set to a nonzero value when an event is read in the mode of OS_EVENT_WAIT.
  *
- * Value: 0x02001c04
+ * Value: 0x02001c04.
  *
  * Solution: Pass in a valid flag value.
  */
@@ -126,7 +121,7 @@ extern "C" {
  * @ingroup los_event
  * Event reading error code: The task is locked and is unable to read the event.
  *
- * Value: 0x02001c05
+ * Value: 0x02001c05.
  *
  * Solution: Unlock the task and read the event.
  */
@@ -136,7 +131,7 @@ extern "C" {
  * @ingroup los_event
  * Event reading error code: Null pointer.
  *
- * Value: 0x02001c06
+ * Value: 0x02001c06.
  *
  * Solution: Check whether the input parameter is null.
  */
@@ -145,8 +140,9 @@ extern "C" {
 /**
  * @ingroup los_event
  * Event reading error code: The event is being read in system-level task.
- *                old usage: The event is being read in software timer task. (LOS_ERRNO_EVENT_READ_IN_SWTMR_TSK)
- * Value: 0x02001c07
+ *                old usage: The event is being read in software timer task (LOS_ERRNO_EVENT_READ_IN_SWTMR_TSK).
+ *
+ * Value: 0x02001c07.
  *
  * Solution: Read the event in a vailid task.
  */
@@ -156,7 +152,7 @@ extern "C" {
  * @ingroup los_event
  * Event reading error code: should not be distory.
  *
- * Value: 0x02001c08
+ * Value: 0x02001c08.
  *
  * Solution: Check whether the event list is not empty.
  */
@@ -179,9 +175,7 @@ typedef struct tagEvent {
  * @par Description:
  * This API is used to initialize the event control block pointed to by eventCB.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
  * @param eventCB [IN/OUT] Pointer to the event control block to be initialized.
  *
@@ -211,9 +205,10 @@ extern UINT32 LOS_EventInit(PEVENT_CB_S eventCB);
  * </ul>
  *
  * @param eventId      [IN/OUT] Pointer to the ID of the event to be checked.
- * @param eventMask    [IN] Mask of the event expected to occur by the user, indicating the event obtained after
- *                          it is logically processed that matches the ID pointed to by eventId.
- * @param mode         [IN] Event reading mode. The modes include LOS_WAITMODE_AND, LOS_WAITMODE_OR, LOS_WAITMODE_CLR.
+ * @param eventMask    [IN]     Mask of the event expected to occur by the user, indicating the event obtained after
+ *                              it is logically processed that matches the ID pointed to by eventId.
+ * @param mode         [IN]     Event reading mode. The modes include #LOS_WAITMODE_AND, #LOS_WAITMODE_OR,
+ *                              #LOS_WAITMODE_CLR.
  *
  * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID     Bit 25 of the event mask cannot be set because it is set to an
  *                                             error number.
@@ -236,7 +231,7 @@ extern UINT32 LOS_EventPoll(UINT32 *eventId, UINT32 eventMask, UINT32 mode);
  * @par Description:
  * This API is used to block or schedule a task that reads an event of which the event control block, event mask,
  * reading mode, and timeout information are specified.
- * </ul>
+ *
  * @attention
  * <ul>
  * <li>Do not read event during an interrupt.</li>
@@ -247,10 +242,10 @@ extern UINT32 LOS_EventPoll(UINT32 *eventId, UINT32 eventMask, UINT32 mode);
  *
  * @param eventCB      [IN/OUT] Pointer to the event control block to be checked. This parameter must point
  *                              to valid memory.
- * @param eventMask    [IN] Mask of the event expected to occur by the user, indicating the event obtained after
- *                          it is logically processed that matches the ID pointed to by eventId.
- * @param mode         [IN] Event reading mode.
- * @param timeout      [IN] Timeout interval of event reading (unit: Tick).
+ * @param eventMask    [IN]     Mask of the event expected to occur by the user, indicating the event obtained after
+ *                              it is logically processed that matches the ID pointed to by eventId.
+ * @param mode         [IN]     Event reading mode.
+ * @param timeout      [IN]     Timeout interval of event reading (unit: Tick).
  *
  * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID     Bit 25 of the event mask cannot be set because it is set to an
  *                                             error number.
@@ -259,8 +254,9 @@ extern UINT32 LOS_EventPoll(UINT32 *eventId, UINT32 eventMask, UINT32 mode);
  * @retval #LOS_ERRNO_EVENT_FLAGS_INVALID      The event mode is invalid.
  * @retval #LOS_ERRNO_EVENT_READ_IN_LOCK       The event reading task is locked.
  * @retval #LOS_ERRNO_EVENT_PTR_NULL           The passed-in pointer is null.
+ * @retval #LOS_ERRNO_EVENT_READ_TIMEOUT       The event reading times out.
  * @retval 0                                   The event expected by the user does not occur.
- * @retval #UINT32                             The event expected by the user occurs.
+ * @retval #UINT32                             The event expected to occur by the user.
  * @par Dependency:
  * <ul><li>los_event.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_EventPoll | LOS_EventWrite
@@ -276,14 +272,12 @@ extern UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode, 
  * This API is used to write an event specified by the passed-in event mask into an event control block
  * pointed to by eventCB.
  * @attention
- * <ul>
- * <li>To determine whether the LOS_EventRead API returns an event or an error code, bit 25 of the event mask
- * is forbidden to be used.</li>
- * </ul>
+ * To determine whether the LOS_EventRead API returns an event or an error code, bit 25 of the event mask
+ * is forbidden to be used.
  *
  * @param eventCB  [IN/OUT] Pointer to the event control block into which an event is to be written.
  *                          This parameter must point to valid memory.
- * @param events   [IN] Event mask to be written.
+ * @param events   [IN]     Event mask to be written.
  *
  * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID  Bit 25 of the event mask cannot be set to an event
  * because it is set to an error code.
@@ -301,17 +295,13 @@ extern UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events);
  * @brief Clear the event occurring in a specified task.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to set the ID of an event that has a specified mask and of which the information is stored in
- * an event control block pointed to by eventCB to 0. eventCB must point to valid memory.</li>
- * </ul>
+ * This API is used to set the ID of an event that has a specified mask and of which the information is stored in
+ * an event control block pointed to by eventCB to 0. eventCB must point to valid memory.
  * @attention
- * <ul>
- * <li>The value of events needs to be reversed when it is passed-in.</li>
- * </ul>
+ * The value of events needs to be reversed when it is passed-in.
  *
  * @param eventCB     [IN/OUT] Pointer to the event control block to be cleared.
- * @param events      [IN] Mask of the event to be cleared.
+ * @param events      [IN]     Mask of the event to be cleared.
  *
  * @retval #LOS_ERRNO_EVENT_PTR_NULL  Null pointer.
  * @retval #LOS_OK                    The event is successfully cleared.
@@ -327,18 +317,16 @@ extern UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events);
  * @brief Destroy a event.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to Destroy a event.</li>
- * </ul>
+ * This API is used to destroy a event.
  * @attention
- * <ul>
- * <li>The specific event should be a valid one.</li>
- * </ul>
+ * The specific event should be a valid one.
  *
  * @param eventCB     [IN/OUT] Pointer to the event control block to be destroyed.
  *
- * @retval #LOS_ERRNO_EVENT_PTR_NULL Null pointer.
- * @retval #LOS_OK                   The event is successfully cleared.
+ * @retval #LOS_ERRNO_EVENT_PTR_NULL           Null pointer.
+ * @retval #LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY The event should not be distoryed because
+ *                                             the event list is not empty.
+ * @retval #LOS_OK                             The event is successfully cleared.
  * @par Dependency:
  * <ul><li>los_event.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_EventPoll | LOS_EventRead | LOS_EventWrite

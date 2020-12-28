@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Lwip Ethernet Interface HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #ifndef _ETHERNETIF_H
 #define _ETHERNETIF_H
@@ -55,11 +49,18 @@ struct ethernet_api {
 int8_t ethernetif_api_register(struct ethernet_api *api);
 
 err_t ethernetif_init(struct netif *netif);
-void ethernetif_input(void * pvParameters);
+void ethernetif_input(void *pvParameters);
 
 #if LWIP_IPV6
 ip6_addr_t *get_lwip_ipv6_default_gw(const struct netif *netif, const ip6_addr_t *ip6addr);
 void set_lwip_ipv6_default_gw(struct netif *netif, const ip6_addr_t *gw);
+
+/*
+   ----------------------------------------
+   ----------- Lwip Ipv6 options ----------
+   ----------------------------------------
+*/
+#define LWIP_HOOK_ND6_GET_GW get_lwip_ipv6_default_gw
 #endif
 
 #ifdef __cplusplus

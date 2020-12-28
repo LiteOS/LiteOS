@@ -27,14 +27,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "gic_common.h"
 #include "gic_v3.h"
@@ -49,9 +41,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_PLATFORM_BSP_GIC_V3
-
 STATIC UINT32 g_curIrqNum = 0;
-STATIC HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = { 0 };
+STATIC HwiHandleInfo g_hwiForm[OS_HWI_MAX_NUM] = { 0 };
 
 STATIC INLINE UINT64 MpidrToAffinity(UINT64 mpidr)
 {
@@ -62,7 +53,6 @@ STATIC INLINE UINT64 MpidrToAffinity(UINT64 mpidr)
 }
 
 #ifdef LOSCFG_KERNEL_SMP
-
 STATIC UINT32 NextCpu(UINT32 cpu, UINT32 cpuMask)
 {
     UINT32 next = cpu + 1;
@@ -85,6 +75,7 @@ STATIC UINT16 GicTargetList(UINT32 *base, UINT32 cpuMask, UINT64 cluster)
     UINT16 tList = 0;
     UINT32 cpu = *base;
     UINT64 mpidr = CPU_MAP_GET(cpu);
+
     while (cpu < LOSCFG_KERNEL_CORE_NUM) {
         tList |= 1U << (mpidr & 0xf);
 
@@ -143,7 +134,6 @@ VOID HalIrqSetAffinity(UINT32 irq, UINT32 cpuMask)
     /* When ARE is on, use router */
     GIC_REG_64(GICD_IROUTER(irq)) = affinity;
 }
-
 #endif
 
 STATIC VOID GicWaitForRwp(UINT64 reg)
@@ -217,6 +207,7 @@ STATIC VOID GiccInitPercpu(VOID)
 {
     /* enable system register interface */
     UINT32 sre = GiccGetSre();
+
     if (!(sre & 0x1)) {
         GiccSetSre(sre | 0x1);
 
@@ -333,7 +324,7 @@ UINT32 HalIrqSetPrio(UINT32 vector, UINT8 priority)
     return LOS_OK;
 }
 
-HWI_HANDLE_FORM_S *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
+HwiHandleInfo *HalIrqGetHandleForm(HWI_HANDLE_T hwiNum)
 {
     if ((hwiNum > OS_USER_HWI_MAX) || (hwiNum < OS_USER_HWI_MIN)) {
         return NULL;
@@ -410,18 +401,18 @@ VOID HalIrqInitPercpu(VOID)
 }
 
 STATIC const HwiControllerOps g_gicv3Ops = {
-    .triggerIrq = HalIrqPending,
-    .clearIrq = HalIrqClear,
-    .enableIrq = HalIrqUnmask,
-    .disableIrq = HalIrqMask,
-    .setIrqPriority = HalIrqSetPrio,
-    .getCurIrqNum = HalCurIrqGet,
-    .getIrqVersion = HalIrqVersion,
-    .getHandleForm = HalIrqGetHandleForm,
-    .handleIrq = HalIrqHandler,
+    .triggerIrq         = HalIrqPending,
+    .clearIrq           = HalIrqClear,
+    .enableIrq          = HalIrqUnmask,
+    .disableIrq         = HalIrqMask,
+    .setIrqPriority     = HalIrqSetPrio,
+    .getCurIrqNum       = HalCurIrqGet,
+    .getIrqVersion      = HalIrqVersion,
+    .getHandleForm      = HalIrqGetHandleForm,
+    .handleIrq          = HalIrqHandler,
 #ifdef LOSCFG_KERNEL_SMP
-    .sendIpi = HalIrqSendIpi,
-    .setIrqCpuAffinity = HalIrqSetAffinity,
+    .sendIpi            = HalIrqSendIpi,
+    .setIrqCpuAffinity  = HalIrqSetAffinity,
 #endif
 };
 
@@ -479,6 +470,9 @@ VOID HalIrqInit(VOID)
     LOS_HwiCreate(LOS_MP_IPI_WAKEUP, 0xa0, 0, OsMpWakeHandler, 0);
     LOS_HwiCreate(LOS_MP_IPI_SCHEDULE, 0xa0, 0, OsMpScheduleHandler, 0);
     LOS_HwiCreate(LOS_MP_IPI_HALT, 0xa0, 0, OsMpScheduleHandler, 0);
+#ifdef LOSCFG_KERNEL_SMP_CALL
+    LOS_HwiCreate(LOS_MP_IPI_FUNC_CALL, 0xa0, 0, OsMpFuncCallHandler, 0);
+#endif
 #endif
 }
 

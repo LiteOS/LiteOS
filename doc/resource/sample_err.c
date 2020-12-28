@@ -1,37 +1,36 @@
+#include "los_err.h"
+#include "los_typedef.h"
+#include <stdio.h>
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#include "osTest.h"
-#include "math.h"
-#include "semaphore.h"
-#include "pthread.h"
-#include "time.h"
-#include "fcntl.h"
-#include "sys/stat.h"
-#include "codes.h"
-#include "hal_platform_ints.h"
-#include "los_task.h"
-
-extern USER_ERR_FUNC_S      g_stUserErrFunc;
-void *err_handler(CHAR *pcFileName,
-                                     UINT32 uwLineNo,
-                                     UINT32 uwErrorNo,
-                                     UINT32 uwParaLen,
-                                     VOID  *pPara)
+void Test_ErrHandle(CHAR *fileName, UINT32 lineNo, UINT32 errorNo, UINT32 paraLen, VOID  *para)
 {
-    printf("err handel ok\n");
+    printf("err handle ok\n");
 }
-UINT32 Example_ErrCaseEntry(VOID)
+
+static UINT32 TestCase(VOID)
 {
-    LOS_ErrHandle(NULL, 0,0,0, NULL);
+    UINT32 errNo = 0;
+    UINT32 ret;
+    UINT32 errLine = 16;
+
+    LOS_RegErrHandle(Test_ErrHandle);
+
+    ret = LOS_ErrHandle("os_unspecific_file", errLine, errNo, 0, NULL);
+    if (ret != LOS_OK) {
+        return LOS_NOK;
+    }
+
     return LOS_OK;
 }
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */

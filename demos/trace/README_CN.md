@@ -1,0 +1,1 @@
+Trace详细使用说明见[Trace工具](https://liteos.gitee.io/liteos_studio/#/trace)

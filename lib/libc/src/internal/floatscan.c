@@ -60,7 +60,7 @@ static long long scanexp(FILE *f, int pok)
 }
 
 
-static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int pok)
+static ldouble_t decfloat(FILE *f, int c, int bits, int emin, int sign, int pok)
 {
 	uint32_t x[KMAX];
 	static const uint32_t th[] = { LD_B1B_MAX };
@@ -73,9 +73,9 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 	int e2;
 	int emax = -emin-bits+3;
 	int denormal = 0;
-	long double y;
-	long double frac=0;
-	long double bias=0;
+	ldouble_t y;
+	ldouble_t frac=0;
+	ldouble_t bias=0;
 	static const int p10s[] = { 10, 100, 1000, 10000,
 		100000, 1000000, 10000000, 100000000 };
 
@@ -141,7 +141,7 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 
 	/* Optimize small integers (w/no exponent) and over/under-flow */
 	if (lrp==dc && dc<10 && (bits>30 || x[0]>>bits==0))
-		return sign * (long double)x[0];
+		return sign * (ldouble_t)x[0];
 	if (lrp > -emin/2) {
 		errno = ERANGE;
 		return sign * LDBL_MAX * LDBL_MAX;
@@ -165,11 +165,11 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 
 	/* Optimize small to mid-size integers (even in exp. notation) */
 	if (lnz<9 && lnz<=rp && rp < 18) {
-		if (rp == 9) return sign * (long double)x[0];
-		if (rp < 9) return sign * (long double)x[0] / p10s[8-rp];
+		if (rp == 9) return sign * (ldouble_t)x[0];
+		if (rp < 9) return sign * (ldouble_t)x[0] / p10s[8-rp];
 		int bitlim = bits-3*(int)(rp-9);
 		if (bitlim>30 || x[0]>>bitlim==0)
-			return sign * (long double)x[0] * p10s[rp-10];
+			return sign * (ldouble_t)x[0] * p10s[rp-10];
 	}
 
 	/* Drop trailing zeros */
@@ -257,7 +257,7 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 	/* Assemble desired bits into floating point variable */
 	for (y=i=0; i<LD_B1B_DIG; i++) {
 		if (((a+i) & MASK)==z) x[(z=((z+1) & MASK))-1] = 0;
-		y = 1000000000.0L * y + x[(a+i) & MASK];
+		y = 1000000000.0 * y + x[(a+i) & MASK];
 	}
 
 	y *= sign;
@@ -311,12 +311,12 @@ static long double decfloat(FILE *f, int c, int bits, int emin, int sign, int po
 	return scalbnl(y, e2);
 }
 
-static long double hexfloat(FILE *f, int bits, int emin, int sign, int pok)
+static ldouble_t hexfloat(FILE *f, int bits, int emin, int sign, int pok)
 {
 	uint32_t x = 0;
-	long double y = 0;
-	long double scale = 1;
-	long double bias = 0;
+	ldouble_t y = 0;
+	ldouble_t scale = 1;
+	ldouble_t bias = 0;
 	int gottail = 0, gotrad = 0, gotdig = 0;
 	long long rp = 0;
 	long long dc = 0;
@@ -415,7 +415,7 @@ static long double hexfloat(FILE *f, int bits, int emin, int sign, int pok)
 
 	if (bits<32 && y && !(x&1)) x++, y=0;
 
-	y = bias + sign*(long double)x + sign*y;
+	y = bias + sign*(ldouble_t)x + sign*y;
 	y -= bias;
 
 	if (!y) errno = ERANGE;
@@ -423,7 +423,7 @@ static long double hexfloat(FILE *f, int bits, int emin, int sign, int pok)
 	return scalbnl(y, e2);
 }
 
-long double __floatscan(FILE *f, int prec, int pok)
+ldouble_t __floatscan(FILE *f, int prec, int pok)
 {
 	int sign = 1;
 	size_t i;

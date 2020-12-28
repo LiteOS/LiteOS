@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: NB API HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,29 +24,21 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /**@defgroup nbiot
  * @ingroup nbiot
  */
 
-#ifndef __NB_IOT_H__
-#define __NB_IOT_H__
+#ifndef _NB_IOT_H
+#define _NB_IOT_H
 #include "at_frame/at_main.h"
 
-typedef struct sec_param{
-char* psk;
-char* pskid;
+typedef struct sec_param {
+char *psk;
+char *pskid;
 uint8_t setpsk;
-}sec_param_s;
+} sec_param_s;
 
 extern at_task at;
 
@@ -60,7 +54,7 @@ Func Name: los_nb_init
 *  0:on success
 *  negative value: on failure
 */
-int los_nb_init(const int8_t* host, const int8_t* port, sec_param_s* psk);
+int los_nb_init(const int8_t *host, const int8_t *port, sec_param_s *psk);
 /*
 Func Name: los_nb_report
 
@@ -72,7 +66,7 @@ Func Name: los_nb_report
 *  0:on success
 *  negative value: on failure
 */
-int los_nb_report(const char* buf, int buflen);
+int los_nb_report(const char *buf, int buflen);
 /*
 Func Name: los_nb_notify
 
@@ -86,7 +80,7 @@ Func Name: los_nb_notify
 *  negative value: on failure
 */
 
-int los_nb_notify(char* featurestr,int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
+int los_nb_notify(char *featurestr, int cmdlen, oob_callback callback, oob_cmd_match cmd_match);
 /*
 Func Name: los_nb_deinit
 
@@ -99,4 +93,5 @@ Func Name: los_nb_deinit
 */
 
 int los_nb_deinit(void);
-#endif
+
+#endif /* _NB_IOT_H */

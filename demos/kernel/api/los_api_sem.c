@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Semaphore Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,18 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "los_sem.h"
-#include "los_base.ph"
+#include "los_base.h"
 #include "los_hwi.h"
 #include "los_api_sem.h"
 #include "los_inspect_entry.h"
@@ -51,38 +45,33 @@ extern "C" {
 #define TASK_PRIO_TEST  5
 
 /* task pid */
-static UINT32 g_TestTaskID01, g_TestTaskID02;
+static UINT32 g_demoTaskId01, g_demoTaskId02;
 /* sem id */
-static UINT32 g_usSemID;
+static UINT32 g_demoSemId;
 
 static VOID Example_SemTask1(VOID)
 {
-    UINT32 uwRet;
+    UINT32 ret;
 
-    dprintf("Example_SemTask1 try get sem g_usSemID ,timeout 10 ticks.\r\n");
+    printf("Example_SemTask1 try get sem g_demoSemId, timeout 10 ticks.\n");
     /* get sem, timeout is 10 ticks */
-    uwRet = LOS_SemPend(g_usSemID, 10);
-
+    ret = LOS_SemPend(g_demoSemId, 10);
     /* get sem ok */
-    if (LOS_OK == uwRet)
-    {
-        LOS_SemPost(g_usSemID);
+    if (ret == LOS_OK) {
+        LOS_SemPost(g_demoSemId);
         return;
     }
     /* timeout, get sem fail */
-    if (LOS_ERRNO_SEM_TIMEOUT == uwRet)
-    {
-        dprintf("Example_SemTask1 timeout and try get sem g_usSemID wait forever.\r\n");
+    if (ret == LOS_ERRNO_SEM_TIMEOUT) {
+        printf("Example_SemTask1 timeout and try get sem g_demoSemId wait forever.\n");
         /* get sem wait forever, LOS_SemPend return until has been get mux */
-        uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-        if (LOS_OK == uwRet)
-        {
-            dprintf("Example_SemTask1 wait_forever and got sem g_usSemID success.\r\n");
-            LOS_SemPost(g_usSemID);
-            uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_SEM, LOS_INSPECT_STU_SUCCESS);
-            if (LOS_OK != uwRet)
-            {
-                dprintf("Set Inspect Status Err \r\n");
+        ret = LOS_SemPend(g_demoSemId, LOS_WAIT_FOREVER);
+        if (ret == LOS_OK) {
+            printf("Example_SemTask1 wait_forever and got sem g_demoSemId ok.\n");
+            LOS_SemPost(g_demoSemId);
+            ret = LOS_InspectStatusSetById(LOS_INSPECT_SEM, LOS_INSPECT_STU_SUCCESS);
+            if (ret != LOS_OK) {
+                printf("Set Inspect Status Err.\n");
             }
             return;
         }
@@ -92,34 +81,33 @@ static VOID Example_SemTask1(VOID)
 
 static VOID Example_SemTask2(VOID)
 {
-    UINT32 uwRet;
-    dprintf("Example_SemTask2 try get sem g_usSemID wait forever.\r\n");
+    UINT32 ret;
+    printf("Example_SemTask2 try get sem g_demoSemId wait forever.\n");
     /* wait forever get sem */
-    uwRet = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-
-    if(LOS_OK == uwRet)
-    {
-        dprintf("Example_SemTask2 get sem g_usSemID and then delay 20ticks .\r\n");
+    ret = LOS_SemPend(g_demoSemId, LOS_WAIT_FOREVER);
+    if (ret == LOS_OK) {
+        printf("Example_SemTask2 get sem g_demoSemId and then delay 20ticks.\n");
     }
 
     /* task delay 20 ticks */
     LOS_TaskDelay(20);
 
-    dprintf("Example_SemTask2 post sem g_usSemID .\r\n");
+    printf("Example_SemTask2 post sem g_demoSemId.\n");
     /* release sem */
-    LOS_SemPost(g_usSemID);
+    LOS_SemPost(g_demoSemId);
 
     return;
 }
 
 UINT32 Example_Semphore(VOID)
 {
-    UINT32 uwRet = LOS_OK;
+    UINT32 ret;
     TSK_INIT_PARAM_S stTask1;
     TSK_INIT_PARAM_S stTask2;
 
    /* create sem */
-    LOS_SemCreate(0, &g_usSemID);
+    printf("Kernel semaphore demo begin.\n");
+    LOS_SemCreate(0, &g_demoSemId);
 
     /* lock task schedue */
     LOS_TaskLock();
@@ -130,10 +118,9 @@ UINT32 Example_Semphore(VOID)
     stTask1.pcName       = "MutexTsk1";
     stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask1.usTaskPrio   = TASK_PRIO_TEST;
-    uwRet = LOS_TaskCreate(&g_TestTaskID01, &stTask1);
-    if (uwRet != LOS_OK)
-    {
-        dprintf("task1 create failed .\r\n");
+    ret = LOS_TaskCreate(&g_demoTaskId01, &stTask1);
+    if (ret != LOS_OK) {
+        printf("Create task1 failed.\n");
         return LOS_NOK;
     }
 
@@ -143,15 +130,13 @@ UINT32 Example_Semphore(VOID)
     stTask2.pcName       = "MutexTsk2";
     stTask2.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask2.usTaskPrio   = (TASK_PRIO_TEST - 1);
-    uwRet = LOS_TaskCreate(&g_TestTaskID02, &stTask2);
-    if (uwRet != LOS_OK)
-    {
-        dprintf("task2 create failed .\r\n");
+    ret = LOS_TaskCreate(&g_demoTaskId02, &stTask2);
+    if (ret != LOS_OK) {
+        printf("Create task2 failed.\n");
 
         /* delete task 1 */
-        if (LOS_OK != LOS_TaskDelete(g_TestTaskID01))
-        {
-            dprintf("task1 delete failed .\r\n");
+        if (LOS_OK != LOS_TaskDelete(g_demoTaskId01)) {
+            printf("Delete task1 failed.\n");
         }
 
         return LOS_NOK;
@@ -160,15 +145,15 @@ UINT32 Example_Semphore(VOID)
     /* unlock task schedue */
     LOS_TaskUnlock();
 
-    uwRet = LOS_SemPost(g_usSemID);
+    ret = LOS_SemPost(g_demoSemId);
 
     /* task delay 40 ticks */
     LOS_TaskDelay(40);
 
     /* delete sem */
-    LOS_SemDelete(g_usSemID);
+    LOS_SemDelete(g_demoSemId);
 
-    return uwRet;
+    return ret;
 }
 
 #ifdef __cplusplus

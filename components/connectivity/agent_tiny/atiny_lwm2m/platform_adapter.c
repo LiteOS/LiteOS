@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Platform Adapter
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*******************************************************************************
  *
@@ -54,7 +48,6 @@
 #include "osdepends/atiny_osdep.h"
 
 #ifndef LWM2M_MEMORY_TRACE
-
 void *lwm2m_malloc(size_t s)
 {
     void *mem = NULL;
@@ -64,21 +57,21 @@ void *lwm2m_malloc(size_t s)
 
 void lwm2m_free(void *p)
 {
-    if(NULL != p)
+    if (p != NULL) {
         atiny_free(p);
+    }
 }
-
 
 char *lwm2m_strdup(const char *str)
 {
     int len = strlen(str) + 1;
     void *new = lwm2m_malloc(len);
-    if (new == NULL)
+    if (new == NULL) {
         return NULL;
+    }
     return (char *)memcpy(new, str, len);
 
 }
-
 #endif
 
 int lwm2m_strncmp(const char *s1,

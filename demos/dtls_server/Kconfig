@@ -1,0 +1,11 @@
+menu "Dtls Server Demo"
+
+config LOSCFG_DEMOS_DTLS_SERVER
+    bool "Enable Dtls Server Demo"
+    select LOSCFG_COMPONENTS_SECURITY
+    select LOSCFG_COMPONENTS_SECURITY_MBEDTLS
+    default n
+    help
+      Answer y to enable dtls server demo.
+
+endmenu

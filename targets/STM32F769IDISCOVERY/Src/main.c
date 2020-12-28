@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
- * Description: Main Process
+ * Description: Main
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,37 +24,22 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
+
 #include "los_base.h"
 #include "los_task_pri.h"
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "platform_init.h"
 
-#ifdef LOSCFG_GUI_ENABLE
-#include "lvgl_demo.h"
-#endif
-
-UINT32 app_init(VOID)
+VOID board_config(VOID)
 {
-    UINT32 ret = LOS_OK;
-    printf("Hello, welcome to liteos!\n");
-#ifdef LOSCFG_GUI_ENABLE
-    LvglDemo();
-#endif
-    return ret;
+    g_sys_mem_addr_end = __LOS_HEAP_ADDR_END__;
 }
 
 INT32 main(VOID)
 {
+    board_config();
     HardwareInit();
 
     PRINT_RELEASE("\n********Hello Huawei LiteOS********\n"

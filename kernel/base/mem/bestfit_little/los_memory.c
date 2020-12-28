@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_memory_pri.h"
 #include "los_memory_internal.h"
@@ -44,6 +36,7 @@
 #include "los_memcheck_pri.h"
 #endif
 #include "los_spinlock.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -62,7 +55,7 @@ __attribute__((section(".data.init"))) UINTPTR g_excInteractMemSize = 0;
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemInit(VOID *pool, UINT32 size)
 {
-    UINT32 ret = OS_ERROR;
+    UINT32 ret = LOS_NOK;
     UINT32 intSave;
 
     if ((pool == NULL) || (size <= sizeof(struct LosHeapManager))) {
@@ -85,6 +78,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemInit(VOID *pool, UINT32 size)
     ret = LOS_OK;
 OUT:
     MEM_UNLOCK(intSave);
+
+    LOS_TRACE(MEM_INFO_REQ, pool);
     return ret;
 }
 
@@ -122,7 +117,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMemSystemInit(UINTPTR memStart)
  * Description : print heap information
  * Input       : pool --- Pointer to the manager, to distinguish heap
  */
-VOID OsMemInfoPrint(VOID *pool)
+VOID OsMemInfoPrint(const VOID *pool)
 {
     struct LosHeapManager *heapMan = (struct LosHeapManager *)pool;
     LosHeapStatus status = {0};
@@ -139,35 +134,37 @@ VOID OsMemInfoPrint(VOID *pool)
 
 LITE_OS_SEC_TEXT VOID *LOS_MemAlloc(VOID *pool, UINT32 size)
 {
-    VOID *ret = NULL;
+    VOID *ptr = NULL;
     UINT32 intSave;
 
     if ((pool == NULL) || (size == 0)) {
-        return ret;
+        return ptr;
     }
 
     MEM_LOCK(intSave);
 
-    ret = OsSlabMemAlloc(pool, size);
-    if (ret == NULL) {
-        ret = OsHeapAlloc(pool, size);
+    ptr = OsSlabMemAlloc(pool, size);
+    if (ptr == NULL) {
+        ptr = OsHeapAlloc(pool, size);
     }
 
     MEM_UNLOCK(intSave);
 
-    return ret;
+    LOS_TRACE(MEM_ALLOC, pool, (UINTPTR)ptr, size);
+    return ptr;
 }
 
 LITE_OS_SEC_TEXT VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
 {
-    VOID *ret = NULL;
+    VOID *ptr = NULL;
     UINT32 intSave;
 
     MEM_LOCK(intSave);
-    ret = OsHeapAllocAlign(pool, size, boundary);
+    ptr = OsHeapAllocAlign(pool, size, boundary);
     MEM_UNLOCK(intSave);
 
-    return ret;
+    LOS_TRACE(MEM_ALLOC_ALIGN, pool, (UINTPTR)ptr, size, boundary);
+    return ptr;
 }
 
 VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
@@ -176,9 +173,9 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
     VOID *freePtr = NULL;
     UINT32 intSave;
     struct LosHeapNode *node = NULL;
-    UINT32 cpySize = 0;
-    UINT32 gapSize = 0;
-    errno_t rc = EOK;
+    UINT32 cpySize;
+    UINT32 gapSize;
+    errno_t rc;
 
     /* Zero-size requests are treated as free. */
     if ((ptr != NULL) && (size == 0)) {
@@ -195,14 +192,14 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
             cpySize = (size > oldSize) ? oldSize : size;
         } else {
             /* find the real ptr through gap size */
-            gapSize = *((UINTPTR *)((UINTPTR)ptr - sizeof(UINTPTR) / sizeof(UINT8)));
+            gapSize = *((UINTPTR *)((UINTPTR)ptr - sizeof(UINTPTR)));
             if (OS_MEM_GET_ALIGN_FLAG(gapSize)) {
                 MEM_UNLOCK(intSave);
                 return NULL;
             }
 
             node = ((struct LosHeapNode *)ptr) - 1;
-            cpySize = (size > node->size) ? node->size : size;
+            cpySize = (size > (node->size)) ? (node->size) : size;
         }
 
         MEM_UNLOCK(intSave);
@@ -223,6 +220,7 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
         }
     }
 
+    LOS_TRACE(MEM_REALLOC, pool, (UINTPTR)ptr, size);
     return retPtr;
 }
 
@@ -244,6 +242,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MemFree(VOID *pool, VOID *mem)
 
     MEM_UNLOCK(intSave);
 
+    LOS_TRACE(MEM_FREE, pool, (UINTPTR)mem);
     return (ret == TRUE ? LOS_OK : LOS_NOK);
 }
 
@@ -302,7 +301,13 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemTotalUsedGet(VOID *pool)
 
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemPoolSizeGet(const VOID *pool)
 {
-    struct LosHeapManager *heapManager = (struct LosHeapManager *)pool;
+    struct LosHeapManager *heapManager = NULL;
+
+    if (pool == NULL) {
+        return OS_NULL_INT;
+    }
+
+    heapManager = (struct LosHeapManager *)pool;
     return heapManager->size;
 }
 
@@ -310,6 +315,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemIntegrityCheck(VOID *pool)
 {
     UINT32 intSave;
     UINT32 ret;
+
+    if (pool == NULL) {
+        return OS_NULL_INT;
+    }
 
     MEM_LOCK(intSave);
     ret = OsHeapIntegrityCheck(pool);

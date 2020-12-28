@@ -80,9 +80,19 @@ char *setlocale(int cat, const char *name)
 
 	return ret;
 #else
-	(void)cat;
-	(void)name;
-	PRINT_ERR("Don't support to set locale!\n");
-	return NULL;
+	char locale[][20] = {"C", "POSIX", "C.UTF-8", "en_US.UTF-8", ""};
+	unsigned i;
+
+	if (cat < LC_CTYPE || cat > LC_ALL) return 0;
+	if (name == NULL) return "C.UTF-8";
+
+    /* C locale also known as "POSIX" and the "C.UTF-8" locale also known as "en_US.UTF-8" */
+	for (i = 0; i < (sizeof(locale) / sizeof(locale[0])); i++) {
+		if (strcmp(name, locale[i]) == 0) {
+			return (strstr(locale[i], "UTF-8") != NULL) ? "C.UTF-8" : "C";
+		}
+	}
+
+	return 0;
 #endif
 }

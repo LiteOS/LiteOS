@@ -1,0 +1,9 @@
+menu "Log"
+
+config LOSCFG_COMPONENTS_LOG
+    bool "Enable Log"
+    default y
+    help
+      Answer y to enable log support for agent tiny.
+
+endmenu

@@ -25,17 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
- * @defgroup los_runstop Wifi wake-up
+ * @defgroup los_runstop wake-up
  * @ingroup kernel
  */
 
@@ -56,7 +48,7 @@ extern "C" {
  *
  * @par Description:
  * This API is used to define the type of a runstop callback function,
- * so that it can be called in the phase of wifi wake-up.
+ * so that it can be called in the phase of wake-up.
  *
  * @attention
  * <ul>
@@ -130,39 +122,36 @@ typedef INT32 (*FLASH_WRITE_FUNC)(VOID *memAddr, size_t start, size_t size);
  * Information of specified parameters passed in during runstop.
  */
 typedef struct tagRunstopParam {
-    RUNSTOP_CALLBACK_FUNC pfIdleWakeupCallback; /**< Wake up callback function, called in idle task just after wake up
-                                                     from runstop wifi memory mirroring */
-    RUNSTOP_CALLBACK_FUNC pfWakeupCallback;     /**< Wake up callback function, called just after wake up from runstop
-                                                     wifi memory mirroring */
-    RUNSTOP_CALLBACK_FUNC pfImageDoneCallback;  /**< Image done callback function, called just after wifi memory
-                                                     mirroring is stored */
-    FLASH_READ_FUNC pfFlashReadFunc;            /**< An abstract function for reading data from a certain flash */
-    FLASH_WRITE_FUNC pfFlashWriteFunc;          /**< An abstract function for writing data to a certain flash */
-    size_t uwFlashReadAlignSize;                /**< Block align size when reading data from a certain flash */
-    size_t uwFlashEraseAlignSize;               /**< Block align size when erasing data in a certain flash */
-    size_t uwFlashWriteAlignSize;               /**< Block align size when writing data to a certain flash */
-    UINTPTR uwWowFlashAddr;                     /**< The flash starting address to which the wifi memory mirroring
-                                                     is to be stored, the address should be flash write-alignment
-                                                     length aligned */
-    UINTPTR uwImageFlashAddr;                   /**< The flash starting address where the whole application image
+    RUNSTOP_CALLBACK_FUNC pfIdleWakeupCallback; /* < Wake up callback function, called in idle task */
+    RUNSTOP_CALLBACK_FUNC pfWakeupCallback;     /* < Wake up callback function */
+    RUNSTOP_CALLBACK_FUNC pfImageDoneCallback;  /* < Image done callback function, called just after memory is stored */
+    FLASH_READ_FUNC pfFlashReadFunc;            /* < An abstract function for reading data from a certain flash */
+    FLASH_WRITE_FUNC pfFlashWriteFunc;          /* < An abstract function for writing data to a certain flash */
+    size_t uwFlashReadAlignSize;                /* < Block align size when reading data from a certain flash */
+    size_t uwFlashEraseAlignSize;               /* < Block align size when erasing data in a certain flash */
+    size_t uwFlashWriteAlignSize;               /* < Block align size when writing data to a certain flash */
+    UINTPTR uwWowFlashAddr;                     /* < The flash starting address to which the memory is to be
+                                                     stored, the address should be flash write-alignment length
+                                                     aligned */
+    UINTPTR uwImageFlashAddr;                   /* < The flash starting address where the whole application image
                                                      is burned */
 } RUNSTOP_PARAM_S;
 
 /**
  * @ingroup los_runstop
- * @brief Store the wifi memory mirroring on a flash.
+ * @brief Store the memory image on a flash.
  *
  * @par Description:
- * This API is used to store the wifi memory mirroring to the flash starting address passed in by a user.
+ * This API is used to store the memory image to the flash starting address passed in by a user.
  * @attention
  * <ul>
- * <li>uwWowFlashAddr in runstopParam specifies the flash starting address to which the wifi memory mirroring
- * is to be stored.It needs to be ensured that the flash starting address and the flash of the wifi memory
- * mirroring size after the starting address are not occupied.</li>
+ * <li>uwWowFlashAddr in runstopParam specifies the flash starting address to which the memory image
+ * is to be stored.It needs to be ensured that the flash starting address and the flash of the memory image
+ * size after the starting address are not occupied.</li>
  * </ul>
  *
  * @param runstopParam [IN] Parameter which contains key information for runstop to use, including flash starting
- *                          address to which the wifi memory mirroring is to be stored, etc.
+ *                          address to which the memory image is to be stored, etc.
  *
  * @retval None.
  * @par Dependency:

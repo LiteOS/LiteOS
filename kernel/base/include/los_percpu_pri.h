@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_PERCPU_PRI_H
 #define _LOS_PERCPU_PRI_H
@@ -48,7 +40,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
 typedef enum {
     CPU_RUNNING = 0,   /* cpu is running */
     CPU_HALT,          /* cpu in the halt */
@@ -68,8 +60,11 @@ typedef struct {
     UINT32 swtmrTaskId;                         /* software timer task id */
 
     UINT32 schedFlag;                           /* pending scheduler flag */
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     UINT32 excFlag;                             /* cpu halt or exc flag */
+#ifdef LOSCFG_KERNEL_SMP_CALL
+    LOS_DL_LIST funcLink;                       /* mp function call link */
+#endif
 #endif
 } Percpu;
 

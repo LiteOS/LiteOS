@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: ARMv7 Dispatch Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,26 +25,18 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "arch/regs.h"
 #include "arch/asm.h"
 #include "arch/exception.h"
 
-    .global   OsStartToRun
-    .global   OsTaskSchedule
-    .global   OsIrqHandler
+.global   OsStartToRun
+.global   OsTaskSchedule
+.global   OsIrqHandler
 
-    .equ OS_TASK_STATUS_RUNNING,       0x0010U
+.equ OS_TASK_STATUS_RUNNING,       0x0010U
 
-    .fpu vfpv4
+.fpu vfpv4
 
 /* macros to align and unalign the stack on 8 byte boundary for ABI compliance */
 .macro STACK_ALIGN, reg
@@ -86,9 +78,10 @@
 #endif
 .endm
 
-/* R0: new task */
+/*
+ * R0: new task 
+ */
 OsStartToRun:
-
     MSR     CPSR_c, #(CPSR_INT_DISABLE | CPSR_SVC_MODE)
 
     LDRH    R1, [R0, #4]
@@ -99,7 +92,8 @@ OsStartToRun:
     MCR     p15, 0, R0, c13, c0, 4
     ISB
 
-    VPUSH   {S0}                                     /* fpu */
+    /* fpu */
+    VPUSH   {S0}
     VPOP    {S0}
     VPUSH   {D0}
     VPOP    {D0}
@@ -144,6 +138,13 @@ OsTaskContextLoad:
 
 OsIrqHandler:
     SUB     LR, LR, #4
+#ifdef LOSCFG_KERNEL_PERF
+    PUSH    {R0-R3, R12, LR}
+    MOV     R0, LR
+    MOV     R1, FP
+    BL      OsPerfSetIrqRegs
+    POP     {R0-R3, R12, LR}
+#endif
 
     /* save spsr and lr(svc's pc) onto the svc stack */
     SRSDB   #0x13!
@@ -190,5 +191,3 @@ OsIrqHandler:
 OsIrqContextRestore:
     POP     {R0-R3, R12, LR}
     RFEIA   SP!
-
-

@@ -1,3 +1,4 @@
 menu "Compat"
-source "compat/cmsis/Kconfig"
+osource "compat/cmsis/Kconfig"
 endmenu
+

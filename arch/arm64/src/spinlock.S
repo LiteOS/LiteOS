@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
  * Description: Spinlock Assembly
  * Author: Huawei LiteOS Team
  * Create: 2018-07-11
@@ -25,35 +25,27 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 
 #include "arch/asm.h"
 
 FUNCTION(ArchSpinLock)
-    mov     x1, #1
+    mov     w2, #1
     sevl
 1:
     wfe
-    ldaxr   x2, [x0]
-    cbnz    x2, 1b
-    stxr    w2, x1, [x0]
-    cbnz    w2, 1b
+    ldaxr   w1, [x0]
+    cbnz    w1, 1b
+    stxr    w1, w2, [x0]
+    cbnz    w1, 1b
     ret
 
 FUNCTION(ArchSpinTrylock)
-    mov     x1, #1
-    mov     x2, x0
-    ldaxr   x0, [x2]
-    cbnz    x0, 1f
-    stxr    w0, x1, [x2]
+    mov     w2, #1
+    ldaxr   w1, [x0]
+    cbnz    w1, 1f
+    stxr    w1, w2, [x0]
 1:
+    mov     w0, w1
     ret
 
 FUNCTION(ArchSpinUnlock)

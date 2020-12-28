@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Mqtt Client HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,19 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#ifndef MQTT_LITE_OS_H
-#define MQTT_LITE_OS_H
-
+#ifndef _MQTT_LITE_OS_H
+#define _MQTT_LITE_OS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,11 +39,16 @@
 #include "log/atiny_log.h"
 #include "atiny_mqtt/mqtt_client.h"
 
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
 #define MQTT_TASK 1
 
-typedef struct Timer
-{
-	unsigned long long end_time;
+typedef struct Timer {
+    unsigned long long end_time;
 } Timer;
 
 void TimerInit(Timer*);
@@ -60,24 +58,22 @@ void TimerCountdown(Timer*, unsigned int);
 int TimerLeftMS(Timer*);
 
 typedef struct atiny_task_mutex_tag_s Mutex;
-int MutexInit(Mutex* mutex);
-int MutexLock(Mutex* mutex);
-int MutexUnlock(Mutex* mutex);
-void MutexDestory(Mutex* mutex);
+int MutexInit(Mutex *mutex);
+int MutexLock(Mutex *mutex);
+int MutexUnlock(Mutex *mutex);
+void MutexDestory(Mutex *mutex);
 
-typedef struct
-{
-	void * no_used;
+typedef struct {
+    void *no_used;
 } Thread;
+
 int ThreadStart(Thread *thread, void (*fn)(void *), void *arg);
 
-typedef struct mqtt_context
-{
+typedef struct mqtt_context {
     int fd;
-}mqtt_context_t;
+} mqtt_context_t;
 
-typedef struct Network
-{
+typedef struct Network {
     void *ctx;
     int (*mqttread) (struct Network*, unsigned char*, int, int);
     int (*mqttwrite) (struct Network*, unsigned char*, int, int);
@@ -85,8 +81,14 @@ typedef struct Network
     mqtt_security_info_s *(*get_security_info)(void);
 } Network;
 
-void NetworkInit(Network* n, mqtt_security_info_s *(*get_security_info)(void));
+void NetworkInit(Network *n, mqtt_security_info_s *(*get_security_info)(void));
 int NetworkConnect(Network*, char*, int);
 void NetworkDisconnect(Network*);
 
-#endif
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _MQTT_LITE_OS_H */

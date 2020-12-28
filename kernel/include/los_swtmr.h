@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_swtmr Software timer
@@ -56,7 +48,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The timeout handling function is NULL.
  *
- * Value: 0x02000300
+ * Value: 0x02000300.
  *
  * Solution: Define the timeout handling function.
  */
@@ -66,7 +58,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The expiration time is 0.
  *
- * Value: 0x02000301
+ * Value: 0x02000301.
  *
  * Solution: Re-define the expiration time.
  */
@@ -76,7 +68,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Invalid software timer mode.
  *
- * Value: 0x02000302
+ * Value: 0x02000302.
  *
  * Solution: Check the mode value. The value range is [0,3].
  */
@@ -86,7 +78,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The passed-in software timer ID is NULL.
  *
- * Value: 0x02000303
+ * Value: 0x02000303.
  *
  * Solution: Define the software timer ID before passing it in.
  */
@@ -96,7 +88,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The number of software timers exceeds the configured permitted maximum number.
  *
- * Value: 0x02000304
+ * Value: 0x02000304.
  *
  * Solution: Re-configure the permitted maximum number of software timers, or wait for a software timer to become
  * available.
@@ -107,7 +99,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Invalid software timer ID.
  *
- * Value: 0x02000305
+ * Value: 0x02000305.
  *
  * Solution: Pass in a valid software timer ID.
  */
@@ -117,7 +109,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software timer is not created.
  *
- * Value: 0x02000306
+ * Value: 0x02000306.
  *
  * Solution: Create a software timer.
  */
@@ -127,7 +119,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Insufficient memory for software timer linked list creation.
  *
- * Value: 0x02000307
+ * Value: 0x02000307.
  *
  * Solution: Allocate bigger memory partition to software timer linked list creation.
  */
@@ -137,7 +129,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Invalid configured number of software timers.
  *
- * Value: 0x02000308
+ * Value: 0x02000308.
  *
  * Solution: Re-configure the number of software timers.
  */
@@ -147,7 +139,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software timer is being used during an interrupt.
  *
- * Value: 0x02000309
+ * Value: 0x02000309.
  *
  * Solution: Change the source code and do not use the software timer during an interrupt.
  */
@@ -157,7 +149,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Insufficient memory allocated by membox.
  *
- * Value: 0x0200030a
+ * Value: 0x0200030a.
  *
  * Solution: Expand the memory allocated by membox.
  */
@@ -167,7 +159,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software timer queue fails to be created.
  *
- * Value: 0x0200030b
+ * Value: 0x0200030b.
  *
  * Solution: Check whether more memory can be allocated to the queue to be created.
  */
@@ -177,7 +169,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software timer task fails to be created.
  *
- * Value: 0x0200030c
+ * Value: 0x0200030c.
  *
  * Solution: Check whether the memory is sufficient and re-create the task.
  */
@@ -187,7 +179,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software timer is not started.
  *
- * Value: 0x0200030d
+ * Value: 0x0200030d.
  *
  * Solution: Start the software timer.
  */
@@ -197,7 +189,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: Invalid software timer state.
  *
- * Value: 0x0200030e
+ * Value: 0x0200030e.
  *
  * Solution: Check the software timer state.
  */
@@ -205,7 +197,9 @@ extern "C" {
 
 /**
  * @ingroup los_swtmr
- * This error code is not in use temporarily.
+ * Software timer error code: This error code is not in use temporarily.
+ *
+ * Value: 0x0200030f
  */
 #define LOS_ERRNO_SWTMR_SORTLIST_NULL          LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x0f)
 
@@ -213,7 +207,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The passed-in number of remaining Ticks configured on the software timer is NULL.
  *
- * Value: 0x02000310
+ * Value: 0x02000310.
  *
  * Solution: Define a variable of the number of remaining Ticks before passing in the number of remaining Ticks.
  */
@@ -223,7 +217,7 @@ extern "C" {
  * @ingroup los_swtmr
  * Software timer error code: The software sortlink fails to be created.
  *
- * Value: 0x02000311
+ * Value: 0x02000311.
  *
  * Solution: Check whether the memory is sufficient and re-create the sortlink.
  */
@@ -234,35 +228,32 @@ extern "C" {
  * Software timer mode
  */
 enum enSwTmrType {
-    LOS_SWTMR_MODE_ONCE, /**< One-off software timer */
-    LOS_SWTMR_MODE_PERIOD, /**< Periodic software timer */
-    LOS_SWTMR_MODE_NO_SELFDELETE, /**< One-off software timer, but not self-delete */
-    LOS_SWTMR_MODE_OPP  /**< After the one-off timer finishes timing,
-                             the periodic software timer is enabled.
-                             This mode is not supported temporarily. */
+    LOS_SWTMR_MODE_ONCE,          /**< One-off software timer, the value is 0. */
+    LOS_SWTMR_MODE_PERIOD,        /**< Periodic software timer, the value is 1. */
+    LOS_SWTMR_MODE_NO_SELFDELETE, /**< One-off software timer, but not self-delete, the value is 2. */
+    LOS_SWTMR_MODE_OPP            /**< After the one-off timer finishes timing, the
+                                       periodic software timer is enabled. The value
+                                       is 3. This mode is not supported temporarily. */
 };
 
 /**
-* @ingroup  los_swtmr
-* @brief Define the type of a callback function that handles software timer timeout.
-*
-* @par Description:
-* This API is used to define the type of a callback function that handles software timer timeout, so that it can be
-* called when software timer timeout.
-*
-* @attention
-* <ul>
-* <li>None.</li>
-* </ul>
-*
-* @param  arg     [IN] the parameter of the callback function that handles software timer timeout.
-*
-* @retval None.
-* @par Dependency:
-* <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
-* @see None.
-* @since Huawei LiteOS V100R001C00
-*/
+ * @ingroup  los_swtmr
+ * @brief Define the type of a callback function that handles software timer timeout.
+ *
+ * @par Description:
+ * This API is used to define the type of a callback function that handles software timer timeout,
+ * so that it can be called when software timer timeout.
+ *
+ * @attention
+ * None.
+ *
+ * @param  arg     [IN] the parameter of the callback function that handles software timer timeout.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V100R001C00
+ */
 typedef VOID (*SWTMR_PROC_FUNC)(UINTPTR arg);
 
 /**
@@ -272,9 +263,7 @@ typedef VOID (*SWTMR_PROC_FUNC)(UINTPTR arg);
  * @par Description:
  * This API is used to start a software timer that has a specified ID.
  * @attention
- * <ul>
- * <li>The specific timer must be created first</li>
- * </ul>
+ * The specific timer must be created first.
  *
  * @param  swtmrId  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                       [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
@@ -297,9 +286,7 @@ extern UINT32 LOS_SwtmrStart(UINT16 swtmrId);
  * @par Description:
  * This API is used to stop a software timer that has a specified ID.
  * @attention
- * <ul>
- * <li>The specific timer should be created and started firstly.</li>
- * </ul>
+ * The specific timer should be created and started firstly.
  *
  * @param  swtmrId  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                       [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
@@ -324,15 +311,14 @@ extern UINT32 LOS_SwtmrStop(UINT16 swtmrId);
  * This API is used to obtain the number of remaining Ticks configured on the software timer of which the ID is
  * specified by usSwTmrID.
  * @attention
- * <ul>
- * <li>The specific timer should be created and started successfully, error happens otherwise.</li>
- * </ul>
+ * The specific timer should be created and started successfully, error happens otherwise.
  *
  * @param  swtmrId  [IN]  Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                        [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
  * @param  tick     [OUT] Number of remaining Ticks configured on the software timer.
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID      Invalid software timer ID.
+ * @retval #LOS_ERRNO_SWTMR_TICK_PTR_NULL   The input parameter tick is a NULL pointer.
  * @retval #LOS_ERRNO_SWTMR_NOT_CREATED     The software timer is not created.
  * @retval #LOS_ERRNO_SWTMR_NOT_STARTED     The software timer is not started.
  * @retval #LOS_ERRNO_SWTMR_STATUS_INVALID  Invalid software timer state.
@@ -359,11 +345,11 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrId, UINT32 *tick);
  *
  * @param  interval     [IN] Timing duration of the software timer to be created (unit: tick).
  * @param  mode         [IN] Software timer mode. Pass in one of the modes specified by enSwTmrType. There are three
- * types of modes, one-off, periodic, and continuously periodic after one-off, of which the third mode is not
- * supported temporarily.
- * @param  handler     [IN] Callback function that handles software timer timeout.
- * @param  swtmrId     [OUT] Software timer ID created by LOS_SwtmrCreate.
- * @param  arg         [IN] Parameter passed in when the callback function that handles software timer timeout is
+ *                           types of modes, one-off, periodic, and continuously periodic after one-off, of which
+ *                           the third mode is not supported temporarily.
+ * @param  handler      [IN] Callback function that handles software timer timeout.
+ * @param  swtmrId      [OUT] Software timer ID created by LOS_SwtmrCreate.
+ * @param  arg          [IN] Parameter passed in when the callback function that handles software timer timeout is
  * called.
  *
  * @retval #LOS_ERRNO_SWTMR_INTERVAL_NOT_SUITED   The software timer timeout interval is 0.
@@ -387,9 +373,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval, UINT8 mode, SWTMR_PROC_FUNC handl
  * @par Description:
  * This API is used to delete a software timer.
  * @attention
- * <ul>
- * <li>The specific timer should be created and then stopped firstly.</li>
- * </ul>
+ * The specific timer should be created and then stopped firstly.
  *
  * @param  swtmrId     [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
  *                          [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].

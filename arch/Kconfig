@@ -3,8 +3,6 @@
 source "arch/arm/Kconfig"
 source "arch/arm64/Kconfig"
 
-comment "Extra Configurations"
-
 config LOSCFG_ARCH_FPU_DISABLE
     bool "Disable Floating Pointer Unit"
     default n
@@ -18,16 +16,28 @@ config LOSCFG_ARCH_SECURE_MONITOR_MODE
     help
       This option will make the system run on EL3.
 
-config LOSCFG_ARCH_INTERRUPT_PREEMPTION
-    bool "Enable Interrupt Preemption"
-    default n
-    depends on LOSCFG_ARCH_ARM_AARCH64
-    help
-      This option will support high priority interrupt preemption.
-
-config LOSCFG_IRQ_USE_STANDALONE_STACK
-    bool "Use Interrupt Stack"
+config LOSCFG_APC_ENABLE
+    bool "Enable Access Permission Control"
     default y
-    depends on LOSCFG_ARCH_ARM_AARCH64 || LOSCFG_ARCH_ARM_AARCH32
     help
-      This option will support using standalone interrupt stack.
+      This option will Enable Access Permission Control
+
+config LOSCFG_FPB_ENABLE
+    bool "Enable Flash Patch"
+    default n
+    depends on LOSCFG_ARCH_ARM_CORTEX_M || LOSCFG_ARCH_RISCV_RV32IM
+    help
+      Answer Y to enable LiteOS to support Flash Patch
+
+config RISCV_FPB_SET_PCO
+    bool "Enable patch offset bigger than 1M"
+    default y
+    depends on LOSCFG_ARCH_RISCV && LOSCFG_FPB_ENABLE
+    help
+      Enable patch offset bigger than 1M by Set PCO(patch code branch offset) bit
+
+config LOSCFG_LIB_CONFIGURABLE
+    bool "Enable Lib Config"
+    default n
+    help
+      Answer Y to enable LiteOS to support lib config

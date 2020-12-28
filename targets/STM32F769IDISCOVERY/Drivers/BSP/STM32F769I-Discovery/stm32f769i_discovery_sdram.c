@@ -71,9 +71,10 @@
   *
   ******************************************************************************
   */
+
 /*----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
- * Description: LCD BSP update
+ * Description: LCD BSP Update
  * Author: Huawei LiteOS Team
  * Create: 2020-09-04
  * Redistribution and use in source and binary forms, with or without modification,
@@ -97,15 +98,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /* Dependencies
 - stm32f7xx_hal_sdram.c
@@ -118,7 +111,7 @@ EndDependencies */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f769i_discovery_sdram.h"
-
+#include "platform_config.h"
 /** @addtogroup BSP
   * @{
   */
@@ -267,9 +260,9 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
 
   /* Step 2: Insert 100 us minimum delay */ 
   /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
-  #ifdef _USE_FreeRTOS
+#ifndef __LITEOS__
   HAL_Delay(1);
- #else
+#else
   /*now kernel not init, so tick didn't start*/
  tmpmrd = 0xFFFF;
   while(tmpmrd--);

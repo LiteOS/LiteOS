@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Hal Spi Flash HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,42 +24,37 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
- /**@defgroup hal_spi_flash SPI Flash Interface
+/**
+ * @defgroup hal_spi_flash SPI Flash Interface
  * @ingroup hal
  */
 
-#ifndef _HAL_SPI_FLASH_H_
-#define _HAL_SPI_FLASH_H_
+#ifndef _HAL_SPI_FLASH_H
+#define _HAL_SPI_FLASH_H
 
 #include <stdint.h>
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /**
- *@ingroup hal_spi_flash
- *@brief config the spi flash.
+ * @ingroup hal_spi_flash
+ * @brief config the spi flash.
  *
- *@par Description:
- *This API is used to config the spi flash.
- *@attention none.
+ * @par Description:
+ * This API is used to config the spi flash.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval none.
- *@par Dependency: none.
- *@see none.
+ * @retval none.
+ * @par Dependency: none.
+ * @see none.
  */
 void hal_spi_flash_config(void);
 
@@ -80,111 +77,113 @@ void hal_spi_flash_config(void);
 int hal_spi_flash_erase(uint32_t addr, int32_t len);
 
 /**
- *@ingroup hal_spi_flash
- *@brief write data to spi flash.
+ * @ingroup hal_spi_flash
+ * @brief write data to spi flash.
  *
- *@par Description:
- *This API is used to write data to spi flash. You should call @hal_spi_flash_erase before this.
- *location is updated by each call so that you don't need to care about write address if you do
- *sequential write.
- *@attention none.
+ * @par Description:
+ * This API is used to write data to spi flash. You should call @hal_spi_flash_erase before this.
+ * location is updated by each call so that you don't need to care about write address if you do
+ * sequential write.
+ * @attention none.
  *
- *@param buf            [IN]     the data to be wrote to spi flash.
- *@param len            [IN]     the length of the buffer.
- *@param location       [IN/OUT] the address of the spi flash to write.
+ * @param buf            [IN]     the data to be wrote to spi flash.
+ * @param len            [IN]     the length of the buffer.
+ * @param location       [IN/OUT] the address of the spi flash to write.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see hal_spi_flash_erase.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see hal_spi_flash_erase.
  */
-int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location);
+int hal_spi_flash_write(const void *buf, int32_t len, uint32_t *location);
 
 /**
- *@ingroup hal_spi_flash
- *@brief write data to spi flash.
+ * @ingroup hal_spi_flash
+ * @brief write data to spi flash.
  *
- *@par Description:
- *This API is used to write data to spi flash. You don't need to erase flash by this interface.
- *@attention none.
+ * @par Description:
+ * This API is used to write data to spi flash. You don't need to erase flash by this interface.
+ * @attention none.
  *
- *@param buf            [IN] the data to be wrote to spi flash.
- *@param len            [IN] the length of the buffer.
- *@param location       [IN] the address of the spi flash to write.
+ * @param buf            [IN] the data to be wrote to spi flash.
+ * @param len            [IN] the length of the buffer.
+ * @param location       [IN] the address of the spi flash to write.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see none.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see none.
  */
-int hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location);
+int hal_spi_flash_erase_write(const void *buf, int32_t len, uint32_t location);
 
 /**
- *@ingroup hal_spi_flash
- *@brief read data from spi flash.
+ * @ingroup hal_spi_flash
+ * @brief read data from spi flash.
  *
- *@par Description:
- *This API is used to read data from spi flash.
- *@attention none.
+ * @par Description:
+ * This API is used to read data from spi flash.
+ * @attention none.
  *
- *@param buf            [OUT] buffer to store the data read from spi flash.
- *@param len            [IN]  the length of the buffer.
- *@param location       [IN]  the address of the spi flash to read.
+ * @param buf            [OUT] buffer to store the data read from spi flash.
+ * @param len            [IN]  the length of the buffer.
+ * @param location       [IN]  the address of the spi flash to read.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see none.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see none.
  */
-int hal_spi_flash_read(void* buf, int32_t len, uint32_t location);
+int hal_spi_flash_read(void *buf, int32_t len, uint32_t location);
 
 /**
- *@ingroup hal_spi_flash
- *@brief get ID of the target spi flash.
+ * @ingroup hal_spi_flash
+ * @brief get ID of the target spi flash.
  *
- *@par Description:
- *This API is used to get ID of the target spi flash.
- *@attention none.
+ * @par Description:
+ * This API is used to get ID of the target spi flash.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval #int          ID of the spi flash.
- *@par Dependency: none.
- *@see none.
+ * @retval #int          ID of the spi flash.
+ * @par Dependency: none.
+ * @see none.
  */
 int hal_spi_flash_get_id(void);
 
 /**
- *@ingroup hal_spi_flash
- *@brief power down the spi flash.
+ * @ingroup hal_spi_flash
+ * @brief power down the spi flash.
  *
- *@par Description:
- *This API is used to power down the spi flash.
- *@attention none.
+ * @par Description:
+ * This API is used to power down the spi flash.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval none.
- *@par Dependency: none.
- *@see none.
+ * @retval none.
+ * @par Dependency: none.
+ * @see none.
  */
 void hal_spi_flash_power_down(void);
 
 /**
- *@ingroup hal_spi_flash
- *@brief wake up the spi flash.
+ * @ingroup hal_spi_flash
+ * @brief wake up the spi flash.
  *
- *@par Description:
- *This API is used to wake up the spi flash.
- *@attention none.
+ * @par Description:
+ * This API is used to wake up the spi flash.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval none.
- *@par Dependency: none.
- *@see none.
+ * @retval none.
+ * @par Dependency: none.
+ * @see none.
  */
 void hal_spi_flash_wake_up(void);
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif  /* _HAL_SPI_FLASH_H_ */
+#endif /* _HAL_SPI_FLASH_H */

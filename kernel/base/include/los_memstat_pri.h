@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_MEMSTAT_PRI_H
 #define _LOS_MEMSTAT_PRI_H
@@ -49,6 +41,7 @@ extern "C" {
 /* extra 1 blocks is for extra temparary task */
 #define TASK_NUM        (LOSCFG_BASE_CORE_TSK_LIMIT + 1)
 
+#ifdef LOSCFG_MEM_TASK_STAT
 typedef struct {
     UINT32 memUsed;
     UINT32 memPeak;
@@ -64,6 +57,7 @@ extern VOID OsMemstatTaskUsedInc(Memstat *stat, UINT32 usedSize, UINT32 taskId);
 extern VOID OsMemstatTaskUsedDec(Memstat *stat, UINT32 usedSize, UINT32 taskId);
 extern VOID OsMemstatTaskClear(Memstat *stat, UINT32 taskId);
 extern UINT32 OsMemstatTaskUsage(const Memstat *stat, UINT32 taskId);
+#endif
 
 extern VOID OsMemTaskClear(UINT32 taskId);
 extern UINT32 OsMemTaskUsage(UINT32 taskId);

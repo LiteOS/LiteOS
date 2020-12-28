@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Package Checksum
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "package_checksum.h"
 #include "package_head.h"
@@ -47,10 +41,7 @@
 #endif
 
 
-
-
-struct pack_checksum_tag_s
-{
+struct pack_checksum_tag_s {
     uint32_t offset;
     bool offset_flag;
     pack_head_s *head;
@@ -59,7 +50,6 @@ struct pack_checksum_tag_s
 #elif (PACK_CHECKSUM == PACK_SHA256)
     pack_sha256_s alg;
 #endif
-
 };
 
 static inline pack_checksum_alg_s *pack_checksum_get_alg(pack_checksum_s *thi)
@@ -83,12 +73,9 @@ static void pack_checksum_init(pack_checksum_s *thi, pack_head_s *head)
 }
 
 
-
-
 void pack_checksum_delete(pack_checksum_s *thi)
 {
-    if(NULL == thi)
-    {
+    if (thi == NULL) {
         return;
     }
     pack_checksum_get_alg(thi)->destroy(pack_checksum_get_alg(thi));
@@ -102,25 +89,23 @@ static int pack_checksum_init_head_data(pack_checksum_s *thi)
 
     pack_checksum_get_alg(thi)->reset(pack_checksum_get_alg(thi));
     len = pack_head_get_head_len(thi->head);
-    if(0 == len)
-    {
+    if (len == 0) {
         return PACK_OK;
     }
 
     buff = pack_head_get_head_info(thi->head);
-    if(NULL == buff)
-    {
+    if (buff == NULL) {
         PACK_LOG("buff null");
         return PACK_ERR;
     }
 
     return pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, len);
 }
+
 pack_checksum_s *pack_checksum_create(pack_head_s *head)
 {
     pack_checksum_s *thi = PACK_MALLOC(sizeof(pack_checksum_s));
-    if(NULL == thi)
-    {
+    if (thi == NULL) {
         PACK_LOG("PACK_MALLOC fail");
         return NULL;
     }
@@ -131,7 +116,7 @@ pack_checksum_s *pack_checksum_create(pack_head_s *head)
 
 static int pack_checksum_restore_checksum(pack_checksum_s *thi, uint32_t offset, pack_hardware_s *hardware)
 {
-    uint8_t *buff  = NULL;
+    uint8_t *buff = NULL;
     const uint32_t max_size = hardware->get_block_size(hardware);
     uint32_t total_size = 0;
     uint32_t left_size;
@@ -139,88 +124,73 @@ static int pack_checksum_restore_checksum(pack_checksum_s *thi, uint32_t offset,
     int ret = PACK_ERR;
 
     buff = PACK_MALLOC(max_size);
-    if(NULL == buff)
-    {
+    if (buff == NULL) {
         PACK_LOG("malloc null");
         return PACK_ERR;
     }
-    do
-    {
+    do {
         ret = PACK_ERR;
         left_size = offset - total_size;
         read_size = MIN(left_size, max_size);
         ret = hardware->read_software(hardware, total_size, buff, read_size);
-        if(ret != PACK_OK)
-        {
+        if (ret != PACK_OK) {
             PACK_LOG("read_software fail, ret %d, offset %d, read_size %d", ret, total_size, read_size);
             break;
         }
         ret = pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, read_size);
-        if(ret != PACK_OK)
-        {
+        if (ret != PACK_OK) {
             break;
         }
         total_size += read_size;
-    }
-    while(total_size < offset);
+    } while (total_size < offset);
 
-    if(buff)
-    {
+    if (buff) {
         PACK_FREE(buff);
     }
 
     return ret;
 }
 
-int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff,
-                                   uint16_t len, pack_hardware_s *hardware)
+int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,
+                              pack_hardware_s *hardware)
 {
     int ret;
 
     ASSERT_THIS(return PACK_ERR);
 
-    if(0 == len)
-    {
+    if (len == 0) {
         return PACK_OK;
     }
 
-    if(NULL == buff)
-    {
+    if (buff == NULL) {
         PACK_LOG("buff null");
         return PACK_ERR;
     }
 
-    if(((thi->offset_flag) && (thi->offset == offset))
-            || (pack_head_get_head_len(thi->head) == offset))
-    {
-        if(pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, len) != PACK_OK)
-        {
+    if (((thi->offset_flag) && (thi->offset == offset)) || (pack_head_get_head_len(thi->head) == offset)) {
+        if (pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, len) != PACK_OK) {
             return PACK_ERR;
         }
         thi->offset_flag = true;
         thi->offset = offset + len;
         return PACK_OK;
     }
-    if((NULL == hardware) || (NULL == hardware->read_software))
-    {
+    if ((hardware == NULL) || (hardware->read_software == NULL)) {
         PACK_LOG("hardware null");
         return PACK_ERR;
     }
 
     ret = pack_checksum_init_head_data(thi);
-    if(ret != PACK_OK)
-    {
+    if (ret != PACK_OK) {
         return ret;
     }
 
     ret = pack_checksum_restore_checksum(thi, offset, hardware);
-    if(ret != PACK_OK)
-    {
+    if (ret != PACK_OK) {
         return ret;
     }
 
-    if(pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, len) != PACK_OK)
-    {
+    if (pack_checksum_get_alg(thi)->update(pack_checksum_get_alg(thi), buff, len) != PACK_OK) {
         return PACK_ERR;
     }
 
@@ -234,6 +204,7 @@ int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uin
     ASSERT_THIS(return PACK_ERR);
     return pack_checksum_get_alg(thi)->check(pack_checksum_get_alg(thi), expected_value, len);
 }
+
 #define INCLUDE_PACK_OPTION_FILE
 #if (PACK_CHECKSUM == PACK_SHA256_RSA2048)
 #include "opt/package_sha256.c"
@@ -243,16 +214,19 @@ int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uin
 #endif
 
 #else
-pack_checksum_s * pack_checksum_create(struct pack_head_tag_s *head)
+pack_checksum_s *pack_checksum_create(struct pack_head_tag_s *head)
 {
     (void)head;
     return NULL;
 }
-void pack_checksum_delete(pack_checksum_s * thi)
+
+void pack_checksum_delete(pack_checksum_s *thi)
 {
     (void)thi;
 }
-int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,  pack_hardware_s *hardware)
+
+int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8_t *buff, uint16_t len,
+                              pack_hardware_s *hardware)
 {
     (void)thi;
     (void)offset;
@@ -261,6 +235,7 @@ int pack_checksum_update_data(pack_checksum_s *thi, uint32_t offset, const uint8
     (void)hardware;
     return PACK_ERR;
 }
+
 int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uint16_t len)
 {
     (void)thi;
@@ -270,4 +245,3 @@ int pack_checksum_check(pack_checksum_s *thi, const uint8_t *expected_value, uin
 }
 
 #endif
-

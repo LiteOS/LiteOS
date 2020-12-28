@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Pthread condition file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "pprivate.h"
 #include "pthread.h"
@@ -42,7 +34,7 @@
 #include "time_pri.h"
 #include "los_atomic.h"
 #include "los_event_pri.h"
-#include "los_sys_pri.h"
+#include "los_sys.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -252,7 +244,6 @@ int pthread_cond_signal(pthread_cond_t *cond)
     return ret;
 }
 
-#ifndef LOSCFG_ARCH_CORTEX_M7
 STATIC INT32 PthreadCondWaitSub(pthread_cond_t *cond, INT32 value, UINT32 ticks)
 {
     EventCond eventCond = { &cond->value, value, ~0x01U };
@@ -269,7 +260,6 @@ STATIC INT32 PthreadCondWaitSub(pthread_cond_t *cond, INT32 value, UINT32 ticks)
     return (int)OsEventReadWithCond(&eventCond, &(cond->event), 0x0fU,
                                     LOS_WAITMODE_OR | LOS_WAITMODE_CLR, ticks);
 }
-#endif
 
 STATIC VOID PthreadCountSub(pthread_cond_t *cond)
 {
@@ -306,6 +296,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
 {
     UINT32 absTicks;
     INT32 ret;
+    INT32 oldValue;
     LosTaskCB *runTask = NULL;
 
     pthread_testcancel();
@@ -324,9 +315,9 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
             return ret;
         }
     }
-#ifndef LOSCFG_ARCH_CORTEX_M7
-    INT32 oldValue = cond->value;
-#endif
+
+    oldValue = cond->value;
+
     (VOID)pthread_mutex_lock(cond->mutex);
     cond->count++;
     (VOID)pthread_mutex_unlock(cond->mutex);
@@ -344,11 +335,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }
 
-#ifndef LOSCFG_ARCH_CORTEX_M7
     ret = PthreadCondWaitSub(cond, oldValue, absTicks);
-#else
-    ret = (INT32)LOS_EventRead(&(cond->event), 0x0f, LOS_WAITMODE_OR | LOS_WAITMODE_CLR, absTicks);
-#endif
     if (pthread_mutex_lock(mutex) != ENOERR) {
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }
@@ -361,6 +348,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
     int ret;
+    int oldValue;
 
     if ((cond == NULL) || (mutex == NULL)) {
         return EINVAL;
@@ -373,9 +361,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
         }
     }
 
-#ifndef LOSCFG_ARCH_CORTEX_M7
-    int oldValue = cond->value;
-#endif
+    oldValue = cond->value;
 
     (VOID)pthread_mutex_lock(cond->mutex);
     cond->count++;
@@ -385,11 +371,8 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }
 
-#ifndef LOSCFG_ARCH_CORTEX_M7
     ret = PthreadCondWaitSub(cond, oldValue, LOS_WAIT_FOREVER);
-#else
-    ret = (INT32)LOS_EventRead(&(cond->event), 0x0f, LOS_WAITMODE_OR | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
-#endif
+
     if (pthread_mutex_lock(mutex) != ENOERR) {
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_hw Hardware
@@ -56,20 +48,15 @@ extern "C" {
  * @brief Get cpu core name.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to get cpu core name.</li>
- * </ul>
+ * This API is used to get cpu core name.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param
+ * @param None
  * @retval #CHAR *  cpu core name.
  *
  * @par Dependency:
  * los_hw.h: the header file that contains the API declaration.
- * @see None.
  * @since Huawei LiteOS V200R003C00
  */
 STATIC INLINE const CHAR *LOS_CpuInfo(VOID)

@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Targets Stm32f429 Src Eth
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,16 +24,8 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
-#include "menuconfig.h"
+ * --------------------------------------------------------------------------- */
+
 #ifdef LOSCFG_COMPONENTS_NET_LWIP
 #include "eth.h"
 #include "stm32f4xx_hal.h"
@@ -41,10 +35,10 @@
 #include <string.h>
 
 
-#define netifINTERFACE_TASK_STACK_SIZE              ( 4096u )
-#define netifINTERFACE_TASK_PRIORITY                ( 6u   )
+#define netifINTERFACE_TASK_STACK_SIZE              4096u
+#define netifINTERFACE_TASK_PRIORITY                6u
 /* The time to block waiting for input. */
-#define TIME_WAITING_FOR_INPUT                      ( 500u )
+#define TIME_WAITING_FOR_INPUT                      500u
 
 /* Semaphore to signal incoming packets */
 static sys_sem_t s_xSemaphore;
@@ -105,16 +99,14 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *ethHandle)
     __HAL_RCC_GPIOG_CLK_ENABLE();
     __HAL_RCC_GPIOI_CLK_ENABLE();
 
-
-    if (ethHandle->Instance == ETH)
-    {
+    if (ethHandle->Instance == ETH) {
         /* USER CODE BEGIN ETH_MspInit 0 */
 
         /* USER CODE END ETH_MspInit 0 */
         /* Enable Peripheral clock */
         __HAL_RCC_ETH_CLK_ENABLE();
 
-        /**ETH GPIO Configuration
+        /** ETH GPIO Configuration
              PC1     ------> ETH_MDC
              PA1     ------> ETH_REF_CLK
              PA2     ------> ETH_MDIO
@@ -180,7 +172,7 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *ethHandle)
         /* Peripheral clock disable */
         __HAL_RCC_ETH_CLK_DISABLE();
 
-        /**ETH GPIO Configuration
+        /** ETH GPIO Configuration
              PC1     ------> ETH_MDC
              PA1     ------> ETH_REF_CLK
              PA2     ------> ETH_MDIO
@@ -206,8 +198,7 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *ethHandle)
 
 static void eth_thread(void *arg)
 {
-    while (1)
-    {
+    while (1) {
         sys_arch_sem_wait(&s_xSemaphore, TIME_WAITING_FOR_INPUT);
         ethernetif_input(arg);
     }
@@ -323,10 +314,10 @@ static int8_t eth_output(struct netif *netif, struct pbuf *p)
         byteslefttocopy = q->len;
         payloadoffset = 0;
 
-        /* Check if the length of data to copy is bigger than Tx buffer size*/
-        while ( (byteslefttocopy + bufferoffset) > ETH_TX_BUF_SIZE ) {
-            /* Copy data to Tx buffer*/
-            memcpy( (uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset) );
+        /* Check if the length of data to copy is bigger than Tx buffer size */
+        while ((byteslefttocopy + bufferoffset) > ETH_TX_BUF_SIZE) {
+            /* Copy data to Tx buffer */
+            memcpy((uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset));
 
             /* Point to next descriptor */
             DmaTxDesc = (ETH_DMADescTypeDef *)(DmaTxDesc->Buffer2NextDescAddr);
@@ -346,7 +337,7 @@ static int8_t eth_output(struct netif *netif, struct pbuf *p)
         }
 
         /* Copy the remaining bytes */
-        memcpy( (uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), byteslefttocopy );
+        memcpy((uint8_t *)((uint8_t *)buffer + bufferoffset), (uint8_t *)((uint8_t *)q->payload + payloadoffset), byteslefttocopy);
         bufferoffset = bufferoffset + byteslefttocopy;
         framelength = framelength + byteslefttocopy;
     }
@@ -363,7 +354,7 @@ error:
         /* Clear TUS ETHERNET DMA flag */
         heth.Instance->DMASR = ETH_DMASR_TUS;
 
-        /* Resume DMA transmission*/
+        /* Resume DMA transmission */
         heth.Instance->DMATPDR = 0;
     }
 
@@ -383,8 +374,7 @@ static struct pbuf *eth_input(struct netif *netif)
     uint32_t i = 0;
 
     /* get received frame */
-    if (HAL_ETH_GetReceivedFrame(&heth) != HAL_OK)
-    {
+    if (HAL_ETH_GetReceivedFrame(&heth) != HAL_OK) {
         return NULL;
     }
 
@@ -405,10 +395,10 @@ static struct pbuf *eth_input(struct netif *netif)
             byteslefttocopy = q->len;
             payloadoffset = 0;
 
-            /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
-            while ( (byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE ) {
+            /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size */
+            while ((byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE) {
                 /* Copy data to pbuf */
-                memcpy( (uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
+                memcpy((uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
 
                 /* Point to next descriptor */
                 dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
@@ -420,7 +410,7 @@ static struct pbuf *eth_input(struct netif *netif)
             }
 
             /* Copy remaining data in pbuf */
-            memcpy( (uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), byteslefttocopy);
+            memcpy((uint8_t *)((uint8_t *)q->payload + payloadoffset), (uint8_t *)((uint8_t *)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
@@ -448,6 +438,7 @@ static struct pbuf *eth_input(struct netif *netif)
 
     return p;
 }
+
 struct ethernet_api g_eth_api = {
     .init     = eth_init,
     .output   = eth_output,

@@ -25,16 +25,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#include "sys_config.h"
 #include "stdlib.h"
 #include "sys/stat.h"
 #include "securec.h"
@@ -52,7 +43,7 @@
 #define  localtime64    localtime
 #define  ctime64        ctime
 #define  mktime64       mktime
-#include "time.h"
+#include "sys/time.h"
 #else
 #include "time64.h"
 #endif
@@ -93,7 +84,7 @@ STATIC VOID OsCmdUsageDate(INT32 order)
     if (order) {
         PRINTK("date: invalid option or parameter.\n");
         PRINTK("Try 'date --help' for more information.\n");
-        return ;
+        return;
     }
     PRINTK("\nUsage: date [+FORMAT]\n");
     PRINTK("   or: date [-s] [YY/MM/DD] [hh:mm:ss]\n");
@@ -156,7 +147,7 @@ STATIC INT32 OsStrToTm(const CHAR *str, struct tm *tm)
         } else if (str[2] == '/') { /* 2:Index of Eigenvalues */
             ret = strptime(str, "%m/%d", tm);
         }
-    } else if(strLen == 7) { /* 7:Time format string length,such as yyyy/mm */
+    } else if (strLen == 7) { /* 7:Time format string length,such as yyyy/mm */
         if (str[4] == '/') { /* 4:Index of Eigenvalues */
             ret = strptime(str, "%Y/%m", tm);
         }
@@ -238,6 +229,34 @@ STATIC INT32 OsDateSetTime(const CHAR *timeStr)
     return DATE_OK;
 }
 
+#ifdef  LOSCFG_FS_VFS
+STATIC INT32 OsViewFileTime(const CHAR *filename)
+{
+#define BUFFER_SIZE 26 /* The buffer size is equal to the size used by the asctime_r interface */
+    struct stat statBuf = {0};
+    CHAR *fullpath = NULL;
+    INT32 ret;
+    CHAR buf[BUFFER_SIZE];
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+
+    ret = vfs_normalize_path(shellWorkingDirectory, filename, &fullpath);
+    if (ret < 0) {
+        set_errno(-ret);
+        perror("date error");
+        return DATE_ERR;
+    }
+
+    if (stat(fullpath, &statBuf) != 0) {
+        OsCmdUsageDate(DATE_ERR_INFO);
+        free(fullpath);
+        return DATE_ERR;
+    }
+    PRINTK("%s\n", ctime_r(&statBuf.st_mtim.tv_sec, buf));
+    free(fullpath);
+    return DATE_OK;
+}
+#endif
+
 INT32 OsShellCmdDate(INT32 argc, const CHAR **argv)
 {
     struct timeval64 nowTime = {0};
@@ -264,6 +283,11 @@ INT32 OsShellCmdDate(INT32 argc, const CHAR **argv)
         if (!(strcmp(argv[1], "-s"))) {
             return OsDateSetTime(argv[2]); /* 2:index of parameters */
         }
+#ifdef  LOSCFG_FS_VFS
+        else if (!(strcmp(argv[1], "-r"))) {
+            return OsViewFileTime(argv[2]); /* 2:index of parameters */
+        }
+#endif
     }
 
     OsCmdUsageDate(DATE_ERR_INFO);

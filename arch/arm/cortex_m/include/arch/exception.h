@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Exception Operations HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,21 +25,11 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
-
 
 #ifndef _ARCH_EXCEPTION_H
 #define _ARCH_EXCEPTION_H
 
 #include "los_typedef.h"
-#include "arch/task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -52,43 +42,59 @@ extern "C" {
 /* Bit32 stack top magic number. */
 #define OS_STACK_MAGIC_WORD 0xCCCCCCCC
 
+extern CHAR _estack;
 
-#define OS_EXC_IN_INIT                      0
-#define OS_EXC_IN_TASK                      1
-#define OS_EXC_IN_HWI                       2
+typedef enum {
+    OS_EXC_TYPE_CONTEXT     = 0,
+    OS_EXC_TYPE_TSK         = 1,
+    OS_EXC_TYPE_QUE         = 2,
+    OS_EXC_TYPE_NVIC        = 3,
+    OS_EXC_TYPE_TSK_SWITCH  = 4,
+    OS_EXC_TYPE_MEM         = 5,
+    OS_EXC_TYPE_MAX         = 6
+} ExcInfoType;
 
-#define OS_EXC_MAX_BUF_LEN                  25
-#define OS_EXC_MAX_NEST_DEPTH               1
+typedef UINT32 (*EXC_INFO_SAVE_CALLBACK)(UINT32, VOID*);
 
-#define OS_NVIC_SHCSR                       0xE000ED24
-#define OS_NVIC_CCR                         0xE000ED14
+typedef struct tagExcInfoCallBackArray {
+    ExcInfoType             type;
+    UINT32                  valid;
+    EXC_INFO_SAVE_CALLBACK  fnExcInfoCb;
+    VOID                    *pArg;
+} ExcInfoArray;
 
-#define OS_NVIC_INT_ENABLE_SIZE             0x20
-#define OS_NVIC_INT_PRI_SIZE                0xF0
-#define OS_NVIC_EXCPRI_SIZE                 0xC
+#define OS_EXC_IN_INIT                  0
+#define OS_EXC_IN_TASK                  1
+#define OS_EXC_IN_HWI                   2
 
-#define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
-#define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
+#define OS_EXC_MAX_BUF_LEN              25
+#define OS_EXC_MAX_NEST_DEPTH           1
 
-#define OS_EXC_FLAG_NO_FLOAT                0x10000000
-#define OS_EXC_FLAG_FAULTADDR_VALID         0x01
-#define OS_EXC_FLAG_IN_HWI                  0x02
+#define OS_NVIC_SHCSR                   0xE000ED24
+#define OS_NVIC_CCR                     0xE000ED14
+#define OS_NVIC_INT_ENABLE_SIZE         0x20
+#define OS_NVIC_INT_PRI_SIZE            0xF0
+#define OS_NVIC_EXCPRI_SIZE             0xC
+#define OS_NVIC_INT_PEND_SIZE           OS_NVIC_INT_ACT_SIZE
+#define OS_NVIC_INT_ACT_SIZE            OS_NVIC_INT_ENABLE_SIZE
 
-#define OS_EXC_IMPRECISE_ACCESS_ADDR        0xABABABAB
+#define OS_EXC_FLAG_NO_FLOAT            0x10000000
+#define OS_EXC_FLAG_FAULTADDR_VALID     0x01
+#define OS_EXC_FLAG_IN_HWI              0x02
+#define OS_EXC_IMPRECISE_ACCESS_ADDR    0xABABABAB
 
 #define FAULT_STATUS_REG_BIT            32
 /**
- *@ingroup los_exc
+ * @ingroup los_exc
  * the struct of register files
  *
  * description: the register files that saved when exception triggered
  *
- * notes:the following register with prefix 'uw'  correspond to the registers in the cpu  data sheet.
  */
 typedef struct tagExcContext {
-    //handler save
+    // handler save
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
+     (defined (__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S16;
     UINT32 S17;
     UINT32 S18;
@@ -106,27 +112,27 @@ typedef struct tagExcContext {
     UINT32 S30;
     UINT32 S31;
 #endif
-    UINT32 uwR4;
-    UINT32 uwR5;
-    UINT32 uwR6;
-    UINT32 uwR7;
-    UINT32 uwR8;
-    UINT32 uwR9;
-    UINT32 uwR10;
-    UINT32 uwR11;
-    UINT32 uwPriMask;
-    //auto save
-    UINT32 uwSP;
-    UINT32 uwR0;
-    UINT32 uwR1;
-    UINT32 uwR2;
-    UINT32 uwR3;
-    UINT32 uwR12;
-    UINT32 uwLR;
-    UINT32 uwPC;
-    UINT32 uwxPSR;
+    UINT32 R4;
+    UINT32 R5;
+    UINT32 R6;
+    UINT32 R7;
+    UINT32 R8;
+    UINT32 R9;
+    UINT32 R10;
+    UINT32 R11;
+    UINT32 PriMask;
+    // auto save
+    UINT32 SP;
+    UINT32 R0;
+    UINT32 R1;
+    UINT32 R2;
+    UINT32 R3;
+    UINT32 R12;
+    UINT32 LR;
+    UINT32 PC;
+    UINT32 xPSR;
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
+     (defined (__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S0;
     UINT32 S1;
     UINT32 S2;
@@ -146,10 +152,10 @@ typedef struct tagExcContext {
     UINT32 FPSCR;
     UINT32 NO_NAME;
 #endif
-} EXC_CONTEXT_S;
+} ExcContext;
 
-typedef VOID (* EXC_PROC_FUNC)(UINT32, EXC_CONTEXT_S *);
-VOID OsExcHandleEntry(UINT32 uwExcType, UINT32 uwFaultAddr, UINT32 uwPid, const EXC_CONTEXT_S *  pstExcBufAddr);
+typedef VOID (* EXC_PROC_FUNC)(UINT32, ExcContext *);
+VOID OsExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, const ExcContext *excBufAddr);
 
 /**
  * @ingroup  los_hwi
@@ -178,154 +184,132 @@ extern VOID OsExcBusFault(VOID);
 extern VOID OsExcUsageFault(VOID);
 extern VOID OsExcSvcCall(VOID);
 extern VOID OsBackTrace(VOID);
-extern UINT8 m_aucTaskArray[];
-
-/**
- *@ingroup los_exc
- *@brief Kernel panic function.
- *
- *@par Description:
- *Stack function that prints kernel panics.
- *@attention After this function is called and stack information is printed, the system will fail to respond.
- *@attention The input parameter can be NULL.
- *@param fmt [IN] Type #char* : variadic argument.
- *
- *@retval #None.
- *
- *@par Dependency:
- *los_exc.h: the header file that contains the API declaration.
- *@see None.
- *@since Huawei LiteOS V100R001C00
-*/
-void LOS_Panic(const char *fmt, ...);
 
 /**
  * @ingroup los_exc
- * Cortex-M3:bus fault err in stack
+ * bus fault err in stack
  */
 #define OS_EXC_BF_STKERR           1
 
 /**
  * @ingroup los_exc
- * Cortex-M3:bus fault err out stack
+ * bus fault err out stack
  */
 #define OS_EXC_BF_UNSTKERR         2
 
 /**
  * @ingroup los_exc
- * Cortex-M3:bus fault err imprecise access
+ * bus fault err imprecise access
  */
 #define OS_EXC_BF_IMPRECISERR      3
 
 /**
  * @ingroup los_exc
- * Cortex-M3:bus fault err precise access
+ * bus fault err precise access
  */
 #define OS_EXC_BF_PRECISERR        4
 
 /**
  * @ingroup los_exc
- * Cortex-M3:bus fault err ibus
+ * bus fault err ibus
  */
 #define OS_EXC_BF_IBUSERR          5
 
 /**
  * @ingroup los_exc
- * Cortex-M3:mem fault err for manager resiter in stack
+ * mem fault err for manager resiter in stack
  */
 #define OS_EXC_MF_MSTKERR          6
 
 /**
  * @ingroup los_exc
- * Cortex-M3:mem fault err for manager resiter out stack
+ * mem fault err for manager resiter out stack
  */
 #define OS_EXC_MF_MUNSTKERR        7
 
 /**
  * @ingroup los_exc
- * Cortex-M3:mem fault err for data access invalid
+ * mem fault err for data access invalid
  */
 #define OS_EXC_MF_DACCVIOL         8
 
 /**
  * @ingroup los_exc
- * Cortex-M3:mem fault err for instruction access invalid
+ * mem fault err for instruction access invalid
  */
 #define OS_EXC_MF_IACCVIOL         9
 
-
 /**
  * @ingroup los_exc
- * Cortex-M3: divide zero err
+ * divide zero err
  */
 #define OS_EXC_UF_DIVBYZERO        10
 
 /**
  * @ingroup los_exc
- * Cortex-M3: data unaligned err
+ * data unaligned err
  */
 #define OS_EXC_UF_UNALIGNED        11
 
 /**
  * @ingroup los_exc
- * Cortex-M3: no co-processor err
+ * no co-processor err
  */
 #define OS_EXC_UF_NOCP             12
 
 /**
  * @ingroup los_exc
- * Cortex-M3: invalid PC err
+ * invalid PC err
  */
 #define OS_EXC_UF_INVPC            13
 
 /**
  * @ingroup los_exc
- * Cortex-M3:invalid state err
+ * invalid state err
  */
 #define OS_EXC_UF_INVSTATE         14
 
 /**
  * @ingroup los_exc
- * Cortex-M3:undefined instruction err
+ * undefined instruction err
  */
 #define OS_EXC_UF_UNDEFINSTR       15
 
 /**
  * @ingroup los_exc
- * Cortex-M3: nu-masked interrupt
+ * nu-masked interrupt
  */
 #define OS_EXC_CAUSE_NMI           16
 
 /**
  * @ingroup los_exc
- * Cortex-M3: hardware fault
+ * hardware fault
  */
 #define OS_EXC_CAUSE_HARDFAULT     17
 
 /**
  * @ingroup los_exc
- * Cortex-M3:task exit err
+ * task exit err
  */
 #define OS_EXC_CAUSE_TASK_EXIT     18
 
 /**
  * @ingroup los_exc
- * Cortex-M3:fatal err
+ * fatal err
  */
 #define OS_EXC_CAUSE_FATAL_ERR     19
 
 /**
  * @ingroup los_exc
- * Cortex-M3: debug event trigger hardware interrupt err
+ * debug event trigger hardware interrupt err
  */
 #define OS_EXC_CAUSE_DEBUGEVT      20
 
 /**
  * @ingroup los_exc
- * Cortex-M3:access vector trigger hardware interrupt err
+ * access vector trigger hardware interrupt err
  */
 #define OS_EXC_CAUSE_VECTBL        21
-
 
 typedef struct tagExcInfo {
     UINT16 phase;              /* Phase in which an exception occurs:
@@ -335,22 +319,18 @@ typedef struct tagExcInfo {
                                 */
     UINT16 type;               /* Exception type */
     UINT32 faultAddr;          /* The wrong access address when the exception occurred */
-    UINT32 thrdPid;            /* An exception occurred during the interrupt indicating the interrupt number,
+    UINT32 intNumOrTaskId;     /* An exception occurred during the interrupt indicating the interrupt number,
                                 * An exception occurs in the task, indicating the task id,
                                 * If it occurs in the initialization, it is 0xffffffff
                                 */
     UINT16 nestCnt;            /* Count of nested exception */
     UINT16 reserved;           /* Reserved for alignment */
-    EXC_CONTEXT_S *context;    /* Hardware context when an exception occurs */
-} EXC_INFO_S;
+    ExcContext *context;       /* Hardware context when an exception occurs */
+} ExcInfo;
 
 extern UINT32 g_curNestCount;
-extern UINT32 g_intCount[];
-extern EXC_INFO_S m_stExcInfo;
 
-VOID OsExcInfoDisplay(const EXC_INFO_S *exc);
-
-extern UINT8 g_uwExcTbl[32];
+VOID OsExcInfoDisplay(const ExcInfo *exc, ExcContext *excBufAddr);
 
 /**
  * @ingroup los_exc
@@ -372,7 +352,7 @@ extern UINT8 g_uwExcTbl[32];
  * @see None.
  * @since Huawei LiteOS V100R001C00
  */
-extern VOID OsTaskBackTrace(UINT32 taskID);
+extern VOID OsTaskBackTrace(UINT32 taskId);
 VOID ArchExcInit(VOID);
 
 STATIC INLINE VOID ArchHaltCpu(VOID)
@@ -380,9 +360,35 @@ STATIC INLINE VOID ArchHaltCpu(VOID)
     __asm__ __volatile__("swi 0");
 }
 
-VOID ArchBackTrace(VOID);
-VOID ArchBackTraceWithSp(VOID *stackPointer);
+STATIC INLINE UINTPTR ArchGetSp(VOID)
+{
+    UINTPTR regSp;
 
+    __asm__ __volatile__("mov %0, sp\n" : "=r"(regSp));
+
+    return regSp;
+}
+
+STATIC INLINE UINTPTR ArchGetPsp(VOID)
+{
+    UINTPTR regPsp;
+
+    __asm__ __volatile__("MRS %0, psp\n" : "=r"(regPsp));
+
+    return regPsp;
+}
+
+STATIC INLINE UINTPTR ArchGetMsp(VOID)
+{
+    UINTPTR regMsp;
+
+    __asm__ __volatile__("MRS %0, msp\n" : "=r"(regMsp));
+
+    return regMsp;
+}
+
+VOID ArchBackTrace(VOID);
+VOID ArchBackTraceWithSp(const VOID *stackPointer);
 
 #ifdef __cplusplus
 #if __cplusplus

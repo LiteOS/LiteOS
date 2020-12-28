@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2020>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Main
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 #include "main.h"
 #include "sys_init.h"
 
@@ -39,36 +33,38 @@
 #include "los_typedef.h"
 #include "los_sys.h"
 #include "uart.h"
+#include "timer.h"
 
-#if defined (__CC_ARM)
-extern char Image$$RW_IRAM1$$ZI$$Limit [];
-extern char Image$$ARM_LIB_STACKHEAP$$Base [];
-#elif defined (__GNUC__)
-extern char __los_heap_addr_start__ [];
-extern char __los_heap_addr_end__ [];
+#if defined(__CC_ARM)
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
+extern char Image$$ARM_LIB_STACKHEAP$$Base[];
+#elif defined(__GNUC__)
+extern char __los_heap_addr_start__[];
+extern char __los_heap_addr_end__[];
 #else
 #error "fix me"
 #endif
 
-
-struct phys_mem 
-{
+struct phys_mem {
     unsigned long start;
     unsigned long end;
 };
 
-const struct phys_mem system_phys_mem [] =
-{
+const struct phys_mem system_phys_mem [] = {
 #if defined (__CC_ARM)
-        { Image$$RW_IRAM1$$ZI$$Limit, Image$$ARM_LIB_STACKHEAP$$Base },
+    { Image$$RW_IRAM1$$ZI$$Limit, Image$$ARM_LIB_STACKHEAP$$Base },
 #elif defined (__GNUC__)
-        {(unsigned long) __los_heap_addr_start__,(unsigned long) __los_heap_addr_end__ },
+    { (unsigned long) __los_heap_addr_start__, (unsigned long) __los_heap_addr_end__ },
 #else
 #error "fix me"
 #endif
-        { 0, 0 }
+    { 0, 0 }
 };
 
+VOID board_config(VOID)
+{
+    g_sys_mem_addr_end = __LOS_HEAP_ADDR_END__;
+}
 
 VOID HardwareInit(VOID)
 {
@@ -89,18 +85,13 @@ VOID HardwareInit(VOID)
     LCD_ShowString(20, 130, 240, 16, 16, "Powerd by Huawei LiteOS!");
     LCD_ShowString(10, 170, 240, 16, 16, "This is LiteOS kernel demo.");
 
-    Debug_USART1_UART_Init();
-}
-
-UINT32 app_init(VOID)
-{
-    UINT32 ret = LOS_OK;
-    printf("Hello, welcome to liteos!");
-    return ret;
+    MX_USART1_UART_Init();
+    TimerInit();
 }
 
 INT32 main(VOID)
 {
+    board_config();
     HardwareInit();
 
     PRINT_RELEASE("\n********Hello Huawei LiteOS********\n"

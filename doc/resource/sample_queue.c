@@ -1,96 +1,89 @@
-#include "los_base.h"
 #include "los_task.h"
-#include "los_swtmr.h"
-#include "los_hwi.h"
 #include "los_queue.h"
-#include "los_event.h"
-#include "los_typedef.h"
 
-static UINT32 g_uwQueue;
-CHAR abuf[] = "test is message x";
+static UINT32 g_queue;
+#define BUFFER_LEN 50
 
-void *send_Entry(void *arg)
+VOID send_Entry(VOID)
 {
-    UINT32 i = 0,uwRet = 0;
-    UINT32 uwlen = sizeof(abuf);
+    UINT32 i = 0;
+    UINT32 ret = 0;
+    CHAR abuf[] = "test is message x";
+    UINT32 len = sizeof(abuf);
 
-    while (i <5)
-    {
-        abuf[uwlen -2] = '0' + i;
+    while (i < 5) {
+        abuf[len -2] = '0' + i;
         i++;
 
-        uwRet = LOS_QueueWrite(g_uwQueue, abuf, uwlen, 0);
-        if(uwRet != LOS_OK)
-        {
-            dprintf("send message failure,error:%x\n",uwRet);
+        ret = LOS_QueueWriteCopy(g_queue, abuf, len, 0);
+        if(ret != LOS_OK) {
+            dprintf("send message failure,error:%x\n", ret);
         }
 
         LOS_TaskDelay(5);
     }
 }
 
-void *recv_Entry(void *arg)
+VOID recv_Entry(VOID)
 {
-    UINT32 uwReadbuf;
-    UINT32 uwRet = 0;
+    UINT32 ret = 0;
+    CHAR readBuf[BUFFER_LEN] = {0};
+    UINT32 readLen = BUFFER_LEN;
 
-    while (1)
-    {
-
-
-        uwRet = LOS_QueueRead(g_uwQueue, &uwReadbuf, 50, 0);
-        if(uwRet != LOS_OK)
-        {
-            dprintf("recv message failure,error:%x\n",uwRet);
+    while (1) {
+        ret = LOS_QueueReadCopy(g_queue, readBuf, &readLen, 0);
+        if(ret != LOS_OK) {
+            dprintf("recv message failure,error:%x\n", ret);
             break;
         }
 
-        dprintf("recv message:%s\n", (char *)uwReadbuf);
+        dprintf("recv message:%s\n", readBuf);
         LOS_TaskDelay(5);
     }
 
-    while (LOS_OK != LOS_QueueDelete(g_uwQueue))
-    {
+    while (LOS_OK != LOS_QueueDelete(g_queue)) {
         LOS_TaskDelay(1);
     }
 
     dprintf("delete the queue success!\n");
 }
 
-int Example_create_task(void)
+UINT32 Example_CreateTask(VOID)
 {
-    UINT32 uwRet = 0;
-    UINT32 uwTask1, uwTask2;
-    TSK_INIT_PARAM_S stInitParam1;
+    UINT32 ret = 0;
+    UINT32 task1, task2;
+    TSK_INIT_PARAM_S initParam;
 
-    stInitParam1.pfnTaskEntry = send_Entry;
-    stInitParam1.usTaskPrio = 9;
-    stInitParam1.uwStackSize = 0x400;
-    stInitParam1.pcName = "sendQueue";
-    stInitParam1.uwResved = LOS_TASK_STATUS_DETACHED ;
+    initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)send_Entry;
+    initParam.usTaskPrio = 9;
+    initParam.uwStackSize = LOS_TASK_MIN_STACK_SIZE;
+    initParam.pcName = "sendQueue";
+#ifdef LOSCFG_KERNEL_SMP
+    initParam.usCpuAffiMask = CPUID_TO_AFFI_MASK(ArchCurrCpuid());
+#endif
+    initParam.uwResved = LOS_TASK_STATUS_DETACHED;
+
     LOS_TaskLock();
-    uwRet = LOS_TaskCreate(&uwTask1, &stInitParam1);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("create task1 failed!,error:%x\n",uwRet);
-        return uwRet;
+    ret = LOS_TaskCreate(&task1, &initParam);
+    if(ret != LOS_OK) {
+        dprintf("create task1 failed, error:%x\n", ret);
+        return ret;
     }
 
-    stInitParam1.pfnTaskEntry = recv_Entry;
-    uwRet = LOS_TaskCreate(&uwTask2, &stInitParam1);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("create task2 failed!,error:%x\n",uwRet);
-        return uwRet;
+    initParam.pcName = "recvQueue";
+    initParam.pfnTaskEntry = (TSK_ENTRY_FUNC)recv_Entry;
+    ret = LOS_TaskCreate(&task2, &initParam);
+    if(ret != LOS_OK) {
+        dprintf("create task2 failed, error:%x\n", ret);
+        return ret;
     }
 
-    uwRet = LOS_QueueCreate("queue", 5, &g_uwQueue, 0, 50);
-
-    if(uwRet != LOS_OK)
-    {
-        dprintf("create queue failure!,error:%x\n",uwRet);
+    ret = LOS_QueueCreate("queue", 5, &g_queue, 0, BUFFER_LEN);
+    if(ret != LOS_OK) {
+        dprintf("create queue failure, error:%x\n", ret);
     }
 
     dprintf("create the queue success!\n");
     LOS_TaskUnlock();
+    return ret;
 }

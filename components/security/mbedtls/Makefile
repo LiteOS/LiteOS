@@ -12,21 +12,21 @@ LOCAL_DIRS_y += $(MBEDTLS_VERSION)/library
 
 LOCAL_INCLUDE += \
     -I $(LITEOSTOPDIR)/include \
-    -I $(LITEOSTOPDIR)/components/security/mbedtls/mbedtls_port \
-    -I $(LITEOSTOPDIR)/components/security/mbedtls/$(MBEDTLS_VERSION)/include \
-    -I $(LITEOSTOPDIR)/components/security/mbedtls/$(MBEDTLS_VERSION)/include/mbedtls
+    -I mbedtls_port \
+    -I $(MBEDTLS_VERSION)/include \
+    -I $(MBEDTLS_VERSION)/include/mbedtls
 
-ifeq ($(LOSCFG_DTLS_PCK_ENCRYPT), y)
+ifeq ($(LOSCFG_DTLS_PSK_ENCRYPT), y)
 C_DEFS += -DMBEDTLS_CONFIG_FILE=\"los_mbedtls_config_psk.h\"
-elif ($(LOSCFG_DTLS_CRET_ENCRYPT), y)
+else ifeq ($(LOSCFG_DTLS_CRET_ENCRYPT), y)
 C_DEFS += -DMBEDTLS_CONFIG_FILE=\"los_mbedtls_config_cert.h\"
 else
 C_DEFS += -DMBEDTLS_CONFIG_FILE=\"los_mbedtls_config.h\"
 endif
-endif
 
 LOCAL_SRCS_y += $(foreach dir, $(LOCAL_DIRS_y), $(wildcard $(dir)/*.c))
 LOCAL_SRCS    = $(LOCAL_SRCS_y)
+endif
 
 LOCAL_FLAGS := $(C_DEFS) $(LOCAL_INCLUDE)
 

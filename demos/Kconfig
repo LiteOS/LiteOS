@@ -1,8 +1,16 @@
 menu "Demos"
 
+source "demos/dtls_server/Kconfig"
 source "demos/agenttiny_mqtt/Kconfig"
+source "demos/agenttiny_lwm2m/Kconfig"
 source "demos/fs/Kconfig"
 source "demos/gui/Kconfig"
 source "demos/sensorhub/Kconfig"
+source "demos/kernel/Kconfig"
+source "demos/nbiot_without_atiny/Kconfig"
+source "demos/lms/Kconfig"
+source "demos/trace/Kconfig"
+source "demos/ipv6_client/Kconfig"
+source "demos/ai/Kconfig"
 
 endmenu

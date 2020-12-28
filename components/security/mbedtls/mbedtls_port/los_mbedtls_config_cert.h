@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Mbedtls Cert Config HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*
  *  Minimal configuration for TLS 1.2 with PSK and AES-CCM ciphersuites
@@ -62,8 +56,8 @@
  *
  * See README.txt for usage instructions.
  */
-#ifndef MBEDTLS_CONFIG_H
-#define MBEDTLS_CONFIG_H
+#ifndef _MBEDTLS_CONFIG_H
+#define _MBEDTLS_CONFIG_H
 
 /* System support */
 //#define MBEDTLS_HAVE_TIME /* Optionally used in Hello messages */
@@ -137,8 +131,10 @@
 #else
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_SSL_CIPHERSUITES                        \
-        MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA256,MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256
+        MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA256,MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256, MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256
 #endif
+
+#define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_CERTIFICATES
 
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -231,20 +227,20 @@
 #define MBEDTLS_SHA512_C
 #define MBEDTLS_SSL_COOKIE_C
 #define MBEDTLS_SSL_TICKET_C
- #define MBEDTLS_X509_CHECK_KEY_USAGE
- #define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
- #define MBEDTLS_X509_RSASSA_PSS_SUPPORT
- #define MBEDTLS_X509_USE_C
- #define MBEDTLS_X509_CRT_PARSE_C
- #define MBEDTLS_X509_CRL_PARSE_C
- #define MBEDTLS_X509_CSR_PARSE_C
- #define MBEDTLS_X509_CREATE_C
- #define MBEDTLS_X509_CRT_WRITE_C
- #define MBEDTLS_X509_CSR_WRITE_C
+#define MBEDTLS_X509_CHECK_KEY_USAGE
+#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
+#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
+#define MBEDTLS_X509_USE_C
+#define MBEDTLS_X509_CRT_PARSE_C
+#define MBEDTLS_X509_CRL_PARSE_C
+#define MBEDTLS_X509_CSR_PARSE_C
+#define MBEDTLS_X509_CREATE_C
+#define MBEDTLS_X509_CRT_WRITE_C
+#define MBEDTLS_X509_CSR_WRITE_C
 #define MBEDTLS_XTEA_C
 #define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_KEY_EXCHANGE
 #define MBEDTLS_SHA1_C
 
 #include "mbedtls/check_config.h"
 
-#endif /* MBEDTLS_CONFIG_H */
+#endif /* _MBEDTLS_CONFIG_H */

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_list Doubly linked list
@@ -61,20 +53,20 @@ typedef struct LOS_DL_LIST {
 
 /**
  * @ingroup los_list
+ * @brief Initialize the input node to a doubly linked list.
  *
  * @par Description:
- * This API is used to initialize a doubly linked list.
+ * This API is used to initialize the input node (the first parameter list) to
+ * a doubly linked list.
  * @attention
- * <ul>
- * <li>The parameter passed in should be ensured to be a legal pointer.</li>
- * </ul>
+ * The parameter passed in should be a legal pointer.
  *
- * @param list    [IN] Node in a doubly linked list.
+ * @param list    [IN] A node in a doubly linked list.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_HEAD
  * @since Huawei LiteOS V100R001C00
  */
 LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListInit(LOS_DL_LIST *list)
@@ -85,46 +77,38 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListInit(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief Point to the next node pointed to by the current node.
+ * @brief Point to the next node of the current node.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to point to the next node pointed to by the current node.</li>
- * </ul>
+ * This API is used to point to the next node of the current node.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param object  [IN] Node in the doubly linked list.
+ * @param object  [IN] Type #LOS_DL_LIST *  The node in the doubly linked list.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_LAST
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_FIRST(object) ((object)->pstNext)
 
 /**
  * @ingroup los_list
- * @brief Point to the previous node pointed to by the current node.
+ * @brief Point to the previous node of the current node.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to point to the previous node pointed to by the current node.</li>
- * </ul>
+ * This API is used to point to the previous node of the current node.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param object  [IN] Node in the doubly linked list.
+ * @param object  [IN] Type #LOS_DL_LIST *  The node in the doubly linked list.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_FIRST
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_LAST(object) ((object)->pstPrev)
@@ -134,19 +118,17 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListInit(LOS_DL_LIST *list)
  * @brief Insert a new node to a doubly linked list.
  *
  * @par Description:
- * This API is used to insert a new node to a doubly linked list.
+ * This API is used to insert a new node after the list node to a doubly linked list.
  * @attention
- * <ul>
- * <li>The parameters passed in should be ensured to be legal pointers.</li>
- * </ul>
+ * The parameters passed in should be legal pointers.
  *
- * @param list    [IN] Doubly linked list where the new node is inserted.
- * @param node    [IN] New node to be inserted.
+ * @param list    [IN] Doubly linked list which the new node will be inserted in.
+ * @param node    [IN] The new node to be inserted.
  *
  * @retval None
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_ListDelete
+ * @see LOS_ListDelete | LOS_ListTailInsert | LOS_ListHeadInsert
  * @since Huawei LiteOS V100R001C00
  */
 LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListAdd(LOS_DL_LIST *list, LOS_DL_LIST *node)
@@ -159,17 +141,15 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListAdd(LOS_DL_LIST *list, LOS_DL_
 
 /**
  * @ingroup los_list
- * @brief Insert a node to the tail of a doubly linked list.
+ * @brief Insert a node to a doubly linked list.
  *
  * @par Description:
- * This API is used to insert a new node to the tail of a doubly linked list.
+ * This API is used to insert a new node before the list node to a doubly linked list.
  * @attention
- * <ul>
- * <li>The parameters passed in should be ensured to be legal pointers.</li>
- * </ul>
+ * The parameters passed in should be legal pointers.
  *
- * @param list     [IN] Doubly linked list where the new node is inserted.
- * @param node     [IN] New node to be inserted.
+ * @param list     [IN] Doubly linked list which the new node will be inserted in.
+ * @param node     [IN] The new node to be inserted.
  *
  * @retval None.
  * @par Dependency:
@@ -184,17 +164,16 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *list, 
 
 /**
  * @ingroup los_list
- * @brief Insert a node to the head of a doubly linked list.
+ * @brief Insert a node to a doubly linked list.
  *
  * @par Description:
- * This API is used to insert a new node to the head of a doubly linked list.
+ * This API is used to insert a new node after the list node to a doubly linked list.
+ *  It is same with #LOS_ListAdd.
  * @attention
- * <ul>
- * <li>The parameters passed in should be ensured to be legal pointers.</li>
- * </ul>
+ * The parameters passed in should be legal pointers.
  *
- * @param list     [IN] Doubly linked list where the new node is inserted.
- * @param node     [IN] New node to be inserted.
+ * @param list     [IN] Doubly linked list which the new node will be inserted in.
+ * @param node     [IN] The new node to be inserted.
  *
  * @retval None.
  * @par Dependency:
@@ -209,15 +188,12 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListHeadInsert(LOS_DL_LIST *list, 
 
 /**
  * @ingroup los_list
+ * @brief Delete a specified node from a doubly linked list.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to delete a specified node from a doubly linked list.</li>
- * </ul>
+ * This API is used to delete a specified node from a doubly linked list.
  * @attention
- * <ul>
- * <li>The parameter passed in should be ensured to be a legal pointer.</li>
- * </ul>
+ * The parameter passed in should be a legal pointer.
  *
  * @param node    [IN] Node to be deleted.
  *
@@ -237,24 +213,20 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelete(LOS_DL_LIST *node)
 
 /**
  * @ingroup los_list
- * @brief Identify whether a specified doubly linked list is empty.
+ * @brief Identify whether a specified doubly linked list is empty or not.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to return whether a doubly linked list is empty.</li>
- * </ul>
+ * This API is used to judge whether a doubly linked list is empty or not. It
+ * returns a Boolean value.
  * @attention
- * <ul>
- * <li>The parameter passed in should be ensured to be a legal pointer.</li>
- * </ul>
+ * The parameter passed in should be a legal pointer.
  *
  * @param list  [IN] Doubly linked list.
  *
- * @retval TRUE The doubly linked list is empty.
- * @retval FALSE The doubly linked list is not empty.
+ * @retval #TRUE  The doubly linked list is empty.
+ * @retval #FALSE The doubly linked list is not empty.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
  * @since Huawei LiteOS V100R001C00
  */
 LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
@@ -263,45 +235,40 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
 }
 
 /**
- * @ingroup los_list
- * @brief Obtain the offset of a field to a structure address.
+ * @brief Obtain the offset of a field relative to the structure start address.
  *
  * @par  Description:
- * This API is used to obtain the offset of a field to a structure address.
+ * This API is used to obtain the offset of the structure member (field) relative to
+ * the start address of the structure (type). And return the offset of #UINTPTR type.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
  * @param type   [IN] Structure name.
- * @param field  [IN] Name of the field of which the offset is to be measured.
+ * @param field  [IN] The structure member name which needs to measure the offset.
  *
- * @retval Offset of the field to the structure address.
+ * @retval #UINTPTR Offset of the field relative to the structure start address.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
  * @since Huawei LiteOS V100R001C00
  */
 #define OFFSET_OF_FIELD(type, field) ((UINTPTR)&((type *)0)->field)
 
 /**
  * @ingroup los_list
- * @brief Obtain the pointer to a doubly linked list in a structure.
+ * @brief Obtain the offset of a structure member relative to the structure start address.
  *
- * @par Description:
- * This API is used to obtain the pointer to a doubly linked list in a structure.
+ * @par  Description:
+ * This API is used to obtain the offset of the structure member (member) relative to
+ * the start address of the structure (type). And return the offset of #UINTPTR type.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param type    [IN] Structure name.
- * @param member  [IN] Member name of the doubly linked list in the structure.
+ * @param type   [IN] Structure name.
+ * @param member [IN] The structure member name which needs to measure the offset.
  *
- * @retval Pointer to the doubly linked list in the structure.
+ * @retval #UINTPTR Offset of the member relative to the structure start address.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_OFF_SET_OF(type, member) ((UINTPTR)&((type *)0)->member)
@@ -311,23 +278,20 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
  * @brief Obtain the pointer to a structure that contains a doubly linked list.
  *
  * @par Description:
- * This API is used to obtain the pointer to a structure that contains a doubly linked list.
- * <ul>
- * <li>None.</li>
- * </ul>
+ * This API is used to obtain the pointer to a structure that contains the doubly
+ * linked list which the first parameter item specified.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param item    [IN] Current node's pointer to the next node.
+ * @param item    [IN] Type #LOS_DL_LIST *  The node of the doubly linked list.
  * @param type    [IN] Structure name.
- * @param member  [IN] Member name of the doubly linked list in the structure.
+ * @param member  [IN] The doubly linked list name in the structure.
  *
- * @retval Pointer to the structure that contains the doubly linked list.
+ * @retval The pointer to the structure that contains the doubly linked list. And
+ * the doubly linked list has the node of the first parameter item.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_FOR_EACH_ENTRY | LOS_DL_LIST_FOR_EACH_ENTRY_SAFE
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_ENTRY(item, type, member) \
@@ -335,24 +299,26 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief Iterate over a doubly linked list of given type.
+ * @brief Traverse a doubly linked list which is included in a given type structure.
  *
  * @par Description:
- * This API is used to iterate over a doubly linked list of given type.
+ * This API is used to traverse a doubly linked list which is included in a given type
+ * structure. The API is a loop. The start node of the doubly linked list is the second
+ * parameter list. And in each loop, the obtained pointer to a structure that contains
+ * the list is outputted in the first parameter item.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param item           [IN] Pointer to the structure that contains the doubly linked list that is to be traversed.
- * @param list           [IN] Pointer to the doubly linked list to be traversed.
- * @param type           [IN] Structure name.
- * @param member         [IN] Member name of the doubly linked list in the structure.
+ * @param item    [IN/OUT] The pointer to the structure that contains the doubly linked list.
+ * @param list    [IN] Type #LOS_DL_LIST *  The start node of the doubly linked list to
+ *                                          be traversed.
+ * @param type    [IN] Structure name.
+ * @param member  [IN] The doubly linked list name in the structure.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_ENTRY | LOS_DL_LIST_FOR_EACH_ENTRY_SAFE | LOS_DL_LIST_FOR_EACH
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_FOR_EACH_ENTRY(item, list, type, member)             \
@@ -362,25 +328,30 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief iterate over a doubly linked list safe against removal of list entry.
+ * @brief Traverse a doubly linked list which is included in a given type structure. And
+ * it is safe against removal of list entry.
  *
  * @par Description:
- * This API is used to iterate over a doubly linked list safe against removal of list entry.
+ * This API is used to traverse a doubly linked list which is included in a given type
+ * structure. The API is a loop. The start node of the doubly linked list is the third
+ * parameter list. And in each loop, the obtained pointer to a structure that contains
+ * the list is outputted in the first parameter item. And the next node is outputted in
+ * the second parameter next.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param item           [IN] Pointer to the structure that contains the doubly linked list that is to be traversed.
- * @param next           [IN] Save the next node.
- * @param list           [IN] Pointer to the doubly linked list to be traversed.
- * @param type           [IN] Structure name.
- * @param member         [IN] Member name of the doubly linked list in the structure.
+ * @param item    [IN/OUT] The pointer to the structure that contains the doubly linked list.
+ * @param next    [IN/OUT] The pointer to the structure that contains the next node of the
+ *                         doubly linked list.
+ * @param list    [IN] Type #LOS_DL_LIST *  The start node of the doubly linked list to
+ *                                          be traversed.
+ * @param type    [IN] Structure name.
+ * @param member  [IN] The doubly linked list name in the structure.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_ENTRY | LOS_DL_LIST_FOR_EACH_ENTRY | LOS_DL_LIST_FOR_EACH_SAFE
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_FOR_EACH_ENTRY_SAFE(item, next, list, type, member)               \
@@ -391,21 +362,48 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief Delete initialize a doubly linked list.
+ * @brief Iterate over a doubly linked list of given type, and call hook for any extra procedures every time.
  *
  * @par Description:
- * This API is used to delete initialize a doubly linked list.
+ * This API is used to iterate over a doubly linked list of given type,
+ * and call hook for any extra procedures every time.
  * @attention
- * <ul>
- * <li>The parameter passed in should be ensured to be s legal pointer.</li>
- * </ul>
+ * None.
  *
- * @param list    [IN] Doubly linked list.
+ * @param item           [IN/OUT] Pointer to the structure that contains the doubly linked list that is to be traversed.
+ * @param list           [IN] Pointer to the doubly linked list to be traversed.
+ * @param type           [IN] Structure name.
+ * @param member         [IN] Member name of the doubly linked list in the structure.
+ * @param hook           [IN] Hook for extra procedures which will be called every time when dev is fetched.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_ENTRY | LOS_DL_LIST_FOR_EACH_ENTRY
+ * @since Huawei LiteOS V200R005C10
+ */
+#define LOS_DL_LIST_FOR_EACH_ENTRY_HOOK(item, list, type, member, hook)  \
+    for (item = LOS_DL_LIST_ENTRY((list)->pstNext, type, member), hook;  \
+         &(item)->member != (list);                                      \
+         item = LOS_DL_LIST_ENTRY((item)->member.pstNext, type, member), hook)
+
+/**
+ * @ingroup los_list
+ * @brief Delete a specified node from a doubly linked list and reinitialize the node.
+ *
+ * @par Description:
+ * This API is used to delete a specified node (the first parameter list) from the doubly
+ * linked list. And reinitialize the deleted node to a doubly linked list.
+ *
+ * @attention
+ * The parameter passed in should be a legal pointer.
+ *
+ * @param list    [IN] Node to be deleted and reinitialize to a doubly linked list.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_ListInit | LOS_ListDelete
  * @since Huawei LiteOS V100R001C00
  */
 LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
@@ -417,22 +415,24 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief iterate over a doubly linked list.
+ * @brief Traverse a doubly linked list.
  *
  * @par Description:
- * This API is used to iterate over a doubly linked list.
+ * This API is used to traverse a doubly linked list. The API is a loop. The start node of the
+ * doubly linked list is the second parameter list. And in each loop, the obtained pointer to
+ * the next node of the doubly linked list is outputted in the first parameter item.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param item           [IN] Pointer to the structure that contains the doubly linked list that is to be traversed.
- * @param list           [IN] Pointer to the doubly linked list to be traversed.
+ * @param item        [IN/OUT] Type #LOS_DL_LIST *  The pointer to the next node in the doubly
+ *                                                  linked list.
+ * @param list        [IN] Type #LOS_DL_LIST *   The pointer to the node of the doubly linked
+ *                                               list to be traversed.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_FOR_EACH_SAFE | LOS_DL_LIST_FOR_EACH_ENTRY
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_FOR_EACH(item, list) \
@@ -442,23 +442,28 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
 
 /**
  * @ingroup los_list
- * @brief Iterate over a doubly linked list safe against removal of list entry.
+ * @brief Traverse a doubly linked list safe against removal of list entry.
  *
  * @par Description:
- * This API is used to iterate over a doubly linked list safe against removal of list entry.
+ * This API is used to traverse a doubly linked list safe against removal of list entry. The
+ * API is a loop. The start node of the doubly linked list is the third parameter list. And
+ * in each loop, the obtained pointer to the next node of the doubly linked list is outputted
+ * in the first parameter item. And the next node of the the node specified by first parameter
+ * item is outputted in the second parameter next.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param item           [IN] Pointer to the structure that contains the doubly linked list that is to be traversed.
- * @param next           [IN] Save the next node.
- * @param list           [IN] Pointer to the doubly linked list to be traversed.
+ * @param item        [IN/OUT] Type #LOS_DL_LIST *  The pointer to the next node in the doubly
+ *                                                  linked list.
+ * @param next        [IN/OUT] Type #LOS_DL_LIST *  The pointer to the next node of the the node
+ *                                                  specified by first parameter item.
+ * @param list        [IN]     Type #LOS_DL_LIST *  The pointer to the node of the doubly linked
+ *                                                  list to be traversed.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_DL_LIST_FOR_EACH | LOS_DL_LIST_FOR_EACH_ENTRY_SAFE
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_FOR_EACH_SAFE(item, next, list)      \
@@ -471,18 +476,18 @@ LITE_OS_SEC_ALW_INLINE STATIC INLINE VOID LOS_ListDelInit(LOS_DL_LIST *list)
  * @brief Initialize a double linked list.
  *
  * @par Description:
- * This API is used to initialize a double linked list.
+ * This API is used to initialize the input node (the parameter list) to a double linked
+ * list. The difference with LOS_ListInit is that the parameter list is not a pointer while
+ * in LOS_ListInit it is a pointer.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
- * @param list           [IN] Pointer to the doubly linked list to be traversed.
+ * @param list    [IN] Type #LOS_DL_LIST  A node to be initialized to a doubly linked list.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_ListInit
  * @since Huawei LiteOS V100R001C00
  */
 #define LOS_DL_LIST_HEAD(list) LOS_DL_LIST list = { &(list), &(list) }

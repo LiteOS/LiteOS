@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
- * Description: TIME64 HEAD FILE
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
+ * Description: Time64 Head File
  * Author: Huawei LiteOS Team
  * Create: 2020-05-15
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 
 #ifndef _HW_TIME64_H_
@@ -45,6 +37,10 @@
 #include <time.h>
 #include <stdint.h>
 
+#if defined(__LITEOS__) && !defined(__LP64___)
+#include <bits/alltypes.h>
+#endif /* __LITEOS__ && !__LP64___ */
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -52,17 +48,18 @@ extern "C" {
 #endif
 
 #if defined(__LITEOS__) && !defined(__LP64___)
+#ifndef __NEED_int64_t
 #define __NEED_int64_t
-#include <bits/alltypes.h>
+#endif
 
 struct timeval64 {
-  int64_t tv_sec;
-  int64_t tv_usec;
+    int64_t tv_sec;
+    int64_t tv_usec;
 };
 
 struct timespec64 {
-  int64_t tv_sec;
-  int64_t tv_nsec;
+    int64_t tv_sec;
+    int64_t tv_nsec;
 };
 
 /**
@@ -117,7 +114,6 @@ int settimeofday64(const struct timeval64 *, const struct timezone *);
  *
  * @since Huawei LiteOS V100R001C00
  */
-
 int gettimeofday64(struct timeval64 *, struct timezone *);
 #endif
 

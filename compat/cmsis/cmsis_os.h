@@ -25,24 +25,19 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _CMSIS_OS_H
 #define _CMSIS_OS_H
 
-#include "menuconfig.h"
+#include "los_config.h"
 
-#if (LOSCFG_CMSIS_VERSION == 1)
+#if (CMSIS_OS_VER == 1)
 #include "1.0/cmsis_os1.h"
-#elif (LOSCFG_CMSIS_VERSION == 2)
+#elif (CMSIS_OS_VER == 2)
 #include "2.0/cmsis_os2.h"
+#else
+#error CMSIS Only Support Version 1.0 or 2.0
 #endif
 
 #endif  // _CMSIS_OS_H
+

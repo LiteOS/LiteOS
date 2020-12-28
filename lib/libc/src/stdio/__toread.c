@@ -18,7 +18,9 @@ int __toread(FILE *f)
 	return (f->flags & F_EOF) ? EOF : 0;
 }
 
+#ifndef __LITEOS__
 hidden void __toread_needs_stdio_exit(void)
 {
 	__stdio_exit_needed();
 }
+#endif

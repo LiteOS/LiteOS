@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Mqueue file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "mqueue.h"
 #include "stdio.h"
@@ -45,7 +37,7 @@
 #include "time_pri.h"
 #include "los_memory.h"
 #include "los_task.h"
-#include "los_sys_pri.h"
+#include "los_sys.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -53,11 +45,13 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/* GLOBALS */
+#ifndef LOSCFG_LIB_CONFIGURABLE
 STATIC struct mqarray g_queueTable[LOSCFG_BASE_IPC_QUEUE_LIMIT];
+#else
+__attribute__((section(".libc.mqueue"))) struct mqarray g_queueTable[LOSCFG_BASE_IPC_QUEUE_LIMIT_CONFIG];
+#endif
 STATIC pthread_mutex_t g_mqueueMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-/* LOCAL FUNCTIONS */
 STATIC INLINE INT32 MqNameCheck(const CHAR *mqName)
 {
     if (mqName == NULL) {
@@ -157,26 +151,25 @@ STATIC struct mqpersonal *DoMqueueCreate(const struct mq_attr *attr, const CHAR 
 
     if (mqueueCB == NULL) {
         errno = EINVAL;
-        goto ERROUT;
+        goto ERROUT_FREE_QUEUE;
     }
 
     if (GetMqueueCBByID(mqueueCB->mq_id, &(mqueueCB->mqcb)) != LOS_OK) {
         errno = ENOSPC;
-        goto ERROUT;
+        goto ERROUT_FREE_QUEUE;
     }
 
     mqueueCB->mq_personal = (struct mqpersonal *)LOS_MemAlloc(OS_SYS_MEM_ADDR, sizeof(struct mqpersonal));
     if (mqueueCB->mq_personal == NULL) {
-        (VOID)LOS_QueueDelete(mqueueCB->mq_id);
         mqueueCB->mqcb->queueHandle = NULL;
         mqueueCB->mqcb = NULL;
         errno = ENOSPC;
-        goto ERROUT;
+        goto ERROUT_FREE_QUEUE;
     }
 
     if (strncpy_s(mqueueCB->mq_name, PATH_MAX, mqName, PATH_MAX - 1) != EOK) {
         errno = EINVAL;
-        goto ERROUT;
+        goto ERROUT_FREE_MEM;
     }
     mqueueCB->unlinkflag = FALSE;
     mqueueCB->mq_personal->mq_status = MQ_USE_MAGIC;
@@ -185,6 +178,12 @@ STATIC struct mqpersonal *DoMqueueCreate(const struct mq_attr *attr, const CHAR 
     mqueueCB->mq_personal->mq_flags = (INT32)((UINT32)openFlag | ((UINT32)attr->mq_flags & (UINT32)FNONBLOCK));
 
     return mqueueCB->mq_personal;
+
+ERROUT_FREE_MEM:
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, mqueueCB->mq_personal);
+    mqueueCB->mq_personal = NULL;
+ERROUT_FREE_QUEUE:
+    (VOID)LOS_QueueDelete(mqueueId);
 ERROUT:
     return (struct mqpersonal *)-1;
 }
@@ -445,7 +444,7 @@ STATIC INLINE BOOL MqParamCheck(mqd_t personal, const char *msg, size_t msgLen)
         return FALSE;
     }
 
-    if ((msg == NULL) || (msgLen == 0)) {
+    if ((msg == NULL) || (msgLen == 0) || (msgLen > UINT_MAX)) {
         errno = EINVAL;
         return FALSE;
     }

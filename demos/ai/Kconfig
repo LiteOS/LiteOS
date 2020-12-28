@@ -1,0 +1,32 @@
+menu "Ai Demo"
+
+config LOSCFG_DEMOS_AI
+    bool "Enable Ai Demo"
+    select LOSCFG_COMPONENTS_AI
+    default n
+    help
+      Answer y to enable ai demo.
+
+config LOSCFG_DEMOS_AI_MNIST
+    bool "Mnist Modle"
+    depends on LOSCFG_DEMOS_AI
+    default n
+
+
+config LOSCFG_DEMOS_AI_MNIST_QUANT
+    bool "Mnist Quant Modle"
+    depends on LOSCFG_DEMOS_AI
+    default n
+
+
+config LOSCFG_DEMOS_AI_MOBILENET
+    bool "Mobilenet Modle"
+    depends on LOSCFG_DEMOS_AI
+    default n
+
+config LOSCFG_DEMOS_AI_RESNET
+    bool "Resnet Modle"
+    depends on LOSCFG_DEMOS_AI
+    default n
+
+endmenu

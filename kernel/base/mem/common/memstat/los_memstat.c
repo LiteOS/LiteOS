@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_memstat_pri.h"
 #include "los_memory_pri.h"
@@ -79,7 +71,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsMemstatTaskClear(Memstat *stat, UINT32 taskId)
     UINT32 record = MIN_TASK_ID(taskId, TASK_NUM - 1);
     TaskMemUsedInfo *taskMemstats = stat->taskMemstats;
 
-    if (taskMemstats[taskId].memUsed != 0) {
+    if (taskMemstats[record].memUsed != 0) {
         PRINT_INFO("mem used of task '%s' is:0x%x, not zero when task being deleted\n",
                    OsCurrTaskGet()->taskName, taskMemstats[record].memUsed);
     }
@@ -104,13 +96,13 @@ UINT32 OsMemTaskUsage(UINT32 taskId)
 #ifndef LOSCFG_MEM_MUL_POOL
     /* If Multi-pool is not enabled, then trace SYSTEM MEM only */
     pool = (LosMemPoolInfo *)OS_SYS_MEM_ADDR;
-    stat = &pool->stat;
+    stat = &(pool->stat);
     return OsMemstatTaskUsage(stat, taskId);
 #else
     UINT32 inUse = 0;
     pool = (LosMemPoolInfo *)OsMemMulPoolHeadGet();
     while (pool != NULL) {
-        stat = &pool->stat;
+        stat = &(pool->stat);
         inUse += OsMemstatTaskUsage(stat, taskId);
         pool = pool->nextPool;
     }
@@ -125,12 +117,12 @@ VOID OsMemTaskClear(UINT32 taskId)
 
 #ifndef LOSCFG_MEM_MUL_POOL
     pool = (LosMemPoolInfo *)OS_SYS_MEM_ADDR;
-    stat = &pool->stat;
+    stat = &(pool->stat);
     OsMemstatTaskClear(stat, taskId);
 #else
     pool = (LosMemPoolInfo *)OsMemMulPoolHeadGet();
     while (pool != NULL) {
-        stat = &pool->stat;
+        stat = &(pool->stat);
         OsMemstatTaskClear(stat, taskId);
         pool = pool->nextPool;
     }

@@ -1,0 +1,13 @@
+menu "Lib"
+
+config LOSCFG_COMPONENTS_LIB
+    bool
+
+config LOSCFG_COMPONENTS_LIB_CJSON
+    bool "Enable cJSON"
+    select LOSCFG_COMPONENTS_LIB
+    default n
+    help
+      Answer y to enable cJSON
+
+endmenu

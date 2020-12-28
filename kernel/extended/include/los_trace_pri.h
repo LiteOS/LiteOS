@@ -25,19 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_TRACE_PRI_H
 #define _LOS_TRACE_PRI_H
 
 #include "los_trace.h"
+#include "los_task_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -45,7 +38,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_TRACE_CONTROL_AGENT == YES)
+#ifdef LOSCFG_TRACE_CONTROL_AGENT
 #define TRACE_CMD_END_CHAR                  0xD
 #endif
 
@@ -60,16 +53,11 @@ extern "C" {
 #define TRACE_VERSION(MODE)                 (0xFFFFFFFF & (MODE))
 #define TRACE_MASK_COMBINE(c1, c2, c3, c4)  (((c1) << 24) | ((c2) << 16) | ((c3) << 8) | (c4))
 
+#define TRACE_GET_MODE_FLAG(type)           ((type) & 0xFFFFFFF0)
+
 extern SPIN_LOCK_S g_traceSpin;
 #define TRACE_LOCK(state)                   LOS_SpinLockSave(&g_traceSpin, &(state))
 #define TRACE_UNLOCK(state)                 LOS_SpinUnlockRestore(&g_traceSpin, (state))
-
-enum TraceStatus {
-    TRACE_UNINIT = 0,
-    TRACE_INITED,
-    TRACE_STARTED,
-    TRACE_STOPED,
-};
 
 enum TraceCmd {
     TRACE_CMD_START = 1,
@@ -98,8 +86,8 @@ typedef struct {
  * struct to store the event infomation
  */
 typedef struct {
-    UINT32 cmd;     /**< trace start or stop cmd */
-    UINT32 param;   /**< magic numb stand for notify msg */
+    UINT32 cmd;     /* trace start or stop cmd */
+    UINT32 param;   /* magic numb stand for notify msg */
 } TraceNotifyFrame;
 
 /**
@@ -108,23 +96,23 @@ typedef struct {
  */
 typedef struct {
     struct WriteCtrl {
-        UINT16 curIndex;            /**< The current record index */
-        UINT16 maxRecordCount;      /**< The max num of track items */
-        UINT16 curObjIndex;         /**< The current obj index */
-        UINT16 maxObjCount;         /**< The max num of obj index */
-        ObjData *objBuf;            /**< Pointer to obj info data */
-        TraceEventFrame *frameBuf;  /**< Pointer to the track items */
+        UINT16 curIndex;            /* The current record index */
+        UINT16 maxRecordCount;      /* The max num of track items */
+        UINT16 curObjIndex;         /* The current obj index */
+        UINT16 maxObjCount;         /* The max num of obj index */
+        ObjData *objBuf;            /* Pointer to obj info data */
+        TraceEventFrame *frameBuf;  /* Pointer to the track items */
     } ctrl;
     OfflineHead *head;
 } TraceOfflineHeaderInfo;
 
-extern UINT32 OsTraceGetMaskTid(const LosTaskCB *tcb);
+extern UINT32 OsTraceGetMaskTid(UINT32 taskId);
 extern VOID OsTraceSetObj(ObjData *obj, const LosTaskCB *tcb);
 extern VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame);
 extern UINT32 OsTraceBufInit(VOID *buf, UINT32 size);
-extern VOID OsTraceObjAdd(UINT32 eventType, const LosTaskCB *tcb);
+extern VOID OsTraceObjAdd(UINT32 eventType, UINT32 taskId);
 extern BOOL OsTraceIsEnable(VOID);
-extern VOID *OsTraceRecordDump(BOOL toClient);
+extern OfflineHead *OsTraceRecordGet(VOID);
 
 #ifdef LOSCFG_RECORDER_MODE_ONLINE
 extern VOID OsTraceSendHead(VOID);
@@ -132,18 +120,20 @@ extern VOID OsTraceSendObjTable(VOID);
 extern VOID OsTraceSendNotify(UINT32 type, UINT32 value);
 
 #define OsTraceNotifyStart() do {                                \
-        OsTraceSendNotify(TRACE_SYS_START, TRACE_CTL_MAGIC_NUM); \
+        OsTraceSendNotify(SYS_START, TRACE_CTL_MAGIC_NUM);       \
         OsTraceSendHead();                                       \
         OsTraceSendObjTable();                                   \
     } while (0)
 
 #define OsTraceNotifyStop() do {                                 \
-        OsTraceSendNotify(TRACE_SYS_STOP, TRACE_CTL_MAGIC_NUM);  \
+        OsTraceSendNotify(SYS_STOP, TRACE_CTL_MAGIC_NUM);        \
     } while (0)
 
 #define OsTraceReset()
+#define OsTraceRecordDump(toClient)
 #else
 extern VOID OsTraceReset(VOID);
+extern VOID OsTraceRecordDump(BOOL toClient);
 #define OsTraceNotifyStart()
 #define OsTraceNotifyStop()
 #endif

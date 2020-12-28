@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch64 Exc Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "arch/exception.h"
 #include "arch/regs.h"
@@ -40,9 +32,13 @@
 #include "los_memory_pri.h"
 #include "los_printf_pri.h"
 #include "los_task_pri.h"
-#include "los_excinfo_pri.h"
+#include "los_exc_pri.h"
 #include "los_stackinfo_pri.h"
 #include "los_mp_pri.h"
+
+#ifdef LOSCFG_KERNEL_TRACE
+#include "los_trace_pri.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -142,7 +138,7 @@ UINT32 ArchSetExcHook(EXC_PROC_FUNC excHook)
     return 0;
 }
 
-VOID BackTraceSub(UINTPTR fp)
+UINT32 ArchBackTraceGet(UINTPTR fp, UINTPTR *callChain, UINT32 maxDepth)
 {
     UINTPTR tmpFp;
     UINTPTR backLr;
@@ -153,13 +149,24 @@ VOID BackTraceSub(UINTPTR fp)
         tmpFp = backFp;
         backFp = *((UINTPTR *)(tmpFp));
         backLr = *((UINTPTR *)(tmpFp + sizeof(CHAR *)));
-        PrintExcInfo("traceback %u -- lr = 0x%llx    fp = 0x%llx\n", count, backLr, backFp);
+
+        if (callChain == NULL) {
+            PrintExcInfo("traceback %u -- lr = 0x%llx    fp = 0x%llx\n", count, backLr, backFp);
+        } else {
+            callChain[count] = backLr;
+        }
 
         count++;
-        if (count == OS_MAX_BACKTRACE) {
+        if (count == maxDepth) {
             break;
         }
     }
+    return count;
+}
+
+STATIC VOID BackTraceSub(UINTPTR fp)
+{
+    (VOID)ArchBackTraceGet(fp, NULL, OS_MAX_BACKTRACE);
 }
 
 STATIC VOID BackTraceWithFp(UINTPTR fp)
@@ -181,7 +188,7 @@ VOID ArchBackTrace(VOID)
     BackTraceWithFp((UINTPTR)NULL);
 }
 
-VOID ArchBackTraceWithSp(VOID *stackPointer)
+VOID ArchBackTraceWithSp(const VOID *stackPointer)
 {
     UINTPTR fp = ArchGetTaskFp(stackPointer);
     BackTraceSub(fp);
@@ -269,8 +276,11 @@ VOID OsExcDumpContext(const ExcContext *excBufAddr)
 #endif
     OsExcStackInfo();
     OsDumpContextMem(excBufAddr);
-#ifdef LOSCFG_KERNEL_MEM_BESTFIT 
+#ifdef LOSCFG_KERNEL_MEM_BESTFIT
     OsMemIntegrityMultiCheck();
+#endif
+#ifdef LOSCFG_KERNEL_TRACE
+    OsTraceRecordDump(FALSE);
 #endif
 }
 
@@ -290,8 +300,8 @@ VOID OsExceptSyncExcHdl(ExcContext *frame)
     HalIrqSendIpi(target, LOS_MP_IPI_HALT);
 #endif
 
-#ifdef LOSCFG_SHELL_EXCINFO
-    log_read_write_fn func = GetExcInfoRW();
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+    LogReadWriteFunc func = OsGetExcInfoRW();
 #endif
 
     g_curNestCount++;
@@ -301,7 +311,7 @@ VOID OsExceptSyncExcHdl(ExcContext *frame)
             g_excHook(0, frame);
         }
 
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
         if (func != NULL) {
             SetExcInfoIndex(0);
         }
@@ -317,23 +327,19 @@ VOID OsExceptSyncExcHdl(ExcContext *frame)
     } else {
         OsCallStackInfo();
     }
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
     if (func != NULL) {
-        PrintExcInfo("Be sure flash space bigger than GetExcInfoIndex():0x%x\n", GetExcInfoIndex());
-        WriteExcInfoToBuf("Be sure flash space bigger than GetExcInfoIndex():0x%x\n", GetExcInfoIndex());
-        func(GetRecordAddr(), GetRecordSpace(), 0, GetExcInfoBuf());
+        PrintExcInfo("Be sure your space bigger than OsOsGetExcInfoOffset():0x%x\n", OsGetExcInfoOffset());
+        func(OsGetExcInfoDumpAddr(), OsGetExcInfoLen(), 0, OsGetExcInfoBuf());
     }
 #endif
 #ifdef LOSCFG_EXC_INTERACTION
-    OsExcInteractionTaskKeep();
+    OsKeepExcInteractionTask();
 #endif
     for (;;) {
         ;
     }
 }
-
-/* stack protector */
-UINT64 __stack_chk_guard = 0x11223344d00a0dff;
 
 #ifdef __cplusplus
 #if __cplusplus

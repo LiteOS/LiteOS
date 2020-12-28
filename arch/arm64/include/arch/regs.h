@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
  * Description: CPU Register Defines Headfile
  * Author: Huawei LiteOS Team
  * Create: 2020-01-14
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_REGS_H
 #define _ARCH_REGS_H
@@ -49,19 +41,19 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_ARCH_SECURE_MONITOR_MODE
-#define RUNLVL 12
-#define SPSR_ELx spsr_el3
-#define ELR_ELx elr_el3
-#define TPIDR_ELx tpidr_el3
-#define ESR_ELx esr_el3
-#define FAR_ELx far_el3
+#define RUNLVL     12
+#define SPSR_ELx   spsr_el3
+#define ELR_ELx    elr_el3
+#define TPIDR_ELx  tpidr_el3
+#define ESR_ELx    esr_el3
+#define FAR_ELx    far_el3
 #else
-#define RUNLVL 4
-#define SPSR_ELx spsr_el1
-#define ELR_ELx elr_el1
-#define TPIDR_ELx tpidr_el1
-#define ESR_ELx esr_el1
-#define FAR_ELx far_el1
+#define RUNLVL     4
+#define SPSR_ELx   spsr_el1
+#define ELR_ELx    elr_el1
+#define TPIDR_ELx  tpidr_el1
+#define ESR_ELx    esr_el1
+#define FAR_ELx    far_el1
 #endif
 
 #ifndef __ASSEMBLER__

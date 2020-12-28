@@ -25,20 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_task_pri.h"
 #include "los_misc_pri.h"
 #include "los_memory_pri.h"
-#ifdef LOSCFG_SHELL_EXCINFO
-#include "los_excinfo_pri.h"
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+#include "los_exc_pri.h"
 #endif
 
 #ifdef __cplusplus
@@ -46,6 +38,26 @@
 extern "C" {
 #endif
 #endif /* __cplusplus */
+
+#ifdef LOSCFG_LIB_CONFIGURABLE
+LITE_OS_SEC_BSS UINT32 g_osSysClock;
+LITE_OS_SEC_BSS UINT32 g_semLimit;
+LITE_OS_SEC_BSS UINT32 g_muxLimit;
+LITE_OS_SEC_BSS UINT32 g_queueLimit;
+
+LITE_OS_SEC_BSS UINT32 g_swtmrLimit;
+LITE_OS_SEC_BSS UINT32 g_taskLimit;
+LITE_OS_SEC_BSS UINT32 g_minusOneTickPerSecond;
+LITE_OS_SEC_BSS UINT32 g_taskMinStkSize;
+LITE_OS_SEC_BSS UINT32 g_taskIdleStkSize;
+LITE_OS_SEC_BSS UINT32 g_taskSwtmrStkSize;
+LITE_OS_SEC_BSS UINT32 g_taskDfltStkSize;
+LITE_OS_SEC_BSS UINT32 g_timeSliceTimeOut;
+
+LITE_OS_SEC_DATA BOOL g_nxEnabled = FALSE;
+LITE_OS_SEC_BSS UINTPTR g_dlNxHeapBase;
+LITE_OS_SEC_BSS UINT32 g_dlNxHeapSize;
+#endif
 
 LITE_OS_SEC_TEXT UINTPTR LOS_Align(UINTPTR addr, UINT32 boundary)
 {
@@ -82,7 +94,7 @@ VOID OsDumpMemByte(size_t length, UINTPTR addr)
     while (dataLen) {
         if (IS_ALIGNED(count, sizeof(CHAR *))) {
             PRINTK("\n 0x%lx :", alignAddr);
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
             WriteExcInfoToBuf("\n 0x%lx :", alignAddr);
 #endif
         }
@@ -91,7 +103,7 @@ VOID OsDumpMemByte(size_t length, UINTPTR addr)
 #else
         PRINTK("%0+8lx ", *alignAddr);
 #endif
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
 #ifdef __LP64__
         WriteExcInfoToBuf("0x%0+16x ", *alignAddr);
 #else
@@ -103,12 +115,56 @@ VOID OsDumpMemByte(size_t length, UINTPTR addr)
         count++;
     }
     PRINTK("\n");
-#ifdef LOSCFG_SHELL_EXCINFO
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
     WriteExcInfoToBuf("\n");
 #endif
 
     return;
 }
+
+#if defined(LOSCFG_DEBUG_SEMAPHORE) || defined(LOSCFG_DEBUG_MUTEX) || defined(LOSCFG_DEBUG_QUEUE)
+VOID OsArraySort(UINT32 *sortArray, UINT32 start, UINT32 end,
+                 const SortParam *sortParam, OsCompareFunc compareFunc)
+{
+    UINT32 left = start;
+    UINT32 right = end;
+    UINT32 idx = start;
+    UINT32 pivot = sortArray[start];
+
+    while (left < right) {
+        while ((left < right) && (sortArray[right] < sortParam->ctrlBlockCnt) && (pivot < sortParam->ctrlBlockCnt) &&
+               compareFunc(sortParam, sortArray[right], pivot)) {
+            right--;
+        }
+
+        if (left < right) {
+            sortArray[left] = sortArray[right];
+            idx = right;
+            left++;
+        }
+
+        while ((left < right) && (sortArray[left] < sortParam->ctrlBlockCnt) && (pivot < sortParam->ctrlBlockCnt) &&
+               compareFunc(sortParam, pivot, sortArray[left])) {
+            left++;
+        }
+
+        if (left < right) {
+            sortArray[right] = sortArray[left];
+            idx = left;
+            right--;
+        }
+    }
+
+    sortArray[idx] = pivot;
+
+    if (start < idx) {
+        OsArraySort(sortArray, start, idx - 1, sortParam, compareFunc);
+    }
+    if (idx < end) {
+        OsArraySort(sortArray, idx + 1, end, sortParam, compareFunc);
+    }
+}
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

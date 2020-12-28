@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Hal Flash HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,47 +24,42 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
- /**@defgroup hal Hardware Abstract Layer
-  * @defgroup hal_flash Flash Interface
-  * @ingroup hal
-  */
+/**
+ * @defgroup hal Hardware Abstract Layer
+ * @defgroup hal_flash Flash Interface
+ * @ingroup hal
+ */
 
-#ifndef _HAL_FLASH_H_
-#define _HAL_FLASH_H_
+#ifndef _HAL_FLASH_H
+#define _HAL_FLASH_H
 
 #include <stdint.h>
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 /**
- *@ingroup hal_flash
- *@brief read data from flash.
+ * @ingroup hal_flash
+ * @brief read data from flash.
  *
- *@par Description:
- *This API is used to read data from flash.
- *@attention none.
+ * @par Description:
+ * This API is used to read data from flash.
+ * @attention none.
  *
- *@param buf            [OUT] buffer to store the data read from flash.
- *@param len            [IN]  the length of the buffer.
- *@param location       [IN]  the address of the flash to read.
+ * @param buf            [OUT] buffer to store the data read from flash.
+ * @param len            [IN]  the length of the buffer.
+ * @param location       [IN]  the address of the flash to read.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see none.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see none.
  */
-int hal_flash_read(void* buf, int32_t len, uint32_t location);
+int hal_flash_read(void *buf, int32_t len, uint32_t location);
 
 /**
  *@ingroup hal_flash
@@ -84,61 +81,63 @@ int hal_flash_read(void* buf, int32_t len, uint32_t location);
 int hal_flash_erase(uint32_t addr, int32_t len);
 
 /**
- *@ingroup hal_flash
- *@brief write data to flash.
+ * @ingroup hal_flash
+ * @brief write data to flash.
  *
- *@par Description:
- *This API is used to write data to flash. You should call @hal_flash_erase before this.
- *location is updated by each call so that you don't need to care about write address
- *if you do sequential write.
- *@attention none.
+ * @par Description:
+ * This API is used to write data to flash. You should call @hal_flash_erase before this.
+ * location is updated by each call so that you don't need to care about write address
+ * if you do sequential write.
+ * @attention none.
  *
- *@param buf            [IN]     the data to be wrote to flash.
- *@param len            [IN]     the length of the buffer.
- *@param location       [IN/OUT] the address of the flash to write.
+ * @param buf            [IN]     the data to be wrote to flash.
+ * @param len            [IN]     the length of the buffer.
+ * @param location       [IN/OUT] the address of the flash to write.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see hal_flash_erase.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see hal_flash_erase.
  */
-int hal_flash_write(const void* buf, int32_t len, uint32_t* location);
+int hal_flash_write(const void *buf, int32_t len, uint32_t *location);
 
 /**
- *@ingroup hal_flash
- *@brief write data to flash.
+ * @ingroup hal_flash
+ * @brief write data to flash.
  *
- *@par Description:
- *This API is used to write data to flash. You don't need to erase or lock flash by this interface.
- *@attention none.
+ * @par Description:
+ * This API is used to write data to flash. You don't need to erase or lock flash by this interface.
+ * @attention none.
  *
- *@param buf            [IN] the data to be wrote to flash.
- *@param len            [IN] the length of the buffer.
- *@param location       [IN] the address of the flash to write.
+ * @param buf            [IN] the data to be wrote to flash.
+ * @param len            [IN] the length of the buffer.
+ * @param location       [IN] the address of the flash to write.
  *
- *@retval #int          0 if succeed or -1 if failed.
- *@par Dependency: none.
- *@see none.
+ * @retval #int          0 if succeed or -1 if failed.
+ * @par Dependency: none.
+ * @see none.
  */
-int hal_flash_erase_write(const void* buf, int32_t len, uint32_t location);
+int hal_flash_erase_write(const void *buf, int32_t len, uint32_t location);
 
 /**
- *@ingroup hal_flash
- *@brief lock flash to prevent data from being destroyed.
+ * @ingroup hal_flash
+ * @brief lock flash to prevent data from being destroyed.
  *
- *@par Description:
- *This API is used to lock flash to prevent data from being destroyed.
- *@attention none.
+ * @par Description:
+ * This API is used to lock flash to prevent data from being destroyed.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval none.
- *@par Dependency: none.
- *@see none.
+ * @retval none.
+ * @par Dependency: none.
+ * @see none.
  */
 void hal_flash_lock(void);
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif  /* _HAL_FLASH_H_ */
+#endif /* _HAL_FLASH_H */

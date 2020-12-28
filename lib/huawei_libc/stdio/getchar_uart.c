@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "string.h"
 #include "los_hwi.h"
@@ -45,11 +37,11 @@ extern int uart_putc(char c);
 
 int do_uart_getc(void)
 {
-    int ret = 0;
+    int ret;
     static char *buf = NULL;
     static int num = 0;
     static int pos = 0;
-    char ch = 0;
+    char ch;
     HalIrqMask(NUM_HAL_INTERRUPT_UART);
     if (buf == NULL) {
         buf = (char *)malloc(INPUT_BUF_SIZE);

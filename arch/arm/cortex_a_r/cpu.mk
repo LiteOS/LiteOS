@@ -33,6 +33,7 @@ LITEOS_CMACRO           += -DLOSCFG_INTERWORK_THUMB
 endif
 
 ARCH_INCLUDE            := -I $(LITEOSTOPDIR)/arch/arm/cortex_a_r/include \
+                           -I $(LITEOSTOPDIR)/arch/arm/cortex_a_r/include/arch \
                            -I $(LITEOSTOPDIR)/arch/arm/cortex_a_r/src/include
 
 LITEOS_PLATFORM_INCLUDE += $(ARCH_INCLUDE)

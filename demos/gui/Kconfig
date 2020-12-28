@@ -8,7 +8,7 @@ config LOSCFG_DEMOS_GUI
     depends on LOSCFG_COMPONENTS_GUI
     select LOSCFG_GUI_ENABLE
     help
-      Answer Y to enable LiteOS support Graphical User Interface demo.
+      Answer y to enable Graphical User Interface demo.
 
    config LOSCFG_GUI_ENABLE
    bool

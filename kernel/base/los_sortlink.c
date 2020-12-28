@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Sort Link
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_sortlink_pri.h"
 #include "los_memory.h"
@@ -41,7 +33,7 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 #endif /* __cplusplus */
 
 #define OS_INVALID_VALUE    0xFFFFFFFF
@@ -266,8 +258,6 @@ LITE_OS_SEC_TEXT VOID OsAdd2SortLink(const SortLinkAttribute *sortLinkHeader, So
 {
     SortLinkList *listSorted = NULL;
     LOS_DL_LIST *listObject = NULL;
-    UINT32 rollNum;
-    UINT32 timeout;
 
     /*
      * huge rollnum could cause carry to invalid high bit
@@ -276,11 +266,8 @@ LITE_OS_SEC_TEXT VOID OsAdd2SortLink(const SortLinkAttribute *sortLinkHeader, So
     if (sortList->idxRollNum > OS_TSK_MAX_ROLLNUM) {
         SET_SORTLIST_VALUE(sortList, OS_TSK_MAX_ROLLNUM);
     }
-    timeout = sortList->idxRollNum;
 
-    rollNum = timeout;
     listObject = sortLinkHeader->sortLink;
-    sortList->idxRollNum = rollNum;
 
     if (listObject->pstNext == listObject) {
         LOS_ListTailInsert(listObject, &sortList->sortLinkNode);
@@ -366,12 +353,24 @@ LITE_OS_SEC_TEXT VOID OsSortLinkUpdateExpireTime(UINT32 sleepTicks, SortLinkAttr
 LITE_OS_SEC_TEXT_MINOR UINT32 OsSortLinkGetTargetExpireTime(const SortLinkAttribute *sortLinkHeader,
                                                             const SortLinkList *targetSortList)
 {
-    return targetSortList->idxRollNum;
+    SortLinkList *listSorted = NULL;
+    LOS_DL_LIST *listObject = NULL;
+    UINT32 rollNum = targetSortList->idxRollNum;
+
+    listObject = sortLinkHeader->sortLink;
+    listSorted = LOS_DL_LIST_ENTRY(listObject->pstNext, SortLinkList, sortLinkNode);
+
+    while (listSorted != targetSortList) {
+        rollNum += listSorted->idxRollNum;
+        listSorted = LOS_DL_LIST_ENTRY((listSorted->sortLinkNode).pstNext, SortLinkList, sortLinkNode);
+    }
+
+    return rollNum;
 }
 #endif /* LOSCFG_BASE_CORE_USE_MULTI_LIST */
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 #endif /* __cplusplus */

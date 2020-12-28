@@ -1,5 +1,5 @@
 ifeq ($(LOSCFG_COMPAT_CMSIS), y)
-    LITEOS_CMSIS_INCLUDE += -I $(LITEOSTOPDIR)/compat/cmsis/include
+    LITEOS_CMSIS_INCLUDE += -I $(LITEOSTOPDIR)/compat/cmsis
 endif
 
 

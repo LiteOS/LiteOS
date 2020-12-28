@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
  * Description: Lock Dependency Check.
  * Author: Huawei LiteOS Team
  * Create: 2018-10-18
@@ -24,14 +24,6 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
 #include "los_base.h"
@@ -89,7 +81,7 @@ STATIC INLINE CHAR *OsLockDepErrorStringGet(enum LockDepErrType type)
         case LOCKDEP_ERR_DEAD_LOCK:
             errorString = "dead lock";
             break;
-        case LOCKDEP_ERR_UNLOCK_WITOUT_LOCK:
+        case LOCKDEP_ERR_UNLOCK_WITHOUT_LOCK:
             errorString = "unlock without lock";
             break;
         case LOCKDEP_ERR_OVERFLOW:
@@ -152,10 +144,10 @@ STATIC VOID OsLockDepDumpLock(const LosTaskCB *task, const SPIN_LOCK_S *lock,
     OsLockDepPanic(errType);
 }
 
-STATIC BOOL OsLockDepCheckDependancy(const LosTaskCB *current, LosTaskCB *lockOwner)
+STATIC BOOL OsLockDepCheckDependancy(const LosTaskCB *current, const LosTaskCB *lockOwner)
 {
     BOOL checkResult = TRUE;
-    SPIN_LOCK_S *lockTemp = NULL;
+    const SPIN_LOCK_S *lockTemp = NULL;
 
     do {
         if (current == lockOwner) {
@@ -173,7 +165,7 @@ STATIC BOOL OsLockDepCheckDependancy(const LosTaskCB *current, LosTaskCB *lockOw
     return checkResult;
 }
 
-VOID OsLockDepCheckIn(SPIN_LOCK_S *lock)
+VOID OsLockDepCheckIn(const SPIN_LOCK_S *lock)
 {
     UINT32 intSave;
     enum LockDepErrType checkResult = LOCKDEP_SUCEESS;
@@ -182,6 +174,9 @@ VOID OsLockDepCheckIn(SPIN_LOCK_S *lock)
     LockDep *lockDep = &current->lockDep;
     LosTaskCB *lockOwner = NULL;
 
+    if (lock == NULL) {
+        return;
+    }
     OsLockDepRequire(&intSave);
 
     if (lockDep->lockDepth >= (INT32)MAX_LOCK_DEPTH) {
@@ -213,7 +208,7 @@ OUT:
          * sequential, there would be more than two tasks can pass the checking, but
          * only one task can successfully obtain the lock.
          */
-        lockDep->waitLock = lock;
+        lockDep->waitLock = (SPIN_LOCK_S *)lock;
         lockDep->heldLocks[lockDep->lockDepth].lockAddr = requestAddr;
         lockDep->heldLocks[lockDep->lockDepth].waitTime = OsLockDepGetCycles(); /* start time */
     } else {
@@ -231,6 +226,9 @@ VOID OsLockDepRecord(SPIN_LOCK_S *lock)
     LockDep *lockDep = &current->lockDep;
     HeldLocks *heldlock = &lockDep->heldLocks[lockDep->lockDepth];
 
+    if (lock == NULL) {
+        return;
+    }
     OsLockDepRequire(&intSave);
 
     /*
@@ -257,19 +255,21 @@ VOID OsLockDepCheckOut(SPIN_LOCK_S *lock)
 {
     UINT32 intSave;
     INT32 depth;
-    enum LockDepErrType checkResult = LOCKDEP_SUCEESS;
     VOID *requestAddr = (VOID *)__builtin_return_address(0);
     LosTaskCB *current = OsCurrTaskGet();
     LosTaskCB *owner = NULL;
     LockDep *lockDep = NULL;
     HeldLocks *heldlocks = NULL;
 
+    if (lock == NULL) {
+        return;
+    }
+
     OsLockDepRequire(&intSave);
 
     owner = lock->owner;
     if (owner == SPINLOCK_OWNER_INIT) {
-        checkResult = LOCKDEP_ERR_UNLOCK_WITOUT_LOCK;
-        OsLockDepDumpLock(current, lock, requestAddr, checkResult);
+        OsLockDepDumpLock(current, lock, requestAddr, LOCKDEP_ERR_UNLOCK_WITHOUT_LOCK);
         goto OUT;
     }
 

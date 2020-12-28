@@ -7,6 +7,6 @@ config LOSCFG_COMPONENTS_GUI
     default y
     depends on LOSCFG_PLATFORM_STM32F769IDISCOVERY
     help
-      Answer Y to enable LiteOS support Graphical User Interface
+      Answer y to enable Graphical User Interface
 
 endmenu

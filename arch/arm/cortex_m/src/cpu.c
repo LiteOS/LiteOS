@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Cortex-M Cpu Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_config.h"
 #include "arch/cpu.h"
@@ -52,9 +44,7 @@ CpuVendor g_cpuTable[] = {
     { 0xC24, "Cortex-M4" },
     { 0xC27, "Cortex-M7" },
     { 0xD21, "Cortex-M33" },
-    { 0, NULL }
 };
-
 
 /* logical cpu mapping */
 UINT64 g_cpuMap[LOSCFG_KERNEL_CORE_NUM] = {
@@ -63,12 +53,11 @@ UINT64 g_cpuMap[LOSCFG_KERNEL_CORE_NUM] = {
 
 const CHAR *ArchCpuInfo(VOID)
 {
-    INT32 i;
     UINT32 midr = OsMainIDGet();
     /* [15:4] is the primary part number */
     UINT32 partNo = (midr & 0xFFF0) >> 0x4;
 
-    for (i = 0; g_cpuTable[i].partNo != 0; i++) {
+    for (UINT32 i = 0; i < (sizeof(g_cpuTable) / sizeof(CpuVendor)); i++) {
         if (partNo == g_cpuTable[i].partNo) {
             return g_cpuTable[i].cpuName;
         }

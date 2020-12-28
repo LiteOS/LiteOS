@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_slab_pri.h"
 
@@ -171,7 +163,7 @@ static BOOL OsSlabMemFreeStrollBuckets(VOID *pool, OsSlabBlockNode *slabNode,
 {
     struct LosSlabControlHeader *slabMem = OsSlabCtrlHdrGet(pool);
     OsSlabMem *slabMemClass = slabClass;
-    OsSlabMemAllocator **bucket = &slabClass->bucket; /* slabMemClass->bucket must not be NULL */
+    OsSlabMemAllocator **bucket = &(slabClass->bucket); /* slabMemClass->bucket must not be NULL */
     OsSlabAllocator *slabAlloc = NULL;
 
     while (*bucket != NULL) {
@@ -187,10 +179,8 @@ static BOOL OsSlabMemFreeStrollBuckets(VOID *pool, OsSlabBlockNode *slabNode,
 
                 slabMemClass->allocatorCnt--;
             }
-
             return TRUE;
         }
-
         bucket = &((*bucket)->next);
     }
 
@@ -208,7 +198,6 @@ static UINT32 OsGetBlkSzStrollBuckets(const OsSlabBlockNode *slabNode, const OsS
         slabAlloc = bucket->slabAlloc;
         if (OsSlabAllocatorCheck(slabAlloc, (VOID *)slabNode) == TRUE) {
             retBlkSz = slabMemClass->blkSz;
-
             return retBlkSz;
         }
         bucket = bucket->next;
@@ -220,20 +209,24 @@ static UINT32 OsGetBlkSzStrollBuckets(const OsSlabBlockNode *slabNode, const OsS
 
 VOID OsSlabMemInit(VOID *pool, UINT32 size)
 {
+    struct LosSlabControlHeader *slabMemHead = OsSlabCtrlHdrGet(pool);
+
+    (VOID)memset_s(slabMemHead, sizeof(struct LosSlabControlHeader), 0,
+                   sizeof(struct LosSlabControlHeader));
     /*
      * Since if the size is not enough to create a SLAB pool, the memory pool
      * still works. We choose not treat that as failure.
      */
     if (size < SLAB_BASIC_NEED_SIZE) {
-        PRINT_INFO("no enough for slab.\n");
+        PRINT_INFO("bad input size\n");
+        return;
     }
 
 #ifdef LOSCFG_KERNEL_MEM_SLAB_AUTO_EXPANSION_MODE
     if (!OsSlabMemBucketInit(pool, size)) {
-        PRINT_INFO("no enough for slab bucket\n");
+        PRINT_INFO("slab bucket init failed\n");
     }
 #else
-    struct LosSlabControlHeader *slabMemHead = OsSlabCtrlHdrGet(pool);
     UINT32 idx, blkSz, blkCnt;
 
     for (idx = 0; idx < SLAB_MEM_COUNT; idx++) {
@@ -244,6 +237,9 @@ VOID OsSlabMemInit(VOID *pool, UINT32 size)
         slabMemHead->slabClass[idx].blkUsedCnt = 0;
         slabMemHead->slabClass[idx].alloc =
             OsSlabAllocatorNew(pool, blkSz + sizeof(OsSlabBlockNode), (UINT32)sizeof(CHAR *), blkCnt);
+        if (slabMemHead->slabClass[idx].alloc == NULL) {
+            PRINT_ERR("slab alloc failed\n");
+        }
     }
 
     /* for multi pool, cfg size should reset */
@@ -338,7 +334,7 @@ VOID OsSlabMemDeinit(VOID *pool)
 #endif
 
     if (pool == NULL) {
-        return ;
+        return;
     }
     slabMem = OsSlabCtrlHdrGet(pool);
 
@@ -370,7 +366,7 @@ VOID OsSlabMemDeinit(VOID *pool)
 
     OsSlabSizeReset();
 
-    return ;
+    return;
 }
 
 UINT32 OsSlabMemCheck(const VOID *pool, VOID* ptr)
@@ -512,7 +508,7 @@ VOID LOS_SlabSizeCfg(UINT32 *cfg, UINT32 cnt)
     INT32 idx;
 
     if ((cfg == NULL) || (cnt != SLAB_MEM_COUNT)) {
-        PRINT_ERR("cfg is NULL, or cnt %d != SLAB_MEM_COUNT\n", cnt);
+        PRINT_ERR("cfg is NULL, or cnt %u != SLAB_MEM_COUNT\n", cnt);
         return;
     }
 

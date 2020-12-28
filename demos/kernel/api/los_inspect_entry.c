@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Demo Inspect Entry
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -44,7 +38,6 @@ extern "C" {
 #include <string.h>
 #include "los_inspect_entry.h"
 #include "los_task.h"
-#include "los_demo_debug.h"
 
 /* task schedule */
 #include "los_api_task.h"
@@ -72,71 +65,63 @@ extern "C" {
 /*****************************************************************************
     global var
  *****************************************************************************/
-static UINT32 gInspectErrCnt = 0;
-static UINT32 g_uwDemoTaskID;
+static UINT32 g_demoInspectErrCnt = 0;
+static UINT32 g_demoTaskId;
 
-static osInspect_Def gInspect[LOS_INSPECT_BUFF] = {
+static osInspect_Def g_inspect[LOS_INSPECT_BUFF] = {
 
-    {LOS_INSPECT_TASK,LOS_INSPECT_STU_START,Example_TskCaseEntry,"TASK"},
+    {LOS_INSPECT_TASK, LOS_INSPECT_STU_START, Example_TskCaseEntry, "task"},
 
-    {LOS_INSPECT_EVENT,LOS_INSPECT_STU_START,Example_SndRcvEvent,"EVENT"},
+    {LOS_INSPECT_DMEM, LOS_INSPECT_STU_START, Example_Dyn_Mem, "dynamic memory"},
 
-    {LOS_INSPECT_MSG,LOS_INSPECT_STU_START,Example_MsgQueue,"MSG"},
+    {LOS_INSPECT_SMEM, LOS_INSPECT_STU_START, Example_StaticMem, "static memory"},
 
-    {LOS_INSPECT_SEM,LOS_INSPECT_STU_START,Example_Semphore,"SEM"},
+    {LOS_INSPECT_INTERRUPT, LOS_INSPECT_STU_START, Example_Interrupt, "interrupt"},
 
-    {LOS_INSPECT_MUTEX,LOS_INSPECT_STU_START,Example_MutexLock,"MUTEX"},
+    {LOS_INSPECT_MSG, LOS_INSPECT_STU_START, Example_MsgQueue, "message queue"},
 
-    {LOS_INSPECT_SYSTIC,LOS_INSPECT_STU_START,Example_GetTick,"SYSTIC"},
+    {LOS_INSPECT_EVENT, LOS_INSPECT_STU_START, Example_SndRcvEvent, "event"},
 
-    {LOS_INSPECT_TIMER,LOS_INSPECT_STU_START,Example_swTimer,"TIMER"},
+    {LOS_INSPECT_MUTEX, LOS_INSPECT_STU_START, Example_MutexLock, "mutex"},
 
-    {LOS_INSPECT_LIST,LOS_INSPECT_STU_START,Example_list,"LIST"},
+    {LOS_INSPECT_SEM, LOS_INSPECT_STU_START, Example_Semphore, "semaphore"},
 
-    {LOS_INSPECT_SMEM,LOS_INSPECT_STU_START,Example_StaticMem,"S_MEM"},
+    {LOS_INSPECT_SYSTIC, LOS_INSPECT_STU_START, Example_GetTick, "systick"},
 
-    {LOS_INSPECT_DMEM,LOS_INSPECT_STU_START,Example_Dyn_Mem,"D_MEM"},
+    {LOS_INSPECT_TIMER, LOS_INSPECT_STU_START, Example_SwTimer, "timer"},
 
-#if (LOSCFG_PLATFORM_HWI == YES)
-    //{LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_START,Example_Interrupt},
-#endif
+    {LOS_INSPECT_LIST, LOS_INSPECT_STU_START, Example_List, "list"},
 
 };
 
 /*****************************************************************************
- Function    : LOS_InspectStatusSetByID
- Description : Set Inspect Status ByID
- Input       : enInspectID  InspectID
+ Function    : LOS_InspectStatusSetById
+ Description : Set InspectStatus by id
+ Input       : enInspectId  InspectId
                enInspectStu InspectStu
  Output      : None
  Return      : None
  *****************************************************************************/
-UINT32 LOS_InspectStatusSetByID(enInspectID InspectID, enInspectStu InspectStu)
+UINT32 LOS_InspectStatusSetById(enInspectId InspectId, enInspectStu InspectStu)
 {
-    UINT32 ulIndex = 0;
+    UINT32 index;
 
-    if (InspectID >= LOS_INSPECT_BUFF)
-    {
-        dprintf("\r\nInspectID = [%d] Err.\r\n", InspectID);
+    if (InspectId >= LOS_INSPECT_BUFF) {
+        printf("\nInspectId = [%d] Err.\n", InspectId);
         return LOS_NOK;
     }
 
-    for (ulIndex = 0; ulIndex < LOS_INSPECT_BUFF; ulIndex++)
-    {
-        if (InspectID == gInspect[ulIndex].InspectID)
-        {
-            gInspect[ulIndex].Status = InspectStu;
+    for (index = 0; index < LOS_INSPECT_BUFF; index++) {
+        if (InspectId == g_inspect[index].InspectId) {
+            g_inspect[index].Status = InspectStu;
             break;
         }
     }
 
-    if (LOS_INSPECT_BUFF == ulIndex)
-    {
-        dprintf("\r\nInspectID = [%d] not find.\r\n",InspectID);
+    if (index == LOS_INSPECT_BUFF) {
+        printf("\nInspectId = [%d] not find.\n", InspectId);
         return LOS_NOK;
-    }
-    else
-    {
+    } else {
         return LOS_OK;
     }
 }
@@ -144,59 +129,48 @@ UINT32 LOS_InspectStatusSetByID(enInspectID InspectID, enInspectStu InspectStu)
 /*****************************************************************************
  Function    : LOS_InspectByID
  Description : Inspect function By ID
- Input       : enInspectID  InspectID
+ Input       : enInspectId  InspectId
  Output      : None
  Return      : LOS_NOK/LOS_OK
  *****************************************************************************/
-UINT32 LOS_InspectByID(enInspectID InspectID)
+UINT32 LOS_InspectByID(enInspectId InspectId)
 {
-    UINT32 ulIndex,ulRet = LOS_OK;
+    UINT32 index;
+    UINT32 ret;
     enInspectStu enCurStatus = LOS_INSPECT_STU_START;
 
-    if (InspectID >= LOS_INSPECT_BUFF)
-    {
-        dprintf("\r\nInspectID = [%d] Err.\r\n",InspectID);
+    if (InspectId >= LOS_INSPECT_BUFF) {
+        printf("\nInspectId = [%d] Err.\n", InspectId);
         return LOS_NOK;
     }
 
-    for (ulIndex = 0; ulIndex < LOS_INSPECT_BUFF; ulIndex++)
-    {
-        if (InspectID == gInspect[ulIndex].InspectID)
-        {
-            if (NULL == gInspect[ulIndex].Inspectfunc)
-            {
-                dprintf("InspectID = [%d] Err,Inspectfunc is NULL.\r\n\r\n", InspectID);
+    for (index = 0; index < LOS_INSPECT_BUFF; index++) {
+        if (InspectId == g_inspect[index].InspectId) {
+            if (g_inspect[index].Inspectfunc == NULL) {
+                printf("InspectId = [%d] Err, Inspectfunc is NULL.\n\n", InspectId);
                 return LOS_NOK;
             }
 
-            ulRet = gInspect[ulIndex].Inspectfunc();
+            ret = g_inspect[index].Inspectfunc();
 
-            do{
-                if ((LOS_INSPECT_STU_SUCCESS == gInspect[ulIndex].Status) && (ulRet == LOS_OK))
-                {
-                    dprintf("Inspect %s success\r\n\r\n",gInspect[ulIndex].name);
+            do {
+                if ((g_inspect[index].Status == LOS_INSPECT_STU_SUCCESS) && (ret == LOS_OK)) {
+                    printf("Kernel %s demo ok.\n\n", g_inspect[index].name);
                     enCurStatus = LOS_INSPECT_STU_SUCCESS;
-                }
-                else if (LOS_INSPECT_STU_ERROR == gInspect[ulIndex].Status)
-                {
+                } else if (g_inspect[index].Status == LOS_INSPECT_STU_ERROR) {
                     enCurStatus = LOS_INSPECT_STU_ERROR;
-                    dprintf("Inspect %s error,gInspectErrCnt = [%d]\r\n\r\n", gInspect[ulIndex].name, gInspectErrCnt);
+                    printf("Inspect %s error, g_demoInspectErrCnt = [%d]\n\n", g_inspect[index].name, g_demoInspectErrCnt);
                 }
 
-                (VOID)LOS_TaskDelay(100);
+                (VOID)LOS_TaskDelay(1000);
 
-            } while ((LOS_INSPECT_STU_START == gInspect[ulIndex].Status) || (enCurStatus != gInspect[ulIndex].Status));
-
+            } while ((g_inspect[index].Status == LOS_INSPECT_STU_START) || (enCurStatus != g_inspect[index].Status));
             break;
         }
     }
-
-    if(LOS_INSPECT_BUFF == ulIndex)
-    {
+    if (index == LOS_INSPECT_BUFF) {
         return LOS_NOK;
-    }
-    else
-    {
+    } else {
         return enCurStatus ? LOS_NOK : LOS_OK;
     }
 }
@@ -210,47 +184,44 @@ UINT32 LOS_InspectByID(enInspectID InspectID)
  *****************************************************************************/
 static VOID LOS_Inspect_TskDeal(VOID)
 {
-    UINT32 ulRet = LOS_OK;
+    UINT32 ret;
     UINT32 index;
-    gInspectErrCnt = 0;
+    g_demoInspectErrCnt = 0;
 
     /* output a message on hyperterminal using printf function */
-    dprintf("\r\nLos Inspect start.\r\n");
+    printf("\nLos Inspect start.\n");
 
-    for(index = 0;index < LOS_INSPECT_BUFF; index++)
-    {
-        ulRet = LOS_InspectByID((enInspectID)index);
-        if(LOS_OK != ulRet)
-        {
-            gInspectErrCnt++;
+    for (index = 0; index < LOS_INSPECT_BUFF; index++) {
+        ret = LOS_InspectByID((enInspectId)index);
+        if (ret != LOS_OK) {
+            g_demoInspectErrCnt++;
         }
     }
 
-    dprintf("Inspect completed,gInspectErrCnt = [%d]\r\n\r\n", gInspectErrCnt);
+    printf("Inspect completed, g_demoInspectErrCnt = %d.\n\n", g_demoInspectErrCnt);
 
-    while(1);
+    while (1);
 }
 
 /*****************************************************************************
- Function    : LOS_Inspect_Entry
+ Function    : KernelDemoInspectEntry
  Description : Create Inspect task
  Input       : None
  Output      : None
  Return      : None
  *****************************************************************************/
-UINT32 LOS_Inspect_Entry(VOID)
+UINT32 KernelDemoInspectEntry(VOID)
 {
-    UINT32 uwRet;
+    UINT32 ret;
     TSK_INIT_PARAM_S stTaskInitParam;
 
     (VOID)memset((VOID *)(&stTaskInitParam), 0, sizeof(TSK_INIT_PARAM_S));
     stTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)LOS_Inspect_TskDeal;
     stTaskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-    stTaskInitParam.pcName = "InspectTsk";
-    stTaskInitParam.usTaskPrio = 9;
-    uwRet = LOS_TaskCreate(&g_uwDemoTaskID, &stTaskInitParam);
-    if (uwRet != LOS_OK)
-    {
+    stTaskInitParam.pcName = "InspectTask";
+    stTaskInitParam.usTaskPrio = 10;
+    ret = LOS_TaskCreate(&g_demoTaskId, &stTaskInitParam);
+    if (ret != LOS_OK) {
         return LOS_NOK;
     }
 

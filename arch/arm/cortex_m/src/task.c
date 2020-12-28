@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch32 Cortex-M Hw Task Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,17 +25,8 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_task_pri.h"
-
 #include "arch/task.h"
 
 #ifdef __cplusplus
@@ -65,37 +56,21 @@ VOID OsTaskEntrySetupLoopFrame(UINT32 arg0)
 }
 #endif
 
-/*****************************************************************************
- Function    : OsTaskExit
- Description : Task exit function
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID)
 {
     __disable_irq();
     while (1) { }
 }
 
-/*****************************************************************************
- Function    : OsTaskStackInit
- Description : Task stack initialization function
- Input       : taskId     --- taskId
-               stackSize  --- Total size of the stack
-               topStack   --- Top of task's stack
- Output      : None
- Return      : Context pointer
- *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT VOID *OsTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack)
 {
-    TaskContext  *taskContext;
+    TaskContext *taskContext = NULL;
 
     OsStackInit(topStack, stackSize);
-    taskContext    = (TaskContext *)(((UINT32)topStack + stackSize) - sizeof(TaskContext));
+    taskContext = (TaskContext *)(((UINTPTR)topStack + stackSize) - sizeof(TaskContext));
 
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED) && (__FPU_USED    == 1U)))
+     (defined (__FPU_USED) && (__FPU_USED == 1U)))
     taskContext->S16 = 0xAA000010;
     taskContext->S17 = 0xAA000011;
     taskContext->S18 = 0xAA000012;
@@ -112,16 +87,16 @@ LITE_OS_SEC_TEXT_INIT VOID *OsTaskStackInit(UINT32 taskId, UINT32 stackSize, VOI
     taskContext->S29 = 0xAA00001D;
     taskContext->S30 = 0xAA00001E;
     taskContext->S31 = 0xAA00001F;
-    taskContext->S0 = 0xAA000000;
-    taskContext->S1 = 0xAA000001;
-    taskContext->S2 = 0xAA000002;
-    taskContext->S3 = 0xAA000003;
-    taskContext->S4 = 0xAA000004;
-    taskContext->S5 = 0xAA000005;
-    taskContext->S6 = 0xAA000006;
-    taskContext->S7 = 0xAA000007;
-    taskContext->S8 = 0xAA000008;
-    taskContext->S9 = 0xAA000009;
+    taskContext->S0  = 0xAA000000;
+    taskContext->S1  = 0xAA000001;
+    taskContext->S2  = 0xAA000002;
+    taskContext->S3  = 0xAA000003;
+    taskContext->S4  = 0xAA000004;
+    taskContext->S5  = 0xAA000005;
+    taskContext->S6  = 0xAA000006;
+    taskContext->S7  = 0xAA000007;
+    taskContext->S8  = 0xAA000008;
+    taskContext->S9  = 0xAA000009;
     taskContext->S10 = 0xAA00000A;
     taskContext->S11 = 0xAA00000B;
     taskContext->S12 = 0xAA00000C;
@@ -132,23 +107,23 @@ LITE_OS_SEC_TEXT_INIT VOID *OsTaskStackInit(UINT32 taskId, UINT32 stackSize, VOI
     taskContext->NO_NAME = 0xAA000011;
 #endif
 
-    taskContext->uwR4  = 0x04040404L;
-    taskContext->uwR5  = 0x05050505L;
-    taskContext->uwR6  = 0x06060606L;
-    taskContext->uwR7  = 0x07070707L;
-    taskContext->uwR8  = 0x08080808L;
-    taskContext->uwR9  = 0x09090909L;
-    taskContext->uwR10 = 0x10101010L;
-    taskContext->uwR11 = 0x11111111L;
-    taskContext->uwPriMask = 0;
-    taskContext->uwR0  = taskId;
-    taskContext->uwR1  = 0x01010101L;
-    taskContext->uwR2  = 0x02020202L;
-    taskContext->uwR3  = 0x03030303L;
-    taskContext->uwR12 = 0x12121212L;
-    taskContext->uwLR  = (UINT32)OsTaskExit;
-    taskContext->uwPC  = (UINT32)OsTaskEntry;
-    taskContext->uwxPSR = 0x01000000L;
+    taskContext->R4  = 0x04040404L;
+    taskContext->R5  = 0x05050505L;
+    taskContext->R6  = 0x06060606L;
+    taskContext->R7  = 0x07070707L;
+    taskContext->R8  = 0x08080808L;
+    taskContext->R9  = 0x09090909L;
+    taskContext->R10 = 0x10101010L;
+    taskContext->R11 = 0x11111111L;
+    taskContext->PriMask = 0;
+    taskContext->R0  = taskId;
+    taskContext->R1  = 0x01010101L;
+    taskContext->R2  = 0x02020202L;
+    taskContext->R3  = 0x03030303L;
+    taskContext->R12 = 0x12121212L;
+    taskContext->LR  = (UINT32)OsTaskExit;
+    taskContext->PC  = (UINT32)OsTaskEntry;
+    taskContext->xPSR = 0x01000000L;
 
     return (VOID *)taskContext;
 }

@@ -25,18 +25,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_hw Hardware
- *  @ingroup kernel
+ * @ingroup kernel
  */
 
 #ifndef _ARCH_TASK_H
@@ -52,6 +44,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#define LOSCFG_STACK_POINT_ALIGN_SIZE (sizeof(UINTPTR) * 2)
+
 extern VOID *g_runTask;
 extern VOID *g_oldTask;
 
@@ -60,14 +54,14 @@ STATIC INLINE VOID *ArchCurrTaskGet(VOID)
     return g_runTask;
 }
 
-STATIC INLINE VOID ArchCurrTaskSet(VOID* val)
+STATIC INLINE VOID ArchCurrTaskSet(VOID *val)
 {
     g_runTask = val;
 }
 
-typedef struct tagTskContext {
+typedef struct tagContext {
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED) && (__FPU_USED    == 1U)))
+     (defined (__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S16;
     UINT32 S17;
     UINT32 S18;
@@ -85,25 +79,25 @@ typedef struct tagTskContext {
     UINT32 S30;
     UINT32 S31;
 #endif
-    UINT32 uwR4;
-    UINT32 uwR5;
-    UINT32 uwR6;
-    UINT32 uwR7;
-    UINT32 uwR8;
-    UINT32 uwR9;
-    UINT32 uwR10;
-    UINT32 uwR11;
-    UINT32 uwPriMask;
-    UINT32 uwR0;
-    UINT32 uwR1;
-    UINT32 uwR2;
-    UINT32 uwR3;
-    UINT32 uwR12;
-    UINT32 uwLR;
-    UINT32 uwPC;
-    UINT32 uwxPSR;
+    UINT32 R4;
+    UINT32 R5;
+    UINT32 R6;
+    UINT32 R7;
+    UINT32 R8;
+    UINT32 R9;
+    UINT32 R10;
+    UINT32 R11;
+    UINT32 PriMask;
+    UINT32 R0;
+    UINT32 R1;
+    UINT32 R2;
+    UINT32 R3;
+    UINT32 R12;
+    UINT32 LR;
+    UINT32 PC;
+    UINT32 xPSR;
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined (__FPU_USED) && (__FPU_USED    == 1U)))
+     (defined (__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S0;
     UINT32 S1;
     UINT32 S2;

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "trace_pipeline.h"
 #include "trace_tlv.h"
@@ -43,6 +35,10 @@
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_pipeSpin);
+#define PIPE_LOCK(state)                   LOS_SpinLockSave(&g_pipeSpin, &(state))
+#define PIPE_UNLOCK(state)                 LOS_SpinUnlockRestore(&g_pipeSpin, (state))
 
 static TlvTable g_traceTlvTblNotify[] = {
     { CMD,    LOS_OFF_SET_OF(TraceNotifyFrame, cmd),   sizeof(UINT32) },
@@ -96,7 +92,6 @@ STATIC VOID DefaultDataSend(UINT16 len, UINT8 *data)
 {
     (VOID)len;
     (VOID)data;
-    return;
 }
 
 STATIC UINT32 DefaultDataReceive(UINT8 *data, UINT32 size, UINT32 timeout)
@@ -128,15 +123,18 @@ VOID OsTracePipelineReg(const TracePipelineOps *ops)
 
 VOID OsTraceDataSend(UINT8 type, UINT16 len, UINT8 *data)
 {
+    UINT32 intSave;
     UINT8 outBuf[LOSCFG_TRACE_TLV_BUF_SIZE] = {0};
 
-    if (type > TRACE_MSG_MAX) {
+    if ((type > TRACE_MSG_MAX) || (len > LOSCFG_TRACE_TLV_BUF_SIZE)) {
         return;
     }
 
     len = OsTraceDataEncode(type, g_traceTlvTbl[type], data, &outBuf[0], sizeof(outBuf));
+
+    PIPE_LOCK(intSave);
     g_tracePipelineOps->dataSend(len, &outBuf[0]);
-    return;
+    PIPE_UNLOCK(intSave);
 }
 
 UINT32 OsTraceDataRecv(UINT8 *data, UINT32 size, UINT32 timeout)

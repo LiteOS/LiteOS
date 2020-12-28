@@ -62,6 +62,7 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
+    __text_start = .;
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
@@ -73,15 +74,18 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
+    __text_end = _etext;
   } >FLASH
 
   /* Constant data goes into FLASH */
   .rodata :
   {
+    __rodata_start = .;
     . = ALIGN(4);
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
+    __rodata_end = .;
   } >FLASH
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
@@ -132,12 +136,15 @@ SECTIONS
   {
     . = ALIGN(4);
     _sdata = .;        /* create a global symbol at data start */
+    __ram_data_start = _sdata;
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
+    KEEP(*( SORT (.liteos.table.*)));
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
     __data_end = _edata;
+    __ram_data_end = _edata;
   } >RAM AT> FLASH
 
 

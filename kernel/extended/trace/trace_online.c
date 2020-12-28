@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
@@ -44,9 +36,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_RECORDER_MODE_ONLINE
-UINT32 OsTraceGetMaskTid(const LosTaskCB *tcb)
+UINT32 OsTraceGetMaskTid(UINT32 taskId)
 {
-    return tcb->taskId;
+    return taskId;
 }
 
 UINT32 OsTraceBufInit(VOID *buf, UINT32 size)
@@ -61,7 +53,7 @@ VOID OsTraceSendHead(VOID)
     TraceBaseHeaderInfo head = {
         .bigLittleEndian = TRACE_BIGLITTLE_WORD,
         .version         = TRACE_VERSION(TRACE_MODE_ONLINE),
-        .clockFreq       = HalClockFreqRead(),
+        .clockFreq       = GET_SYS_CLOCK(),
     };
 
     OsTraceDataSend(HEAD, sizeof(TraceBaseHeaderInfo), (UINT8 *)&head);
@@ -97,15 +89,13 @@ VOID OsTraceSendObjTable(VOID)
         }
         OsTraceSendObj(tcb);
     }
-    return;
 }
 
-VOID OsTraceObjAdd(UINT32 eventType, const LosTaskCB *tcb)
+VOID OsTraceObjAdd(UINT32 eventType, UINT32 taskId)
 {
     if (OsTraceIsEnable()) {
-        OsTraceSendObj(tcb);
+        OsTraceSendObj(OS_TCB_FROM_TID(taskId));
     }
-    return;
 }
 
 VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame)
@@ -113,11 +103,11 @@ VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame)
     OsTraceDataSend(EVENT, sizeof(TraceEventFrame), (UINT8 *)frame);
 }
 
-VOID *OsTraceRecordDump(BOOL toClient)
+OfflineHead *OsTraceRecordGet(VOID)
 {
-    (VOID)toClient;
     return NULL;
 }
+
 #endif /* LOSCFG_RECORDER_MODE_ONLINE */
 
 #ifdef __cplusplus

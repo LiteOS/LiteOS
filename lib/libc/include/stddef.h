@@ -1,6 +1,9 @@
 #ifndef _STDDEF_H
 #define _STDDEF_H
 
+#ifdef __LITEOS__
+#undef NULL
+#endif
 #ifdef __cplusplus
 #define NULL 0L
 #else

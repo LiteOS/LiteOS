@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Pthread struct file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _HWLITEOS_POSIX_PPRIVATE_H
 #define _HWLITEOS_POSIX_PPRIVATE_H
@@ -49,6 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#define ERROR     (-1)
 #define PTHREAD_DATA_NAME_MAX 20
 /*
  * Thread control data structure
@@ -58,12 +51,12 @@ typedef struct _pthread_data_tag {
     pthread_attr_t      attr; /* Current thread attributes */
     pthread_t           id; /* My thread ID */
     LosTaskCB           *task; /* pointer to Huawei LiteOS thread object */
-    CHAR                name[PTHREAD_DATA_NAME_MAX]; /* name string for debugging */
+    CHAR                name[PTHREAD_DATA_NAME_MAX]; /* Thread name */
     UINT8               state; /* Thread state */
     UINT8               cancelstate; /* Cancel state of thread */
     volatile UINT8      canceltype; /* Cancel type of thread */
     volatile UINT8      canceled; /* pending cancel flag */
-    unsigned char tsd_used:1; /* pthread tsd */
+    UINT8 tsd_used : 1; /* pthread tsd */
     struct pthread_cleanup_buffer *cancelbuf; /* cleanup buffer */
     LosSemCB            *joiner; /* sem for pthread_join */
     UINT32              freestack; /* stack malloced, must be freed */

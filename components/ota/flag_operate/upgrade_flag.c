@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Flag Operate Upgrade
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,23 +24,14 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include <stddef.h>
 #include "upgrade_flag.h"
 #include "flag_manager.h"
 #include "ota_crc.h"
 
-typedef struct
-{
+typedef struct {
     upgrade_type_e upgrade_type;
     upgrade_state_e upgrade_state;
     uint32_t image_size;
@@ -63,11 +56,12 @@ int flag_upgrade_init(void)
     uint32_t crc;
 
     ret = flag_read(FLAG_BOOTLOADER, &g_flag, sizeof(upgrade_flag_s));
-    if (ret != 0) return ret;
+    if (ret != 0) {
+        return ret;
+    }
 
     crc = calc_crc32(0, &g_flag, sizeof(upgrade_flag_s) - sizeof(uint32_t));
-    if (crc != g_flag.crc_flag)
-    {
+    if (crc != g_flag.crc_flag) {
         g_flag.upgrade_state = OTA_IDLE;
         g_flag.upgrade_type = UPGRADE_NONE;
         g_flag.recover_verify = 0;
@@ -88,17 +82,21 @@ int flag_set_info(upgrade_type_e upgrade_type, uint32_t image_size)
     return save_flag();
 }
 
-void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size,
-                   uint32_t *old_image_size, upgrade_state_e *upgrade_state)
+void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size, uint32_t *old_image_size,
+                   upgrade_state_e *upgrade_state)
 {
-    if (NULL != upgrade_type)
+    if (upgrade_type != NULL) {
         *upgrade_type = g_flag.upgrade_type;
-    if (NULL != image_size)
+    }
+    if (image_size != NULL) {
         *image_size = g_flag.image_size;
-    if (NULL != old_image_size)
+    }
+    if (old_image_size != NULL) {
         *old_image_size = g_flag.old_image_size;
-    if (NULL != upgrade_state)
+    }
+    if (upgrade_state != NULL) {
         *upgrade_state = g_flag.upgrade_state;
+    }
 }
 
 int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size)
@@ -111,10 +109,12 @@ int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size)
 
 int flag_upgrade_get_result(upgrade_state_e *state)
 {
-    if (NULL != state)
+    if (state != NULL) {
         *state = g_flag.upgrade_state;
-    if (g_flag.upgrade_state == OTA_SUCCEED)
+    }
+    if (g_flag.upgrade_state == OTA_SUCCEED) {
         g_flag.old_image_size = g_flag.image_size;
+    }
     g_flag.upgrade_state = OTA_IDLE;
     g_flag.upgrade_type = UPGRADE_NONE;
 
@@ -131,10 +131,12 @@ int flag_set_recover_verify(uint32_t recover_verify, uint32_t verify_length)
 
 void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length)
 {
-    if (NULL != recover_verify)
+    if (recover_verify != NULL) {
         *recover_verify = g_flag.recover_verify;
-    if (NULL != verify_length)
+    }
+    if (verify_length != NULL) {
         *verify_length = g_flag.verify_length;
+    }
 }
 
 int recover_set_update_fail(void)

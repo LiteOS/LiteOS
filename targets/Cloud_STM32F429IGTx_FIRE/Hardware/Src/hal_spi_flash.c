@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Hal Spi Flash
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "hal_spi_flash.h"
 #include "stm32f4xx.h"
@@ -86,23 +80,20 @@
 #define SPI_FLASH_CS_DISABLE()                     HAL_GPIO_WritePin(SPI_FLASH_CS_PORT, SPI_FLASH_CS_PIN, GPIO_PIN_SET)
 
 #define CHECK_RET_RETURN(ret) \
-    do \
-    { \
-        if ((ret) < 0) \
-        { \
-            return ret; \
-        } \
+    do {                      \
+        if ((ret) < 0) {      \
+            return ret;       \
+        }                     \
     } while (0)
 
 SPI_HandleTypeDef g_spi_flash;
 
 /* This function is called by inner-HAL lib */
-void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    if (hspi->Instance == SPI_FLASH_PERIPHERAL)
-    {
+    if (hspi->Instance == SPI_FLASH_PERIPHERAL) {
         SPI_FLASH_RCC_CLK_ENABLE();
         SPI_FLASH_GPIO_CLK_ENABLE();
         SPI_FLASH_CS_CLK_ENABLE();
@@ -121,10 +112,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 }
 
 /* This function is called by inner-HAL lib */
-void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
-    if (hspi->Instance == SPI_FLASH_PERIPHERAL)
-    {
+    if (hspi->Instance == SPI_FLASH_PERIPHERAL) {
         SPI_FLASH_RCC_CLK_DISABLE();
         HAL_GPIO_DeInit(SPI_FLASH_GPIO_PORT, SPI_FLASH_SCK_PIN | SPI_FLASH_MOSI_PIN | SPI_FLASH_MISO_PIN);
         HAL_GPIO_DeInit(SPI_FLASH_CS_PORT, SPI_FLASH_CS_PIN);
@@ -132,17 +122,15 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     }
 }
 
-static int prv_spi_flash_send_byte(uint8_t send, uint8_t* recv)
+static int prv_spi_flash_send_byte(uint8_t send, uint8_t *recv)
 {
     uint8_t tmp;
     uint8_t t_send = send;
 
-    if (HAL_SPI_TransmitReceive(&g_spi_flash, &t_send, &tmp, 1, HAL_MAX_DELAY) != HAL_OK)
-    {
+    if (HAL_SPI_TransmitReceive(&g_spi_flash, &t_send, &tmp, 1, HAL_MAX_DELAY) != HAL_OK) {
         return -1;
     }
-    if (NULL != recv)
-    {
+    if (recv != NULL) {
         *recv = tmp;
     }
 
@@ -181,12 +169,10 @@ static void prv_spi_flash_wait_write_end(void)
     (void)prv_spi_flash_send_byte(SPI_FLASH_ReadStatusReg, NULL);
 
     /* Loop as long as the memory is busy with a write cycle */
-    do
-    {
+    do {
         /* Send a dummy byte to generate the clock needed by the FLASH
         and put the value of the status register in status variable */
-        if (prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, &status) == -1)
-        {
+        if (prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, &status) == -1) {
             break;
         }
     } while ((status & SPI_FLASH_WIP_FLAG) == SET); /* Write in progress */
@@ -194,25 +180,21 @@ static void prv_spi_flash_wait_write_end(void)
     SPI_FLASH_CS_DISABLE();
 }
 
-static int prv_spi_flash_write_page(const uint8_t* buf, uint32_t addr, int32_t len)
+static int prv_spi_flash_write_page(const uint8_t *buf, uint32_t addr, int32_t len)
 {
     int ret = 0;
     int i;
 
-    if(0 == len)
-    {
+    if (len == 0) {
         return 0;
     }
 
     prv_spi_flash_write_enable();
     SPI_FLASH_CS_ENABLE();
 
-    if ((ret = prv_spi_flash_send_cmd(SPI_FLASH_PageProgram, addr)) != -1)
-    {
-        for (i = 0; i < len; ++i)
-        {
-            if (prv_spi_flash_send_byte(buf[i], NULL) == -1)
-            {
+    if ((ret = prv_spi_flash_send_cmd(SPI_FLASH_PageProgram, addr)) != -1) {
+        for (i = 0; i < len; ++i) {
+            if (prv_spi_flash_send_byte(buf[i], NULL) == -1) {
                 ret = -1;
                 break;
             }
@@ -266,20 +248,15 @@ int hal_spi_flash_erase(uint32_t addr, int32_t len)
     uint32_t end;
     int i;
 
-    if (len < 0
-        || addr > SPI_FLASH_TOTAL_SIZE
-        || addr + len > SPI_FLASH_TOTAL_SIZE)
-    {
+    if ((len < 0) || (addr > SPI_FLASH_TOTAL_SIZE) || (addr + len > SPI_FLASH_TOTAL_SIZE)) {
         return -1;
     }
 
     begin = addr / SPI_FLASH_SECTOR * SPI_FLASH_SECTOR;
     end = (addr + len - 1) / SPI_FLASH_SECTOR * SPI_FLASH_SECTOR;
 
-    for (i = begin; i <= end; i += SPI_FLASH_SECTOR)
-    {
-        if (prv_spi_flash_erase_sector(i) == -1)
-        {
+    for (i = begin; i <= end; i += SPI_FLASH_SECTOR) {
+        if (prv_spi_flash_erase_sector(i) == -1) {
             return -1;
         }
     }
@@ -287,9 +264,9 @@ int hal_spi_flash_erase(uint32_t addr, int32_t len)
     return 0;
 }
 
-int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
+int hal_spi_flash_write(const void *buf, int32_t len, uint32_t *location)
 {
-    const uint8_t* pbuf = (const uint8_t*)buf;
+    const uint8_t *pbuf = (const uint8_t *)buf;
     int page_cnt = 0;
     int remain_cnt = 0;
     int temp = 0;
@@ -299,12 +276,9 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
     int i;
     int ret = 0;
 
-    if (NULL == pbuf
-        || NULL == location
-        || len < 0
-        || *location > SPI_FLASH_TOTAL_SIZE
-        || len + *location > SPI_FLASH_TOTAL_SIZE)
-    {
+    if ((pbuf == NULL) || (location == NULL) || (len < 0) ||
+        (*location > SPI_FLASH_TOTAL_SIZE) ||
+        (len + *location > SPI_FLASH_TOTAL_SIZE)) {
         return -1;
     }
 
@@ -314,17 +288,12 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
     page_cnt = len / SPI_FLASH_PAGESIZE;
     remain_cnt = len % SPI_FLASH_PAGESIZE;
 
-    if (addr == 0) /* addr is aligned to SPI_FLASH_PAGESIZE */
-    {
-        if (page_cnt == 0) /* len < SPI_FLASH_PAGESIZE */
-        {
+    if (addr == 0) {         /* addr is aligned to SPI_FLASH_PAGESIZE */
+        if (page_cnt == 0) { /* len < SPI_FLASH_PAGESIZE */
             ret = prv_spi_flash_write_page(pbuf, loc_addr, len);
             CHECK_RET_RETURN(ret);
-        }
-        else /* len > SPI_FLASH_PAGESIZE */
-        {
-            for (i = 0; i < page_cnt; ++i)
-            {
+        } else { /* len > SPI_FLASH_PAGESIZE */
+            for (i = 0; i < page_cnt; ++i) {
                 ret = prv_spi_flash_write_page(pbuf + i * SPI_FLASH_PAGESIZE, loc_addr, SPI_FLASH_PAGESIZE);
                 CHECK_RET_RETURN(ret);
                 loc_addr += SPI_FLASH_PAGESIZE;
@@ -333,13 +302,9 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
             ret = prv_spi_flash_write_page(pbuf + page_cnt * SPI_FLASH_PAGESIZE, loc_addr, remain_cnt);
             CHECK_RET_RETURN(ret);
         }
-    }
-    else /* addr is not aligned to SPI_FLASH_PAGESIZE */
-    {
-        if (page_cnt == 0) /* len < SPI_FLASH_PAGESIZE */
-        {
-            if (remain_cnt > count) /* (len + loc_addr) > SPI_FLASH_PAGESIZE */
-            {
+    } else {                          /* addr is not aligned to SPI_FLASH_PAGESIZE */
+        if (page_cnt == 0) {          /* len < SPI_FLASH_PAGESIZE */
+            if (remain_cnt > count) { /* (len + loc_addr) > SPI_FLASH_PAGESIZE */
                 temp = remain_cnt - count;
 
                 ret = prv_spi_flash_write_page(pbuf, loc_addr, count);
@@ -347,15 +312,11 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
 
                 ret = prv_spi_flash_write_page(pbuf + count, loc_addr + count, temp);
                 CHECK_RET_RETURN(ret);
-            }
-            else
-            {
+            } else {
                 ret = prv_spi_flash_write_page(pbuf, loc_addr, len);
                 CHECK_RET_RETURN(ret);
             }
-        }
-        else /* len > SPI_FLASH_PAGESIZE */
-        {
+        } else { /* len > SPI_FLASH_PAGESIZE */
             len -= count;
             page_cnt = len / SPI_FLASH_PAGESIZE;
             remain_cnt = len % SPI_FLASH_PAGESIZE;
@@ -364,15 +325,13 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
             CHECK_RET_RETURN(ret);
             loc_addr += count;
 
-            for (i = 0; i < page_cnt; ++i)
-            {
+            for (i = 0; i < page_cnt; ++i) {
                 ret = prv_spi_flash_write_page(pbuf + count + i * SPI_FLASH_PAGESIZE, loc_addr, SPI_FLASH_PAGESIZE);
                 CHECK_RET_RETURN(ret);
                 loc_addr += SPI_FLASH_PAGESIZE;
             }
 
-            if (remain_cnt != 0)
-            {
+            if (remain_cnt != 0) {
                 ret = prv_spi_flash_write_page(pbuf + count + page_cnt * SPI_FLASH_PAGESIZE, loc_addr, remain_cnt);
                 CHECK_RET_RETURN(ret);
             }
@@ -383,7 +342,7 @@ int hal_spi_flash_write(const void* buf, int32_t len, uint32_t* location)
     return ret;
 }
 
-int hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location)
+int hal_spi_flash_erase_write(const void *buf, int32_t len, uint32_t location)
 {
     int ret = 0;
 
@@ -394,28 +353,21 @@ int hal_spi_flash_erase_write(const void* buf, int32_t len, uint32_t location)
     return ret;
 }
 
-int hal_spi_flash_read(void* buf, int32_t len, uint32_t location)
+int hal_spi_flash_read(void *buf, int32_t len, uint32_t location)
 {
     int ret = 0;
     int i;
-    uint8_t* pbuf = (uint8_t*)buf;
+    uint8_t *pbuf = (uint8_t *)buf;
 
-    if (NULL == pbuf
-        || len < 0
-        || location > SPI_FLASH_TOTAL_SIZE
-        || len + location > SPI_FLASH_TOTAL_SIZE)
-    {
+    if ((pbuf == NULL) || (len < 0) || (location > SPI_FLASH_TOTAL_SIZE) || (len + location > SPI_FLASH_TOTAL_SIZE)) {
         return -1;
     }
 
     SPI_FLASH_CS_ENABLE();
 
-    if ((ret = prv_spi_flash_send_cmd(SPI_FLASH_ReadData, location)) != -1)
-    {
-        for (i = 0; i < len; ++i)
-        {
-            if (prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, pbuf + i) == -1)
-            {
+    if ((ret = prv_spi_flash_send_cmd(SPI_FLASH_ReadData, location)) != -1) {
+        for (i = 0; i < len; ++i) {
+            if (prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, pbuf + i) == -1) {
                 ret = -1;
                 break;
             }
@@ -435,8 +387,7 @@ int hal_spi_flash_get_id(void)
 
     SPI_FLASH_CS_ENABLE();
 
-    if (prv_spi_flash_send_byte(SPI_FLASH_JedecDeviceID, NULL) != -1)
-    {
+    if (prv_spi_flash_send_byte(SPI_FLASH_JedecDeviceID, NULL) != -1) {
         (void)prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, &tmp1);
         (void)prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, &tmp2);
         (void)prv_spi_flash_send_byte(SPI_FLASH_DUMMY_BYTE, &tmp3);

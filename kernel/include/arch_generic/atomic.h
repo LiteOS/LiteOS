@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch32 Atomic HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,22 +25,14 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_atomic Atomic
  * @ingroup kernel
  */
 
-#ifndef __ARCH_GENERIC_ATOMIC_H
-#define __ARCH_GENERIC_ATOMIC_H
+#ifndef _ARCH_GENERIC_ATOMIC_H
+#define _ARCH_GENERIC_ATOMIC_H
 
 #include "los_typedef.h"
 #include "los_hwi.h"
@@ -214,32 +206,6 @@ STATIC INLINE INT64 ArchAtomic64DecRet(Atomic64 *v)
     return val;
 }
 
-STATIC INLINE INT32 ArchAtomicXchgByte(volatile INT8 *v, INT32 val)
-{
-    UINT32 intSave;
-    INT32 prevVal;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    *v = val;
-    LOS_IntRestore(intSave);
-
-    return prevVal;
-}
-
-STATIC INLINE INT32 ArchAtomicXchg16bits(volatile INT16 *v, INT32 val)
-{
-    UINT32 intSave;
-    INT32 prevVal;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    *v = val;
-    LOS_IntRestore(intSave);
-
-    return prevVal;
-}
-
 STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
 {
     UINT32 intSave;
@@ -264,36 +230,6 @@ STATIC INLINE INT64 ArchAtomicXchg64bits(Atomic64 *v, INT64 val)
     LOS_IntRestore(intSave);
 
     return prevVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchgByte(volatile INT8 *v, INT32 val, INT32 oldVal)
-{
-    UINT32 intSave;
-    INT32 prevVal;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    if (prevVal == oldVal) {
-        *v = val;
-    }
-    LOS_IntRestore(intSave);
-
-    return (prevVal != oldVal);
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchg16bits(volatile INT16 *v, INT32 val, INT32 oldVal)
-{
-    UINT32 intSave;
-    INT32 prevVal;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    if (prevVal == oldVal) {
-        *v = val;
-    }
-    LOS_IntRestore(intSave);
-
-    return (prevVal != oldVal);
 }
 
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
@@ -336,4 +272,4 @@ STATIC INLINE BOOL ArchAtomicCmpXchg64bits(Atomic64 *v, INT64 val, INT64 oldVal)
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* __ARCH_GENERIC_ATOMIC_H */
+#endif /* _ARCH_GENERIC_ATOMIC_H */

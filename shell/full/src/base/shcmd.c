@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "shcmd.h"
 #include "stdlib.h"
@@ -91,10 +83,298 @@ STATIC VOID OsCompleteStr(CHAR *result, const CHAR *target, CHAR *cmdKey, UINT32
     }
 }
 
+#ifdef LOSCFG_FS_VFS
+STATIC INT32 OsStrSeparateTabStrGet(CHAR **tabStr, CmdParsed *parsed, UINT32 tabStrLen)
+{
+    CHAR *shiftStr = NULL;
+    CHAR *tempStr = (CHAR *)LOS_MemAlloc(m_aucSysMem0, SHOW_MAX_LEN << 1);
+    if (tempStr == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    (VOID)memset_s(tempStr, SHOW_MAX_LEN << 1, 0, SHOW_MAX_LEN << 1);
+    shiftStr = tempStr + SHOW_MAX_LEN;
+
+    if (strncpy_s(tempStr, SHOW_MAX_LEN, *tabStr, tabStrLen) != EOK) {
+        (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+        return (INT32)OS_ERROR;
+    }
+
+    parsed->cmdType = CMD_TYPE_STD;
+
+    /* cut useless or repeat space */
+    if (OsCmdKeyShift(tempStr, shiftStr, SHOW_MAX_LEN)) {
+        (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+        return (INT32)OS_ERROR;
+    }
+
+    /* get exact position of string to complete situation different if end space lost or still exist */
+    if ((strlen(shiftStr) == 0) || (tempStr[strlen(tempStr) - 1] != shiftStr[strlen(shiftStr) - 1])) {
+        *tabStr = "";
+    } else {
+        if (OsCmdTokenSplit(shiftStr, ' ', parsed)) {
+            (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+            return (INT32)OS_ERROR;
+        }
+        *tabStr = parsed->paramArray[parsed->paramCnt - 1];
+    }
+
+    (VOID)LOS_MemFree(m_aucSysMem0, tempStr);
+    return LOS_OK;
+}
+
+STATIC INT32 OsStrSeparate(CHAR *tabStr, CHAR *strPath, CHAR *nameLooking, UINT32 tabStrLen)
+{
+    CHAR *strEnd = NULL;
+    CHAR *cutPos = NULL;
+    CmdParsed parsed = {0};
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirectory();
+    INT32 ret;
+
+    ret = OsStrSeparateTabStrGet(&tabStr, &parsed, tabStrLen);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    /* get fullpath str */
+    if (*tabStr != '/') {
+        if (strncpy_s(strPath, CMD_MAX_PATH, shellWorkingDirectory, CMD_MAX_PATH - 1) != EOK) {
+            OsFreeCmdPara(&parsed);
+            return (INT32)OS_ERROR;
+        }
+        if (strcmp(shellWorkingDirectory, "/")) {
+            if (strncat_s(strPath, CMD_MAX_PATH, "/", CMD_MAX_PATH - strlen(strPath) - 1) != EOK) {
+                OsFreeCmdPara(&parsed);
+                return (INT32)OS_ERROR;
+            }
+        }
+    }
+
+    if (strncat_s(strPath, CMD_MAX_PATH, tabStr, CMD_MAX_PATH - strlen(strPath) - 1) != EOK) {
+        OsFreeCmdPara(&parsed);
+        return (INT32)OS_ERROR;
+    }
+
+    /* split str by last '/' */
+    strEnd = strrchr(strPath, '/');
+    if (strEnd != NULL) {
+        if (strncpy_s(nameLooking, CMD_MAX_PATH, strEnd + 1, CMD_MAX_PATH - 1) != EOK) { /* get cmp str */
+            OsFreeCmdPara(&parsed);
+            return (INT32)OS_ERROR;
+        }
+    }
+
+    cutPos = strrchr(strPath, '/');
+    if (cutPos != NULL) {
+        *(cutPos + 1) = '\0';
+    }
+
+    OsFreeCmdPara(&parsed);
+    return LOS_OK;
+}
+
+STATIC INT32 OsShowPageInputControl(VOID)
+{
+    CHAR readChar;
+
+    while (1) {
+        if (read(STDIN_FILENO, &readChar, 1) != 1) { /* get one CHAR */
+            PRINTK("\n");
+            return (INT32)OS_ERROR;
+        }
+        if ((readChar == 'q') || (readChar == 'Q') || (readChar == CTRL_C)) {
+            PRINTK("\n");
+            return NO;
+        } else if (readChar == '\r') {
+            PRINTK("\b \b\b \b\b \b\b \b\b \b\b \b\b \b\b \b");
+            return YES; /* input end */
+        }
+    }
+}
+
+STATIC INT32 OsShowPageControl(UINT32 timesPrint, UINT32 lineCap, UINT32 count)
+{
+    if (NEED_NEW_LINE(timesPrint, lineCap)) {
+        PRINTK("\n");
+        if (SCREEN_IS_FULL(timesPrint, lineCap) && (timesPrint < count)) {
+            PRINTK("--More--");
+            return OsShowPageInputControl();
+        }
+    }
+    return YES;
+}
+
+STATIC INT32 OsSurePrintAll(UINT32 count)
+{
+    CHAR readChar = 0;
+    PRINTK("\nDisplay all %u possibilities?(y/n)", count);
+    while (1) {
+        if (read(STDIN_FILENO, &readChar, 1) != 1) {
+            return (INT32)OS_ERROR;
+        }
+        if ((readChar == 'n') || (readChar == 'N') || (readChar == CTRL_C)) {
+            PRINTK("\n");
+            return NO;
+        } else if ((readChar == 'y') || (readChar == 'Y') || (readChar == '\r')) {
+            return YES;
+        }
+    }
+}
+
+STATIC INT32 OsPrintMatchList(UINT32 count, const CHAR *strPath, const CHAR *nameLooking, UINT32 printLen)
+{
+    UINT32 timesPrint = 0;
+    UINT32 lineCap;
+    INT32 ret;
+    DIR *openDir = NULL;
+    struct dirent *readDir = NULL;
+    CHAR formatChar[10] = {0}; /* 10:for formatChar length */
+
+    printLen = (printLen > (DEFAULT_SCREEN_WIDTH - 2)) ? (DEFAULT_SCREEN_WIDTH - 2) : printLen; /* 2:revered 2 bytes */
+    lineCap = DEFAULT_SCREEN_WIDTH / (printLen + 2); /* 2:DEFAULT_SCREEN_WIDTH revered 2 bytes */
+    if (snprintf_s(formatChar, sizeof(formatChar), 7, "%%-%us  ", printLen) < 0) { /* 7:format-len */
+        return (INT32)OS_ERROR;
+    }
+
+    if (count > (lineCap * DEFAULT_SCREEN_HEIGHT)) {
+        ret = OsSurePrintAll(count);
+        if (ret != YES) {
+            return ret;
+        }
+    }
+    openDir = opendir(strPath);
+    if (openDir == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    PRINTK("\n");
+    for (readDir = readdir(openDir); readDir != NULL; readDir = readdir(openDir)) {
+        if (strncmp(nameLooking, readDir->d_name, strlen(nameLooking)) != 0) {
+            continue;
+        }
+        PRINTK(formatChar, readDir->d_name);
+        timesPrint++;
+        ret = OsShowPageControl(timesPrint, lineCap, count);
+        if (ret != YES) {
+            if (closedir(openDir) < 0) {
+                return (INT32)OS_ERROR;
+            }
+            return ret;
+        }
+    }
+
+    PRINTK("\n");
+    if (closedir(openDir) < 0) {
+        return (INT32)OS_ERROR;
+    }
+
+    return LOS_OK;
+}
+
+STATIC VOID StrncmpCut(const CHAR *s1, CHAR *s2, size_t n)
+{
+    if ((n == 0) || (s1 == NULL) || (s2 == NULL)) {
+        return;
+    }
+    do {
+        if (*s1 && *s2 && (*s1 == *s2)) {
+            s1++;
+            s2++;
+        } else {
+            break;
+        }
+    } while (--n != 0);
+    if (n > 0) {
+        /* NULL pad the remaining n-1 bytes */
+        while (n-- != 0) {
+            *s2++ = '\0';
+        }
+    }
+    return;
+}
+
+STATIC INT32 OsExecNameMatch(const CHAR *strPath, const CHAR *nameLooking, CHAR *strObj, UINT32 *maxLen)
+{
+    INT32 count = 0;
+    DIR *openDir = NULL;
+    struct dirent *readDir = NULL;
+
+    openDir = opendir(strPath);
+    if (openDir == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    for (readDir = readdir(openDir); readDir != NULL; readDir = readdir(openDir)) {
+        if (strncmp(nameLooking, readDir->d_name, strlen(nameLooking)) != 0) {
+            continue;
+        }
+        if (count == 0) {
+            if (strncpy_s(strObj, CMD_MAX_PATH, readDir->d_name, CMD_MAX_PATH - 1) != EOK) {
+                (VOID)closedir(openDir);
+                return (INT32)OS_ERROR;
+            }
+            *maxLen = strlen(readDir->d_name);
+        } else {
+            /* strncmp&cut the same strings of name matched */
+            StrncmpCut(readDir->d_name, strObj, strlen(strObj));
+            if (strlen(readDir->d_name) > *maxLen) {
+                *maxLen = strlen(readDir->d_name);
+            }
+        }
+        count++;
+    }
+
+    if (closedir(openDir) < 0) {
+        return (INT32)OS_ERROR;
+    }
+
+    return count;
+}
+
+STATIC INT32 OsTabMatchFile(CHAR *cmdKey, UINT32 *len)
+{
+    UINT32 maxLen = 0;
+    INT32 count;
+    CHAR *strOutput = NULL;
+    CHAR *strCmp = NULL;
+    CHAR *dirOpen = (CHAR *)LOS_MemAlloc(m_aucSysMem0, CMD_MAX_PATH * 3); /* 3:dirOpen\strOutput\strCmp */
+    if (dirOpen == NULL) {
+        return (INT32)OS_ERROR;
+    }
+
+    (VOID)memset_s(dirOpen, CMD_MAX_PATH * 3, 0, CMD_MAX_PATH * 3); /* 3:dirOpen\strOutput\strCmp */
+    strOutput = dirOpen + CMD_MAX_PATH;
+    strCmp = strOutput + CMD_MAX_PATH;
+
+    if (OsStrSeparate(cmdKey, dirOpen, strCmp, *len)) {
+        (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+        return (INT32)OS_ERROR;
+    }
+
+    count = OsExecNameMatch(dirOpen, strCmp, strOutput, &maxLen);
+    /* one or more matched */
+    if (count >= 1) {
+        OsCompleteStr(strOutput, strCmp, cmdKey, len);
+
+        if (count == 1) {
+            (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+            return 1;
+        }
+        if (OsPrintMatchList((UINT32)count, dirOpen, strCmp, maxLen) == -1) {
+            (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+            return (INT32)OS_ERROR;
+        }
+    }
+
+    (VOID)LOS_MemFree(m_aucSysMem0, dirOpen);
+    return count;
+}
+#else
 STATIC INT32 OsTabMatchFile(CHAR *cmdKey, UINT32 *len)
 {
     return 0;
 }
+#endif
 
 STATIC INT32 OsTabMatchCmd(CHAR *cmdKey, UINT32 *len)
 {
@@ -357,7 +637,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsShellKeyLinkDeInit(CmdKeyLink *cmdKeyLink)
     (VOID)LOS_MemFree(m_aucSysMem0, cmdKeyLink);
 }
 
-LITE_OS_SEC_TEXT_MINOR VOID OsShellKeyDeInit(ShellCB *shellCB)
+LITE_OS_SEC_TEXT_MINOR VOID OsShellKeyDeInit(const ShellCB *shellCB)
 {
     OsShellKeyLinkDeInit(shellCB->cmdKeyLink);
     OsShellKeyLinkDeInit(shellCB->cmdHistoryKeyLink);
@@ -371,7 +651,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellSysCmdRegister(VOID)
     CmdItemNode *cmdItem = NULL;
 
     cmdItemGroup = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, index * sizeof(CmdItemNode));
-
     if (cmdItemGroup == NULL) {
         PRINT_ERR("[%s]System memory allocation failure!\n", __FUNCTION__);
         return (UINT32)OS_ERROR;
@@ -543,7 +822,6 @@ STATIC UINT32 OsCmdItemCreate(CmdType cmdType, CHAR *cmdKey, UINT32 paraNum, Cmd
 LITE_OS_SEC_TEXT_MINOR UINT32 osCmdReg(CmdType cmdType, CHAR *cmdKey, UINT32 paraNum, CmdCallBackFunc cmdProc)
 {
     CmdItemNode *cmdItemNode = NULL;
-    printf("1111111111111111111111\n");
 
     (VOID)LOS_MuxPend(g_cmdInfo.muxLock, LOS_WAIT_FOREVER);
     if (g_cmdInfo.initMagicFlag != SHELL_INIT_MAGIC_FLAG) {
@@ -576,6 +854,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 osCmdReg(CmdType cmdType, CHAR *cmdKey, UINT32 par
         }
     }
     (VOID)LOS_MuxPost(g_cmdInfo.muxLock);
+
     return OsCmdItemCreate(cmdType, cmdKey, paraNum, cmdProc);
 }
 

@@ -58,18 +58,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
+
+#ifdef __LITEOS__
 #include "los_sys.h"
 #include "cmsis_os.h"
+#endif
 
 /** @addtogroup STM32F7xx_HAL_Driver
   * @{
@@ -336,11 +331,10 @@ __weak void HAL_IncTick(void)
   */
 __weak uint32_t HAL_GetTick(void)
 {
-#ifdef _USE_FreeRTOS
-  return uwTick;
-#else
+#ifdef __LITEOS__
   return LOS_TickCountGet();
-  return 0;
+#else
+  return uwTick;
 #endif
 }
 

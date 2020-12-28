@@ -1,9 +1,9 @@
 menu "Lib"
+    depends on !LOSCFG_ARCH_XTENSA
 
 config LOSCFG_LIB_LIBC
     bool "Enable Libc"
     default y
-    select LOSCFG_BASE_CORE_SWTMR
     help
       Answer Y to enable LiteOS support libc.
 
@@ -12,6 +12,8 @@ config  LOSCFG_COMPAT_POSIX
     default y
     depends on LOSCFG_LIB_LIBC
     select LOSCFG_BASE_IPC_MUX
+    select LOSCFG_BASE_IPC_SEM
+    select LOSCFG_BASE_CORE_SWTMR
     help
       Answer Y to enable LiteOS support posix interface.
 
@@ -30,6 +32,13 @@ config LOSCFG_LIB_STDIO
     select LOSCFG_LIB_LIBM
     help
       Answer Y to enable LiteOS support I/O function.
+
+config LOSCFG_SUPPORT_LONG_DOUBLE
+    bool "Support Long Double Float Type"
+    default y
+    depends on LOSCFG_LIB_STDIO || LOSCFG_LIB_LIBM || LOSCFG_COMPAT_POSIX
+    help
+      Answer Y to enable LiteOS support long double float type.
 
 config LOSCFG_LIB_ZLIB
     bool "Enable Zlib"

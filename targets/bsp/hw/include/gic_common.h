@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _GIC_COMMON_H
 #define _GIC_COMMON_H
@@ -59,18 +51,18 @@ enum {
 #define GIC_REV_OFFSET                  0x4
 
 #ifdef LOSCFG_PLATFORM_BSP_GIC_V2
-#define GICC_CTLR                       (GICC_OFFSET + 0x00)            /* CPU Interface Control Register */
-#define GICC_PMR                        (GICC_OFFSET + 0x04)            /* Interrupt Priority Mask Register */
-#define GICC_BPR                        (GICC_OFFSET + 0x08)            /* Binary Point Register */
-#define GICC_IAR                        (GICC_OFFSET + 0x0c)            /* Interrupt Acknowledge Register */
-#define GICC_EOIR                       (GICC_OFFSET + 0x10)            /* End of Interrupt Register */
-#define GICC_RPR                        (GICC_OFFSET + 0x14)            /* Running Priority Register */
-#define GICC_HPPIR                      (GICC_OFFSET + 0x18)            /* Highest Priority Pending Interrupt Register */
+#define GICC_CTLR                       (GICC_OFFSET + 0x00)    /* CPU Interface Control Register */
+#define GICC_PMR                        (GICC_OFFSET + 0x04)    /* Interrupt Priority Mask Register */
+#define GICC_BPR                        (GICC_OFFSET + 0x08)    /* Binary Point Register */
+#define GICC_IAR                        (GICC_OFFSET + 0x0c)    /* Interrupt Acknowledge Register */
+#define GICC_EOIR                       (GICC_OFFSET + 0x10)    /* End of Interrupt Register */
+#define GICC_RPR                        (GICC_OFFSET + 0x14)    /* Running Priority Register */
+#define GICC_HPPIR                      (GICC_OFFSET + 0x18)    /* Highest Priority Pending Interrupt Register */
 #endif
 
-#define GICD_CTLR                       (GICD_OFFSET + 0x000)           /* Distributor Control Register*/
-#define GICD_TYPER                      (GICD_OFFSET + 0x004)           /* Interrupt Controller Type Register */
-#define GICD_IIDR                       (GICD_OFFSET + 0x008)           /* Distributor Implementer Identification Register */
+#define GICD_CTLR                       (GICD_OFFSET + 0x000)   /* Distributor Control Register */
+#define GICD_TYPER                      (GICD_OFFSET + 0x004)   /* Interrupt Controller Type Register */
+#define GICD_IIDR                       (GICD_OFFSET + 0x008)   /* Distributor Implementer Identification Register */
 #define GICD_IGROUPR(n)                 (GICD_OFFSET + 0x080 + (n) * 4) /* Interrupt Group Registers */
 #define GICD_ISENABLER(n)               (GICD_OFFSET + 0x100 + (n) * 4) /* Interrupt Set-Enable Registers */
 #define GICD_ICENABLER(n)               (GICD_OFFSET + 0x180 + (n) * 4) /* Interrupt Clear-Enable Registers */
@@ -82,8 +74,8 @@ enum {
 #define GICD_ITARGETSR(n)               (GICD_OFFSET + 0x800 + (n) * 4) /* Interrupt Processor Targets Registers */
 #define GICD_ICFGR(n)                   (GICD_OFFSET + 0xc00 + (n) * 4) /* Interrupt Configuration Registers */
 #define GICD_SGIR                       (GICD_OFFSET + 0xf00)           /* Software Generated Interrupt Register */
-#define GICD_CPENDSGIR(n)               (GICD_OFFSET + 0xf10 + (n) * 4) /* SGI Clear-Pending Registers; NOT available on cortex-a9*/
-#define GICD_SPENDSGIR(n)               (GICD_OFFSET + 0xf20 + (n) * 4) /* SGI Set-Pending Registers; NOT available on cortex-a9*/
+#define GICD_CPENDSGIR(n)               (GICD_OFFSET + 0xf10 + (n) * 4) /* SGI Clear-Pending Registers; */
+#define GICD_SPENDSGIR(n)               (GICD_OFFSET + 0xf20 + (n) * 4) /* SGI Set-Pending Registers; */
 #define GICD_PIDR2V2                    (GICD_OFFSET + 0xfe8)
 #define GICD_PIDR2V3                    (GICD_OFFSET + 0xffe8)
 
@@ -137,4 +129,4 @@ enum {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif
+#endif /* _GIC_COMMON_H */

@@ -1,5 +1,5 @@
-/* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
+/* ----------------------------------------------------------------------------RCH_ATOMIC_H
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Atomic Operations HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,22 +25,14 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_atomic Atomic
  * @ingroup kernel
  */
 
-#ifndef __ARCH_ATOMIC_H
-#define __ARCH_ATOMIC_H
+#ifndef _ARCH_ATOMIC_H
+#define _ARCH_ATOMIC_H
 
 #include "los_typedef.h"
 
@@ -332,76 +324,6 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
 
 /**
  * @ingroup  los_atomic
- * @brief Atomic exchange for 8-bit variable.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 8-bit variable and
- * return the previous value of the atomic variable.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v         [IN] The variable pointer.
- * @param  val       [IN] The exchange value.
- *
- * @retval #INT32       The previous value of the atomic variable
- * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- * @since Huawei LiteOS V200R003C00
- */
-STATIC INLINE INT32 ArchAtomicXchgByte(volatile INT8 *v, INT32 val)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("ldrexb   %0, [%3]\n"
-                             "strexb   %1, %4, [%3]"
-                             : "=&r"(prevVal), "=&r"(status), "+m"(*v)
-                             : "r"(v), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal;
-}
-
-/**
- * @ingroup  los_atomic
- * @brief Atomic exchange for 16-bit variable.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 16-bit variable and
- * return the previous value of the atomic variable.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v         [IN] The variable pointer.
- * @param  val       [IN] The exchange value.
- *
- * @retval #INT32       The previous value of the atomic variable
- * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- * @since Huawei LiteOS V200R003C00
- */
-STATIC INLINE INT32 ArchAtomicXchg16bits(volatile INT16 *v, INT32 val)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("ldrexh   %0, [%3]\n"
-                             "strexh   %1, %4, [%3]"
-                             : "=&r"(prevVal), "=&r"(status), "+m"(*v)
-                             : "r"(v), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal;
-}
-
-/**
- * @ingroup  los_atomic
  * @brief Atomic exchange for 32-bit variable.
  *
  * @par Description:
@@ -433,86 +355,6 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
     } while (__builtin_expect(status != 0, 0));
 
     return prevVal;
-}
-
-/**
- * @ingroup  los_atomic
- * @brief Atomic exchange for 8-bit variable with compare.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 8-bit variable, if the value of variable is equal to oldVal.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v       [IN] The variable pointer.
- * @param  val     [IN] The new value.
- * @param  oldVal  [IN] The old value.
- *
- * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
- * @retval FALSE The previous value of the atomic variable is equal to oldVal.
- * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- * @since Huawei LiteOS V200R003C00
- */
-STATIC INLINE BOOL ArchAtomicCmpXchgByte(volatile INT8 *v, INT32 val, INT32 oldVal)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("1: ldrexb %0, %2\n"
-                             "    mov %1, #0\n"
-                             "    cmp %0, %3\n"
-                             "    bne 2f\n"
-                             "    strexb %1, %4, %2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal != oldVal;
-}
-
-/**
- * @ingroup  los_atomic
- * @brief Atomic exchange for 16-bit variable with compare.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 16-bit variable, if the value of variable is equal to oldVal.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v       [IN] The variable pointer.
- * @param  val     [IN] The new value.
- * @param  oldVal  [IN] The old value.
- *
- * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
- * @retval FALSE The previous value of the atomic variable is equal to oldVal.
- * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- * @since Huawei LiteOS V200R003C00
- */
-STATIC INLINE BOOL ArchAtomicCmpXchg16bits(volatile INT16 *v, INT32 val, INT32 oldVal)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("1: ldrexh %0, %2\n"
-                             "    mov %1, #0\n"
-                             "    cmp %0, %3\n"
-                             "    bne 2f\n"
-                             "    strexh %1, %4, %2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal != oldVal;
 }
 
 /**
@@ -602,34 +444,6 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
     return ArchAtomicSub(v, 1);;
 }
 
-STATIC INLINE INT32 ArchAtomicXchgByte(volatile INT8 *v, INT32 val)
-{
-    UINT32 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    /* In order to avoid sign extension instructions, first cast the data to unsigned data! */
-    prevVal = (UINT32)*(volatile UINT8 *)v;
-    *v = (INT8)val;
-    LOS_IntRestore(intSave);
-
-    return (INT32)prevVal;
-}
-
-STATIC INLINE INT32 ArchAtomicXchg16bits(volatile INT16 *v, INT32 val)
-{
-    UINT32 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    /* In order to avoid sign extension instructions, first cast the data to unsigned data! */
-    prevVal = (UINT32)*(volatile UINT16 *)v;
-    *v = (INT16)val;
-    LOS_IntRestore(intSave);
-
-    return (INT32)prevVal;
-}
-
 STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
 {
     INT32 prevVal;
@@ -641,38 +455,6 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
     LOS_IntRestore(intSave);
 
     return prevVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchgByte(volatile INT8 *v, INT32 val, INT32 oldVal)
-{
-    UINT32 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    /* In order to avoid sign extension instructions, first cast the data to unsigned data! */
-    prevVal = (UINT32)*(volatile UINT8 *)v;
-    if (prevVal == (UINT32)oldVal) {
-        *v = (INT8)val;
-    }
-    LOS_IntRestore(intSave);
-
-    return prevVal != (UINT32)oldVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchg16bits(volatile INT16 *v, INT32 val, INT32 oldVal)
-{
-    INT32 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    /* In order to avoid sign extension instructions, first cast the data to unsigned data! */
-    prevVal = (UINT32)*(volatile UINT16 *)v;
-    if (prevVal == (UINT32)oldVal) {
-        *v = val;
-    }
-    LOS_IntRestore(intSave);
-
-    return prevVal != (UINT32)oldVal;
 }
 
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
@@ -691,7 +473,6 @@ STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
 }
 
 #endif /* __ARM_ARCH */
-
 
 STATIC INLINE INT64 ArchAtomic64Read(const Atomic64 *v)
 {
@@ -794,4 +575,4 @@ STATIC INLINE BOOL ArchAtomicCmpXchg64bits(Atomic64 *v, INT64 val, INT64 oldVal)
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* __LOS_ATOMIC_H__ */
+#endif /* _ARCH_ATOMIC_H */

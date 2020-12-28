@@ -25,20 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_sem_debug_pri.h"
 #include "stdlib.h"
 #include "los_typedef.h"
 #include "los_task_pri.h"
-#include "los_ipcdebug_pri.h"
+#include "los_misc_pri.h"
 #ifdef LOSCFG_SHELL
 #include "shcmd.h"
 #endif /* LOSCFG_SHELL */
@@ -49,9 +41,8 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
+#ifdef LOSCFG_DEBUG_SEMAPHORE
 #define OS_ALL_SEM_MASK 0xffffffff
-
-#if defined(LOSCFG_DEBUG_SEMAPHORE) || defined(LOSCFG_SHELL)
 STATIC VOID OsSemPendedTaskNamePrint(LosSemCB *semNode)
 {
     LosTaskCB *tskCB = NULL;
@@ -83,9 +74,6 @@ STATIC VOID OsSemPendedTaskNamePrint(LosSemCB *semNode)
     }
     PRINTK("\n");
 }
-#endif
-
-#ifdef LOSCFG_DEBUG_SEMAPHORE
 
 typedef struct {
     UINT16  origSemCount;   /* Number of original available semaphores */
@@ -94,7 +82,7 @@ typedef struct {
 } SemDebugCB;
 STATIC SemDebugCB *g_semDebugArray = NULL;
 
-STATIC BOOL SemCompareValue(const IpcSortParam *sortParam, UINT32 left, UINT32 right)
+STATIC BOOL SemCompareValue(const SortParam *sortParam, UINT32 left, UINT32 right)
 {
     return (*((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, left)) >
             *((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, right)));
@@ -135,10 +123,10 @@ STATIC VOID OsSemSort(UINT32 *semIndexArray, UINT32 usedCount)
     LosSemCB *semCB = NULL;
     LosSemCB semNode = {0};
     SemDebugCB semDebug = {0};
-    IpcSortParam semSortParam;
+    SortParam semSortParam;
     semSortParam.buf = (CHAR *)g_semDebugArray;
-    semSortParam.ipcDebugCBSize = sizeof(SemDebugCB);
-    semSortParam.ipcDebugCBCnt = LOSCFG_BASE_IPC_SEM_LIMIT;
+    semSortParam.ctrlBlockSize = sizeof(SemDebugCB);
+    semSortParam.ctrlBlockCnt = LOSCFG_BASE_IPC_SEM_LIMIT;
     semSortParam.sortElemOff = OFFSET_OF_FIELD(SemDebugCB, lastAccessTime);
 
     /* It will Print out ALL the Used Semaphore List. */
@@ -147,7 +135,7 @@ STATIC VOID OsSemSort(UINT32 *semIndexArray, UINT32 usedCount)
     PRINTK("   ------   ------   -------------   ------------------    --------------   \n");
 
     SCHEDULER_LOCK(intSave);
-    OsArraySortByTime(semIndexArray, 0, usedCount - 1, &semSortParam, SemCompareValue);
+    OsArraySort(semIndexArray, 0, usedCount - 1, &semSortParam, SemCompareValue);
     SCHEDULER_UNLOCK(intSave);
     for (i = 0; i < usedCount; i++) {
         semCB = GET_SEM(semIndexArray[i]);
@@ -218,7 +206,6 @@ UINT32 OsSemInfoGetFullData(VOID)
     }
     return LOS_OK;
 }
-#endif /* LOSCFG_DEBUG_SEMAPHORE */
 
 #ifdef LOSCFG_SHELL
 STATIC UINT32 OsSemInfoOutput(size_t semId)
@@ -278,23 +265,18 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdSemInfoGet(UINT32 argc, const CHAR **arg
     UINT32 ret;
 
     if (argc > 1) {
-#ifdef LOSCFG_DEBUG_SEMAPHORE
         PRINTK("\nUsage: sem [fulldata|ID]\n");
-#else
-        PRINTK("\nUsage: sem [ID]\n");
-#endif
         return OS_ERROR;
     }
 
     if (argc == 0) {
         semId = OS_ALL_SEM_MASK;
     } else {
-#ifdef LOSCFG_DEBUG_SEMAPHORE
         if (strcmp(argv[0], "fulldata") == 0) {
             ret = OsSemInfoGetFullData();
             return ret;
         }
-#endif
+
         semId = strtoul(argv[0], &endPtr, 0);
         if ((endPtr == NULL) || (*endPtr != 0)) {
             PRINTK("\nsem ID can't access %s.\n", argv[0]);
@@ -307,7 +289,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdSemInfoGet(UINT32 argc, const CHAR **arg
 }
 
 SHELLCMD_ENTRY(sem_shellcmd, CMD_TYPE_EX, "sem", 1, (CmdCallBackFunc)OsShellCmdSemInfoGet);
-#endif
+#endif /* LOSCFG_SHELL */
+#endif /* LOSCFG_DEBUG_SEMAPHORE */
 
 #ifdef __cplusplus
 #if __cplusplus

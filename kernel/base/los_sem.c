@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_sem_pri.h"
 #include "los_sem_debug_pri.h"
@@ -41,18 +33,13 @@
 #include "los_spinlock.h"
 #include "los_mp_pri.h"
 #include "los_percpu_pri.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif
 #endif /* __cplusplus */
-
-#if (LOSCFG_BASE_IPC_SEM == YES)
-
-#if (LOSCFG_BASE_IPC_SEM_LIMIT <= 0)
-#error "sem maxnum cannot be zero"
-#endif /* LOSCFG_BASE_IPC_SEM_LIMIT <= 0 */
 
 LITE_OS_SEC_DATA_INIT STATIC LOS_DL_LIST g_unusedSemList;
 LITE_OS_SEC_BSS LosSemCB *g_allSem = NULL;
@@ -118,6 +105,8 @@ LITE_OS_SEC_TEXT_INIT STATIC UINT32 OsSemCreate(UINT16 count, UINT8 type, UINT32
     OsSemDbgUpdateHook(semCreated->semId, OsCurrTaskGet()->taskEntry, count);
 
     SCHEDULER_UNLOCK(intSave);
+
+    LOS_TRACE(SEM_CREATE, semCreated->semId, type, count);
     return LOS_OK;
 }
 
@@ -191,6 +180,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SemDelete(UINT32 semHandle)
 
 OUT:
     SCHEDULER_UNLOCK(intSave);
+
+    LOS_TRACE(SEM_DELETE, semHandle, ret);
     return ret;
 }
 
@@ -205,6 +196,8 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout)
     if (ret != LOS_OK) {
         return ret;
     }
+
+    LOS_TRACE(SEM_PEND, semHandle, semPended->semCount, timeout);
 
     if (OS_INT_ACTIVE) {
         return LOS_ERRNO_SEM_PEND_INTERR;
@@ -273,6 +266,8 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
         return ret;
     }
 
+    LOS_TRACE(SEM_POST, semHandle, semPosted->semType, semPosted->semCount);
+
     SCHEDULER_LOCK(intSave);
 
     ret = OsSemStateVerify(semHandle, semPosted);
@@ -305,8 +300,6 @@ OUT:
     SCHEDULER_UNLOCK(intSave);
     return ret;
 }
-
-#endif /* (LOSCFG_BASE_IPC_SEM == YES) */
 
 #ifdef __cplusplus
 #if __cplusplus

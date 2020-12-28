@@ -1,50 +1,58 @@
-/*************************************************************************
-	> File Name: it_membox_performance.c
-	> Author: 
-	> Mail: 
-	> Created Time: Mon 27 Jul 2015 04:55:25 PM CST
- ************************************************************************/
-
-#include<stdio.h>
+#include "los_config.h"
 #include "los_membox.h"
+#include <stdlib.h>
 
-VOID los_membox_test(void) {
-    UINT32 *p_num = NULL;
-    UINT32 uwBlkSize = 10, uwBoxSize = 100;
-    UINT32 uwRet;
-    UINT32 pBoxMem[1000];
-    uwRet = LOS_MemboxInit( &pBoxMem[0], uwBoxSize, uwBlkSize);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("内存池初始化失败!\n");
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+VOID Example_StaticMem(VOID)
+{
+    UINT32 *mem = NULL;
+    UINT32 blkSize = 10;
+    UINT32 boxSize = 100;
+    UINT32 boxMem[1000];
+    UINT32 ret;
+
+    ret = LOS_MemboxInit(&boxMem[0], boxSize, blkSize);
+    if(ret != LOS_OK) {
+        printf("内存池初始化失败!\n");
         return;
-    }
-    else{
-        dprintf("内存池初始化成功!\n");
+    } else {
+        printf("内存池初始化成功!\n");
     }
     
     /*申请内存块*/
-    p_num = (int*)LOS_MemboxAlloc(pBoxMem);
-    if (NULL == p_num) {
-        dprintf("内存分配失败!\n");
+    mem = (UINT32 *)LOS_MemboxAlloc(boxMem);
+    if (NULL == mem) {
+        printf("内存分配失败!\n");
         return;
     }
-    dprintf("内存分配成功\n");
+    printf("内存分配成功\n");
+
     /*赋值*/
-    *p_num = 828;
-    dprintf("*p_num = %d\n", *p_num);
+    *mem = 828;
+    printf("*mem = %d\n", *mem);
+
      /*清除内存内容*/
-     LOS_MemboxClr(pBoxMem, p_num);
-     dprintf("清除内存内容成功\n *p_num = %d\n", *p_num);
+     LOS_MemboxClr(boxMem, mem);
+     printf("清除内存内容成功\n *mem = %d\n", *mem);
+
     /*释放内存*/
-    uwRet = LOS_MemboxFree(pBoxMem, p_num);
-    if (LOS_OK == uwRet) {
-        dprintf("内存释放成功!\n");
+    ret = LOS_MemboxFree(boxMem, mem);
+    if (LOS_OK == ret) {
+        printf("内存释放成功!\n");
+    } else {
+        printf("内存释放失败!\n");
     }
-    else{
-        dprintf("内存释放失败!\n");
-    }
-	return;
+
+    return;
 }
 
-
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */

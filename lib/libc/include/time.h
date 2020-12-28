@@ -12,6 +12,9 @@ extern "C" {
 
 #include <features.h>
 
+#ifdef __LITEOS__
+#undef NULL
+#endif
 #ifdef __cplusplus
 #define NULL 0L
 #else

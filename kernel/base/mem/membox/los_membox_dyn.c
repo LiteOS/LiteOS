@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "string.h"
 #include "securec.h"
@@ -63,10 +55,6 @@ UINT32 LOS_MemboxInit(VOID *pool, UINT32 poolSize, UINT32 blkSize)
 
     /* Initialize memory block system, returns 0 if OK, 1 if fails. */
     if (blkSize == 0) {
-        return LOS_NOK;
-    }
-
-    if (poolSize < sizeof(LOS_MEMBOX_INFO)) {
         return LOS_NOK;
     }
 
@@ -129,27 +117,27 @@ UINT32 LOS_MemboxFree(VOID *pool, VOID *box)
 VOID LOS_MemboxClr(VOID *pool, VOID *box)
 {
     LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    UINT32 intSave;
 
     if ((pool == NULL) || (box == NULL)) {
         PRINT_WARN("LOS_MemboxClr : invalid parameter!\n");
         return;
     }
 
+    MEMBOX_LOCK(intSave);
     (VOID)memset_s(box, boxInfo->uwBlkSize, 0, boxInfo->uwBlkSize);
+    MEMBOX_UNLOCK(intSave);
 }
 
 VOID LOS_ShowBox(VOID *pool)
 {
     LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
-    UINT32 intSave;
 
     if (pool == NULL) {
         return;
     }
 
-    MEMBOX_LOCK(intSave);
     PRINTK("membox(%p,0x%x,0x%x):\r\n", pool, boxInfo->uwBlkSize, boxInfo->uwBlkNum);
-    MEMBOX_UNLOCK(intSave);
 }
 
 UINT32 LOS_MemboxStatisticsGet(const VOID *boxMem, UINT32 *maxBlk, UINT32 *blkCnt, UINT32 *blkSize)

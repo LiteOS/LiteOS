@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
@@ -49,14 +41,9 @@ extern "C" {
 LITE_OS_SEC_BSS STATIC TraceOfflineHeaderInfo g_traceRecoder;
 LITE_OS_SEC_BSS STATIC UINT32 g_tidMask[LOSCFG_BASE_CORE_TSK_LIMIT] = {0};
 
-STATIC UINT32 OsTraceSetMaskTid(UINT32 tid)
+UINT32 OsTraceGetMaskTid(UINT32 tid)
 {
-    return tid | (g_tidMask[tid] << BITS_NUM_FOR_TASK_ID); /* tid < 65535 */
-}
-
-UINT32 OsTraceGetMaskTid(const LosTaskCB *tcb)
-{
-    return (tcb != NULL) ? OsTraceSetMaskTid(tcb->taskId) : 0xFFFFFFFF;
+    return tid | ((tid < LOSCFG_BASE_CORE_TSK_LIMIT) ? g_tidMask[tid] << BITS_NUM_FOR_TASK_ID : 0); /* tid < 65535 */
 }
 
 UINT32 OsTraceBufInit(VOID *buf, UINT32 size)
@@ -80,7 +67,7 @@ UINT32 OsTraceBufInit(VOID *buf, UINT32 size)
     g_traceRecoder.head = (OfflineHead *)buf;
     g_traceRecoder.head->baseInfo.bigLittleEndian = TRACE_BIGLITTLE_WORD;
     g_traceRecoder.head->baseInfo.version         = TRACE_VERSION(TRACE_MODE_OFFLINE);
-    g_traceRecoder.head->baseInfo.clockFreq       = HalClockFreqRead();
+    g_traceRecoder.head->baseInfo.clockFreq       = GET_SYS_CLOCK();
     g_traceRecoder.head->objSize                  = sizeof(ObjData);
     g_traceRecoder.head->frameSize                = sizeof(TraceEventFrame);
     g_traceRecoder.head->objOffset                = sizeof(OfflineHead);
@@ -97,7 +84,7 @@ UINT32 OsTraceBufInit(VOID *buf, UINT32 size)
     return LOS_OK;
 }
 
-VOID OsTraceObjAdd(UINT32 eventType, const LosTaskCB *tcb)
+VOID OsTraceObjAdd(UINT32 eventType, UINT32 taskId)
 {
     UINT32 intSave;
     UINT32 index;
@@ -112,9 +99,11 @@ VOID OsTraceObjAdd(UINT32 eventType, const LosTaskCB *tcb)
     }
     obj = &g_traceRecoder.ctrl.objBuf[index];
 
-    g_tidMask[tcb->taskId]++;
+    if (taskId < LOSCFG_BASE_CORE_TSK_LIMIT) {
+        g_tidMask[taskId]++;
+    }
 
-    OsTraceSetObj(obj, tcb);
+    OsTraceSetObj(obj, OS_TCB_FROM_TID(taskId));
 
     g_traceRecoder.ctrl.curObjIndex++;
     if (g_traceRecoder.ctrl.curObjIndex >= g_traceRecoder.ctrl.maxObjCount) {
@@ -122,7 +111,6 @@ VOID OsTraceObjAdd(UINT32 eventType, const LosTaskCB *tcb)
     }
     /* add obj end */
     TRACE_UNLOCK(intSave);
-    return;
 }
 
 VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame)
@@ -141,28 +129,6 @@ VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame)
     TRACE_UNLOCK(intSave);
 }
 
-VOID *OsTraceRecordDump(BOOL toClient)
-{
-    UINT32 i;
-    ObjData *obj = NULL;
-    TraceEventFrame *frame = NULL;
-
-    if (toClient) {
-        OsTraceDataSend(HEAD, sizeof(OfflineHead), (UINT8 *)g_traceRecoder.head);
-
-        obj = &g_traceRecoder.ctrl.objBuf[0];
-        for (i = 0; i < g_traceRecoder.ctrl.maxObjCount; i++) {
-            OsTraceDataSend(OBJ, sizeof(ObjData), (UINT8 *)(obj + i));
-        }
-
-        frame = &g_traceRecoder.ctrl.frameBuf[0];
-        for (i = 0; i < g_traceRecoder.ctrl.maxRecordCount; i++) {
-            OsTraceDataSend(EVENT, sizeof(TraceEventFrame), (UINT8 *)(frame + i));
-        }
-    }
-    return (VOID *)g_traceRecoder.head;
-}
-
 VOID OsTraceReset(VOID)
 {
     UINT32 intSave;
@@ -173,6 +139,120 @@ VOID OsTraceReset(VOID)
     (VOID)memset_s(g_traceRecoder.ctrl.frameBuf, bufLen, 0, bufLen);
     g_traceRecoder.ctrl.curIndex = 0;
     TRACE_UNLOCK(intSave);
+}
+
+STATIC VOID OsTraceInfoObj(VOID)
+{
+    UINT32 i;
+    ObjData *obj = &g_traceRecoder.ctrl.objBuf[0];
+
+    if (g_traceRecoder.ctrl.maxObjCount > 0) {
+        PRINTK("CurObjIndex = %u\n", g_traceRecoder.ctrl.curObjIndex);
+        PRINTK("Index   TaskID   TaskPrio   TaskName \n");
+        for (i = 0; i < g_traceRecoder.ctrl.maxObjCount; i++, obj++) {
+            PRINTK("%-7u 0x%-6x %-10u %s\n", i, obj->id, obj->prio, obj->name);
+        }
+        PRINTK("\n");
+    }
+}
+
+STATIC VOID OsTraceInfoEventTitle(VOID)
+{
+    PRINTK("CurEvtIndex = %u\n", g_traceRecoder.ctrl.curIndex);
+
+    PRINTK("Index   Time(cycles)      EventType      CurTask   Identity      ");
+#if (LOSCFG_TRACE_FRAME_CORE_MSG == YES)
+    PRINTK("cpuId    hwiActive    taskLockCnt    ");
+#endif
+#if (LOSCFG_TRACE_FRAME_EVENT_COUNT == YES)
+    PRINTK("eventCount    ");
+#endif
+    if (LOSCFG_TRACE_FRAME_MAX_PARAMS > 0) {
+        PRINTK("params    ");
+    }
+    PRINTK("\n");
+}
+
+STATIC VOID OsTraceInfoEventData(VOID)
+{
+    UINT32 i, j;
+    TraceEventFrame *frame = &g_traceRecoder.ctrl.frameBuf[0];
+
+    for (i = 0; i < g_traceRecoder.ctrl.maxRecordCount; i++, frame++) {
+        PRINTK("%-7u 0x%-15llx 0x%-12x 0x%-7x 0x%-11x ", i, frame->curTime, frame->eventType,
+            frame->curTask, frame->identity);
+#if (LOSCFG_TRACE_FRAME_CORE_MSG == YES)
+        UINT32 taskLockCnt = frame->core.taskLockCnt;
+#ifdef LOSCFG_KERNEL_SMP
+        /*
+         * For smp systems, TRACE_LOCK will requst taskLock, and this counter
+         * will increase by 1 in that case.
+         */
+        taskLockCnt -= 1;
+#endif
+        PRINTK("%-11u %-11u %-11u", frame->core.cpuId, frame->core.hwiActive, taskLockCnt);
+#endif
+#if (LOSCFG_TRACE_FRAME_EVENT_COUNT == YES)
+        PRINTK("%-11u", frame->eventCount);
+#endif
+        for (j = 0; j < LOSCFG_TRACE_FRAME_MAX_PARAMS; j++) {
+            PRINTK("0x%-11x", frame->params[j]);
+        }
+        PRINTK("\n");
+    }
+}
+
+STATIC VOID OsTraceInfoDisplay(VOID)
+{
+    OfflineHead *head = g_traceRecoder.head;
+
+    PRINTK("*******TraceInfo begin*******\n");
+    PRINTK("clockFreq = %u\n", head->baseInfo.clockFreq);
+
+    OsTraceInfoObj();
+
+    OsTraceInfoEventTitle();
+    OsTraceInfoEventData();
+
+    PRINTK("*******TraceInfo end*******\n");
+}
+
+#ifdef LOSCFG_TRACE_CLIENT_INTERACT
+STATIC VOID OsTraceSendInfo(VOID)
+{
+    UINT32 i;
+    ObjData *obj = NULL;
+    TraceEventFrame *frame = NULL;
+
+    OsTraceDataSend(HEAD, sizeof(OfflineHead), (UINT8 *)g_traceRecoder.head);
+
+    obj = &g_traceRecoder.ctrl.objBuf[0];
+    for (i = 0; i < g_traceRecoder.ctrl.maxObjCount; i++) {
+        OsTraceDataSend(OBJ, sizeof(ObjData), (UINT8 *)(obj + i));
+    }
+
+    frame = &g_traceRecoder.ctrl.frameBuf[0];
+    for (i = 0; i < g_traceRecoder.ctrl.maxRecordCount; i++) {
+        OsTraceDataSend(EVENT, sizeof(TraceEventFrame), (UINT8 *)(frame + i));
+    }
+}
+#endif
+
+VOID OsTraceRecordDump(BOOL toClient)
+{
+    if (!toClient) {
+        OsTraceInfoDisplay();
+        return;
+    }
+
+#ifdef LOSCFG_TRACE_CLIENT_INTERACT
+    OsTraceSendInfo();
+#endif
+}
+
+OfflineHead *OsTraceRecordGet(VOID)
+{
+    return g_traceRecoder.head;
 }
 
 #endif /* LOSCFG_RECORDER_MODE_OFFLINE */

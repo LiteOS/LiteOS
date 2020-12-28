@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2018. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
  * Description: Multi-Core Private HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2018-07-11
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_MP_PRI_H
 #define _LOS_MP_PRI_H
@@ -40,6 +32,7 @@
 #include "los_typedef.h"
 #include "los_toolchain.h"
 #include "los_config.h"
+#include "los_list.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -55,9 +48,14 @@ typedef enum {
     LOS_MP_IPI_WAKEUP,
     LOS_MP_IPI_SCHEDULE,
     LOS_MP_IPI_HALT,
+#ifdef LOSCFG_KERNEL_SMP_CALL
+    LOS_MP_IPI_FUNC_CALL,
+#endif
 } MP_IPI_TYPE;
 
-#if (LOSCFG_KERNEL_SMP == YES)
+typedef VOID (*SMP_FUNC_CALL)(VOID *args);
+
+#ifdef LOSCFG_KERNEL_SMP
 extern VOID LOS_MpSchedule(UINT32 target);
 extern VOID OsMpWakeHandler(VOID);
 extern VOID OsMpScheduleHandler(VOID);
@@ -69,6 +67,29 @@ STATIC INLINE VOID LOS_MpSchedule(UINT32 target)
     (VOID)target;
 }
 #endif
+
+#ifdef LOSCFG_KERNEL_SMP_CALL
+
+typedef struct {
+    LOS_DL_LIST node;
+    SMP_FUNC_CALL func;
+    VOID *args;
+} MpCallFunc;
+
+/**
+ * It is used to call function on target cpus by send ipi, and the first param is target cpu mask value.
+ */
+extern VOID OsMpFuncCall(UINT32 target, SMP_FUNC_CALL func, VOID *args);
+extern VOID OsMpFuncCallHandler(VOID);
+#else
+STATIC INLINE VOID OsMpFuncCall(UINT32 target, SMP_FUNC_CALL func, VOID *args)
+{
+    (VOID)target;
+    if (func != NULL) {
+        func(args);
+    }
+}
+#endif /* LOSCFG_KERNEL_SMP_CALL */
 
 #ifdef __cplusplus
 #if __cplusplus

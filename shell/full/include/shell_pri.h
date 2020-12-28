@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _HWLITEOS_SHELL_PRI_H
 #define _HWLITEOS_SHELL_PRI_H
@@ -58,6 +50,9 @@ extern UINT32 ShellEntry(VOID *param);
 extern UINT32 ShellTask(VOID *param);
 
 extern UINT32 ShellStdinLoop(ShellCB *shellCB);
+#ifdef LOSCFG_EXC_INTERACTION
+BOOL IsShellTask(UINT32 taskId);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

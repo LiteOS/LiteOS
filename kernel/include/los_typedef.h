@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_typedef Type define
@@ -72,20 +64,18 @@ typedef long unsigned int  UINT64;
 typedef long signed int    INT64;
 typedef unsigned long      UINTPTR;
 typedef signed long        INTPTR;
+typedef __uint128_t        UINT128;
+#define LOSCFG_AARCH64
+#ifndef LOSCFG_LIB_LIBC
+typedef INT64              ssize_t;
+typedef UINT64             size_t;
+#endif
 #else
 typedef unsigned long long UINT64;
 typedef signed long long   INT64;
 typedef unsigned int       UINTPTR;
 typedef signed int         INTPTR;
-#endif
-
-#ifndef __COMPILER_XTENSA__
-#ifdef __LP64__
-typedef __uint128_t        UINT128;
-typedef INT64              ssize_t;
-typedef UINT64             size_t;
-#define LOSCFG_AARCH64
-#else
+#ifndef LOSCFG_LIB_LIBC
 typedef INT32              ssize_t;
 typedef UINT32             size_t;
 #endif

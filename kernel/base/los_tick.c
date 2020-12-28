@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Tick
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,21 +25,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_tick_pri.h"
 #include "los_swtmr_pri.h"
 #include "los_task_pri.h"
 #include "los_sched_pri.h"
 #ifdef LOSCFG_KERNEL_TICKLESS
-#include "los_tickless_pri.h"
+#include "lowpower/los_tickless_pri.h"
 #endif
 
 #ifdef __cplusplus
@@ -126,10 +118,17 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CyclePerTickGet(VOID)
 
 LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *highCnt, UINT32 *lowCnt)
 {
-    UINT64 cycle = HalClockGetCycles();
+    UINT64 cycle;
 
-    *highCnt = cycle >> 32;
-    *lowCnt = cycle & 0xFFFFFFFFU;
+    if ((highCnt == NULL) || (lowCnt == NULL)) {
+        return;
+    }
+    cycle = HalClockGetCycles();
+
+    /* get the high 32 bits */
+    *highCnt = (UINT32)(cycle >> 32);
+    /* get the low 32 bits */
+    *lowCnt = (UINT32)(cycle & 0xFFFFFFFFULL);
 }
 
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_CurrNanosec(VOID)
@@ -161,7 +160,13 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_Udelay(UINT32 usecs)
 
 LITE_OS_SEC_TEXT_MINOR VOID LOS_Mdelay(UINT32 msecs)
 {
-    HalDelayUs(msecs * 1000); /* 1000 : 1ms = 1000us */
+    UINT32 delayUs = (UINT32_MAX / OS_SYS_US_PER_MS) * OS_SYS_US_PER_MS;
+
+    while (msecs > UINT32_MAX / OS_SYS_US_PER_MS) {
+        HalDelayUs(delayUs);
+        msecs -= (UINT32_MAX / OS_SYS_US_PER_MS);
+    }
+    HalDelayUs(msecs * OS_SYS_US_PER_MS);
 }
 
 #ifdef LOSCFG_KERNEL_TICKLESS

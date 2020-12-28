@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_MUX_DEBUG_PRI_H
 #define _LOS_MUX_DEBUG_PRI_H
@@ -48,7 +40,7 @@ extern "C" {
 extern UINT32 OsMuxDlockCheckInit(VOID);
 STATIC INLINE UINT32 OsMuxDlockCheckInitHook(VOID)
 {
-#ifdef LOSCFG_DEBUG_DEADLOCK
+#ifdef LOSCFG_DEBUG_MUTEX_DEADLOCK
     return OsMuxDlockCheckInit();
 #else
     return LOS_OK;
@@ -59,7 +51,7 @@ STATIC INLINE UINT32 OsMuxDlockCheckInitHook(VOID)
 extern VOID OsMuxDlockNodeInsert(UINT32 taskId, VOID *muxCB);
 STATIC INLINE VOID OsMuxDlockNodeInsertHook(UINT32 taskId, VOID *muxCB)
 {
-#ifdef LOSCFG_DEBUG_DEADLOCK
+#ifdef LOSCFG_DEBUG_MUTEX_DEADLOCK
     OsMuxDlockNodeInsert(taskId, muxCB);
 #endif
 }
@@ -67,7 +59,7 @@ STATIC INLINE VOID OsMuxDlockNodeInsertHook(UINT32 taskId, VOID *muxCB)
 extern VOID OsMuxDlockNodeDelete(UINT32 taskId, const VOID *muxCB);
 STATIC INLINE VOID OsMuxDlockNodeDeleteHook(UINT32 taskId, const VOID *muxCB)
 {
-#ifdef LOSCFG_DEBUG_DEADLOCK
+#ifdef LOSCFG_DEBUG_MUTEX_DEADLOCK
     OsMuxDlockNodeDelete(taskId, muxCB);
 #endif
 }
@@ -75,7 +67,7 @@ STATIC INLINE VOID OsMuxDlockNodeDeleteHook(UINT32 taskId, const VOID *muxCB)
 extern VOID OsTaskTimeUpdate(UINT32 taskId, UINT64 tickCount);
 STATIC INLINE VOID OsTaskTimeUpdateHook(UINT32 taskId, UINT64 tickCount)
 {
-#ifdef LOSCFG_DEBUG_DEADLOCK
+#ifdef LOSCFG_DEBUG_MUTEX_DEADLOCK
     OsTaskTimeUpdate(taskId, tickCount);
 #endif
 }

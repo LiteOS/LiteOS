@@ -10,8 +10,7 @@
 FILE __sF[3];
 struct glue __sglue = { NULL, 3, __sF };
 static struct glue* lastglue = &__sglue;
-pthread_mutex_t private_lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t *lock_glue = &private_lock;
+static pthread_mutex_t lock_glue = PTHREAD_MUTEX_INITIALIZER;
 static bool init_first = false;
 
 FILE *__fdopen(int fd, const char *mode)
@@ -27,7 +26,7 @@ FILE *__fdopen(int fd, const char *mode)
 		__sF[2] = __stderr_FILE;
 		init_first = true;
 	}
-	
+
 #ifndef __LITEOS__
 	struct winsize wsz;
 #endif
@@ -49,8 +48,8 @@ FILE *__fdopen(int fd, const char *mode)
 			}
 		}
 	}
-	
 	UNLOCK(lock_glue);
+
 	/* Allocate FILE+buffer or fail */
 	if (!(data=(char *)malloc(sizeof(struct glue) + NDYNAMIC *(sizeof *f + UNGET + BUFSIZ)))) return 0;
 	g = (struct glue *)(data);
@@ -105,12 +104,15 @@ found:
 	f->write = __stdio_write;
 	f->seek = __stdio_seek;
 	f->close = __stdio_close;
+#ifdef __LITEOS__
+	f->seek64 = __stdio_seek64;
+#endif
 
 #ifndef __LITEOS__
 	if (!libc.threaded) f->lock = -1;
 #else
-	f->lock = 1;
-	__initlockattr(&(f->_lock));
+	/* f->lock is 0, FLOCK() always check */
+	__INIT_LOCK_ATTR(f->_lock);
 #endif
 	/* Add new FILE to open file list */
 	return __ofl_add(f);

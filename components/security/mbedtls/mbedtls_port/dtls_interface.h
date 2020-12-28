@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Dtls Interface HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*
  *  Simple DTLS client demonstration program
@@ -52,12 +46,16 @@
  *
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
-#ifndef DTLS_INTERFACE_H
-#define DTLS_INTERFACE_H
+#ifndef _DTLS_INTERFACE_H
+#define _DTLS_INTERFACE_H
 
 
 #if !defined(MBEDTLS_CONFIG_FILE)
+#if defined(LOSCFG_COMPONENTS_CONNECTIVITY_MQTT)
+#include "mbedtls/config.h"
+#else
 #include "los_mbedtls_config.h"
+#endif
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
@@ -85,26 +83,21 @@ extern "C" {
 #define TLS_SHAKEHAND_TIMEOUT 1000
 #endif
 
-typedef enum
-{
+typedef enum {
     VERIFY_WITH_PSK = 0,
     VERIFY_WITH_CERT,
-}verify_type_e;
+} verify_type_e;
 
-typedef struct
-{
-    union
-    {
-        struct
-        {
+typedef struct {
+    union {
+        struct {
             const char *host;
             const char *port;
-        }c;
-        struct
-        {
+        } c;
+        struct {
             const char *local_port;
-        }s;
-    }u;
+        } s;
+    } u;
     uint32_t timeout;
     int client_or_server;
     int udp_or_tcp;
@@ -112,27 +105,23 @@ typedef struct
     void (*step_notify)(void *param);
     void (*finish_notify)(void *param);
     void *param;
-}dtls_shakehand_info_s;
+} dtls_shakehand_info_s;
 
-typedef struct
-{
-    union
-    {
-        struct
-        {
+typedef struct {
+    union {
+        struct {
             const unsigned char *psk;
             uint32_t psk_len;
             const unsigned char *psk_identity;
-        }p;
-        struct
-        {
+        } p;
+        struct {
             const unsigned char *ca_cert;
             uint32_t cert_len;
-        }c;
-    }v;
+        } c;
+    } v;
     verify_type_e psk_or_cert;
     int udp_or_tcp;
-}dtls_establish_info_s;
+} dtls_establish_info_s;
 
 void dtls_init(void);
 
@@ -154,4 +143,4 @@ int dtls_accept( mbedtls_net_context *bind_ctx,
 }
 #endif
 
-#endif
+#endif /* _DTLS_INTERFACE_H */

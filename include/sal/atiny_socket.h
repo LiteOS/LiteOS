@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Atiny Socket HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,22 +24,14 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /**@defgroup atiny_socket Agenttiny Socket
  * @ingroup agent
  */
 
-#ifndef _ATINY_SOCKET_H_
-#define _ATINY_SOCKET_H_
+#ifndef _ATINY_SOCKET_H
+#define _ATINY_SOCKET_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -45,24 +39,27 @@
 #define ATINY_PROTO_TCP 0 /* < The TCP transport protocol */
 #define ATINY_PROTO_UDP 1 /* < The UDP transport protocol */
 
-#define ATINY_NET_OK               0
-#define ATINY_NET_ERR             -1
-#define ATINY_NET_TIMEOUT         -2
-#define ATINY_NET_BIND_FAILED     -3
-#define ATINY_NET_LISTEN_FAILED   -4
-#define ATINY_NET_ACCEPT_FAILED   -5
-#define ATINY_NET_BUF_SMALL_FAILED -6
-#define ATINY_NET_SOCKET_FAILED    -7
+#define ATINY_NET_OK                0
+#define ATINY_NET_ERR              (-1)
+#define ATINY_NET_TIMEOUT          (-2)
+#define ATINY_NET_BIND_FAILED      (-3)
+#define ATINY_NET_LISTEN_FAILED    (-4)
+#define ATINY_NET_ACCEPT_FAILED    (-5)
+#define ATINY_NET_BUF_SMALL_FAILED (-6)
+#define ATINY_NET_SOCKET_FAILED    (-7)
 
+typedef struct {
+    int fd;
+} atiny_net_context;
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-
-int atiny_net_accept( void *bind_ctx,
-                        void *client_ctx,
-                        void *client_ip, size_t buf_size, size_t *ip_len );
+int atiny_net_accept(void *bind_ctx, void *client_ctx, void *client_ip,
+                     size_t buf_size, size_t *ip_len);
 
 /**
  *@ingroup atiny_socket
@@ -101,7 +98,7 @@ void *atiny_net_bind(const char *host, const char *port, int proto);
  *@par Dependency: none.
  *@see atiny_net_recv | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
  */
-void* atiny_net_connect(const char* host, const char* port, int proto);
+int atiny_net_connect(atiny_net_context *ctx, const char *host, const char *port, int proto);
 
 /**
  *@ingroup atiny_socket
@@ -121,7 +118,7 @@ void* atiny_net_connect(const char* host, const char* port, int proto);
  *@par Dependency: none.
  *@see atiny_net_connect | atiny_net_send | atiny_net_recv_timeout | atiny_net_close
  */
-int atiny_net_recv(void* ctx, unsigned char* buf, size_t len);
+int atiny_net_recv(void *ctx, unsigned char *buf, size_t len);
 
 /**
  *@ingroup atiny_socket
@@ -141,7 +138,7 @@ int atiny_net_recv(void* ctx, unsigned char* buf, size_t len);
  *@par Dependency: none.
  *@see atiny_net_connect | atiny_net_recv | atiny_net_recv_timeout | atiny_net_close
  */
-int atiny_net_send(void* ctx, const unsigned char* buf, size_t len);
+int atiny_net_send(void *ctx, const unsigned char *buf, size_t len);
 
 /**
  *@ingroup atiny_socket
@@ -169,7 +166,7 @@ int atiny_net_send(void* ctx, const unsigned char* buf, size_t len);
  *@par Dependency: none.
  *@see atiny_net_connect | atiny_net_recv | atiny_net_send | atiny_net_close
  */
-int atiny_net_recv_timeout(void* ctx, unsigned char* buf, size_t len,
+int atiny_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                            uint32_t timeout);
 
 int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
@@ -190,11 +187,12 @@ int atiny_net_send_timeout(void *ctx, const unsigned char *buf, size_t len,
  *@par Dependency: none.
  *@see atiny_net_connect | atiny_net_recv | atiny_net_send | atiny_net_recv_timeout
  */
-void atiny_net_close(void* ctx);
+void atiny_net_close(void *ctx);
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _ATINY_SOCKET_H_ */
-
+#endif /* _ATINY_SOCKET_H */

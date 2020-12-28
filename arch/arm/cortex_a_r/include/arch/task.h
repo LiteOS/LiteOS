@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_TASK_H
 #define _ARCH_TASK_H
@@ -47,6 +39,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#define LOSCFG_STACK_POINT_ALIGN_SIZE (sizeof(UINTPTR) * 2)
+
 #if defined(LOSCFG_ARCH_FPU_VFP_D16)
 #define FP_REGS_NUM     16
 #elif defined (LOSCFG_ARCH_FPU_VFP_D32)
@@ -57,9 +51,9 @@ extern "C" {
 /* The size of this structure must be smaller than or equal to the size specified by OS_TSK_STACK_ALIGN (16 bytes). */
 typedef struct {
 #if !defined(LOSCFG_ARCH_FPU_DISABLE)
-    UINT64 D[FP_REGS_NUM]; /* D0-D31 */
-    UINT32 regFPSCR;       /* FPSCR */
-    UINT32 regFPEXC;       /* FPEXC */
+    UINT64 D[FP_REGS_NUM];  /* D0-D31 */
+    UINT32 regFPSCR;        /* FPSCR */
+    UINT32 regFPEXC;        /* FPEXC */
 #endif
     UINT32 R[GEN_REGS_NUM]; /* R0-R12 */
     UINT32 LR;              /* R14 */
@@ -77,7 +71,7 @@ STATIC INLINE VOID ArchCurrTaskSet(VOID *val)
     ARM_SYSREG_WRITE(TPIDRPRW, (UINT32)(UINTPTR)val);
 }
 
-STATIC INLINE UINTPTR ArchGetTaskFp(VOID *stackPointer)
+STATIC INLINE UINTPTR ArchGetTaskFp(const VOID *stackPointer)
 {
     return ((TaskContext *)(stackPointer))->R[11]; /* R11: FP */
 }

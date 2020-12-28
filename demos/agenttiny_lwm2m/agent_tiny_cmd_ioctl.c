@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Agent Tiny Cmd Ioctl
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "agent_tiny_cmd_ioctl.h"
 #include "atiny_lwm2m/agenttiny.h"
@@ -40,10 +34,9 @@
 #include "ota_port.h"
 #endif
 
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-#include "at_device/bc95.h"
+#ifdef LOSCFG_COMPONENTS_NET_AT_BC95
+#include "bc95.h"
 #endif
-
 
 #define ATINY_POWER_VOLTAGE     3800
 #define ATINY_BATTERY_LEVEL     90
@@ -89,7 +82,6 @@ int atiny_get_firmware_ver(char *version, int len)
 int atiny_do_dev_reboot(void)
 {
     (void)atiny_printf("device is rebooting......\r\n");
-    //LOS_TaskDelay(1000);
     atiny_reboot();
     return ATINY_OK;
 }
@@ -166,8 +158,7 @@ static char g_UTC_offset[UTC_OFFSET_MAX_LEN] = "+01:00";
 
 int atiny_get_UTC_offset(char *offset, int len)
 {
-    if(len > strlen(g_UTC_offset) + 1)
-    {
+    if (len > strlen(g_UTC_offset) + 1) {
         (void)atiny_snprintf(offset, len, g_UTC_offset);
     }
     return ATINY_OK;
@@ -184,8 +175,7 @@ static char g_timezone[TIMEZONE_MAXLEN] = "Europe/Berlin";
 
 int atiny_get_timezone(char *timezone, int len)
 {
-    if(len > strlen(g_timezone) + 1)
-    {
+    if (len > strlen(g_timezone) + 1) {
         (void)atiny_snprintf(timezone, len, g_timezone);
     }
     return ATINY_OK;
@@ -260,7 +250,6 @@ int atiny_write_app_write(void *user_data, int len)
 
 int atiny_update_psk(char *psk_id, int len)
 {
-    //memcpy_s(g_psk_value,psk_id,len,16);
     (void)atiny_printf("update psk success\r\n");
     return ATINY_OK;
 }
@@ -301,7 +290,7 @@ int atiny_get_timestamp(uint64_t *timestamp)
     return ATINY_OK;
 }
 
-//-----  3GPP TS 23.032 V11.0.0(2012-09) ---------
+// -----  3GPP TS 23.032 V11.0.0(2012-09) ---------
 #define HORIZONTAL_VELOCITY                  0
 #define HORIZONTAL_VELOCITY_VERTICAL         1
 #define HORIZONTAL_VELOCITY_WITH_UNCERTAINTY 2
@@ -337,8 +326,7 @@ int atiny_get_velocity(atiny_velocity_s *velocity)
 int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
 {
     int result = ATINY_OK;
-    switch(cmd)
-    {
+    switch(cmd) {
     case ATINY_GET_MANUFACTURER:
         result = atiny_get_manufacturer(arg, len);
         break;
@@ -446,8 +434,7 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
         break;
 
 #ifdef CONFIG_FEATURE_FOTA
-    case ATINY_GET_OTA_OPT:
-    {
+    case ATINY_GET_OTA_OPT: {
         ota_opt_s *opt = (ota_opt_s *)arg;
         hal_get_ota_opt(opt);
         opt->key.rsa_N = "C94BECB7BCBFF459B9A71F12C3CC0603B11F0D3A366A226FD3E73D453F96EFBBCD4DFED6D9F77FD78C3AB1805E1BD3858131ACB5303F61AF524F43971B4D429CB847905E68935C1748D0096C1A09DD539CE74857F9FDF0B0EA61574C5D76BD9A67681AC6A9DB1BB22F17120B1DBF3E32633DCE34F5446F52DD7335671AC3A1F21DC557FA4CE9A4E0E3E99FED33A0BAA1C6F6EE53EDD742284D6582B51E4BF019787B8C33C2F2A095BEED11D6FE68611BD00825AF97DB985C62C3AE0DC69BD7D0118E6D620B52AFD514AD5BFA8BAB998332213D7DBF5C98DC86CB8D4F98A416802B892B8D6BEE5D55B7E688334B281E4BEDDB11BD7B374355C5919BA5A9A1C91F";
@@ -457,7 +444,7 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
     }
 #endif
 
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
+#if defined(LOSCFG_COMPONNETS_NET_AT) && defined(USE_NB_NEUL95)
     case ATINY_TRIGER_SERVER_INITIATED_BS:
         nb_reattach();
         result = ATINY_OK;
@@ -474,4 +461,3 @@ void atiny_event_notify(atiny_event_e event, const char *arg, int len)
 {
     (void)atiny_printf("notify:stat:%d\r\n", event);
 }
-

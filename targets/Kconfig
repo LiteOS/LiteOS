@@ -3,6 +3,11 @@ config LOSCFG_PLATFORM
     default "Cloud_STM32F429IGTx_FIRE"  if LOSCFG_PLATFORM_STM32F429IGTX
     default "STM32F769IDISCOVERY"       if LOSCFG_PLATFORM_STM32F769IDISCOVERY
     default "STM32L431_BearPi"          if LOSCFG_PLATFORM_STM32L431_BearPi
+    default "STM32F103_FIRE_Arbitrary"  if LOSCFG_PLATFORM_STM32F103_FIRE_ARBITRARY
+    default "STM32F407_ATK_Explorer"    if LOSCFG_PLATFORM_STM32F407_ATK_EXPLORER
+    default "STM32F072_Nucleo"          if LOSCFG_PLATFORM_STM32F072_Nucleo
+    default "realview-pbx-a9"           if LOSCFG_PLATFORM_PBX_A9
+    default "qemu-virt-a53"             if LOSCFG_PLATFORM_QEMU_VIRT_A53
 
 choice
     prompt "Target"
@@ -12,7 +17,11 @@ choice
       Cloud_STM32F429IGTx_FIRE
       STM32F769IDISCOVERY
       STM32L431_BearPi
-
+      STM32F103_FIRE_Arbitrary
+      STM32F407_ATK_Explorer
+      STM32F072_Nucleo
+      realview-pbx-a9
+      qemu-virt-a53
 
 config LOSCFG_PLATFORM_STM32F429IGTX
     bool "Cloud_STM32F429IGTx_FIRE"
@@ -28,6 +37,32 @@ config LOSCFG_PLATFORM_STM32L431_BearPi
     bool "STM32L431_BearPi"
     select LOSCFG_USING_BOARD_LD
     select LOSCFG_ARCH_CORTEX_M4
+
+config LOSCFG_PLATFORM_STM32F103_FIRE_ARBITRARY
+    bool "STM32F103_FIRE_Arbitrary"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M3
+
+config LOSCFG_PLATFORM_STM32F407_ATK_EXPLORER
+    bool "STM32F407_ATK_Explorer"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M4
+
+config LOSCFG_PLATFORM_STM32F072_Nucleo
+    bool "STM32F072_Nucleo"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_M0
+
+config LOSCFG_PLATFORM_PBX_A9
+    bool "realview-pbx-a9"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_A9
+
+config LOSCFG_PLATFORM_QEMU_VIRT_A53
+    bool "qemu-virt-a53"
+    select LOSCFG_USING_BOARD_LD
+    select LOSCFG_ARCH_CORTEX_A53
+    select LOSCFG_ARCH_ARM_AARCH64
 
 endchoice
 

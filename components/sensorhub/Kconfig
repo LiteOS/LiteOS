@@ -4,6 +4,6 @@ config LOSCFG_COMPONENTS_SENSORHUB
     bool "Enable Sensorhub"
     default n
     help
-      Answer Y to enable LiteOS support Sensor Hub
+      Answer y to support Sensor Hub
 
 endmenu

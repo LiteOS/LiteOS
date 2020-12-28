@@ -25,16 +25,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#include "sys_config.h"
 #include "shmsg.h"
 #include "stdlib.h"
 #include "stdio.h"
@@ -62,8 +53,13 @@ extern "C" {
 #define SHELL_CMD_EXIT_EVENT    0x112
 #define SHELL_CMD_EVENT_MASK    0xFFF
 
+#ifdef LOSCFG_ARCH_ARM_CORTEX_M
+#define SHELL_TASK_STACK_SIZE   0x1000
+#define SHELL_ENTRY_STACK_SIZE  0x600
+#else
 #define SHELL_TASK_STACK_SIZE   0x3000
 #define SHELL_ENTRY_STACK_SIZE  0x1000
+#endif
 
 #define SHELL_TASK_PRIORITY     9
 #define SHELL_ENTRY_PRIORITY    9
@@ -419,6 +415,19 @@ LITE_OS_SEC_TEXT_MINOR VOID ShellTaskDeinit(ShellCB *shellCB)
     (VOID)LOS_EventWrite(&shellCB->shellEvent, SHELL_CMD_EXIT_EVENT);
 }
 
+#ifdef LOSCFG_EXC_INTERACTION
+BOOL IsShellTask(UINT32 taskId)
+{
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
+
+    if ((taskCB->taskEntry == (TSK_ENTRY_FUNC)ShellTask) ||
+        (taskCB->taskEntry == (TSK_ENTRY_FUNC)ShellEntry)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+#endif
+
 LITE_OS_SEC_TEXT_MINOR UINT32 ShellEntryInit(ShellCB *shellCB)
 {
     UINT32 ret;
@@ -452,7 +461,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 ShellEntryInit(ShellCB *shellCB)
     ret = LOS_TaskCreate(&shellCB->shellEntryHandle, &initParam);
 
 #ifdef LOSCFG_SHELL_CONSOLE
-    ConsoleTaskReg((INT32)shellCB->consoleID, shellCB->shellEntryHandle);
+    ret = ConsoleTaskReg((INT32)shellCB->consoleID, shellCB->shellEntryHandle);
 #endif
 
     return ret;

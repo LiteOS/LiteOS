@@ -2,6 +2,9 @@
 #define _dlstart_c _start_c
 #include "../ldso/dlstart.c"
 
+#ifdef __LITEOS__
+#define weak
+#endif
 int main();
 weak void _init();
 weak void _fini();

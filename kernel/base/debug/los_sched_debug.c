@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_task_pri.h"
 
@@ -42,7 +34,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#ifdef LOSCFG_KERNEL_SCHED_STATISTICS
+#ifdef LOSCFG_DEBUG_SCHED_STATISTICS
 #define HIGHTASKPRI           16
 #define NS_PER_MS             1000000
 #define DECIMAL_TO_PERCENTAGE 100
@@ -52,7 +44,6 @@ typedef struct {
     UINT64      idleStarttime;
     UINT64      highTaskRuntime;
     UINT64      highTaskStarttime;
-    UINT64      spinWaitRuntime;
     UINT64      sumPriority;
     UINT32      prioritySwitch;
     UINT32      highTaskSwitch;
@@ -67,7 +58,7 @@ STATIC BOOL g_statisticsStartFlag = FALSE;
 STATIC UINT64 g_statisticsStartTime;
 STATIC StatPercpu g_statPercpu[LOSCFG_KERNEL_CORE_NUM] = {0};
 
-STATIC VOID OsSchedStatisticsPerCpu(LosTaskCB *runTask, LosTaskCB *newTask)
+STATIC VOID OsSchedStatisticsPerCpu(const LosTaskCB *runTask, const LosTaskCB *newTask)
 {
     UINT32 cpuId;
     UINT32 idleTaskId;
@@ -140,13 +131,6 @@ LITE_OS_SEC_TEXT_MINOR VOID OsSchedStatistics(LosTaskCB *runTask, LosTaskCB *new
     OsSchedStatisticsPerCpu(runTask, newTask);
 }
 
-LITE_OS_SEC_TEXT_MINOR VOID OsSpinWaitStatistics(UINT64 spinWaitRuntime)
-{
-    UINT32 cpuId = ArchCurrCpuid();
-    g_statPercpu[cpuId].spinWaitRuntime += spinWaitRuntime;
-    return;
-}
-
 LITE_OS_SEC_TEXT_MINOR VOID OsHwiStatistics(size_t intNum)
 {
     UINT32 cpuId = ArchCurrCpuid();
@@ -212,42 +196,43 @@ LITE_OS_SEC_TEXT_MINOR VOID OsStatisticsShow(UINT64 statisticsPastTime)
 {
     UINT32 cpuId;
     PRINTK("\n");
-    PRINTK("Passed Time: %+16lf ms\n", (DOUBLE)statisticsPastTime / NS_PER_MS);
+    PRINTK("Passed Time: %+16lf ms\n", ((DOUBLE)statisticsPastTime / NS_PER_MS));
     PRINTK("--------------------------------\n");
-    PRINTK("CPU       Idle(%%)      schedule    noTick Hwi       Loss(%%)       "
-           "avg PRI      HiTSK(%%)	   HiTSK SCH    HiTSK P(ms)"
+    PRINTK("CPU       Idle(%%)      ContexSwitch    HwiNum       "
+           "Avg Pri      HiTask(%%)	   HiTask SwiNum       HiTask P(ms)"
 #ifdef LOSCFG_KERNEL_SMP
-           "    MP Hwi\n");
+           "      MP Hwi\n");
 #else
            "\n");
 #endif
-    PRINTK("----    ---------    ----------    ----------    ----------    ----------    "
-           "----------    ----------    ----------    ----------"
+    PRINTK("----    ---------      -----------    --------    ---------     "
+           "----------         ------------       ----------"
 #ifdef LOSCFG_KERNEL_SMP
-           "   -------\n");
+           "        ------\n");
 #else
            "\n");
 #endif
 
     for (cpuId = 0; cpuId < LOSCFG_KERNEL_CORE_NUM; cpuId++) {
 #ifdef LOSCFG_KERNEL_SMP
-        PRINTK("CPU%d   %+10lf%14d%14d%14d   %+11lf   %+11lf   %+11lf%14d   %+11lf\n", cpuId,
+        PRINTK("CPU%d   %+10lf%14d%14d   %+11lf   %+11lf%14d              %+11lf  %11d\n", cpuId,
 #else
-        PRINTK("CPU%d   %+10lf%14d%14d   %+11lf   %+11lf   %+11lf%14d   %+11lf\n", cpuId,
+        PRINTK("CPU%d   %+10lf%14d%14d   %+11lf   %+11lf%14d              %+11lf\n", cpuId,
 #endif
                ((DOUBLE)(g_statPercpu[cpuId].idleRuntime) / statisticsPastTime) * DECIMAL_TO_PERCENTAGE,
                g_statPercpu[cpuId].contexSwitch,
                g_statPercpu[cpuId].hwiNum,
-#ifdef LOSCFG_KERNEL_SMP
-               g_statPercpu[cpuId].ipiIrqNum,
-#endif
-               ((DOUBLE)(g_statPercpu[cpuId].spinWaitRuntime) / statisticsPastTime) * DECIMAL_TO_PERCENTAGE,
                (g_statPercpu[cpuId].prioritySwitch == 0) ? OS_TASK_PRIORITY_LOWEST :
                ((DOUBLE)(g_statPercpu[cpuId].sumPriority) / (g_statPercpu[cpuId].prioritySwitch)),
                ((DOUBLE)(g_statPercpu[cpuId].highTaskRuntime) / statisticsPastTime) * DECIMAL_TO_PERCENTAGE,
                g_statPercpu[cpuId].highTaskSwitch,
                (g_statPercpu[cpuId].highTaskSwitch == 0) ? 0 :
-               ((DOUBLE)(g_statPercpu[cpuId].highTaskRuntime) / (g_statPercpu[cpuId].highTaskSwitch)) / NS_PER_MS);
+               ((DOUBLE)(g_statPercpu[cpuId].highTaskRuntime) / (g_statPercpu[cpuId].highTaskSwitch)) / NS_PER_MS
+#ifdef LOSCFG_KERNEL_SMP
+               , g_statPercpu[cpuId].ipiIrqNum);
+#else
+               );
+#endif
     }
 
     PRINTK("\n");

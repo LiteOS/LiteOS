@@ -1,2 +1,1 @@
-DEMOS_FS_INCLUDE := \
-	-I $(LITEOSTOPDIR)/demos/fs
+DEMOS_FS_INCLUDE := -I $(LITEOSTOPDIR)/demos/fs

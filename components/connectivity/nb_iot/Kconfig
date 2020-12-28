@@ -1,0 +1,7 @@
+
+config LOSCFG_COMPONENTS_CONNECTIVITY_NB_IOT
+    bool "Enable NB IOT"
+    depends on LOSCFG_COMPONENTS_NET_AT_BC95
+    default n
+    help
+        Answer y to enable nb iot.

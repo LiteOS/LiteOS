@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_err.h"
 
@@ -43,13 +35,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Hook function for error handling. */
-LITE_OS_SEC_BSS USER_ERR_FUNC_S g_stUserErrFunc;
+LITE_OS_SEC_BSS USER_ERR_FUNC_S g_usrErrFunc;
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo, UINT32 errorNo,
                                            UINT32 paraLen, VOID *para)
 {
-    if (g_stUserErrFunc.pfnHook != NULL) {
-        g_stUserErrFunc.pfnHook(fileName, lineNo, errorNo, paraLen, para);
+    if (g_usrErrFunc.pfnHook != NULL) {
+        g_usrErrFunc.pfnHook(fileName, lineNo, errorNo, paraLen, para);
     }
 
     return LOS_OK;
@@ -57,7 +49,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo, UINT32
 
 LITE_OS_SEC_TEXT_INIT VOID LOS_RegErrHandle(LOS_ERRORHANDLE_FUNC func)
 {
-    g_stUserErrFunc.pfnHook = func;
+    g_usrErrFunc.pfnHook = func;
 }
 
 #ifdef __cplusplus

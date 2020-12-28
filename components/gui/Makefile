@@ -15,14 +15,14 @@ LVGL_SRC = \
     $(wildcard lvgl/src/lv_widgets/*.c)
 
 LVGL_INC = \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_core/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_draw/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_font/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_gpu/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_hal/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_misc/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_themes/ \
-     -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_widgets/
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_core/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_draw/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_font/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_gpu/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_hal/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_misc/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_themes/ \
+    -I $(LITEOSTOPDIR)components/gui/lvgl/src/lv_widgets/
 
 
 LITEGL_INCLUDE = $(LVGL_INC)
@@ -42,6 +42,8 @@ LOCAL_SRCS := $(subst $(CURDIR)/,, $(BOARD_SRCS))
 
 BOARD_DEF += $(C_DEFS)
 LOCAL_INCLUDE += $(BOARD_INCLUDES)
+
+LOCAL_CFLAGS += -Wno-unused-value
 
 LOCAL_FLAGS := $(BOARD_DEF) $(LOCAL_INCLUDE) $(LITEOS_GCOV_OPTS)
 

@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Package Device HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,34 +24,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-/**@defgroup atiny_adapter Agenttiny Adapter
+/**
+ * @defgroup atiny_adapter Agenttiny Adapter
  * @ingroup agent
  */
 
-#ifndef PACKAGE_DEVICE_H
-#define PACKAGE_DEVICE_H
+#ifndef _PACKAGE_DEVICE_H
+#define _PACKAGE_DEVICE_H
 
 #include "ota/package.h"
 #include "package_checksum.h"
 #include "package_head.h"
 #include "package_writer.h"
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-typedef struct
-{
+typedef struct {
     pack_storage_device_api_s interface;
     pack_hardware_s hardware;
     pack_params_s params;
@@ -60,10 +56,10 @@ typedef struct
     int32_t init_flag;
 } pack_storage_device_s;
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif //PACKAGE_DEVICE_H
-
-
+#endif /* _PACKAGE_DEVICE_H */

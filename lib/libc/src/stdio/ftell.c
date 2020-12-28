@@ -42,9 +42,10 @@ long ftell(FILE *f)
 	return pos;
 }
 
+#ifdef __LITEOS__
 off64_t __ftello64_unlocked(FILE *f)
 {
-	off64_t pos = f->seek(f, 0,
+	off64_t pos = f->seek64(f, 0,
 		(f->flags & F_APP) && f->wpos != f->wbase
 		? SEEK_END : SEEK_CUR);
 	if (pos < 0) return pos;
@@ -69,12 +70,9 @@ off64_t __ftello64(FILE *f)
 off64_t ftello64(FILE *f)
 {
 	off64_t pos = __ftello64(f);
-	if (pos > LONG_MAX) {
-		errno = EOVERFLOW;
-		return -1;
-	}
 	return pos;
 }
+#endif
 
 weak_alias(__ftello, ftello);
 

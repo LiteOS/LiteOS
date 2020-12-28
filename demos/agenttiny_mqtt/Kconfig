@@ -4,12 +4,12 @@ config LOSCFG_DEMOS_AGENT_TINY_MQTT
     bool "Enable Agent Tiny Mqtt Demo"
     default n
     help
-      Answer Y to enable agent tiny mqtt demo
+      Answer y to enable agent tiny mqtt demo.
 
 config LOSCFG_DTLS_MODE
     string
     default "NO_ENCRYPT"    if LOSCFG_DTLS_NO_ENCRYPT
-    default "PCK_ENCRYPT"   if LOSCFG_DTLS_PCK_ENCRYPT
+    default "PSK_ENCRYPT"   if LOSCFG_DTLS_PSK_ENCRYPT
     default "CRET_ENCRYPT"  if LOSCFG_DTLS_CRET_ENCRYPT
 
 choice
@@ -19,18 +19,20 @@ choice
     help
       support encryption mode:
       NO_ENCRYPT
-      PCK_ENCRYPT
+      PSK_ENCRYPT
       CRET_ENCRYPT
 
 config LOSCFG_DTLS_NO_ENCRYPT
     bool "NO_ENCRYPT"
 
-config LOSCFG_DTLS_PCK_ENCRYPT
-    bool "PCK_ENCRYPT"
+config LOSCFG_DTLS_PSK_ENCRYPT
+    bool "PSK_ENCRYPT"
+    select LOSCFG_COMPONENTS_SECURITY
     select LOSCFG_COMPONENTS_SECURITY_MBEDTLS
 
 config LOSCFG_DTLS_CRET_ENCRYPT
     bool "CRET_ENCRYPT"
+    select LOSCFG_COMPONENTS_SECURITY
     select LOSCFG_COMPONENTS_SECURITY_MBEDTLS
 
 endchoice

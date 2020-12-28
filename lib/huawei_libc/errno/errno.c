@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
  * Description: SIGNAL ERROR
  * Author: Huawei LiteOS Team
- * Create: 2020-01-015
+ * Create: 2020-01-15
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -25,52 +25,56 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "errno.h"
-#include "los_errno.h"
 #include "los_task.h"
 
-int errno_array[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+#ifndef LOSCFG_LIB_CONFIGURABLE
+int g_errnoArray[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+#else
+__attribute__((section(".libc.errno"))) int g_errnoArray[LOSCFG_BASE_CORE_TSK_LIMIT_CONFIG + 1];
+#endif
 
 /* the specific errno get or set in interrupt service routine */
-static int errno_isr;
+static int g_errnoIsr;
 
-void set_errno(int err_code) {
-  /* errno can not be set to 0 as posix standard */
-  if (err_code == 0)
-    return;
+void set_errno(int errCode)
+{
+    /* errno can not be set to 0 as posix standard */
+    if (errCode == 0) {
+        return;
+    }
 
-  if (OS_INT_INACTIVE)
-    errno_array[LOS_CurTaskIDGet()] = err_code;
-  else
-    errno_isr = err_code;
+    if (OS_INT_INACTIVE) {
+        g_errnoArray[LOS_CurTaskIDGet()] = errCode;
+    } else {
+        g_errnoIsr = errCode;
+    }
 }
 
-int get_errno(void) {
-  if (OS_INT_INACTIVE)
-    return errno_array[LOS_CurTaskIDGet()];
-  else
-    return errno_isr;
+int get_errno(void)
+{
+    if (OS_INT_INACTIVE) {
+        return g_errnoArray[LOS_CurTaskIDGet()];
+    } else {
+        return g_errnoIsr;
+    }
 }
 
-int *__errno_location(void) {
-  if (OS_INT_INACTIVE)
-    return &errno_array[LOS_CurTaskIDGet()];
-  else
-    return &errno_isr;
+int *__errno_location(void)
+{
+    if (OS_INT_INACTIVE) {
+        return &g_errnoArray[LOS_CurTaskIDGet()];
+    } else {
+        return &g_errnoIsr;
+    }
 }
 
-volatile int *__errno(void) {
-  if (OS_INT_INACTIVE)
-    return (volatile int *)(&errno_array[LOS_CurTaskIDGet()]);
-  else
-    return (volatile int *)(&errno_isr);
+volatile int *__errno(void)
+{
+    if (OS_INT_INACTIVE) {
+        return (volatile int *)(&g_errnoArray[LOS_CurTaskIDGet()]);
+    } else {
+        return (volatile int *)(&g_errnoIsr);
+    }
 }

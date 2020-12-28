@@ -1,6 +1,8 @@
 /* ----------------------------------------------------------------------------
  * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
- * Description: This file provides functions to manage sensor operations.
+ * Description: Sensor Manager
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -23,14 +25,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
+
 #include "sensor_manager.h"
 #include "sensor_commu.h"
 #include "los_printf.h"
@@ -46,14 +41,14 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define STASK_PRIORITY_SM    3
-#define STASK_STKDEPTH_SM    0x800
+#define STASK_PRIORITY_SM  3
+#define STASK_STKDEPTH_SM  0x800
 
-#define SM_MAILS_SIZE 10
+#define SM_MAILS_SIZE      10
 #define SM_MAILS_TYPE_SIZE sizeof(SmMail)
 
 #define CONFIG_BUFFER_SIZE 25
-#define CNT_INVLID 0xffffffff
+#define CNT_INVLID         0xffffffff
 
 STATIC UINT32 g_sensorManagerTskId;
 STATIC UINT32 g_sensorManagerQueue;
@@ -153,13 +148,14 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID ScbSwitchComplete(const SensorType *sensor, I
     LOS_DL_LIST_FOR_EACH(pl, &sensor->slist) {
         item = LOS_DL_LIST_ENTRY(pl, SensorItem, list);
         if ((item->state == OPEN) || (item->state == CLOSE)) {
-            if ((item->resp != 0) && (item->respFunc !=  NULL)) {
+            if ((item->resp != 0) && (item->respFunc != NULL)) {
                 item->respFunc(item->tag, item->id, item->state, result);
             }
             item->state -= 1; // OPEN->WORKING, CLOSE->IDLE
         }
     }
 }
+
 LITE_OS_SEC_TEXT_MINOR STATIC INT32 UpdateScbPeriod(SensorType *sensor, const SensorItem *currentItem)
 {
     SensorItem *item       = NULL;
@@ -283,6 +279,7 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID ItemDisable(const MailItemDisable *itemDisabl
     itemDisable->item->id         = itemDisable->id;
     ItemSwitch(itemDisable->item);
 }
+
 LITE_OS_SEC_TEXT_MINOR STATIC VOID ItemInit(const MailItemInit *itemInit)
 {
     SensorType *sensorInterface = NULL;
@@ -360,6 +357,7 @@ LITE_OS_SEC_TEXT_MINOR INT32 SensorItemDisable(SensorItem *item, CloseParam *par
     }
     return LOS_OK;
 }
+
 LITE_OS_SEC_TEXT_MINOR INT32 SensorItemInit(
     SensorItem *item, RespFunc respFunc, ObjTag tag, UpdateFunc updateFunc, UINT32 upArg)
 {

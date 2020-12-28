@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Util Timer HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,47 +24,38 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
+
 
 /**@defgroup agent AgentTiny
  * @defgroup agenttiny Agenttiny Definition
  * @ingroup agent
  */
 
-
-
-#ifndef _UTIL_TIMER_H_
-#define _UTIL_TIMER_H_
+#ifndef _UTIL_TIMER_H
+#define _UTIL_TIMER_H
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <time.h>
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
-
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #ifdef LWM2M_BOOTSTRAP
 #ifdef LWM2M_CLIENT_MODE
 
 // time uint is second, and max value 0xffffffff is hundreds of years.so ignore the turn to 0 problem
-typedef struct
-{
+typedef struct {
     time_t expireTime;
     time_t interval;
     void(*callback)(void *param);
     void *param;
     bool startFlag;
-}util_timer_t;
+} util_timer_t;
 
 void timer_init(util_timer_t *timer, time_t interval, void(*callback)(void *param), void *param);
 void timer_start(util_timer_t *timer);
@@ -71,12 +64,12 @@ void timer_step(util_timer_t *timer);
 
 
 #endif // LWM2M_CLIENT_MODE
-
 #endif // LWM2M_BOOTSTRAP
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-
-#endif
+#endif /* _UTIL_TIMER_H */

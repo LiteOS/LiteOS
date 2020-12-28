@@ -5,6 +5,7 @@
 #
 config LOSCFG_ARCH_ARM_AARCH32
     bool
+    select LOSCFG_LIB_LIBC
     help
       32-bit ARM architecture implementations.
       It is not limited to ARMv7-A but also ARMv7-R, ARMv7-M and etc.
@@ -24,14 +25,6 @@ config LOSCFG_ARCH_ARM_CORTEX_M
 #
 # Architecture Versions
 #
-config LOSCFG_ARCH_ARM_V6M
-    bool
-    select LOSCFG_ARCH_ARM_CORTEX_M
-
-config LOSCFG_ARCH_ARM_V7M
-    bool
-    select LOSCFG_ARCH_ARM_CORTEX_M
-
 config LOSCFG_ARCH_ARM_V7A
     bool
     select LOSCFG_ARCH_ARM_CORTEX_A
@@ -46,6 +39,14 @@ config LOSCFG_ARCH_ARM_V8A_AARCH32
 config LOSCFG_ARCH_ARM_V7R
     bool
     select LOSCFG_ARCH_ARM_CORTEX_R
+
+config LOSCFG_ARCH_ARM_V6M
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_M
+
+config LOSCFG_ARCH_ARM_V7M
+    bool
+    select LOSCFG_ARCH_ARM_CORTEX_M
 
 config LOSCFG_ARCH_ARM_V8R
     bool
@@ -109,6 +110,7 @@ config LOSCFG_ARCH_FPU
     default "vfpv3-d16"   if LOSCFG_ARCH_FPU_VFP_V3 && LOSCFG_ARCH_FPU_VFP_D16
     default "neon-vfpv4"  if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D32 && LOSCFG_ARCH_FPU_VFP_NEON
     default "vfpv4"       if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D32
+    default "fpv4-sp-d16" if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D16 && LOSCFG_ARCH_ARM_V7M
     default "vfpv4-d16"   if LOSCFG_ARCH_FPU_VFP_V4 && LOSCFG_ARCH_FPU_VFP_D16
     default "fpv5-sp-d16" if LOSCFG_ARCH_FPU_VFP_V5 && LOSCFG_ARCH_FPU_VFP_D16
 
@@ -119,6 +121,13 @@ config LOSCFG_ARCH_CORTEX_M0
     bool
     select LOSCFG_ARCH_ARM_V6M
     select LOSCFG_ARCH_ARM_AARCH32
+
+config LOSCFG_ARCH_CORTEX_M3
+    bool
+    select LOSCFG_ARCH_ARM_V7M
+    select LOSCFG_ARCH_ARM_AARCH32
+    select LOSCFG_ARCH_FPU_VFP_V3
+    select LOSCFG_ARCH_FPU_VFP_D16
 
 config LOSCFG_ARCH_CORTEX_M4
     bool
@@ -147,10 +156,20 @@ config LOSCFG_ARCH_CORTEX_A9
     select LOSCFG_ARCH_FPU_VFP_V3
     select LOSCFG_ARCH_FPU_VFP_D16
 
+config LOSCFG_ARCH_CORTEX_A53_AARCH32
+    bool
+    select LOSCFG_ARCH_ARM_V7A
+    select LOSCFG_ARCH_FPU_VFP_V4
+    select LOSCFG_ARCH_FPU_VFP_D32
+    select LOSCFG_ARCH_FPU_VFP_NEON
+
 config LOSCFG_ARCH_CPU
     string
+    default "cortex-m0"  if LOSCFG_ARCH_CORTEX_M0
+    default "cortex-m3"  if LOSCFG_ARCH_CORTEX_M3
     default "cortex-m4"  if LOSCFG_ARCH_CORTEX_M4
     default "cortex-m7"  if LOSCFG_ARCH_CORTEX_M7
     default "cortex-a7"  if LOSCFG_ARCH_CORTEX_A7
     default "cortex-a9"  if LOSCFG_ARCH_CORTEX_A9
+    default "cortex-a53" if LOSCFG_ARCH_CORTEX_A53_AARCH32
 

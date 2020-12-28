@@ -23,7 +23,7 @@ int __fseeko_unlocked(FILE *f, off_t off, int whence)
 	/* If seek succeeded, file is seekable and we discard read buffer. */
 	f->rpos = f->rend = 0;
 	f->flags &= ~F_EOF;
-	
+
 	return 0;
 }
 
@@ -44,6 +44,7 @@ int fseek(FILE *f, long off, int whence)
 	return __fseeko(f, off, whence);
 }
 
+#ifdef __LITEOS__
 int __fseeko64_unlocked(FILE *f, off64_t off, int whence)
 {
 	/* Adjust relative offset for unread data in buffer, if any. */
@@ -59,7 +60,7 @@ int __fseeko64_unlocked(FILE *f, off64_t off, int whence)
 	f->wpos = f->wbase = f->wend = 0;
 
 	/* Perform the underlying seek. */
-	if (f->seek(f, off, whence) < 0) return -1;
+	if (f->seek64(f, off, whence) < 0) return -1;
 
 	/* If seek succeeded, file is seekable and we discard read buffer. */
 	f->rpos = f->rend = 0;
@@ -81,6 +82,7 @@ int fseeko64(FILE *f, off64_t off , int whence)
 {
 	return __fseeko64(f, off, whence);
 }
+#endif
 
 weak_alias(__fseeko, fseeko);
 

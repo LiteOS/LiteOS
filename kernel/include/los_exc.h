@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
  * Description: Exception handling HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2020-06-24
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_exc Exception handling
@@ -56,15 +48,17 @@ extern "C" {
  *
  * @par Description:
  * Stack function that prints kernel panics.
- * @attention After this function is called and stack information is printed, the system will fail to respond.
- * @attention The input parameter can be NULL.
- * @param fmt [IN] Type #CHAR* : variadic argument.
+ * @attention
+ * <ul>
+ * <li>After this function is called and stack information is printed, the system will fail to respond.</li>
+ * <li>The input parameter can be NULL.</li>
+ * </ul>
+ * @param fmt [IN] Type #CHAR*. It is a variadic argument.
  *
- * @retval #None.
+ * @retval None.
  *
  * @par Dependency:
  * los_exc.h: the header file that contains the API declaration.
- * @see None.
  * @since Huawei LiteOS V100R001C00
  */
 VOID LOS_Panic(const CHAR *fmt, ...);
@@ -79,12 +73,11 @@ VOID LOS_Panic(const CHAR *fmt, ...);
  *
  * @param None.
  *
- * @retval #None.
+ * @retval None.
  *
  * @par Dependency:
  * los_exc.h: the header file that contains the API declaration.
- * @see None.
- * @since Huawei LiteOS V100R001C00
+ * @since Huawei LiteOS V200R005C10
  */
 extern VOID LOS_BackTrace(VOID);
 #define OsBackTrace LOS_BackTrace
@@ -96,21 +89,65 @@ extern VOID LOS_BackTrace(VOID);
  * @par Description:
  * Backtrace function that prints task call stack information traced from the input task.
  * @attention
- * <ul>
- * <li>The input taskID should be valid.</li>
- * </ul>
+ * The input taskID should be valid.
  *
- * @param  taskID [IN] Type #UINT32 Task ID.
+ * @param  taskID [IN] Type #UINT32. Task ID.
  *
- * @retval #None.
+ * @retval None.
  *
  * @par Dependency:
  * los_exc.h: the header file that contains the API declaration.
- * @see None.
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_TaskBackTrace(UINT32 taskID);
 #define OsTaskBackTrace LOS_TaskBackTrace
+
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+/**
+ * @ingroup los_exc
+ * @brief  Define the type of functions for reading or writing exception information.
+ *
+ * @par Description:
+ * This definition is used to declare the type of functions for reading or writing exception information.
+ * @attention
+ * The first parameter "startAddr" must be left to save the exception information.
+ *
+ * @param startAddr    [IN] The storage space address, it uses to save exception information.
+ * @param space        [IN] The storage space size, it is also the size of the last parameter "buf".
+ * @param rwFlag       [IN] The write-read flag, 0 for writing,1 for reading, other number is to do nothing.
+ * @param buf          [IN] The buffer of storing data.
+ *
+ * @retval none.
+ * @par Dependency:
+ * <ul><li>los_exc.h: the header file that contains the type definition.</li></ul>
+ * @since Huawei LiteOS V200R005C10
+ */
+typedef VOID (*LogReadWriteFunc)(UINTPTR startAddr, UINT32 space, UINT32 rwFlag, CHAR *buf);
+#define log_read_write_fn LogReadWriteFunc /* old API since V200R002C00, please avoid use of it */
+
+ /**
+ * @ingroup los_exc
+ * @brief Register the function of recording exception information .
+ *
+ * @par Description:
+ * This API is used to register the function of recording exception information, and specify the
+ * location, size and buffer of the exception information recording.
+ * @attention
+ * The first parameter "startAddr" must be left to save the exception information.
+ *
+ * @param startAddr    [IN] The storage space address, it uses to save exception information.
+ * @param space        [IN] The storage space size, it is also the size of the third parameter "buf".
+ * @param buf          [IN] The buffer of storing exception information. The buffer is allocated or
+ *                          free in user's code.
+ * @param hook         [IN] the function for reading or writing exception information.
+ *
+ * @retval none.
+ * @par Dependency:
+ * <ul><li>los_exc.h: the header file that contains the API declaration.</li></ul>
+ * @since Huawei LiteOS V200R002C00
+ */
+VOID LOS_ExcInfoRegHook(UINTPTR startAddr, UINT32 space, CHAR *buf, LogReadWriteFunc hook);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch64 Atomic HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,17 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#ifndef __ARCH_ATOMIC_H
-#define __ARCH_ATOMIC_H
+#ifndef _ARCH_ATOMIC_H
+#define _ARCH_ATOMIC_H
 
 #include "los_typedef.h"
 
@@ -245,38 +237,6 @@ STATIC INLINE INT64 ArchAtomic64DecRet(Atomic64 *v)
     return val;
 }
 
-STATIC INLINE INT32 ArchAtomicXchgByte(volatile INT8 *v, INT32 val)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("ldxrb   %w0, %w2\n"
-                             "stxrb   %w1, %w3, %w2"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal;
-}
-
-STATIC INLINE INT32 ArchAtomicXchg16bits(volatile INT16 *v, INT32 val)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("ldxrh   %w0, %w2\n"
-                             "stxrh   %w1, %w3, %w2"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal;
-}
-
 STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
 {
     INT32 prevVal;
@@ -307,46 +267,6 @@ STATIC INLINE INT64 ArchAtomicXchg64bits(Atomic64 *v, INT64 val)
     } while (__builtin_expect(status != 0, 0));
 
     return prevVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchgByte(volatile INT8 *v, INT32 val, INT32 oldVal)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("1: ldxrb %w0, %w2\n"
-                             "    mov %w1, #0\n"
-                             "    cmp %w0, %w3\n"
-                             "    b.ne 2f\n"
-                             "    stxrb %w1, %w4, %w2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal != oldVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchg16bits(volatile INT16 *v, INT32 val, INT32 oldVal)
-{
-    INT32 prevVal;
-    UINT32 status;
-
-    do {
-        __asm__ __volatile__("1: ldxrh %w0, %w2\n"
-                             "    mov %w1, #0\n"
-                             "    cmp %w0, %w3\n"
-                             "    b.ne 2f\n"
-                             "    stxrh %w1, %w4, %w2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
-
-    return prevVal != oldVal;
 }
 
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
@@ -395,4 +315,4 @@ STATIC INLINE BOOL ArchAtomicCmpXchg64bits(Atomic64 *v, INT64 val, INT64 oldVal)
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* __ARCH_ATOMIC_H */
+#endif /* _ARCH_ATOMIC_H */

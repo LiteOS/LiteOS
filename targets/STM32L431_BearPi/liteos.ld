@@ -51,15 +51,16 @@ SECTIONS
   /* The startup code goes first into FLASH */
   .isr_vector :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >FLASH
 
   /* The program code and other data goes into FLASH */
   .text :
   {
-    . = ALIGN(8);
+    __text_start = .;
+    . = ALIGN(4);
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
@@ -69,14 +70,16 @@ SECTIONS
     KEEP (*(.init))
     KEEP (*(.fini))
 
-    . = ALIGN(8);
+    . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
+    __text_end = _etext;
   } >FLASH
 
   /* Constant data goes into FLASH */
   .rodata :
   {
     . = ALIGN(4);
+    __rodata_start = .;
     __oshell_start = .;
     KEEP (*(oshell))
     __oshell_end = .;
@@ -86,52 +89,53 @@ SECTIONS
     KEEP (*(osdriv))
     __osdriv_end = .;
 
-    . = ALIGN(8);
+    . = ALIGN(4);
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
-    . = ALIGN(8);
+    . = ALIGN(4);
+    __rodata_end = .;
   } >FLASH
 
   .ARM.extab   :
   {
-  . = ALIGN(8);
+  . = ALIGN(4);
   *(.ARM.extab* .gnu.linkonce.armextab.*)
-  . = ALIGN(8);
+  . = ALIGN(4);
   } >FLASH
   .ARM : {
-. = ALIGN(8);
+. = ALIGN(4);
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >FLASH
 
   .preinit_array     :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >FLASH
 
   .init_array :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >FLASH
   .fini_array :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >FLASH
 
   /* used by the startup to initialize liteos vector */
@@ -152,13 +156,16 @@ SECTIONS
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
+    __ram_data_start = _sdata;
     _sdata = .;        /* create a global symbol at data start */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
+    KEEP(*( SORT (.liteos.table.*)));
 
-    . = ALIGN(8);
+    . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
+    __ram_data_end = _edata;
   } >RAM AT> FLASH
 
 
@@ -169,6 +176,7 @@ SECTIONS
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
+    __bss_start = _sbss;
     *(.bss)
     *(.bss*)
     *(COMMON)

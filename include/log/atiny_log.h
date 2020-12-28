@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Atiny Log HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,32 +24,24 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#ifndef ATINY_LOG_H
-#define ATINY_LOG_H
+#ifndef _ATINY_LOG_H
+#define _ATINY_LOG_H
 #include "osdepends/atiny_osdep.h"
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-typedef enum
-{
+typedef enum {
     LOG_DEBUG = 0,
     LOG_INFO,
     LOG_WARNING,
     LOG_ERR,
     LOG_FATAL,
-
     LOG_MAX
 } atiny_log_e;
 
@@ -69,40 +63,39 @@ typedef enum
 void atiny_set_log_level(atiny_log_e level);
 
 /**
- *@ingroup agenttiny
- *@brief get log level.
+ * @ingroup agenttiny
+ * @brief get log level.
  *
- *@par Description:
- *This API is used to get log level set by atiny_set_log_level.
- *@attention none.
+ * @par Description:
+ * This API is used to get log level set by atiny_set_log_level.
+ * @attention none.
  *
- *@param none.
+ * @param none.
  *
- *@retval #atiny_log_e  Log level.
- *@par Dependency: none.
- *@see atiny_set_log_level.
+ * @retval #atiny_log_e  Log level.
+ * @par Dependency: none.
+ * @see atiny_set_log_level.
  */
 atiny_log_e atiny_get_log_level(void);
 
 #ifdef ATINY_DEBUG
-const char* atiny_get_log_level_name(atiny_log_e log_level);
+const char *atiny_get_log_level_name(atiny_log_e log_level);
 
-#define ATINY_LOG(level, fmt, ...) \
-    do \
-    { \
-        if ((level) >= atiny_get_log_level()) \
-        { \
-            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", \
-            atiny_get_log_level_name((level)), (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        } \
+#define ATINY_LOG(level, fmt, ...)                                                               \
+    do {                                                                                         \
+        if ((level) >= atiny_get_log_level()) {                                                  \
+            (void)atiny_printf("[%s][%u][%s:%d] " fmt "\r\n", atiny_get_log_level_name((level)), \
+                (uint32_t)atiny_gettime_ms(), __FUNCTION__, __LINE__, ##__VA_ARGS__);            \
+        }                                                                                        \
     } while (0)
 #else
 #define ATINY_LOG(level, fmt, ...)
 #endif
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif
-
+#endif /* _ATINY_LOG_H */

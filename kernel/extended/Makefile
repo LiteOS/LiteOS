@@ -1,8 +1,10 @@
 include $(LITEOSTOPDIR)/config.mk
 
 MODULE_$(LOSCFG_KERNEL_CPUP) += cpup
-MODULE_$(LOSCFG_KERNEL_TICKLESS) += tickless
+MODULE_$(LOSCFG_KERNEL_RUNSTOP) += lowpower/runstop
+MODULE_$(LOSCFG_KERNEL_TICKLESS) += lowpower/tickless
 MODULE_$(LOSCFG_KERNEL_TRACE) += trace
+MODULE_$(LOSCFG_KERNEL_LOWPOWER) += lowpower
 
 MODULE_$(LOSCFG_KERNEL_CPPSUPPORT) += cppsupport
 

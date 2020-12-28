@@ -5,8 +5,7 @@ static FILE *ofl_head;
 #ifndef __LITEOS__
 static volatile int ofl_lock[1];
 #else
-pthread_mutex_t ofl_lock_value = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-pthread_mutex_t *ofl_lock = &ofl_lock_value;
+static pthread_mutex_t ofl_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 FILE **__ofl_lock()

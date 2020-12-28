@@ -18,16 +18,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**********************************************************************************
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which
- * might include those applicable to Huawei LiteOS of U.S. and the country in which you
- * are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance
- * with such applicable export control laws and regulations.
- **********************************************************************************/
-
 /* lwIP includes. */
 #include "lwip/opt.h"
 #include "lwip/debug.h"
@@ -39,7 +29,7 @@
 #include "los_config.h"
 #include "arch/sys_arch.h"
 
-#include "los_sys_pri.h"
+#include "los_sys.h"
 #include "los_sem_pri.h"
 #include "string.h"
 
@@ -47,7 +37,7 @@
 /* ---------------------------------------------------------------------------*
  * Routine:  sys_mbox_new
  * ---------------------------------------------------------------------------*
- * @Description: 
+ * @Description:
  * Creates a new mailbox
  * @Inputs:
  * sys_mbox_t mbox         -- Handle of mailbox

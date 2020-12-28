@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_tick Tick
@@ -53,37 +45,37 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of milliseconds in one second.
  */
 #define OS_SYS_MS_PER_SECOND   1000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of nanoseconds in one second.
  */
 #define OS_SYS_NS_PER_SECOND   1000000000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of microseconds in one milliseconds.
  */
 #define OS_SYS_US_PER_MS        1000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of nanoseconds in one milliseconds.
  */
 #define OS_SYS_NS_PER_MS        1000000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of nanoseconds in one microsecond.
  */
 #define OS_SYS_NS_PER_US        1000
@@ -92,10 +84,10 @@ extern "C" {
  * @ingroup los_tick
  * Tick error code: The Tick configuration is incorrect.
  *
- * Value: 0x02000400
+ * Value: 0x02000400.
  *
- * Solution: Change values of the OS_SYS_CLOCK and LOSCFG_BASE_CORE_TICK_PER_SECOND system time configuration modules
- * in Los_config.h.
+ * Solution: Change values of the #OS_SYS_CLOCK and #LOSCFG_BASE_CORE_TICK_PER_SECOND
+ * in los_config.h.
  */
 #define LOS_ERRNO_TICK_CFG_INVALID       LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x00)
 
@@ -104,19 +96,14 @@ extern "C" {
  * Tick error code: This error code is not in use temporarily.
  *
  * Value: 0x02000401
- *
- * Solution: None.
  */
 #define LOS_ERRNO_TICK_NO_HWTIMER        LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x01)
 
 /**
  * @ingroup los_tick
- * Tick error code: The number of Ticks is too small.
+ * Tick error code: This error code is not in use temporarily.
  *
  * Value: 0x02000402
- *
- * Solution: Change values of the OS_SYS_CLOCK and LOSCFG_BASE_CORE_TICK_PER_SECOND system time configuration modules
- * according to the SysTick_Config function.
  */
 #define LOS_ERRNO_TICK_PER_SEC_TOO_SMALL LOS_ERRNO_OS_ERROR(LOS_MOD_TICK, 0x02)
 
@@ -125,6 +112,18 @@ extern "C" {
  * system clock
  */
 extern UINT32 g_sysClock;
+
+/**
+ * @ingroup los_config
+ * get system clock
+ */
+#define GET_SYS_CLOCK()        (g_sysClock)
+
+/**
+ * @ingroup los_config
+ * set system clock
+ */
+#define SET_SYS_CLOCK(clock)   (g_sysClock = (clock))
 
 /**
  * @ingroup los_config
@@ -137,96 +136,86 @@ extern UINT32 g_tickPerSecond;
  * system time structure.
  */
 typedef struct tagSysTime {
-    UINT16 uwYear;   /**< value 1970 ~ 2038 or 1970 ~ 2100 */
-    UINT8 ucMonth;   /**< value 1 - 12 */
-    UINT8 ucDay;     /**< value 1 - 31 */
-    UINT8 ucHour;    /**< value 0 - 23 */
-    UINT8 ucMinute;  /**< value 0 - 59 */
-    UINT8 ucSecond;  /**< value 0 - 59 */
-    UINT8 ucWeek;    /**< value 0 - 6  */
+    UINT16 uwYear;   /**< year, the value range is 1970 ~ 2038 or 1970 ~ 2100 */
+    UINT8 ucMonth;   /**< month, the value range is 1 - 12 */
+    UINT8 ucDay;     /**< day, the value range is 1 - 31 */
+    UINT8 ucHour;    /**< hour, the value range is 0 - 23 */
+    UINT8 ucMinute;  /**< minute, the value range is 0 - 59 */
+    UINT8 ucSecond;  /**< second, the value range is 0 - 59 */
+    UINT8 ucWeek;    /**< week, the value range is 0 - 6 */
 } SYS_TIME_S;
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Obtain the number of Ticks.
  *
  * @par Description:
- * This API is used to obtain the number of Ticks.
+ * This API is used to obtain the number of Ticks since the system startup.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None.
  *
  * @param  None
  *
- * @retval UINT64 The number of Ticks.
+ * @retval #UINT64 The number of Ticks.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- * @see None
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_GetCpuCycle
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT64 LOS_TickCountGet(VOID);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Obtain the number of cycles in one tick.
  *
  * @par Description:
  * This API is used to obtain the number of cycles in one tick.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None.
  *
- * @param  None
+ * @param  None.
  *
- * @retval UINT32 Number of cycles obtained in one tick.
+ * @retval #UINT32 Number of cycles in one tick.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
- * @see None
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_CyclePerTickGet(VOID);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert Ticks to milliseconds.
  *
  * @par Description:
  * This API is used to convert Ticks to milliseconds.
  * @attention
- * <ul>
- * <li>The number of milliseconds obtained through the conversion is 32-bit.</li>
- * </ul>
+ * The number of milliseconds obtained through the conversion is 32-bit.
  *
- * @param  tick  [IN] Number of Ticks. The value range is (0,OS_SYS_CLOCK).
+ * @param  tick  [IN] Number of Ticks. The value range is (0, #OS_SYS_CLOCK).
  *
- * @retval UINT32 Number of milliseconds obtained through the conversion. Ticks are successfully converted to
- * milliseconds.
+ * @retval #UINT32 Milliseconds obtained through the conversion.
  * @par  Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_MS2Tick
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_Tick2MS(UINT32 tick);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert milliseconds to Ticks.
  *
  * @par Description:
  * This API is used to convert milliseconds to Ticks.
  * @attention
- * <ul>
- * <li>If the parameter passed in is equal to 0xFFFFFFFF, the retval is 0xFFFFFFFF. Pay attention to the value to be
- * converted because data possibly overflows.</li>
- * </ul>
+ * If the parameter passed in is equal to 0xFFFFFFFF, the retval is 0xFFFFFFFF. Pay attention to
+ * the value to be converted because data may overflows.
  *
- * @param  millisec  [IN] Number of milliseconds.
+ * @param  millisec  [IN] The milliseconds need to be converted to Ticks.
  *
- * @retval UINT32 Number of Ticks obtained through the conversion.
+ * @retval #UINT32 Number of Ticks obtained through the conversion.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_Tick2MS
  * @since Huawei LiteOS V100R001C00
  */
@@ -237,13 +226,13 @@ extern UINT32 LOS_MS2Tick(UINT32 millisec);
  * @brief Obtain system cycle count.
  *
  * @par Description:
- * This API is used to obtain system cycle count.
+ * This API is used to obtain system cycle count since the system startup.
  *
  * @attention
  * <ul>
- * <li> This count is determined by the tick source.</li>
- * <li>Parameters of this interface is pointer, it should be a correct value, otherwise, the system may be
- * abnormal.</li>
+ * <li>This count is determined by the tick source.</li>
+ * <li>Parameters of this interface are pointers, it should be a correct value. Otherwise, the
+ * system may be abnormal.</li>
  * </ul>
  *
  * @param  puwCntHi    [OUT] Type  #UINT32 Pointer to the higher 32bit of cycles to be obtained.
@@ -253,7 +242,7 @@ extern UINT32 LOS_MS2Tick(UINT32 millisec);
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_TickCountGet
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
@@ -273,7 +262,6 @@ extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
- * @see
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT64 LOS_CurrNanosec(VOID);
@@ -287,13 +275,13 @@ extern UINT64 LOS_CurrNanosec(VOID);
  *
  * @attention None.
  *
- * @param  #UINT32  microsecond needs to delay.
+ * @param  usecs  microsecond needs to delay.
  *
  * @retval None.
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_Mdelay
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_Udelay(UINT32 usecs);
@@ -307,13 +295,13 @@ extern VOID LOS_Udelay(UINT32 usecs);
  *
  * @attention None.
  *
- * @param  #UINT32  millisecond needs to delay.
+ * @param  msecs  millisecond needs to delay.
  *
  * @retval None.
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see LOS_Udelay
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_Mdelay(UINT32 msecs);

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_CACHE_H
 #define _ARCH_CACHE_H
@@ -45,8 +37,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-extern void ArmCleanCacheRange(UINTPTR start, UINTPTR end);
-extern void ArmInvCacheRange(UINTPTR start, UINTPTR end);
+extern VOID ArchDCacheCleanByAddr(UINTPTR start, UINTPTR end);
+extern VOID ArchDCacheInvByAddr(UINTPTR start, UINTPTR end);
 
 /* Old Style APIs */
 STATIC INLINE VOID flush_icache(VOID)
@@ -58,9 +50,9 @@ STATIC INLINE VOID flush_icache(VOID)
     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c1, 0" : : "r" (0) : "memory");
 }
 
-STATIC INLINE VOID flush_dcache(UINT32 start, UINT32 end)
+STATIC INLINE VOID flush_dcache(UINTPTR start, UINTPTR end)
 {
-    ArmCleanCacheRange(start, end);
+    ArchDCacheCleanByAddr(start, end);
 }
 
 #ifdef __cplusplus

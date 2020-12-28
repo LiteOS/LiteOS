@@ -1,4 +1,3 @@
-#include "los_config.h"
 #include "stddef.h"
 #include "errno.h"
 #include "sys/types.h"

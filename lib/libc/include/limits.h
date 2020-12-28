@@ -5,10 +5,8 @@
 
 #include <bits/alltypes.h> /* __LONG_MAX */
 #ifdef __LITEOS__
-#include "los_config.h"
-#include "los_sem_pri.h"
+#include "los_sem.h"
 #endif
-
 /* Support signed or unsigned plain-char */
 
 #if '\xff' > 0
@@ -205,7 +203,6 @@
 #define _XOPEN_PATH_MAX         1024
 
 #ifdef __LITEOS__
-#include "los_config.h"
 #ifdef LOSCFG_FS_VFS
 #include "vfs_config.h"
 #endif
@@ -227,7 +224,13 @@
 #define PTHREAD_ATTR_STACKSIZE LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE
 #define PTHREAD_PRIORITY_SCHEDULING SCHED_OTHER
 #define PTHREAD_THREADS_MAX (LOSCFG_BASE_CORE_TSK_LIMIT + 1)
-#define TIMERS LOSCFG_BASE_CORE_SWTMR
+
+#ifdef LOSCFG_BASE_CORE_SWTMR
+#define TIMERS 1
+#else
+#define TIMERS 0
+#endif
+
 #define TIMER_MAX _POSIX_TIMER_MAX
 #define _POSIX_VERSION 200809L
 #define POSIX_VERSION _POSIX_VERSION

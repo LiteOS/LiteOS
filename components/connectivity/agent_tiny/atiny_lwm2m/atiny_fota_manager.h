@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Agent Fota Manager HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*******************************************************************************
  *
@@ -49,15 +43,14 @@
  *
  *******************************************************************************/
 
-#ifndef ATINY_FOTA_MANAGER_H_
-#define ATINY_FOTA_MANAGER_H_
+#ifndef _ATINY_FOTA_MANAGER_H
+#define _ATINY_FOTA_MANAGER_H
 
 #include "atiny_lwm2m/agenttiny.h"
 #include "liblwm2m.h"
 #include "ota/package.h"
 
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
-
 
 /*
 0: Initial value. Once the updating process is initiated (Download /Update), this Resource MUST be reset to Initial value.
@@ -70,22 +63,18 @@
 7: Invalid URI
 8: Firmware update failed
 9: Unsupported protocol
-
 */
 
 typedef int atiny_fota_state_e;
-enum //atiny_fota_state_e
-{
+enum { //atiny_fota_state_e
     ATINY_FOTA_IDLE = 0,
     ATINY_FOTA_DOWNLOADING,
     ATINY_FOTA_DOWNLOADED,
     ATINY_FOTA_UPDATING
 };
 
-
 typedef int atiny_update_result_e;
-enum
-{
+enum {
     ATINY_FIRMWARE_UPDATE_NULL = 0,
     ATINY_FIRMWARE_UPDATE_SUCCESS = 1,
     ATINY_FIRMWARE_UPDATE_FAIL = 8
@@ -95,10 +84,12 @@ struct atiny_fota_manager_tag_s;
 typedef struct atiny_fota_manager_tag_s atiny_fota_manager_s;
 
 #ifdef __cplusplus
-    extern "C" {
-#endif
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-char * atiny_fota_manager_get_pkg_uri(const atiny_fota_manager_s *thi);
+char *atiny_fota_manager_get_pkg_uri(const atiny_fota_manager_s *thi);
 int atiny_fota_manager_get_state(const atiny_fota_manager_s *thi);
 int atiny_fota_manager_get_update_result(const atiny_fota_manager_s *thi);
 void atiny_fota_manager_set_update_result(atiny_fota_manager_s *thi, atiny_update_result_e result);
@@ -109,24 +100,21 @@ int atiny_fota_manager_repot_result(atiny_fota_manager_s *thi);
 int atiny_fota_manager_set_state(atiny_fota_manager_s *thi, atiny_fota_state_e state);
 int atiny_fota_manager_set_storage_device(atiny_fota_manager_s *thi);
 pack_storage_device_api_s *atiny_fota_manager_get_storage_device(atiny_fota_manager_s *thi);
-int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t*  lwm2m_context);
-lwm2m_context_t* atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi);
+int atiny_fota_manager_set_lwm2m_context(atiny_fota_manager_s *thi, lwm2m_context_t *lwm2m_context);
+lwm2m_context_t *atiny_fota_manager_get_lwm2m_context(atiny_fota_manager_s *thi);
 void atiny_fota_manager_get_data_cfg(const atiny_fota_manager_s *thi, lwm2m_data_cfg_t *data_cfg);
 
 void atiny_fota_manager_destroy(atiny_fota_manager_s *thi);
 int atiny_fota_manager_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state);
 void atiny_fota_manager_save_rpt_state(atiny_fota_manager_s *thi, atiny_fota_state_e rpt_state);
 
-
 atiny_fota_state_e atiny_fota_manager_get_rpt_state(const atiny_fota_manager_s *thi);
-
-
-
-atiny_fota_manager_s * atiny_fota_manager_get_instance(void);
+atiny_fota_manager_s *atiny_fota_manager_get_instance(void);
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-
-#endif /* ATINY_FOTA_MANAGER_H_ */
+#endif /* _ATINY_FOTA_MANAGER_H */

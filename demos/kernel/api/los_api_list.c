@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel List Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "los_list.h"
 #include <stdio.h>
@@ -50,88 +44,76 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-UINT32 Example_list(VOID)
+UINT32 Example_List(VOID)
 {
-    UINT32 uwRet = LOS_OK;
+    UINT32 ret;
 
     /* init */
-    dprintf("initial...... \r\n");
+    printf("Kernel list demo begin.\n");
+    printf("Init list......\n");
     LOS_DL_LIST *head;
     head = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
-    if (head == NULL)
-    {
-        dprintf("malloc failed \r\n");
+    if (head == NULL) {
+        printf("Malloc failed.\n");
         return LOS_NOK;
     }
 
     LOS_ListInit(head);
-    if (!LOS_ListEmpty(head))
-    {
-        dprintf("initial failed \r\n");
+    if (!LOS_ListEmpty(head)) {
+        printf("Init list failed.\n");
         return LOS_NOK;
     }
 
-    /* tail insert node*/
-    dprintf("node add and tail add......\r\n");
+    /* tail insert node */
+    printf("Node add and tail add......\n");
 
     LOS_DL_LIST *node1 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
-    if (node1 == NULL)
-    {
-        dprintf("malloc failed\n");
+    if (node1 == NULL) {
+        printf("Malloc failed\n");
         return LOS_NOK;
     }
 
     LOS_DL_LIST *node2 = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
-    if (node2 == NULL)
-    {
-        dprintf("malloc failed \r\n");
+    if (node2 == NULL) {
+        printf("Malloc failed.\n");
         LOS_MemFree(m_aucSysMem0, node1);
         return LOS_NOK;
     }
 
     LOS_DL_LIST *tail = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, sizeof(LOS_DL_LIST));
-    if (tail == NULL)
-    {
-        dprintf("malloc failed \r\n");
+    if (tail == NULL) {
+        printf("Malloc failed.\n");
         LOS_MemFree(m_aucSysMem0, node1);
         LOS_MemFree(m_aucSysMem0, node2);
         return LOS_NOK;
     }
 
-
-    LOS_ListAdd(head,node1);
-    LOS_ListAdd(node1,node2);
-    if ((node1->pstPrev == head) || (node2->pstPrev == node1))
-    {
-        dprintf("add node success \r\n");
+    LOS_ListAdd(head, node1);
+    LOS_ListAdd(node1, node2);
+    if ((node1->pstPrev == head) || (node2->pstPrev == node1)) {
+        printf("Add node ok.\n");
     }
 
     LOS_ListTailInsert(head, tail);
-    if (tail->pstPrev == node2)
-    {
-        dprintf("add tail success \r\n");
+    if (tail->pstPrev == node2) {
+        printf("Add tail ok.\n");
     }
 
     /* delete node */
-    dprintf("delete node......\r\n");
+    printf("Delete node......\n");
     LOS_ListDelete(node1);
     LOS_MemFree(m_aucSysMem0, node1);
-    if (head->pstNext == node2)
-    {
-        dprintf("delete node success\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err\r\n");
+    if (head->pstNext == node2) {
+        printf("Delete node ok.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_LIST, LOS_INSPECT_STU_SUCCESS);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
-    }
-    else
-    {
-        dprintf("delete node error\r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_LIST, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err\r\n");
+    } else {
+        printf("Delete node failed.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_LIST, LOS_INSPECT_STU_ERROR);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
     }
 

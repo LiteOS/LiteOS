@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_membox.h"
 #include "los_hwi.h"
@@ -116,7 +108,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MemboxInit(VOID *pool, UINT32 poolSize, UINT32 
 
     boxInfo->stFreeList.pstNext = node;
 
-    for (index = 0; index < boxInfo->uwBlkNum - 1; ++index) {
+    for (index = 0; index < (boxInfo->uwBlkNum - 1); ++index) {
         node->pstNext = OS_MEMBOX_NEXT(node, boxInfo->uwBlkSize);
         node = node->pstNext;
     }
@@ -182,13 +174,16 @@ LITE_OS_SEC_TEXT UINT32 LOS_MemboxFree(VOID *pool, VOID *box)
 LITE_OS_SEC_TEXT_MINOR VOID LOS_MemboxClr(VOID *pool, VOID *box)
 {
     LOS_MEMBOX_INFO *boxInfo = (LOS_MEMBOX_INFO *)pool;
+    UINT32 intSave;
 
     if ((pool == NULL) || (box == NULL)) {
         return;
     }
 
+    MEMBOX_LOCK(intSave);
     (VOID)memset_s(box, (boxInfo->uwBlkSize - OS_MEMBOX_NODE_HEAD_SIZE), 0,
         (boxInfo->uwBlkSize - OS_MEMBOX_NODE_HEAD_SIZE));
+    MEMBOX_UNLOCK(intSave);
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID LOS_ShowBox(VOID *pool)

@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_LOCKDEP_H
 #define _LOS_LOCKDEP_H
@@ -44,14 +36,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-typedef struct Spinlock {
-    size_t      rawLock;
-#ifdef LOSCFG_KERNEL_SMP_LOCKDEP
-    UINT32      cpuid;
-    VOID        *owner;
-    const CHAR  *name;
-#endif
-} SPIN_LOCK_S;
+typedef struct Spinlock SPIN_LOCK_S;
 
 #define MAX_LOCK_DEPTH  16U
 
@@ -59,7 +44,7 @@ enum LockDepErrType {
     LOCKDEP_SUCEESS = 0,
     LOCKDEP_ERR_DOUBLE_LOCK,
     LOCKDEP_ERR_DEAD_LOCK,
-    LOCKDEP_ERR_UNLOCK_WITOUT_LOCK,
+    LOCKDEP_ERR_UNLOCK_WITHOUT_LOCK,
     /* overflow, needs expand */
     LOCKDEP_ERR_OVERFLOW,
 };
@@ -95,7 +80,7 @@ typedef struct {
  * @see
  * @since Huawei LiteOS V200R003C00
  */
-extern VOID OsLockDepCheckIn(SPIN_LOCK_S *lock);
+extern VOID OsLockDepCheckIn(const SPIN_LOCK_S *lock);
 
 /**
  * @ingroup los_lockdep
@@ -161,4 +146,4 @@ extern VOID OsLockdepClearSpinlocks(VOID);
 }
 #endif
 #endif /* __cplusplus */
-#endif/* _LOS_LOCKDEP_H */
+#endif /* _LOS_LOCKDEP_H */

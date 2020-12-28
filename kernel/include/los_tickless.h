@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_tickless Tickless
@@ -55,11 +47,11 @@ extern "C" {
  * @brief enable the tickless mode.
  *
  * @par Description:
- * This API is used to enable the tickless mode. System can change from periodic clock mode to dynamic clock mode.
+ * This API is used to enable the tickless mode. In the mode, system changes from
+ * periodic clock mode to dynamic clock mode.
  *
  * @attention
- * <ul>
- * </ul>
+ * None.
  *
  * @param  None.
  *
@@ -76,11 +68,11 @@ extern VOID LOS_TicklessEnable(VOID);
  * @brief disable the tickless mode.
  *
  * @par Description:
- * This API is used to disable the tickless mode. System will not change from periodic clock mode to dynamic clock mode.
+ * This API is used to disable the tickless mode. System will not change from
+ * periodic clock mode to dynamic clock mode.
  *
  * @attention
- * <ul>
- * </ul>
+ * None.
  *
  * @param  None.
  *

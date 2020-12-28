@@ -5,6 +5,7 @@
 #
 config LOSCFG_ARCH_ARM_AARCH64
     bool
+    select LOSCFG_LIB_LIBC
     help
       64-bit ARM architecture implementations.
       AArch64 was introduced in ARMv8-A and is included in subsequent versions of ARMV8-A.

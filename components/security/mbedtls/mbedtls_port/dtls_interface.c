@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Dtls Interface
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*
  *  Simple DTLS client demonstration program
@@ -58,6 +52,12 @@
 #include "mbedtls/net_sockets.h"
 #include "sal/atiny_socket.h"
 
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
 #define MBEDTLS_DEBUG
 
 #ifdef MBEDTLS_DEBUG
@@ -69,14 +69,13 @@
     } while (0)
 #else
 #define MBEDTLS_LOG(fmt, ...) ((void)0)
-#endif
+#endif /* MBEDTLS_DEBUG */
 
 
 static void *atiny_calloc(size_t n, size_t size)
 {
     void *p = atiny_malloc(n * size);
-    if(p)
-    {
+    if (p != NULL) {
         memset(p, 0, n * size);
     }
 
@@ -113,13 +112,11 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
         || NULL == cacert
 #endif
-        )
-    {
+        ) {
         goto exit_fail;
     }
 
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
-    {
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) {
         timer = mbedtls_calloc(1, sizeof(mbedtls_timing_delay_context));
         if (NULL == timer) goto exit_fail;
     }
@@ -130,39 +127,33 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     mbedtls_entropy_init(entropy);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (info->psk_or_cert == VERIFY_WITH_CERT)
-    {
+    if (info->psk_or_cert == VERIFY_WITH_CERT) {
         mbedtls_x509_crt_init(cacert);
     }
 #endif
 
     if ((ret = mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func, entropy,
                                      (const unsigned char *) pers,
-                                     strlen(pers))) != 0)
-    {
+                                     strlen(pers))) != 0) {
         MBEDTLS_LOG("mbedtls_ctr_drbg_seed failed: -0x%x", -ret);
         goto exit_fail;
     }
 
     MBEDTLS_LOG("setting up the SSL structure");
 
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
-    {
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) {
         ret = mbedtls_ssl_config_defaults(conf,
                                           plat_type,
                                           MBEDTLS_SSL_TRANSPORT_DATAGRAM,
                                           MBEDTLS_SSL_PRESET_DEFAULT);
-    }
-    else
-    {
+    } else {
         ret = mbedtls_ssl_config_defaults(conf,
                                           plat_type,
                                           MBEDTLS_SSL_TRANSPORT_STREAM,
                                           MBEDTLS_SSL_PRESET_DEFAULT);
     }
 
-    if (ret != 0)
-    {
+    if (ret != 0) {
         MBEDTLS_LOG("mbedtls_ssl_config_defaults failed: -0x%x", -ret);
         goto exit_fail;
     }
@@ -170,20 +161,17 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
     mbedtls_ssl_conf_authmode(conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, ctr_drbg);
 
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
-    {
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP) {
         mbedtls_ssl_conf_read_timeout(conf, TLS_SHAKEHAND_TIMEOUT);
     }
 
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
-    if (info->psk_or_cert == VERIFY_WITH_PSK)
-    {
+    if (info->psk_or_cert == VERIFY_WITH_PSK) {
         if ((ret = mbedtls_ssl_conf_psk(conf,
                                         info->v.p.psk,
                                         info->v.p.psk_len,
                                         info->v.p.psk_identity,
-                                        strlen((const char *)info->v.p.psk_identity))) != 0)
-        {
+                                        strlen((const char *)info->v.p.psk_identity))) != 0) {
             MBEDTLS_LOG("mbedtls_ssl_conf_psk failed: -0x%x", -ret);
             goto exit_fail;
         }
@@ -191,11 +179,9 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (info->psk_or_cert == VERIFY_WITH_CERT)
-    {
+	if (info->psk_or_cert == VERIFY_WITH_CERT) {
         ret = mbedtls_x509_crt_parse(cacert, info->v.c.ca_cert, info->v.c.cert_len);
-        if(ret < 0)
-        {
+        if(ret < 0) {
             MBEDTLS_LOG("mbedtls_x509_crt_parse failed -0x%x", -ret);
             goto exit_fail;
         }
@@ -205,20 +191,17 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 #endif
 
 
-#ifndef WITH_MQTT
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
-    {
+#ifndef LOSCFG_COMPONENTS_CONNECTIVITY_MQTT
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) {
         mbedtls_ssl_conf_dtls_cookies(conf, NULL, NULL,NULL);
     }
 #endif
-    if ((ret = mbedtls_ssl_setup(ssl, conf)) != 0)
-    {
+    if ((ret = mbedtls_ssl_setup(ssl, conf)) != 0) {
         MBEDTLS_LOG("mbedtls_ssl_setup failed: -0x%x", -ret);
         goto exit_fail;
     }
 
-    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)
-    {
+    if (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) {
         mbedtls_ssl_set_timer_cb(ssl, timer, mbedtls_timing_set_delay,
                                  mbedtls_timing_get_delay);
     }
@@ -229,39 +212,33 @@ mbedtls_ssl_context *dtls_ssl_new(dtls_establish_info_s *info, char plat_type)
 
 exit_fail:
 
-    if (conf)
-    {
+    if (conf != NULL) {
         mbedtls_ssl_config_free(conf);
         mbedtls_free(conf);
     }
 
-    if (ctr_drbg)
-    {
+    if (ctr_drbg != NULL) {
         mbedtls_ctr_drbg_free(ctr_drbg);
         mbedtls_free(ctr_drbg);
     }
 
-    if (entropy)
-    {
+    if (entropy != NULL) {
         mbedtls_entropy_free(entropy);
         mbedtls_free(entropy);
     }
 
-    if (timer)
-    {
+    if (timer != NULL) {
         mbedtls_free(timer);
     }
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (cacert)
-    {
+    if (cacert != NULL) {
         mbedtls_x509_crt_free(cacert);
         mbedtls_free(cacert);
     }
 #endif
 
-    if (ssl)
-    {
+    if (ssl != NULL) {
         mbedtls_ssl_free(ssl);
         mbedtls_free(ssl);
     }
@@ -277,8 +254,7 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 {
     int ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
     uint32_t change_value = 0;
-    mbedtls_net_context *server_fd = NULL;
-    mbedtls_net_context svr_fd;
+    mbedtls_net_context *server_fd = (mbedtls_net_context*)atiny_malloc(sizeof(mbedtls_net_context));
     uint32_t max_value;
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     unsigned int flags;
@@ -286,18 +262,13 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 
     MBEDTLS_LOG("connecting to server");
 
-    if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server)
-    {
-        server_fd = &svr_fd;
-        mbedtls_net_connect(&svr_fd, info->u.c.host, info->u.c.port, info->udp_or_tcp);
-    }
-    else
-    {
+    if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server) {
+        mbedtls_net_connect(server_fd, info->u.c.host, info->u.c.port, info->udp_or_tcp);
+    } else {
         server_fd = (mbedtls_net_context*)atiny_net_bind(NULL, info->u.s.local_port, MBEDTLS_NET_PROTO_UDP);
     }
 
-    if (server_fd == NULL)
-    {
+    if (server_fd == NULL) {
         MBEDTLS_LOG("connect failed! mode %d", info->client_or_server);
         ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
         goto exit_fail;
@@ -308,57 +279,48 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 
     MBEDTLS_LOG("performing the SSL/TLS handshake");
 
-    max_value = ((MBEDTLS_SSL_IS_SERVER == info->client_or_server || info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP) ?
+    max_value = (((MBEDTLS_SSL_IS_SERVER == info->client_or_server) || (info->udp_or_tcp == MBEDTLS_NET_PROTO_UDP)) ?
                 (dtls_gettime() + info->timeout) :  50);
 
-    do
-    {
+    do {
         ret = mbedtls_ssl_handshake(ssl);
         //MBEDTLS_LOG("mbedtls_ssl_handshake %d %d", change_value, max_value);
         //LOS_TaskDelay(1);
-        if (MBEDTLS_SSL_IS_CLIENT == info->client_or_server && info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)
-        {
+        if ((MBEDTLS_SSL_IS_CLIENT == info->client_or_server) && (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)) {
             change_value++;
-        }
-        else
-        {
+        } else {
             change_value = dtls_gettime();
         }
 
-        if (info->step_notify)
-        {
+        if (info->step_notify != NULL) {
             info->step_notify(info->param);
         }
     }
-    while ((ret == MBEDTLS_ERR_SSL_WANT_READ ||
-            ret == MBEDTLS_ERR_SSL_WANT_WRITE ||
-            (ret == MBEDTLS_ERR_SSL_TIMEOUT &&
-            info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP)) &&
+    while (((ret == MBEDTLS_ERR_SSL_WANT_READ) ||
+            (ret == MBEDTLS_ERR_SSL_WANT_WRITE) ||
+            ((ret == MBEDTLS_ERR_SSL_TIMEOUT) &&
+            (info->udp_or_tcp == MBEDTLS_NET_PROTO_TCP))) &&
             (change_value < max_value));
 
-    if (info->finish_notify)
-    {
+    if (info->finish_notify != NULL) {
         info->finish_notify(info->param);
     }
 
-    if (ret != 0)
-    {
+    if (ret != 0) {
         MBEDTLS_LOG("mbedtls_ssl_handshake failed: -0x%x", -ret);
         goto exit_fail;
     }
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (info->psk_or_cert == VERIFY_WITH_CERT)
-    {
-        if((flags = mbedtls_ssl_get_verify_result(ssl)) != 0)
-        {
+    if (info->psk_or_cert == VERIFY_WITH_CERT) {
+        if((flags = mbedtls_ssl_get_verify_result(ssl)) != 0) {
             char vrfy_buf[512];
             mbedtls_x509_crt_verify_info(vrfy_buf, sizeof(vrfy_buf), "  ! ", flags);
             MBEDTLS_LOG("cert verify failed: %s", vrfy_buf);
             goto exit_fail;
-        }
-        else
+        } else {
             MBEDTLS_LOG("cert verify succeed");
+        }
     }
 #endif
 
@@ -368,15 +330,14 @@ int dtls_shakehand(mbedtls_ssl_context *ssl, const dtls_shakehand_info_s *info)
 
 exit_fail:
 
-    if (server_fd)
-    {
+    if (server_fd != NULL) {
         mbedtls_net_free(server_fd);
         ssl->p_bio = NULL;
     }
 
     return ret;
-
 }
+
 void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
 {
     mbedtls_ssl_config           *conf = NULL;
@@ -388,8 +349,7 @@ void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
     mbedtls_x509_crt             *cacert = NULL;
 #endif
 
-    if (ssl == NULL)
-    {
+    if (ssl == NULL) {
         return;
     }
 
@@ -400,48 +360,40 @@ void dtls_ssl_destroy(mbedtls_ssl_context *ssl)
     cacert     = (mbedtls_x509_crt *)conf->ca_chain;
 #endif
 
-    if (conf)
-    {
-        ctr_drbg   = conf->p_rng;
+    if (conf != NULL) {
+        ctr_drbg = conf->p_rng;
 
-        if (ctr_drbg)
-        {
+        if (ctr_drbg != NULL) {
             entropy =  ctr_drbg->p_entropy;
         }
     }
 
-    if (server_fd)
-    {
+    if (server_fd != NULL) {
         mbedtls_net_free(server_fd);
     }
 
-    if (conf)
-    {
+    if (conf != NULL) {
         mbedtls_ssl_config_free(conf);
         mbedtls_free(conf);
         ssl->conf = NULL; //  need by mbedtls_debug_print_msg(), see mbedtls_ssl_free(ssl)
     }
 
-    if (ctr_drbg)
-    {
+    if (ctr_drbg != NULL) {
         mbedtls_ctr_drbg_free(ctr_drbg);
         mbedtls_free(ctr_drbg);
     }
 
-    if (entropy)
-    {
+    if (entropy != NULL) {
         mbedtls_entropy_free(entropy);
         mbedtls_free(entropy);
     }
 
-    if (timer)
-    {
+    if (timer != NULL) {
         mbedtls_free(timer);
     }
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (cacert)
-    {
+    if (cacert != NULL) {
         mbedtls_x509_crt_free(cacert);
         mbedtls_free(cacert);
     }
@@ -455,12 +407,9 @@ int dtls_write(mbedtls_ssl_context *ssl, const unsigned char *buf, size_t len)
 {
     int ret = mbedtls_ssl_write(ssl, (unsigned char *) buf, len);
 
-    if (ret == MBEDTLS_ERR_SSL_WANT_WRITE)
-    {
+    if (ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
         return 0;
-    }
-    else if (ret < 0)
-    {
+    } else if (ret < 0) {
         return -1;
     }
 
@@ -475,16 +424,11 @@ int dtls_read(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len, uint32_t
 
     ret = mbedtls_ssl_read(ssl, buf, len);
 
-    if (ret == MBEDTLS_ERR_SSL_WANT_READ)
-    {
+    if (ret == MBEDTLS_ERR_SSL_WANT_READ) {
         return 0;
-    }
-    else if (ret == MBEDTLS_ERR_SSL_TIMEOUT)
-    {
+    } else if (ret == MBEDTLS_ERR_SSL_TIMEOUT) {
         return -2;
-    }
-    else if (ret < 0)
-    {
+    } else if (ret < 0) {
         return -1;
     }
 
@@ -505,3 +449,8 @@ int dtls_accept( mbedtls_net_context *bind_ctx,
     return mbedtls_net_accept(bind_ctx, client_ctx, client_ip, buf_size, ip_len);
 }
 
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */

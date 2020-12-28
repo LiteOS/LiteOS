@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "stdlib.h"
 #include "stdio.h"
@@ -245,13 +237,13 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdMemUsed(INT32 argc, const CHAR *argv[])
 #ifdef LOSCFG_MEM_RECORDINFO
 LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdMemRecordEnable(INT32 argc, const CHAR *argv[])
 {
-    OsMemRecordShowSet(1);
+    OsMemRecordShowSet(TRUE);
     return 0;
 }
 
 LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdMemRecordDisable(INT32 argc, const CHAR *argv[])
 {
-    OsMemRecordShowSet(0);
+    OsMemRecordShowSet(FALSE);
     return 0;
 }
 

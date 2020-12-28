@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Functions about pthread_attr_t
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,20 +25,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "pthread.h"
 #include "pprivate.h"
 #include "errno.h"
-#include "los_memory_pri.h"
 #include "libc.h"
+#include "los_memory_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -207,39 +199,22 @@ int pthread_attr_getschedparam(const pthread_attr_t *attr, struct sched_param *p
 
 int pthread_attr_setstack(pthread_attr_t *attr, void *stackAddr, size_t stackSize)
 {
-    if (attr == NULL) {
-        return EINVAL;
-    }
-
-    if ((!IS_ALIGNED(stackSize, PAGE_SIZE - 1)) || (stackSize < PTHREAD_STACK_MIN)) {
-        return EINVAL;
-    }
-
-    if (!IS_ALIGNED((uintptr_t)(stackAddr), PAGE_SIZE - 1)) {
-        return EINVAL;
-    }
-
-    attr->stackaddr_set = 1;
-    attr->stackaddr = stackAddr;
-    attr->stacksize_set = 1;
-    attr->stacksize = stackSize;
-
+    (void)attr;
+    (void)stackAddr;
+    (void)stackSize;
     PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
-    return ENOERR;
+    errno = ENOSYS;
+    return ERROR;
 }
 
 int pthread_attr_getstack(const pthread_attr_t *attr, void **stackAddr, size_t *stackSize)
 {
-    if ((attr == NULL) || (stackAddr == NULL) || (stackSize == NULL) ||
-        !attr->stacksize_set || !attr->stackaddr_set) {
-        return EINVAL;
-    }
-
-    *stackAddr = attr->stackaddr;
-    *stackSize = attr->stacksize;
-
+    (void)attr;
+    (void)stackAddr;
+    (void)stackSize;
     PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
-    return ENOERR;
+    errno = ENOSYS;
+    return ERROR;
 }
 
 /*

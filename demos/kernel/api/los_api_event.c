@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Event Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "los_event.h"
 #include "los_task.h"
@@ -48,42 +42,37 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* task pid */
-static UINT32 g_TestTaskID;
+static UINT32 g_demoTaskId;
 /* event control struct */
-static EVENT_CB_S  example_event;
+static EVENT_CB_S  g_exampleEvent;
 
 /* wait event type */
-#define event_wait 0x00000001
+#define EVENT_WAIT 0x00000001
 
 /* example task entry function */
 VOID Example_Event(VOID)
 {
-    UINT32 uwEvent;
-    UINT32 uwRet = LOS_OK;
+    UINT32 event;
+    UINT32 ret;
 
     /*
      * timeout, WAITMODE to read event, timeout is 100 ticks,
      * if timeout, wake task directly
      */
-    dprintf("Example_Event wait event 0x%x . \r\n",event_wait);
+    printf("Example_Event wait event 0x%x.\n", EVENT_WAIT);
 
-    uwEvent = LOS_EventRead(&example_event, event_wait, LOS_WAITMODE_AND, 100);
-    if(uwEvent == event_wait)
-    {
-        dprintf("Example_Event,read event :0x%x . \r\n",uwEvent);
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_SUCCESS);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err. \r\n");
+    event = LOS_EventRead(&g_exampleEvent, EVENT_WAIT, LOS_WAITMODE_AND, 100);
+    if (event == EVENT_WAIT) {
+        printf("Example_Event, read event : 0x%x.\n", event);
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_EVENT, LOS_INSPECT_STU_SUCCESS);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
-    }
-    else
-    {
-        dprintf("Example_Event,read event timeout. \r\n");
-        uwRet = LOS_InspectStatusSetByID(LOS_INSPECT_EVENT, LOS_INSPECT_STU_ERROR);
-        if (LOS_OK != uwRet)
-        {
-            dprintf("Set Inspect Status Err. \r\n");
+    } else {
+        printf("Example_Event, read event timeout.\n");
+        ret = LOS_InspectStatusSetById(LOS_INSPECT_EVENT, LOS_INSPECT_STU_ERROR);
+        if (ret != LOS_OK) {
+            printf("Set Inspect Status Err.\n");
         }
     }
     return;
@@ -91,14 +80,14 @@ VOID Example_Event(VOID)
 
 UINT32 Example_SndRcvEvent(VOID)
 {
-    UINT32 uwRet;
+    UINT32 ret;
     TSK_INIT_PARAM_S stTask1;
 
+    printf("Kernel event demo begin.\n");
     /* event init */
-    uwRet = LOS_EventInit(&example_event);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("init event failed .\r\n");
+    ret = LOS_EventInit(&g_exampleEvent);
+    if (ret != LOS_OK) {
+        printf("Init event failed.\n");
         return LOS_NOK;
     }
 
@@ -108,26 +97,24 @@ UINT32 Example_SndRcvEvent(VOID)
     stTask1.pcName       = "EventTsk1";
     stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTask1.usTaskPrio   = 5;
-    uwRet = LOS_TaskCreate(&g_TestTaskID, &stTask1);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("task create failed .\r\n");
+    ret = LOS_TaskCreate(&g_demoTaskId, &stTask1);
+    if (ret != LOS_OK) {
+        printf("Create task failed.\n");
         return LOS_NOK;
     }
 
     /* write event */
-    dprintf("Example_TaskEntry_Event write event .\r\n");
-    uwRet = LOS_EventWrite(&example_event, event_wait);
-    if(uwRet != LOS_OK)
-    {
-        dprintf("event write failed .\r\n");
+    printf("Example_SndRcvEvent write event.\n");
+    ret = LOS_EventWrite(&g_exampleEvent, EVENT_WAIT);
+    if (ret != LOS_OK) {
+        printf("Write Event failed.\n");
         return LOS_NOK;
     }
 
     /* clear event flag */
-    dprintf("EventMask:%d \r\n", example_event.uwEventID);
-    LOS_EventClear(&example_event, ~example_event.uwEventID);
-    dprintf("EventMask:%d \r\n", example_event.uwEventID);
+    printf("EventMask : %d\n", g_exampleEvent.uwEventID);
+    LOS_EventClear(&g_exampleEvent, ~g_exampleEvent.uwEventID);
+    printf("EventMask : %d\n", g_exampleEvent.uwEventID);
 
     return LOS_OK;
 }

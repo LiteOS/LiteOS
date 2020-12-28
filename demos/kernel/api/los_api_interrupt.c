@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LiteOS Kernel Interrupt Demo
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,20 +24,15 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
- /*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #include "los_hwi.h"
 #include "los_typedef.h"
 #include "los_api_interrupt.h"
 #include "los_inspect_entry.h"
+#ifdef LOSCFG_PLATFORM_STM32F429IGTX
+#include "stm32f4xx_hal.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,35 +40,64 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_PLATFORM_HWI == YES)
+#define SOFT_IRQ_NUM 39
+
+#ifdef LOSCFG_PLATFORM_STM32F429IGTX
 static VOID Example_Exti0_Init(VOID)
 {
-    /*add your IRQ init code here*/
+    /* add your IRQ init code here */
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    __GPIOA_CLK_ENABLE();
+
+    GPIO_InitStructure.Pin  = GPIO_PIN_0;
+    GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     return;
 }
 
+static VOID Button_IRQHandler(VOID)
+{
+    printf("Button IRQ test ok.\n");
+    LOS_HwiClear(EXTI0_IRQn + 16);
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+    LOS_InspectStatusSetById(LOS_INSPECT_INTERRUPT, LOS_INSPECT_STU_SUCCESS);
+    return;
+}
+#endif
+
 static VOID User_IRQHandler(VOID)
 {
-    dprintf("\r\n User IRQ test\r\n");
-    //LOS_InspectStatusSetByID(LOS_INSPECT_INTERRUPT,LOS_INSPECT_STU_SUCCESS);
+    printf("User IRQ test ok.\n");
+    LOS_HwiClear(SOFT_IRQ_NUM);
+    LOS_InspectStatusSetById(LOS_INSPECT_INTERRUPT, LOS_INSPECT_STU_SUCCESS);
     return;
 }
 
 UINT32 Example_Interrupt(VOID)
 {
-    UINTPTR uvIntSave;
-    uvIntSave = LOS_IntLock();
+    UINTPTR intSave;
+    intSave = LOS_IntLock();
 
+    printf("Kernel interrupt demo begin.\n");
+    /* software interrupt test */
+    LOS_HwiCreate(SOFT_IRQ_NUM, 0, 0, User_IRQHandler, 0);
+    LOS_HwiEnable(SOFT_IRQ_NUM);
+    LOS_IntRestore(intSave);
+    LOS_HwiTrigger(SOFT_IRQ_NUM);
+
+    /* hardware interrupt test */
+#ifdef LOSCFG_PLATFORM_STM32F429IGTX
     Example_Exti0_Init();
-
-    LOS_HwiCreate(6, 0, 0, User_IRQHandler, 0);//create interrupt
-
-    LOS_IntRestore(uvIntSave);
+    LOS_HwiCreate(EXTI0_IRQn + 16, 0, 0, Button_IRQHandler, 0); // 16: cortex-m irq shift
+    LOS_HwiEnable(EXTI0_IRQn + 16);
+    LOS_IntRestore(intSave);
+#endif
 
     return LOS_OK;
 }
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus

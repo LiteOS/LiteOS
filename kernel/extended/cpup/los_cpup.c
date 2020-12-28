@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description : LiteOS Cpu Usage Calculation Module Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_cpup_pri.h"
 #include "los_task_pri.h"
@@ -47,20 +39,21 @@ extern "C" {
 
 #ifdef LOSCFG_KERNEL_CPUP
 
-LITE_OS_SEC_BSS STATIC UINT16 g_swtmrId;
+LITE_OS_SEC_BSS STATIC UINT16 g_cpupSwtmrId;
 LITE_OS_SEC_BSS STATIC UINT16 g_cpupInitFlg = 0;
 LITE_OS_SEC_BSS OsCpupCB *g_cpup = NULL;
 LITE_OS_SEC_BSS STATIC UINT16 g_cpupMaxNum;
 LITE_OS_SEC_BSS STATIC UINT16 g_cpupTaskMaxNum;
 LITE_OS_SEC_BSS STATIC UINT16 g_hisPos = 0; /* current Sampling point of historyTime */
-LITE_OS_SEC_DATA_INIT STATIC UINT32 runningTasks[LOSCFG_KERNEL_CORE_NUM] =
-    { [0 ... (LOSCFG_KERNEL_CORE_NUM - 1)] = (UINT32)-1 };
+LITE_OS_SEC_DATA_INIT STATIC UINT32 runningTasks[LOSCFG_KERNEL_CORE_NUM] = {
+    [0 ... (LOSCFG_KERNEL_CORE_NUM - 1)] = (UINT32)-1
+};
 LITE_OS_SEC_BSS STATIC UINT64 cpuHistoryTime[OS_CPUP_HISTORY_RECORD_NUM + 1];
 
 LITE_OS_SEC_BSS STATIC UINT64 g_startCycles = 0;
 #ifdef LOSCFG_CPUP_INCLUDE_IRQ
 LITE_OS_SEC_BSS UINT64 g_timeInIrqPerTskSwitch[LOSCFG_KERNEL_CORE_NUM];
-LITE_OS_SEC_BSS STATIC UINT64 intTimeStart[LOSCFG_KERNEL_CORE_NUM];
+LITE_OS_SEC_BSS STATIC UINT64 g_intTimeStart[LOSCFG_KERNEL_CORE_NUM];
 #endif
 
 #define HIGH_BITS 32
@@ -68,9 +61,14 @@ LITE_OS_SEC_BSS STATIC UINT64 intTimeStart[LOSCFG_KERNEL_CORE_NUM];
 #define CPUP_PRE_POS(pos) (((pos) == 0) ? (OS_CPUP_HISTORY_RECORD_NUM - 1) : ((pos) - 1))
 #define CPUP_POST_POS(pos) (((pos) == (OS_CPUP_HISTORY_RECORD_NUM - 1)) ? 0 : ((pos) + 1))
 
+LITE_OS_SEC_TEXT_INIT OsCpupCB *OsCpupCBGet(UINT32 index)
+{
+    return &g_cpup[index];
+}
+
 LITE_OS_SEC_TEXT_INIT VOID OsCpupGuard(VOID)
 {
-    UINT16 prevPos;
+    UINT16 prevPos = g_hisPos;
     UINT16 loop;
     UINT16 runTaskId;
     UINT64 curCycle;
@@ -81,7 +79,7 @@ LITE_OS_SEC_TEXT_INIT VOID OsCpupGuard(VOID)
     }
     intSave = LOS_IntLock();
     curCycle = OsGetCpuCycle();
-    prevPos = g_hisPos;
+
     g_hisPos = CPUP_POST_POS(g_hisPos);
     cpuHistoryTime[prevPos] = curCycle;
 
@@ -105,9 +103,9 @@ LITE_OS_SEC_TEXT_INIT VOID OsCpupGuard(VOID)
 LITE_OS_SEC_TEXT_INIT VOID OsCpupGuardCreator(VOID)
 {
     (VOID)LOS_SwtmrCreate(LOSCFG_BASE_CORE_TICK_PER_SECOND, LOS_SWTMR_MODE_PERIOD,
-                          (SWTMR_PROC_FUNC)OsCpupGuard, &g_swtmrId, 0);
+                          (SWTMR_PROC_FUNC)OsCpupGuard, &g_cpupSwtmrId, 0);
 
-    (VOID)LOS_SwtmrStart(g_swtmrId);
+    (VOID)LOS_SwtmrStart(g_cpupSwtmrId);
 }
 
 LITE_OS_SEC_TEXT_INIT VOID OsCpupGuardInit(VOID)
@@ -170,7 +168,7 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_CpupReset(VOID)
 
     g_cpupInitFlg = 0;
     intSave = LOS_IntLock();
-    (VOID)LOS_SwtmrStop(g_swtmrId);
+    (VOID)LOS_SwtmrStop(g_cpupSwtmrId);
     curCycle = OsGetCpuCycle();
 
     for (loop = 0; loop < (OS_CPUP_HISTORY_RECORD_NUM + 1); loop++) {
@@ -191,7 +189,7 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_CpupReset(VOID)
     }
 #endif
 
-    (VOID)LOS_SwtmrStart(g_swtmrId);
+    (VOID)LOS_SwtmrStart(g_cpupSwtmrId);
     LOS_IntRestore(intSave);
     g_cpupInitFlg = 1;
 
@@ -293,7 +291,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskCycleEndStart(const LosTaskCB *newTask)
     OsCpupCB *cpup = NULL;
     UINT32 cpuId = ArchCurrCpuid();
 
-    if (g_cpupInitFlg == 0 || newTask == NULL) {
+    if ((g_cpupInitFlg == 0) || (newTask == NULL)) {
         return;
     }
 
@@ -519,31 +517,23 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_AllCpuUsage(UINT16 maxNum, CPUP_INFO_S *cpupIn
 #ifdef LOSCFG_CPUP_INCLUDE_IRQ
 LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqStart(VOID)
 {
-    UINT32 high;
-    UINT32 low;
-
-    LOS_GetCpuCycle(&high, &low);
-    intTimeStart[ArchCurrCpuid()] = ((UINT64)high << HIGH_BITS) + low;
+    g_intTimeStart[ArchCurrCpuid()] = OsGetCpuCycle();
     return;
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqEnd(UINT32 intNum)
 {
-    UINT32 high;
-    UINT32 low;
-    UINT64 intTimeEnd;
+    UINT64 intTimeEnd = OsGetCpuCycle();
     UINT32 cpuId = ArchCurrCpuid();
 
     if (g_cpupInitFlg == 0) {
         return;
     }
-    LOS_GetCpuCycle(&high, &low);
-    intTimeEnd = ((UINT64)high << HIGH_BITS) + low;
 
     g_cpup[g_taskMaxNum + intNum].id = intNum;
     g_cpup[g_taskMaxNum + intNum].status = OS_TASK_STATUS_RUNNING;
-    g_timeInIrqPerTskSwitch[cpuId] += (intTimeEnd - intTimeStart[cpuId]);
-    g_cpup[g_taskMaxNum + intNum].allTime += (intTimeEnd - intTimeStart[cpuId]);
+    g_timeInIrqPerTskSwitch[cpuId] += (intTimeEnd - g_intTimeStart[cpuId]);
+    g_cpup[g_taskMaxNum + intNum].allTime += (intTimeEnd - g_intTimeStart[cpuId]);
 
     return;
 }

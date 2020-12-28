@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Flash Manager HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,27 +24,20 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#ifndef FLASH_MANAGER_H
-#define FLASH_MANAGER_H
+#ifndef _FLASH_MANAGER_H
+#define _FLASH_MANAGER_H
 
 #include "atiny_mqtt/mqtt_client.h"
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #define STRING_MAX_LEN 256
-
 
 #ifndef array_size
 #define array_size(a) (sizeof(a)/sizeof(*(a)))
@@ -51,16 +46,14 @@ extern "C" {
 #define TRY_FREE_MEM(mem) \
 do\
 {\
-    if(NULL != (mem))\
+    if ((mem) != NULL)\
     {\
        atiny_free(mem);\
        (mem) = NULL;\
     }\
-}while(0)
+} while (0)
 
-
-enum
-{
+enum {
     PRODUCT_IDX,
     NODEID_IDX,
     DEVICEID_IDX,
@@ -68,24 +61,20 @@ enum
     MAX_DATA_ITEM
 };
 
-
-typedef struct
-{
+typedef struct {
     char *items[MAX_DATA_ITEM];
-}flash_info_s;
+} flash_info_s;
 
-
-/*flash_info info is malloc, should destroy if not used*/
+/* flash_info info is malloc, should destroy if not used */
 void flash_manager_init(int (*cmd_ioctl)(mqtt_cmd_e cmd, void *arg, int32_t len));
 int flash_manager_read(flash_info_s *flash_info);
 int flash_manager_write(const flash_info_s *flash_info);
 void flash_manager_destroy_flash_info(flash_info_s *flash_info);
 
-
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* FLASH_MANAGER_H */
-
-
+#endif /* _FLASH_MANAGER_H */

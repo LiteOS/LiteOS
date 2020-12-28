@@ -1,0 +1,1 @@
+DEMOS_LMS_INCLUDE := -I $(LITEOSTOPDIR)/demos/lms

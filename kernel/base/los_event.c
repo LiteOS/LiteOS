@@ -25,20 +25,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_event_pri.h"
 #include "los_task_pri.h"
 #include "los_spinlock.h"
 #include "los_mp_pri.h"
 #include "los_percpu_pri.h"
+#include "los_trace.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -49,6 +42,8 @@ extern "C" {
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventInit(PEVENT_CB_S eventCB)
 {
     UINT32 intSave;
+
+    LOS_TRACE(EVENT_CREATE, (UINTPTR)eventCB);
 
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
@@ -87,7 +82,7 @@ LITE_OS_SEC_TEXT STATIC UINT32 OsEventPoll(UINT32 *eventId, UINT32 eventMask, UI
 {
     UINT32 ret = 0;
 
-    LOS_ASSERT(OsIntLocked());
+    LOS_ASSERT(ArchIntLocked());
     LOS_ASSERT(LOS_SpinHeld(&g_taskSpin));
 
     if (mode & LOS_WAITMODE_OR) {
@@ -182,6 +177,8 @@ LITE_OS_SEC_TEXT STATIC UINT32 OsEventRead(PEVENT_CB_S eventCB, UINT32 eventMask
         return ret;
     }
 
+    LOS_TRACE(EVENT_READ, (UINTPTR)eventCB, eventCB->uwEventID, eventMask, mode, timeout);
+
     SCHEDULER_LOCK(intSave);
     ret = OsEventReadImp(eventCB, eventMask, mode, timeout, once, &intSave);
     SCHEDULER_UNLOCK(intSave);
@@ -202,6 +199,8 @@ LITE_OS_SEC_TEXT STATIC UINT32 OsEventWrite(PEVENT_CB_S eventCB, UINT32 events, 
     if (events & LOS_ERRTYPE_ERROR) {
         return LOS_ERRNO_EVENT_SETBIT_INVALID;
     }
+
+    LOS_TRACE(EVENT_WRITE, (UINTPTR)eventCB, eventCB->uwEventID, events);
 
     SCHEDULER_LOCK(intSave);
 
@@ -276,6 +275,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
     eventCB->uwEventID = 0;
 OUT:
     SCHEDULER_UNLOCK(intSave);
+
+    LOS_TRACE(EVENT_DELETE, (UINTPTR)eventCB, ret);
     return ret;
 }
 
@@ -286,6 +287,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events)
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
+
+    LOS_TRACE(EVENT_CLEAR, (UINTPTR)eventCB, eventCB->uwEventID, events);
+
     SCHEDULER_LOCK(intSave);
     eventCB->uwEventID &= events;
     SCHEDULER_UNLOCK(intSave);

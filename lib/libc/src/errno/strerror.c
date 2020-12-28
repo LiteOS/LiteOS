@@ -17,7 +17,6 @@ char *__strerror_l(int e, locale_t loc)
 {
 	const char *s;
 	int i;
-	(void)loc;
 	/* mips has one error code outside of the 8-bit range due to a
 	 * historical typo, so we just remap it. */
 	if (EDQUOT==1133) {
@@ -25,12 +24,6 @@ char *__strerror_l(int e, locale_t loc)
 		else if (e==EDQUOT) e=109;
 	}
 	for (i=0; errid[i] && errid[i] != e; i++);
-#ifdef __LITEOS__
-	/* can not find errno msg. */
-	if (errid[i] == 0 && e != 0) {
-		return NULL;
-	}
-#endif
 	for (s=errmsg; i; s++, i--) for (; *s; s++);
 	return (char *)s;
 }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Aarch64 Cache Implementation
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,21 +25,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 
 #include "arch/asm.h"
 
 #define CACHE_LINE 64
 
 .macro cache_range_op, cache op
-    bic     x3, x0, #(CACHE_LINE-1) // align the start with a cache line
+    bic     x3, x0, #(CACHE_LINE-1) /* align the start with a cache line */
 .Lcache_range_op_loop\@:
     \cache  \op, x3
     add     x3, x3, #CACHE_LINE
@@ -48,10 +40,10 @@
     dsb     sy
 .endm
 
-FUNCTION(Arm64InvCacheRange)
-    cache_range_op dc ivac         // invalidate dcache to PoC by MVA
+FUNCTION(ArchDCacheInvByAddr)
+    cache_range_op dc ivac         /* invalidate dcache to PoC by MVA */
     ret
 
-FUNCTION(Arm64CleanCacheRange)
-    cache_range_op dc cvac         // clean cache to PoC by MVA
+FUNCTION(ArchDCacheCleanByAddr)
+    cache_range_op dc cvac         /* clean cache to PoC by MVA */
     ret

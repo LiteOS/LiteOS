@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Ipv6 Client Demo
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,51 +25,71 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
-#ifdef LOSCFG_COMPONENTS_NET_LWIP
+#if !defined(LOSCFG_COMPONENTS_NET_LWIP) || !defined(LOSCFG_LWIP_IPV6)
+#error This module needs to be enable "Components/Network/Enable Network/Enable Lwip/Enable Ipv6"
+#else
 #include "lwip/sockets.h"
 #include "los_task.h"
+#include "los_base.h"
+#include "los_sys.h"
+#include "client_demo.h"
+
+#define SERVER_ADDR "2000::4639:c4ff:fe94:5d44"
+#define SERVER_PORT 1883
+#define BUFFER_SIZE 128
 
 void ipv6_tcp_test(void)
 {
     struct sockaddr_in6 server_addr;
     char msg[128];
     int rbytes = -1;
+    int client_fd = 0;
+    int ret = 0;
+    int i = 0;
 
-    int client_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-    if (client_fd < 0) {
-        printf("client_fd is %d\n", client_fd);
-        return;
+DO_TASK:
+    do {
+        client_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        if (client_fd < 0) {
+            printf("client_fd is %d\n", client_fd);
+            return;
+        }
+
+        server_addr.sin6_family = AF_INET6;
+        server_addr.sin6_port = htons(SERVER_PORT);
+        if (inet_pton(AF_INET6, SERVER_ADDR, &server_addr.sin6_addr) <= 0) {
+            printf("inet_pton error!!!\n");
+            return;
+        }
+
+        ret = connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+        if (ret < 0) {
+            close(client_fd);
+            LOS_TaskDelay(200);
+            if (i > 10) {
+                printf("[%d]socket connect error=%d(%s)!!!\n",i, errno, strerror(errno));
+                i++;
+                goto DO_TASK;
+            }
+        }
+    } while (ret < 0);
+
+    while ((rbytes = read(client_fd, msg, sizeof(msg))) > 0) {
+        printf("read from server: %d bytes read\n> %s\n", rbytes, msg);
+        char wbuf[32] = "Hi ipv6 server";
+        rbytes = write(client_fd, wbuf, strlen(wbuf));
+        if (rbytes > 0) {
+            printf("write to server: %d bytes written\n> %s\n", rbytes, wbuf);
+        }
     }
-
-    server_addr.sin6_family = AF_INET6;
-    server_addr.sin6_port = htons(1883);
-    if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee52", &server_addr.sin6_addr) <= 0) {
-        printf("inet_pton error!!!\n");
-        return;
-    }
-    if (connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        printf("socket connect error=%d(%s)!!!\n", errno, strerror(errno));
-
-        return;
-    }
-    printf("connect to server ok!\n");
-
     close(client_fd);
 }
 
 void ipv6_udp_test(void)
 {
     struct sockaddr_in6 server_addr;
-    char msg[128];
+    char msg[128] = "Hi ipv6 server";
     int rbytes = -1;
 
     int client_fd = socket(AF_INET6, SOCK_DGRAM, 17);
@@ -79,23 +99,25 @@ void ipv6_udp_test(void)
     }
 
     server_addr.sin6_family = AF_INET6;
-    server_addr.sin6_port = htons(3500);
-    if (inet_pton(AF_INET6, "fe80::70d7:3d63:ca2d:ee52", &server_addr.sin6_addr) <= 0) {
+    server_addr.sin6_port = htons(SERVER_PORT);
+    if (inet_pton(AF_INET6, SERVER_ADDR, &server_addr.sin6_addr) <= 0) {
         printf("inet_pton error!!!\n");
         return;
     }
 
     if (connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         printf("socket connect error=%d(%s)!!!\n", errno, strerror(errno));
-
         return;
     }
-    printf("connect to server ok!\n");
 
-    int aa = write(client_fd, "receive ok", strlen("receive ok"));
-    printf("aa is %d\n", aa);
+    LOS_TaskDelay(1500);
+    rbytes = write(client_fd, msg, strlen(msg));
+    if (rbytes > 0) {
+        printf("write to server: %d bytes written\n> %s\n", rbytes, msg);
+    } else {
+        printf("write faile\n");
+    }
     close(client_fd);
-
 }
 
 #endif

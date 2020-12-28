@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020-2020. All rights reserved.
  * Description: LiteOS Shell Message Implementation File
  * Author: Huawei LiteOS Team
  * Create: 2020-08-11
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_base.h"
 #include "shell_pri.h"
@@ -42,17 +34,10 @@
 
 UINT32 ShellStdinLoop(ShellCB *shellCB)
 {
-    unsigned char data[UART_BUF] = {0};
-    int n;
-    int i;
-
-    while (uart_wait_adapt() == 0) {
-        n = uart_read(data, UART_BUF, 0);
-        if (n == 0) {
-            for (i = 0; data[i] != '\0'; i++) {
-                ShellCmdLineParse((char)data[i], (pf_OUTPUT)dprintf, shellCB);
-            }
-        }
+    UINT8 ch;
+    while (1) {
+        ch = uart_read();
+        ShellCmdLineParse(ch, (pf_OUTPUT)dprintf, shellCB);
     }
     return 0;
 }

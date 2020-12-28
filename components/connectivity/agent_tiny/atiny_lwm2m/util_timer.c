@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Util Timer
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 #ifdef LWM2M_BOOTSTRAP
 #ifdef LWM2M_CLIENT_MODE
@@ -55,23 +49,21 @@ void timer_stop(util_timer_t *timer)
 {
     timer->startFlag = false;
 }
+
 void timer_step(util_timer_t *timer)
 {
     time_t current;
 
-    if (!timer->startFlag)
-    {
+    if (!timer->startFlag) {
         return;
     }
 
     current = lwm2m_gettime();
-    if (current < timer->expireTime)
-    {
+    if (current < timer->expireTime) {
         return;
     }
 
-    if (timer->callback)
-    {
+    if (timer->callback != NULL) {
         timer->callback(timer->param);
     }
 
@@ -80,4 +72,3 @@ void timer_step(util_timer_t *timer)
 
 #endif // LWM2M_CLIENT_MODE
 #endif // LWM2M_BOOTSTRAP
-

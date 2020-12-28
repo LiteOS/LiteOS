@@ -35,6 +35,9 @@ FILE *freopen(const char *restrict filename, const char *restrict mode, FILE *re
 		f->read = f2->read;
 		f->write = f2->write;
 		f->seek = f2->seek;
+#ifdef __LITEOS__
+		f->seek64 = f2->seek64;
+#endif
 		f->close = f2->close;
 
 		fclose(f2);

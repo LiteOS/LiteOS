@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2019-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
  * Description: Aarch64 Exception HeadFile
  * Author: Huawei LiteOS Team
  * Create: 2019-10-10
@@ -24,14 +24,6 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
  * --------------------------------------------------------------------------- */
 
 #ifndef _ARCH_EXCEPTION_H
@@ -85,27 +77,25 @@ typedef struct {
     ExcContext *context; /**< Hardware context when an exception occurs */
 } ExcInfo;
 
-STATIC INLINE UINTPTR ArchGetFp(VOID)
-{
-    UINTPTR regFp;
-
-    __asm__ __volatile__("mov %0, X29" : "=r"(regFp));
-
-    return regFp;
-}
+#define ArchGetFp() ({ \
+    UINTPTR _regFp; \
+    __asm__ __volatile__("mov %0, X29" : "=r"(_regFp)); \
+    _regFp; \
+})
 
 typedef VOID (*EXC_PROC_FUNC)(UINT32, ExcContext *);
 
 UINT32 ArchSetExcHook(EXC_PROC_FUNC excHook);
-#define ArchSetExcHook LOS_ExcRegHook
+#define LOS_ExcRegHook ArchSetExcHook
 
 STATIC INLINE VOID ArchHaltCpu(VOID)
 {
     __asm__ __volatile__("svc #0");
 }
 
-VOID ArchBackTraceWithSp(VOID *stackPointer);
+VOID ArchBackTraceWithSp(const VOID *stackPointer);
 VOID ArchBackTrace(VOID);
+UINT32 ArchBackTraceGet(UINTPTR fp, UINTPTR *callChain, UINT32 maxDepth);
 VOID ArchExcInit(VOID);
 
 /* Stack pointers for different modes. */

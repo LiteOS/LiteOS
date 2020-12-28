@@ -75,7 +75,6 @@ endif
 	$(LD) $(LITEOS_LDFLAGS) $(LITEOS_TABLES_LDFLAGS) $(LITEOS_DYNLDFLAGS) -Map=$(OUT)/$@.map -o $(OUT)/$@.elf --start-group $(LITEOS_BASELIB) --end-group
 	$(OBJCOPY) -O binary $(OUT)/$@.elf $(OUT)/$@.bin
 	$(OBJDUMP) -t $(OUT)/$@.elf |sort >$(OUT)/$@.sym.sorted
-	$(OBJDUMP) -Mreg-names-raw -d $(OUT)/$@.elf |$(LITEOSTOPDIR)/tools/stackusage/stackusage |sort -n -k 1 -r >$(OUT)/$@.stack
 	$(OBJDUMP) -d $(OUT)/$@.elf >$(OUT)/$@.asm
 	$(SIZE) $(OUT)/$@.elf
 	$(HIDE)echo "########################################################################################################"
@@ -86,11 +85,10 @@ clean:
 	$(HIDE)for dir in $(LITEOS_SUBDIRS); \
 		do make -C $$dir clean|| exit 1; \
 	done
-	$(HIDE)$(RM) $(__OBJS) $(LITEOS_TARGET) $(OUT) $(BUILD) *.bak *~
+	$(HIDE)$(RM) $(__OBJS) $(LITEOS_TARGET) $(OUT) $(BUILD) $(LITEOS_MENUCONFIG_H) *.bak *~
+	$(HIDE)$(RM) -rf $(LITEOS_PLATFORM_MENUCONFIG_H)
 	$(HIDE)echo "clean $(LITEOS_PLATFORM) finish"
 
 cleanall:
 	$(HIDE)rm -rf $(LITEOSTOPDIR)/out
-	$(HIDE)find platform/bsp/board/ -name board.ld -exec rm -rf {} \;
-	$(HIDE)cd sample/sample_osdrv;make clean;cd ../..;
 	$(HIDE)echo "clean all"

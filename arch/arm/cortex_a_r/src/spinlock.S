@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2018-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2018-2020. All rights reserved.
  * Description: Spinlock Assembly
  * Author: Huawei LiteOS Team
  * Create: 2018-07-11
@@ -25,41 +25,37 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
 
 #include "arch/asm.h"
 
 FUNCTION(ArchSpinLock)
-    mov     r1, #1
+    mov     r2, #1
 1:
-    ldrex   r2, [r0]
-    cmp     r2, #0
+    ldrex   r1, [r0]
+    teq     r1, #0
     wfene
-    strexeq r2, r1, [r0]
-    cmpeq   r2, #0
+    strexeq r1, r2, [r0]
+    teqeq   r1, #0
     bne     1b
     dmb
     bx      lr
 
+/*
+ * when spinlock already taken, r1 will read 1 which is same with the
+ * 'strex' failure return value, no extra convertion needed.
+ */
 FUNCTION(ArchSpinTrylock)
-    mov     r1, #1
-    mov     r2, r0
-    ldrex   r0, [r2]
-    cmp     r0, #0
-    strexeq r0, r1, [r2]
+    ldrex   r1, [r0]
+    teq     r1, #0
+    moveq   r2, #1
+    strexeq r1, r2, [r0]
     dmb
+    mov     r0, r1
     bx      lr
 
 FUNCTION(ArchSpinUnlock)
-    mov     r1, #0
     dmb
+    mov     r1, #0
     str     r1, [r0]
     dsb
     sev

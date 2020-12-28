@@ -34,6 +34,34 @@
   ******************************************************************************
   */
 
+/*----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: LCD BSP Update
+ * Author: Huawei LiteOS Team
+ * Create: 2020-09-04
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
 /* File Info: ------------------------------------------------------------------
                                    User NOTES
 1. How To use this driver:
@@ -98,6 +126,7 @@ EndDependencies */
 #include "../../../Utilities/Fonts/font16.c"
 #include "../../../Utilities/Fonts/font12.c"
 #include "../../../Utilities/Fonts/font8.c"
+#include "platform_config.h"
 
 /** @addtogroup BSP
   * @{
@@ -1710,17 +1739,19 @@ __weak void BSP_LCD_MspInit(void)
   __HAL_RCC_DSI_FORCE_RESET();
   __HAL_RCC_DSI_RELEASE_RESET();
 
+#ifndef __LITEOS__
   /** @brief NVIC configuration for LTDC interrupt that is now enabled */
-  //HAL_NVIC_SetPriority(LTDC_IRQn, 3, 0);
-  //HAL_NVIC_EnableIRQ(LTDC_IRQn);
+  HAL_NVIC_SetPriority(LTDC_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(LTDC_IRQn);
 
   /** @brief NVIC configuration for DMA2D interrupt that is now enabled */
-  //HAL_NVIC_SetPriority(DMA2D_IRQn, 3, 0);
-  //HAL_NVIC_EnableIRQ(DMA2D_IRQn);
+  HAL_NVIC_SetPriority(DMA2D_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(DMA2D_IRQn);
 
   /** @brief NVIC configuration for DSI interrupt that is now enabled */
-  //HAL_NVIC_SetPriority(DSI_IRQn, 3, 0);
-  //HAL_NVIC_EnableIRQ(DSI_IRQn);
+  HAL_NVIC_SetPriority(DSI_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(DSI_IRQn);
+#endif
 }
 
 /**

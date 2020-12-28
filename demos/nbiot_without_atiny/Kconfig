@@ -1,0 +1,16 @@
+menu "NB-IoT Demo Without Atiny"
+
+config LOSCFG_DEMOS_NBIOT_WITHOUT_ATINY
+    bool "Enable NB-IoT Demo"
+    default n
+    help
+        Answer y to enable nbiot demo without atiny.
+
+config LOSCFG_DEMOS_NBIOT_DTLS
+    bool "Enable NB-IoT Demo With Dtls"
+    default n
+    depends on LOSCFG_DEMOS_NBIOT_WITHOUT_ATINY
+    help
+        Answer y to enable nbiot demo with dtls.
+
+endmenu

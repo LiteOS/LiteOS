@@ -1,0 +1,1 @@
+DEMOS_TRACE_INCLUDE := -I $(LITEOSTOPDIR)/demos/trace

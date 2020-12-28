@@ -19,8 +19,8 @@ endif
 
 ifeq ($(LOSCFG_PLATFORM_STM32F429IGTX), y)
 LOCAL_INCLUDE += \
-    -I $(LITEOSTOPDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/embedfire/i2c \
-    -I $(LITEOSTOPDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/embedfire/sensors/mpu6050 \
+    -I $(LITEOSTOPDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/i2c \
+    -I $(LITEOSTOPDIR)/targets/Cloud_STM32F429IGTx_FIRE/Drivers/mpu6050 \
     -I $(LITEOSTOPDIR)/targets/bsp/drivers/STM32F4xx_HAL_Driver/Inc
 endif
 

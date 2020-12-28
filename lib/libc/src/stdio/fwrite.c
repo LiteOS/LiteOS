@@ -28,22 +28,6 @@ size_t __fwritex(const unsigned char *restrict s, size_t l, FILE *restrict f)
 	return l+i;
 }
 
-
-/* bionic compile use, update to musl compile and delete */
-size_t __fwrite_chk(const void* buf, size_t size, size_t count, FILE* stream, size_t buf_size) {
-	return 0;
-}
-
-/* bionic compile use, update to musl compile and delete */
-int __sprintf_chk(char* dst, int flags, size_t dst_len_from_compiler,
-                             const char* format, ...) {
-	return 0;
-}
-
-/* bionic compile use, update to musl compile and delete */
-size_t __strlen_chk(const char* s, size_t s_len) {
-	return 0;
-}
 size_t fwrite(const void *restrict src, size_t size, size_t nmemb, FILE *restrict f)
 {
 	size_t k, l = size*nmemb;

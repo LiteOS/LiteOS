@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_tick_pri.h"
 #include "gic_common.h"
@@ -91,7 +83,7 @@
 
 #endif
 
-#define OS_CYCLE_PER_TICK (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+#define OS_CYCLE_PER_TICK (GET_SYS_CLOCK() / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 UINT32 HalClockFreqRead(VOID)
 {
@@ -154,8 +146,8 @@ LITE_OS_SEC_TEXT VOID OsTickEntry(VOID)
 LITE_OS_SEC_TEXT_INIT VOID HalClockInit(VOID)
 {
     UINT32 ret;
-    g_sysClock = HalClockFreqRead();
-    ret = LOS_HwiCreate(OS_TICK_INT_NUM, MIN_INTERRUPT_PRIORITY, 0, OsTickEntry, 0);
+    SET_SYS_CLOCK(HalClockFreqRead());
+    ret = LOS_HwiCreate(OS_TICK_INT_NUM, OS_HWI_PRIO_LOWEST, 0, OsTickEntry, 0);
     if (ret != LOS_OK) {
         PRINT_ERR("%s, %d create tick irq failed, ret:0x%x\n", __FUNCTION__, __LINE__, ret);
     }
@@ -173,7 +165,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalClockStart(VOID)
 
 VOID HalDelayUs(UINT32 usecs)
 {
-    UINT64 cycles = (UINT64)usecs * g_sysClock / OS_SYS_US_PER_SECOND;
+    UINT64 cycles = (UINT64)usecs * GET_SYS_CLOCK() / OS_SYS_US_PER_SECOND;
     UINT64 deadline = HalClockGetCycles() + cycles;
 
     while (HalClockGetCycles() < deadline) {

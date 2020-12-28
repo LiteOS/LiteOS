@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2019-2020. All rights reserved.
  * Description: Stack Info Private Headfile
  * Author: Huawei LiteOS Team
  * Create: 2019-09-01
@@ -25,20 +25,11 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_STACK_INFO_PRI_H
 #define _LOS_STACK_INFO_PRI_H
 
 #include "los_typedef.h"
-
 #include "arch/exception.h"
 
 #ifdef __cplusplus
@@ -54,33 +45,13 @@ typedef struct {
 } StackInfo;
 
 #define OS_INVALID_WATERLINE 0xFFFFFFFF
-#define OS_STACK_MAGIC_CHECK(topstack) (*(UINTPTR *)(topstack) == OS_STACK_MAGIC_WORD)  /* 1:magic valid 0:unvalid */
+#define OS_STACK_MAGIC_CHECK(topstack) (*(UINTPTR *)(topstack) == OS_STACK_MAGIC_WORD) /* 1:magic valid 0:unvalid */
 
 extern VOID OsExcStackInfo(VOID);
 extern VOID OsExcStackInfoReg(const StackInfo *stackInfo, UINT32 stackNum);
 extern VOID OsStackInit(VOID *stacktop, UINT32 stacksize);
-
-/**
- * @ingroup  los_task
- * @brief Get stack waterline.
- *
- * @par Description:
- * This API is used to get stack waterline size and check stack whether overflow.
- *
- * @attention None
- *
- * @param  stackBottom [IN]  Type #const UINTPTR * pointer to stack bottom.
- * @param  stackTop    [IN]  Type #const UINTPTR * pointer to stack top.
- * @param  peakUsed    [OUT] Type #UINT32 * stack waterline.
- *
- * @retval #LOS_NOK        stack overflow
- * @retval #LOS_OK         stack is normal, not overflow
- * @par Dependency:
- * <ul><li>los_stackinfo_pri.h: the header file that contains the API declaration.</li></ul>
- * @see
- * @since Huawei LiteOS V200R003C00
- */
 extern UINT32 OsStackWaterLineGet(const UINTPTR *stackBottom, const UINTPTR *stackTop, UINT32 *peakUsed);
+extern VOID OsGetStackInfo(const StackInfo **stackInfo, UINT32 *stackNum);
 
 #ifdef __cplusplus
 #if __cplusplus

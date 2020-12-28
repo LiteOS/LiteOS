@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_err Error handling
@@ -57,20 +49,17 @@ extern "C" {
  * @par Description:
  * This API is used to define the pointer to the error handling function.
  * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * None.
  *
  * @param  fileName  [IN] Log file that stores error information.
  * @param  lineNo    [IN] Line number of the erroneous line.
  * @param  errorNo   [IN] Error code.
  * @param  paraLen   [IN] Length of the input parameter pPara.
- * @param  para       [IN] User label of the error.
+ * @param  para      [IN] User label of the error.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_err.h: the header file that contains the API declaration.</li></ul>
- * @see None.
  * @since Huawei LiteOS V100R001C00
  */
 typedef VOID (*LOS_ERRORHANDLE_FUNC)(CHAR *fileName,
@@ -86,9 +75,7 @@ typedef VOID (*LOS_ERRORHANDLE_FUNC)(CHAR *fileName,
  * @par Description:
  * This API is used to perform different operations according to error types.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None
  *
  * @param  fileName  [IN] Log file that stores error information.
  * @param  lineNo    [IN] Line number of the erroneous line which should not be OS_ERR_MAGIC_WORD.
@@ -96,10 +83,9 @@ typedef VOID (*LOS_ERRORHANDLE_FUNC)(CHAR *fileName,
  * @param  paraLen   [IN] Length of the input parameter pPara.
  * @param  para      [IN] User label of the error.
  *
- * @retval LOS_OK The error is successfully processed.
+ * @retval #LOS_OK The error is successfully processed.
  * @par Dependency:
  * <ul><li>los_err.h: the header file that contains the API declaration.</li></ul>
- * @see None
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo,
@@ -114,16 +100,13 @@ extern UINT32 LOS_ErrHandle(CHAR *fileName, UINT32 lineNo,
  * This API is used to register user error handling hook function,
  * Support repeated registration.
  * @attention
- * <ul>
- * <li>None</li>
- * </ul>
+ * None
  *
  * @param  func  [IN] error handling hook function.
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_err.h: the header file that contains the API declaration.</li></ul>
- * @see None
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID LOS_RegErrHandle(LOS_ERRORHANDLE_FUNC func);
@@ -135,12 +118,6 @@ extern VOID LOS_RegErrHandle(LOS_ERRORHANDLE_FUNC func);
 typedef struct tagUserErrFunc_S {
     LOS_ERRORHANDLE_FUNC pfnHook; /**< Hook function for error handling. */
 } USER_ERR_FUNC_S;
-
-/**
- * @ingroup los_err
- * Error handling function.
- */
-extern USER_ERR_FUNC_S g_stUserErrFunc;
 
 #ifdef __cplusplus
 #if __cplusplus

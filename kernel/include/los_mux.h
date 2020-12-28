@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_mux Mutex
@@ -57,7 +49,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The memory request fails.
  *
- * Value: 0x02001d00
+ * Value: 0x02001d00.
  *
  * Solution: Decrease the number of mutexes defined by LOSCFG_BASE_IPC_MUX_LIMIT.
  */
@@ -67,7 +59,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The mutex is not usable.
  *
- * Value: 0x02001d01
+ * Value: 0x02001d01.
  *
  * Solution: Check whether the mutex ID and the mutex state are applicable for the current operation.
  */
@@ -77,7 +69,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: Null pointer.
  *
- * Value: 0x02001d02
+ * Value: 0x02001d02.
  *
  * Solution: Check whether the input parameter is usable.
  */
@@ -87,7 +79,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: No mutex is available and the mutex request fails.
  *
- * Value: 0x02001d03
+ * Value: 0x02001d03.
  *
  * Solution: Increase the number of mutexes defined by LOSCFG_BASE_IPC_MUX_LIMIT.
  */
@@ -97,7 +89,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The mutex fails to be locked in non-blocking mode because it is locked by another thread.
  *
- * Value: 0x02001d04
+ * Value: 0x02001d04.
  *
  * Solution: Lock the mutex after it is unlocked by the thread that owns it, or set a waiting time.
  */
@@ -107,7 +99,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The mutex is being locked during an interrupt.
  *
- * Value: 0x02001d05
+ * Value: 0x02001d05.
  *
  * Solution: Check whether the mutex is being locked during an interrupt.
  */
@@ -118,7 +110,7 @@ extern "C" {
  * Mutex error code: A thread locks a mutex after waiting for the mutex to be unlocked by another thread
  * when the task scheduling is disabled.
  *
- * Value: 0x02001d06
+ * Value: 0x02001d06.
  *
  * Solution: Check whether the task scheduling is disabled, or set timeout to 0, which means that the
  * thread will not wait for the mutex to become available.
@@ -129,7 +121,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The mutex locking times out.
  *
- * Value: 0x02001d07
+ * Value: 0x02001d07.
  *
  * Solution: Increase the waiting time or set the waiting time to LOS_WAIT_FOREVER (forever-blocking mode).
  */
@@ -137,9 +129,9 @@ extern "C" {
 
 /**
  * @ingroup los_mux
+ * The error code is not in use temporarily.
  *
  * Value: 0x02001d08
- * Not in use temporarily.
  */
 #define LOS_ERRNO_MUX_OVERFLOW              LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x08)
 
@@ -147,7 +139,7 @@ extern "C" {
  * @ingroup los_mux
  * Mutex error code: The mutex to be deleted is being locked.
  *
- * Value: 0x02001d09
+ * Value: 0x02001d09.
  *
  * Solution: Delete the mutex after it is unlocked.
  */
@@ -155,28 +147,29 @@ extern "C" {
 
 /**
  * @ingroup los_mux
+ * The error code is not in use temporarily.
  *
  * Value: 0x02001d0A
- * Not in use temporarily.
  */
 #define LOS_ERRNO_MUX_GET_COUNT_ERR         LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0A)
 
 /**
  * @ingroup los_mux
+ * The error code is not in use temporarily.
  *
  * Value: 0x02001d0B
- * Not in use temporarily.
  */
 #define LOS_ERRNO_MUX_REG_ERROR             LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0B)
 
 /**
-* @ingroup los_mux
-* Mutex error code: The mutex is being locked in system-level task.
-*        old usage: The mutex is being locked in software timer task. (LOS_ERRNO_MUX_PEND_IN_SWTMR_TSK)
-* Value: 0x02001d0C
-*
-* Solution: Pend the mutex in a vailid task.
-*/
+ * @ingroup los_mux
+ * Mutex error code: The mutex is being locked in system-level task.
+ *        old usage: The mutex is being locked in software timer task(LOS_ERRNO_MUX_PEND_IN_SWTMR_TSK).
+ *
+ * Value: 0x02001d0C.
+ *
+ * Solution: Pend the mutex in a vailid task.
+ */
 #define LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK   LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0C)
 
 /**
@@ -185,11 +178,9 @@ extern "C" {
  *
  * @par Description:
  * This API is used to create a mutex. A mutex handle is assigned to muxHandle when the mutex is created successfully.
- * Return LOS_OK on creating successful, return specific error code otherwise.
+ * Return #LOS_OK when creating is successful, return specific error code otherwise.
  * @attention
- * <ul>
- * <li>The total number of mutexes is pre-configured. If there are no available mutexes, the mutex creation fails.</li>
- * </ul>
+ * The total number of mutexes is pre-configured. If there are no available mutexes, the mutex creation will fail.
  *
  * @param muxHandle   [OUT] Handle pointer of the successfully created mutex. The value of handle should be in
  *                          [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
@@ -209,15 +200,15 @@ extern UINT32 LOS_MuxCreate(UINT32 *muxHandle);
  * @brief Delete a mutex.
  *
  * @par Description:
- * This API is used to delete a specified mutex. Return LOS_OK on deleting successfully, return specific error code
- * otherwise.
+ * This API is used to delete a specified mutex. Return LOS_OK if the mutex deletion is successfully,
+ * otherwise return specific error code.
  * @attention
  * <ul>
  * <li>The specific mutex should be created firstly.</li>
- * <li>The mutex can be deleted successfully only if no other tasks pend on it.</li>
+ * <li>The mutex can be deleted successfully only when there is no other tasks pend on it.</li>
  * </ul>
  *
- * @param muxHandle   [IN] Handle of the mutex to be deleted. The value of handle should be in
+ * @param muxHandle   [IN] The mutex handle to be deleted. The value of handle should be in
  *                         [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  *
  * @retval #LOS_ERRNO_MUX_INVALID            Invalid handle or mutex in use.
@@ -248,7 +239,7 @@ extern UINT32 LOS_MuxDelete(UINT32 muxHandle);
  * <li>Do not recommend to use this API in software timer callback. </li>
  * </ul>
  *
- * @param muxHandle    [IN] Handle of the mutex to be waited on.  The value of handle should be
+ * @param muxHandle    [IN] The mutex handle to be waited for. The value of handle should be
  *                          in [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  * @param timeout      [IN] Waiting time. The value range is [0, LOS_WAIT_FOREVER](unit: Tick).
  *
@@ -280,7 +271,7 @@ extern UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout);
  * <li>If a recursive mutex is locked for many times, it must be unlocked for the same times to be released.</li>
  * </ul>
  *
- * @param muxHandle    [IN] Handle of the mutex to be released. The value of handle should be in
+ * @param muxHandle    [IN] The mutex handle to be released. The value of handle should be in
  *                          [0, LOSCFG_BASE_IPC_MUX_LIMIT - 1].
  *
  * @retval #LOS_ERRNO_MUX_INVALID            The mutex state (for example, the mutex does not exist or is not in use

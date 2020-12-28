@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_queue Queue
@@ -55,10 +47,11 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The maximum number of queue resources is configured to 0.
  *
- * Value: 0x02000600
+ * Value: 0x02000600.
  *
- * Solution: Configure the maximum number of queue resources to be greater than 0. If queue modules are not used,
- * set the configuration item for the tailoring of the maximum number of queue resources to NO.
+ * Solution: Configure the maximum number of queue resources to be greater than 0. If queue
+ * modules are not used, set the configuration item for the tailoring of the maximum number
+ * of queue resources to NO.
  */
 #define LOS_ERRNO_QUEUE_MAXNUM_ZERO         LOS_ERRNO_OS_ERROR(LOS_MOD_QUE, 0x00)
 
@@ -66,9 +59,10 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The queue block memory fails to be initialized.
  *
- * Value: 0x02000601
+ * Value: 0x02000601.
  *
- * Solution: Allocate the queue block bigger memory partition, or decrease the maximum number of queue resources.
+ * Solution: Allocate the queue block bigger memory partition, or decrease the maximum
+ * number of queue resources.
  */
 #define LOS_ERRNO_QUEUE_NO_MEMORY           LOS_ERRNO_OS_ERROR(LOS_MOD_QUE, 0x01)
 
@@ -76,10 +70,10 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The memory for queue creation fails to be requested.
  *
- * Value: 0x02000602
+ * Value: 0x02000602.
  *
- * Solution: Allocate more memory for queue creation, or decrease the queue length and the number of nodes
- * in the queue to be created.
+ * Solution: Allocate more memory for queue creation, or decrease the queue length and
+ * the number of nodes in the queue to be created.
  */
 #define LOS_ERRNO_QUEUE_CREATE_NO_MEMORY    LOS_ERRNO_OS_ERROR(LOS_MOD_QUE, 0x02)
 
@@ -87,7 +81,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The size of the biggest message in the created queue is too big.
  *
- * Value: 0x02000603
+ * Value: 0x02000603.
  *
  * Solution: Change the size of the biggest message in the created queue.
  */
@@ -97,7 +91,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The upper limit of the number of created queues is exceeded.
  *
- * Value: 0x02000604
+ * Value: 0x02000604.
  *
  * Solution: Increase the configured number of resources for queues.
  */
@@ -107,7 +101,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: Invalid queue.
  *
- * Value: 0x02000605
+ * Value: 0x02000605.
  *
  * Solution: Ensure that the passed-in queue ID is valid.
  */
@@ -117,7 +111,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The task is forbidden to be blocked on a queue when the task is locked.
  *
- * Value: 0x02000606
+ * Value: 0x02000606.
  *
  * Solution: Unlock the task before using a queue.
  */
@@ -127,7 +121,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The time set for waiting to processing the queue expires.
  *
- * Value: 0x02000607
+ * Value: 0x02000607.
  *
  * Solution: Check whether the expiry time setting is appropriate.
  */
@@ -137,7 +131,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The queue that blocks a task cannot be deleted.
  *
- * Value: 0x02000608
+ * Value: 0x02000608.
  *
  * Solution: Enable the task to obtain resources rather than be blocked on the queue.
  */
@@ -145,10 +139,10 @@ extern "C" {
 
 /**
  * @ingroup los_queue
- * Queue error code: The queue cannot be written during an interrupt when the time for waiting to
- * processing the queue expires.
+ * Queue error code: The queue cannot be written during an interrupt when the time for
+ * waiting to processing the queue expires.
  *
- * Value: 0x02000609
+ * Value: 0x02000609.
  *
  * Solution: Set the expiry time to the never-waiting mode, or use asynchronous queues.
  */
@@ -158,7 +152,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The queue is not created.
  *
- * Value: 0x0200060a
+ * Value: 0x0200060a.
  *
  * Solution: Check whether the passed-in queue handle value is valid.
  */
@@ -168,7 +162,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: Queue reading and writing are not synchronous.
  *
- * Value: 0x0200060b
+ * Value: 0x0200060b.
  *
  * Solution: Synchronize queue reading with queue writing.
  */
@@ -178,7 +172,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: Parameters passed in during queue creation are null pointers.
  *
- * Value: 0x0200060c
+ * Value: 0x0200060c.
  *
  * Solution: Ensure the passed-in parameters are not null pointers.
  */
@@ -188,7 +182,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The queue length or message node size passed in during queue creation is 0.
  *
- * Value: 0x0200060d
+ * Value: 0x0200060d.
  *
  * Solution: Pass in correct queue length and message node size.
  */
@@ -198,7 +192,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The handle of the queue is invalid.
  *
- * Value: 0x0200060e
+ * Value: 0x0200060e.
  *
  * Solution: Check whether the passed-in queue handle value is valid.
  */
@@ -208,7 +202,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The pointer passed in during queue reading is null.
  *
- * Value: 0x0200060f
+ * Value: 0x0200060f.
  *
  * Solution: Check whether the passed-in pointer is null.
  */
@@ -218,7 +212,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The buffer size passed in during queue reading is too small or too big.
  *
- * Value: 0x02000610
+ * Value: 0x02000610.
  *
  * Solution: Pass in a correct buffer size between [sizeof(CHAR*), OS_NULL_SHORT - sizeof(UINT32)].
  */
@@ -228,7 +222,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The pointer passed in during queue writing is null.
  *
- * Value: 0x02000612
+ * Value: 0x02000612.
  *
  * Solution: Check whether the passed-in pointer is null.
  */
@@ -238,7 +232,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The buffer size passed in during queue writing is 0.
  *
- * Value: 0x02000613
+ * Value: 0x02000613.
  *
  * Solution: Pass in a correct buffer size.
  */
@@ -248,7 +242,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The buffer size passed in during queue writing is bigger than the queue size.
  *
- * Value: 0x02000615
+ * Value: 0x02000615.
  *
  * Solution: Decrease the buffer size, or use a queue in which nodes are bigger.
  */
@@ -258,7 +252,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: No free node is available during queue writing.
  *
- * Value: 0x02000616
+ * Value: 0x02000616.
  *
  * Solution: Ensure that free nodes are available before queue writing.
  */
@@ -268,7 +262,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The pointer passed in when the queue information is being obtained is null.
  *
- * Value: 0x02000617
+ * Value: 0x02000617.
  *
  * Solution: Check whether the passed-in pointer is null.
  */
@@ -279,7 +273,7 @@ extern "C" {
  * Queue error code: The queue cannot be read during an interrupt
  * when the time for waiting to processing the queue expires.
  *
- * Value: 0x02000618
+ * Value: 0x02000618.
  *
  * Solution: Set the expiry time to the never-waiting mode, or use asynchronous queues.
  */
@@ -289,7 +283,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The handle of the queue passed-in when the memory for the queue is being freed is invalid.
  *
- * Value: 0x02000619
+ * Value: 0x02000619.
  *
  * Solution: Check whether the passed-in queue handle value is valid.
  */
@@ -299,7 +293,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The pointer to the memory to be freed is null.
  *
- * Value: 0x0200061a
+ * Value: 0x0200061a.
  *
  * Solution: Check whether the passed-in pointer is null.
  */
@@ -309,7 +303,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The memory for the queue fails to be freed.
  *
- * Value: 0x0200061b
+ * Value: 0x0200061b.
  *
  * Solution: Pass in correct input parameters.
  */
@@ -320,7 +314,7 @@ extern "C" {
  * Queue error code: No resource is in the queue that is being read when the
  * time for waiting to processing the queue expires.
  *
- * Value: 0x0200061d
+ * Value: 0x0200061d.
  *
  * Solution: Ensure that the queue contains messages when it is being read.
  */
@@ -330,7 +324,7 @@ extern "C" {
  * @ingroup los_queue
  * Queue error code: The buffer size passed in during queue reading is smaller than the queue size.
  *
- * Value: 0x0200061f
+ * Value: 0x0200061f.
  *
  * Solution: Increase the buffer size, or use a queue in which nodes are smaller.
  */
@@ -342,15 +336,22 @@ extern "C" {
  */
 typedef struct tagQueueInfo {
     UINT32 uwQueueID;       /**< Queue ID */
-    UINT16 usQueueLen;      /**< Queue length */
-    UINT16 usQueueSize;     /**< Node size */
-    UINT16 usQueueHead;     /**< Node head */
-    UINT16 usQueueTail;     /**< Node tail */
+    UINT16 usQueueLen;      /**< Queue length, that is the number of node in the queue */
+    UINT16 usQueueSize;     /**< Node size in the queue */
+    UINT16 usQueueHead;     /**< The position of queue header node, it is an array subscript */
+    UINT16 usQueueTail;     /**< The position of queue tail node, it is an array subscript */
     UINT16 usWritableCnt;   /**< Count of writable resources */
     UINT16 usReadableCnt;   /**< Count of readable resources */
-    UINT64 uwWaitReadTask;  /**< Resource reading task */
-    UINT64 uwWaitWriteTask; /**< Resource writing task */
-    UINT64 uwWaitMemTask;   /**< Memory task */
+    UINT64 uwWaitReadTask;  /**< Tasks waiting for reading message. It is a 64-bit unsigned
+                                 integer, each bit represents a task ID. Therefore, 64 tasks
+                                 can be represented, and the maximum task ID is 63. For example,
+                                 0x0200060001002010 means there are 6 tasks whose IDs are 4,
+                                 13, 24, 41, 42, and 57. */
+    UINT64 uwWaitWriteTask; /**< Tasks waiting for writing message. It is a 64-bit unsigned
+                                 integer same with #uwWaitReadTask, each bit represents a task ID. */
+    UINT64 uwWaitMemTask;   /**< Tasks waiting for memory used by the MailBox in the CMSIS-RTOS.
+                                 It is a 64-bit unsigned integer same with #uwWaitReadTask,
+                                 each bit represents a task ID. */
 } QUEUE_INFO_S;
 
 #ifdef LOSCFG_QUEUE_STATIC_ALLOCATION
@@ -359,10 +360,13 @@ typedef struct tagQueueInfo {
  * @brief Create a message queue.
  *
  * @par Description:
- * This API is used to create a message queue.
+ * This API is used to create a message queue by transferring the static memory for the queue.
+ * The input parameter "queueMem" is the pointer to the static memory the API can use directly.
+ * The input parameter "memSize" is the static memory size.
  * @attention
  * <ul>
  * <li>Threre are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessory.</li>
+ * <li>This function is defined only when LOSCFG_QUEUE_STATIC_ALLOCATION is defined.</li>
  * </ul>
  * @param queueName        [IN]    Message queue name. Reserved parameter, not used for now.
  * @param len              [IN]    Queue length. The value range is [1,0xffff].
@@ -381,7 +385,7 @@ typedef struct tagQueueInfo {
  * @retval   #LOS_ERRNO_QUEUE_SIZE_TOO_BIG         The parameter maxMsgSize is larger than 0xffff - 4.
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueDelete
+ * @see LOS_QueueDelete | LOS_QueueCreate
  * @since Huawei LiteOS V200R005C00
  */
 extern UINT32 LOS_QueueCreateStatic(CHAR *queueName,
@@ -398,11 +402,11 @@ extern UINT32 LOS_QueueCreateStatic(CHAR *queueName,
  * @brief Create a message queue.
  *
  * @par Description:
- * This API is used to create a message queue.
+ * This API is used to create a message queue. Different from LOS_QueueCreateStatic,
+ * the user does not need to transfer the queue memory. In the API, system allocated
+ * the queue memory automatically.
  * @attention
- * <ul>
- * <li>There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.</li>
- * </ul>
+ * There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.
  * @param queueName        [IN]  Message queue name. Reserved parameter, not used for now.
  * @param len              [IN]  Queue length. The value range is [1,0xffff].
  * @param queueId          [OUT] ID of the queue control structure that is successfully created.
@@ -418,7 +422,7 @@ extern UINT32 LOS_QueueCreateStatic(CHAR *queueName,
  * @retval   #LOS_ERRNO_QUEUE_SIZE_TOO_BIG      The parameter usMaxMsgSize is larger than 0xffff - 4.
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueDelete
+ * @see LOS_QueueDelete | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueCreate(CHAR *queueName,
@@ -446,8 +450,8 @@ extern UINT32 LOS_QueueCreate(CHAR *queueName,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN]     Queue ID created by LOS_QueueCreate. The value range is
- * [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN]     Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                                The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT]    Starting address that stores the obtained data. The starting address must not be
  * null.
  * @param bufferSize     [IN/OUT] Where to maintain the buffer wanted-size before read, and the real-size after read.
@@ -469,7 +473,7 @@ extern UINT32 LOS_QueueCreate(CHAR *queueName,
  * the queue size.
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueWriteCopy | LOS_QueueCreate
+ * @see LOS_QueueWriteCopy | LOS_QueueWriteHeadCopy | LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueReadCopy(UINT32 queueId,
@@ -495,8 +499,8 @@ extern UINT32 LOS_QueueReadCopy(UINT32 queueId,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
- *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                             The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [IN]  Starting address that stores the data to be written.The starting address must
  *                             not be null.
  * @param bufferSize     [IN]  Passed-in buffer size. The value range is [1,USHRT_MAX - sizeof(UINT32)].
@@ -517,7 +521,7 @@ extern UINT32 LOS_QueueReadCopy(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_TIMEOUT             The time set for waiting to processing the queue expires.
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueReadCopy | LOS_QueueCreate
+ * @see LOS_QueueReadCopy | LOS_QueueWriteHeadCopy | LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueWriteCopy(UINT32 queueId,
@@ -547,8 +551,8 @@ extern UINT32 LOS_QueueWriteCopy(UINT32 queueId,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
- *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                             The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the obtained data. The starting address must
  *                             not be null.
  * @param bufferSize     [IN]  Passed-in buffer size,The value range is
@@ -569,7 +573,7 @@ extern UINT32 LOS_QueueWriteCopy(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_TIMEOUT              The time set for waiting to processing the queue expires.
  * @par Dependency:
  * <ul><li>los_queue.h: The header file that contains the API declaration.</li></ul>
- * @see LOS_QueueWrite | LOS_QueueCreate
+ * @see LOS_QueueWrite | LOS_QueueWriteHead | LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueRead(UINT32 queueId,
@@ -596,8 +600,8 @@ extern UINT32 LOS_QueueRead(UINT32 queueId,
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN] Queue ID created by LOS_QueueCreate. The value range is
- *                            [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN] Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                            The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [IN] Starting address that stores the data to be written. The starting address
  *                            must not be null.
  * @param bufferSize     [IN] This parameter is not in use temporarily.
@@ -618,7 +622,7 @@ extern UINT32 LOS_QueueRead(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_TIMEOUT            The time set for waiting to processing the queue expires.
  * @par Dependency:
  * <ul><li>los_queue.h: The header file that contains the API declaration.</li></ul>
- * @see LOS_QueueRead | LOS_QueueCreate
+ * @see LOS_QueueRead | LOS_QueueWriteHead | LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueWrite(UINT32 queueId,
@@ -641,12 +645,12 @@ extern UINT32 LOS_QueueWrite(UINT32 queueId,
  * bufferAddr is to be written.</li>
  * <li>The argument timeout is a relative time.</li>
  * <li>LOS_QueueRead and LOS_QueueWriteHead are a set of interfaces, and the two groups of interfaces need to
- * be used.<li>
+ * be used.</li>
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
- *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                             The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the data to be written. The starting address
  *                             must not be null.
  * @param bufferSize     [IN]  This parameter is not in use temporarily.
@@ -667,7 +671,7 @@ extern UINT32 LOS_QueueWrite(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_TIMEOUT            The time set for waiting to processing the queue expires.
  * @par Dependency:
  * <ul><li>los_queue.h: The header file that contains the API declaration.</li></ul>
- * @see LOS_QueueRead | LOS_QueueCreate
+ * @see LOS_QueueWrite | LOS_QueueRead | LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueWriteHead(UINT32 queueId,
@@ -690,12 +694,12 @@ extern UINT32 LOS_QueueWriteHead(UINT32 queueId,
  * bufferAddr is to be written.</li>
  * <li>The argument timeout is a relative time.</li>
  * <li>LOS_QueueRead and LOS_QueueWriteHead are a set of interfaces, and the two groups of interfaces need to be
- * used.<li>
+ * used.</li>
  * <li>Do not call this API in software timer callback. </li>
  * </ul>
  *
- * @param queueId        [IN]  Queue ID created by LOS_QueueCreate. The value range is
- *                             [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId        [IN]  Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                             The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT] Starting address that stores the data to be written.
  *                             The starting address must not be null.
  * @param bufferSize     [IN]  Passed-in buffer size, which must not be 0. The value range is [1,0xffffffff].
@@ -716,7 +720,7 @@ extern UINT32 LOS_QueueWriteHead(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_TIMEOUT            The time set for waiting to processing the queue expires.
  * @par Dependency:
  * <ul><li>los_queue.h: The header file that contains the API declaration.</li></ul>
- * @see LOS_QueueWrite | LOS_QueueWriteHead
+ * @see LOS_QueueWriteCopy | LOS_QueueReadCopy
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueId,
@@ -737,10 +741,11 @@ extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueId,
  * written.</li>
  * </ul>
  *
- * @param queueId     [IN] Queue ID created by LOS_QueueCreate. The value range is
- *                         [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * @param queueId     [IN] Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                         The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  *
  * @retval   #LOS_OK                      The queue is successfully deleted.
+ * @retval   #LOS_NOK                     Failed to release the queue memory.
  * @retval   #LOS_ERRNO_QUEUE_NOT_FOUND   The queue cannot be found.
  * @retval   #LOS_ERRNO_QUEUE_NOT_CREATE  The queue handle passed in when the queue is being deleted is
  * incorrect.
@@ -748,7 +753,7 @@ extern UINT32 LOS_QueueWriteHeadCopy(UINT32 queueId,
  * @retval   #LOS_ERRNO_QUEUE_IN_TSKWRITE Queue reading and writing are not synchronous.
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueCreate | LOS_QueueCreate
+ * @see LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueDelete(UINT32 queueId);
@@ -760,11 +765,9 @@ extern UINT32 LOS_QueueDelete(UINT32 queueId);
  * @par Description:
  * This API is used to obtain queue information.
  * @attention
- * <ul>
- * <li>The specific queue should be created firstly.</li>
- * </ul>
- * @param queueId       [IN]  Queue ID created by LOS_QueueCreate. The value range is
- *                            [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
+ * The specific queue should be created firstly before getting the queue information.
+ * @param queueId       [IN]  Queue ID created by LOS_QueueCreate or LOS_QueueCreateStatic.
+ *                            The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param queueInfo     [OUT] The queue information to be read must not be null.
  *
  * @retval   #LOS_OK                     The queue information is successfully obtained.
@@ -775,7 +778,7 @@ extern UINT32 LOS_QueueDelete(UINT32 queueId);
  *
  * @par Dependency:
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_QueueCreate
+ * @see LOS_QueueCreate | LOS_QueueCreateStatic
  * @since Huawei LiteOS V100R001C00
  */
 extern UINT32 LOS_QueueInfoGet(UINT32 queueId, QUEUE_INFO_S *queueInfo);

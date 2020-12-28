@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup dynload Dynamic loading
@@ -50,28 +42,48 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#ifdef LOSCFG_KERNEL_DYNLOAD_DYN
+#ifdef LOSCFG_DYNLOAD_DYN_FROM_FS
 /**
  * @ingroup dynload
- * @brief Set the memory pool address used by dynload
+ * Define an enum type indicates load strategy.
+ *
+ * Type of load strategy of dynamic load, ZIP means using zipped shared object, NOZIP means using normal shared object.
+ */
+enum LOAD_STRATEGY {
+    ZIP,
+    NOZIP
+};
+
+/**
+ * @ingroup dynload
+ * Define the structure of the parameters used for dynamic.
+ *
+ * Information of specified parameters passed in during dynamic load.
+ */
+typedef struct tagDynloadParam {
+    enum LOAD_STRATEGY enLoadStrategy;
+} DYNLOAD_PARAM_S;
+
+/**
+ * @ingroup dynload
+ * @brief Register the dynamic parameters.
  *
  * @par Description:
- * This API is used to set the memory pool address used by dynload.
+ * This API is used to register the dynamic load parameters.
  * @attention
  * <ul>
- * <li>The parameter passed to this API should be a legal memory pool address by managed with LiteOS's memory
- * algorithm, and whose value is outside of the LiteOS system memory</li>
+ * <li></li>
  * </ul>
  *
- * @param memPool [IN] the memory pool address.
+ * @param dynloadParam    [IN] dynamic load parameters to be registered.
  *
- * @retval TRUE   Set successful.
- * @retval FLASE Set failed.
  * @par Dependency:
  * <ul><li>los_ld_elflib.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_ModuleUnload
- * @since Huawei LiteOS V200R002C00
+ * @see LOS_FindSymByName | LOS_LdDestroy
+ * @since Huawei LiteOS V100R001C00
  */
-extern BOOL LOS_DynMemPoolSet(VOID *memPool);
+extern VOID LOS_DynParamReg(DYNLOAD_PARAM_S *dynloadParam);
 
 /**
  * @ingroup dynload
@@ -94,7 +106,38 @@ extern BOOL LOS_DynMemPoolSet(VOID *memPool);
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID *LOS_SoLoad(CHAR *elfFileName);
+#endif /* LOSCFG_DYNLOAD_DYN_FROM_FS */
 
+#ifdef LOSCFG_DYNLOAD_DYN_FROM_MEM
+/**
+ * @ingroup dynload
+ * @brief Load a shared object file from the memory.
+ *
+ * @par Description:
+ * This API is used to load a shared object file that is in memory.
+ * @attention
+ * <ul>
+ * <li>The shared object file does not depend on other shared objects.</li>
+ * </ul>
+ *
+ * @param elfFileName [IN] Shared object file name.
+ * @param fileNameLen [IN] The length of shared object file name.
+ * @param elfFileBuf  [IN] Shared object file buffer in memory.
+ * @param bufLen      [IN] the length of shared object file buffer in memory.
+ *
+ * @retval NULL  The shared object file fails to be loaded.
+ * @retval VOID* The shared object file is successfully loaded.
+ * @par Dependency:
+ * <ul><li>los_ld_elflib.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_ModuleUnload
+ * @since Huawei LiteOS V200R003C00
+ */
+extern VOID *LOS_MemLoad(const CHAR *elfFileName, UINT32 fileNameLen,
+                         const CHAR *elfFileBuf, UINT32 bufLen);
+#endif /* LOSCFG_DYNLOAD_DYN_FROM_MEM */
+#endif /* LOSCFG_KERNEL_DYNLOAD_DYN */
+
+#ifdef LOSCFG_KERNEL_DYNLOAD_REL
 /**
  * @ingroup dynload
  * @brief Load a object file.
@@ -116,6 +159,7 @@ extern VOID *LOS_SoLoad(CHAR *elfFileName);
  * @since Huawei LiteOS V100R001C00
  */
 extern VOID *LOS_ObjLoad(CHAR *elfFileName);
+#endif /* LOSCFG_KERNEL_DYNLOAD_REL */
 
 /**
  * @ingroup dynload
@@ -209,44 +253,26 @@ extern INT32 LOS_PathAdd(CHAR *path);
 
 /**
  * @ingroup dynload
- * Define an enum type indicates load strategy.
- *
- * Type of load strategy of dynamic load, ZIP means using zipped shared object, NOZIP means using normal shared object.
- */
-enum LOAD_STRATEGY {
-    ZIP,
-    NOZIP
-};
-
-/**
- * @ingroup dynload
- * Define the structure of the parameters used for dynamic.
- *
- * Information of specified parameters passed in during dynamic load.
- */
-typedef struct tagDynloadParam {
-    enum LOAD_STRATEGY enLoadStrategy;
-} DYNLOAD_PARAM_S;
-
-/**
- * @ingroup dynload
- * @brief Register the dynamic parameters.
+ * @brief Set the memory pool address used by dynload
  *
  * @par Description:
- * This API is used to register the dynamic load parameters.
+ * This API is used to set the memory pool address used by dynload.
  * @attention
  * <ul>
- * <li></li>
+ * <li>The parameter passed to this API should be a legal memory pool address by managed with LiteOS's memory
+ * algorithm, and whose value is outside of the LiteOS system memory</li>
  * </ul>
  *
- * @param dynloadParam    [IN] dynamic load parameters to be registered.
+ * @param memPool [IN] the memory pool address.
  *
+ * @retval TRUE   Set successful.
+ * @retval FLASE Set failed.
  * @par Dependency:
  * <ul><li>los_ld_elflib.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_FindSymByName | LOS_LdDestroy
- * @since Huawei LiteOS V100R001C00
+ * @see LOS_ModuleUnload
+ * @since Huawei LiteOS V200R002C00
  */
-extern VOID LOS_DynParamReg(DYNLOAD_PARAM_S *dynloadParam);
+extern BOOL LOS_DynMemPoolSet(VOID *memPool);
 
 #ifdef __cplusplus
 #if __cplusplus

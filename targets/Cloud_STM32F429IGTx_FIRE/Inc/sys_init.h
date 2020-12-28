@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Sys Init HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef _SYS_H
@@ -50,11 +44,10 @@
 #include "string.h"
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
-#include "hal_rng.h"
 #include "usart.h"
 #include "dwt.h"
-#ifdef LOSCFG_COMPONENTS_NET_LWIP
 
+#ifdef LOSCFG_COMPONENTS_NET_LWIP
 #include "lwip/netif.h"
 #if defined ( __CC_ARM )  /* MDK ARM Compiler */
 #include "lwip/sio.h"
@@ -72,7 +65,7 @@
 #include "lwip/timeouts.h"
 #include "ethernetif.h"
 
-#ifdef WITH_DTLS
+#ifdef LOSCFG_COMPONENTS_SECURITY_MBEDTLS
 #include "mbedtls/net.h"
 #include "mbedtls/ssl.h"
 #endif
@@ -88,11 +81,11 @@ extern "C" {
 
 #ifdef LOSCFG_COMPONENTS_NET_LWIP
 void net_init(void);
+void hieth_hw_init(void);
 #endif
 uint32_t HAL_GetTick(void);
 void SystemClock_Config(void);
 void _Error_Handler(char *, int);
-void hieth_hw_init(void);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 

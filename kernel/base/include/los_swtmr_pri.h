@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #ifndef _LOS_SWTMR_PRI_H
 #define _LOS_SWTMR_PRI_H
@@ -80,7 +72,7 @@ typedef struct {
     UINT16 timerId;   /**< Software timer ID */
     UINT32 interval;  /**< Timeout interval of a periodic software timer (unit: tick) */
     UINT32 expiry;    /**< Timeout interval of an one-off software timer (unit: tick) */
-#if (LOSCFG_KERNEL_SMP == YES)
+#ifdef LOSCFG_KERNEL_SMP
     UINT32 cpuid;     /**< The cpu where the timer running on */
 #endif
     UINTPTR arg;      /**< Parameter passed in when the callback function
@@ -126,7 +118,9 @@ extern VOID OsSwtmrScan(VOID);
 extern UINT32 OsSwtmrInit(VOID);
 extern VOID OsSwtmrTask(VOID);
 extern SPIN_LOCK_S g_swtmrSpin;
-
+#ifdef LOSCFG_EXC_INTERACTION
+extern BOOL IsSwtmrTask(UINT32 taskId);
+#endif
 #endif /* LOSCFG_BASE_CORE_SWTMR */
 
 #ifdef __cplusplus

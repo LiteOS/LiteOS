@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Ota Flag Operate Upgrade HeadFile
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,34 +24,26 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
-#ifndef UPGRADE_FLAG_H
-#define UPGRADE_FLAG_H
+#ifndef _UPGRADE_FLAG_H
+#define _UPGRADE_FLAG_H
 
 #include <stdint.h>
 
 #ifdef __cplusplus
+#if __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-typedef enum
-{
+typedef enum {
     UPGRADE_FULL = 0,
     UPGRADE_DIFF,
     UPGRADE_NONE,
 } upgrade_type_e;
 
-typedef enum
-{
+typedef enum {
     OTA_IDLE = 0,
     OTA_NEED_UPGRADE,
     OTA_SUCCEED,
@@ -60,8 +54,8 @@ int flag_upgrade_init(void);
 
 int flag_set_info(upgrade_type_e upgrade_type, uint32_t image_size);
 
-void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size,
-                   uint32_t *old_image_size, upgrade_state_e *upgrade_state);
+void flag_get_info(upgrade_type_e *upgrade_type, uint32_t *image_size, uint32_t *old_image_size,
+                   upgrade_state_e *upgrade_state);
 
 int flag_upgrade_set_result(upgrade_state_e state, uint32_t image_size);
 
@@ -74,7 +68,9 @@ void flag_get_recover_verify(uint32_t *recover_verify, uint32_t *verify_length);
 int flag_enable_hwpatch(const uint8_t *patch_head, int32_t patch_len);
 
 #ifdef __cplusplus
+#if __cplusplus
 }
-#endif
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* UPGRADE_FLAG_H */
+#endif /* _UPGRADE_FLAG_H */

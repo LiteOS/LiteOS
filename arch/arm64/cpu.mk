@@ -23,6 +23,7 @@ LITEOS_ASOPTS           += $(LITEOS_CPU_OPTS)
 LITEOS_CXXOPTS_BASE     += $(LITEOS_CORE_COPTS)
 
 ARCH_INCLUDE            := -I $(LITEOSTOPDIR)/arch/arm64/include \
+                           -I $(LITEOSTOPDIR)/arch/arm64/include/arch \
                            -I $(LITEOSTOPDIR)/arch/arm64/src/include
 
 LITEOS_PLATFORM_INCLUDE += $(ARCH_INCLUDE)

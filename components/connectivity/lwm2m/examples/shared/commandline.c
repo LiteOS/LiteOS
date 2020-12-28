@@ -1,6 +1,8 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: Commandline
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice, this list of
@@ -22,15 +24,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
+ * --------------------------------------------------------------------------- */
 
 /*******************************************************************************
  *
@@ -69,21 +63,19 @@ static command_desc_t *prv_find_command(command_desc_t *commandArray,
 {
     int i;
 
-    if (length == 0) return NULL;
+    if (length == 0) {
+        return NULL;
+    }
 
     i = 0;
-    while (commandArray[i].name != NULL
-            && (strlen(commandArray[i].name) != length || strncmp(buffer, commandArray[i].name, length)))
-    {
+    while ((commandArray[i].name != NULL)
+            && ((strlen(commandArray[i].name) != length) || (strncmp(buffer, commandArray[i].name, length)))) {
         i++;
     }
 
-    if (commandArray[i].name == NULL)
-    {
+    if (commandArray[i].name == NULL) {
         return NULL;
-    }
-    else
-    {
+    } else {
         return &commandArray[i];
     }
 }
@@ -96,28 +88,24 @@ static void prv_displayHelp(command_desc_t *commandArray,
 
     // find end of first argument
     length = 0;
-    while (buffer[length] != 0 && !isspace(buffer[length] & 0xff))
+    while ((buffer[length] != 0) && (!isspace(buffer[length] & 0xff))) {
         length++;
+    }
 
     cmdP = prv_find_command(commandArray, buffer, length);
 
-    if (cmdP == NULL)
-    {
+    if (cmdP == NULL) {
         int i;
 
         fprintf(stdout, HELP_COMMAND"\t"HELP_DESC"\r\n");
 
-        for (i = 0 ; commandArray[i].name != NULL ; i++)
-        {
+        for (i = 0 ; commandArray[i].name != NULL ; i++) {
             fprintf(stdout, "%s\t%s\r\n", commandArray[i].name, commandArray[i].shortDesc);
         }
-    }
-    else
-    {
+    } else {
         fprintf(stdout, "%s\r\n", cmdP->longDesc ? cmdP->longDesc : cmdP->shortDesc);
     }
 }
-
 
 void handle_command(command_desc_t *commandArray,
                     char *buffer)
@@ -127,26 +115,23 @@ void handle_command(command_desc_t *commandArray,
 
     // find end of command name
     length = 0;
-    while (buffer[length] != 0 && !isspace(buffer[length] & 0xFF))
+    while ((buffer[length] != 0) && (!isspace(buffer[length] & 0xFF))) {
         length++;
+    }
 
     cmdP = prv_find_command(commandArray, buffer, length);
-    if (cmdP != NULL)
-    {
-        while (buffer[length] != 0 && isspace(buffer[length] & 0xFF))
+    if (cmdP != NULL) {
+        while ((buffer[length] != 0) && (isspace(buffer[length] & 0xFF))) {
             length++;
-        cmdP->callback(buffer + length, cmdP->userData);
-    }
-    else
-    {
-        if (!strncmp(buffer, HELP_COMMAND, length))
-        {
-            while (buffer[length] != 0 && isspace(buffer[length] & 0xFF))
-                length++;
-            prv_displayHelp(commandArray, buffer + length);
         }
-        else
-        {
+        cmdP->callback(buffer + length, cmdP->userData);
+    } else {
+        if (!strncmp(buffer, HELP_COMMAND, length)) {
+            while (buffer[length] != 0 && isspace(buffer[length] & 0xFF)) {
+                length++;
+            }
+            prv_displayHelp(commandArray, buffer + length);
+        } else {
             fprintf(stdout, UNKNOWN_CMD_MSG"\r\n");
         }
     }
@@ -154,8 +139,7 @@ void handle_command(command_desc_t *commandArray,
 
 static char *prv_end_of_space(char *buffer)
 {
-    while (isspace(buffer[0] & 0xff))
-    {
+    while (isspace(buffer[0] & 0xff)) {
         buffer++;
     }
     return buffer;
@@ -163,8 +147,7 @@ static char *prv_end_of_space(char *buffer)
 
 char *get_end_of_arg(char *buffer)
 {
-    while (buffer[0] != 0 && !isspace(buffer[0] & 0xFF))
-    {
+    while ((buffer[0] != 0) && (!isspace(buffer[0] & 0xFF))) {
         buffer++;
     }
     return buffer;
@@ -176,8 +159,7 @@ char *get_next_arg(char *buffer, char **end)
     buffer = get_end_of_arg(buffer);
     // skip space
     buffer = prv_end_of_space(buffer);
-    if (NULL != end)
-    {
+    if (end != NULL) {
         *end = get_end_of_arg(buffer);
     }
 
@@ -188,7 +170,7 @@ int check_end_of_args(char *buffer)
 {
     buffer = prv_end_of_space(buffer);
 
-    return (0 == buffer[0]);
+    return (buffer[0] == 0);
 }
 
 /**********************************************************
@@ -200,8 +182,9 @@ static void print_indent(FILE *stream,
 {
     int i;
 
-    for ( i = 0 ; i < num ; i++)
+    for ( i = 0 ; i < num ; i++) {
         fprintf(stream, "    ");
+    }
 }
 #ifdef ATING_DEBUG
 void output_buffer(FILE *stream,
@@ -211,39 +194,40 @@ void output_buffer(FILE *stream,
 {
     int i;
 
-    if (length == 0) fprintf(stream, "\n");
+    if (length == 0) {
+        fprintf(stream, "\n");
+    }
 
-    if (buffer == NULL) return;
+    if (buffer == NULL) {
+        return;
+    }
 
     i = 0;
-    while (i < length)
-    {
+    while (i < length) {
         uint8_t array[16];
         int j;
 
         print_indent(stream, indent);
         memcpy(array, buffer + i, 16);
-        for (j = 0 ; j < 16 && i + j < length; j++)
-        {
+        for (j = 0 ; j < 16 && i + j < length; j++) {
             fprintf(stream, "%02X ", array[j]);
             if (j % 4 == 3) fprintf(stream, " ");
         }
-        if (length > 16)
-        {
-            while (j < 16)
-            {
+
+        if (length > 16) {
+            while (j < 16) {
                 fprintf(stream, "   ");
                 if (j % 4 == 3) fprintf(stream, " ");
                 j++;
             }
         }
         fprintf(stream, " ");
-        for (j = 0 ; j < 16 && i + j < length; j++)
-        {
-            if (isprint(array[j]))
+        for (j = 0 ; j < 16 && i + j < length; j++) {
+            if (isprint(array[j])) {
                 fprintf(stream, "%c", array[j]);
-            else
+            } else {
                 fprintf(stream, ".");
+            }
         }
         fprintf(stream, "\n");
         i += 16;
@@ -269,16 +253,14 @@ void output_tlv(FILE *stream,
     int length = 0;
     int result;
 
-    while (0 != (result = lwm2m_decode_TLV((uint8_t *)buffer + length, buffer_len - length, &type, &id, &dataIndex, &dataLen)))
-    {
+    while ((result = lwm2m_decode_TLV((uint8_t *)buffer + length, buffer_len - length, &type, &id, &dataIndex, &dataLen)) != 0) {
         print_indent(stream, indent);
         fprintf(stream, "{\r\n");
         print_indent(stream, indent + 1);
         fprintf(stream, "ID: %d", id);
 
         fprintf(stream, " type: ");
-        switch (type)
-        {
+        switch (type) {
         case LWM2M_TYPE_OBJECT_INSTANCE:
             fprintf(stream, "Object Instance");
             break;
@@ -296,12 +278,9 @@ void output_tlv(FILE *stream,
 
         print_indent(stream, indent + 1);
         fprintf(stream, "{\n");
-        if (type == LWM2M_TYPE_OBJECT_INSTANCE || type == LWM2M_TYPE_MULTIPLE_RESOURCE)
-        {
+        if ((type == LWM2M_TYPE_OBJECT_INSTANCE) || (type == LWM2M_TYPE_MULTIPLE_RESOURCE)) {
             output_tlv(stream, buffer + length + dataIndex, dataLen, indent + 1);
-        }
-        else
-        {
+        } else {
             int64_t intValue;
             double floatValue;
             uint8_t tmp;
@@ -312,13 +291,10 @@ void output_tlv(FILE *stream,
 
             tmp = buffer[length + dataIndex + dataLen];
             buffer[length + dataIndex + dataLen] = 0;
-            if (0 < sscanf((const char *)buffer + length + dataIndex, "%"PRId64, &intValue))
-            {
+            if (sscanf((const char *)buffer + length + dataIndex, "%"PRId64, &intValue) > 0) {
                 print_indent(stream, indent + 2);
                 fprintf(stream, "data as Integer: %" PRId64 "\r\n", intValue);
-            }
-            if (0 < sscanf((const char *)buffer + length + dataIndex, "%lg", &floatValue))
-            {
+            } if (sscanf((const char *)buffer + length + dataIndex, "%lg", &floatValue) > 0) {
                 print_indent(stream, indent + 2);
                 fprintf(stream, "data as Float: %.16g\r\n", floatValue);
             }
@@ -343,8 +319,7 @@ void output_data(FILE *stream,
     print_indent(stream, indent);
     fprintf(stream, "%d bytes received of type ", dataLength);
 
-    switch (format)
-    {
+    switch (format) {
     case LWM2M_CONTENT_TEXT:
         fprintf(stream, "text/plain:\r\n");
         output_buffer(stream, data, dataLength, indent);
@@ -363,8 +338,7 @@ void output_data(FILE *stream,
     case LWM2M_CONTENT_JSON:
         fprintf(stream, "application/vnd.oma.lwm2m+json:\r\n");
         print_indent(stream, indent);
-        for (i = 0 ; i < dataLength ; i++)
-        {
+        for (i = 0; i < dataLength ; i++) {
             fprintf(stream, "%c", data[i]);
         }
         fprintf(stream, "\n");
@@ -373,8 +347,7 @@ void output_data(FILE *stream,
     case LWM2M_CONTENT_LINK:
         fprintf(stream, "application/link-format:\r\n");
         print_indent(stream, indent);
-        for (i = 0 ; i < dataLength ; i++)
-        {
+        for (i = 0; i < dataLength ; i++) {
             fprintf(stream, "%c", data[i]);
         }
         fprintf(stream, "\n");
@@ -394,8 +367,7 @@ void dump_tlv(FILE *stream,
 {
     int i;
 
-    for(i = 0 ; i < size ; i++)
-    {
+    for (i = 0 ; i < size ; i++) {
         print_indent(stream, indent);
         fprintf(stream, "{\r\n");
         print_indent(stream, indent + 1);
@@ -403,8 +375,7 @@ void dump_tlv(FILE *stream,
 
         print_indent(stream, indent + 1);
         fprintf(stream, "type: ");
-        switch (dataP[i].type)
-        {
+        switch (dataP[i].type) {
         case LWM2M_TYPE_OBJECT:
             fprintf(stream, "LWM2M_TYPE_OBJECT\r\n");
             dump_tlv(stream, dataP[i].value.asChildren.count, dataP[i].value.asChildren.array, indent + 1);
@@ -462,8 +433,7 @@ void dump_tlv(FILE *stream,
 
 static const char *prv_status_to_string(int status)
 {
-    switch(status)
-    {
+    switch(status) {
         CODE_TO_STRING(COAP_NO_ERROR);
         CODE_TO_STRING(COAP_IGNORE);
         CODE_TO_STRING(COAP_201_CREATED);
@@ -500,20 +470,16 @@ void print_status(FILE *stream,
 
 static uint8_t prv_b64Revert(uint8_t value)
 {
-    if (value >= 'A' && value <= 'Z')
-    {
+    if ((value >= 'A') && (value <= 'Z')) {
         return (value - 'A');
     }
-    if (value >= 'a' && value <= 'z')
-    {
+    if ((value >= 'a') && (value <= 'z')) {
         return (26 + value - 'a');
     }
-    if (value >= '0' && value <= '9')
-    {
+    if ((value >= '0') && (value <= '9')) {
         return (52 + value - '0');
     }
-    switch (value)
-    {
+    switch (value) {
     case '+':
         return 62;
     case '/':
@@ -531,8 +497,7 @@ static void prv_decodeBlock(uint8_t input[4],
 
     memset(output, 0, 3);
 
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
         tmp[i] = prv_b64Revert(input[i]);
     }
 
@@ -549,33 +514,33 @@ size_t base64_decode(uint8_t *dataP,
     size_t result_index;
     size_t result_len;
 
-    if (dataLen % 4) return 0;
+    if (dataLen % 4) {
+        return 0;
+    }
 
     result_len = (dataLen >> 2) * 3;
     *bufferP = (uint8_t *)lwm2m_malloc(result_len);
-    if (NULL == *bufferP) return 0;
+    if (*bufferP == NULL) {
+        return 0;
+    }
     memset(*bufferP, 0, result_len);
 
     // remove padding
-    while (dataP[dataLen - 1] == PRV_B64_PADDING)
-    {
+    while (dataP[dataLen - 1] == PRV_B64_PADDING) {
         dataLen--;
     }
 
     data_index = 0;
     result_index = 0;
-    while (data_index < dataLen)
-    {
+    while (data_index < dataLen) {
         prv_decodeBlock(dataP + data_index, *bufferP + result_index);
         data_index += 4;
         result_index += 3;
     }
-    switch (data_index - dataLen)
-    {
+    switch (data_index - dataLen) {
     case 0:
         break;
-    case 2:
-    {
+    case 2: {
         uint8_t tmp[2];
 
         tmp[0] = prv_b64Revert(dataP[dataLen - 2]);
@@ -586,8 +551,7 @@ size_t base64_decode(uint8_t *dataP,
         result_len -= 2;
     }
     break;
-    case 3:
-    {
+    case 3: {
         uint8_t tmp[3];
 
         tmp[0] = prv_b64Revert(dataP[dataLen - 3]);

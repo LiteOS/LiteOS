@@ -19,14 +19,13 @@
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 #include "zlib.h"
 #ifdef STDC
 #  include <string.h>
 #  include <stdlib.h>
 #  include <limits.h>
 #endif
-
-#include <unistd.h>
 
 #ifndef _POSIX_SOURCE
 #  define _POSIX_SOURCE

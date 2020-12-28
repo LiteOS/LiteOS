@@ -51,10 +51,6 @@ const char *__strftime_fmt_1(char (*s)[100], size_t *l, int f, const struct tm *
 	long long val;
 	const char *fmt = "-";
 	int width = 2, def_pad = '0';
-#ifdef __LITEOS__
-	int force_lower_case = 0;
-	char *pt;
-#endif
 
 	switch (f) {
 	case 'a':
@@ -124,14 +120,9 @@ const char *__strftime_fmt_1(char (*s)[100], size_t *l, int f, const struct tm *
 	case 'n':
 		*l = 1;
 		return "\n";
-	case 'p':
 	case 'P':
+	case 'p':
 		item = tm->tm_hour >= 12 ? PM_STR : AM_STR;
-#ifdef __LITEOS__
-		if (f == 'P') {
-			force_lower_case = 1;
-		}
-#endif
 		goto nl_strcat;
 	case 'r':
 		item = T_FMT_AMPM;
@@ -220,18 +211,13 @@ number:
 	return *s;
 nl_strcat:
 	fmt = __nl_langinfo_l(item, loc);
-/* add %P output */
-#ifdef __LITEOS__
-	if (force_lower_case == 1) {
-		pt = (char *)fmt;
-		while (*pt != '\0') {
-			*pt = tolower(*pt);
-			pt++;
-		}
-	}
-#endif
 string:
 	*l = strlen(fmt);
+	if (f=='P') {
+		static char ampm[2][3] = {"am", "pm"};
+		if (!strncmp(fmt, "AM", 2)) return ampm[0];
+		else if (!strncmp(fmt, "PM", 2)) return ampm[1];
+	}
 	return fmt;
 nl_strftime:
 	fmt = __nl_langinfo_l(item, loc);

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright (c) Huawei Technologies Co., Ltd. 2013-2019. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
  * Description: Semaphore file
  * Author: Huawei LiteOS Team
  * Create: 2013-01-01
@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "semaphore.h"
 #include "limits.h"
@@ -40,7 +32,7 @@
 #include "errno.h"
 #include "map_error.h"
 #include "time_pri.h"
-#include "los_sys_pri.h"
+#include "los_sys.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -86,7 +78,6 @@ int sem_destroy(sem_t *sem)
     return 0;
 }
 
-/* Decrement value if >0 or wait for a post. */
 int sem_wait(sem_t *sem)
 {
     UINT32 ret;
@@ -104,7 +95,6 @@ int sem_wait(sem_t *sem)
     }
 }
 
-/* Decrement value if >0, return -1 if not. */
 int sem_trywait(sem_t *sem)
 {
     UINT32 ret;

@@ -25,17 +25,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_queue_debug_pri.h"
-#include "los_ipcdebug_pri.h"
+#include "los_misc_pri.h"
 #ifdef LOSCFG_SHELL
 #include "shcmd.h"
 #endif /* LOSCFG_SHELL */
@@ -47,14 +39,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef LOSCFG_DEBUG_QUEUE
-
 typedef struct {
     TSK_ENTRY_FUNC creator; /* The task entry who created this queue */
     UINT64  lastAccessTime; /* The last access time */
 } QueueDebugCB;
 STATIC QueueDebugCB *g_queueDebugArray = NULL;
 
-STATIC BOOL QueueCompareValue(const IpcSortParam *sortParam, UINT32 left, UINT32 right)
+STATIC BOOL QueueCompareValue(const SortParam *sortParam, UINT32 left, UINT32 right)
 {
     return (*((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, left)) >
             *((UINT64 *)(VOID *)SORT_ELEM_ADDR(sortParam, right)));
@@ -63,6 +54,7 @@ STATIC BOOL QueueCompareValue(const IpcSortParam *sortParam, UINT32 left, UINT32
 UINT32 OsQueueDbgInit(VOID)
 {
     UINT32 size = LOSCFG_BASE_IPC_QUEUE_LIMIT * sizeof(QueueDebugCB);
+
     /* system resident memory, don't free */
     g_queueDebugArray = (QueueDebugCB *)LOS_MemAlloc(m_aucSysMem1, size);
     if (g_queueDebugArray == NULL) {
@@ -109,15 +101,15 @@ STATIC VOID SortQueueIndexArray(UINT32 *indexArray, UINT32 count)
     LosQueueCB queueNode = {0};
     QueueDebugCB queueDebugNode = {0};
     UINT32 index, intSave;
-    IpcSortParam queueSortParam;
+    SortParam queueSortParam;
     queueSortParam.buf = (CHAR *)g_queueDebugArray;
-    queueSortParam.ipcDebugCBSize = sizeof(QueueDebugCB);
-    queueSortParam.ipcDebugCBCnt = LOSCFG_BASE_IPC_QUEUE_LIMIT;
+    queueSortParam.ctrlBlockSize = sizeof(QueueDebugCB);
+    queueSortParam.ctrlBlockCnt = LOSCFG_BASE_IPC_QUEUE_LIMIT;
     queueSortParam.sortElemOff = OFFSET_OF_FIELD(QueueDebugCB, lastAccessTime);
 
     if (count > 0) {
         SCHEDULER_LOCK(intSave);
-        OsArraySortByTime(indexArray, 0, count - 1, &queueSortParam, QueueCompareValue);
+        OsArraySort(indexArray, 0, count - 1, &queueSortParam, QueueCompareValue);
         SCHEDULER_UNLOCK(intSave);
         for (index = 0; index < count; index++) {
             SCHEDULER_LOCK(intSave);

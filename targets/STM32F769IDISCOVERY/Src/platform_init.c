@@ -35,17 +35,46 @@
 ******************************************************************************
 */
 
+/* ----------------------------------------------------------------------------
+ * Copyright (c) Huawei Technologies Co., Ltd. 2013-2020. All rights reserved.
+ * Description: platfrom init
+ * Author: Huawei LiteOS Team
+ * Create: 2013-01-01
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * --------------------------------------------------------------------------- */
+
 #include "platform_init.h"
 #include "cmsis_os.h"
+#include "timer.h"
 
 
 #define LTCD_LINE                   0
 
 
-UART_HandleTypeDef UART_Handle;
-static osSemaphoreId     vSyncEvent;
-static uint32_t             cptFlip;
-static uint32_t             gScreen[2];
+UART_HandleTypeDef huart1;
+static osSemaphoreId vSyncEvent;
+static uint32_t cptFlip;
+static uint32_t gScreen[2];
 
 
 
@@ -56,6 +85,16 @@ static uint32_t             gScreen[2];
 #else
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
+
+void _Error_Handler(char *file, int line)
+{
+    /* USER CODE BEGIN Error_Handler_Debug */
+    /* User can add his own implementation to report the HAL error return state */
+    while(1)
+    {
+    }
+    /* USER CODE END Error_Handler_Debug */
+}
 
 /**
 * @brief  System Clock Configuration
@@ -137,14 +176,14 @@ static void UART_Config(uint32_t baudrate)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
   /* Configure USART1 */
-  UART_Handle.Instance = USART1;
-  UART_Handle.Init.BaudRate = baudrate;
-  UART_Handle.Init.WordLength = UART_WORDLENGTH_8B;
-  UART_Handle.Init.StopBits = UART_STOPBITS_1;
-  UART_Handle.Init.Parity = UART_PARITY_NONE;
-  UART_Handle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  UART_Handle.Init.Mode = UART_MODE_TX_RX;
-  HAL_UART_Init(&UART_Handle);
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = baudrate;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  HAL_UART_Init(&huart1);
 }
 
 /**
@@ -443,6 +482,7 @@ void HardwareInit(void)
     SystemClock_Config();
 
     UART_Config(115200);
+    TimerInit();
 
     /* Initialize the SDRAM */
     BSP_SDRAM_Init();
@@ -459,19 +499,14 @@ PUTCHAR_PROTOTYPE
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&UART_Handle, (uint8_t *)&ch, 1, 0xFFFF);
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
 
   return ch;
 }
 
 void Stm32UartPuts(const char* str, uint32_t len)
 {
-    HAL_UART_Transmit(&UART_Handle, (uint8_t *)str, strlen(str), 0xffff);
+    HAL_UART_Transmit(&huart1, (uint8_t *)str, strlen(str), 0xffff);
     return;
 }
 
-int uart_write(const char *buf, int len, int timeout)
-{
-    HAL_UART_Transmit(&UART_Handle, (uint8_t *)buf, len, 0xffff);
-    return len;
-}

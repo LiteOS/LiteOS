@@ -9,6 +9,9 @@ extern "C" {
 #include <stdint.h>
 
 #define __NEED_wchar_t
+#ifdef __LITEOS__
+#define __NEED_ldouble_t
+#endif
 #include <bits/alltypes.h>
 
 typedef struct { intmax_t quot, rem; } imaxdiv_t;

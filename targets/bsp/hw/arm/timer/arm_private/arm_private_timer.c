@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "asm/platform.h"
 #include "los_hwi.h"
@@ -89,7 +81,7 @@ VOID OsTickEntry(VOID)
 
 VOID HalClockInit(VOID)
 {
-    UINT32 ret =  LOS_HwiCreate(PRVTIMER_INT_NUM, 0xa0, 0, OsTickEntry, NULL);
+    UINT32 ret =  LOS_HwiCreate(PRVTIMER_INT_NUM, OS_HWI_PRIO_LOWEST, 0, OsTickEntry, NULL);
     if (ret != LOS_OK) {
         PRINT_ERR("%s, %d create tick irq failed, ret:0x%x\n", __FUNCTION__, __LINE__, ret);
     }

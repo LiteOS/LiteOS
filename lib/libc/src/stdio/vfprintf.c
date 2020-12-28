@@ -102,7 +102,7 @@ static const unsigned char states[]['z'-'A'+1] = {
 union arg
 {
 	uintmax_t i;
-	long double f;
+	ldouble_t f;
 	void *p;
 };
 
@@ -126,7 +126,7 @@ static void pop_arg(union arg *arg, int type, va_list *ap)
 	break; case PDIFF:	arg->i = va_arg(*ap, ptrdiff_t);
 	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
 	break; case DBL:	arg->f = va_arg(*ap, double);
-	break; case LDBL:	arg->f = va_arg(*ap, long double);
+	break; case LDBL:	arg->f = va_arg(*ap, ldouble_t);
 	}
 }
 
@@ -141,7 +141,7 @@ static void pad(FILE *f, char c, int w, int l, int fl)
 	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
 	l = w - l;
 	memset(pad, c, (unsigned)l>sizeof pad ? sizeof pad : (unsigned)l);
-	for (; l >= (int)(sizeof pad); (int)(l -= sizeof pad))
+	for (; l >= (int)(sizeof pad); l -= (int)(sizeof pad))
 		out(f, pad, sizeof pad);
 	out(f, pad, l);
 }
@@ -174,10 +174,19 @@ static char *fmt_u(uintmax_t x, char *s)
  * depends on the float.h constants being right. If they are wrong, it
  * may overflow the stack. */
 #if LDBL_MANT_DIG == 53
-typedef char compiler_defines_long_double_incorrectly[9-(int)sizeof(long double)];
+#ifdef __LITEOS__
+/* sizeof(long double) is equal 16 in riscv */
+#if defined(LOSCFG_COMPILER_RISCV) || defined(LOSCFG_COMPILER_RISCV_UNKNOWN)
+typedef char compiler_defines_long_double_incorrectly[17-(int)sizeof(ldouble_t)];
+#else
+typedef char compiler_defines_long_double_incorrectly[9-(int)sizeof(ldouble_t)];
+#endif
+#else
+typedef char compiler_defines_long_double_incorrectly[9-(int)sizeof(ldouble_t)];
+#endif
 #endif
 
-static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t)
+static int fmt_fp(FILE *f, ldouble_t y, int w, int p, int fl, int t)
 {
 	uint32_t big[(LDBL_MANT_DIG+28)/29 + 1          // mantissa expansion
 		+ (LDBL_MAX_EXP+LDBL_MANT_DIG+28+8)/9]; // exponent expansion
@@ -207,11 +216,12 @@ static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t)
 		return MAX(w, 3+pl);
 	}
 
-	y = frexpl(y, &e2) * 2;
+	y = frexpl(y, &e2);
+	y *= 2;
 	if (y) e2--;
 
 	if ((t|32)=='a') {
-		long double round = 8.0;
+		ldouble_t round = 8.0;
 		int re;
 
 		if (t&32) prefix += 9;
@@ -318,8 +328,8 @@ static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t)
 		x = *d % i;
 		/* Are there any significant digits past j? */
 		if (x || d+1!=z) {
-			long double round = 2/LDBL_EPSILON;
-			long double small;
+			ldouble_t round = 2/LDBL_EPSILON;
+			ldouble_t small;
 			if ((*d/i & 1) || (i==1000000000 && d>a && (d[-1]&1)))
 				round += 2;
 			if (x<(uint32_t)(i/2)) small=0x0.8p0;

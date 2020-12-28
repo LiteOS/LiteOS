@@ -25,19 +25,11 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_memory.h"
 #include "shcmd.h"
-#ifdef LOSCFG_SHELL_EXCINFO
-#include "los_excinfo_pri.h"
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+#include "los_exc_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -47,8 +39,8 @@ extern "C" {
 
 INT32 OsShellCmdReadExcInfo(INT32 argc, const CHAR **argv)
 {
-    log_read_write_fn hook = NULL;
-    UINT32 recordSpace = GetRecordSpace();
+    LogReadWriteFunc hook = NULL;
+    UINT32 recordSpace = OsGetExcInfoLen();
 
     (VOID)argc;
     (VOID)argv;
@@ -59,9 +51,9 @@ INT32 OsShellCmdReadExcInfo(INT32 argc, const CHAR **argv)
     }
     (void)memset_s(buf, recordSpace + 1, 0, recordSpace + 1);
 
-    hook = GetExcInfoRW();
+    hook = OsGetExcInfoRW();
     if (hook != NULL) {
-        hook(GetRecordAddr(), recordSpace, 1, buf);
+        hook(OsGetExcInfoDumpAddr(), recordSpace, 1, buf);
     }
     PRINTK("%s\n", buf);
     (VOID)LOS_MemFree((void *)OS_SYS_MEM_ADDR, buf);

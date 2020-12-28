@@ -393,31 +393,6 @@ int   toascii(int);
 #define _toupper(a) ((a)&0x5f)
 #define isascii(a) (0 ? isascii(a) : (unsigned)(a) < 128)
 
-/* bionic compiler use, when replace musl compile version, these will delete. */
-#define _CTYPE_U 0x01
-#define _CTYPE_L 0x02
-#define _CTYPE_D 0x04
-#define _CTYPE_S 0x08
-#define _CTYPE_P 0x10
-#define _CTYPE_C 0x20
-#define _CTYPE_X 0x40
-#define _CTYPE_B 0x80
-#define _CTYPE_R (_CTYPE_P|_CTYPE_U|_CTYPE_L|_CTYPE_D|_CTYPE_B)
-#define _CTYPE_A (_CTYPE_L|_CTYPE_U)
-
-/* bionic compiler use, when replace musl compile version, these will delete. */
-#ifdef __LITEOS__
-#define _U _CTYPE_U
-#define _L _CTYPE_L
-#define _N _CTYPE_D
-#define _S _CTYPE_S
-#define _P _CTYPE_P
-#define _C _CTYPE_C
-#define _X _CTYPE_X
-#define _B _CTYPE_B
-#endif
-
-
 #endif
 
 #ifdef __cplusplus

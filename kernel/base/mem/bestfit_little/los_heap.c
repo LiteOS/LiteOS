@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 #include "los_memory_pri.h"
 #include "los_memory_internal.h"
@@ -54,6 +46,7 @@ extern "C" {
 #define HEAP_CAST(t, exp)   ((t)(exp))
 #define HEAP_ALIGN          4
 #define MALLOC_MAXSIZE      (0xFFFFFFFF - HEAP_ALIGN + 1)
+
 /*
  * Description : look up the next memory node according to one memory node in the memory block list.
  * Input       : struct LosHeapManager *heapMan --- Pointer to the manager,to distinguish heap
@@ -121,7 +114,7 @@ UINT32 OsHeapIntegrityCheck(struct LosHeapManager *heap)
     UINTPTR heapStart = (UINTPTR)heap;
     UINTPTR heapEnd = (UINTPTR)node + heap->size;
 
-    while (node) {
+    while (node != NULL) {
         if ((UINTPTR)node < heapStart || (UINTPTR)node > heapEnd) {
             LOS_Panic("node %p has been corrupted.\n", node);
             return LOS_NOK;
@@ -297,7 +290,7 @@ VOID* OsHeapAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
 
         gapSize = (UINTPTR)alignedPtr - (UINTPTR)ptr;
         OS_MEM_SET_ALIGN_FLAG(gapSize);
-        *((UINT32 *)((UINTPTR)alignedPtr - (sizeof(UINTPTR) / sizeof(UINT8)))) = gapSize;
+        *((UINT32 *)((UINTPTR)alignedPtr - sizeof(UINTPTR))) = gapSize;
 
         ptr = alignedPtr;
     }
@@ -313,7 +306,7 @@ STATIC VOID OsHeapDoFree(struct LosHeapManager *heapMan, struct LosHeapNode *cur
     node->used = 0;
 
     /* unused region before and after combination */
-    while (node->prev && !node->prev->used) {
+    while ((node->prev) && (!node->prev->used)) {
         node = node->prev;
     }
 
@@ -323,7 +316,7 @@ STATIC VOID OsHeapDoFree(struct LosHeapManager *heapMan, struct LosHeapNode *cur
             next->prev = node;
             break;
         }
-        node->size += sizeof(struct LosHeapNode) + next->size;
+        node->size += (sizeof(struct LosHeapNode) + next->size);
         if (heapMan->tail == next) {
             heapMan->tail = node;
         }
@@ -350,7 +343,7 @@ BOOL OsHeapFree(VOID *pool, VOID *ptr)
     }
 
     /* find the real ptr through gap size */
-    gapSize = *((UINT32 *)((UINTPTR)ptr - (sizeof(UINTPTR) / sizeof(UINT8))));
+    gapSize = *((UINT32 *)((UINTPTR)ptr - sizeof(UINTPTR)));
     if (OS_MEM_GET_ALIGN_FLAG(gapSize)) {
         gapSize = OS_MEM_GET_ALIGN_GAPSIZE(gapSize);
         ptr = (VOID *)((UINTPTR)ptr - gapSize);

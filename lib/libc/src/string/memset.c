@@ -1,10 +1,36 @@
 #include <string.h>
 #include <stdint.h>
+#if defined(__LITEOS__) && defined(LOSCFG_BASE_MEM_NODE_SIZE_CHECK)
+#include "los_memory.h"
+static int __memset_check(void *dest, unsigned int nodeLength)
+{
+	unsigned int ret;
+	unsigned int totalSize = 0;
+	unsigned int availSize = 0;
+	unsigned char *pool = m_aucSysMem1;
+
+	ret = LOS_MemNodeSizeCheck(pool, dest, &totalSize, &availSize);
+	if ((ret == 0) && (nodeLength > availSize)) {
+		return -1;
+	}
+
+	return 0;
+}
+#endif
 
 void *memset(void *dest, int c, size_t n)
 {
 	unsigned char *s = dest;
 	size_t k;
+
+#if defined(__LITEOS__) && defined(LOSCFG_BASE_MEM_NODE_SIZE_CHECK)
+	int ret;
+
+	ret = __memset_check(dest, n);
+	if (ret != 0) {
+		return 0;
+	}
+#endif
 
 	/* Fill head and tail with minimal branching. Each
 	 * conditional ensures that all the subsequently used

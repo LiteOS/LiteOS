@@ -25,14 +25,6 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * --------------------------------------------------------------------------- */
-/* ----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- * --------------------------------------------------------------------------- */
 
 /**
  * @defgroup los_slab Slab
@@ -67,27 +59,24 @@ enum SlabBucketSizeType {
 
 /**
  * @ingroup los_slab
- * @brief config slab size.
+ * @brief configure slab size.
  *
  * @par Description:
- * <ul>
- * <li>This API is used to config slab size.</li>
- * </ul>
+ * This API is used to configure slab size.
  * @attention
  * <ul>
- * <li>The function should be called before function LOS_MemoryInit if necessary.</li>
+ * <li>The function should be called before function LOS_MemInit if necessary.</li>
  * <li>The function takes effect when LOSCFG_KERNEL_MEM_SLAB_AUTO_EXPANSION_MODE is NO.</li>
  * </ul>
  *
- * @param cfg     [IN] slab size config table.
- * @param cnt     [IN] slab class size, must be equal to SLAB_MEM_COUNT.
+ * @param cfg     [IN] the pointer to slab size config table. Note that the pointer cannot be null.
+ * @param cnt     [IN] slab class size, must be equal to SLAB_MEM_COUNT(the number of slab class).
  *
- * @retval VOID
+ * @retval None.
  * @par Dependency:
  * <ul>
  * <li>los_slab.h: the header file that contains the API declaration.</li>
  * </ul>
- * @see None.
  * @since Huawei LiteOS V200R003C00
  */
 extern VOID LOS_SlabSizeCfg(UINT32 *cfg, UINT32 cnt);
