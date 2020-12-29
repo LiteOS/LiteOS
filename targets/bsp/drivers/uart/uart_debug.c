@@ -96,7 +96,13 @@ INT32 uart_write(const CHAR *buf, INT32 len, INT32 timeout)
 
 VOID UartPuts(const CHAR *s, UINT32 len, BOOL isLock)
 {
-    uart_write(s, len, 0);
+    UINT32 i;
+    for (i = 0; i < len; i++) {
+        if (*(s + i) == '\n') {
+            uart_putc('\r');
+        }
+        uart_putc(*(s + i));
+    }
 }
 
 VOID uart_init(VOID) {}

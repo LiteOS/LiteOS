@@ -24,9 +24,23 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 
 ## LiteOS 开发指南
 
-- [LiteOS开发指南](./doc/Huawei_LiteOS_Developer_Guide_zh.md)
+- [LiteOS开发指南](./doc/Huawei_LiteOS_Kernel_Developer_Guide_zh.md)
 
-该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以提供阅读该文档学习各模块的使用。
+该文档详细讲解了LiteOS各模块开发及其实现原理。用户可以通过阅读该文档学习各模块的使用。
+
+
+## LiteOS 编译介绍和开发工具
+
+- [LiteOS编译介绍和开发工具](./doc/LiteOS_Build_and_IDE.md)
+
+该文档介绍了LiteOS的编译框架，以及如何在Linux和Windows下编译LiteOS。
+
+
+## LiteOS 维测指南
+
+- [LiteOS维测指南](./doc/LiteOS_Maintenance_Guide.md)
+
+该文档详细介绍了LiteOS具备的维测能力，包括内存调测方法、IPC通信调测方法、Trace、调度统计、获取CPU占用率等。
 
 
 ## LiteOS Demos
@@ -39,6 +53,13 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 - [Shell使用教程](./shell/README_CN.md)
 
 该文档详细讲解了在LiteOS如何定制用户自定义Shell命令，以及如何执行内置的Shell命令。
+
+
+## LiteOS 标准库
+
+- [LiteOS标准库](./doc/LiteOS_Standard_Library.md)
+
+该文档列出了LiteOS支持的POSIX、CMSIS等接口。
 
 
 ## LiteOS 支持的硬件
@@ -72,4 +93,3 @@ Huawei LiteOS自开源社区发布以来，围绕NB-IoT物联网市场从技术�
 ## 加入我们
 * 欢迎提交issue对关心的问题发起讨论，欢迎提交PR参与特性建设
 * 如您有合作意向，希望加入Huawei LiteOS生态合作伙伴，请发邮件至liteos@huawei.com，或访问<a href="http://www.huawei.com/liteos" target="_blank">LiteOS官网</a>，进一步了解详细信息
-

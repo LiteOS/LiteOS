@@ -39,16 +39,6 @@ config LOSCFG_COMPILER_HCC_64
     depends on LOSCFG_ARCH_ARM_AARCH64
     select LOSCFG_COMPILER_GCC
 
-config LOSCFG_COMPILER_RISCV
-    bool "riscv32-linux-musl"
-    depends on LOSCFG_PLATFORM_HI3519AV200
-    select LOSCFG_COMPILER_GCC
-
-config LOSCFG_COMPILER_RISCV_UNKNOWN
-    bool "riscv32-unknown-elf"
-    depends on LOSCFG_PLATFORM_HI3862_SE
-    select LOSCFG_COMPILER_GCC
-
 config LOSCFG_COMPILER_XTENSA_32
     bool "xtensa-RH-2018.7-linux"
     depends on LOSCFG_ARCH_XTENSA

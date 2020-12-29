@@ -257,6 +257,8 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
                g_taskCpupAll[taskCB->taskId].uwUsage / LOS_CPUP_PRECISION_MULT,
                g_taskCpupAll[taskCB->taskId].uwUsage % LOS_CPUP_PRECISION_MULT,
                g_taskCpup10s[taskCB->taskId].uwUsage / LOS_CPUP_PRECISION_MULT,
+               g_taskCpup10s[taskCB->taskId].uwUsage % LOS_CPUP_PRECISION_MULT,
+               g_taskCpup1s[taskCB->taskId].uwUsage / LOS_CPUP_PRECISION_MULT,
                g_taskCpup1s[taskCB->taskId].uwUsage % LOS_CPUP_PRECISION_MULT);
 #endif /* LOSCFG_KERNEL_CPUP */
 #ifdef LOSCFG_MEM_TASK_STAT
