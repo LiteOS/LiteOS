@@ -43,10 +43,7 @@ void MX_TIM3_Init(void)
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK) {
         Error_Handler();
     }
-    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_ETRMODE2;
-    sClockSourceConfig.ClockPolarity = TIM_CLOCKPOLARITY_NONINVERTED;
-    sClockSourceConfig.ClockPrescaler = TIM_CLOCKPRESCALER_DIV1;
-    sClockSourceConfig.ClockFilter = 0;
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
     if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK) {
         Error_Handler();
     }
@@ -59,25 +56,12 @@ void MX_TIM3_Init(void)
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *tim_baseHandle)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (tim_baseHandle->Instance == TIM3) {
         /* USER CODE BEGIN TIM3_MspInit 0 */
 
         /* USER CODE END TIM3_MspInit 0 */
         /* TIM3 clock enable */
         __HAL_RCC_TIM3_CLK_ENABLE();
-
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-        /* *TIM3 GPIO Configuration
-        PD2     ------> TIM3_ETR
-        */
-        GPIO_InitStruct.Pin = GPIO_PIN_2;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
-        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
         /* USER CODE BEGIN TIM3_MspInit 1 */
 
         /* USER CODE END TIM3_MspInit 1 */
@@ -92,12 +76,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *tim_baseHandle)
         /* USER CODE END TIM3_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM3_CLK_DISABLE();
-
-        /* *TIM3 GPIO Configuration
-        PD2     ------> TIM3_ETR
-        */
-        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
-
         /* USER CODE BEGIN TIM3_MspDeInit 1 */
 
         /* USER CODE END TIM3_MspDeInit 1 */
@@ -128,8 +106,8 @@ UINT64 Timer3Getcycle(VOID)
 
     if (swCycles <= bacCycle) {
         cycleTimes++;
-        bacCycle = swCycles;
     }
+    bacCycle = swCycles;
     return swCycles + cycleTimes * TIMER3_RELOAD;
 }
 
@@ -145,7 +123,9 @@ VOID StmTimerHwiCreate(VOID)
     ret = LOS_HwiCreate(TIM_IRQ, 0, 0, TIM3_IRQHandler, 0); // 16: cortex-m irq num shift
     if (ret != 0) {
         printf("ret of TIM3 LOS_HwiCreate = %#x\n", ret);
+        return;
     }
+    HAL_TIM_Base_Start_IT(&htim3);
 }
 
 UINT64 StmGetTimerCycles(Timer_t num)

@@ -113,8 +113,8 @@ UINT64 Timer3Getcycle(VOID)
 
     if (swCycles <= bacCycle) {
         cycleTimes++;
-        bacCycle = swCycles;
     }
+    bacCycle = swCycles;
     return swCycles + cycleTimes * TIMER3_RELOAD;
 }
 
@@ -130,7 +130,9 @@ VOID StmTimerHwiCreate(VOID)
     ret = LOS_HwiCreate(TIM_IRQ, 0, 0, TIM3_IRQHandler, 0); // 16: cortex-m irq num shift
     if (ret != 0) {
         printf("ret of TIM3 LOS_HwiCreate = %#x\n", ret);
+        return;
     }
+    HAL_TIM_Base_Start_IT(&htim3);
 }
 
 UINT64 StmGetTimerCycles(Timer_t num)

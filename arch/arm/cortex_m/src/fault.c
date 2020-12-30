@@ -298,12 +298,12 @@ VOID BackTraceSub(UINTPTR sp)
     }
 
     while ((stackPointer < stackBottom) && (count < OS_MAX_BACKTRACE)) {
-        if (((*(UINT32 *)stackPointer) >= (UINT32)(text_start)) &&
-            ((*(UINT32 *)stackPointer) <= (UINT32)(text_end)) &&
-            (IS_ALIGNED(*((UINT32 *)stackPointer - 1), THUM_OFFSET))) {
+        if ((*(UINT32 *)stackPointer >= (UINT32)text_start) &&
+            (*(UINT32 *)stackPointer <= (UINT32)text_end) &&
+            IS_ALIGNED(*(UINT32 *)stackPointer - 1, THUM_OFFSET)) {
 
             /* Get the entry address of current function. */
-            UINTPTR checkBL = CalculateTargetAddress (*(UINT32 *)stackPointer - 1);
+            UINTPTR checkBL = CalculateTargetAddress(*(UINT32 *)stackPointer - 1);
             if ((checkBL == 0) || (checkBL == tmpJump)) {
                 stackPointer += STACK_OFFSET;
                 continue;
