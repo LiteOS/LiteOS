@@ -45,7 +45,7 @@
 #define ERR (-1)
 #endif
 
-static uint64_t osKernelGetTickCount (void)
+static uint64_t osKernelGetTickCount(void)
 {
     uint64_t ticks;
     UINTPTR uvIntSave;
