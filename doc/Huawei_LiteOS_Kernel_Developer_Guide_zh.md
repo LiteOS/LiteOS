@@ -3793,7 +3793,7 @@ Huawei LiteOS 的事件模块为用户提供下面几种功能，接口详细信
 </tr>
 <tr id="row1787264972819"><td class="cellrowborder" valign="top" width="5.45%" headers="mcps1.1.6.1.1 "><p id="p11872249152818"><a name="p11872249152818"></a><a name="p11872249152818"></a>9</p>
 </td>
-<td class="cellrowborder" valign="top" width="21.990000000000002%" headers="mcps1.1.6.1.2 "><p id="p15873849132813"><a name="p15873849132813"></a><a name="p15873849132813"></a>LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY</p>
+<td class="cellrowborder" valign="top" width="21.990000000000002%" headers="mcps1.1.6.1.2 "><p id="p15873849132813"><a name="p15873849132813"></a><a name="p15873849132813"></a>LOS_ERRNO_EVENT_SHOULD_NOT_DESTROY</p>
 </td>
 <td class="cellrowborder" valign="top" width="12.879999999999999%" headers="mcps1.1.6.1.3 "><p id="p1387374910289"><a name="p1387374910289"></a><a name="p1387374910289"></a>0x02001c08</p>
 </td>

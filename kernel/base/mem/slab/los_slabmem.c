@@ -174,7 +174,7 @@ static BOOL OsSlabMemFreeStrollBuckets(VOID *pool, OsSlabBlockNode *slabNode,
                 (OsSlabAllocatorEmpty(slabAlloc) == TRUE)) {
                 OsSlabMemAllocator *alloc = *bucket;
                 (*bucket) = (*bucket)->next; /* delete node in list */
-                OsSlabAllocatorDestroy(pool, alloc->slabAlloc); /* destory slabAllocator */
+                OsSlabAllocatorDestroy(pool, alloc->slabAlloc); /* destroy slabAllocator */
                 (VOID)OsSlabAllocatorFree(slabMem->allocatorBucket, alloc);
 
                 slabMemClass->allocatorCnt--;
