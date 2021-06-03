@@ -156,7 +156,7 @@ extern "C" {
  *
  * Solution: Check whether the event list is not empty.
  */
-#define LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x08)
+#define LOS_ERRNO_EVENT_SHOULD_NOT_DESTROY  LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x08)
 
 /**
  * @ingroup los_event
@@ -314,17 +314,17 @@ extern UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events);
 
 /**
  * @ingroup los_event
- * @brief Destroy a event.
+ * @brief Destroy an event.
  *
  * @par Description:
- * This API is used to destroy a event.
+ * This API is used to destroy an event.
  * @attention
  * The specific event should be a valid one.
  *
  * @param eventCB     [IN/OUT] Pointer to the event control block to be destroyed.
  *
  * @retval #LOS_ERRNO_EVENT_PTR_NULL           Null pointer.
- * @retval #LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY The event should not be distoryed because
+ * @retval #LOS_ERRNO_EVENT_SHOULD_NOT_DESTROY The event should not be distoryed because
  *                                             the event list is not empty.
  * @retval #LOS_OK                             The event is successfully cleared.
  * @par Dependency:
