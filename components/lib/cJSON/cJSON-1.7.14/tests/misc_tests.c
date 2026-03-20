@@ -615,6 +615,70 @@ static void cjson_delete_item_from_array_should_not_broken_list_structure(void)
     cJSON_Delete(root);
 }
 
+static void cjson_insert_item_in_array_should_not_crash_with_null_newitem(void)
+{
+    cJSON *array = NULL;
+    cJSON *item0 = NULL;
+    cJSON *item1 = NULL;
+    cJSON *item2 = NULL;
+    cJSON *new_item = NULL;
+    cJSON_bool result = false;
+
+    /* Build an array with 3 number elements: [10, 20, 30] */
+    array = cJSON_CreateArray();
+    TEST_ASSERT_NOT_NULL_MESSAGE(array, "Failed to create array");
+
+    item0 = cJSON_CreateNumber(10);
+    item1 = cJSON_CreateNumber(20);
+    item2 = cJSON_CreateNumber(30);
+    TEST_ASSERT_NOT_NULL(item0);
+    TEST_ASSERT_NOT_NULL(item1);
+    TEST_ASSERT_NOT_NULL(item2);
+
+    cJSON_AddItemToArray(array, item0);
+    cJSON_AddItemToArray(array, item1);
+    cJSON_AddItemToArray(array, item2);
+
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, cJSON_GetArraySize(array), "Array should have 3 elements before test");
+
+    /* AC1: Insert NULL at a valid middle index (index 1) — exercises the buggy path.
+     * With the bug unfixed this dereferences NULL and crashes/corrupts memory.
+     * After the fix this must return false without crashing. */
+    result = cJSON_InsertItemInArray(array, 1, NULL);
+    TEST_ASSERT_FALSE_MESSAGE(result, "InsertItemInArray with NULL newitem at valid index should return false");
+
+    /* AC2: Array must be unchanged after the failed NULL insert */
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, cJSON_GetArraySize(array), "Array size must be unchanged after NULL insert");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(10, cJSON_GetArrayItem(array, 0)->valuedouble, "Element 0 must still be 10");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(20, cJSON_GetArrayItem(array, 1)->valuedouble, "Element 1 must still be 20");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(30, cJSON_GetArrayItem(array, 2)->valuedouble, "Element 2 must still be 30");
+
+    /* AC3: Insert NULL at index 0 (beginning of non-empty array) — also exercises Path 2 */
+    result = cJSON_InsertItemInArray(array, 0, NULL);
+    TEST_ASSERT_FALSE_MESSAGE(result, "InsertItemInArray with NULL newitem at index 0 should return false");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, cJSON_GetArraySize(array), "Array size must be unchanged after NULL insert at index 0");
+
+    /* AC4: Insert NULL beyond the end of the array — exercises the add_item_to_array
+     * delegation path (Path 1), which already handles NULL via its own guard.
+     * The call should return false (add_item_to_array returns false for NULL item). */
+    result = cJSON_InsertItemInArray(array, 99, NULL);
+    TEST_ASSERT_FALSE_MESSAGE(result, "InsertItemInArray with NULL newitem beyond array end should return false");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(3, cJSON_GetArraySize(array), "Array size must be unchanged after out-of-bounds NULL insert");
+
+    /* AC6: Normal insert (non-NULL newitem) still works correctly */
+    new_item = cJSON_CreateNumber(99);
+    TEST_ASSERT_NOT_NULL(new_item);
+    result = cJSON_InsertItemInArray(array, 1, new_item);
+    TEST_ASSERT_TRUE_MESSAGE(result, "InsertItemInArray with valid newitem should return true");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(4, cJSON_GetArraySize(array), "Array should have 4 elements after valid insert");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(10, cJSON_GetArrayItem(array, 0)->valuedouble, "Element 0 should still be 10");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(99, cJSON_GetArrayItem(array, 1)->valuedouble, "Newly inserted element at index 1 should be 99");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(20, cJSON_GetArrayItem(array, 2)->valuedouble, "Old element 1 shifted to index 2 should be 20");
+    TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(30, cJSON_GetArrayItem(array, 3)->valuedouble, "Old element 2 shifted to index 3 should be 30");
+
+    cJSON_Delete(array);
+}
+
 static void cjson_set_valuestring_to_object_should_not_leak_memory(void)
 {
     cJSON *root = cJSON_Parse("{}");
@@ -679,6 +743,7 @@ int CJSON_CDECL main(void)
     RUN_TEST(cjson_add_item_to_object_should_not_use_after_free_when_string_is_aliased);
     RUN_TEST(cjson_delete_item_from_array_should_not_broken_list_structure);
     RUN_TEST(cjson_set_valuestring_to_object_should_not_leak_memory);
+    RUN_TEST(cjson_insert_item_in_array_should_not_crash_with_null_newitem);
 
     return UNITY_END();
 }
